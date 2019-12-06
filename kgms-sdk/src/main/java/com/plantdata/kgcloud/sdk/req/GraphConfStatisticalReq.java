@@ -1,5 +1,6 @@
-package com.plantdata.kgcloud.domain.graph.config.req;
+package com.plantdata.kgcloud.sdk.req;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,5 +16,5 @@ public class GraphConfStatisticalReq {
     private String statisType;
 
     @ApiModelProperty(value = "统计规则")
-    private String statisRule;
+    private JsonNode statisRule;
 }
