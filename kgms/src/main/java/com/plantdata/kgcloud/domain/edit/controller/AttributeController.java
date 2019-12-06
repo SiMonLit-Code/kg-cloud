@@ -2,6 +2,8 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
+import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -174,5 +176,12 @@ public class AttributeController {
                                     List<String> tripleIds) {
         attributeService.attrConstraintsDelete(kgName, attrId, tripleIds);
         return ApiReturn.success();
+    }
+
+    @ApiOperation("根据属性获得三元组")
+    @PostMapping("/{kgName}/triple")
+    ApiReturn<List<TripleRsp>> attrConstraintsDelete(@PathVariable("kgName") String kgName,
+                                                     @Valid @RequestBody TripleReq tripleReq) {
+        return ApiReturn.success(attributeService.getRelationByAttr(kgName, tripleReq));
     }
 }

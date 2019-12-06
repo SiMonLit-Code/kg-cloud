@@ -16,7 +16,9 @@ import ai.plantdata.kg.api.edit.resp.AttributeDefinitionVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.pub.RelationApi;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
+import ai.plantdata.kg.api.pub.req.TripleFrom;
 import ai.plantdata.kg.api.pub.resp.RelationVO;
+import ai.plantdata.kg.api.pub.resp.TripleVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.ExtraInfo;
 import cn.hiboot.mcn.core.model.result.RestResp;
@@ -27,6 +29,8 @@ import com.plantdata.kgcloud.constant.MongoOperation;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
+import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -298,5 +302,12 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public void attrConstraintsDelete(String kgName, Integer attrId, List<String> tripleIds) {
         RestRespConverter.convertVoid(graphApi.constraintsDelete(kgName, attrId, tripleIds));
+    }
+
+    @Override
+    public List<TripleRsp> getRelationByAttr(String kgName, TripleReq tripleReq) {
+        TripleFrom tripleFrom = ConvertUtils.convert(TripleFrom.class).apply(tripleReq);
+        Optional<List<TripleVO>> optional = RestRespConverter.convert(relationApi.aggRelation(kgName, tripleFrom));
+        return optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(TripleRsp.class)).collect(Collectors.toList());
     }
 }
