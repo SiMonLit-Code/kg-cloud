@@ -244,7 +244,12 @@ public class ConvertUtil {
                             }
                         }
                     }
-                    styleName = styleName.split(" ")[1];
+
+
+                    if(styleName.contains(" ") && styleName.split(" ").length > 1){
+                        styleName = styleName.split(" ")[1];
+                    }
+
                     try {
                         Integer level = Integer.parseInt(styleName);
                         TitleLevel titleLevel = new TitleLevel(p.text().trim().replaceAll("\\r","").replaceAll("\\n",""),level);
