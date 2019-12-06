@@ -6,7 +6,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author cjw

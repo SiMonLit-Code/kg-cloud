@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.BaseReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -16,7 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("高级实体搜索参数")
-public class SeniorPromptReq extends BaseReq {
+public class SeniorPromptReq extends BaseReq implements PromptSearchInterface {
 
     @ApiModelProperty("概念id")
     private Long conceptId;
@@ -30,4 +31,14 @@ public class SeniorPromptReq extends BaseReq {
      * ?一直是开启的
      */
     private Boolean openExportDate = true;
+
+    @Override
+    public List<Long> getConceptIds() {
+        return Lists.newArrayList(conceptId);
+    }
+
+    @Override
+    public Boolean getInherit() {
+        return true;
+    }
 }

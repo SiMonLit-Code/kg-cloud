@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
+import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.GisApi;
 import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.req.GisLocusParam;
@@ -9,6 +10,7 @@ import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.domain.app.converter.GisConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
+import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
@@ -44,6 +46,8 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     private GraphHelperService graphHelperService;
     @Autowired
     private RuleReasoningService ruleReasoningService;
+    @Autowired
+    private ai.plantdata.kg.api.edit.GraphApi editGraphApi;
 
     @Override
     public CommonBasicGraphExploreRsp exploreByKgQl(String kgName, ExploreByKgQlReq kgQlReq) {
@@ -51,7 +55,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
         if (!graphOpt.isPresent()) {
             return CommonBasicGraphExploreRsp.EMPTY;
         }
-        return graphHelperService.buildExploreRspWithConcept(kgName, graphOpt.get());
+        return this.buildExploreRspWithConcept(kgName, graphOpt.get());
     }
 
     @Override
@@ -70,19 +74,19 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
 
     @Override
     public CommonBasicGraphExploreRsp commonGraphExploration(String kgName, CommonExploreReq exploreReq) {
-        exploreReq = graphHelperService.dealGraphReq(exploreReq);
+        exploreReq = graphHelperService.dealGraphReq(kgName, exploreReq);
         return queryAndRebuildRsp(kgName, GraphReqConverter.commonReqProxy(exploreReq));
     }
 
     @Override
     public CommonBasicGraphExploreRsp timeGraphExploration(String kgName, CommonTimingExploreReq exploreReq) {
-        exploreReq = graphHelperService.dealGraphReq(exploreReq);
+        exploreReq = graphHelperService.dealGraphReq(kgName, exploreReq);
         return queryAndRebuildRsp(kgName, GraphReqConverter.commonReqProxy(exploreReq));
     }
 
     @Override
     public CommonBasicGraphExploreRsp reasoningGraphExploration(String kgName, CommonReasoningExploreReq exploreReq) {
-        exploreReq = graphHelperService.dealGraphReq(exploreReq);
+        exploreReq = graphHelperService.dealGraphReq(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(kgName, graphFrom));
         if (!graphOpt.isPresent()) {
@@ -91,7 +95,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
         //推理
         GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), exploreReq);
 
-        return graphHelperService.buildExploreRspWithConcept(kgName, graphVO);
+        return this.buildExploreRspWithConcept(kgName, graphVO);
     }
 
 
@@ -100,7 +104,14 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
         if (!graphOpt.isPresent()) {
             return CommonBasicGraphExploreRsp.EMPTY;
         }
-        return graphHelperService.buildExploreRspWithConcept(kgName, graphOpt.get());
+        return this.buildExploreRspWithConcept(kgName, graphOpt.get());
     }
 
+    private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphVO graph) {
+        //填充概念 此处是消耗时间的一个点 可优化 底层提供查询自己及父概念的接口
+        Optional<SchemaVO> schemaOpt = RestRespConverter.convert(editGraphApi.schema(kgName));
+
+        return schemaOpt.map(schemaVO -> GraphRspConverter.graphVoToCommonRsp(graph, schemaVO.getConcepts()))
+                .orElse(CommonBasicGraphExploreRsp.EMPTY);
+    }
 }

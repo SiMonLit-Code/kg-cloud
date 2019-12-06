@@ -2,12 +2,10 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.SemanticSegFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
-import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.domain.app.dto.SegmentEntityDTO;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

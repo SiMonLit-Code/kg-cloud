@@ -27,8 +27,10 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     CONF_KGQL_NOT_EXISTS(120602, "图谱业务不存在"),
     CONF_QA_NOT_EXISTS(120603, "图谱问答不存在"),
     CONF_STATISTICAL_NOT_EXISTS(120604, "图谱统计不存在"),
+    ES_CONFIG_NOT_FOUND(120605, "未找到es配置"),
 
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
+
     WORD_NOT_EXISTS(120302, "词条不存在"),
 
     GRAPH_NOT_EXISTS(120401, "图谱不存在"),
@@ -49,6 +51,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     ATTR_TEMPLATE_NOT_EXISTS(120508, "属性模板不存在"),
     ;
+
     private final int errorCode;
 
     private final String message;

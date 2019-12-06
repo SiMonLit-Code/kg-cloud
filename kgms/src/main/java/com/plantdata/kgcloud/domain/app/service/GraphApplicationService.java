@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plantdata.kgcloud.sdk.constant.GraphInitEnum;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
@@ -53,7 +54,7 @@ public interface GraphApplicationService {
      * @param graphInitType 图谱初始化类型
      * @return obj
      */
-    GraphInitRsp initGraphExploration(String kgName, GraphInitEnum graphInitType);
+    GraphInitRsp initGraphExploration(String kgName, GraphInitEnum graphInitType) throws JsonProcessingException;
 
     /**
      * conceptId  conceptKey不能同时为null
@@ -68,9 +69,9 @@ public interface GraphApplicationService {
     /**
      * 知识卡片
      *
-     * @param kgName   图谱名称
-     * @param req      参数
+     * @param kgName 图谱名称
+     * @param req    参数
      * @return obj
      */
-    List<InfoBoxRsp> infoBox(String kgName,  InfoBoxReq req);
+    List<InfoBoxRsp> infoBox(String kgName, InfoBoxReq req);
 }

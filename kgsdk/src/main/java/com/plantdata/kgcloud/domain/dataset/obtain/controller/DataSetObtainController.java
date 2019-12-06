@@ -1,22 +1,8 @@
 package com.plantdata.kgcloud.domain.dataset.obtain.controller;
 
 import com.plantdata.kgcloud.domain.common.module.DataSetDataObtainInterface;
-import com.plantdata.kgcloud.domain.dataset.obtain.service.DataSetObtainService;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.BaseTableReq;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.InterfaceUploadReq;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.ReadTableReq;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.SearchTableReq;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-import javax.validation.Valid;
-import java.util.Map;
 
 /**
  * @author cjw

@@ -1,12 +1,8 @@
 package com.plantdata.kgcloud.domain.dataset.statistic.controller;
 
-import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
 import com.plantdata.kgcloud.domain.common.module.DataSetStatisticInterface;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-import javax.validation.Valid;
 
 /**
  * @author cjw 2019-11-04 14:49:07
