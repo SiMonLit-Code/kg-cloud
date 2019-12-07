@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.GraphCommonReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.ReasoningReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -21,7 +22,7 @@ import java.util.Map;
 @ApiModel("普通图探索参数")
 @Getter
 @Setter
-public class CommonReasoningExploreReq extends BasicGraphExploreReq implements ReasoningReqInterface {
+public class CommonReasoningExploreReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphCommonReqInterface {
 
     @ApiModelProperty("通用参数")
     private CommonFiltersReq common;
@@ -41,5 +42,10 @@ public class CommonReasoningExploreReq extends BasicGraphExploreReq implements R
     @Override
     public Map<Integer, JsonNode> fetchReasonConfig() {
         return reasoningRuleConfigs;
+    }
+
+    @Override
+    public CommonFiltersReq fetchCommon() {
+        return common;
     }
 }

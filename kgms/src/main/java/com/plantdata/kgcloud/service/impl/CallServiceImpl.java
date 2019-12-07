@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.service.impl;
 
-import com.plantdata.kgcloud.domain.audit.ApiAuditRepository;
+import com.plantdata.kgcloud.domain.audit.repository.ApiAuditRepository;
 import com.plantdata.kgcloud.service.CallService;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import lombok.extern.slf4j.Slf4j;

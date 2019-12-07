@@ -1,22 +1,15 @@
 package com.plantdata.kgcloud.domain.data.obtain.controller;
 
-import ai.plantdata.kg.api.edit.BatchApi;
-import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
-import ai.plantdata.kg.api.edit.resp.BatchResult;
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.common.converter.RestRespConverter;
+import com.plantdata.kgcloud.sdk.EditClient;
+import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * @author cjw
@@ -28,15 +21,13 @@ import java.util.Optional;
 public class RelationController {
 
     @Autowired
-    private BatchApi batchApi;
+    private EditClient editClient;
 
     @ApiOperation("批量关系新增")
     @PostMapping("relation/insert/{kgName}")
-    public ApiReturn<BatchRelationVO> importRelation(@PathVariable String kgName,
-                                                     @RequestBody BatchRelationVO relation) {
-        Optional<BatchResult<BatchRelationVO>> relationOpt = RestRespConverter.convert(batchApi.addRelations(kgName, Lists.newArrayList(relation)));
-        List<BatchRelationVO> success = relationOpt.orElse(new BatchResult<>()).getSuccess();
-        return ApiReturn.success(CollectionUtils.isEmpty(success) ? new BatchRelationVO() : success.get(0));
+    public ApiReturn<BatchRelationRsp> importRelation(@PathVariable String kgName,
+                                                      @RequestBody BatchRelationRsp relation) {
+
+        return editClient.importRelation(kgName, relation);
     }
-    ///todo
 }

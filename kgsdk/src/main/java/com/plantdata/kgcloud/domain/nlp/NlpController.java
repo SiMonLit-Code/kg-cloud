@@ -1,19 +1,17 @@
 package com.plantdata.kgcloud.domain.nlp;
 
-import ai.plantdata.kg.api.pub.EntityApi;
-import ai.plantdata.kg.api.pub.req.EntityLinkingFrom;
-import ai.plantdata.kg.api.pub.resp.TaggingItemVO;
-import ai.plantdata.kg.api.semantic.QuestionAnswersApi;
-import ai.plantdata.kg.api.semantic.rsp.IntentDataBean;
 import com.hiekn.basicnlptools.hanlp.HanLPService;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.common.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.common.module.NaturalLanguageProcessingInterface;
 import com.plantdata.kgcloud.sdk.NlpClient;
+import com.plantdata.kgcloud.sdk.SemanticClient;
+import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBean;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -36,19 +33,18 @@ import java.util.Map;
 @RestController
 @RequestMapping("nlp")
 public class NlpController implements NaturalLanguageProcessingInterface {
-    @Autowired
-    public EntityApi entityApi;
+
     @Autowired
     public NlpClient nlpClient;
     @Autowired
-    public QuestionAnswersApi questionAnswersApi;
+    public SemanticClient semanticClient;
 
     private HanLPService hanLPService = new HanLPService();
 
     @ApiOperation("语义标注")
     @PostMapping("annotation")
-    public ApiReturn<List<TaggingItemVO>> tagging(@RequestParam("kgName") String kgName, @RequestBody EntityLinkingFrom linkingFrom) {
-        return ApiReturn.success(RestRespConverter.convert(entityApi.tagging(kgName, linkingFrom)).orElse(Collections.emptyList()));
+    public ApiReturn<List<TaggingItemRsp>> tagging(@RequestParam("kgName") String kgName, @RequestBody EntityLinkingReq linkingFrom) {
+        return nlpClient.tagging(kgName, linkingFrom);
     }
 
     @ApiOperation("中文命名实体识别")
@@ -70,7 +66,7 @@ public class NlpController implements NaturalLanguageProcessingInterface {
             @ApiParam(value = "图谱名称") @RequestParam("kgName") String kgName,
             @ApiParam(value = "自然语言输入") @RequestParam("query") String query,
             @RequestParam(value = "size", defaultValue = "5") int size) {
-        return ApiReturn.success(RestRespConverter.convert(questionAnswersApi.intent(kgName, query, size)).orElse(new IntentDataBean()));
+        return semanticClient.intent(kgName, query, size);
     }
 
     @ApiOperation("简体转换为繁体")

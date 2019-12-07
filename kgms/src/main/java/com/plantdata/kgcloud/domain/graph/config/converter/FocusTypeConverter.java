@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.graph.config.converter;
 
-import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.graph.config.constant.FocusType;
 
 import javax.persistence.AttributeConverter;

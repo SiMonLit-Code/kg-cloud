@@ -1,11 +1,7 @@
 package com.plantdata.kgcloud.domain.dataset.obtain.service.impl;
 
 import com.plantdata.kgcloud.domain.dataset.obtain.service.DataSetObtainService;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.BaseTableReq;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.ReadTableReq;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.SearchTableReq;
 import org.springframework.stereotype.Service;
-import java.util.Map;
 
 /**
  * @author cjw

@@ -1,5 +1,6 @@
-package com.plantdata.kgcloud.domain.audit;
+package com.plantdata.kgcloud.domain.audit.repository;
 
+import com.plantdata.kgcloud.domain.audit.entity.ApiAudit;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

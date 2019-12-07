@@ -2,6 +2,8 @@ package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
+import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -193,4 +195,13 @@ public interface AttributeService {
      * @param tripleIds
      */
     void attrConstraintsDelete(String kgName, Integer attrId, List<String> tripleIds);
+
+    /**
+     * 根据属性获得三元组
+     *
+     * @param kgName
+     * @param tripleReq
+     * @return
+     */
+    List<TripleRsp> getRelationByAttr(String kgName, TripleReq tripleReq);
 }

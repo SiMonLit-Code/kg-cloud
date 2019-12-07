@@ -8,7 +8,7 @@ import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphRelationAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
@@ -37,8 +37,8 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
     private RuleReasoningService ruleReasoningService;
 
     @Override
-    public RelationAnalysisRsp relationAnalysis(String kgName, RelationAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
+    public RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReq analysisReq) {
+        analysisReq = graphHelperService.dealGraphReq(kgName,analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationAnalysisRsp analysisRsp = new RelationAnalysisRsp();
         //执行分析
@@ -52,7 +52,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
 
     @Override
     public RelationTimingAnalysisRsp relationTimingAnalysis(String kgName, RelationTimingAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
+        analysisReq = graphHelperService.dealGraphReq(kgName,analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationTimingAnalysisRsp analysisRsp = new RelationTimingAnalysisRsp();
         //执行分析
@@ -66,7 +66,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
 
     @Override
     public RelationReasoningAnalysisRsp relationReasoningAnalysis(String kgName, RelationReasoningAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
+        analysisReq = graphHelperService.dealGraphReq(kgName,analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationReasoningAnalysisRsp analysisRsp = new RelationReasoningAnalysisRsp();
         //执行分析

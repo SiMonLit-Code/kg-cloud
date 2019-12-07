@@ -6,7 +6,7 @@ import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
-import io.swagger.annotations.ApiOperation;
+import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,4 +78,15 @@ public interface EditClient {
     @GetMapping("attribute/{kgName}/concepts")
     ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptIds(@PathVariable("kgName") String kgName,
                                                                      AttrDefinitionConceptsReq attrDefinitionConceptsReq);
+
+    /**
+     * 批量新增关系
+     *
+     * @param kgName   图谱名称
+     * @param relation 批量参数
+     * @return 。
+     */
+    @PostMapping("attribute/relation/insert/{kgName}")
+    ApiReturn<BatchRelationRsp> importRelation(@PathVariable String kgName,
+                                               @RequestBody BatchRelationRsp relation);
 }
