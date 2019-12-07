@@ -5,7 +5,7 @@ package com.plantdata.kgcloud.domain.graph.config.constant;
  */
 public enum StatisticalType {
     /**
-     *
+     *图谱统计枚举
      */
     statsRelationAttrValue,
     statsEntityConcept,
