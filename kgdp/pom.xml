@@ -132,22 +132,16 @@
             <groupId>org.w3c.dom</groupId>
             <artifactId>svg</artifactId>
             <version>1.1.0-v201011041433</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/svg-1.1.0-v201011041433.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.w3c.dom</groupId>
             <artifactId>org.w3c.dom.smil</artifactId>
             <version>1.0.1.v200903091627</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/org.w3c.dom.smil-1.0.1.v200903091627.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.w3c.css</groupId>
             <artifactId>org.w3c.css.sac</artifactId>
             <version>1.3.1.v200903091627</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/org.w3c.css.sac-1.3.1.v200903091627.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.codeartisans.thirdparties.swing</groupId>
