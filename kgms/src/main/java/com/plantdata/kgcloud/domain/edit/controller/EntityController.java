@@ -56,6 +56,23 @@ public class EntityController {
     @Autowired
     private BasicInfoService basicInfoService;
 
+    @ApiOperation("多概念添加")
+    @PostMapping("/{kgName}/{conceptId}/{entityId}/add")
+    ApiReturn addMultipleConcept(@PathVariable("kgName") String kgName,
+                                 @PathVariable("conceptId") Long conceptId,
+                                 @PathVariable("entityId") Long entityId) {
+        entityService.addMultipleConcept(kgName, conceptId, entityId);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("多概念删除")
+    @PostMapping("/{kgName}/{conceptId}/{entityId}/delete")
+    ApiReturn deleteMultipleConcept(@PathVariable("kgName") String kgName,
+                                    @PathVariable("conceptId") Long conceptId,
+                                    @PathVariable("entityId") Long entityId) {
+        entityService.deleteMultipleConcept(kgName, conceptId, entityId);
+        return ApiReturn.success();
+    }
 
     @ApiOperation("修改实体名称,消歧")
     @PostMapping("/{kgName}/update")
