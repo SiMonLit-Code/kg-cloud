@@ -37,14 +37,23 @@ import java.util.stream.Collectors;
 @Service
 public class DataSetServiceImpl implements DataSetService {
 
+    private final static String DATA_PREFIX = "dataset";
+    private final static String JOIN = "_";
+
     @Autowired
     private DataSetRepository dataSetRepository;
 
     @Autowired
     private DataSetFolderService dataSetFolderService;
 
+
+
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
+
+    private String genDataName(String userId) {
+        return userId + JOIN + DATA_PREFIX + JOIN + Long.toHexString(System.currentTimeMillis());
+    }
 
     @Override
     public List<DataSetRsp> findAll(String userId) {
@@ -134,18 +143,11 @@ public class DataSetServiceImpl implements DataSetService {
     }
 
     @Override
-    public DataSetRsp insert(DataSetReq dataSetReq) {
-        return null;
-    }
-
-    @Override
     public void batchDelete(String userId, Collection<Long> ids) {
         for (Long id : ids) {
             delete(userId, id);
         }
     }
-
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -158,6 +160,9 @@ public class DataSetServiceImpl implements DataSetService {
             target.setFolderId(folder.getId());
         }
         target.setId(kgKeyGenerator.getNextId());
+
+        target.setDataName(genDataName(userId));
+
         target = dataSetRepository.save(target);
         return ConvertUtils.convert(DataSetRsp.class).apply(target);
     }

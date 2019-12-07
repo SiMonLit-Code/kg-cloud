@@ -212,7 +212,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱查询问答")
     @GetMapping("/config/qa/{kgName}")
-    public ApiReturn<List<GraphConfQaRsp>> selectQa(@PathVariable("kgName") String kgName);
+    ApiReturn<List<GraphConfQaRsp>> selectQa(@PathVariable("kgName") String kgName);
 
     @ApiOperation("图谱新建统计")
     @PostMapping("/config/statistical/{kgName}")

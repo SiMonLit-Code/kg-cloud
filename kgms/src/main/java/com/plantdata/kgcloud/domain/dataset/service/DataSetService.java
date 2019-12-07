@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
-import com.plantdata.kgcloud.domain.common.service.BaseService;
+import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
 import com.plantdata.kgcloud.sdk.req.DataSetReq;
@@ -15,7 +15,7 @@ import java.util.List;
  * @author: Bovin
  * @create: 2019-11-06 10:42
  **/
-public interface DataSetService extends BaseService<DataSetRsp, DataSetReq, Long> {
+public interface DataSetService {
 
     /**
      * 分页查询接口
@@ -61,5 +61,44 @@ public interface DataSetService extends BaseService<DataSetRsp, DataSetReq, Long
      */
     void batchDelete(String userId, Collection<Long> ids);
 
+
+    /**
+     * 查询所有接口
+     *
+     * @return
+     */
+    List<DataSetRsp> findAll(String userId);
+
+    /**
+     * 分页查询接口
+     *
+     * @return
+     */
+    Page<DataSetRsp> findAll(String userId, BaseReq baseReq);
+
+    /**
+     * 根据id查询接口
+     *
+     * @param id
+     * @return
+     */
+    DataSetRsp findById(String userId, Long id);
+
+    /**
+     * 根据id删除接口
+     *
+     * @param id
+     * @return
+     */
+    void delete(String userId, Long id);
+
+    /**
+     * 修改接口
+     *
+     * @param id
+     * @param r
+     * @return
+     */
+    DataSetRsp update(String userId, Long id, DataSetReq r);
 
 }

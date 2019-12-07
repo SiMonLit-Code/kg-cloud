@@ -64,7 +64,8 @@ public class DataSetController {
     @ApiOperation("数据集-schema-创建")
     @PostMapping("/")
     public ApiReturn<DataSetRsp> insert(@Valid @RequestBody DataSetReq req) {
-        return ApiReturn.success(dataSetService.insert(req));
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataSetService.insert(userId,req));
     }
 
     @ApiOperation("数据集-schema-编辑")
