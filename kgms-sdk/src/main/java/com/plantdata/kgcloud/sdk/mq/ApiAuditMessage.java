@@ -1,0 +1,17 @@
+package com.plantdata.kgcloud.sdk.mq;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class ApiAuditMessage implements Serializable {
+    private String kgName;
+    private String page;
+    private String url;
+    private Integer status;
+}
