@@ -13,10 +13,18 @@ import ai.plantdata.kg.api.edit.req.EntityRelationFrom;
 import ai.plantdata.kg.api.edit.req.MetaDataOptionFrom;
 import ai.plantdata.kg.api.edit.req.ObjectAttributeValueFrom;
 import ai.plantdata.kg.api.edit.req.UpdateRelationFrom;
+import ai.plantdata.kg.api.edit.resp.BatchDeleteAttrValueVO;
 import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
+import ai.plantdata.kg.api.edit.resp.BatchEntityVO;
+import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
+import ai.plantdata.kg.api.pub.EntityApi;
+import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
+import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
+import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
@@ -41,15 +49,22 @@ import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
+import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -73,9 +88,12 @@ public class EntityServiceImpl implements EntityService {
 
     @Autowired
     private BatchApi batchApi;
-
+    @Autowired
+    private EntityApi entityApi;
     @Autowired
     private BasicInfoService basicInfoService;
+    @Autowired
+    private GraphHelperService graphHelperService;
 
     @Override
     public void addMultipleConcept(String kgName, Long conceptId, Long entityId) {
@@ -153,9 +171,12 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public List<BatchDeleteResult> deleteByIds(String kgName, List<Long> ids) {
+    public List<DeleteResult> deleteByIds(String kgName, List<Long> ids) {
         Optional<List<BatchDeleteResult>> optional = RestRespConverter.convert(batchApi.deleteEntities(kgName, ids));
-        return optional.orElse(new ArrayList<>());
+        if (!optional.isPresent() || CollectionUtils.isEmpty(optional.get())) {
+            return Collections.emptyList();
+        }
+        return optional.get().stream().map(a -> ConvertUtils.convert(DeleteResult.class).apply(a)).collect(Collectors.toList());
     }
 
     @Override
@@ -388,5 +409,38 @@ public class EntityServiceImpl implements EntityService {
         Optional<List<String>> optional = RestRespConverter.convert(conceptEntityApi.batchAddRelation(kgName,
                 entityPrivateRelationFrom));
         return optional.orElse(new ArrayList<>());
+    }
+
+    @Override
+    public List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq) {
+        if (entityQueryReq.getConceptId() == null && org.apache.commons.lang3.StringUtils.isNotEmpty(entityQueryReq.getConceptKey())) {
+            List<Long> longList = graphHelperService.replaceByConceptKey(kgName, Lists.newArrayList(entityQueryReq.getConceptKey()));
+            if (!CollectionUtils.isEmpty(longList)) {
+                entityQueryReq.setConceptId(longList.get(0));
+            }
+        }
+        SearchByAttributeFrom attributeFrom = EntityConverter.entityQueryReqToSearchByAttributeFrom(entityQueryReq);
+        Optional<List<ai.plantdata.kg.api.pub.resp.EntityVO>> entityOpt = RestRespConverter.convert(entityApi.searchByAttribute(kgName, attributeFrom));
+        return entityOpt.orElse(new ArrayList<>()).stream().map(EntityConverter::voToOpenEntityRsp).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity) {
+        List<BatchEntityVO> entityList = batchEntity.stream()
+                .map(a -> ConvertUtils.convert(BatchEntityVO.class).apply(a))
+                .collect(Collectors.toList());
+        Optional<BatchResult<BatchEntityVO>> entityOpt = RestRespConverter.convert(batchApi.addEntities(kgName, update, entityList));
+        return entityOpt.map(result -> result.getSuccess().stream()
+                .map(a -> ConvertUtils.convert(OpenBatchSaveEntityRsp.class).apply(a))
+                .collect(Collectors.toList())).orElse(Collections.emptyList());
+    }
+
+    @Override
+    public void batchDeleteEntityAttr(String kgName, BatchEntityAttrDeleteReq deleteReq) {
+        BatchDeleteAttrValueVO deleteAttrValueVO = new BatchDeleteAttrValueVO();
+        deleteAttrValueVO.setAttributeIds(deleteReq.getAttributeIds());
+        deleteAttrValueVO.setAttrNames(deleteReq.getAttrNames());
+        deleteAttrValueVO.setEntityIds(deleteReq.getEntityIds());
+        RestRespConverter.convertVoid(batchApi.deleteEntities(kgName, deleteAttrValueVO));
     }
 }

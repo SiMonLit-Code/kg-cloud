@@ -168,7 +168,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱新建算法")
     @PostMapping("/config/algorithm/{kgName}")
-    ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName ,@RequestBody @Valid GraphConfAlgorithmReq req);
+    ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfAlgorithmReq req);
 
     @ApiOperation("图谱更新算法")
     @PatchMapping("/config/algorithm/{kgName}/{id}")
@@ -180,7 +180,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱查询算法")
     @GetMapping("/config/algorithm/{kgName}")
-    ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName , BaseReq baseReq);
+    ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     @ApiOperation("图谱焦点")
     @GetMapping("/config/focus/{kgName}")
@@ -192,7 +192,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱新建业务")
     @PostMapping("/config/kgql/{kgName}")
-    ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfKgqlReq req);
+    ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req);
 
     @ApiOperation("图谱更新业务")
     @PatchMapping("/config/kgql/{kgName}/{id}")
@@ -208,15 +208,15 @@ public interface KgmsClient {
 
     @ApiOperation("图谱新建问答")
     @PostMapping("/config/qa/{kgName}")
-    ApiReturn<List<GraphConfQaRsp>> saveQa(@PathVariable("kgName") String kgName , @RequestBody @Valid List<GraphConfQaReq> req);
+    ApiReturn<List<GraphConfQaRsp>> saveQa(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfQaReq> req);
 
     @ApiOperation("图谱查询问答")
     @GetMapping("/config/qa/{kgName}")
-    public ApiReturn<List<GraphConfQaRsp>> selectQa(@PathVariable("kgName") String kgName);
+    ApiReturn<List<GraphConfQaRsp>> selectQa(@PathVariable("kgName") String kgName);
 
     @ApiOperation("图谱新建统计")
     @PostMapping("/config/statistical/{kgName}")
-    ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfStatisticalReq req);
+    ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfStatisticalReq req);
 
     @ApiOperation("图谱更新统计")
     @PatchMapping("/config/statistical/{kgName}/{id}")
@@ -229,4 +229,15 @@ public interface KgmsClient {
     @ApiOperation("图谱查询统计")
     @GetMapping("/config/statistical/{kgName}")
     ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName);
+
+    /**
+     * 模型调用
+     *
+     * @param id  id
+     * @param req req
+     * @return .
+     */
+    @PostMapping("model/call/{id}")
+    ApiReturn callJson(@PathVariable Long id, @RequestBody WordReq.ModelCallReq req);
+
 }

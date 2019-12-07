@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
-import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.pub.EntityApi;
+import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.RelationApi;
 import ai.plantdata.kg.api.pub.SchemaApi;
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
@@ -11,9 +11,9 @@ import ai.plantdata.kg.api.pub.resp.PromptItemVO;
 import ai.plantdata.kg.api.semantic.QuestionAnswersApi;
 import ai.plantdata.kg.api.semantic.req.NerSearchReq;
 import ai.plantdata.kg.api.semantic.rsp.SemanticSegWordVO;
-import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.config.EsProperties;
+import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.PromptQaTypeEnum;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
@@ -69,9 +69,9 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     @Autowired
     private GraphConfQaService graphConfQaService;
     @Autowired
-    private ConceptEntityApi conceptEntityApi;
-    @Autowired
     private EsProperties esProperties;
+    @Autowired
+    private GraphApi graphApi;
 
     @Override
     public List<PromptEntityRsp> prompt(String kgName, PromptReq promptReq) {
@@ -155,7 +155,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         nerParam.setQuery(promptReq.getKw());
 
         List<SemanticSegWordVO> ner = RestRespConverter.convert(questionAnswersApi.ner(nerParam)).orElse(Collections.emptyList());
-        if (ner.isEmpty() || ner.size() > 3) {
+        if (ner.isEmpty() || ner.size() > AppConstants.NER_NUMBER) {
             return rs;
         }
         List<GraphConfQaRsp> qaTemplates = graphConfQaService.findByKgName(kgName);
@@ -216,23 +216,12 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     }
 
     private boolean checkConcept(List<Long> source, List<Long> target, String kgName) {
-        List<Long> allSource = Lists.newArrayList(source);
-
-        for (Long aLong : source) {
-            List<BasicInfo> son = RestRespConverter.convert(conceptEntityApi.tree(kgName, aLong)).orElse(Collections.emptyList());
-            if (son.isEmpty()) {
-                continue;
-            }
-            allSource.addAll(son.stream().filter(t -> !t.getId().equals(aLong)).map(BasicInfo::getId).collect(Collectors.toList()));
-        }
-        for (Long s : allSource) {
-            for (Long t : target) {
-                if (s.equals(t)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        Map<Long, List<Long>> sonOptMap = RestRespConverter.convert(graphApi.sons(kgName, source)).orElse(Collections.emptyMap());
+        List<Long> allSource = source.stream()
+                .filter(sonOptMap::containsKey)
+                .map(conceptId -> sonOptMap.get(conceptId).stream().filter(t -> !t.equals(conceptId)).collect(Collectors.toList())
+                ).flatMap(Collection::stream).collect(Collectors.toList());
+        return allSource.stream().anyMatch(target::contains);
     }
 
     private Set<Long> queryEntityIdsByAttr(String kgName, SeniorPromptReq seniorPromptReq) {
@@ -242,7 +231,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         attributeFrom.setEntityName(seniorPromptReq.getKw());
         attributeFrom.setConceptIds(Lists.newArrayList(seniorPromptReq.getConceptId()));
         List<EntityVO> queryList;
-        if (queryMapList.size() < 2) {
+        if (queryMapList.size() < AppConstants.NER_ENTITY_NUMBER) {
             attributeFrom.setSkip(seniorPromptReq.getPage());
             attributeFrom.setLimit(seniorPromptReq.getSize());
             queryList = RestRespConverter.convert(entityApi.searchByAttribute(kgName, attributeFrom)).orElse(Collections.emptyList());

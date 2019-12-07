@@ -45,6 +45,8 @@ public class BasicGraphExploreReq {
     private List<String> allowAttrsKey;
     @ApiModelProperty("查询指定的概念，格式为json数组，默认为查询全部")
     private List<Long> allowConcepts;
+    @ApiModelProperty("排除指定的概念，格式为json数组，默认为查询全部")
+    private List<Long> disAllowConcepts;
     @ApiModelProperty("查询指定的概念的唯一标识，格式为json数组，默认为查询全部")
     private List<String> allowConceptsKey;
     @ApiModelProperty("指定屬性分组")

@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.domain.app.controller;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityLinkingFrom;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.converter.graph.RestCopyConverter;
+import com.plantdata.kgcloud.domain.app.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.app.service.NlpService;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;

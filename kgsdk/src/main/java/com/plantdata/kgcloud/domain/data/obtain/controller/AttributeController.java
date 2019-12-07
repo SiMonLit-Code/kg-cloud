@@ -3,6 +3,8 @@ package com.plantdata.kgcloud.domain.data.obtain.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.EditClient;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
@@ -51,13 +53,20 @@ public class AttributeController implements GraphDataObtainInterface {
     @GetMapping("{kgName}")
     public ApiReturn<List<AttrDefinitionRsp>> attribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                         AttrDefinitionConceptsReq queryReq) {
-        return editClient.getAttrDefinitionByConceptIds(kgName,queryReq);
+        return editClient.getAttrDefinitionByConceptIds(kgName, queryReq);
     }
 
     @ApiOperation("批量属性新增")
     @PostMapping("batchAdd/{kgName}")
-    public ApiReturn<?> batchInsertAttribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                             @RequestBody List<AttrDefinitionReq> attributeList) {
-        return editClient.batchAddAttrDefinition(kgName,attributeList);
+    public ApiReturn<List<AttrDefinitionBatchRsp>> batchInsertAttribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                                        @RequestBody List<AttrDefinitionReq> attributeList) {
+        return editClient.batchAddAttrDefinition(kgName, attributeList);
+    }
+
+    @ApiOperation("修改属性定义")
+    @PostMapping("/{kgName}/definition/update")
+    public ApiReturn updateAttrDefinition(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                          @RequestBody AttrDefinitionModifyReq modifyReq) {
+        return editClient.updateAttrDefinition(kgName, modifyReq);
     }
 }
