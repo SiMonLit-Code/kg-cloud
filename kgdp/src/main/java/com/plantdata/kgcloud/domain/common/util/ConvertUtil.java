@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.common.util;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.KgDocumentErrorCodes;
@@ -27,7 +26,6 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.freehep.graphicsio.emf.EMFInputStream;
 import org.freehep.graphicsio.emf.EMFRenderer;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
@@ -44,9 +42,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ConvertUtil {
 
@@ -470,7 +467,7 @@ public class ConvertUtil {
         texts.add(text);
 
 
-
+        element = parseTagText2Span(element);
        /* List<Element> spans = element.select("span");
         if(spans != null && !spans.isEmpty()){
             texts.addAll(spans.stream().map(span -> span.text()).collect(Collectors.toList()));
@@ -521,4 +518,65 @@ public class ConvertUtil {
         return setTitleAtt(targetFileName,null);
     }
 
+    public static Element parseTagText2Span(Element element) {
+
+        List<Node> rsList = Lists.newArrayList();
+        List<Node> list = element.childNodes();
+        for(int j=0; j<list.size(); j++){
+            Node n = list.get(j);
+            List<Node> nodes = parseSpan(n);
+            if(Objects.nonNull(nodes) && !nodes.isEmpty()){
+                rsList.addAll(nodes);
+            }
+        }
+
+        element.empty();
+        for(Node n : rsList){
+            element.appendChild(n);
+        }
+
+        return element;
+    }
+
+    public static List<Node> parseSpan(Node n){
+
+        List<Node> rsList = Lists.newArrayList();
+        if(n.nodeName().equals("#text")){
+
+            String outerHtml = n.outerHtml();
+            char[] chars = outerHtml.toCharArray();
+            for(int i=0; i<chars.length; i++){
+                String str = chars[i]+"";
+                Element node = new Element("span");
+                node.appendText(str);
+                rsList.add(node);
+            }
+
+        }else if(n.nodeName().equals("span")){
+            List<Node> nodes = n.childNodes();
+
+            for(Node node : nodes){
+                List<Node> list = parseSpan(node);
+                if(Objects.nonNull(list) && !list.isEmpty()){
+                    rsList.addAll(list);
+                }
+            }
+        }else{
+
+            Element nodeParent = new Element(n.nodeName());
+            List<Node> nodes = n.childNodes();
+            for(Node node : nodes){
+                List<Node> list = parseSpan(node);
+                if(Objects.nonNull(list) && !list.isEmpty()){
+                    for(Node nchild : list){
+                        nodeParent.appendChild(nchild);
+                    }
+                }
+            }
+
+            rsList.add(nodeParent);
+        }
+
+        return rsList;
+    }
 }
