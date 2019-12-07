@@ -219,14 +219,14 @@ public interface KgmsClient {
     ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfStatisticalReq req);
 
     @ApiOperation("图谱更新统计")
-    @PatchMapping("/statistical/{kgName}/{id}")
+    @PatchMapping("/config/statistical/{kgName}/{id}")
     ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req);
 
     @ApiOperation("图谱删除统计")
-    @DeleteMapping("/statistical/{kgName}/{id}")
+    @DeleteMapping("/config/statistical/{kgName}/{id}")
     void deleteStatistical(@PathVariable("id") Long id);
 
     @ApiOperation("图谱查询统计")
-    @GetMapping("/statistical/{kgName}")
+    @GetMapping("/config/statistical/{kgName}")
     ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName);
 }
