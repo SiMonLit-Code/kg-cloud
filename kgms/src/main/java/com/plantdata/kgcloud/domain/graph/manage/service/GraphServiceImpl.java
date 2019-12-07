@@ -146,7 +146,7 @@ public class GraphServiceImpl implements GraphService {
                     }
                     Graph target = new Graph();
                     target.setKgName(kgName);
-                    target.setKgName(kgName);
+                    target.setTitle("示例图谱");
                     target.setDeleted(false);
                     target.setPrivately(true);
                     target.setEditable(true);
