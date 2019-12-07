@@ -4,6 +4,8 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.GraphPathReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.GraphTimingReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -19,11 +21,21 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("时序路径分析参数")
-public class PathTimingAnalysisReq extends BasicGraphExploreReq {
+public class PathTimingAnalysisReq extends BasicGraphExploreReq implements GraphPathReqInterface, GraphTimingReqInterface {
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
     @ApiModelProperty("路径")
     private CommonPathReq path;
     @ApiModelProperty("时间参数过滤")
     private TimeFilterExploreReq timeFilters;
+
+    @Override
+    public CommonPathReq fetchPath() {
+        return path;
+    }
+
+    @Override
+    public TimeFilterExploreReq fetchTimeFilter() {
+        return timeFilters;
+    }
 }

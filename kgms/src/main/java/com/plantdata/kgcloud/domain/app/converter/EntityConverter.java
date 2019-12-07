@@ -3,15 +3,14 @@ package com.plantdata.kgcloud.domain.app.converter;
 import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.GisEntityVO;
-import ai.plantdata.kg.api.pub.resp.SimpleEntity;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
-import com.plantdata.kgcloud.domain.app.dto.SegmentEntityDTO;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
+import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
@@ -59,16 +58,12 @@ public class EntityConverter {
     }
 
 
-    public static List<SimpleEntity> entityVoToSimpleEntity(@NonNull List<EntityVO> entityList) {
+    public static List<GraphInitRsp.GraphInitEntityRsp> entityVoToGraphInitEntityRsp(@NonNull List<EntityVO> entityList) {
         return entityList.stream().map(entity -> {
-            SimpleEntity simpleEntity = new SimpleEntity();
+            GraphInitRsp.GraphInitEntityRsp simpleEntity = new GraphInitRsp.GraphInitEntityRsp();
             simpleEntity.setId(entity.getId());
             simpleEntity.setName(entity.getName());
-            simpleEntity.setConceptId(entity.getConceptId());
-            simpleEntity.setType(EntityTypeEnum.ENTITY.getValue());
-            simpleEntity.setMeaningTag(entity.getMeaningTag());
-            simpleEntity.setMetaData(entity.getMetaData());
-            simpleEntity.setImageUrl(entity.getImageUrl());
+            simpleEntity.setClassId(entity.getConceptId());
             return simpleEntity;
         }).collect(Collectors.toList());
     }

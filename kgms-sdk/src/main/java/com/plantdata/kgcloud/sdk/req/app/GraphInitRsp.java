@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
 import com.plantdata.kgcloud.sdk.constant.GraphInitEnum;
-import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -31,9 +30,18 @@ public class GraphInitRsp {
     @ApiModelProperty("配置信息")
     private Map<String, Object> config;
     @ApiModelProperty("实例列表")
-    private List<PromptEntityRsp> entities;
+    private List<GraphInitEntityRsp> entities;
     @ApiModelProperty("创建时间")
     private Date createTime;
     @ApiModelProperty("更新时间")
     private Date updateTime;
+
+    @ToString
+    @Getter
+    @Setter
+    public static class GraphInitEntityRsp {
+        private Long id;
+        private String name;
+        private Long classId;
+    }
 }

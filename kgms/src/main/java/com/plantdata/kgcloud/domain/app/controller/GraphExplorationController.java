@@ -1,8 +1,12 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
+import com.plantdata.kgcloud.sdk.constant.GraphInitEnum;
+import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
@@ -40,12 +44,15 @@ public class GraphExplorationController {
     private GraphExplorationService graphExplorationService;
     @Autowired
     private GraphHelperService graphHelperService;
-    ///    @ApiOperation("初始化图探索数据")
-//    @PostMapping("graphInit/{kgName}")
-//    public ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-//                                                        @ApiParam(value = "图类型", required = true) GraphInitEnum type) {
-//        return ApiReturn.success(graphApplicationService.initGraphExploration(kgName, type));
-//    }
+    @Autowired
+    private GraphApplicationService graphApplicationService;
+
+    @ApiOperation("初始化图探索数据")
+    @PostMapping("graphInit/{kgName}")
+    public ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                        @ApiParam(value = "图类型", required = true) GraphInitEnum type) throws JsonProcessingException {
+        return ApiReturn.success(graphApplicationService.initGraphExploration(kgName, type));
+    }
 
     @ApiOperation("根据业务规则kgQl语句图探索")
     @PostMapping("byKgQl/{kgName}")

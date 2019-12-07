@@ -36,7 +36,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
 
     @Override
     public PathAnalysisRsp path(String kgName, PathAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
+        analysisReq = graphHelperService.dealGraphReq(kgName,analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
         PathAnalysisRsp pathAnalysisRsp = new PathAnalysisRsp();
         //路径探索
@@ -50,7 +50,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
 
     @Override
     public PathAnalysisReasonRsp pathRuleReason(String kgName, PathReasoningAnalysisReq reasonReq) {
-        reasonReq = graphHelperService.dealGraphReq(reasonReq);
+        reasonReq = graphHelperService.dealGraphReq(kgName,reasonReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(reasonReq);
         PathAnalysisReasonRsp analysisReasonRsp = new PathAnalysisReasonRsp();
         //路径探索
@@ -66,7 +66,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
 
     @Override
     public PathTimingAnalysisRsp pathTimingAnalysis(String kgName, PathTimingAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
+        analysisReq = graphHelperService.dealGraphReq(kgName,analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
         PathTimingAnalysisRsp analysisRsp = new PathTimingAnalysisRsp();
         //路径探索

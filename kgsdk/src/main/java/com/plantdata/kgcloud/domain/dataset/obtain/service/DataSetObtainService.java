@@ -1,11 +1,5 @@
 package com.plantdata.kgcloud.domain.dataset.obtain.service;
 
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.BaseTableReq;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.ReadTableReq;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.SearchTableReq;
-
-import java.util.Map;
-
 /**
  * @author cjw
  * @version 1.0

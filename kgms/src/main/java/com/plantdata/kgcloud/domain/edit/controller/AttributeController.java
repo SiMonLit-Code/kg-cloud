@@ -1,6 +1,10 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
+import ai.plantdata.kg.api.edit.BatchApi;
+import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.converter.graph.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
@@ -18,8 +22,10 @@ import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +50,8 @@ public class AttributeController {
 
     @Autowired
     private AttributeService attributeService;
+    @Autowired
+    private BatchApi batchApi;
 
     @ApiOperation("查询概念下的属性定义")
     @GetMapping("/{kgName}")
@@ -178,10 +186,15 @@ public class AttributeController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("根据属性获得三元组")
-    @PostMapping("/{kgName}/triple")
-    ApiReturn<List<TripleRsp>> attrConstraintsDelete(@PathVariable("kgName") String kgName,
-                                                     @Valid @RequestBody TripleReq tripleReq) {
-        return ApiReturn.success(attributeService.getRelationByAttr(kgName, tripleReq));
+
+    @ApiOperation("批量关系新增")
+    @PostMapping("relation/insert/{kgName}")
+    public ApiReturn<BatchRelationRsp> importRelation(@PathVariable String kgName,
+                                                      @RequestBody BatchRelationRsp relation) {
+        BatchRelationVO batchRelationVO = new BatchRelationVO();
+        BeanUtils.copyProperties(relation, batchRelationVO);
+        BatchRelationRsp relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, Lists.newArrayList(batchRelationVO)), new BatchRelationRsp());
+        return ApiReturn.success(relationRsp);
     }
+
 }

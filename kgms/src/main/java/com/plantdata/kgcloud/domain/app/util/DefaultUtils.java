@@ -5,6 +5,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author cjw
@@ -23,13 +24,21 @@ public class DefaultUtils {
 
     /**
      * list1 不为空 取list2 否则返回空
+     *
      * @param list1 1
      * @param list2 2
-     * @param <T> t
-     * @param <E> e
+     * @param <T>   t
+     * @param <E>   e
      * @return ...
      */
-    public static <T,E> List<E> getIfNoNull(List<T> list1,List<E> list2) {
+    public static <T, E> List<E> getIfNoNull(List<T> list1, List<E> list2) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : list2;
     }
+
+    public static void ifPresent(Consumer<? super Object> consumer, Object value) {
+        if (value != null) {
+            consumer.accept(value);
+        }
+    }
+
 }

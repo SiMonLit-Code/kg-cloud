@@ -1,18 +1,19 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import springfox.documentation.annotations.ApiIgnore;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -42,4 +43,13 @@ public interface NlpClient {
     ApiReturn<List<GraphSegmentRsp>> graphSegment(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                   @RequestBody SegmentReq segmentReq);
 
+    /**
+     * 语义标注
+     *
+     * @param kgName     图谱名称
+     * @param linkingReq .
+     * @return .
+     */
+    @PostMapping("annotation")
+    ApiReturn<List<TaggingItemRsp>> tagging(@RequestParam("kgName") String kgName, @RequestBody EntityLinkingReq linkingReq);
 }

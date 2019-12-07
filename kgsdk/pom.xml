@@ -50,16 +50,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <artifactId>edit-api</artifactId>
-            <groupId>ai.plantdata</groupId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <artifactId>public-api</artifactId>
-            <groupId>ai.plantdata</groupId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
         </dependency>
@@ -71,11 +61,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ai.plantdata</groupId>
-            <artifactId>semantic-api</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

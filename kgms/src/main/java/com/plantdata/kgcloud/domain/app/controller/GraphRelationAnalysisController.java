@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.service.GraphRelationAnalysisService;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
@@ -39,7 +39,7 @@ public class GraphRelationAnalysisController {
     @ApiOperation("关联分析")
     @PostMapping("{kgName}")
     public ApiReturn<RelationAnalysisRsp> relationAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                            @RequestBody @Valid RelationAnalysisReq analysisReq,
+                                                            @RequestBody @Valid RelationReqAnalysisReq analysisReq,
                                                             @ApiIgnore BindingResult bindingResult) {
 
         return ApiReturn.success(graphRelationAnalysisService.relationAnalysis(kgName, analysisReq));
@@ -48,7 +48,7 @@ public class GraphRelationAnalysisController {
     @ApiOperation("直接关联关系")
     @PostMapping("direct/{kgName}")
     public ApiReturn<RelationAnalysisRsp> relationDirect(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                          @RequestBody @Valid RelationAnalysisReq analysisReq,
+                                                          @RequestBody @Valid RelationReqAnalysisReq analysisReq,
                                                           @ApiIgnore BindingResult bindingResult) {
         analysisReq.setDistance(NumberUtils.INTEGER_ONE);
         return ApiReturn.success(graphRelationAnalysisService.relationAnalysis(kgName, analysisReq));
