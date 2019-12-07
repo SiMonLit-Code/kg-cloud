@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
@@ -34,5 +35,5 @@ public interface KgDataClient {
      */
     @PostMapping("extract/thirdModel/{modelId}")
     ApiReturn<Object> extractThirdModel(@PathVariable("modelId") Long modelId,
-                                        String input, @RequestBody List<Map<String, String>> configList);
+                                        @RequestParam("input") String input, @RequestBody List<Map<String, String>> configList);
 }

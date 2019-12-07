@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.List;
 
 /**
@@ -173,7 +175,7 @@ public interface EditClient {
      * @return 。
      */
     @PostMapping("entity/{kgName}")
-    ApiReturn saveOrUpdate(@PathVariable("kgName") String kgName, @ApiParam("是否只是更新，默认不是") boolean add,
+    ApiReturn saveOrUpdate(@PathVariable("kgName") String kgName, @RequestParam(value = "add", required = false) boolean add,
                            @RequestBody List<OpenBatchSaveEntityRsp> batchEntity);
 
 }
