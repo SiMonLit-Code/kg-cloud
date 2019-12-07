@@ -1,9 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
-import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoModifyReq;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.DeleteEdgeObjectReq;
@@ -13,7 +12,8 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityModifyReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
+import com.plantdata.kgcloud.sdk.rsp.edit.EntityModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
@@ -73,8 +73,8 @@ public class EntityController {
 
     @ApiOperation("批量删除实体")
     @PostMapping("/{kgName}/batch/delete")
-    ApiReturn<List<BatchDeleteResult>> batchDeleteEntities(@PathVariable("kgName") String kgName,
-                                                           @RequestBody List<Long> ids) {
+    ApiReturn<List<DeleteResult>> batchDeleteEntities(@PathVariable("kgName") String kgName,
+                                                      @RequestBody List<Long> ids) {
         return ApiReturn.success(entityService.deleteByIds(kgName, ids));
     }
 
@@ -258,4 +258,5 @@ public class EntityController {
                                                     @Valid @RequestBody BatchPrivateRelationReq batchPrivateRelationReq) {
         return ApiReturn.success(entityService.batchAddPrivateRelation(kgName, batchPrivateRelationReq));
     }
+
 }

@@ -168,7 +168,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱新建算法")
     @PostMapping("/algorithm/{kgName}")
-    ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName ,@RequestBody @Valid GraphConfAlgorithmReq req);
+    ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfAlgorithmReq req);
 
     @ApiOperation("图谱更新算法")
     @PatchMapping("/algorithm/{kgName}/{id}")
@@ -180,7 +180,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱查询算法")
     @GetMapping("/algorithm/{kgName}")
-    ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName , BaseReq baseReq);
+    ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     @ApiOperation("图谱焦点")
     @GetMapping("/focus/{kgName}")
@@ -192,7 +192,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱新建业务")
     @PostMapping("/kgql/{kgName}")
-    ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfKgqlReq req);
+    ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req);
 
     @ApiOperation("图谱更新业务")
     @PatchMapping("/kgql/{kgName}/{id}")
@@ -208,9 +208,20 @@ public interface KgmsClient {
 
     @ApiOperation("图谱新建问答")
     @PostMapping("/qa/{kgName}")
-    ApiReturn<List<GraphConfQaRsp>> saveQa(@PathVariable("kgName") String kgName , @RequestBody @Valid List<GraphConfQaReq> req);
+    ApiReturn<List<GraphConfQaRsp>> saveQa(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfQaReq> req);
 
     @ApiOperation("图谱查询问答")
     @GetMapping("/qa/{kgName}")
-    public ApiReturn<List<GraphConfQaRsp>> selectQa(@PathVariable("kgName") String kgName);
+    ApiReturn<List<GraphConfQaRsp>> selectQa(@PathVariable("kgName") String kgName);
+
+    /**
+     * 模型调用
+     *
+     * @param id  id
+     * @param req req
+     * @return .
+     */
+    @PostMapping("model/call/{id}")
+    ApiReturn callJson(@PathVariable Long id, @RequestBody WordReq.ModelCallReq req);
+
 }

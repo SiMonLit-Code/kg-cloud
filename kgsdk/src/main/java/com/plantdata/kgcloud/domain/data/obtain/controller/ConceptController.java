@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.EditClient;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
 import io.swagger.annotations.ApiOperation;
@@ -54,6 +55,13 @@ public class ConceptController implements GraphDataObtainInterface {
     public ApiReturn deleteConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                    @ApiParam(value = "概念id", required = true) @PathVariable("conceptId") Long conceptId) {
         return editClient.deleteConcept(kgName, conceptId);
+    }
+
+    @ApiOperation("修改概念")
+    @PostMapping("/{kgName}/update")
+    public ApiReturn updateConcept(@PathVariable("kgName") String kgName,
+                                   @RequestBody BasicInfoModifyReq basicInfoModifyReq) {
+        return editClient.updateConcept(kgName, basicInfoModifyReq);
     }
 
 }

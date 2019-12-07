@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
-import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
@@ -21,6 +20,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -48,7 +48,7 @@ public interface EntityService {
      * @param ids
      * @return
      */
-    List<BatchDeleteResult> deleteByIds(String kgName, List<Long> ids);
+    List<DeleteResult> deleteByIds(String kgName, List<Long> ids);
 
 
     /**

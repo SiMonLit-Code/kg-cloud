@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoModifyReq;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.GisModifyReq;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;

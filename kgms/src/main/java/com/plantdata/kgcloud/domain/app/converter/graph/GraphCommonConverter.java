@@ -69,6 +69,7 @@ public class GraphCommonConverter {
         graphFrom.setInherit(exploreReq.isInherit());
         graphFrom.setDistance(exploreReq.getDistance());
         graphFrom.setSkip(page.getPage());
+        graphFrom.setDisAllowTypes(exploreReq.getDisAllowConcepts());
         graphFrom.setLimit(page.getSize());
         //读取元数据
         MetaData entityMetaData = new MetaData();

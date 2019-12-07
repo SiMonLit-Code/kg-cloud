@@ -41,15 +41,18 @@ import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -143,9 +146,12 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public List<BatchDeleteResult> deleteByIds(String kgName, List<Long> ids) {
+    public List<DeleteResult> deleteByIds(String kgName, List<Long> ids) {
         Optional<List<BatchDeleteResult>> optional = RestRespConverter.convert(batchApi.deleteEntities(kgName, ids));
-        return optional.orElse(new ArrayList<>());
+        if (!optional.isPresent() || CollectionUtils.isEmpty(optional.get())) {
+            return Collections.emptyList();
+        }
+        return optional.get().stream().map(a -> ConvertUtils.convert(DeleteResult.class).apply(a)).collect(Collectors.toList());
     }
 
     @Override

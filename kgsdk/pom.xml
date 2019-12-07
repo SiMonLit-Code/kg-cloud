@@ -27,7 +27,17 @@
             <artifactId>hanlp</artifactId>
             <version>portable-1.7.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.hiekn</groupId>
+            <artifactId>parser</artifactId>
+            <version>1.1.5.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.hiekn.boot</groupId>
+                    <artifactId>mcn-spring-boot-starter</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>com.plantdata</groupId>
             <artifactId>kg-cloud-web</artifactId>

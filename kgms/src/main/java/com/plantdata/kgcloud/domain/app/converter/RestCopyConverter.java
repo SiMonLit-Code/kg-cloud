@@ -1,10 +1,13 @@
-package com.plantdata.kgcloud.domain.app.converter.graph;
+package com.plantdata.kgcloud.domain.app.converter;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -17,5 +20,9 @@ public class RestCopyConverter {
         Optional<T> opt = RestRespConverter.convert(rest);
         opt.ifPresent(a -> BeanUtils.copyProperties(a, result));
         return result;
+    }
+
+    public static <T, R> List<R> copyToNewList(List<T> reqList, Class<R> r) {
+        return reqList.stream().map(ConvertUtils.convert(r)).collect(Collectors.toList());
     }
 }
