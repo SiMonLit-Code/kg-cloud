@@ -13,7 +13,7 @@ import ai.plantdata.kg.api.semantic.req.NerSearchReq;
 import ai.plantdata.kg.api.semantic.rsp.SemanticSegWordVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.config.EsConfig;
+import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.PromptQaTypeEnum;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
@@ -40,11 +40,11 @@ import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -70,6 +70,8 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     private GraphConfQaService graphConfQaService;
     @Autowired
     private ConceptEntityApi conceptEntityApi;
+    @Autowired
+    private EsProperties esProperties;
 
     @Override
     public List<PromptEntityRsp> prompt(String kgName, PromptReq promptReq) {
@@ -131,8 +133,9 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     }
 
     private List<PromptEntityRsp> queryFromEs(String kgName, PromptSearchInterface promptReq) {
+        Optional<String> reduce = esProperties.getAddrs().stream().reduce((a, b) -> a.concat(",").concat(b));
         DataOptConnect connect = DataOptConnect.builder()
-                .addresses(EsConfig.getAddress())
+                .addresses(reduce.orElse(org.apache.commons.lang3.StringUtils.EMPTY))
                 .database(kgName)
                 .build();
         DataOptProvider provider = DataOptProviderFactory.createProvider(connect, DataType.ELASTIC);
