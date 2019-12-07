@@ -27,7 +27,6 @@ public class AttrDefinitionReq {
 
     @ApiModelProperty(value = "0：数值，1：对象", allowableValues = "0,1")
     @NotNull
-    @Pattern(regexp = "^[0-1]$")
     private Integer type;
 
     @NotNull
