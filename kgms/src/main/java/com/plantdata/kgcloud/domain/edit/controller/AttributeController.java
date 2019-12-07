@@ -2,10 +2,14 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
+import ai.plantdata.kg.api.edit.resp.BatchResult;
+import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.RestCopyConverter;
+import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
+import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -27,6 +31,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +39,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author: LinHo
@@ -195,4 +202,12 @@ public class AttributeController {
         return ApiReturn.success(relationRsp);
     }
 
+    @ApiOperation("批量修改关系")
+    @PatchMapping("relation/update/{kgName}")
+    public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName, @RequestBody List<RelationUpdateReq> list) {
+        List<UpdateEdgeVO> edgeList = RestCopyConverter.copyToNewList(list, UpdateEdgeVO.class);
+        Optional<BatchResult<UpdateEdgeVO>> edgeOpt = RestRespConverter.convert(batchApi.updateRelations(kgName, edgeList));
+        return edgeOpt.map(result -> ApiReturn.success(RestCopyConverter.copyToNewList(result.getSuccess(), RelationUpdateReq.class)))
+                .orElseGet(() -> ApiReturn.success(Collections.emptyList()));
+    }
 }

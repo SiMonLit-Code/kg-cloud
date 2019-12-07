@@ -51,6 +51,6 @@ public class RelationController implements GraphDataObtainInterface {
     @ApiOperation("批量关系修改")
     @PatchMapping("relations/update/{kgName}")
     public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName, @RequestBody List<RelationUpdateReq> list) {
-        return kgDataClient.updateRelations(kgName, list);
+        return editClient.updateRelations(kgName, list);
     }
 }

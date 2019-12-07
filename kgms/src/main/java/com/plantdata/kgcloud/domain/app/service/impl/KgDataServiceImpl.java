@@ -43,36 +43,5 @@ public class KgDataServiceImpl implements KgDataService {
     @Autowired
     private BatchApi batchApi;
 
-    @Override
-    public List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq) {
-        if (entityQueryReq.getConceptId() == null && StringUtils.isNotEmpty(entityQueryReq.getConceptKey())) {
-            List<Long> longList = graphHelperService.replaceByConceptKey(kgName, Lists.newArrayList(entityQueryReq.getConceptKey()));
-            if (!CollectionUtils.isEmpty(longList)) {
-                entityQueryReq.setConceptId(longList.get(0));
-            }
-        }
-        SearchByAttributeFrom attributeFrom = EntityConverter.entityQueryReqToSearchByAttributeFrom(entityQueryReq);
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.searchByAttribute(kgName, attributeFrom));
-        return entityOpt.orElse(new ArrayList<>()).stream().map(EntityConverter::voToOpenEntityRsp).collect(Collectors.toList());
-    }
 
-    @Override
-    public List<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity) {
-        List<BatchEntityVO> entityList = batchEntity.stream()
-                .map(a -> ConvertUtils.convert(BatchEntityVO.class).apply(a))
-                .collect(Collectors.toList());
-        Optional<BatchResult<BatchEntityVO>> entityOpt = RestRespConverter.convert(batchApi.addEntities(kgName, update, entityList));
-        return entityOpt.map(result -> result.getSuccess().stream()
-                .map(a -> ConvertUtils.convert(OpenBatchSaveEntityRsp.class).apply(a))
-                .collect(Collectors.toList())).orElse(Collections.emptyList());
-    }
-
-    @Override
-    public void batchDeleteEntityAttr(String kgName, BatchEntityAttrDeleteReq deleteReq) {
-        BatchDeleteAttrValueVO deleteAttrValueVO = new BatchDeleteAttrValueVO();
-        deleteAttrValueVO.setAttributeIds(deleteReq.getAttributeIds());
-        deleteAttrValueVO.setAttrNames(deleteReq.getAttrNames());
-        deleteAttrValueVO.setEntityIds(deleteReq.getEntityIds());
-        RestRespConverter.convertVoid(batchApi.deleteEntities(kgName, deleteAttrValueVO));
-    }
 }

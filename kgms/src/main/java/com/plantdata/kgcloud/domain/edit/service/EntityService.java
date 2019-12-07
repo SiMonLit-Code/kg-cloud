@@ -20,6 +20,10 @@ import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
+import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import org.springframework.data.domain.Page;
 
@@ -256,4 +260,10 @@ public interface EntityService {
      * @return
      */
     List<String> batchAddPrivateRelation(String kgName, BatchPrivateRelationReq batchPrivateRelationReq);
+
+    List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq);
+
+    List<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity);
+
+    void batchDeleteEntityAttr(String kgName, BatchEntityAttrDeleteReq deleteReq);
 }

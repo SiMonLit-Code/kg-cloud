@@ -2,6 +2,9 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
+import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
@@ -12,6 +15,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EntityModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
@@ -28,8 +32,10 @@ import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -275,5 +281,29 @@ public class EntityController {
                                                     @Valid @RequestBody BatchPrivateRelationReq batchPrivateRelationReq) {
         return ApiReturn.success(entityService.batchAddPrivateRelation(kgName, batchPrivateRelationReq));
     }
+
+
+    @ApiOperation("实体查询")
+    @GetMapping("/{kgName}/list/search")
+    public ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
+                                                          EntityQueryReq entityQueryReq) {
+        return ApiReturn.success(entityService.queryEntityList(kgName, entityQueryReq));
+    }
+
+
+    @ApiOperation("批量新增或新增实体")
+    @PostMapping("/{kgName}")
+    public ApiReturn<List<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName, @ApiParam("是否只是更新，默认不是") boolean add,
+                                                                @RequestBody List<OpenBatchSaveEntityRsp> batchEntity) {
+        return ApiReturn.success(entityService.saveOrUpdate(kgName, add, batchEntity));
+    }
+
+    @ApiOperation("批量实体数值属性删除")
+    @DeleteMapping("/attr/{kgName}")
+    public ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName, @RequestBody BatchEntityAttrDeleteReq deleteReq) {
+        entityService.batchDeleteEntityAttr(kgName, deleteReq);
+        return ApiReturn.success();
+    }
+
 
 }

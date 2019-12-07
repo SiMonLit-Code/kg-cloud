@@ -14,9 +14,5 @@ import java.util.List;
  */
 public interface KgDataService {
 
-    List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq);
 
-    List<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity);
-
-    void batchDeleteEntityAttr(String kgName, BatchEntityAttrDeleteReq deleteReq);
 }

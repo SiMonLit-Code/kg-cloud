@@ -28,8 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("kgData/entity")
 public class EntityController implements GraphDataObtainInterface {
-    @Autowired
-    public KgDataClient kgDataClient;
+
     @Autowired
     public EditClient editClient;
 
@@ -37,14 +36,14 @@ public class EntityController implements GraphDataObtainInterface {
     @GetMapping("{kgName}/list")
     public ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
                                                           EntityQueryReq entityQueryReq) {
-        return kgDataClient.queryEntityList(kgName, entityQueryReq);
+        return editClient.queryEntityList(kgName, entityQueryReq);
     }
 
     @ApiOperation("新增或修改")
     @PostMapping("app/kgData/entity/{kgName}")
     public ApiReturn batchAdd(@PathVariable("kgName") String kgName, @ApiParam("实体不存在是否新增，默认新增") boolean add,
                               @RequestBody List<OpenBatchSaveEntityRsp> batchEntity) {
-        return kgDataClient.saveOrUpdate(kgName, add, batchEntity);
+        return editClient.saveOrUpdate(kgName, add, batchEntity);
     }
 
     @ApiOperation("批量删除实体")
