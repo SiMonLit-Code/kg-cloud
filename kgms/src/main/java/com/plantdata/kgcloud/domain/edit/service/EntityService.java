@@ -33,6 +33,24 @@ import java.util.List;
 public interface EntityService {
 
     /**
+     * 添加概念
+     *
+     * @param kgName
+     * @param conceptId
+     * @param entityId
+     */
+    void addMultipleConcept(String kgName, Long conceptId, Long entityId);
+
+    /**
+     * 删除概念
+     *
+     * @param kgName
+     * @param conceptId
+     * @param entityId
+     */
+    void deleteMultipleConcept(String kgName, Long conceptId, Long entityId);
+
+    /**
      * 实体列表
      *
      * @param kgName

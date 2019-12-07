@@ -49,7 +49,7 @@ public class GraphController {
         return ApiReturn.success(graphService.findAll(userId, req));
     }
 
-    @ApiOperation("图谱根据Id查找")
+    @ApiOperation("图谱根据kgname查找")
     @GetMapping("/{kgName}")
     public ApiReturn<GraphRsp> findById(@PathVariable("kgName") String kgName) {
         String userId = SessionHolder.getUserId();

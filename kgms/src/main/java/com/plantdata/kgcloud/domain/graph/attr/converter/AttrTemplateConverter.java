@@ -25,7 +25,7 @@ public class AttrTemplateConverter implements AttributeConverter<List<AttrTempla
 
     @Override
     public List<AttrTemplateReq> convertToEntityAttribute(String dbData) {
-        if (StringUtils.hasText(dbData)) {
+        if (!StringUtils.hasText(dbData)) {
             return null;
         }
         ObjectMapper objectMapper = JacksonUtils.getInstance();

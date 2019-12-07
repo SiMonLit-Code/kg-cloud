@@ -1,12 +1,10 @@
-package com.plantdata.kgcloud.domain.audit;
+package com.plantdata.kgcloud.domain.audit.entity;
 
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 
@@ -19,6 +17,7 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name = "api_audit")
+@EntityListeners(AuditingEntityListener.class)
 public class ApiAudit {
     @Id
     @Column(name = "id")
@@ -36,7 +35,8 @@ public class ApiAudit {
     @Column(name = "status")
     private Integer status;
     @Basic
-    @Column(name = "invoke_at")
+    @Column(name = "invoke_at", updatable = false)
+    @CreatedDate
     private Date invokeAt;
 
 }

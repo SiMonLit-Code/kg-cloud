@@ -34,6 +34,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     WORD_NOT_EXISTS(120302, "词条不存在"),
 
     GRAPH_NOT_EXISTS(120401, "图谱不存在"),
+    GRAPH_CREATE_FAIL(120402, "图谱创建失败"),
 
     REMOTE_SERVICE_ERROR(120501, "远程服务错误"),
 

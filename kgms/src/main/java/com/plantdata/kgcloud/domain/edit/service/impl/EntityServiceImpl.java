@@ -81,6 +81,16 @@ public class EntityServiceImpl implements EntityService {
     private BasicInfoService basicInfoService;
 
     @Override
+    public void addMultipleConcept(String kgName, Long conceptId, Long entityId) {
+        RestRespConverter.convertVoid(conceptEntityApi.addMultipleConcept(kgName, conceptId, entityId));
+    }
+
+    @Override
+    public void deleteMultipleConcept(String kgName, Long conceptId, Long entityId) {
+        RestRespConverter.convertVoid(conceptEntityApi.deleteMultipleConcept(kgName, conceptId, entityId));
+    }
+
+    @Override
     public Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq) {
         BasicInfoListFrom basicInfoListFrom = ConvertUtils.convert(BasicInfoListFrom.class).apply(basicInfoListReq);
         basicInfoListFrom.setMetaData(parserFilterMetadata(basicInfoListReq));
