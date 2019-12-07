@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.common.util;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.KgDocumentErrorCodes;
@@ -26,7 +27,9 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.freehep.graphicsio.emf.EMFInputStream;
 import org.freehep.graphicsio.emf.EMFRenderer;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import javax.imageio.ImageIO;
@@ -42,6 +45,8 @@ import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConvertUtil {
 
@@ -378,6 +383,7 @@ public class ConvertUtil {
             Elements imgElements = htmlDoc.body().select("img");
             for(int i=0; i< imgElements.size(); i++){
 
+                //给emf wmf图片添加默认宽度 避免过大
                 Element img = imgElements.get(i);
                 if(img.attributes().get("src") != null && img.attributes().get("src").contains(".emf") || img.attributes().get("src").contains(".wmf")) {
                     img.removeAttr("width");
@@ -463,6 +469,8 @@ public class ConvertUtil {
         List<String> texts = Lists.newArrayList();
         texts.add(text);
 
+
+
        /* List<Element> spans = element.select("span");
         if(spans != null && !spans.isEmpty()){
             texts.addAll(spans.stream().map(span -> span.text()).collect(Collectors.toList()));
@@ -481,54 +489,36 @@ public class ConvertUtil {
         }
 
         if(titleText != null){
-//            element.children().remove();
-//            element.appendText(text);
             TitleLevel titleLevel = titleMap.get(titleText).get(0);
             if(titleMap.get(titleText).size() > 1){
                 titleMap.get(titleText).remove(0);
             }
-//            element.attributes().put("data-level",titleLevel.getLevel()+"")
-//                    .put("data-p",titleLevel.getSerialNumber())
-//                    .put("data-structure",structure+"")
-//                    .put("data-id", UUIDUtils.getShortString());
-            return WordContent.builder()
+
+            WordContent wordContent = WordContent.builder()
                     .htmlText(element.outerHtml())
                     .text(titleText)
                     .level(titleLevel.getLevel())
                     .structure(structure)
                     .index(index)
-//                    .number(titleLevel.getSerialNumber())
                     .build();
 
-//       } else if(!element.parent().tagName().equals("td")) {
-//            element.attributes().put("data-level", "0")
-//                    .put("data-p", "0")
-//                    .put("data-structure", "1")
-//                    .put("data-id", UUIDUtils.getShortString())
-//                    .put("class", "doc-text")
-//                    .put("data-text", "1");
-//            return WordContent.builder()
-//                    .htmlText(element.outerHtml())
-//                    .level("0")
-//                    .text(element.text())
-//                    .structure(1)
-//                    .id(index)
-//                    .number("0")
-//                    .pClass("doc-text")
-//                    .text("1")
-//                    .build();
+            return wordContent;
+
         }else{
-            return WordContent.builder()
+            WordContent wordContent = WordContent.builder()
                     .htmlText(element.outerHtml())
                     .level(0)
                     .index(index)
                     .structure(structure)
                     .text(element.text())
                     .build();
+
+            return wordContent;
         }
     }
 
     public static List<WordContent> setTitleAtt(String targetFileName) {
         return setTitleAtt(targetFileName,null);
     }
+
 }
