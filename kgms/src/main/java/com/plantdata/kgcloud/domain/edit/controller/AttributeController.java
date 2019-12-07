@@ -6,6 +6,8 @@ import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.graph.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
+import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
