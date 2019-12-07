@@ -40,41 +40,41 @@ public class DataSetController {
     @Autowired
     private DataSetFolderService dataSetFolderService;
 
-    @ApiOperation("数据集查找所有")
+    @ApiOperation("数据集-schema-查找所有")
     @GetMapping("/all")
     public ApiReturn<List<DataSetRsp>> findAll() {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dataSetService.findAll(userId));
     }
 
-    @ApiOperation("数据集分页查找")
+    @ApiOperation("数据集-schema-分页查找")
     @GetMapping("/")
     public ApiReturn<Page<DataSetRsp>> findAll(DataSetPageReq req) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dataSetService.findAll(userId, req));
     }
 
-    @ApiOperation("数据集根据Id查找")
+    @ApiOperation("数据集-schema-根据Id查找")
     @GetMapping("/{id}")
     public ApiReturn<DataSetRsp> findById(@PathVariable Long id) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dataSetService.findById(userId, id));
     }
 
-    @ApiOperation("数据集创建")
+    @ApiOperation("数据集-schema-创建")
     @PostMapping("/")
     public ApiReturn<DataSetRsp> insert(@Valid @RequestBody DataSetReq req) {
         return ApiReturn.success(dataSetService.insert(req));
     }
 
-    @ApiOperation("数据集编辑")
+    @ApiOperation("数据集-schema-编辑")
     @PatchMapping("/{id}")
     public ApiReturn<DataSetRsp> update(@PathVariable Long id, @Valid @RequestBody DataSetReq req) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dataSetService.update(userId, id, req));
     }
 
-    @ApiOperation("数据集删除")
+    @ApiOperation("数据集-schema-删除")
     @DeleteMapping("/{id}")
     public ApiReturn delete(@PathVariable Long id) {
         String userId = SessionHolder.getUserId();
