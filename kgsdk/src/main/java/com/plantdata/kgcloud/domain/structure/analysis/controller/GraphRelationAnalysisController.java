@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.domain.structure.analysis.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphStructureAnalysisInterface;
 import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
@@ -35,7 +35,7 @@ public class GraphRelationAnalysisController implements GraphStructureAnalysisIn
     @ApiOperation("关联分析")
     @PostMapping("{kgName}")
     public ApiReturn<RelationAnalysisRsp> relationAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                           @RequestBody @Valid RelationAnalysisReq analysisReq) {
+                                                           @RequestBody @Valid RelationReqAnalysisReq analysisReq) {
         return appClient.relationAnalysis(kgName, analysisReq);
     }
 

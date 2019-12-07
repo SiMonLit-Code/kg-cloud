@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service;
 
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
@@ -14,7 +14,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
  */
 public interface GraphRelationAnalysisService {
 
-    RelationAnalysisRsp relationAnalysis(String kgName, RelationAnalysisReq analysisReq);
+    RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReq analysisReq);
 
     RelationTimingAnalysisRsp relationTimingAnalysis(String kgName,RelationTimingAnalysisReq analysisReq);
 

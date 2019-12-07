@@ -15,7 +15,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
@@ -256,7 +256,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/relation/{kgName}")
     ApiReturn<RelationAnalysisRsp> relationAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                    @RequestBody RelationAnalysisReq analysisReq);
+                                                    @RequestBody RelationReqAnalysisReq analysisReq);
 
     /**
      * 直接关联分析
@@ -267,7 +267,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/relation/direct/{kgName}")
     ApiReturn<RelationAnalysisRsp> relationDirect(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                  @RequestBody RelationAnalysisReq analysisReq);
+                                                  @RequestBody RelationReqAnalysisReq analysisReq);
 
     /**
      * 时序关联分析

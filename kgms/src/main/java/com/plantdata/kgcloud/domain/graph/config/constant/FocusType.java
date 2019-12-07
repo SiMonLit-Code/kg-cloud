@@ -1,7 +1,5 @@
 package com.plantdata.kgcloud.domain.graph.config.constant;
 
-import com.plantdata.kgcloud.domain.dataset.constant.DataType;
-
 /**
  * Created by plantdata-1007 on 2019/11/29.
  */

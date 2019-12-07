@@ -10,13 +10,17 @@ import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.AttrDefGroupConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
+import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
+import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
+import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfFocusRepository;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.GraphInitEnum;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
@@ -33,6 +37,9 @@ import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -63,6 +70,10 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private ConceptEntityApi conceptEntityApi;
     @Autowired
     private AttributeApi attributeApi;
+    @Autowired
+    private GraphConfFocusRepository graphConfFocusRepository;
+    @Autowired
+    private GraphHelperService graphHelperService;
 
     @Override
     public SchemaRsp querySchema(String kgName) {
@@ -81,7 +92,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         }
         List<AttrDefGroupDTO> attrDefGroupList = graphAttrGroupService.queryAllByKgName(kgName);
 
-        schemaRsp.setAttrGroups(DefaultUtils.getIfNoNull(attrDefGroupList,AttrDefGroupConverter.dtoToRsp(attrDefGroupList)));
+        schemaRsp.setAttrGroups(DefaultUtils.getIfNoNull(attrDefGroupList, AttrDefGroupConverter.dtoToRsp(attrDefGroupList)));
         return schemaRsp;
     }
 
@@ -114,9 +125,28 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     }
 
     @Override
-    public GraphInitRsp initGraphExploration(String kgName, GraphInitEnum graphInitType) {
-        //todo
-        return null;
+    public GraphInitRsp initGraphExploration(String kgName, GraphInitEnum graphInitType) throws JsonProcessingException {
+        Optional<GraphConfFocus> focusOpt = graphConfFocusRepository.findByKgNameAndType(kgName, graphInitType.getValue());
+        GraphInitRsp graphInitRsp = new GraphInitRsp();
+        if (focusOpt.isPresent()) {
+            GraphConfFocus initGraphBean = focusOpt.get();
+            if ((initGraphBean.getEntities() != null) && initGraphBean.getEntities().fieldNames().hasNext()) {
+                List<GraphInitRsp.GraphInitEntityRsp> list = JacksonUtils.getInstance().treeToValue(initGraphBean.getEntities(), List.class);
+                graphInitRsp.setEntities(list);
+                return graphInitRsp;
+            }
+        }
+        Optional<Long> entityIdOpt = RestRespConverter.convert(entityApi.initGraphEntity(kgName));
+        if (!entityIdOpt.isPresent()) {
+            return graphInitRsp;
+        }
+
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, EntityConverter.buildIdsQuery(Lists.newArrayList(entityIdOpt.get()))));
+        if (!entityOpt.isPresent()) {
+            return graphInitRsp;
+        }
+        graphInitRsp.setEntities(EntityConverter.entityVoToGraphInitEntityRsp(entityOpt.get()));
+        return graphInitRsp;
     }
 
     @Override
@@ -124,13 +154,11 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (null == conceptId && null == conceptKey) {
             throw BizException.of(AppErrorCodeEnum.NULL_CONCEPT_ID_AND_KEY);
         }
-        Optional<List<BasicInfo>> conceptOpt;
-        if (null != conceptId) {
-            conceptOpt = RestRespConverter.convert(conceptEntityApi.tree(kgName, conceptId));
-        } else {
-            conceptOpt = Optional.empty();
-            //todo 等待底层使用conceptKey查询概念
+        if (null == conceptId && StringUtils.isNotEmpty(conceptKey)) {
+            List<Long> longs = graphHelperService.replaceByConceptKey(kgName, Lists.newArrayList(conceptKey));
+            conceptId = CollectionUtils.isEmpty(longs) ? NumberUtils.LONG_ZERO : longs.get(0);
         }
+        Optional<List<BasicInfo>> conceptOpt = RestRespConverter.convert(conceptEntityApi.tree(kgName, conceptId));
         if (!conceptOpt.isPresent()) {
             return Collections.emptyList();
         }
@@ -146,9 +174,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (!CollectionUtils.isEmpty(req.getAllowAttrs())) {
             entityFrom.setAllowAtts(req.getAllowAttrs());
         } else if (!CollectionUtils.isEmpty(req.getAllowAttrsKey())) {
-            //todo 转换
+            entityFrom.setAllowAtts(graphHelperService.replaceByAttrKey(kgName, req.getAllowAttrsKey()));
         }
-
         Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, entityFrom));
 
         if (!entityOpt.isPresent()) {

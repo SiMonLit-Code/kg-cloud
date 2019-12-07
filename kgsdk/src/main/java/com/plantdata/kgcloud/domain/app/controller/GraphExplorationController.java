@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.constant.GraphInitEnum;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
@@ -36,13 +37,15 @@ public class GraphExplorationController implements GraphApplicationInterface {
 
     @Autowired
     private AppClient appClient;
+    @Autowired
+    private KgmsClient kgmsClient;
 
     @ApiOperation("初始化图探索数据")
     @PostMapping("init/{kgName}")
     public ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                         @ApiParam(value = "图类型", required = true) GraphInitEnum type) {
-        //todo 12-02
-        return ApiReturn.success(null);
+
+        return null;
     }
 
     @ApiOperation("根据业务规则kgQl语句图探索")

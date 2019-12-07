@@ -14,4 +14,6 @@ import java.util.Optional;
  **/
 public interface GraphConfFocusRepository extends JpaRepository<GraphConfFocus, GraphConfFocusPk> {
     Optional<List<GraphConfFocus>> findByKgName(String kgName);
+
+    Optional<GraphConfFocus> findByKgNameAndType(String kgName, String type);
 }

@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("实体提示参数")
-public class PromptReq extends BaseReq {
+public class PromptReq extends BaseReq implements PromptSearchInterface{
 
     @ApiModelProperty("关键字")
     private String kw;
@@ -37,4 +37,10 @@ public class PromptReq extends BaseReq {
     private Boolean isFuzzy = false;
     @ApiModelProperty("是否使用导出实体数据集检索")
     private Boolean openExportDate = true;
+
+
+    @Override
+    public Boolean getInherit() {
+        return isInherit;
+    }
 }
