@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.aop;
 
 import com.plantdata.kgcloud.producer.KafkaMessageProducer;
+import com.plantdata.kgcloud.sdk.constant.ApiAuditStatusEnum;
 import com.plantdata.kgcloud.sdk.mq.ApiAuditMessage;
 import com.plantdata.kgcloud.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,6 +47,7 @@ public class ApiAuditAspect {
                 break;
             }
         }
+        kgName = StringUtils.isEmpty(kgName) ? WebUtils.getHttpRequest().getParameter(KG_NAME) : kgName;
         if (StringUtils.isEmpty(kgName)) {
             return pjp.proceed();
         }
@@ -54,14 +56,14 @@ public class ApiAuditAspect {
         if (StringUtils.isEmpty(page)) {
             page = PAGE_DEVELOPER;
         }
-        int status = 1;
+        ApiAuditStatusEnum status = ApiAuditStatusEnum.INVOKE_SUCCESS;
         try {
             return pjp.proceed();
         } catch (Throwable throwable) {
-            status = 1;
+            status = ApiAuditStatusEnum.INVOKE_FAILURE;
             throw throwable;
         } finally {
-            kafkaMessageProducer.sendMessage("topic.api.audit", new ApiAuditMessage(kgName, page, uri, status));
+            kafkaMessageProducer.sendMessage(topicApiAudit, new ApiAuditMessage(kgName, page, uri, status));
         }
     }
 }

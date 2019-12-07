@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.mq;
 
+import com.plantdata.kgcloud.sdk.constant.ApiAuditStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,5 +14,5 @@ public class ApiAuditMessage implements Serializable {
     private String kgName;
     private String page;
     private String url;
-    private Integer status;
+    private ApiAuditStatusEnum status;
 }
