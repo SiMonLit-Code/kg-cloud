@@ -1,7 +1,10 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.config.EsProperties;
+import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSetFolder;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
@@ -9,8 +12,10 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
-import com.plantdata.kgcloud.sdk.req.DataSetReq;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -23,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -41,18 +47,23 @@ public class DataSetServiceImpl implements DataSetService {
     private final static String JOIN = "_";
 
     @Autowired
+    private MongoProperties mongoProperties;
+
+    @Autowired
+    private EsProperties esProperties;
+
+    @Autowired
     private DataSetRepository dataSetRepository;
 
     @Autowired
     private DataSetFolderService dataSetFolderService;
 
 
-
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
 
-    private String genDataName(String userId) {
-        return userId + JOIN + DATA_PREFIX + JOIN + Long.toHexString(System.currentTimeMillis());
+    private String genDataName(String userId, String key) {
+        return userId + JOIN + DATA_PREFIX + JOIN + key;
     }
 
     @Override
@@ -107,7 +118,7 @@ public class DataSetServiceImpl implements DataSetService {
 
     @Override
     public DataSet findOne(String userId, Long id) {
-        return dataSetRepository.findByIdAndUserId(id, userId)
+        return dataSetRepository.findByUserIdAndId(userId, id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
     }
 
@@ -120,29 +131,26 @@ public class DataSetServiceImpl implements DataSetService {
 
     @Override
     public DataSetRsp findById(String userId, Long id) {
-        Optional<DataSet> one = dataSetRepository.findByIdAndUserId(id, userId);
-        return one.map(ConvertUtils.convert(DataSetRsp.class)).orElse(null);
+        Optional<DataSet> one = dataSetRepository.findByUserIdAndId(userId, id);
+        return one.map(ConvertUtils.convert(DataSetRsp.class))
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(String userId, Long id) {
-        DataSet dataSet = dataSetRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
-        DataOptConnect connect = DataOptConnect.builder()
-                .addresses(dataSet.getAddr())
-                .username(dataSet.getUsername())
-                .password(dataSet.getPassword())
-                .build();
+        DataSet dataSet = findOne(userId, id);
+        DataOptConnect connect = DataOptConnect.of(dataSet);
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, dataSet.getDataType())) {
             provider.dropTable();
         } catch (IOException e) {
             log.error("delete fail...", e);
         }
-        dataSetRepository.deleteByIdAndUserId(id, userId);
+        dataSetRepository.deleteByUserIdAndId(userId, id);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void batchDelete(String userId, Collection<Long> ids) {
         for (Long id : ids) {
             delete(userId, id);
@@ -151,7 +159,7 @@ public class DataSetServiceImpl implements DataSetService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public DataSetRsp insert(String userId, DataSetReq req) {
+    public DataSetRsp insert(String userId, DataSetCreateReq req) {
         DataSet target = new DataSet();
         BeanUtils.copyProperties(req, target);
         Set<Long> folderIds = dataSetFolderService.getFolderIds(userId);
@@ -159,9 +167,42 @@ public class DataSetServiceImpl implements DataSetService {
             DataSetFolder folder = dataSetFolderService.getDefaultFolder(userId);
             target.setFolderId(folder.getId());
         }
-        target.setId(kgKeyGenerator.getNextId());
+        String dataName = genDataName(userId, req.getKey());
+        Optional<DataSet> dataSet = dataSetRepository.findByDataName(dataName);
+        if (dataSet.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_KEY_EXISTS);
+        }
 
-        target.setDataName(genDataName(userId));
+        target.setId(kgKeyGenerator.getNextId());
+        target.setDataName(dataName);
+        DataType type = DataType.findType(req.getDataType());
+        target.setDataType(type);
+        target.setDbName(userId + JOIN + DATA_PREFIX);
+        if (type == DataType.MONGO) {
+            target.setAddr(Arrays.asList(mongoProperties.getAddrs()));
+            target.setTbName(req.getKey());
+            /*
+            target.setPassword(mongoProperties.getPassword());
+            target.setUsername(mongoProperties.getUsername());
+            */
+        } else if (type == DataType.ELASTIC) {
+            target.setAddr(esProperties.getAddrs());
+            target.setDbName(dataName);
+            target.setTbName("_doc");
+        }
+        target.setEditable(true);
+        target.setPrivately(true);
+        List<DataSetSchema> schema = req.getSchema();
+        List<String> fields = new ArrayList<>();
+        for (DataSetSchema dataSetSchema : schema) {
+            fields.add(dataSetSchema.getField());
+        }
+        target.setFields(fields);
+
+
+        DataOptConnect dataOptConnect = DataOptConnect.of(target);
+        DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, type);
+        provider.createTable(schema);
 
         target = dataSetRepository.save(target);
         return ConvertUtils.convert(DataSetRsp.class).apply(target);
@@ -169,15 +210,18 @@ public class DataSetServiceImpl implements DataSetService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public DataSetRsp update(String userId, Long id, DataSetReq req) {
-        Optional<DataSet> one = dataSetRepository.findByIdAndUserId(id, userId);
-        if (one.isPresent()) {
-            DataSet target = one.get();
-            BeanUtils.copyProperties(req, target);
-            target = dataSetRepository.save(target);
-            return ConvertUtils.convert(DataSetRsp.class).apply(target);
-        }
-        throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
+    public DataSetRsp update(String userId, Long id, DataSetUpdateReq req) {
+        Optional<DataSet> one = dataSetRepository.findByUserIdAndId(userId,id);
+        DataSet target = one.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
+        BeanUtils.copyProperties(req, target);
+        target = dataSetRepository.save(target);
+        return ConvertUtils.convert(DataSetRsp.class).apply(target);
+
+    }
+
+    @Override
+    public List<DataSetSchema> resolve(Integer dataType, MultipartFile file) {
+        return null;
     }
 
     @Override
@@ -193,5 +237,6 @@ public class DataSetServiceImpl implements DataSetService {
         }
         dataSetRepository.saveAll(dataSetList);
     }
+
 
 }

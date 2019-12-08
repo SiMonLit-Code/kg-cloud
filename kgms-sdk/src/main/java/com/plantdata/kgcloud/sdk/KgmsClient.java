@@ -32,11 +32,11 @@ public interface KgmsClient {
 
     @ApiOperation("数据集创建")
     @PostMapping("/dataset/")
-    ApiReturn<DataSetRsp> dataSetInsert(@Valid @RequestBody DataSetReq req);
+    ApiReturn<DataSetRsp> dataSetInsert(@Valid @RequestBody DataSetCreateReq req);
 
     @ApiOperation("数据集编辑")
     @PatchMapping("/dataset/{id}")
-    ApiReturn<DataSetRsp> dataSetUpdate(@PathVariable Long id, @Valid @RequestBody DataSetReq req);
+    ApiReturn<DataSetRsp> dataSetUpdate(@PathVariable Long id, @Valid @RequestBody DataSetCreateReq req);
 
     @ApiOperation("数据集删除")
     @DeleteMapping("/dataset/{id}")

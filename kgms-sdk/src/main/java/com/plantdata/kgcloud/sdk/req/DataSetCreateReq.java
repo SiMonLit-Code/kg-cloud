@@ -14,17 +14,27 @@ import java.util.List;
  **/
 @Data
 @ApiModel
-public class DataSetReq {
+public class DataSetCreateReq {
+
+    @ApiModelProperty("文件夹id")
     private Long folderId;
 
+    @ApiModelProperty("标题")
     private String title;
-    @ApiModelProperty
+
+    @ApiModelProperty("唯一标识")
+    private String key;
+
+    @ApiModelProperty("数据集类型")
     private Integer dataType;
-    @ApiModelProperty
+
+    @ApiModelProperty("创建类型")
     private Integer createType;
-    @ApiModelProperty
+
+    @ApiModelProperty("创建方式")
     private String createWay;
+
     @Valid
     @ApiModelProperty
-    private List<DataSetSchema> cols;
+    private List<DataSetSchema> schema;
 }

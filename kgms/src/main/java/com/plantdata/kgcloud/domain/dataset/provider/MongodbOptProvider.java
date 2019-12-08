@@ -13,15 +13,13 @@ import com.mongodb.client.model.Indexes;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHost;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -37,20 +35,22 @@ public class MongodbOptProvider implements DataOptProvider {
     private final String database;
     private final String table;
 
+    private ServerAddress buildServerAddress(String addr) {
+        String[] host = addr.trim().split(":");
+        if (host.length == 2) {
+            String ip = host[0].trim();
+            int port = Integer.parseInt(host[1].trim());
+            return new ServerAddress(ip, port);
+        }
+        return null;
+    }
+
 
     public MongodbOptProvider(DataOptConnect info) {
-        String addresses = info.getAddresses().trim();
-        List<ServerAddress> addressList = new ArrayList<>();
-        for (String addr : addresses.split(",")) {
-            String[] host = addr.trim().split(":");
-            ServerAddress serverAddress;
-            if (host.length > 1) {
-                serverAddress = new ServerAddress(host[0].trim(), Integer.parseInt(host[1].trim()));
-            } else {
-                serverAddress = new ServerAddress(host[0].trim());
-            }
-            addressList.add(serverAddress);
-        }
+        List<ServerAddress> addressList = info.getAddresses().stream()
+                .map(this::buildServerAddress)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         MongoClientOptions clientOptions = new MongoClientOptions
                 .Builder()
                 .connectionsPerHost(10)

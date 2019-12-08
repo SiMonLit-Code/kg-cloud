@@ -3,9 +3,7 @@ package com.plantdata.kgcloud.domain.dataset.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetFolderService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
-import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
-import com.plantdata.kgcloud.sdk.req.DataSetReq;
-import com.plantdata.kgcloud.sdk.req.FolderReq;
+import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.FolderRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -13,14 +11,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -63,14 +55,14 @@ public class DataSetController {
 
     @ApiOperation("数据集-schema-创建")
     @PostMapping("/")
-    public ApiReturn<DataSetRsp> insert(@Valid @RequestBody DataSetReq req) {
+    public ApiReturn<DataSetRsp> insert(@Valid @RequestBody DataSetCreateReq req) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(dataSetService.insert(userId,req));
+        return ApiReturn.success(dataSetService.insert(userId, req));
     }
 
     @ApiOperation("数据集-schema-编辑")
     @PatchMapping("/{id}")
-    public ApiReturn<DataSetRsp> update(@PathVariable Long id, @Valid @RequestBody DataSetReq req) {
+    public ApiReturn<DataSetRsp> update(@PathVariable Long id, @Valid @RequestBody DataSetUpdateReq req) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dataSetService.update(userId, id, req));
     }
@@ -81,6 +73,12 @@ public class DataSetController {
         String userId = SessionHolder.getUserId();
         dataSetService.delete(userId, id);
         return ApiReturn.success();
+    }
+
+    @ApiOperation("数据集-schema-解析")
+    @PostMapping("/schema")
+    public ApiReturn<List<DataSetSchema>> resolve(@RequestParam(value = "dataType") Integer dataType, @RequestParam(value = "file") MultipartFile file) {
+        return ApiReturn.success(dataSetService.resolve(dataType,file));
     }
 
 

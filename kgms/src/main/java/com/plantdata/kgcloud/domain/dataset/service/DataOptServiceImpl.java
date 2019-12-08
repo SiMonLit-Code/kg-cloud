@@ -33,11 +33,7 @@ public class DataOptServiceImpl implements DataOptService {
 
     private DataOptProvider getProvider(Long datasetId) {
         DataSet one = dataSetService.findOne(datasetId);
-        DataOptConnect connect = DataOptConnect.builder()
-                .addresses(one.getAddr())
-                .username(one.getUsername())
-                .password(one.getPassword())
-                .build();
+        DataOptConnect connect = DataOptConnect.of(one);
         return DataOptProviderFactory.createProvider(connect, one.getDataType());
     }
 

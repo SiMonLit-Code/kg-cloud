@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
-
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +20,7 @@ import org.elasticsearch.client.RestClient;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @description:
@@ -49,17 +44,21 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     private final String alias;
     private final String type;
 
-    public ElasticSearchOptProvider(DataOptConnect info) {
-        String address = info.getAddresses();
-        String[] addrs = address.split(",");
-        int length = addrs.length;
-        HttpHost[] hosts = new HttpHost[length];
-        for (int i = 0; i < length; i++) {
-            String addr = addrs[i];
-            String[] host = addr.split(":");
-
-            hosts[i] = new HttpHost(host[0], Integer.parseInt(host[1]));
+    private HttpHost buildHttpHost(String addr) {
+        String[] address = addr.split(":");
+        if (address.length == 2) {
+            String ip = address[0];
+            int port = Integer.parseInt(address[1]);
+            return new HttpHost(ip, port);
         }
+        return null;
+    }
+
+    public ElasticSearchOptProvider(DataOptConnect info) {
+        HttpHost[] hosts = info.getAddresses().stream()
+                .map(this::buildHttpHost)
+                .filter(Objects::nonNull)
+                .toArray(HttpHost[]::new);
         this.client = RestClient.builder(hosts).setMaxRetryTimeoutMillis(60000).build();
         this.alias = info.getDatabase();
         this.type = info.getTable();

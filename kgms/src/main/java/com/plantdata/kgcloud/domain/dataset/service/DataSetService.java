@@ -3,9 +3,12 @@ package com.plantdata.kgcloud.domain.dataset.service;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
-import com.plantdata.kgcloud.sdk.req.DataSetReq;
+import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +46,7 @@ public interface DataSetService {
 
     DataSet findOne(Long id);
 
-    DataSetRsp insert(String userId, DataSetReq req);
+    DataSetRsp insert(String userId, DataSetCreateReq req);
 
     /**
      * 数据集ids移动到文件夹
@@ -99,6 +102,8 @@ public interface DataSetService {
      * @param r
      * @return
      */
-    DataSetRsp update(String userId, Long id, DataSetReq r);
+    DataSetRsp update(String userId, Long id, DataSetUpdateReq r);
+
+    List<DataSetSchema> resolve(Integer dataType, MultipartFile file);
 
 }
