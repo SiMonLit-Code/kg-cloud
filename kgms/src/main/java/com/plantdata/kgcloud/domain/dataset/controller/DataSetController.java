@@ -75,7 +75,7 @@ public class DataSetController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("数据集-schema-解析")
+    @ApiOperation("数据集-schema-识别")
     @PostMapping("/schema")
     public ApiReturn<List<DataSetSchema>> resolve(@RequestParam(value = "dataType") Integer dataType, @RequestParam(value = "file") MultipartFile file) {
         return ApiReturn.success(dataSetService.resolve(dataType,file));

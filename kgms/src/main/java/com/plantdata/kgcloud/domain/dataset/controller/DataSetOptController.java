@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -35,14 +36,14 @@ public class DataSetOptController {
 
     @ApiOperation("数据集-数据-分页条件查询")
     @GetMapping("/{datasetId}/data")
-    public ApiReturn<List<Map<String, Object>>> findAll(
+    public ApiReturn<Page<Map<String, Object>>> findAll(
             @PathVariable("datasetId") Long datasetId,
             DataOptQueryReq baseReq
     ) {
         return ApiReturn.success(dataOptService.getData(datasetId, baseReq));
     }
 
-    @ApiOperation("数据集-数据-分页查询")
+    @ApiOperation("数据集-数据-根据Id查询")
     @GetMapping("/{datasetId}/data/{dataId}")
     public ApiReturn<Map<String, Object>> findById(
             @PathVariable("datasetId") Long datasetId,
@@ -55,7 +56,7 @@ public class DataSetOptController {
     @PostMapping("/{datasetId}/data")
     public ApiReturn<Map<String, Object>> insertData(
             @PathVariable("datasetId") Long datasetId,
-            @RequestBody JsonNode data) {
+            @RequestBody Map<String, Object> data) {
         return ApiReturn.success(dataOptService.insertData(datasetId, data));
     }
 
@@ -64,7 +65,7 @@ public class DataSetOptController {
     public ApiReturn<Map<String, Object>> insertData(
             @PathVariable("datasetId") Long datasetId,
             @PathVariable("dataId") String dataId,
-            @RequestBody JsonNode data) {
+            @RequestBody Map<String,Object> data) {
         return ApiReturn.success(dataOptService.updateData(datasetId, dataId, data));
     }
 

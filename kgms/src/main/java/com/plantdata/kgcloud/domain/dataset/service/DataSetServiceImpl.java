@@ -1,5 +1,10 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.config.MongoProperties;
@@ -7,6 +12,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSetFolder;
+import com.plantdata.kgcloud.domain.dataset.excel.ExcelListener;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
@@ -211,7 +217,7 @@ public class DataSetServiceImpl implements DataSetService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public DataSetRsp update(String userId, Long id, DataSetUpdateReq req) {
-        Optional<DataSet> one = dataSetRepository.findByUserIdAndId(userId,id);
+        Optional<DataSet> one = dataSetRepository.findByUserIdAndId(userId, id);
         DataSet target = one.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
         BeanUtils.copyProperties(req, target);
         target = dataSetRepository.save(target);
@@ -221,7 +227,35 @@ public class DataSetServiceImpl implements DataSetService {
 
     @Override
     public List<DataSetSchema> resolve(Integer dataType, MultipartFile file) {
-        return null;
+        List<DataSetSchema> setSchemas = new ArrayList<>();
+        try {
+            EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
+                @Override
+                public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
+                    for (Map.Entry<Integer, String> entry : headMap.entrySet()) {
+                        DataSetSchema dataSetSchema = new DataSetSchema();
+                        dataSetSchema.setField(entry.getValue());
+                        dataSetSchema.setType(1);
+                        setSchemas.add(dataSetSchema);
+                    }
+                }
+
+                @Override
+                public void invoke(Map<Integer, Object> data, AnalysisContext context) {
+                    for (Map.Entry<Integer, Object> entry : data.entrySet()) {
+                        System.out.println(entry.getValue().getClass().getName());
+                    }
+                }
+
+                @Override
+                public void doAfterAllAnalysed(AnalysisContext context) {
+
+                }
+            }).sheet().doRead();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return setSchemas;
     }
 
     @Override

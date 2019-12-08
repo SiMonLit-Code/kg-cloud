@@ -139,6 +139,16 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         return mapList;
     }
 
+    @Override
+    public long count(Map<String, Object> query) {
+        return 0;
+    }
+
+    @Override
+    public Map<String, Object> findOne(String id) {
+        return null;
+    }
+
     public String sendDelete(String index, String type, String id) {
 
         String endpoint = "/" + index + "/" + type + "/" + id;

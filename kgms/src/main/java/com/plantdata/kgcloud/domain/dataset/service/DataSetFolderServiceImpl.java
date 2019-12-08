@@ -81,6 +81,7 @@ public class DataSetFolderServiceImpl implements DataSetFolderService {
         DataSetFolder folder = new DataSetFolder();
         BeanUtils.copyProperties(req, folder);
         folder.setId(kgKeyGenerator.getNextId());
+        folder.setDefaulted(false);
         DataSetFolder save = dataSetFolderRepository.save(folder);
         return ConvertUtils.convert(FolderRsp.class).apply(save);
     }
