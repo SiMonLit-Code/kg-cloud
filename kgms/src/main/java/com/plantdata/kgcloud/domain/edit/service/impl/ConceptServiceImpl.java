@@ -1,10 +1,12 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
+import ai.plantdata.kg.api.edit.req.UpdateBasicInfoFrom;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.ConceptReplaceReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.GisModifyReq;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.domain.edit.vo.BasicInfoVO;
@@ -56,4 +58,10 @@ public class ConceptServiceImpl implements ConceptService {
                 metadata));
     }
 
+    @Override
+    public void replaceConceptId(String kgName, ConceptReplaceReq conceptReplaceReq) {
+        UpdateBasicInfoFrom updateBasicInfoFrom =
+                ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(conceptReplaceReq);
+        RestRespConverter.convertVoid(conceptEntityApi.update(kgName, updateBasicInfoFrom));
+    }
 }
