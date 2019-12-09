@@ -63,8 +63,9 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteInBatch( List<GraphConfStatistical> ids) {
-        graphConfStatisticalRepository.deleteInBatch(ids);
+    public void deleteInBatch( List<Long> ids) {
+        List<GraphConfStatistical> allById = graphConfStatisticalRepository.findAllById(ids);
+        graphConfStatisticalRepository.deleteInBatch(allById);
     }
 
     @Override

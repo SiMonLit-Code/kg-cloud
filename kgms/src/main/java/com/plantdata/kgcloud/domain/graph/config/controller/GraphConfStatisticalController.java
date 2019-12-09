@@ -43,7 +43,7 @@ public class GraphConfStatisticalController {
 
     @ApiOperation("图谱批量删除统计")
     @DeleteMapping("/statistical/{kgName}/{ids}")
-    public void batchDeleteStatistical(@PathVariable("ids")List<GraphConfStatistical> ids) {
+    public void batchDeleteStatistical(@PathVariable("ids") List<Long> ids) {
         graphConfStatisticalService.deleteInBatch(ids);
     }
 

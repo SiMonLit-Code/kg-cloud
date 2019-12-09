@@ -38,7 +38,7 @@ public interface GraphConfStatisticalService {
      * 批量删除统计
      * @param ids
      */
-    void deleteInBatch(List<GraphConfStatistical> ids);
+    void deleteInBatch(List<Long> ids);
 
 
 

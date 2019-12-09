@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.share.Controller;
+package com.plantdata.kgcloud.domain.share.controller;
 
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
 import io.swagger.annotations.Api;
