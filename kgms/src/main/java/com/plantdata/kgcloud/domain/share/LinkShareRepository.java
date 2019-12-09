@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.share;
 
-import com.plantdata.kgcloud.domain.share.LinkShare;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
