@@ -19,40 +19,40 @@ import java.util.Optional;
  * 图谱业务配置
  * Created by plantdata-1007 on 2019/12/2.
  */
-@Api(tags = "图谱业务配置")
+@Api(tags = "图谱配置")
 @RestController
 @RequestMapping("/config")
 public class GraphConfKgqlController {
     @Autowired
     private GraphConfKgqlService graphConfKgqlService;
 
-    @ApiOperation("图谱新建业务")
+    @ApiOperation("图谱配置-KGQL-新建")
     @PostMapping("/kgql/{kgName}")
     public ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req) {
 
         return ApiReturn.success(graphConfKgqlService.createKgql(kgName, req));
     }
 
-    @ApiOperation("图谱更新业务")
+    @ApiOperation("图谱配置-KGQL-更新")
     @PatchMapping("/kgql/{id}")
     public ApiReturn<GraphConfKgqlRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfKgqlReq req) {
         return ApiReturn.success(graphConfKgqlService.updateKgql(id, req));
     }
 
-    @ApiOperation("图谱删除业务")
+    @ApiOperation("图谱配置-KGQL-删除")
     @DeleteMapping("/kgql/{id}")
     public ApiReturn deleteKgql(@PathVariable("id") Long id) {
         graphConfKgqlService.deleteKgql(id);
         return ApiReturn.success();
     }
 
-    @ApiOperation("图谱查询业务")
+    @ApiOperation("图谱配置-KGQL-查询")
     @GetMapping("/kgql/{kgName}")
     public ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName, @RequestParam("ruleType") Integer ruleType, BaseReq baseReq) {
         return ApiReturn.success(graphConfKgqlService.findByKgName(kgName, baseReq, ruleType));
     }
 
-    @ApiOperation("图谱业务详情")
+    @ApiOperation("图谱配置-KGQL-详情")
     @GetMapping("/kgql/{id}")
     public ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id) {
         return ApiReturn.success(graphConfKgqlService.findById(id));
