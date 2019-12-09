@@ -154,7 +154,7 @@ public class AttributeServiceImpl implements AttributeService {
                                                                List<AttrDefinitionReq> attrDefinitionReqs) {
         List<AttributeDefinitionVO> voList =
                 attrDefinitionReqs.stream().map(
-                        attrDefinitionReq -> (AttributeDefinitionVO) AttrConverterUtils.attrDefinitionReqConvert(attrDefinitionReq)
+                        AttrConverterUtils::attrDefinitionReqConvert
                 ).collect(Collectors.toList());
         Optional<BatchResult<AttributeDefinitionVO>> optional =
                 RestRespConverter.convert(batchApi.addAttributes(kgName, voList));

@@ -56,10 +56,10 @@ public class GraphAttrController {
         return ApiReturn.success(graphAttrGroupService.updateAttrGroup(kgName, id, attrGroupReq));
     }
 
-    @ApiOperation("修改属性分组名称")
+    @ApiOperation("属性分组名称列表")
     @GetMapping("/{kgName}")
     ApiReturn<List<GraphAttrGroupRsp>> listAttrGroups(@PathVariable("kgName") String kgName,
-                                                      @Valid @RequestBody AttrGroupSearchReq attrGroupSearchReq) {
+                                                      AttrGroupSearchReq attrGroupSearchReq) {
         return ApiReturn.success(graphAttrGroupService.listAttrGroups(kgName, attrGroupSearchReq));
     }
 
