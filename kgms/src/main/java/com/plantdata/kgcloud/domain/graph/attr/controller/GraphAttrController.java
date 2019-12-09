@@ -64,7 +64,7 @@ public class GraphAttrController {
     }
 
     @ApiOperation("向属性分组里面添加属性")
-    @PostMapping("/{kgName}/to/add")
+    @PostMapping("/{kgName}/{id}/to/add")
     ApiReturn addAttrToAttrGroup(@PathVariable("kgName") String kgName,
                                  @PathVariable("id") Long id,
                                  @Valid @RequestBody List<Integer> attrIds) {
@@ -73,7 +73,7 @@ public class GraphAttrController {
     }
 
     @ApiOperation("从属性分组里面删除属性")
-    @PostMapping("/{kgName}/from/delete")
+    @PostMapping("/{kgName}/{id}/from/delete")
     ApiReturn deleteAttrFromAttrGroup(@PathVariable("kgName") String kgName,
                                       @PathVariable("id") Long id,
                                       @Valid @RequestBody List<Integer> attrIds) {
