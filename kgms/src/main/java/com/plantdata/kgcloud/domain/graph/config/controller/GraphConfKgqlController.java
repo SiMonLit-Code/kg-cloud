@@ -41,13 +41,14 @@ public class GraphConfKgqlController {
 
     @ApiOperation("图谱删除业务")
     @DeleteMapping("/kgql/{id}")
-    public void deleteKgql(@PathVariable("id") Long id) {
+    public ApiReturn deleteKgql(@PathVariable("id") Long id) {
         graphConfKgqlService.deleteKgql(id);
+        return ApiReturn.success();
     }
 
     @ApiOperation("图谱查询业务")
     @GetMapping("/kgql/{kgName}")
-    public ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName, @RequestParam("kgName") Integer ruleType, BaseReq baseReq) {
+    public ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName, @RequestParam("ruleType") Integer ruleType, BaseReq baseReq) {
         return ApiReturn.success(graphConfKgqlService.findByKgName(kgName, baseReq, ruleType));
     }
 

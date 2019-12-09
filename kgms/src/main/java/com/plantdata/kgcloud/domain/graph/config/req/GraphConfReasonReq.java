@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @ApiModel("图统计")
 @Data
-public class GraphConfReasoningReq {
+public class GraphConfReasonReq {
 
     @ApiModelProperty(value = "关系名称")
     private String ruleName;
