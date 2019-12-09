@@ -18,6 +18,4 @@ import java.util.List;
 public class CommonEntityRsp extends GraphEntityRsp{
     @ApiModelProperty("标签信息")
     private List<TagRsp> tags;
-    @ApiModelProperty("样式")
-    private StyleRsp style;
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -13,9 +14,10 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class GraphEntityRsp extends BasicEntityRsp  {
+public class GraphEntityRsp extends BasicEntityRsp {
 
-
+    @ApiModelProperty("业务使用")
+    private Long replaceClassId;
     @ApiModelProperty("顶层概念")
     private ExploreConceptRsp topConcept;
     @ApiModelProperty("主概念")
@@ -24,4 +26,8 @@ public class GraphEntityRsp extends BasicEntityRsp  {
     private List<Long> conceptIdList;
     @ApiModelProperty("坐标信息")
     private CoordinateReq coordinates;
+    @ApiModelProperty("节点样式")
+    private Map<String, Object> nodeStyle;
+    @ApiModelProperty("label样式")
+    private Map<String, Object> labelStyle;
 }
