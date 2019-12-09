@@ -24,6 +24,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -402,7 +403,10 @@ public class DocumentServiceImpl implements DocumentService {
             org.bson.Document filter = new org.bson.Document("doc_id",docId);
             filter.put("index",doc.getHtmlId());
             org.bson.Document document = new org.bson.Document("level",doc.getLevel());
-            document.put("html",doc.getHtml());
+
+            //html转义
+            String html = StringEscapeUtils.unescapeHtml4(doc.getHtml());
+            document.put("html",html);
             mongoDriver.update(ConvertConstent.databases,scene.getId()+"_"+ ConvertConstent.collection_html,filter,document);
 
         });
