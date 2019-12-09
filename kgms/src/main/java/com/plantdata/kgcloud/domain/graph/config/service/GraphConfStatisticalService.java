@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
+import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 
@@ -35,9 +36,10 @@ public interface GraphConfStatisticalService {
 
     /**
      * 批量删除统计
-     * @param entities
+     * @param ids
      */
-    void deleteInBatch(Iterable entities);
+    void deleteInBatch(List<GraphConfStatistical> ids);
+
 
 
     /**

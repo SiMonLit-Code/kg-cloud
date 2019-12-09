@@ -9,13 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Created by jdm on 2019/12/9 12:06.
  */
-//
-//@Api(tags = "知识应用分享")
-//@RestController
-//@RequestMapping("/share")
+
+@Api(tags = "知识应用分享")
+@RestController
+@RequestMapping("/share")
 public class LinkShareController {
-//    @Autowired
-//    private LinkShareService linkShareService;
+
+    @Autowired
+    private LinkShareService linkShareService;
 
 
 }

@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
@@ -41,9 +42,9 @@ public class GraphConfStatisticalController {
     }
 
     @ApiOperation("图谱批量删除统计")
-    @DeleteMapping("/statistical/{kgName}/{entities}")
-    public void batchDeleteStatistical(@PathVariable("entities")Iterable entities) {
-        graphConfStatisticalService.deleteInBatch(entities);
+    @DeleteMapping("/statistical/{kgName}/{ids}")
+    public void batchDeleteStatistical(@PathVariable("ids")List<GraphConfStatistical> ids) {
+        graphConfStatisticalService.deleteInBatch(ids);
     }
 
     @ApiOperation("图谱查询统计")

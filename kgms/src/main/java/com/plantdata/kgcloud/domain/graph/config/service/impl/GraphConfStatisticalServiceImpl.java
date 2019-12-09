@@ -1,13 +1,12 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfStatisticalRepository;
-import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
@@ -15,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.apache.tomcat.jni.Mmap.delete;
 
 /**
  *
@@ -66,8 +63,8 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteInBatch( Iterable entities) {
-        graphConfStatisticalRepository.deleteInBatch(entities);
+    public void deleteInBatch( List<GraphConfStatistical> ids) {
+        graphConfStatisticalRepository.deleteInBatch(ids);
     }
 
     @Override
