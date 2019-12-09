@@ -9,6 +9,8 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
+import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
@@ -196,6 +198,21 @@ public class AttributeController {
         return ApiReturn.success();
     }
 
+    @ApiOperation("添加或更新关系的业务信息")
+    @PostMapping("/{kgName}/additional/relation")
+    ApiReturn upsertRelationAdditional(@PathVariable("kgName") String kgName,
+                                       @Valid @RequestBody RelationAdditionalReq relationAdditionalReq) {
+        attributeService.upsertRelationAdditional(kgName, relationAdditionalReq);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("修改对象属性定义的业务信息")
+    @PostMapping("/{kgName}/additional/attr")
+    ApiReturn updateAttrDefinitionAdditional(@PathVariable("kgName") String kgName,
+                                             @Valid @RequestBody AttrDefinitionAdditionalReq additionalReq) {
+        attributeService.updateAttrDefinitionAdditional(kgName, additionalReq);
+        return ApiReturn.success();
+    }
 
     @ApiOperation("批量关系新增")
     @PostMapping("relation/insert/{kgName}")
@@ -209,10 +226,13 @@ public class AttributeController {
 
     @ApiOperation("批量修改关系")
     @PatchMapping("relation/update/{kgName}")
-    public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName, @RequestBody List<RelationUpdateReq> list) {
+    public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
+                                                              @RequestBody List<RelationUpdateReq> list) {
         List<UpdateEdgeVO> edgeList = RestCopyConverter.copyToNewList(list, UpdateEdgeVO.class);
-        Optional<BatchResult<UpdateEdgeVO>> edgeOpt = RestRespConverter.convert(batchApi.updateRelations(kgName, edgeList));
-        return edgeOpt.map(result -> ApiReturn.success(RestCopyConverter.copyToNewList(result.getSuccess(), RelationUpdateReq.class)))
+        Optional<BatchResult<UpdateEdgeVO>> edgeOpt = RestRespConverter.convert(batchApi.updateRelations(kgName,
+                edgeList));
+        return edgeOpt.map(result -> ApiReturn.success(RestCopyConverter.copyToNewList(result.getSuccess(),
+                RelationUpdateReq.class)))
                 .orElseGet(() -> ApiReturn.success(Collections.emptyList()));
     }
 }

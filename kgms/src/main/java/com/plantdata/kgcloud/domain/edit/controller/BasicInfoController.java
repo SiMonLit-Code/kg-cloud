@@ -67,22 +67,6 @@ public class BasicInfoController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("添加概念同义词")
-    @PostMapping("/{kgName}/synonym/add")
-    ApiReturn addSynonym(@PathVariable("kgName") String kgName,
-                         @Valid @RequestBody SynonymReq synonymReq) {
-        basicInfoService.addSynonym(kgName, synonymReq);
-        return ApiReturn.success();
-    }
-
-    @ApiOperation("删除概念同义词")
-    @PostMapping("/{kgName}/synonym/delete")
-    ApiReturn deleteSynonym(@PathVariable("kgName") String kgName,
-                            @Valid @RequestBody SynonymReq synonymReq) {
-        basicInfoService.deleteSynonym(kgName, synonymReq);
-        return ApiReturn.success();
-    }
-
     @ApiOperation("保存图片路径")
     @PostMapping("/{kgName}/image/url")
     ApiReturn saveImageUrl(@PathVariable("kgName") String kgName,
@@ -118,7 +102,7 @@ public class BasicInfoController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("一键清空额外信息")
+    @ApiOperation("kgql")
     @PostMapping("/execute/kgql")
     ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq) {
         basicInfoService.executeQl(kgqlReq);

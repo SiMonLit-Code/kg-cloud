@@ -1,7 +1,11 @@
 package com.plantdata.kgcloud.domain.dataset.entity;
 
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
+import com.plantdata.kgcloud.domain.dataset.converter.AddressConverter;
+import com.plantdata.kgcloud.domain.dataset.converter.StringListConverter;
+import com.plantdata.kgcloud.domain.dataset.converter.DataSetSchemaConverter;
 import com.plantdata.kgcloud.domain.dataset.converter.DataTypeConverter;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +25,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -62,7 +67,7 @@ public class DataSet {
     private String title;
 
     @Basic
-    @Column(name = "is_privately")
+    @Column(name = "is_private")
     private Boolean privately;
 
     @Basic
@@ -80,7 +85,8 @@ public class DataSet {
 
     @Basic
     @Column(name = "addr")
-    private String addr;
+    @Convert(converter = AddressConverter.class)
+    private List<String> addr;
 
     @Basic
     @Column(name = "username")
@@ -104,11 +110,13 @@ public class DataSet {
 
     @Basic
     @Column(name = "fields")
-    private String fields;
+    @Convert(converter = StringListConverter.class)
+    private List<String> fields;
 
     @Basic
     @Column(name = "schema_config")
-    private String schemaConfig;
+    @Convert(converter = DataSetSchemaConverter.class)
+    private List<DataSetSchema> schema;
 
     @Basic
     @Column(name = "mapper")

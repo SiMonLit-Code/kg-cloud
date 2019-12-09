@@ -1,11 +1,14 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
-import com.plantdata.kgcloud.domain.common.service.BaseService;
+import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
-import com.plantdata.kgcloud.sdk.req.DataSetReq;
+import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +18,7 @@ import java.util.List;
  * @author: Bovin
  * @create: 2019-11-06 10:42
  **/
-public interface DataSetService extends BaseService<DataSetRsp, DataSetReq, Long> {
+public interface DataSetService {
 
     /**
      * 分页查询接口
@@ -43,7 +46,7 @@ public interface DataSetService extends BaseService<DataSetRsp, DataSetReq, Long
 
     DataSet findOne(Long id);
 
-    DataSetRsp insert(String userId, DataSetReq req);
+    DataSetRsp insert(String userId, DataSetCreateReq req);
 
     /**
      * 数据集ids移动到文件夹
@@ -61,5 +64,46 @@ public interface DataSetService extends BaseService<DataSetRsp, DataSetReq, Long
      */
     void batchDelete(String userId, Collection<Long> ids);
 
+
+    /**
+     * 查询所有接口
+     *
+     * @return
+     */
+    List<DataSetRsp> findAll(String userId);
+
+    /**
+     * 分页查询接口
+     *
+     * @return
+     */
+    Page<DataSetRsp> findAll(String userId, BaseReq baseReq);
+
+    /**
+     * 根据id查询接口
+     *
+     * @param id
+     * @return
+     */
+    DataSetRsp findById(String userId, Long id);
+
+    /**
+     * 根据id删除接口
+     *
+     * @param id
+     * @return
+     */
+    void delete(String userId, Long id);
+
+    /**
+     * 修改接口
+     *
+     * @param id
+     * @param r
+     * @return
+     */
+    DataSetRsp update(String userId, Long id, DataSetUpdateReq r);
+
+    List<DataSetSchema> resolve(Integer dataType, MultipartFile file);
 
 }

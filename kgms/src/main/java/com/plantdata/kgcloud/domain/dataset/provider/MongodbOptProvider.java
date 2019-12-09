@@ -9,7 +9,6 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
-
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +16,8 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -37,20 +33,24 @@ public class MongodbOptProvider implements DataOptProvider {
     private final String database;
     private final String table;
 
+    private static final String MONGO_ID = CommonConstants.MongoConst.ID;
+
+    private ServerAddress buildServerAddress(String addr) {
+        String[] host = addr.trim().split(":");
+        if (host.length == 2) {
+            String ip = host[0].trim();
+            int port = Integer.parseInt(host[1].trim());
+            return new ServerAddress(ip, port);
+        }
+        return null;
+    }
+
 
     public MongodbOptProvider(DataOptConnect info) {
-        String addresses = info.getAddresses().trim();
-        List<ServerAddress> addressList = new ArrayList<>();
-        for (String addr : addresses.split(",")) {
-            String[] host = addr.trim().split(":");
-            ServerAddress serverAddress;
-            if (host.length > 1) {
-                serverAddress = new ServerAddress(host[0].trim(), Integer.parseInt(host[1].trim()));
-            } else {
-                serverAddress = new ServerAddress(host[0].trim());
-            }
-            addressList.add(serverAddress);
-        }
+        List<ServerAddress> addressList = info.getAddresses().stream()
+                .map(this::buildServerAddress)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         MongoClientOptions clientOptions = new MongoClientOptions
                 .Builder()
                 .connectionsPerHost(10)
@@ -95,10 +95,25 @@ public class MongodbOptProvider implements DataOptProvider {
         for (Document document : findIterable) {
             Map<String, Object> map = new HashMap<>(size);
             map.putAll(document);
-            map.put(CommonConstants.MongoConst.ID, document.getObjectId(CommonConstants.MongoConst.ID).toHexString());
+            map.put(MONGO_ID, document.getObjectId(MONGO_ID).toHexString());
             mapList.add(map);
         }
         return mapList;
+    }
+
+    @Override
+    public long count(Map<String, Object> query) {
+        return getCollection().countDocuments();
+    }
+
+    @Override
+    public Map<String, Object> findOne(String id) {
+        Document first = getCollection().find(Filters.eq(MONGO_ID, new ObjectId(id))).first();
+        if (first == null) {
+            return new HashMap<>();
+        }
+        first.put(MONGO_ID, first.getObjectId(MONGO_ID).toHexString());
+        return first;
     }
 
     @Override
@@ -122,7 +137,7 @@ public class MongodbOptProvider implements DataOptProvider {
         MongoCollection<Document> collection = getCollection();
         Document map = Document.parse(node.toString());
         collection.insertOne(map);
-        map.put(CommonConstants.MongoConst.ID, map.getObjectId(CommonConstants.MongoConst.ID).toHexString());
+        map.put(MONGO_ID, map.getObjectId(MONGO_ID).toHexString());
         return map;
     }
 
@@ -130,21 +145,21 @@ public class MongodbOptProvider implements DataOptProvider {
     public Map<String, Object> update(String id, JsonNode node) {
         MongoCollection<Document> collection = getCollection();
         Document map = Document.parse(node.toString());
-        collection.updateOne(Filters.eq(CommonConstants.MongoConst.ID, new ObjectId(id)), new Document("$set", map));
-        map.put(CommonConstants.MongoConst.ID, map.getObjectId(CommonConstants.MongoConst.ID).toHexString());
+        collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(id)), new Document("$set", map));
+        map.put(MONGO_ID, map.getObjectId(MONGO_ID).toHexString());
         return map;
     }
 
     @Override
     public void delete(String id) {
         MongoCollection<Document> collection = getCollection();
-        collection.deleteOne(Filters.eq(CommonConstants.MongoConst.ID, new ObjectId(id)));
+        collection.deleteOne(Filters.eq(MONGO_ID, new ObjectId(id)));
     }
 
     @Override
     public void deleteAll() {
         MongoCollection<Document> collection = getCollection();
-        collection.deleteMany(Filters.exists(CommonConstants.MongoConst.ID));
+        collection.deleteMany(Filters.exists(MONGO_ID));
     }
 
     @Override
@@ -167,7 +182,7 @@ public class MongodbOptProvider implements DataOptProvider {
             ObjectId objectId = new ObjectId(id);
             objs.add(objectId);
         }
-        collection.deleteMany(Filters.in(CommonConstants.MongoConst.ID, objs));
+        collection.deleteMany(Filters.in(MONGO_ID, objs));
     }
 
     @Override
