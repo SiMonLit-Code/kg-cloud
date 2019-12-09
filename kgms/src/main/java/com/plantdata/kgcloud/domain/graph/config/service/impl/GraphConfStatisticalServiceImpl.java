@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfStatisticalRepository;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
@@ -14,8 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.apache.tomcat.jni.Mmap.delete;
 
 /**
  *
@@ -61,7 +65,19 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteInBatch( Iterable entities) {
+        graphConfStatisticalRepository.deleteInBatch(entities);
+    }
+
+    @Override
     public List<GraphConfStatisticalRsp> findByKgName(String kgName) {
+        List<GraphConfStatistical> all = graphConfStatisticalRepository.findByKgName(kgName);
+        return all.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GraphConfStatisticalRsp> findAll() {
         List<GraphConfStatistical> all = graphConfStatisticalRepository.findAll();
         return all.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
     }

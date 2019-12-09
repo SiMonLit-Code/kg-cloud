@@ -40,10 +40,21 @@ public class GraphConfStatisticalController {
         graphConfStatisticalService.deleteStatistical(id);
     }
 
+    @ApiOperation("图谱批量删除统计")
+    @DeleteMapping("/statistical/{kgName}/{entities}")
+    public void batchDeleteStatistical(@PathVariable("entities")Iterable entities) {
+        graphConfStatisticalService.deleteInBatch(entities);
+    }
+
     @ApiOperation("图谱查询统计")
     @GetMapping("/statistical/{kgName}")
     public ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName) {
         return ApiReturn.success(graphConfStatisticalService.findByKgName(kgName));
     }
 
+    @ApiOperation("图谱查询统计所有")
+    @GetMapping("/statistical")
+    public ApiReturn<List<GraphConfStatisticalRsp>> selectStatisticalAll() {
+        return ApiReturn.success(graphConfStatisticalService.findAll());
+    }
 }

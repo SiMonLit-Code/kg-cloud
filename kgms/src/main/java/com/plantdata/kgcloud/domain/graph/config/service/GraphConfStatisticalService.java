@@ -34,10 +34,23 @@ public interface GraphConfStatisticalService {
     void deleteStatistical(Long id );
 
     /**
-     * 查询统计
+     * 批量删除统计
+     * @param entities
+     */
+    void deleteInBatch(Iterable entities);
+
+
+    /**
+     * 通过kgName查询统计
      *
      * @param kgName
      * @return
      */
     List<GraphConfStatisticalRsp> findByKgName(String kgName);
+
+    /**
+     * 查询所有
+     * @return
+     */
+    List<GraphConfStatisticalRsp> findAll();
 }

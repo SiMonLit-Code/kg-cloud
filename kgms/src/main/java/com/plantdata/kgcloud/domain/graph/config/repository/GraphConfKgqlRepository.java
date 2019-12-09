@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.repository;
 
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfKgql;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,10 +15,12 @@ import java.util.List;
  **/
 public interface GraphConfKgqlRepository extends JpaRepository<GraphConfKgql, Long> {
     List<GraphConfKgql> findByKgName(String kgName);
+
+    GraphConfKgqlRsp finById(Long id);
     /**
      * 分页
      *
      * @return
      */
-    Page<GraphConfKgql> findByKgName(String kgName, Pageable pageable);
+    Page<GraphConfKgql> findByKgName(String kgName, Pageable pageable ,Integer ruleType);
 }

@@ -1,5 +1,6 @@
-package com.plantdata.kgcloud.domain.share;
+package com.plantdata.kgcloud.domain.share.entity;
 
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,6 +23,7 @@ import java.util.Date;
 
 @Data
 @Entity
+@Builder
 @Table(name = "link_share")
 @EntityListeners(AuditingEntityListener.class)
 public class LinkShare {
