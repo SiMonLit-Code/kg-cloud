@@ -17,6 +17,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -129,7 +130,7 @@ public class PromptConverter {
         from.setSkip(req.getOffset());
         from.setLimit(req.getLimit());
         from.setAttrId(String.valueOf(req.getAttrId()));
-        from.setIsPrivate(req.getReserved());
+        from.setIsPrivate(NumberUtils.INTEGER_ZERO);
         from.setSearchOption(req.getSearchOption());
         if (!CollectionUtils.isEmpty(req.getSorts())) {
             String sort = req.getSorts().get(1);

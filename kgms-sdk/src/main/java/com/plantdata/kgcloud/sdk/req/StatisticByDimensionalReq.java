@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
@@ -26,6 +28,7 @@ public class StatisticByDimensionalReq {
     @ApiModelProperty("返回数量")
     private Integer size = 10;
     @ApiModelProperty("返回类型0 KV ; 1 ECharts")
-    @Pattern(regexp = "^[0-1]$")
+    @Min(0)
+    @Max(1)
     private Integer returnType = 0;
 }

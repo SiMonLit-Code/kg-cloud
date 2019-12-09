@@ -45,6 +45,9 @@ public class EntityConverter {
     public static KgServiceEntityFrom buildIdsQuery(@NonNull Collection<Long> entityIdList) {
         KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();
         entityFrom.setIds(Lists.newArrayList(entityIdList));
+        entityFrom.setReadObjectAttribute(true);
+        entityFrom.setReadMetaData(true);
+        entityFrom.setReadReverseObjectAttribute(false);
         return entityFrom;
     }
 

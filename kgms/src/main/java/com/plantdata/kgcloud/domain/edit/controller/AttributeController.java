@@ -216,7 +216,7 @@ public class AttributeController {
 
     @ApiOperation("批量关系新增")
     @PostMapping("relation/insert/{kgName}")
-    public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable String kgName,
+    public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
                                                      @RequestBody List<BatchRelationRsp> relationList) {
         List<BatchRelationVO> collect = relationList.stream().map(a -> ConvertUtils.convert(BatchRelationVO.class).apply(a)).collect(Collectors.toList());
 

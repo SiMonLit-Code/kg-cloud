@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor
-public enum GraphInitEnum {
+public enum GraphInitBaseEnum implements BaseEnum {
     /**
      *
      */
@@ -24,4 +24,5 @@ public enum GraphInitEnum {
     RELATION_TIMING("relationtiming"),
     EXPLORE("explore");
     private String value;
+
 }

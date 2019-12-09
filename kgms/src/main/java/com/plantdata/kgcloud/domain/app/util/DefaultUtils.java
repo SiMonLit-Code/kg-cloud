@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.util;
 
+import com.google.common.collect.Lists;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -18,9 +19,13 @@ public class DefaultUtils {
         return CollectionUtils.isEmpty(list) ? Collections.emptyList() : list;
     }
 
-    public static <T, E> Map<T, E> getOrDefault(Map<T, E> map) {
-        return CollectionUtils.isEmpty(map) ? Collections.emptyMap() : map;
+    public static <T> void listAdd(List<T> list, T obj) {
+        if (CollectionUtils.isEmpty(list)) {
+            list = Lists.newArrayList();
+        }
+        list.add(obj);
     }
+
 
     /**
      * list1 不为空 取list2 否则返回空

@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public enum AttrDefinitionTypeEnum {
+public enum AttrDefinitionTypeEnum implements BaseEnum {
 
     /**
      * todo
@@ -20,4 +20,9 @@ public enum AttrDefinitionTypeEnum {
 
     private int id;
     private String desc;
+
+    @Override
+    public Object getValue() {
+        return id;
+    }
 }

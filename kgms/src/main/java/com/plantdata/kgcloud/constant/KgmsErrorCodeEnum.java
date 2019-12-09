@@ -29,6 +29,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     CONF_REASONING_NOT_EXISTS(120604, "图谱统计不存在"),
     CONF_STATISTICAL_NOT_EXISTS(120606, "图谱统计不存在"),
     ES_CONFIG_NOT_FOUND(120605, "未找到es配置"),
+    GRAPH_TYPE_ERROR(120606, "图谱类型错误"),
 
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
 

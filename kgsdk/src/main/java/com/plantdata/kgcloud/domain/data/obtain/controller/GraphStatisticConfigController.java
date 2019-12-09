@@ -29,50 +29,50 @@ public class GraphStatisticConfigController implements GraphDataObtainInterface 
 
     @ApiOperation("获取统计配置列表")
     @GetMapping("{kgName}")
-    public ApiReturn<List<StatisticConfigRsp>> configList(@ApiParam("图谱名称") @PathVariable String kgName) {
+    public ApiReturn<List<StatisticConfigRsp>> configList(@ApiParam("图谱名称") @PathVariable("kgName") String kgName) {
         return ApiReturn.success(null);
     }
 
 
     @ApiOperation("批量新增统计配置")
     @PostMapping("batch/{kgName}")
-    public ApiReturn<List<StatisticConfigRsp>> batchAdd(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<List<StatisticConfigRsp>> batchAdd(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                         @RequestBody List<StatisticConfigReq> configList) {
         return ApiReturn.success(null);
     }
 
     @ApiOperation("批量修改统计配置")
     @PatchMapping("batch/{kgName}")
-    public ApiReturn<List<StatisticConfigRsp>> batchModify(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<List<StatisticConfigRsp>> batchModify(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                            @RequestBody List<StatisticConfigReq> configList) {
         return ApiReturn.success(null);
     }
 
     @ApiOperation("批量删除统计配置")
     @DeleteMapping("batch/{kgName}")
-    public ApiReturn batchRemove(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn batchRemove(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                  @RequestParam("ids") List<Integer> ids) {
         return ApiReturn.success();
     }
 
     @ApiOperation("新增统计配置")
     @PostMapping("{kgName}")
-    public ApiReturn<StatisticConfigRsp> add(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<StatisticConfigRsp> add(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                              @RequestBody StatisticConfigReq config) {
         return ApiReturn.success(null);
     }
 
     @ApiOperation("修改统计配置")
     @PatchMapping("{kgName}")
-    public ApiReturn<StatisticConfigRsp> modify(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<StatisticConfigRsp> modify(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                 @RequestBody StatisticConfigReq config) {
         return ApiReturn.success(null);
     }
 
     @ApiOperation("删除统计配置")
     @DeleteMapping("{kgName}/{id}")
-    public ApiReturn remove(@ApiParam("图谱名称") @PathVariable String kgName,
-                            @ApiParam("配置id") @PathVariable Integer id) {
+    public ApiReturn remove(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                            @ApiParam("配置id") @PathVariable("id") Integer id) {
         return ApiReturn.success();
     }
 

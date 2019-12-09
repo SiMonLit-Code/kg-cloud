@@ -22,6 +22,7 @@ import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
+import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -116,11 +117,13 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     @Override
     public List<EdgeAttributeRsp> edgeAttributeSearch(String kgName, EdgeAttrPromptReq promptReq) {
         Optional<List<Map<Object, Integer>>> aggOpt;
-        if (AttrDefinitionTypeEnum.OBJECT.equals(promptReq.getDataType())) {
+        Optional<AttrDefinitionTypeEnum> enumObject = EnumUtils.getEnumObject(AttrDefinitionTypeEnum.class, String.valueOf(promptReq.getDataType()));
+        AttrDefinitionTypeEnum dataType=enumObject.orElse(AttrDefinitionTypeEnum.OBJECT);
+        if (AttrDefinitionTypeEnum.OBJECT.equals(dataType)) {
             AggRelationFrom relationFrom = RelationConverter.edgeAttrPromptReqToAggRelationFrom(promptReq);
             aggOpt = RestRespConverter.convert(relationApi.aggRelation(kgName, relationFrom));
 
-        } else if (AttrDefinitionTypeEnum.DATA_VALUE.equals(promptReq.getDataType())) {
+        } else if (AttrDefinitionTypeEnum.DATA_VALUE.equals(dataType)) {
             aggOpt = RestRespConverter.convert(schemaApi.aggAttr(kgName, PromptConverter.edgeAttrPromptReqToAggAttrValueFrom(promptReq)));
         } else {
             log.error("dataType:{}", promptReq.getDataType());
