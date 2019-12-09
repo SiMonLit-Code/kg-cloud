@@ -39,6 +39,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kgms-sdk</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.58</version>
+        </dependency>
     </dependencies>
 
     <build>
