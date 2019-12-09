@@ -75,7 +75,7 @@ public class AttributeController {
     }
 
     @ApiOperation("属性定义详情")
-    @GetMapping("/{kgName}/{id}")
+    @GetMapping("/{kgName}/info/{id}")
     ApiReturn<AttrDefinitionVO> getAttrDetails(@PathVariable("kgName") String kgName,
                                                @PathVariable("id") Integer id) {
         return ApiReturn.success(attributeService.getAttrDetails(kgName, id));
