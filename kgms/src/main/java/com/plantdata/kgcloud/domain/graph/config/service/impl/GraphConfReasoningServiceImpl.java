@@ -54,7 +54,7 @@ public class GraphConfReasoningServiceImpl implements GraphConfReasoningService{
     public GraphConfReasoningRsp findById(Long id) {
         GraphConfReasoning confReasoning = graphConfReasoningRepository.findById(id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
-        return graphConfReasoningRepository.finById(id);
+        return ConvertUtils.convert(GraphConfReasoningRsp.class).apply(confReasoning);
     }
 
     @Override

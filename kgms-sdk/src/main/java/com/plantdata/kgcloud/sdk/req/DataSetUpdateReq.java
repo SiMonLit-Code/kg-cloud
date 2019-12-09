@@ -9,8 +9,6 @@ import java.util.List;
 @Data
 public class DataSetUpdateReq {
 
-    @ApiModelProperty("保存的列")
-    private List<String> fields;
     @Valid
     @ApiModelProperty
     private List<DataSetSchema> schema;
