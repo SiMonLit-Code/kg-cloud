@@ -2,10 +2,10 @@ package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
-import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasoningRepository;
-import com.plantdata.kgcloud.domain.graph.config.req.GraphConfReasoningReq;
-import com.plantdata.kgcloud.domain.graph.config.rsp.GraphConfReasoningRsp;
-import com.plantdata.kgcloud.domain.graph.config.service.GraphConfReasoningService;
+import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepository;
+import com.plantdata.kgcloud.domain.graph.config.req.GraphConfReasonReq;
+import com.plantdata.kgcloud.domain.graph.config.rsp.GraphConfReasonRsp;
+import com.plantdata.kgcloud.domain.graph.config.service.GraphConfReasonService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
@@ -20,20 +20,20 @@ import java.util.stream.Collectors;
  * Created by jdm on 2019/12/9 15:54.
  */
 @Service
-public class GraphConfReasoningServiceImpl implements GraphConfReasoningService{
+public class GraphConfReasonServiceImpl implements GraphConfReasonService {
 
     @Autowired
-    private GraphConfReasoningRepository graphConfReasoningRepository;
+    private GraphConfReasonRepository graphConfReasoningRepository;
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public GraphConfReasoningRsp createReasoning(String kgName, GraphConfReasoningReq req) {
+    public GraphConfReasonRsp createReasoning(String kgName, GraphConfReasonReq req) {
         GraphConfReasoning targe = new GraphConfReasoning();
         BeanUtils.copyProperties(req, targe);
         targe.setKgName(kgName);
         GraphConfReasoning result = graphConfReasoningRepository.save(targe);
-        return ConvertUtils.convert(GraphConfReasoningRsp.class).apply(result);
+        return ConvertUtils.convert(GraphConfReasonRsp.class).apply(result);
     }
 
     @Override
@@ -45,25 +45,25 @@ public class GraphConfReasoningServiceImpl implements GraphConfReasoningService{
     }
 
     @Override
-    public List<GraphConfReasoningRsp> findAll() {
+    public List<GraphConfReasonRsp> findAll() {
         List<GraphConfReasoning> all = graphConfReasoningRepository.findAll();
-        return all.stream().map(ConvertUtils.convert(GraphConfReasoningRsp.class)).collect(Collectors.toList());
+        return all.stream().map(ConvertUtils.convert(GraphConfReasonRsp.class)).collect(Collectors.toList());
     }
 
     @Override
-    public GraphConfReasoningRsp findById(Long id) {
+    public GraphConfReasonRsp findById(Long id) {
         GraphConfReasoning confReasoning = graphConfReasoningRepository.findById(id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
-        return ConvertUtils.convert(GraphConfReasoningRsp.class).apply(confReasoning);
+        return ConvertUtils.convert(GraphConfReasonRsp.class).apply(confReasoning);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public GraphConfReasoningRsp updateReasoning(Long id, GraphConfReasoningReq req) {
+    public GraphConfReasonRsp updateReasoning(Long id, GraphConfReasonReq req) {
         GraphConfReasoning graphConfReasoning = graphConfReasoningRepository.findById(id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfReasoning);
         GraphConfReasoning result = graphConfReasoningRepository.save(graphConfReasoning);
-        return ConvertUtils.convert(GraphConfReasoningRsp.class).apply(result);
+        return ConvertUtils.convert(GraphConfReasonRsp.class).apply(result);
     }
 }

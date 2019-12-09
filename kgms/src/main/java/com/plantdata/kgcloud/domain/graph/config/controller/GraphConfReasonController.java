@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.graph.config.req.GraphConfReasoningReq;
-import com.plantdata.kgcloud.domain.graph.config.rsp.GraphConfReasoningRsp;
-import com.plantdata.kgcloud.domain.graph.config.service.GraphConfReasoningService;
+import com.plantdata.kgcloud.domain.graph.config.req.GraphConfReasonReq;
+import com.plantdata.kgcloud.domain.graph.config.rsp.GraphConfReasonRsp;
+import com.plantdata.kgcloud.domain.graph.config.service.GraphConfReasonService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,39 +19,40 @@ import java.util.List;
 @Api(tags = "图谱推理")
 @RestController
 @RequestMapping("/config")
-public class GraphConfReasoningController {
+public class GraphConfReasonController {
 
     @Autowired
-    private GraphConfReasoningService graphConfReasoningService;
+    private GraphConfReasonService graphConfReasoningService;
 
     @ApiOperation("图谱新建推理")
     @PostMapping("/reason/{kgName}")
-    public ApiReturn<GraphConfReasoningRsp> saveReasoning(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfReasoningReq req) {
+    public ApiReturn<GraphConfReasonRsp> saveReasoning(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfReasonReq req) {
         return ApiReturn.success(graphConfReasoningService.createReasoning(kgName,req));
     }
 
 
     @ApiOperation("图谱查询推理所有")
     @GetMapping("/reason")
-    public ApiReturn<List<GraphConfReasoningRsp>> selectReasoninglAll() {
+    public ApiReturn<List<GraphConfReasonRsp>> selectReasoninglAll() {
         return ApiReturn.success(graphConfReasoningService.findAll());
     }
 
     @ApiOperation("图谱推理详情")
     @GetMapping("/reason/{id}")
-    public ApiReturn<GraphConfReasoningRsp> detailReasoning(@PathVariable("id") Long id) {
+    public ApiReturn<GraphConfReasonRsp> detailReasoning(@PathVariable("id") Long id) {
         return ApiReturn.success(graphConfReasoningService.findById(id));
     }
 
     @ApiOperation("图谱删除推理")
     @DeleteMapping("/reason/{kgName}/{id}")
-    public void deleteReasoning(@PathVariable("id") Long id) {
+    public ApiReturn deleteReasoning(@PathVariable("id") Long id) {
         graphConfReasoningService.deleteReasoning(id);
+        return ApiReturn.success();
     }
 
     @ApiOperation("图谱更新推理")
     @PatchMapping("/reason/{kgName}/{id}")
-    public ApiReturn<GraphConfReasoningRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasoningReq req) {
+    public ApiReturn<GraphConfReasonRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasonReq req) {
         return ApiReturn.success(graphConfReasoningService.updateReasoning(id, req));
     }
 

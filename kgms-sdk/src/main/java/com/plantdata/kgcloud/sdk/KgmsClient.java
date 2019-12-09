@@ -231,6 +231,7 @@ public interface KgmsClient {
     @DeleteMapping("/config/statistical/{id}")
     ApiReturn deleteStatistical(@PathVariable("id") Long id);
 
+
     @ApiOperation("图谱查询统计")
     @GetMapping("/config/statistical/{kgName}")
     ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName);

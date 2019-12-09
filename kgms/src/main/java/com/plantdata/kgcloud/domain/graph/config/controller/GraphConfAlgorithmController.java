@@ -31,15 +31,16 @@ public class GraphConfAlgorithmController {
     }
 
     @ApiOperation("图谱配置-算法-更新")
-    @PatchMapping("/algorithm/{kgName}/{id}")
+    @PatchMapping("/algorithm/{id}")
     public ApiReturn<GraphConfAlgorithmRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfAlgorithmReq req) {
         return ApiReturn.success(graphConfAlgorithmService.updateAlgorithm(id, req));
     }
 
     @ApiOperation("图谱配置-算法-删除")
-    @DeleteMapping("/algorithm/{kgName}/{id}")
-    public void delete(@PathVariable("id") Long id) {
+    @DeleteMapping("/algorithm/{id}")
+    public ApiReturn delete(@PathVariable("id") Long id) {
         graphConfAlgorithmService.deleteAlgorithm(id);
+        return ApiReturn.success();
     }
 
     @ApiOperation("图谱配置-算法-查询")

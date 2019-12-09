@@ -18,7 +18,7 @@ import com.plantdata.kgcloud.domain.app.dto.RelationReasonRuleDTO;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
-import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasoningRepository;
+import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepository;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.ReasoningReqInterface;
 import org.apache.commons.collections.CollectionUtils;
@@ -43,7 +43,7 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
     @Autowired
     private ReasoningApi reasoningApi;
     @Autowired
-    private GraphConfReasoningRepository graphConfReasoningRepository;
+    private GraphConfReasonRepository graphConfReasoningRepository;
     @Autowired
     private EntityApi entityApi;
 
