@@ -2,9 +2,11 @@ package com.plantdata.kgcloud.domain.dataset.service;
 
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +43,14 @@ public interface DataOptService {
      */
     Map<String, Object> insertData(Long datasetId, Map<String, Object> data);
 
+
+    /**
+     *
+     * @param datasetId
+     * @param file
+     */
+    void upload(Long datasetId, MultipartFile file)  throws Exception ;
+
     /**
      * 修改
      *
@@ -50,6 +60,13 @@ public interface DataOptService {
      * @return
      */
     Map<String, Object> updateData(Long datasetId, String dataId, Map<String, Object> data);
+
+    /**
+     *
+     * @param datasetId
+     * @param dataList
+     */
+    void batchInsertData(Long datasetId, List<Map<String,Object>> dataList);
 
     /**
      * 删除
@@ -83,5 +100,5 @@ public interface DataOptService {
      * @param datasetId
      * @param response
      */
-    void exportData(Long datasetId, HttpServletResponse response);
+    void exportData(Long datasetId, HttpServletResponse response) throws Exception;
 }

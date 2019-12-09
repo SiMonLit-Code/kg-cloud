@@ -35,7 +35,6 @@ public class MenuController {
         return ApiReturn.success(menuService.getMenuById(id));
     }
 
-
     @PatchMapping("/")
     @ApiOperation("更新菜单应用")
     public ApiReturn update(@Validated @RequestBody MenuReq menuBean) {
