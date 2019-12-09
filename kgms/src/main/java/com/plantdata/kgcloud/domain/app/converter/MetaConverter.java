@@ -54,8 +54,6 @@ public class MetaConverter {
         if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
             Map<String, Object> objectMap = (Map<String, Object>) metaData.get(MetaDataInfo.ADDITIONAL.getFieldName());
             StyleRsp styleRsp = new StyleRsp();
-            styleRsp.setLabelStyle((Map<String, Object>)objectMap.get("labelStyle"));
-            styleRsp.setNodeStyle((Map<String, Object>)objectMap.get("nodeStyle"));
             metaDataImpl.setStyle(styleRsp);
         }
     }
