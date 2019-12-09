@@ -2,12 +2,17 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
+import ai.plantdata.kg.api.edit.resp.BatchResult;
+import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.converter.graph.RestCopyConverter;
+import com.plantdata.kgcloud.domain.app.converter.RestCopyConverter;
+import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
-import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
+import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
+import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -23,12 +28,14 @@ import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +43,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.plantdata.kgcloud.domain.graph.config.constant.FocusType.relation;
 
 /**
  * @Author: LinHo
@@ -68,7 +80,7 @@ public class AttributeController {
     }
 
     @ApiOperation("属性定义详情")
-    @GetMapping("/{kgName}/{id}")
+    @GetMapping("/{kgName}/info/{id}")
     ApiReturn<AttrDefinitionVO> getAttrDetails(@PathVariable("kgName") String kgName,
                                                @PathVariable("id") Integer id) {
         return ApiReturn.success(attributeService.getAttrDetails(kgName, id));
@@ -186,15 +198,41 @@ public class AttributeController {
         return ApiReturn.success();
     }
 
+    @ApiOperation("添加或更新关系的业务信息")
+    @PostMapping("/{kgName}/additional/relation")
+    ApiReturn upsertRelationAdditional(@PathVariable("kgName") String kgName,
+                                       @Valid @RequestBody RelationAdditionalReq relationAdditionalReq) {
+        attributeService.upsertRelationAdditional(kgName, relationAdditionalReq);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("修改对象属性定义的业务信息")
+    @PostMapping("/{kgName}/additional/attr")
+    ApiReturn updateAttrDefinitionAdditional(@PathVariable("kgName") String kgName,
+                                             @Valid @RequestBody AttrDefinitionAdditionalReq additionalReq) {
+        attributeService.updateAttrDefinitionAdditional(kgName, additionalReq);
+        return ApiReturn.success();
+    }
 
     @ApiOperation("批量关系新增")
     @PostMapping("relation/insert/{kgName}")
-    public ApiReturn<BatchRelationRsp> importRelation(@PathVariable String kgName,
-                                                      @RequestBody BatchRelationRsp relation) {
-        BatchRelationVO batchRelationVO = new BatchRelationVO();
-        BeanUtils.copyProperties(relation, batchRelationVO);
-        BatchRelationRsp relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, Lists.newArrayList(batchRelationVO)), new BatchRelationRsp());
+    public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable String kgName,
+                                                     @RequestBody List<BatchRelationRsp> relationList) {
+        List<BatchRelationVO> collect = relationList.stream().map(a -> ConvertUtils.convert(BatchRelationVO.class).apply(a)).collect(Collectors.toList());
+
+        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, collect), new OpenBatchResult<>());
         return ApiReturn.success(relationRsp);
     }
 
+    @ApiOperation("批量修改关系")
+    @PatchMapping("relation/update/{kgName}")
+    public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
+                                                              @RequestBody List<RelationUpdateReq> list) {
+        List<UpdateEdgeVO> edgeList = RestCopyConverter.copyToNewList(list, UpdateEdgeVO.class);
+        Optional<BatchResult<UpdateEdgeVO>> edgeOpt = RestRespConverter.convert(batchApi.updateRelations(kgName,
+                edgeList));
+        return edgeOpt.map(result -> ApiReturn.success(RestCopyConverter.copyToNewList(result.getSuccess(),
+                RelationUpdateReq.class)))
+                .orElseGet(() -> ApiReturn.success(Collections.emptyList()));
+    }
 }

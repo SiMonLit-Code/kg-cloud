@@ -290,4 +290,5 @@ public interface AppClient {
     @PostMapping("graphExplore/relation/reasoning/{kgName}")
     ApiReturn<RelationReasoningAnalysisRsp> relationReasoningAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                                       @RequestBody RelationReasoningAnalysisReq analysisReq);
+
 }

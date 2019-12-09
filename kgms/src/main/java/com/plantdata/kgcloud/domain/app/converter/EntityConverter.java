@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
+import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.GisEntityVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
@@ -10,7 +11,9 @@ import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
@@ -57,6 +60,13 @@ public class EntityConverter {
         return entity;
     }
 
+    public static OpenEntityRsp voToOpenEntityRsp(EntityVO entityVO) {
+        OpenEntityRsp openEntityRsp = voToBasicEntityRsp(entityVO, new OpenEntityRsp());
+        openEntityRsp.setConceptIdList(Lists.newArrayList(entityVO.getConceptId()));
+        openEntityRsp.setAttributes(entityVO.getDataAttributes());
+        openEntityRsp.setSynonyms(entityVO.getSynonyms());
+        return openEntityRsp;
+    }
 
     public static List<GraphInitRsp.GraphInitEntityRsp> entityVoToGraphInitEntityRsp(@NonNull List<EntityVO> entityList) {
         return entityList.stream().map(entity -> {
@@ -80,8 +90,9 @@ public class EntityConverter {
             gisEntityRsp.setStartTime(gisEntity.getStartTime());
             gisEntityRsp.setEndTime(gisEntity.getEndTime());
             gisEntityRsp.setMeaningTag(gisEntity.getMeaningTag());
-            gisEntityRsp.setMainConcept(new ExploreConceptRsp(gisEntity.getConceptId(), gisEntity.getConceptName()));
-            gisEntityRsp.setTopConcept(new ExploreConceptRsp(gisEntity.getTopConceptId(), gisEntity.getTopConceptName()));
+            gisEntityRsp.setConceptId(gisEntity.getConceptId());
+            gisEntityRsp.setConceptName(gisEntity.getConceptName());
+            gisEntityRsp.setClassId(gisEntity.getTopConceptId());
             Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(gisEntity.getImage());
             imageRsp.ifPresent(gisEntityRsp::setImg);
             gisEntityRsp.setGis(new GisInfoRsp(gisEntity.getOpenGis(), gisEntity.getLng(), gisEntity.getLat(), gisEntity.getAddress()));
@@ -122,6 +133,16 @@ public class EntityConverter {
         return entityList.stream().map(entity -> voToInfoBoxRsp(entity, definitionMap, entityMap)).collect(Collectors.toList());
     }
 
+
+    public static SearchByAttributeFrom entityQueryReqToSearchByAttributeFrom(EntityQueryReq entityQueryReq) {
+        SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
+
+        attributeFrom.setKvMap(entityQueryReq.getQuery().isEmpty() ? null : entityQueryReq.getQuery());
+        attributeFrom.setLimit(entityQueryReq.getLimit());
+        attributeFrom.setSkip(entityQueryReq.getOffset());
+        attributeFrom.setConceptIds(Lists.newArrayList(entityQueryReq.getConceptId()));
+        return attributeFrom;
+    }
 
     private static InfoBoxRsp voToInfoBoxRsp(EntityVO entity, Map<Integer, AttributeDefinition> attrDefMap, Map<Long, ai.plantdata.kg.api.edit.resp.EntityVO> entityMap) {
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();

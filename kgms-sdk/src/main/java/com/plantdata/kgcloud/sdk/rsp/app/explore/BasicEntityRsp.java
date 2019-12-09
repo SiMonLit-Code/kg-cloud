@@ -23,7 +23,7 @@ public class BasicEntityRsp  implements MetaDataInterface {
     private String name;
     @ApiModelProperty("0概念 1实例 ")
     private EntityTypeEnum type;
-    @ApiModelProperty("概念id ")
+    @ApiModelProperty("直接父概念名称id ")
     private Long conceptId;
     @ApiModelProperty("消歧标识")
     private String meaningTag;

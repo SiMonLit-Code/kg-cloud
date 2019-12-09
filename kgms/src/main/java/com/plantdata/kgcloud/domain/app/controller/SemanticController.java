@@ -8,7 +8,7 @@ import ai.plantdata.kg.api.semantic.rsp.AnswerDataRsp;
 import ai.plantdata.kg.api.semantic.rsp.ReasoningResultRsp;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.converter.graph.RestCopyConverter;
+import com.plantdata.kgcloud.domain.app.converter.RestCopyConverter;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 import io.swagger.annotations.ApiOperation;

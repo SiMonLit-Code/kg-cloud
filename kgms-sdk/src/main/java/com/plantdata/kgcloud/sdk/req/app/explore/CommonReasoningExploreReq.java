@@ -19,7 +19,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/4 15:50
  */
-@ApiModel("普通图探索参数")
+@ApiModel("普通图探索推理参数")
 @Getter
 @Setter
 public class CommonReasoningExploreReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphCommonReqInterface {

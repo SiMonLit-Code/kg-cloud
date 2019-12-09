@@ -29,14 +29,14 @@ import java.util.stream.Collectors;
  */
 public class GraphRspConverter {
 
-    public static CommonBasicGraphExploreRsp graphVoToCommonRsp(GraphVO graph, List<BasicInfo> conceptList) {
-        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.getOrDefault(buildCommonEntityList(graph.getEntityList(), conceptList));
+    public static CommonBasicGraphExploreRsp graphVoToCommonRsp(GraphVO graph,Map<Long,BasicInfo> conceptIdMap) {
+        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.getOrDefault(buildCommonEntityList(graph.getEntityList(), conceptIdMap));
         List<BasicRelationRsp> relationRspList = DefaultUtils.getOrDefault(GraphCommonConverter.simpleRelationToBasicRelationRsp(graph.getRelationList()));
         return new CommonBasicGraphExploreRsp(relationRspList, NumberUtils.INTEGER_ONE, commonEntityRspList);
     }
 
-    public static <T extends StatisticRsp> T graphVoToStatisticRsp(GraphVO graph, List<GraphStatisticRsp> statisticRspList, List<BasicInfo> conceptList, T analysisRsp) {
-        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.getOrDefault(buildCommonEntityList(graph.getEntityList(), conceptList));
+    public static <T extends StatisticRsp> T graphVoToStatisticRsp(GraphVO graph, List<GraphStatisticRsp> statisticRspList, Map<Long,BasicInfo> conceptIdMap, T analysisRsp) {
+        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.getOrDefault(buildCommonEntityList(graph.getEntityList(), conceptIdMap));
         List<BasicRelationRsp> relationRspList = DefaultUtils.getOrDefault(GraphCommonConverter.simpleRelationToBasicRelationRsp(graph.getRelationList()));
         analysisRsp.setEntityList(commonEntityRspList);
         analysisRsp.setHasNextPage(NumberUtils.INTEGER_ONE);
@@ -83,8 +83,7 @@ public class GraphRspConverter {
         return statisticRspList;
     }
 
-    private static List<CommonEntityRsp> buildCommonEntityList(@NonNull List<SimpleEntity> simpleEntityList, List<BasicInfo> conceptList) {
-        Map<Long, BasicInfo> conceptMap = DefaultUtils.getOrDefault(conceptList.stream().collect(Collectors.toMap(BasicInfo::getId, Function.identity())));
+    private static List<CommonEntityRsp> buildCommonEntityList(@NonNull List<SimpleEntity> simpleEntityList,  Map<Long, BasicInfo> conceptMap) {
         return simpleEntityList.stream().map(a -> GraphCommonConverter.simpleToGraphEntityRsp(new CommonEntityRsp(), a, conceptMap)).collect(Collectors.toList());
     }
 

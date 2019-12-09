@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
-import ai.plantdata.kg.api.pub.req.AggAttrValueFrom;
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
 import com.google.common.collect.Lists;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
  * @date 2019/11/25 17:15
  */
 public class RelationConverter {
-
 
 
     static List<GisRelationRsp> voToGisRsp(List<GisRelationVO> relationList, Map<String, Integer> ruleIdMap) {
@@ -62,23 +60,8 @@ public class RelationConverter {
         return from;
     }
 
-    public static AggAttrValueFrom edgeAttrPromptReqToAggAttrValueFrom(EdgeAttrPromptReq req) {
-        AggAttrValueFrom from = new AggAttrValueFrom();
-        from.setSkip(req.getOffset());
-        from.setLimit(req.getLimit());
-        from.setAttrId(String.valueOf(req.getAttrId()));
-        from.setIsPrivate(req.getReserved());
-        from.setSearchOption(req.getSearchOption());
-        if (!CollectionUtils.isEmpty(req.getSorts())) {
-            String sort = req.getSorts().get(1);
-            Optional<SortTypeEnum> typeOpt = SortTypeEnum.parseByName(sort);
-            typeOpt.ifPresent(sortTypeEnum -> from.setSortDirection(sortTypeEnum.getValue()));
-        }
-        if (from.getSortDirection() == null) {
-            from.setSortDirection(SortTypeEnum.ASC.getValue());
-        }
-        return from;
-    }
+
+
 
     public static List<EdgeAttributeRsp> mapToEdgeAttributeRsp(@NonNull List<Map<Object, Integer>> mapList) {
         return mapList.stream().flatMap(map -> map.entrySet().stream()).map(entry -> new EdgeAttributeRsp(entry.getKey(), entry.getValue())).collect(Collectors.toList());

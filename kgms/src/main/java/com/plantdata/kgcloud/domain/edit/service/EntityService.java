@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
-import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
@@ -21,6 +20,11 @@ import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
+import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -31,6 +35,24 @@ import java.util.List;
  * @Description:
  */
 public interface EntityService {
+
+    /**
+     * 添加概念
+     *
+     * @param kgName
+     * @param conceptId
+     * @param entityId
+     */
+    void addMultipleConcept(String kgName, Long conceptId, Long entityId);
+
+    /**
+     * 删除概念
+     *
+     * @param kgName
+     * @param conceptId
+     * @param entityId
+     */
+    void deleteMultipleConcept(String kgName, Long conceptId, Long entityId);
 
     /**
      * 实体列表
@@ -48,7 +70,7 @@ public interface EntityService {
      * @param ids
      * @return
      */
-    List<BatchDeleteResult> deleteByIds(String kgName, List<Long> ids);
+    List<DeleteResult> deleteByIds(String kgName, List<Long> ids);
 
 
     /**
@@ -238,4 +260,10 @@ public interface EntityService {
      * @return
      */
     List<String> batchAddPrivateRelation(String kgName, BatchPrivateRelationReq batchPrivateRelationReq);
+
+    List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq);
+
+    List<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity);
+
+    void batchDeleteEntityAttr(String kgName, BatchEntityAttrDeleteReq deleteReq);
 }

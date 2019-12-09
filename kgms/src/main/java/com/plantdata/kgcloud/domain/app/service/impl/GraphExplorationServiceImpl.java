@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
-import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.GisApi;
 import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.req.GisLocusParam;
@@ -28,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -46,22 +46,18 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     private GraphHelperService graphHelperService;
     @Autowired
     private RuleReasoningService ruleReasoningService;
-    @Autowired
-    private ai.plantdata.kg.api.edit.GraphApi editGraphApi;
 
     @Override
     public CommonBasicGraphExploreRsp exploreByKgQl(String kgName, ExploreByKgQlReq kgQlReq) {
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.traversalRule(kgName, kgQlReq.getEntityId(), kgQlReq.getKgQl()));
-        if (!graphOpt.isPresent()) {
-            return CommonBasicGraphExploreRsp.EMPTY;
-        }
-        return this.buildExploreRspWithConcept(kgName, graphOpt.get());
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO)).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
     @Override
     public GisGraphExploreRsp gisGraphExploration(String kgName, GisGraphExploreReq exploreParam) {
         Optional<List<BasicInfo>> basicInfoOpt = RestRespConverter.convert(gisApi.GisGeneralGraph(kgName, GisConverter.reqToGisFrom(exploreParam)));
-        return basicInfoOpt.map(GisConverter::voToGisAnalysisRsp).orElseGet(GisGraphExploreRsp::new);
+        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
+        return basicInfoOpt.map(a -> GisConverter.voToGisAnalysisRsp(a, conceptIdMap)).orElseGet(GisGraphExploreRsp::new);
     }
 
     @Override
@@ -101,17 +97,11 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
 
     private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom) {
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(kgName, graphFrom));
-        if (!graphOpt.isPresent()) {
-            return CommonBasicGraphExploreRsp.EMPTY;
-        }
-        return this.buildExploreRspWithConcept(kgName, graphOpt.get());
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO)).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
     private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphVO graph) {
-        //填充概念 此处是消耗时间的一个点 可优化 底层提供查询自己及父概念的接口
-        Optional<SchemaVO> schemaOpt = RestRespConverter.convert(editGraphApi.schema(kgName));
-
-        return schemaOpt.map(schemaVO -> GraphRspConverter.graphVoToCommonRsp(graph, schemaVO.getConcepts()))
-                .orElse(CommonBasicGraphExploreRsp.EMPTY);
+        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
+        return GraphRspConverter.graphVoToCommonRsp(graph, conceptIdMap);
     }
 }

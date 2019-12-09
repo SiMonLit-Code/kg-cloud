@@ -31,6 +31,7 @@ import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
+import com.plantdata.kgcloud.domain.edit.util.AttrConverterUtils;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -142,7 +143,8 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public Integer addAttrDefinition(String kgName, AttrDefinitionReq attrDefinitionReq) {
         AttributeDefinitionFrom attributeDefinitionFrom =
-                ConvertUtils.convert(AttributeDefinitionFrom.class).apply(attrDefinitionReq);
+                AttrConverterUtils.attrDefinitionReqConvert(attrDefinitionReq);
+        attributeDefinitionFrom.setAdditionalInfo(JacksonUtils.writeValueAsString(attrDefinitionReq.getAdditionalInfo()));
         Optional<Integer> optional = RestRespConverter.convert(attributeApi.add(kgName, attributeDefinitionFrom));
         return optional.get();
     }
@@ -151,7 +153,9 @@ public class AttributeServiceImpl implements AttributeService {
     public List<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName,
                                                                List<AttrDefinitionReq> attrDefinitionReqs) {
         List<AttributeDefinitionVO> voList =
-                attrDefinitionReqs.stream().map(ConvertUtils.convert(AttributeDefinitionVO.class)).collect(Collectors.toList());
+                attrDefinitionReqs.stream().map(
+                        attrDefinitionReq -> (AttributeDefinitionVO) AttrConverterUtils.attrDefinitionReqConvert(attrDefinitionReq)
+                ).collect(Collectors.toList());
         Optional<BatchResult<AttributeDefinitionVO>> optional =
                 RestRespConverter.convert(batchApi.addAttributes(kgName, voList));
         return optional.map(result -> result.getError().stream()
@@ -162,7 +166,7 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public void updateAttrDefinition(String kgName, AttrDefinitionModifyReq modifyReq) {
         AttributeDefinitionFrom attributeDefinitionFrom =
-                ConvertUtils.convert(AttributeDefinitionFrom.class).apply(modifyReq);
+                AttrConverterUtils.attrDefinitionReqConvert(modifyReq);
         RestRespConverter.convertVoid(attributeApi.update(kgName, attributeDefinitionFrom));
     }
 
@@ -206,7 +210,7 @@ public class AttributeServiceImpl implements AttributeService {
                 });
         List<AttrDefinitionReq> attrDefinitionReqs =
                 attrTemplateReqs.stream().map(attrTemplateReq -> {
-                    AttrDefinitionReq attrDefinitionReq = new AttrDefinitionModifyReq();
+                    AttrDefinitionReq attrDefinitionReq = new AttrDefinitionReq();
                     BeanUtils.copyProperties(attrTemplateReq, attrDefinitionReq);
                     attrDefinitionReq.setRangeValue(attrTemplateReq.getRange().stream().map(IdNameVO::getId).collect(Collectors.toList()));
                     return attrDefinitionReq;
