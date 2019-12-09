@@ -28,12 +28,10 @@ public class RelationController implements GraphDataObtainInterface {
 
     @Autowired
     private EditClient editClient;
-    @Autowired
-    private KgDataClient kgDataClient;
 
     @ApiOperation("批量关系新增")
     @PostMapping("relation/insert/{kgName}")
-    public ApiReturn<BatchRelationRsp> importRelation(@PathVariable String kgName,
+    public ApiReturn<BatchRelationRsp> importRelation(@PathVariable("kgName") String kgName,
                                                       @RequestBody BatchRelationRsp relation) {
 
         return editClient.importRelation(kgName, relation);

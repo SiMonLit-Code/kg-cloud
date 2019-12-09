@@ -36,7 +36,7 @@ public class GraphPathAnalysisController {
 
     @ApiOperation("路径发现")
     @PostMapping("{kgName}")
-    public ApiReturn<PathAnalysisRsp> path(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<PathAnalysisRsp> path(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                            @RequestBody @Valid PathAnalysisReq analysisReq) {
 
         return ApiReturn.success(graphPathAnalysisService.path(kgName, analysisReq));
@@ -44,7 +44,7 @@ public class GraphPathAnalysisController {
 
     @ApiOperation("最短路径发现")
     @PostMapping("shortest/{kgName}")
-    public ApiReturn<PathAnalysisRsp> shortestPath(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<PathAnalysisRsp> shortestPath(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                    @RequestBody @Valid PathAnalysisReq analysisReq) {
         analysisReq.getPath().setShortest(true);
         return ApiReturn.success(graphPathAnalysisService.path(kgName, analysisReq));
@@ -53,7 +53,7 @@ public class GraphPathAnalysisController {
 
     @ApiOperation("路径分析推理")
     @PostMapping("reasoning/{kgName}")
-    public ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                             @RequestBody @Valid PathReasoningAnalysisReq analysisReq) {
 
         return ApiReturn.success(graphPathAnalysisService.pathRuleReason(kgName, analysisReq));

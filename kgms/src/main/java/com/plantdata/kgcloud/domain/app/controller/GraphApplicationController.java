@@ -25,6 +25,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -77,8 +79,8 @@ public class GraphApplicationController {
     @ApiOperation("获取概念树")
     @GetMapping("concept/{kgName}")
     public ApiReturn<List<BasicConceptRsp>> conceptTree(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @ApiParam("概念id") @RequestParam("conceptId") Long conceptId,
-                                                        @ApiParam("概念唯一标识") @RequestParam("conceptKey") String conceptKey) {
+                                                        @ApiParam("概念id 0或不传查询全部") @RequestParam("conceptId") Long conceptId,
+                                                        @ApiParam("概念唯一标识概念id为null时有效") @RequestParam("conceptKey") String conceptKey) {
         return ApiReturn.success(graphApplicationService.conceptTree(kgName, conceptId, conceptKey));
     }
 
@@ -102,21 +104,21 @@ public class GraphApplicationController {
     @ApiOperation("综合搜索")
     @PostMapping("prompt/{kgName}")
     public ApiReturn<List<PromptEntityRsp>> prompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                   @RequestBody @Valid PromptReq promptReq) {
+                                                   @RequestBody @Valid PromptReq promptReq, @ApiIgnore BindingResult bindingResult) {
         return ApiReturn.success(graphPromptService.prompt(kgName, promptReq));
     }
 
     @ApiOperation("高级搜索查实体")
     @GetMapping("prompt/senior/{kgName}")
     public ApiReturn<List<SeniorPromptRsp>> seniorPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                         @RequestBody @Valid SeniorPromptReq seniorPromptReq) {
+                                                         @RequestBody @Valid SeniorPromptReq seniorPromptReq, @ApiIgnore BindingResult bindingResult) {
         return ApiReturn.success(graphPromptService.seniorPrompt(kgName, seniorPromptReq));
     }
 
     @ApiOperation("边属性搜索")
-    @GetMapping("attributes/{kgName}")
+    @PostMapping("attributes/{kgName}")
     public ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @Valid EdgeAttrPromptReq edgeAttrPromptReq) {
+                                                        @Valid @RequestBody EdgeAttrPromptReq edgeAttrPromptReq, @ApiIgnore BindingResult bindingResult) {
         return ApiReturn.success(graphPromptService.edgeAttributeSearch(kgName, edgeAttrPromptReq));
     }
 

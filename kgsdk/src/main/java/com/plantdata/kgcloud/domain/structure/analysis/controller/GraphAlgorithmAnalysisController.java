@@ -22,7 +22,7 @@ public class GraphAlgorithmAnalysisController implements GraphStructureAnalysisI
 
     @ApiOperation("复杂图分析坐标显示")
     @GetMapping("coordinates/{kgName}/{azkId}")
-    public ApiReturn<CoordinatesRsp> coordinates(@ApiParam("图谱名称") @PathVariable String kgName, @ApiParam("任务id") @PathVariable int azkId,
+    public ApiReturn<CoordinatesRsp> coordinates(@ApiParam("图谱名称") @PathVariable("kgName") String kgName, @ApiParam("任务id") @PathVariable("azkId") int azkId,
                                                  @ApiParam("类型") @RequestParam(value = "type", defaultValue = "louvain") String type,
                                                  @ApiParam("显示数量") @RequestParam(value = "size", defaultValue = "100") int size) {
         return ApiReturn.success(null);

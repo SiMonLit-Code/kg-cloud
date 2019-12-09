@@ -33,14 +33,14 @@ public class SemanticController {
 
     @ApiOperation("意图图谱生成")
     @GetMapping("qa/init/{kgName}")
-    public ApiReturn kbQaiInit(@ApiParam("图谱名称") @PathVariable String kgName) {
+    public ApiReturn kbQaiInit(@ApiParam("图谱名称") @PathVariable("kgName") String kgName) {
         questionAnswersApi.create(kgName);
         return ApiReturn.success();
     }
 
     @ApiOperation("知识图谱问答")
     @GetMapping("qa/{kgName}")
-    public ApiReturn<QaAnswerDataRsp> qaKbQa(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<QaAnswerDataRsp> qaKbQa(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                              @RequestBody QueryReq queryReq) {
         RestResp<AnswerDataRsp> query = questionAnswersApi.query(kgName, queryReq);
         return ApiReturn.success(RestCopyConverter.copyRestRespResult(query, new QaAnswerDataRsp()));

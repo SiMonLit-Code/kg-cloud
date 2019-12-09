@@ -8,9 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
@@ -22,9 +20,7 @@ import java.util.List;
 @ToString
 public class BasicGraphExploreReq {
 
-
     @ApiModelProperty("查询边关系的方向，0表示双向，1表示出发，2表示到达,默认0")
-    @Digits.List(value = {@Digits(integer = 0, fraction = 0), @Digits(integer = 1, fraction = 0), @Digits(integer = 2, fraction = 0)})
     private int direction = 0;
     @ApiModelProperty("第二层以上节点查询个数，如果指定，第2层及第2层以上返回的节点以此数为限")
     @Min(value = 0, message = "highLevelSize最小为0")

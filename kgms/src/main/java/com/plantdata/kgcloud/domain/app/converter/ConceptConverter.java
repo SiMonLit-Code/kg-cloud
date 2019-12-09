@@ -4,12 +4,14 @@ import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
  */
 public class ConceptConverter {
 
+
     public static String getKgTittle(@NonNull List<BasicInfo> conceptList) {
         return conceptList.stream().filter(a -> a.getConceptId() != null && a.getConceptId() > 0).findFirst().orElse(new BasicInfo()).getName();
     }
@@ -36,6 +39,7 @@ public class ConceptConverter {
         for (BasicInfo basicInfo : conceptList) {
             conceptRsp = new BaseConceptRsp();
             conceptRsp.setId(basicInfo.getId());
+            conceptRsp.setKey(basicInfo.getKey());
             conceptRsp.setName(basicInfo.getName());
             conceptRsp.setImg(basicInfo.getImageUrl());
             conceptRsp.setParentId(basicInfo.getConceptId());
@@ -57,25 +61,17 @@ public class ConceptConverter {
         return conceptList.stream().map(ConceptConverter::basicInfoToConcept).collect(Collectors.toList());
     }
 
-    public static BasicConceptTreeRsp voToConceptTree(@NonNull List<BasicInfo> conceptList) {
-        return voToConceptTree(conceptList, Collections.emptyList());
+    public static BasicConceptTreeRsp voToConceptTree(@NonNull List<BasicInfo> conceptList, BasicConceptTreeRsp treeRsp) {
+        return voToConceptTree(conceptList, Collections.emptyList(), treeRsp);
     }
 
-    public static BasicConceptTreeRsp voToConceptTree(@NonNull List<BasicInfo> conceptList, List<AttrDefVO> attrDefList) {
+    public static BasicConceptTreeRsp voToConceptTree(@NonNull List<BasicInfo> conceptList, List<AttrDefVO> attrDefList, BasicConceptTreeRsp treeRsp) {
 
-        BasicConceptTreeRsp returnTreeItemVo = null;
-        List<BasicConceptTreeRsp> allConceptList = Lists.newArrayListWithCapacity(conceptList.size());
-        for (BasicInfo treeItem : conceptList) {
-            BasicConceptTreeRsp temp = basicInfoToConcept(treeItem);
-            if (treeItem.getConceptId() == null && returnTreeItemVo == null) {
-                returnTreeItemVo = temp;
-                continue;
-            }
-            allConceptList.add(temp);
 
-        }
+        List<BasicConceptTreeRsp> allConceptList = conceptList.stream().map(ConceptConverter::basicInfoToConcept).collect(Collectors.toList());
+
         if (CollectionUtils.isEmpty(allConceptList)) {
-            return returnTreeItemVo;
+            return treeRsp;
         }
 
         if (!CollectionUtils.isEmpty(attrDefList)) {
@@ -83,8 +79,8 @@ public class ConceptConverter {
         }
         Map<Long, List<BasicConceptTreeRsp>> parentTreeItemMap = allConceptList.stream().collect(Collectors.groupingBy(BasicConceptTreeRsp::getParentId));
 
-        fillTree(Lists.newArrayList(returnTreeItemVo), parentTreeItemMap);
-        return returnTreeItemVo;
+        fillTree(Lists.newArrayList(treeRsp), parentTreeItemMap);
+        return treeRsp;
     }
 
     /**
@@ -125,8 +121,8 @@ public class ConceptConverter {
                     attrDef.getRangeValue().forEach(range -> {
                         BasicConceptTreeRsp conceptTreeRsp = conceptTreeRspMap.get(range);
                         if (null != conceptTreeRsp) {
-                            conceptTreeRsp.getNumAttrs().add(numberAttr);
-                            a.getChildren().add(conceptTreeRsp);
+                            DefaultUtils.listAdd(conceptTreeRsp.getNumAttrs(),numberAttr);
+                            DefaultUtils.listAdd(a.getChildren(),conceptTreeRsp);
                         }
                     });
 
@@ -157,8 +153,8 @@ public class ConceptConverter {
         for (BasicConceptTreeRsp treeItemVo : treeItemVoList) {
             List<BasicConceptTreeRsp> child = treeMap.getOrDefault(treeItemVo.getId(), new ArrayList<>());
             if (!CollectionUtils.isEmpty(child)) {
+                treeItemVo.setChildren(child);
                 fillTree(child, treeMap);
-                treeItemVo.getChildren().addAll(child);
             }
         }
     }

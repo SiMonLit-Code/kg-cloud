@@ -30,19 +30,19 @@ public class GraphConfStatisticalController {
     }
 
     @ApiOperation("图谱更新统计")
-    @PatchMapping("/statistical/{kgName}/{id}")
+    @PatchMapping("/statistical/{id}")
     public ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req) {
         return ApiReturn.success(graphConfStatisticalService.updateStatistical(id, req));
     }
 
     @ApiOperation("图谱删除统计")
-    @DeleteMapping("/statistical/{kgName}/{id}")
+    @DeleteMapping("/statistical/{id}")
     public void deleteStatistical(@PathVariable("id") Long id) {
         graphConfStatisticalService.deleteStatistical(id);
     }
 
     @ApiOperation("图谱批量删除统计")
-    @DeleteMapping("/statistical/{kgName}/{ids}")
+    @DeleteMapping("/statistical/{ids}")
     public void batchDeleteStatistical(@PathVariable("ids") List<Long> ids) {
         graphConfStatisticalService.deleteInBatch(ids);
     }
