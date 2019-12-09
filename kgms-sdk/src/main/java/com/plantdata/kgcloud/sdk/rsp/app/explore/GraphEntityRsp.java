@@ -16,12 +16,10 @@ import java.util.Map;
 @Setter
 public class GraphEntityRsp extends BasicEntityRsp {
 
-    @ApiModelProperty("业务使用")
-    private Long replaceClassId;
-    @ApiModelProperty("顶层概念")
-    private ExploreConceptRsp topConcept;
-    @ApiModelProperty("主概念")
-    private ExploreConceptRsp mainConcept;
+    @ApiModelProperty("默认顶层概念id传replaceClassId则为replaceClassId")
+    private Long classId;
+    @ApiModelProperty("直接父概念名称")
+    private String conceptName;
     @ApiModelProperty("所有概念id集合，包含顶层父概念")
     private List<Long> conceptIdList;
     @ApiModelProperty("坐标信息")

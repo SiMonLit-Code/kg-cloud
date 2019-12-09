@@ -17,7 +17,6 @@ import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.PromptQaTypeEnum;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
-import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.PromptConverter;
 import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
@@ -45,6 +44,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
@@ -25,6 +26,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
@@ -42,6 +44,9 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.plantdata.kgcloud.domain.graph.config.constant.FocusType.relation;
 
 /**
  * @Author: LinHo
@@ -194,11 +199,11 @@ public class AttributeController {
 
     @ApiOperation("批量关系新增")
     @PostMapping("relation/insert/{kgName}")
-    public ApiReturn<BatchRelationRsp> importRelation(@PathVariable String kgName,
-                                                      @RequestBody BatchRelationRsp relation) {
-        BatchRelationVO batchRelationVO = new BatchRelationVO();
-        BeanUtils.copyProperties(relation, batchRelationVO);
-        BatchRelationRsp relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, Lists.newArrayList(batchRelationVO)), new BatchRelationRsp());
+    public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable String kgName,
+                                                     @RequestBody List<BatchRelationRsp> relationList) {
+        List<BatchRelationVO> collect = relationList.stream().map(a -> ConvertUtils.convert(BatchRelationVO.class).apply(a)).collect(Collectors.toList());
+
+        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, collect), new OpenBatchResult<>());
         return ApiReturn.success(relationRsp);
     }
 
