@@ -177,7 +177,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱删除算法")
     @DeleteMapping("/config/algorithm/{id}")
-    void delete(@PathVariable("id") Long id);
+    ApiReturn delete(@PathVariable("id") Long id);
 
     @ApiOperation("图谱查询算法")
     @GetMapping("/config/algorithm/{kgName}")
@@ -201,15 +201,15 @@ public interface KgmsClient {
 
     @ApiOperation("图谱删除业务")
     @DeleteMapping("/config/kgql/{id}")
-    void deleteKgql(@PathVariable("id") Long id);
+    ApiReturn deleteKgql(@PathVariable("id") Long id);
 
     @ApiOperation("图谱查询业务")
-    @GetMapping("/config/kgql/{kgName}/{ruleType}")
-    ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName, @PathVariable("kgName") Integer ruleType, BaseReq baseReq);
+    @GetMapping("/config/kgql/{kgName}")
+    ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName, @RequestParam("kgName") Integer ruleType, BaseReq baseReq);
 
     @ApiOperation("图谱业务详情")
     @GetMapping("/config/kgql/{id}")
-    GraphConfKgqlRsp detailKgql(@PathVariable("id") Long id);
+    ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id);
 
     @ApiOperation("图谱新建问答")
     @PostMapping("/config/qa/{kgName}")
@@ -229,11 +229,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱删除统计")
     @DeleteMapping("/config/statistical/{id}")
-    void deleteStatistical(@PathVariable("id") Long id);
-
-    @ApiOperation("图谱批量删除统计")
-    @DeleteMapping("/config/statistical/{entities}")
-    void batchDeleteStatistical(@PathVariable("entities") Iterable entities);
+    ApiReturn deleteStatistical(@PathVariable("id") Long id);
 
     @ApiOperation("图谱查询统计")
     @GetMapping("/config/statistical/{kgName}")
@@ -249,7 +245,4 @@ public interface KgmsClient {
     @PostMapping("model/call/{id}")
     ApiReturn callJson(@PathVariable("id") Long id, @RequestBody WordReq.ModelCallReq req);
 
-    @ApiOperation("图谱查询业务")
-    @GetMapping("/kgql/{kgName}")
-    ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, @RequestParam("ruleType") Integer ruleType, BaseReq baseReq);
 }
