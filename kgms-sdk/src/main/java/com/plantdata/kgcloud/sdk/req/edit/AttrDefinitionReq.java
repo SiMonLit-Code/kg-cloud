@@ -7,6 +7,7 @@ import lombok.Data;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: LinHo
@@ -49,10 +50,10 @@ public class AttrDefinitionReq {
     private Integer direction = 0;
 
     @ApiModelProperty(value = "前端使用")
-    private String additionalInfo;
+    private Map<String, Object> additionalInfo;
 
     @ApiModelProperty(value = "属性约束")
-    private String constraints;
+    private Map<String, Object> constraints;
 
     @ApiModelProperty(value = "属性定义key")
     private String key;

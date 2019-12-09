@@ -31,6 +31,8 @@ import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
+import com.plantdata.kgcloud.domain.edit.util.AttrConverterUtils;
+import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -116,7 +118,7 @@ public class AttributeServiceImpl implements AttributeService {
         Optional<List<AttrDefVO>> optional = RestRespConverter
                 .convert(attributeApi.getByConceptIds(kgName, attrQueryFrom));
         return optional.orElse(new ArrayList<>()).stream()
-                .map(ConvertUtils.convert(AttrDefinitionRsp.class))
+                .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
     }
 
@@ -124,7 +126,7 @@ public class AttributeServiceImpl implements AttributeService {
     public List<AttrDefinitionRsp> getAttrDefinitionByEntityId(String kgName, Long entityId) {
         Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getByEntityId(kgName, entityId));
         return optional.orElse(new ArrayList<>()).stream()
-                .map(ConvertUtils.convert(AttrDefinitionRsp.class))
+                .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
     }
 
@@ -135,14 +137,15 @@ public class AttributeServiceImpl implements AttributeService {
         Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getByConceptIds(kgName,
                 attrQueryFrom));
         return optional.orElse(new ArrayList<>()).stream()
-                .map(ConvertUtils.convert(AttrDefinitionRsp.class))
+                .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
     }
 
     @Override
     public Integer addAttrDefinition(String kgName, AttrDefinitionReq attrDefinitionReq) {
         AttributeDefinitionFrom attributeDefinitionFrom =
-                ConvertUtils.convert(AttributeDefinitionFrom.class).apply(attrDefinitionReq);
+                AttrConverterUtils.attrDefinitionReqConvert(attrDefinitionReq);
+        attributeDefinitionFrom.setAdditionalInfo(JacksonUtils.writeValueAsString(attrDefinitionReq.getAdditionalInfo()));
         Optional<Integer> optional = RestRespConverter.convert(attributeApi.add(kgName, attributeDefinitionFrom));
         return optional.get();
     }
@@ -151,7 +154,9 @@ public class AttributeServiceImpl implements AttributeService {
     public List<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName,
                                                                List<AttrDefinitionReq> attrDefinitionReqs) {
         List<AttributeDefinitionVO> voList =
-                attrDefinitionReqs.stream().map(ConvertUtils.convert(AttributeDefinitionVO.class)).collect(Collectors.toList());
+                attrDefinitionReqs.stream().map(
+                        AttrConverterUtils::attrDefinitionReqConvert
+                ).collect(Collectors.toList());
         Optional<BatchResult<AttributeDefinitionVO>> optional =
                 RestRespConverter.convert(batchApi.addAttributes(kgName, voList));
         return optional.map(result -> result.getError().stream()
@@ -162,7 +167,7 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public void updateAttrDefinition(String kgName, AttrDefinitionModifyReq modifyReq) {
         AttributeDefinitionFrom attributeDefinitionFrom =
-                ConvertUtils.convert(AttributeDefinitionFrom.class).apply(modifyReq);
+                AttrConverterUtils.attrDefinitionReqConvert(modifyReq);
         RestRespConverter.convertVoid(attributeApi.update(kgName, attributeDefinitionFrom));
     }
 
@@ -206,7 +211,7 @@ public class AttributeServiceImpl implements AttributeService {
                 });
         List<AttrDefinitionReq> attrDefinitionReqs =
                 attrTemplateReqs.stream().map(attrTemplateReq -> {
-                    AttrDefinitionReq attrDefinitionReq = new AttrDefinitionModifyReq();
+                    AttrDefinitionReq attrDefinitionReq = new AttrDefinitionReq();
                     BeanUtils.copyProperties(attrTemplateReq, attrDefinitionReq);
                     attrDefinitionReq.setRangeValue(attrTemplateReq.getRange().stream().map(IdNameVO::getId).collect(Collectors.toList()));
                     return attrDefinitionReq;
@@ -308,6 +313,6 @@ public class AttributeServiceImpl implements AttributeService {
     public List<TripleRsp> getRelationByAttr(String kgName, TripleReq tripleReq) {
         TripleFrom tripleFrom = ConvertUtils.convert(TripleFrom.class).apply(tripleReq);
         Optional<List<TripleVO>> optional = RestRespConverter.convert(relationApi.aggRelation(kgName, tripleFrom));
-        return optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(TripleRsp.class)).collect(Collectors.toList());
+        return optional.orElse(new ArrayList<>()).stream().map(vo -> MapperUtils.map(vo, TripleRsp.class)).collect(Collectors.toList());
     }
 }

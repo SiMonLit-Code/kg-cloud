@@ -109,7 +109,7 @@ public class InduceServiceImpl implements InduceService {
                 conceptId));
         //TODO 是否兼容url
         return optional.orElse(new ArrayList<>()).stream()
-                .map(ConvertUtils.convert(InduceConceptRsp.class)).collect(Collectors.toList());
+                .map(vo -> MapperUtils.map(vo, InduceConceptRsp.class)).collect(Collectors.toList());
 
     }
 

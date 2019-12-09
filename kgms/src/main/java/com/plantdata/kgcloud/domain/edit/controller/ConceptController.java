@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.ConceptReplaceReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.GisModifyReq;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
@@ -40,6 +41,14 @@ public class ConceptController {
     ApiReturn updateConcept(@PathVariable("kgName") String kgName,
                             @Valid @RequestBody BasicInfoModifyReq basicInfoModifyReq) {
         basicInfoService.updateBasicInfo(kgName, basicInfoModifyReq);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("修改父概念")
+    @PostMapping("/{kgName}/update/concept")
+    ApiReturn updateConcept(@PathVariable("kgName") String kgName,
+                            @Valid @RequestBody ConceptReplaceReq conceptReplaceReq) {
+        conceptService.replaceConceptId(kgName, conceptReplaceReq);
         return ApiReturn.success();
     }
 
