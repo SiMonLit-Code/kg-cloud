@@ -56,15 +56,15 @@ public class GraphAttrController {
         return ApiReturn.success(graphAttrGroupService.updateAttrGroup(kgName, id, attrGroupReq));
     }
 
-    @ApiOperation("修改属性分组名称")
+    @ApiOperation("属性分组名称列表")
     @GetMapping("/{kgName}")
     ApiReturn<List<GraphAttrGroupRsp>> listAttrGroups(@PathVariable("kgName") String kgName,
-                                                      @Valid @RequestBody AttrGroupSearchReq attrGroupSearchReq) {
+                                                      AttrGroupSearchReq attrGroupSearchReq) {
         return ApiReturn.success(graphAttrGroupService.listAttrGroups(kgName, attrGroupSearchReq));
     }
 
     @ApiOperation("向属性分组里面添加属性")
-    @PostMapping("/{kgName}/to/add")
+    @PostMapping("/{kgName}/{id}/to/add")
     ApiReturn addAttrToAttrGroup(@PathVariable("kgName") String kgName,
                                  @PathVariable("id") Long id,
                                  @Valid @RequestBody List<Integer> attrIds) {
@@ -73,7 +73,7 @@ public class GraphAttrController {
     }
 
     @ApiOperation("从属性分组里面删除属性")
-    @PostMapping("/{kgName}/from/delete")
+    @PostMapping("/{kgName}/{id}/from/delete")
     ApiReturn deleteAttrFromAttrGroup(@PathVariable("kgName") String kgName,
                                       @PathVariable("id") Long id,
                                       @Valid @RequestBody List<Integer> attrIds) {

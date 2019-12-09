@@ -65,7 +65,6 @@ public class DocumentController {
     @ApiOperation("批量更新文档结构")
     @PostMapping("/update/html")
     public ApiReturn updateHtml(@RequestBody List<DocHtmlReq> docHtmlReq,Boolean isInitPddoc,Integer sceneId,Integer docId) {
-        String s = "<p style=\"text-indent: 21pt; font-size: 16px;\" data-level=\"0\" data-p=\"0\" data-structure=\"1\" data-id=\"2\" class=\"doc-title\" data-pddid=\"0\" data-i=\"2-0\"><span style=\"font-family: &quot;Times New Roman&quot;; font-size: 24px;\" data-i=\"2-0-0\">　　【国 名】 马达加斯加共和国（The Republic of Madagascar，La République de Madagascar）。</span><span id=\"_GoBack\" data-i=\"2-0-1\" style=\"font-size: 24px;\"></span></p>";
         return documentService.updateHtml(docHtmlReq,isInitPddoc,sceneId,docId);
     }
 

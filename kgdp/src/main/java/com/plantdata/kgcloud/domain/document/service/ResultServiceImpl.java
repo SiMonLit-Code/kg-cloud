@@ -2,8 +2,10 @@ package com.plantdata.kgcloud.domain.document.service;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.hiekn.pddocument.bean.PdDocument;
 import com.hiekn.pddocument.bean.element.PdEntity;
+import com.hiekn.pddocument.bean.element.PdEntityBase;
 import com.hiekn.pddocument.bean.element.PdRelation;
 import com.hiekn.pddocument.bean.element.PdValue;
 import com.plantdata.kgcloud.bean.ApiReturn;
@@ -14,14 +16,17 @@ import com.plantdata.kgcloud.domain.document.rsp.DataCheckRsp;
 import com.plantdata.kgcloud.domain.scene.entiy.Scene;
 import com.plantdata.kgcloud.domain.scene.service.SceneService;
 import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -151,9 +156,10 @@ public class ResultServiceImpl implements ResultService {
     }
 
     @Override
-    public void importGroup(Integer sceneId, Integer id,Integer model) {/*
+    public void importGroup(Integer sceneId, Integer id,Integer model) {
 
-        Scene scene = documentService.checkScene(sceneId);
+        String userId = SessionHolder.getUserId();
+        Scene scene = sceneService.checkScene(sceneId,userId);
         List<PdDocument> pdDocumentList = getPddocument(sceneId,id).getData();
         if(pdDocumentList == null || pdDocumentList.isEmpty()){
             return ;
@@ -169,7 +175,7 @@ public class ResultServiceImpl implements ResultService {
             }
         }
 
-        List<ImportEntityRsp> importEntityList = Lists.newArrayList();
+        List<OpenBatchSaveEntityRsp> importEntityList = Lists.newArrayList();
         List<String> existEntityNameList = Lists.newArrayList();
         for(PdDocument pdDocument : pdDocumentList){
 
@@ -177,20 +183,20 @@ public class ResultServiceImpl implements ResultService {
             if(pdDocument.getPdEntity() != null && !pdDocument.getPdEntity().isEmpty()){
                 for(PdEntity entity : pdDocument.getPdEntity()){
 
-                    ImportEntityRsp importEntityBean = new ImportEntityRsp();
+                    OpenBatchSaveEntityRsp importEntityBean = new OpenBatchSaveEntityRsp();
                     importEntityBean.setConceptId(entity.getClassId());
                     importEntityBean.setName(entity.getName());
                     existEntityNameList.add(entity.getClassId()+"_"+entity.getName());
                     Long entityId =entity.getId();
 
                     if(entityId == null) {
-                        entityId = sdkService.getEntityIdByName(scene.getLabelModel().getKgName(),entity.getName(),entity.getClassId());
+                        entityId = sdkService.getEntityIdByName(scene.getKgName(),entity.getName(),entity.getClassId());
                     }
 
 
                     importEntityBean.setId(entityId);
                     entity.setId(entityId);
-                    Map<String, Object> attMap = Maps.newHashMap();
+                    Map<Integer, String> attMap = Maps.newHashMap();
                     Map<String,String> privateAttributes = Maps.newHashMap();
 
                     List<PdValue> elements = entity.getElements();
@@ -221,7 +227,7 @@ public class ResultServiceImpl implements ResultService {
                                     case 0:
                                         if(!checkMap.containsKey(key)){
                                             //没有冲突才添加
-                                            attMap.put(attId+"",value);
+                                            attMap.put(attId,value);
 
                                             //补充入图状态
                                             element.setPredicate("已入图");
@@ -229,7 +235,7 @@ public class ResultServiceImpl implements ResultService {
                                         break;
                                     case 1:
                                         //冲突覆盖
-                                        attMap.put(attId+"",value);
+                                        attMap.put(attId,value);
                                         //补充入图状态
                                         element.setPredicate("已入图");
                                         break;
@@ -237,7 +243,7 @@ public class ResultServiceImpl implements ResultService {
                                         //冲突保留
                                         if(!checkMap.containsKey(key)){
                                             //没有冲突才添加
-                                            attMap.put(attId+"",value);
+                                            attMap.put(attId,value);
                                         }
                                         //补充入图状态
                                         element.setPredicate("已入图");
@@ -269,7 +275,7 @@ public class ResultServiceImpl implements ResultService {
                         if(existEntityNameList.contains(relation.getObject().getClassId()+"_"+relation.getObject().getName())){
                             continue;
                         }
-                        ImportEntityRsp importEntityBean = new ImportEntityRsp();
+                        OpenBatchSaveEntityRsp importEntityBean = new OpenBatchSaveEntityRsp();
                         importEntityBean.setConceptId(relation.getObject().getClassId());
                         importEntityBean.setName(relation.getObject().getName());
                         importEntityList.add(importEntityBean);
@@ -282,10 +288,9 @@ public class ResultServiceImpl implements ResultService {
 
         Map<String,Long> idMap = Maps.newHashMap();
         if(!importEntityList.isEmpty()){
-            List<EntityRsp> success = null;
-//            List<EntityRsp> success = sdkService.upsertEntity(scene.getLabelModel().getKgName(),importEntityList);
+            List<OpenBatchSaveEntityRsp> success = sdkService.addBatchEntity(scene.getKgName(),importEntityList);
             if(success != null && !success.isEmpty()){
-                for(EntityRsp entityBean : success){
+                for(OpenBatchSaveEntityRsp entityBean : success){
                     idMap.put(entityBean.getConceptId()+"_"+entityBean.getName(),entityBean.getId());
                 }
             }
@@ -298,9 +303,9 @@ public class ResultServiceImpl implements ResultService {
 
                 for(PdEntity entity : pdDocument.getPdEntity()) {
 
-                    *//*if (entity.getId() != null) {
+                    if (entity.getId() != null) {
                         continue;
-                    }*//*
+                    }
 
                     Long entityId = idMap.get(entity.getClassId()+"_"+entity.getName());
                     if(entityId == null){
@@ -337,7 +342,7 @@ public class ResultServiceImpl implements ResultService {
         }
 
 
-        List<ImportRelationRsp> importRelationList = Lists.newArrayList();
+        List<BatchRelationRsp> importRelationList = Lists.newArrayList();
         for( PdDocument pdDocument  : pdDocumentList){
 
             if(pdDocument.getPdRelation() == null || pdDocument.getPdRelation().isEmpty()){
@@ -357,7 +362,7 @@ public class ResultServiceImpl implements ResultService {
                     continue;
                 }
                 relation.setPredicate("已入图");
-                ImportRelationRsp importRelationBean = new ImportRelationRsp();
+                BatchRelationRsp importRelationBean = new BatchRelationRsp();
                 importRelationBean.setAttrId(relation.getAttId());
                 importRelationBean.setEntityConcept(sub.getClassId());
                 importRelationBean.setEntityName(sub.getName());
@@ -372,12 +377,12 @@ public class ResultServiceImpl implements ResultService {
         //新增关系
         if(!importRelationList.isEmpty()){
 //            List<ImportRelationRsp> success = sdkService.importRelation(scene.getLabelModel().getKgName(),importRelationList);
-            List<ImportRelationRsp> success = null;
+            List<BatchRelationRsp> success = null;
 
             //返回关系id写回去
-            Map<String, ImportRelationRsp> relationMap = Maps.newHashMap();
+            Map<String, BatchRelationRsp> relationMap = Maps.newHashMap();
             if(success != null && !success.isEmpty()){
-                for(ImportRelationRsp relation : success){
+                for(BatchRelationRsp relation : success){
                     relationMap.put(relation.getEntityName()+"_"+relation.getEntityConcept()+"_"+relation.getAttrValueName()+"_"+relation.getAttrValueConcept(),relation);
                 }
             }
@@ -394,11 +399,11 @@ public class ResultServiceImpl implements ResultService {
                         PdEntityBase sub = pdRelation.getSubject();
                         PdEntityBase obj = pdRelation.getObject();
                         String key = sub.getName()+"_"+sub.getClassId()+"_"+obj.getName()+"_"+obj.getClassId();
-                        ImportRelationRsp relationBean = relationMap.get(key);
+                        BatchRelationRsp relationBean = relationMap.get(key);
                         if(relationBean != null){
                             pdRelation.getSubject().setId(relationBean.getEntityId());
                             pdRelation.getObject().setId(relationBean.getAttrValueId());
-                            pdRelation.setTripleId(relationBean.getTripleId());
+                            pdRelation.setTripleId(relationBean.getId());
                         }
                     }
                 }
@@ -408,7 +413,6 @@ public class ResultServiceImpl implements ResultService {
         //数据写回mongo
         updatePddocument(sceneId,id,pdDocumentList);
 
-*/
         return;
     }
 

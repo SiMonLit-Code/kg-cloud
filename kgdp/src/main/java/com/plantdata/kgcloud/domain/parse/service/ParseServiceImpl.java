@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @Service
 public class ParseServiceImpl implements ParseService {
@@ -24,5 +25,10 @@ public class ParseServiceImpl implements ParseService {
         }catch (IOException e){
             throw BizException.of(KgDocumentErrorCodes.DOCUMENT_PARSE_ERROR);
         }
+    }
+
+    @Override
+    public ApiReturn<PdDocument> nlpParse(String url, List<String> texts) {
+        return null;
     }
 }
