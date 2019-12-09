@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.converter.graph;
 import ai.plantdata.kg.api.pub.req.CommonFilter;
 import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
+import ai.plantdata.kg.api.pub.resp.EdgeVO;
 import ai.plantdata.kg.api.pub.resp.SimpleEntity;
 import ai.plantdata.kg.api.pub.resp.SimpleRelation;
 import ai.plantdata.kg.common.bean.BasicInfo;
@@ -24,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -98,9 +100,19 @@ public class GraphCommonConverter {
             relationRsp.setStartTime(relation.getAttrTimeFrom());
             relationRsp.setEndTime(relation.getAttrTimeFrom());
             relationRsp.setId(relation.getId());
+            if (!CollectionUtils.isEmpty(relation.getEdgeNumericAttr())) {
+                relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
+            }
+            if (!CollectionUtils.isEmpty(relation.getEdgeObjAttr())) {
+                relationRsp.setObjAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
+            }
             relationRspList.add(relationRsp);
         }
         return relationRspList;
+    }
+
+    private static List<BasicRelationRsp.EdgeInfo> edgeVoListToEdgeInfo(@NonNull List<EdgeVO> edgeList) {
+        return edgeList.stream().map(a -> new BasicRelationRsp.EdgeInfo(a.getName(), a.getSeqNo(), a.getValue())).collect(Collectors.toList());
     }
 
     /**
@@ -119,7 +131,6 @@ public class GraphCommonConverter {
         graphEntityRsp.setMeaningTag(simpleEntity.getMeaningTag());
         Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(simpleEntity.getImageUrl());
         imageRsp.ifPresent(graphEntityRsp::setImg);
-        //todo查询所有概念
         if (EntityTypeEnum.ENTITY.equals(graphEntityRsp.getType())) {
             GraphCommonConverter.fillConcept(simpleEntity.getConceptId(), graphEntityRsp, conceptMap);
         }
