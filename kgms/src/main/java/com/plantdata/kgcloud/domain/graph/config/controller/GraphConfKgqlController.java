@@ -28,27 +28,27 @@ public class GraphConfKgqlController {
 
     @ApiOperation("图谱新建业务")
     @PostMapping("/kgql/{kgName}")
-    public ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfKgqlReq req) {
+    public ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req) {
 
-        return ApiReturn.success(graphConfKgqlService.createKgql(kgName,req));
+        return ApiReturn.success(graphConfKgqlService.createKgql(kgName, req));
     }
 
     @ApiOperation("图谱更新业务")
-    @PatchMapping("/kgql/{kgName}/{id}")
+    @PatchMapping("/kgql/{id}")
     public ApiReturn<GraphConfKgqlRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfKgqlReq req) {
-        return ApiReturn.success(graphConfKgqlService.updateKgql(id,req));
+        return ApiReturn.success(graphConfKgqlService.updateKgql(id, req));
     }
 
     @ApiOperation("图谱删除业务")
-    @DeleteMapping("/kgql/{kgName}/{id}")
+    @DeleteMapping("/kgql/{id}")
     public void deleteKgql(@PathVariable("id") Long id) {
         graphConfKgqlService.deleteKgql(id);
     }
 
     @ApiOperation("图谱查询业务")
-    @GetMapping("/kgql/{kgName}/{ruleType}")
-    public ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName ,@PathVariable("kgName") Integer ruleType , BaseReq baseReq) {
-        return ApiReturn.success(graphConfKgqlService.findByKgName(kgName ,baseReq ,ruleType ));
+    @GetMapping("/kgql/{kgName}")
+    public ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName, @RequestParam("kgName") Integer ruleType, BaseReq baseReq) {
+        return ApiReturn.success(graphConfKgqlService.findByKgName(kgName, baseReq, ruleType));
     }
 
     @ApiOperation("图谱业务详情")

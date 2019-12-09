@@ -29,7 +29,7 @@ public interface KgmsClient {
 
     @ApiOperation("数据集根据Id查找")
     @GetMapping("/dataset/{id}")
-    ApiReturn<DataSetRsp> dataSetFindById(@PathVariable Long id);
+    ApiReturn<DataSetRsp> dataSetFindById(@PathVariable("id") Long id);
 
     @ApiOperation("数据集创建")
     @PostMapping("/dataset/")
@@ -37,11 +37,11 @@ public interface KgmsClient {
 
     @ApiOperation("数据集编辑")
     @PatchMapping("/dataset/{id}")
-    ApiReturn<DataSetRsp> dataSetUpdate(@PathVariable Long id, @Valid @RequestBody DataSetCreateReq req);
+    ApiReturn<DataSetRsp> dataSetUpdate(@PathVariable("id") Long id, @Valid @RequestBody DataSetCreateReq req);
 
     @ApiOperation("数据集删除")
     @DeleteMapping("/dataset/{id}")
-    ApiReturn dataSetDelete(@PathVariable Long id);
+    ApiReturn dataSetDelete(@PathVariable("id") Long id);
 
     @ApiOperation("数据集-文件夹-列表")
     @GetMapping("/dataset/folder")
@@ -105,7 +105,7 @@ public interface KgmsClient {
 
     @ApiOperation("词典根据Id查找")
     @GetMapping("/dictionary/{id}")
-    ApiReturn<DictionaryRsp> dictionaryFindById(@PathVariable Long id);
+    ApiReturn<DictionaryRsp> dictionaryFindById(@PathVariable("id") Long id);
 
     @ApiOperation("词典创建")
     @PostMapping("/dictionary/")
@@ -113,11 +113,11 @@ public interface KgmsClient {
 
     @ApiOperation("词典编辑")
     @PatchMapping("/dictionary/{id}")
-    ApiReturn<DictionaryRsp> dictionaryUpdate(@PathVariable Long id, @Valid @RequestBody DictionaryReq req);
+    ApiReturn<DictionaryRsp> dictionaryUpdate(@PathVariable("id") Long id, @Valid @RequestBody DictionaryReq req);
 
     @ApiOperation("词典删除")
     @DeleteMapping("/dictionary/{id}")
-    ApiReturn dictionaryDelete(@PathVariable Long id);
+    ApiReturn dictionaryDelete(@PathVariable("id") Long id);
 
     @ApiOperation("词典-词条查找所有")
     @GetMapping("/dictionary/{dictId}/word/all")
@@ -172,11 +172,11 @@ public interface KgmsClient {
     ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfAlgorithmReq req);
 
     @ApiOperation("图谱更新算法")
-    @PatchMapping("/config/algorithm/{kgName}/{id}")
+    @PatchMapping("/config/algorithm/{id}")
     ApiReturn<GraphConfAlgorithmRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfAlgorithmReq req);
 
     @ApiOperation("图谱删除算法")
-    @DeleteMapping("/config/algorithm/{kgName}/{id}")
+    @DeleteMapping("/config/algorithm/{id}")
     void delete(@PathVariable("id") Long id);
 
     @ApiOperation("图谱查询算法")
@@ -196,20 +196,20 @@ public interface KgmsClient {
     ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req);
 
     @ApiOperation("图谱更新业务")
-    @PatchMapping("/config/kgql/{kgName}/{id}")
+    @PatchMapping("/config/kgql/{id}")
     ApiReturn<GraphConfKgqlRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfKgqlReq req);
 
     @ApiOperation("图谱删除业务")
-    @DeleteMapping("/config/kgql/{kgName}/{id}")
+    @DeleteMapping("/config/kgql/{id}")
     void deleteKgql(@PathVariable("id") Long id);
 
     @ApiOperation("图谱查询业务")
     @GetMapping("/config/kgql/{kgName}/{ruleType}")
-    public ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName ,@PathVariable("kgName") Integer ruleType , BaseReq baseReq) ;
+    ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName, @PathVariable("kgName") Integer ruleType, BaseReq baseReq);
 
     @ApiOperation("图谱业务详情")
     @GetMapping("/config/kgql/{id}")
-    public GraphConfKgqlRsp detailKgql(@PathVariable("id") Long id) ;
+    GraphConfKgqlRsp detailKgql(@PathVariable("id") Long id);
 
     @ApiOperation("图谱新建问答")
     @PostMapping("/config/qa/{kgName}")
@@ -224,16 +224,16 @@ public interface KgmsClient {
     ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfStatisticalReq req);
 
     @ApiOperation("图谱更新统计")
-    @PatchMapping("/config/statistical/{kgName}/{id}")
+    @PatchMapping("/config/statistical/{id}")
     ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req);
 
     @ApiOperation("图谱删除统计")
-    @DeleteMapping("/config/statistical/{kgName}/{id}")
+    @DeleteMapping("/config/statistical/{id}")
     void deleteStatistical(@PathVariable("id") Long id);
 
     @ApiOperation("图谱批量删除统计")
     @DeleteMapping("/config/statistical/{entities}")
-    void batchDeleteStatistical(@PathVariable("entities")Iterable entities);
+    void batchDeleteStatistical(@PathVariable("entities") Iterable entities);
 
     @ApiOperation("图谱查询统计")
     @GetMapping("/config/statistical/{kgName}")
@@ -247,6 +247,9 @@ public interface KgmsClient {
      * @return .
      */
     @PostMapping("model/call/{id}")
-    ApiReturn callJson(@PathVariable Long id, @RequestBody WordReq.ModelCallReq req);
+    ApiReturn callJson(@PathVariable("id") Long id, @RequestBody WordReq.ModelCallReq req);
 
+    @ApiOperation("图谱查询业务")
+    @GetMapping("/kgql/{kgName}")
+    ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, @RequestParam("ruleType") Integer ruleType, BaseReq baseReq);
 }
