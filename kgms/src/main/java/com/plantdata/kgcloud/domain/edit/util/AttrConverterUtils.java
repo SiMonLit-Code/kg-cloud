@@ -20,12 +20,12 @@ public class AttrConverterUtils {
      * @param attrDefinitionReq
      * @return
      */
-    public static AttributeDefinitionFrom attrDefinitionReqConvert(AttrDefinitionReq attrDefinitionReq) {
-        AttributeDefinitionFrom attributeDefinitionFrom =
-                ConvertUtils.convert(AttributeDefinitionFrom.class).apply(attrDefinitionReq);
-        attributeDefinitionFrom.setAdditionalInfo(JacksonUtils.writeValueAsString(attrDefinitionReq.getAdditionalInfo()));
-        attributeDefinitionFrom.setConstraints(JacksonUtils.writeValueAsString(attrDefinitionReq.getConstraints()));
-        return attributeDefinitionFrom;
+    public static AttributeDefinitionVO attrDefinitionReqConvert(AttrDefinitionReq attrDefinitionReq) {
+        AttributeDefinitionVO vo =
+                ConvertUtils.convert(AttributeDefinitionVO.class).apply(attrDefinitionReq);
+        vo.setAdditionalInfo(JacksonUtils.writeValueAsString(attrDefinitionReq.getAdditionalInfo()));
+        vo.setConstraints(JacksonUtils.writeValueAsString(attrDefinitionReq.getConstraints()));
+        return vo;
     }
 
 }
