@@ -47,7 +47,7 @@ public class ReasoningBO {
             if (ruleBean == null) {
                 continue;
             }
-            String ruleConfig = ruleBean.getRuleConfig();
+            String ruleConfig = ruleBean.getRuleConfig().toString();
 
             Iterator<String> iterator = ruleConfigObject.fieldNames();
             while (iterator.hasNext()) {
