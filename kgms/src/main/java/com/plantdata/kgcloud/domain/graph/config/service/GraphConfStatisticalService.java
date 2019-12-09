@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
-import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 
@@ -12,6 +11,7 @@ import java.util.List;
 public interface GraphConfStatisticalService {
     /**
      * 创建统计
+     *
      * @param kgName
      * @param req
      * @return
@@ -36,14 +36,14 @@ public interface GraphConfStatisticalService {
      *
      * @param id
      */
-    void deleteStatistical(Long id );
+    void deleteStatistical(Long id);
 
     /**
      * 批量删除统计
+     *
      * @param ids
      */
     void deleteInBatch(List<Long> ids);
-
 
 
     /**
@@ -56,6 +56,7 @@ public interface GraphConfStatisticalService {
 
     /**
      * 查询所有
+     *
      * @return
      */
     List<GraphConfStatisticalRsp> findAll();

@@ -30,6 +30,11 @@ public class DataSetAnnotation {
     @Column(name = "id")
     private Long id;
 
+
+    @Basic
+    @Column(name = "user_id")
+    private String userId;
+
     @Basic
     @Column(name = "kg_name")
     private String kgName;
@@ -40,7 +45,7 @@ public class DataSetAnnotation {
 
     @Basic
     @Column(name = "title")
-    private String title;
+    private String name;
 
     @Basic
     @Column(name = "config")
@@ -48,7 +53,7 @@ public class DataSetAnnotation {
 
     @Basic
     @Column(name = "remark")
-    private String remark;
+    private String description;
 
     @Basic
     @Column(name = "create_at", updatable = false)

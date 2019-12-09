@@ -1,10 +1,10 @@
 package com.plantdata.kgcloud.domain.dataset.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +16,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +69,7 @@ public class DataSetOptController {
     public ApiReturn<Map<String, Object>> insertData(
             @PathVariable("datasetId") Long datasetId,
             @PathVariable("dataId") String dataId,
-            @RequestBody Map<String,Object> data) {
+            @RequestBody Map<String, Object> data) {
         return ApiReturn.success(dataOptService.updateData(datasetId, dataId, data));
     }
 
@@ -91,6 +95,51 @@ public class DataSetOptController {
             @PathVariable("datasetId") Long datasetId,
             @RequestBody List<String> ids) {
         dataOptService.batchDeleteData(datasetId, ids);
+        return ApiReturn.success();
+    }
+
+
+    @ApiOperation("数据集-数据-文件-导入")
+    @PostMapping("/{datasetId}/upload")
+    public ApiReturn upload(@PathVariable("datasetId") Long datasetId, @RequestParam(value = "file") MultipartFile file, HttpServletResponse response) {
+        try {
+            dataOptService.upload(datasetId, file);
+        } catch (Exception e) {
+            return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_EXPORT_FAIL);
+        }
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数据集-数据-接口-导入")
+    @PostMapping("/{datasetId}/import")
+    public ApiReturn importData(@PathVariable("datasetId") Long datasetId, @RequestBody List<Map<String, Object>> dataList) {
+        dataOptService.batchInsertData(datasetId, dataList);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数据集-数据-文件-导出")
+    @GetMapping("/{datasetId}/export")
+    public void exportData(@PathVariable("datasetId") Long datasetId, HttpServletResponse response) {
+        try {
+            dataOptService.exportData(datasetId, response);
+        } catch (Exception e) {
+            response.reset();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            try {
+                ApiReturn fail = ApiReturn.fail(KgmsErrorCodeEnum.DATASET_EXPORT_FAIL);
+                String error = JacksonUtils.writeValueAsString(fail);
+                response.getWriter().println(error);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
+    @ApiOperation("数据集-数据-smoke统计")
+    @GetMapping("/{datasetId}/statistics")
+    public ApiReturn statistics(@PathVariable("datasetId") Long datasetId) {
+        dataOptService.deleteAll(datasetId);
         return ApiReturn.success();
     }
 

@@ -16,7 +16,6 @@ import java.util.List;
 public interface GraphConfKgqlRepository extends JpaRepository<GraphConfKgql, Long> {
     List<GraphConfKgql> findByKgName(String kgName);
 
-    GraphConfKgqlRsp finById(Long id);
     /**
      * 分页
      *

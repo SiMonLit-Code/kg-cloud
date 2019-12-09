@@ -72,6 +72,6 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     public GraphConfKgqlRsp findById(Long id) {
         GraphConfKgql graphConfKgql = graphConfKgqlRepository.findById(id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
-        return graphConfKgqlRepository.finById(id);
+        return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(graphConfKgql);
     }
 }
