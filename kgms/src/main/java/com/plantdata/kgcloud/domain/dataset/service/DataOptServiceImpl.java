@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
+import com.alibaba.excel.EasyExcel;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
@@ -15,8 +16,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -117,5 +122,32 @@ public class DataOptServiceImpl implements DataOptService {
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
+    }
+
+    @Override
+    public void exportData(Long datasetId, HttpServletResponse response) {
+        DataSet one = dataSetService.findOne(datasetId);
+
+
+        try (DataOptProvider provider = getProvider(datasetId)) {
+            List<Map<String, Object>> mapList = provider.find(null, null, null);
+            response.setContentType("application/vnd.ms-excel");
+            response.setCharacterEncoding("utf-8");
+            String dataName = one.getDataName() + "_" + System.currentTimeMillis();
+            String fileName = URLEncoder.encode(dataName, "UTF-8");
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+            EasyExcel.write(response.getOutputStream()).head(head(one.getFields())).sheet().doWrite(mapList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private List<List<String>> head(List<String> fields) {
+        List<List<String>> list = new ArrayList<>();
+        for (String field : fields) {
+            list.add(Collections.singletonList(field));
+        }
+        return list;
     }
 }

@@ -1,11 +1,10 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import org.springframework.data.domain.Page;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,4 +78,10 @@ public interface DataOptService {
      */
     void batchDeleteData(Long datasetId, Collection<String> dataIds);
 
+    /**
+     * 导出
+     * @param datasetId
+     * @param response
+     */
+    void exportData(Long datasetId, HttpServletResponse response);
 }

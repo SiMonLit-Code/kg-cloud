@@ -1,9 +1,7 @@
 package com.plantdata.kgcloud.domain.dataset.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +64,7 @@ public class DataSetOptController {
     public ApiReturn<Map<String, Object>> insertData(
             @PathVariable("datasetId") Long datasetId,
             @PathVariable("dataId") String dataId,
-            @RequestBody Map<String,Object> data) {
+            @RequestBody Map<String, Object> data) {
         return ApiReturn.success(dataOptService.updateData(datasetId, dataId, data));
     }
 
@@ -91,6 +90,35 @@ public class DataSetOptController {
             @PathVariable("datasetId") Long datasetId,
             @RequestBody List<String> ids) {
         dataOptService.batchDeleteData(datasetId, ids);
+        return ApiReturn.success();
+    }
+
+
+    @ApiOperation("数据集-数据-文件导入")
+    @PostMapping("/{datasetId}/upload")
+    public ApiReturn upload(@PathVariable("datasetId") Long datasetId) {
+        dataOptService.deleteAll(datasetId);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数据集-数据-接口导入")
+    @PostMapping("/{datasetId}/import")
+    public ApiReturn importData(@PathVariable("datasetId") Long datasetId) {
+        dataOptService.deleteAll(datasetId);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数据集-数据-文件导出")
+    @GetMapping("/{datasetId}/export")
+    public ApiReturn exportData(@PathVariable("datasetId") Long datasetId, HttpServletResponse response) {
+        dataOptService.exportData(datasetId,response);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数据集-数据-文件导出")
+    @GetMapping("/{datasetId}/statistics")
+    public ApiReturn statistics(@PathVariable("datasetId") Long datasetId) {
+        dataOptService.deleteAll(datasetId);
         return ApiReturn.success();
     }
 
