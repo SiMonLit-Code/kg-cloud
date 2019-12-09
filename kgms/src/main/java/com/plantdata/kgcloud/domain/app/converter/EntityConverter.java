@@ -90,8 +90,9 @@ public class EntityConverter {
             gisEntityRsp.setStartTime(gisEntity.getStartTime());
             gisEntityRsp.setEndTime(gisEntity.getEndTime());
             gisEntityRsp.setMeaningTag(gisEntity.getMeaningTag());
-            gisEntityRsp.setMainConcept(new ExploreConceptRsp(gisEntity.getConceptId(), gisEntity.getConceptName()));
-            gisEntityRsp.setTopConcept(new ExploreConceptRsp(gisEntity.getTopConceptId(), gisEntity.getTopConceptName()));
+            gisEntityRsp.setConceptId(gisEntity.getConceptId());
+            gisEntityRsp.setConceptName(gisEntity.getConceptName());
+            gisEntityRsp.setClassId(gisEntity.getTopConceptId());
             Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(gisEntity.getImage());
             imageRsp.ifPresent(gisEntityRsp::setImg);
             gisEntityRsp.setGis(new GisInfoRsp(gisEntity.getOpenGis(), gisEntity.getLng(), gisEntity.getLat(), gisEntity.getAddress()));

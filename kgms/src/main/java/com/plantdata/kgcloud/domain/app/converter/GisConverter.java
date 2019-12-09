@@ -6,6 +6,7 @@ import ai.plantdata.kg.api.pub.resp.GisLocusVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
+import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
@@ -18,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -26,7 +28,7 @@ import java.util.List;
  */
 public class GisConverter {
 
-    public static GisFrom reqToGisFrom(GisGraphExploreReq exploreReq){
+    public static GisFrom reqToGisFrom(GisGraphExploreReq exploreReq) {
         GisFrom gisFrom = new GisFrom();
         gisFrom.setAttrId(exploreReq.getAttrId());
         gisFrom.setDirection(exploreReq.getDirection());
@@ -34,7 +36,7 @@ public class GisConverter {
         gisFrom.setGisFilter(exploreReq.getGisFilters());
         gisFrom.setInherit(exploreReq.getIsInherit());
         BaseReq page = exploreReq.getPage();
-        if(null!=page){
+        if (null != page) {
             gisFrom.setSkip(page.getOffset());
             gisFrom.setLimit(page.getLimit());
         }
@@ -52,9 +54,9 @@ public class GisConverter {
         return gisLocusParam;
     }
 
-    public static GisGraphExploreRsp voToGisAnalysisRsp(@NonNull List<BasicInfo> entityList){
+    public static GisGraphExploreRsp voToGisAnalysisRsp(@NonNull List<BasicInfo> entityList, Map<Long, BasicInfo> conceptIdMap) {
         GisGraphExploreRsp exploreRsp = new GisGraphExploreRsp();
-        //exploreRsp.setEntityList(DefaultUtils.getIfNoNull(EntityConverter.voToGisRsp(entityList)));
+        exploreRsp.setEntityList(DefaultUtils.getIfNoNull(entityList, EntityConverter.basicInfoToGisEntity(entityList, conceptIdMap)));
         return exploreRsp;
     }
 
