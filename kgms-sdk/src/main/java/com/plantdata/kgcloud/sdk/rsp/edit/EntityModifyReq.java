@@ -28,7 +28,6 @@ public class EntityModifyReq {
 
     @ApiModelProperty(value = "0:概念,1:实体", allowableValues = "0,1", required = true)
     @NotNull
-    @Pattern(regexp = "[0,1]")
     private Integer type;
 
     @ApiModelProperty(required = true, value = "概念或实体名称")

@@ -20,6 +20,8 @@ public class BaseConceptRsp {
 
     @ApiModelProperty("概念id")
     private Long id;
+    @ApiModelProperty("概念key")
+    private String key;
     @ApiModelProperty("父概念id")
     private Long parentId;
     @ApiModelProperty("概念名称")

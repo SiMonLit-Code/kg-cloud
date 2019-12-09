@@ -96,7 +96,7 @@ public interface EditClient {
      * @return 。
      */
     @PostMapping("attribute/relation/insert/{kgName}")
-    ApiReturn<BatchRelationRsp> importRelation(@PathVariable String kgName,
+    ApiReturn<BatchRelationRsp> importRelation(@PathVariable("kgName")  String kgName,
                                                @RequestBody BatchRelationRsp relation);
 
     /**

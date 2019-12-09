@@ -53,7 +53,7 @@ public class GraphPromptController implements GraphApplicationInterface {
     }
 
     @ApiOperation("边属性搜索")
-    @GetMapping("attributes/{kgName}")
+    @PostMapping("attributes/{kgName}")
     public ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                         @Valid EdgeAttrPromptReq edgeAttrPromptReq) {
         return appClient.attrPrompt(kgName, edgeAttrPromptReq);

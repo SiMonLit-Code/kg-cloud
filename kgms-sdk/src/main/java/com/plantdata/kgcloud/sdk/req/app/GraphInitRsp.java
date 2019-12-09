@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
-import com.plantdata.kgcloud.sdk.constant.GraphInitEnum;
+import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class GraphInitRsp {
     @ApiModelProperty("图谱名称")
     private String kgName;
     @ApiModelProperty("初始化类型")
-    private GraphInitEnum type;
+    private GraphInitBaseEnum type;
     @ApiModelProperty("配置信息")
     private Map<String, Object> config;
     @ApiModelProperty("实例列表")

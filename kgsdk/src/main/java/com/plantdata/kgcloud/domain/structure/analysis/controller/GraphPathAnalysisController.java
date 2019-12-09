@@ -35,14 +35,14 @@ public class GraphPathAnalysisController implements GraphStructureAnalysisInterf
 
     @ApiOperation("路径分析")
     @PostMapping("{kgName}")
-    public ApiReturn<PathAnalysisRsp> path(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<PathAnalysisRsp> path(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                            @RequestBody @Valid PathAnalysisReq analysisReq) {
         return appClient.path(kgName, analysisReq);
     }
 
     @ApiOperation("路径分析推理")
     @PostMapping("reasoning/{kgName}")
-    public ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@ApiParam("图谱名称") @PathVariable String kgName,
+    public ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                            @RequestBody @Valid PathReasoningAnalysisReq analysisReq) {
         return appClient.pathRuleReason(kgName, analysisReq);
     }

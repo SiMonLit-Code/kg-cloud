@@ -22,7 +22,7 @@ import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfFocusRepository;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.constant.GraphInitEnum;
+import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
@@ -114,18 +114,19 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     @Override
     public BasicConceptTreeRsp visualModels(String kgName, boolean display, Long conceptId) {
         Optional<List<BasicInfo>> conceptOpt = RestRespConverter.convert(conceptEntityApi.tree(kgName, conceptId));
+        BasicConceptTreeRsp conceptTreeRsp = new BasicConceptTreeRsp(NumberUtils.LONG_ZERO, kgName);
         if (!conceptOpt.isPresent()) {
-            return new BasicConceptTreeRsp();
+            return conceptTreeRsp;
         }
         if (!display) {
-            return ConceptConverter.voToConceptTree(conceptOpt.get());
+            return ConceptConverter.voToConceptTree(conceptOpt.get(), conceptTreeRsp);
         }
         Optional<List<AttrDefVO>> attrDefOpt = RestRespConverter.convert(attributeApi.getByConceptIds(kgName, AttrDefConverter.convertToQuery(Lists.newArrayList(conceptId), true, 0)));
-        return ConceptConverter.voToConceptTree(conceptOpt.get(), attrDefOpt.orElse(Collections.emptyList()));
+        return ConceptConverter.voToConceptTree(conceptOpt.get(), attrDefOpt.orElse(Collections.emptyList()), conceptTreeRsp);
     }
 
     @Override
-    public GraphInitRsp initGraphExploration(String kgName, GraphInitEnum graphInitType) throws JsonProcessingException {
+    public GraphInitRsp initGraphExploration(String kgName, GraphInitBaseEnum graphInitType) throws JsonProcessingException {
         Optional<GraphConfFocus> focusOpt = graphConfFocusRepository.findByKgNameAndType(kgName, graphInitType.getValue());
         GraphInitRsp graphInitRsp = new GraphInitRsp();
         if (focusOpt.isPresent()) {
@@ -157,6 +158,9 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (null == conceptId && StringUtils.isNotEmpty(conceptKey)) {
             List<Long> longs = graphHelperService.replaceByConceptKey(kgName, Lists.newArrayList(conceptKey));
             conceptId = CollectionUtils.isEmpty(longs) ? NumberUtils.LONG_ZERO : longs.get(0);
+        }
+        if (conceptId == null) {
+            conceptId = NumberUtils.LONG_ZERO;
         }
         Optional<List<BasicInfo>> conceptOpt = RestRespConverter.convert(conceptEntityApi.tree(kgName, conceptId));
         if (!conceptOpt.isPresent()) {

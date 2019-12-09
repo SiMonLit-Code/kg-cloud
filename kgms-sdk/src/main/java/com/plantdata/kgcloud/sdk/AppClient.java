@@ -1,8 +1,10 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
@@ -144,9 +146,20 @@ public interface AppClient {
      * @param edgeAttrPromptReq 边属性搜索参数
      * @return list
      */
-    @GetMapping("attributes/{kgName}")
+    @PostMapping("attributes/{kgName}")
     ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                  EdgeAttrPromptReq edgeAttrPromptReq);
+
+    /**
+     * 初始化图探索焦点
+     *
+     * @param kgName 图谱名称
+     * @param type   图类型
+     * @return 。。
+     */
+    @PostMapping("graphExplore/init/{kgName}")
+    ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                 @ApiParam(value = "图类型", required = true)@RequestBody String type);
 
     /**
      * kgQl查询
@@ -211,7 +224,7 @@ public interface AppClient {
      * @return 。。。
      */
     @PostMapping("graphExplore/path/{kgName}")
-    ApiReturn<PathAnalysisRsp> path(@ApiParam("图谱名称") @PathVariable String kgName,
+    ApiReturn<PathAnalysisRsp> path(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                     @RequestBody PathAnalysisReq analysisReq);
 
     /**
@@ -222,7 +235,7 @@ public interface AppClient {
      * @return 。。。
      */
     @PostMapping("graphExplore/path/shortest/{kgName}")
-    ApiReturn<PathAnalysisRsp> shortestPath(@ApiParam("图谱名称") @PathVariable String kgName,
+    ApiReturn<PathAnalysisRsp> shortestPath(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                             @RequestBody PathAnalysisReq analysisReq);
 
     /**
@@ -233,7 +246,7 @@ public interface AppClient {
      * @return 。。。
      */
     @PostMapping("graphExplore/path/reasoning/{kgName}")
-    ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@ApiParam("图谱名称") @PathVariable String kgName,
+    ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                     @RequestBody PathReasoningAnalysisReq analysisReq);
 
     /**

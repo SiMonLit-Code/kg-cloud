@@ -1,8 +1,7 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.KgmsClient;
-import com.plantdata.kgcloud.sdk.constant.GraphInitEnum;
+import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
@@ -16,13 +15,11 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
@@ -37,49 +34,46 @@ public class GraphExplorationController implements GraphApplicationInterface {
 
     @Autowired
     private AppClient appClient;
-    @Autowired
-    private KgmsClient kgmsClient;
 
     @ApiOperation("初始化图探索数据")
     @PostMapping("init/{kgName}")
     public ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @ApiParam(value = "图类型", required = true) GraphInitEnum type) {
-
-        return null;
+                                                        @ApiParam(value = "图类型", required = true) @RequestBody String type) {
+        return appClient.initGraphExploration(kgName, type);
     }
 
     @ApiOperation("根据业务规则kgQl语句图探索")
     @PostMapping("byKgQl/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> exploreByKgQl(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                               @RequestBody @Valid ExploreByKgQlReq kgQlReq, @ApiIgnore BindingResult bindingResult) {
+                                                               @RequestBody @Valid ExploreByKgQlReq kgQlReq) {
         return appClient.exploreByKgQl(kgName, kgQlReq);
     }
 
     @ApiOperation("普通图探索")
     @PostMapping("common/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                        @RequestBody @Valid CommonExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
+                                                                        @RequestBody CommonExploreReq exploreParam) {
         return appClient.commonGraphExploration(kgName, exploreParam);
     }
 
     @ApiOperation("时序图探索")
     @PostMapping("timing/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> timingGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                        @RequestBody @Valid CommonTimingExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
+                                                                        @RequestBody CommonTimingExploreReq exploreParam) {
         return appClient.timingGraphExploration(kgName, exploreParam);
     }
 
     @ApiOperation("gis图探索")
     @PostMapping("gis/{kgName}")
     public ApiReturn<GisGraphExploreRsp> gisGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                             @RequestBody @Valid GisGraphExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
+                                                             @RequestBody GisGraphExploreReq exploreParam) {
         return appClient.gisGraphExploration(kgName, exploreParam);
     }
 
     @ApiOperation("轨迹分析")
     @PostMapping("gisLocus/{kgName}")
     public ApiReturn<GisGraphExploreRsp> graphLocusGis(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                       @RequestBody @Valid GisLocusReq locusGisParam, BindingResult bindingResult) {
+                                                       @RequestBody GisLocusReq locusGisParam) {
         return appClient.graphLocusGis(kgName, locusGisParam);
     }
 }

@@ -2,10 +2,12 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
-import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
-import com.plantdata.kgcloud.sdk.constant.GraphInitEnum;
+import com.plantdata.kgcloud.domain.common.util.EnumUtils;
+import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -43,15 +46,17 @@ public class GraphExplorationController {
     @Autowired
     private GraphExplorationService graphExplorationService;
     @Autowired
-    private GraphHelperService graphHelperService;
-    @Autowired
     private GraphApplicationService graphApplicationService;
 
     @ApiOperation("初始化图探索数据")
-    @PostMapping("graphInit/{kgName}")
+    @PostMapping("init/{kgName}")
     public ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @ApiParam(value = "图类型", required = true) GraphInitEnum type) throws JsonProcessingException {
-        return ApiReturn.success(graphApplicationService.initGraphExploration(kgName, type));
+                                                        @ApiParam(value = "图类型", required = true)@RequestBody String type) throws JsonProcessingException {
+        Optional<GraphInitBaseEnum> enumObject = EnumUtils.getEnumObject(GraphInitBaseEnum.class, type);
+        if (!enumObject.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.GRAPH_TYPE_ERROR);
+        }
+        return ApiReturn.success(graphApplicationService.initGraphExploration(kgName, enumObject.get()));
     }
 
     @ApiOperation("根据业务规则kgQl语句图探索")
