@@ -1,7 +1,8 @@
-package com.plantdata.kgcloud.domain.lite.controller;
+package com.plantdata.kgcloud.domain.lite;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
+import com.plantdata.kgcloud.domain.share.service.LinkShareService;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -60,6 +62,30 @@ public class LiteController {
         String userId = SessionHolder.getUserId();
         graphService.delete(userId, kgName);
         return ApiReturn.success();
+    }
+
+    @Autowired
+    private LinkShareService linkShareService;
+
+    @GetMapping("/share/status/{kgName}")
+    @ApiOperation("分享状态列表")
+    public ApiReturn shareStatus(@PathVariable("kgName") String kgName) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(linkShareService.shareStatus(userId, kgName));
+    }
+
+    @GetMapping("/share/link/{kgName}")
+    @ApiOperation("分享链接")
+    public ApiReturn shareLink(@PathVariable("kgName") String kgName, @RequestParam("spaId") String spaId) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(linkShareService.shareLink(userId, kgName, spaId));
+    }
+
+    @GetMapping("/share/cancel/{kgName}")
+    @ApiOperation("取消分享")
+    public ApiReturn shareCancel(@PathVariable("kgName") String kgName, @RequestParam("spaId") String spaId) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(linkShareService.shareCancel(userId, kgName, spaId));
     }
 
 }

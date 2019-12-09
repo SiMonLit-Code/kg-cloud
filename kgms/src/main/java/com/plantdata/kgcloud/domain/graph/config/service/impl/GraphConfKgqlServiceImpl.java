@@ -18,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 /**
  * 图谱业务配置
  * Created by plantdata-1007 on 2019/12/2.
@@ -60,9 +62,16 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     }
 
     @Override
-    public Page<GraphConfKgqlRsp> findByKgName(String kgName, BaseReq baseReq) {
+    public Page<GraphConfKgqlRsp> findByKgName(String kgName, BaseReq baseReq , Integer ruleType) {
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
-        Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgName(kgName, pageable);
+        Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgName(kgName, pageable , ruleType);
         return all.map(ConvertUtils.convert(GraphConfKgqlRsp.class));
+    }
+
+    @Override
+    public GraphConfKgqlRsp findById(Long id) {
+        GraphConfKgql graphConfKgql = graphConfKgqlRepository.findById(id)
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+        return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(graphConfKgql);
     }
 }

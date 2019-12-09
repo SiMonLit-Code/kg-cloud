@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @FeignClient(value = "kgms", contextId = "kgms")
 public interface KgmsClient {
@@ -203,8 +204,12 @@ public interface KgmsClient {
     void deleteKgql(@PathVariable("id") Long id);
 
     @ApiOperation("图谱查询业务")
-    @GetMapping("/config/qa/{kgName}")
-    ApiReturn<List<GraphConfQaRsp>> select(@PathVariable("kgName") String kgName);
+    @GetMapping("/config/kgql/{kgName}/{ruleType}")
+    public ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName ,@PathVariable("kgName") Integer ruleType , BaseReq baseReq) ;
+
+    @ApiOperation("图谱业务详情")
+    @GetMapping("/config/kgql/{id}")
+    public GraphConfKgqlRsp detailKgql(@PathVariable("id") Long id) ;
 
     @ApiOperation("图谱新建问答")
     @PostMapping("/config/qa/{kgName}")
@@ -225,6 +230,10 @@ public interface KgmsClient {
     @ApiOperation("图谱删除统计")
     @DeleteMapping("/config/statistical/{kgName}/{id}")
     void deleteStatistical(@PathVariable("id") Long id);
+
+    @ApiOperation("图谱批量删除统计")
+    @DeleteMapping("/config/statistical/{entities}")
+    void batchDeleteStatistical(@PathVariable("entities")Iterable entities);
 
     @ApiOperation("图谱查询统计")
     @GetMapping("/config/statistical/{kgName}")

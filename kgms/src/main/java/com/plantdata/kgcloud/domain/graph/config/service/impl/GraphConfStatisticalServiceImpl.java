@@ -3,10 +3,10 @@ package com.plantdata.kgcloud.domain.graph.config.service.impl;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfStatisticalRepository;
-import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,7 +62,20 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteInBatch( List<Long> ids) {
+        List<GraphConfStatistical> allById = graphConfStatisticalRepository.findAllById(ids);
+        graphConfStatisticalRepository.deleteInBatch(allById);
+    }
+
+    @Override
     public List<GraphConfStatisticalRsp> findByKgName(String kgName) {
+        List<GraphConfStatistical> all = graphConfStatisticalRepository.findByKgName(kgName);
+        return all.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GraphConfStatisticalRsp> findAll() {
         List<GraphConfStatistical> all = graphConfStatisticalRepository.findAll();
         return all.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
     }

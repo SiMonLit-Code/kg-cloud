@@ -11,6 +11,7 @@ import java.util.List;
 public interface GraphConfStatisticalService {
     /**
      * 创建统计
+     *
      * @param kgName
      * @param req
      * @return
@@ -31,13 +32,28 @@ public interface GraphConfStatisticalService {
      *
      * @param id
      */
-    void deleteStatistical(Long id );
+    void deleteStatistical(Long id);
 
     /**
-     * 查询统计
+     * 批量删除统计
+     *
+     * @param ids
+     */
+    void deleteInBatch(List<Long> ids);
+
+
+    /**
+     * 通过kgName查询统计
      *
      * @param kgName
      * @return
      */
     List<GraphConfStatisticalRsp> findByKgName(String kgName);
+
+    /**
+     * 查询所有
+     *
+     * @return
+     */
+    List<GraphConfStatisticalRsp> findAll();
 }
