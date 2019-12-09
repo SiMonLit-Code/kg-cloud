@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.converter;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.util.JacksonUtils;
 
 import javax.persistence.AttributeConverter;
@@ -13,6 +14,7 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
 
     @Override
     public List<String> convertToEntityAttribute(String s) {
-        return JacksonUtils.readValue(s, List.class);
+        return JacksonUtils.readValue(s, new TypeReference<List<String>>() {
+        });
     }
 }

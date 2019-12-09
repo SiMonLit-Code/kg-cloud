@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.sdk.req;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @description:
@@ -16,7 +16,7 @@ public class AnnotationReq {
     @NotNull
     private Integer dataId;
 
-    private Map<String, Object> config;
+    private List<AnnotationConf> config;
 
     private String description;
 }

@@ -1,6 +1,12 @@
 package com.plantdata.kgcloud.domain.dataset.entity;
 
+import com.plantdata.kgcloud.sdk.req.AnnotationConf;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,6 +18,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -22,6 +29,11 @@ import java.util.Date;
 
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "data_set_annotation")
 @EntityListeners(AuditingEntityListener.class)
 public class DataSetAnnotation {
@@ -49,7 +61,7 @@ public class DataSetAnnotation {
 
     @Basic
     @Column(name = "config")
-    private String config;
+    private List<AnnotationConf> config;
 
     @Basic
     @Column(name = "remark")
