@@ -19,6 +19,8 @@ public interface GraphConfStatisticalService {
 
     GraphConfStatisticalRsp createStatistical(String kgName, GraphConfStatisticalReq req);
 
+
+
     /**
      * 修改统计
      *
@@ -26,6 +28,8 @@ public interface GraphConfStatisticalService {
      * @return
      */
     GraphConfStatisticalRsp updateStatistical(Long id, GraphConfStatisticalReq req);
+
+
 
     /**
      * 删除统计

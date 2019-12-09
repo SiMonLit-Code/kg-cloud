@@ -232,8 +232,8 @@ public interface KgmsClient {
     void deleteStatistical(@PathVariable("id") Long id);
 
     @ApiOperation("图谱批量删除统计")
-    @DeleteMapping("/config/statistical/{entities}")
-    void batchDeleteStatistical(@PathVariable("entities") Iterable entities);
+    @DeleteMapping("/config/statistical/{ids}")
+    void batchDeleteStatistical(@PathVariable("ids") List<Long> ids);
 
     @ApiOperation("图谱查询统计")
     @GetMapping("/config/statistical/{kgName}")

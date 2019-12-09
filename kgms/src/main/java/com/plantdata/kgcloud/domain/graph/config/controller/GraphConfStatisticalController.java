@@ -37,14 +37,16 @@ public class GraphConfStatisticalController {
 
     @ApiOperation("图谱删除统计")
     @DeleteMapping("/statistical/{id}")
-    public void deleteStatistical(@PathVariable("id") Long id) {
+    public ApiReturn deleteStatistical(@PathVariable("id") Long id) {
         graphConfStatisticalService.deleteStatistical(id);
+        return ApiReturn.success();
     }
 
     @ApiOperation("图谱批量删除统计")
     @DeleteMapping("/statistical/{ids}")
-    public void batchDeleteStatistical(@PathVariable("ids") List<Long> ids) {
+    public ApiReturn batchDeleteStatistical(@PathVariable("ids") List<Long> ids) {
         graphConfStatisticalService.deleteInBatch(ids);
+        return ApiReturn.success();
     }
 
     @ApiOperation("图谱查询统计")

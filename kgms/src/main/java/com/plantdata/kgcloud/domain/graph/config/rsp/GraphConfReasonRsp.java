@@ -18,7 +18,7 @@ import javax.persistence.Id;
  **/
 @Data
 @ApiModel("图谱推理模型")
-public class GraphConfReasoningRsp {
+public class GraphConfReasonRsp {
 
     @ApiModelProperty(value = "id")
     private Long id;
