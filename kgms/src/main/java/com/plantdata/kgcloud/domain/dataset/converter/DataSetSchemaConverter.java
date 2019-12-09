@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.converter;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 
@@ -14,6 +15,7 @@ public class DataSetSchemaConverter implements AttributeConverter<List<DataSetSc
 
     @Override
     public List<DataSetSchema> convertToEntityAttribute(String s) {
-        return JacksonUtils.readValue(s, List.class);
+        return JacksonUtils.readValue(s, new TypeReference<List<DataSetSchema>>() {
+        });
     }
 }

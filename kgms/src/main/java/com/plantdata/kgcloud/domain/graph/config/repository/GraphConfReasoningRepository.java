@@ -11,6 +11,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @create: 2019-11-04 18:45
  **/
 public interface GraphConfReasoningRepository extends JpaRepository<GraphConfReasoning, Long> {
-    GraphConfReasoningRsp finById(Long id);
 
 }

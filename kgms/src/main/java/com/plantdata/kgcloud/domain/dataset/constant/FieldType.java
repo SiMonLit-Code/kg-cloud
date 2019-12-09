@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 
+import java.util.Date;
+import java.util.List;
+
 /**
  * @description:
  * @author: Bovin
@@ -38,7 +41,6 @@ public enum FieldType {
         this.code = code;
         this.esProp = esProp;
     }
-
 
     public static FieldType findCode(int code) {
         for (FieldType value : FieldType.values()) {

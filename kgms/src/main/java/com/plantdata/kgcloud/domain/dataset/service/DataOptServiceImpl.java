@@ -1,5 +1,9 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
@@ -8,15 +12,23 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,16 +79,45 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     public Map<String, Object> insertData(Long datasetId, Map<String, Object> data) {
         try (DataOptProvider provider = getProvider(datasetId)) {
-            ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                if ("_id".equals(entry.getKey())) {
-                    objectNode.putPOJO(entry.getKey(), entry.getValue());
-                }
-            }
-            return provider.insert(objectNode);
+            return provider.insert(createNode(data));
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
+    }
+
+    @Override
+    public void upload(Long datasetId, MultipartFile file) throws Exception {
+        EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
+            Map<Integer, String> head;
+            List<Map<String, Object>> mapList = new ArrayList<>();
+
+            @Override
+            public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
+                head = headMap;
+            }
+
+            @Override
+            public void invoke(Map<Integer, Object> data, AnalysisContext context) {
+                Map<String, Object> map = new HashMap<>(data.size());
+                for (Map.Entry<Integer, Object> entry : data.entrySet()) {
+                    map.put(head.get(entry.getKey()), entry.getValue());
+                }
+                mapList.add(map);
+                if (mapList.size() == 10000) {
+                    batchInsertData(datasetId, mapList);
+                    mapList.clear();
+                }
+                if (!mapList.isEmpty()) {
+                    batchInsertData(datasetId, mapList);
+                    mapList.clear();
+                }
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+
+            }
+        }).sheet().doRead();
     }
 
     @Override
@@ -87,6 +128,29 @@ public class DataOptServiceImpl implements DataOptService {
                 objectNode.putPOJO(entry.getKey(), entry.getValue());
             }
             return provider.update(dataId, objectNode);
+        } catch (IOException e) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+        }
+    }
+
+    private JsonNode createNode(Map<String, Object> map) {
+        ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (!"_id".equals(entry.getKey())) {
+                objectNode.putPOJO(entry.getKey(), entry.getValue());
+            }
+        }
+        return objectNode;
+    }
+
+    @Override
+    public void batchInsertData(Long datasetId, List<Map<String, Object>> dataList) {
+        try (DataOptProvider provider = getProvider(datasetId)) {
+            List<JsonNode> jsonNodes = new ArrayList<>();
+            for (Map<String, Object> objectMap : dataList) {
+                jsonNodes.add(createNode(objectMap));
+            }
+            provider.batchInsert(jsonNodes);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
@@ -117,5 +181,38 @@ public class DataOptServiceImpl implements DataOptService {
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
+    }
+
+    @Override
+    public void exportData(Long datasetId, HttpServletResponse response) throws Exception {
+        DataSet one = dataSetService.findOne(datasetId);
+        try (DataOptProvider provider = getProvider(datasetId)) {
+            List<Map<String, Object>> mapList = provider.find(null, null, null);
+            List<List<Object>> resultList = new ArrayList<>();
+            List<DataSetSchema> schema = one.getSchema();
+            for (Map<String, Object> objectMap : mapList) {
+                List<Object> objects = new ArrayList<>(schema.size());
+                for (DataSetSchema dataSetSchema : schema) {
+                    String field = dataSetSchema.getField();
+                    objects.add(objectMap.get(field));
+                }
+                resultList.add(objects);
+            }
+            response.setContentType("application/octet-stream");
+            String dataName = one.getDataName() + "_" + System.currentTimeMillis() + ".xlsx";
+            String fileName = URLEncoder.encode(dataName, "UTF-8");
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+            ServletOutputStream outputStream = response.getOutputStream();
+            EasyExcel.write(outputStream).head(head(schema)).sheet().doWrite(resultList);
+        }
+    }
+
+
+    private List<List<String>> head(List<DataSetSchema> fields) {
+        List<List<String>> list = new ArrayList<>();
+        for (DataSetSchema field : fields) {
+            list.add(Collections.singletonList(field.getField()));
+        }
+        return list;
     }
 }

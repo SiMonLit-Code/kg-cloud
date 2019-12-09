@@ -1,18 +1,19 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.alibaba.excel.read.builder.ExcelReaderBuilder;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
+import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSetFolder;
-import com.plantdata.kgcloud.domain.dataset.excel.ExcelListener;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
@@ -25,6 +26,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -37,7 +39,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +60,9 @@ public class DataSetServiceImpl implements DataSetService {
 
     private final static String DATA_PREFIX = "dataset";
     private final static String JOIN = "_";
-
+    private final static String JSON_START = "{";
+    private final static String ARRAY_START = "[";
+    private final static String ARRAY_STRING_START = "[\"";
     @Autowired
     private MongoProperties mongoProperties;
 
@@ -187,10 +198,6 @@ public class DataSetServiceImpl implements DataSetService {
         if (type == DataType.MONGO) {
             target.setAddr(Arrays.asList(mongoProperties.getAddrs()));
             target.setTbName(req.getKey());
-            /*
-            target.setPassword(mongoProperties.getPassword());
-            target.setUsername(mongoProperties.getUsername());
-            */
         } else if (type == DataType.ELASTIC) {
             target.setAddr(esProperties.getAddrs());
             target.setDbName(dataName);
@@ -199,11 +206,7 @@ public class DataSetServiceImpl implements DataSetService {
         target.setEditable(true);
         target.setPrivately(true);
         List<DataSetSchema> schema = req.getSchema();
-        List<String> fields = new ArrayList<>();
-        for (DataSetSchema dataSetSchema : schema) {
-            fields.add(dataSetSchema.getField());
-        }
-        target.setFields(fields);
+        target.setFields(transformFields(schema));
 
 
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
@@ -214,12 +217,22 @@ public class DataSetServiceImpl implements DataSetService {
         return ConvertUtils.convert(DataSetRsp.class).apply(target);
     }
 
+    private List<String> transformFields(List<DataSetSchema> schema){
+        List<String> fields = new ArrayList<>();
+        for (DataSetSchema dataSetSchema : schema) {
+            fields.add(dataSetSchema.getField());
+        }
+        return fields;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public DataSetRsp update(String userId, Long id, DataSetUpdateReq req) {
         Optional<DataSet> one = dataSetRepository.findByUserIdAndId(userId, id);
         DataSet target = one.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
         BeanUtils.copyProperties(req, target);
+        List<DataSetSchema> schema = req.getSchema();
+        target.setFields(transformFields(schema));
         target = dataSetRepository.save(target);
         return ConvertUtils.convert(DataSetRsp.class).apply(target);
 
@@ -242,8 +255,13 @@ public class DataSetServiceImpl implements DataSetService {
 
                 @Override
                 public void invoke(Map<Integer, Object> data, AnalysisContext context) {
-                    for (Map.Entry<Integer, Object> entry : data.entrySet()) {
-                        System.out.println(entry.getValue().getClass().getName());
+                    Integer rowIndex = context.readRowHolder().getRowIndex();
+                    if (rowIndex < 10) {
+                        for (Map.Entry<Integer, Object> entry : data.entrySet()) {
+                            Object val = entry.getValue();
+                            FieldType type = readType(val);
+                            setSchemas.get(entry.getKey()).setType(type.getCode());
+                        }
                     }
                 }
 
@@ -256,6 +274,49 @@ public class DataSetServiceImpl implements DataSetService {
             e.printStackTrace();
         }
         return setSchemas;
+    }
+
+    private FieldType readType(Object val) {
+        FieldType type;
+        String string = val.toString();
+        if (string.startsWith(JSON_START)) {
+            try {
+                JacksonUtils.getInstance().readValue(string, ObjectNode.class);
+                type = FieldType.OBJECT;
+            } catch (Exception e) {
+                type = FieldType.STRING;
+            }
+        } else if (string.startsWith(ARRAY_START)) {
+            if (string.startsWith(ARRAY_STRING_START)) {
+                try {
+                    JacksonUtils.getInstance().readValue(string, new TypeReference<List<String>>() {
+                    });
+                    type = FieldType.STRING_ARRAY;
+                } catch (Exception e) {
+                    type = FieldType.STRING;
+                }
+            } else {
+                try {
+                    JacksonUtils.getInstance().readValue(string, ArrayNode.class);
+                    type = FieldType.ARRAY;
+                } catch (Exception e) {
+                    type = FieldType.STRING;
+                }
+            }
+        } else if (val instanceof Integer) {
+            type = FieldType.INTEGER;
+        } else if (val instanceof Long) {
+            type = FieldType.LONG;
+        } else if (val instanceof Date) {
+            type = FieldType.DATE;
+        } else if (val instanceof Double) {
+            type = FieldType.DOUBLE;
+        } else if (val instanceof Float) {
+            type = FieldType.FLOAT;
+        } else {
+            type = FieldType.STRING;
+        }
+        return type;
     }
 
     @Override
@@ -271,6 +332,5 @@ public class DataSetServiceImpl implements DataSetService {
         }
         dataSetRepository.saveAll(dataSetList);
     }
-
 
 }

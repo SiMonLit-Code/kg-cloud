@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.share.rsp;
 
-import com.plantdata.kgcloud.domain.share.entity.LinkShare;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,5 +20,5 @@ public class LinkShareRsp {
     private Integer hasRole;
 
     @ApiModelProperty(value = "分享列表")
-    private List<LinkShare> shareList;
+    private List<ShareRsp> shareList;
 }
