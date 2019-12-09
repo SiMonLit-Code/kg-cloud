@@ -16,7 +16,7 @@ import java.util.List;
  * Created by jdm on 2019/12/9 16:10.
  */
 
-@Api(tags = "图谱推理")
+@Api(tags = "图谱配置")
 @RestController
 @RequestMapping("/config")
 public class GraphConfReasoningController {
@@ -24,32 +24,32 @@ public class GraphConfReasoningController {
     @Autowired
     private GraphConfReasoningService graphConfReasoningService;
 
-    @ApiOperation("图谱新建推理")
+    @ApiOperation("图谱配置-推理-新增")
     @PostMapping("/reason/{kgName}")
     public ApiReturn<GraphConfReasoningRsp> saveReasoning(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfReasoningReq req) {
         return ApiReturn.success(graphConfReasoningService.createReasoning(kgName,req));
     }
 
 
-    @ApiOperation("图谱查询推理所有")
+    @ApiOperation("图谱配置-推理-查询所有")
     @GetMapping("/reason")
     public ApiReturn<List<GraphConfReasoningRsp>> selectReasoninglAll() {
         return ApiReturn.success(graphConfReasoningService.findAll());
     }
 
-    @ApiOperation("图谱推理详情")
+    @ApiOperation("图谱配置-推理-详情")
     @GetMapping("/reason/{id}")
     public ApiReturn<GraphConfReasoningRsp> detailReasoning(@PathVariable("id") Long id) {
         return ApiReturn.success(graphConfReasoningService.findById(id));
     }
 
-    @ApiOperation("图谱删除推理")
+    @ApiOperation("图谱配置-推理-删除")
     @DeleteMapping("/reason/{kgName}/{id}")
     public void deleteReasoning(@PathVariable("id") Long id) {
         graphConfReasoningService.deleteReasoning(id);
     }
 
-    @ApiOperation("图谱更新推理")
+    @ApiOperation("图谱配置-推理-更新")
     @PatchMapping("/reason/{kgName}/{id}")
     public ApiReturn<GraphConfReasoningRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasoningReq req) {
         return ApiReturn.success(graphConfReasoningService.updateReasoning(id, req));
