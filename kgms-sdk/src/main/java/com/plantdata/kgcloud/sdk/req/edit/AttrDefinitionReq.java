@@ -8,6 +8,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: LinHo
@@ -27,7 +28,6 @@ public class AttrDefinitionReq {
 
     @ApiModelProperty(value = "0：数值，1：对象", allowableValues = "0,1")
     @NotNull
-    @Pattern(regexp = "^[0-1]$")
     private Integer type;
 
     @NotNull
@@ -51,10 +51,10 @@ public class AttrDefinitionReq {
     private Integer direction = 0;
 
     @ApiModelProperty(value = "前端使用")
-    private String additionalInfo;
+    private Map<String, Object> additionalInfo;
 
     @ApiModelProperty(value = "属性约束")
-    private String constraints;
+    private Map<String, Object> constraints;
 
     @ApiModelProperty(value = "属性定义key")
     private String key;

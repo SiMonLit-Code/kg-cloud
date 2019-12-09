@@ -29,6 +29,7 @@ public class ApiAuditServiceImpl implements ApiAuditService {
     public void logApiAudit(ApiAuditMessage apiAuditMessage) {
         ApiAudit apiAudit = ConvertUtils.convert(ApiAudit.class).apply(apiAuditMessage);
         apiAudit.setId(this.kgKeyGenerator.getNextId());
+        apiAudit.setStatus(apiAuditMessage.getStatus().getCode());
         this.apiAuditRepository.save(apiAudit);
     }
 }

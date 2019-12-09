@@ -16,16 +16,25 @@ public enum SortTypeEnum {
     /**
      * 排序通用
      */
-    DESC(-1,"desc"),
+    DESC(-1, "desc"),
 
-    ASC(1,"asc");
+    ASC(1, "asc");
 
     private Integer value;
     private String name;
 
-    public static Optional<SortTypeEnum> parseByName(String name){
-        for(SortTypeEnum type:SortTypeEnum.values()){
-            if(type.getName().equals(name.toLowerCase())){
+    public static Optional<SortTypeEnum> parseByName(String name) {
+        for (SortTypeEnum type : SortTypeEnum.values()) {
+            if (type.getName().equals(name.toLowerCase())) {
+                return Optional.of(type);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<SortTypeEnum> parseByValue(Integer value) {
+        for (SortTypeEnum type : SortTypeEnum.values()) {
+            if (type.getValue().equals(value)) {
                 return Optional.of(type);
             }
         }

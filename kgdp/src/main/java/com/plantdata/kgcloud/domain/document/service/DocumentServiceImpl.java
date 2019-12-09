@@ -320,68 +320,70 @@ public class DocumentServiceImpl implements DocumentService {
             return pdDocumentList;
         }
 
-
         Map<Integer,String> levelIdMap = Maps.newHashMap();
         String content = "";
-        String title = "";
-        Integer titleIndex = -1;
 
         for(WordContent wordContent : wordContentList){
-            if(wordContent.getLevel() != null && wordContent.getLevel() > 0){
 
-                //标题,生成一个pddocument
-                if(titleIndex >= 0){
-
-                    PdDocument pdDocument = new PdDocument();
-                    pdDocument.setTitle(title);
-                    pdDocument.setContent(content);
-                    pdDocument.setId(titleIndex+"");
-                    if(wordContent.getLevel() != 1){
-                        Integer parentLeven = wordContent.getLevel() - 1;
-                        String parentId = returnParentId(parentLeven,levelIdMap);
-                        pdDocument.setParentId(parentId);
-                    }
-                    pdDocumentList.add(pdDocument);
-                    levelIdMap.put(wordContent.getLevel(),pdDocument.getId());
-                }
-
-
-                content = "";
-                titleIndex = wordContent.getIndex();
-                title = wordContent.getText();
-            }else{
+            if(wordContent.getLevel() == null || wordContent.getLevel() < 1){
+                //正文，拼接内容
                 content += wordContent.getText();
+                continue;
             }
+
+            //碰到标题，内容赋值给上一个pddocument，重新生成给一个pddocument
+            if(!pdDocumentList.isEmpty()){
+                PdDocument pdDocument = pdDocumentList.get(pdDocumentList.size() - 1);
+                pdDocument.setContent(content);
+            }
+
+            PdDocument pdDocument = new PdDocument();
+            pdDocument.setTitle(wordContent.getText());
+            pdDocument.setId(wordContent.getIndex()+"");
+            pdDocument.setParentId(returnParentId(wordContent.getLevel(),levelIdMap));
+
+            pdDocumentList.add(pdDocument);
+
+            //当有新标题出现，删除比他小的标题id，重置层级关系
+            Iterator<Map.Entry<Integer,String>> it = levelIdMap.entrySet().iterator();
+            while (it.hasNext()){
+                Map.Entry<Integer,String> item = it.next();
+                if(item.getKey() >= wordContent.getLevel()){
+                    it.remove();
+                }
+            }
+            levelIdMap.put(wordContent.getLevel(),pdDocument.getId());
+
+            //新标题重置内容信息
+            content = "";
         }
 
-        PdDocument pdDocument = new PdDocument();
-        pdDocument.setTitle(title);
-        pdDocument.setContent(content);
-        pdDocument.setId(titleIndex+"");
-        Integer parentLeven = wordContentList.get(wordContentList.size()-1).getLevel() - 1;
-        String parentId = returnParentId(parentLeven,levelIdMap);
-        pdDocument.setParentId(parentId);
-        pdDocumentList.add(pdDocument);
+        if(!pdDocumentList.isEmpty()){
+            //遍历结束，给最后一个pddocument赋值内容
+            PdDocument pdDocument = pdDocumentList.get(pdDocumentList.size() - 1);
+            pdDocument.setContent(content);
+        }
 
         return pdDocumentList;
     }
 
     private static String returnParentId(Integer level, Map<Integer,String> levelIdMap){
 
-        if(level >= 1){
-            String id = levelIdMap.get(level);
+        if(level > 1){
+            //上一级层级
+            Integer parentLevel = level - 1;
+            //上一层级id
+            String id = levelIdMap.get(parentLevel);
             if(id == null){
-                return returnParentId(--level, levelIdMap);
+                //不存在，再往上找
+                return returnParentId(parentLevel, levelIdMap);
             }else{
-                for (Iterator<Map.Entry<Integer,String>> it = levelIdMap.entrySet().iterator(); it.hasNext();){
-                    Map.Entry<Integer,String> item = it.next();
-                    if(item.getKey() > level){
-                        it.remove();
-                    }
-                }
+                //存在 返回
                 return id;
             }
         }
+
+        //找到一级标题还没有，则直接挂载在文档中
         return null;
     }
 

@@ -6,8 +6,10 @@ import com.plantdata.kgcloud.domain.common.req.PageReq;
 import com.plantdata.kgcloud.domain.common.rsp.PageRsp;
 import com.plantdata.kgcloud.domain.data.obtain.req.ReasoningRuleReq;
 import com.plantdata.kgcloud.domain.data.obtain.rsp.ReasoningRuleRsp;
+import com.plantdata.kgcloud.sdk.KgmsClient;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,11 +29,15 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("kgData/reasoningRule")
 public class ReasoningRuleController implements GraphDataObtainInterface {
+    @Autowired
+    private KgmsClient kgmsClient;
+
     @GetMapping("{kgName}/{type}")
     @ApiOperation("推理规则列表")
     public ApiReturn<PageRsp<ReasoningRuleRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                            @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
                                                            @Valid PageReq pageReq) {
+
         return ApiReturn.success(null);
     }
 
@@ -46,6 +52,7 @@ public class ReasoningRuleController implements GraphDataObtainInterface {
     @PostMapping("{kgName}")
     public ApiReturn<ReasoningRuleRsp> add(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                            @RequestBody ReasoningRuleReq reasoningRuleReq) {
+
         return ApiReturn.success(null);
     }
 

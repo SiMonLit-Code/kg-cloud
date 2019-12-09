@@ -27,6 +27,16 @@ public class PdDocumentOptProvider implements DataOptProvider {
     }
 
     @Override
+    public long count(Map<String, Object> query) {
+        return 0;
+    }
+
+    @Override
+    public Map<String, Object> findOne(String id) {
+        return null;
+    }
+
+    @Override
     public void createTable(List<DataSetSchema> colList) {
 
     }

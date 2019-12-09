@@ -1,20 +1,29 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
+import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -51,7 +60,7 @@ public interface EditClient {
      *
      * @param kgName 图谱名称
      * @param id     id
-     * @return。
+     * @return .
      */
     @PostMapping("attribute/{kgName}/definition/delete/{id}")
     ApiReturn deleteAttrDefinition(@PathVariable("kgName") String kgName,
@@ -66,7 +75,7 @@ public interface EditClient {
      */
     @PostMapping("attribute/{kgName}/definition/batch")
     ApiReturn<List<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                   @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
+                                                                   @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
 
     /**
      * 查询多概念下的属性定义
@@ -89,4 +98,84 @@ public interface EditClient {
     @PostMapping("attribute/relation/insert/{kgName}")
     ApiReturn<BatchRelationRsp> importRelation(@PathVariable String kgName,
                                                @RequestBody BatchRelationRsp relation);
+
+    /**
+     * 修改概念名称,消歧,key
+     *
+     * @param kgName             图谱名称
+     * @param basicInfoModifyReq 批量参数
+     * @return .
+     */
+    @PostMapping("concept/{kgName}/update")
+    ApiReturn updateConcept(@PathVariable("kgName") String kgName,
+                            @RequestBody BasicInfoModifyReq basicInfoModifyReq);
+
+    /**
+     * 修改属性定义
+     *
+     * @param kgName    图谱名称
+     * @param modifyReq 修改参数
+     * @return 。
+     */
+    @PostMapping("attribute/{kgName}/definition/update")
+    ApiReturn updateAttrDefinition(@PathVariable("kgName") String kgName,
+                                   @RequestBody AttrDefinitionModifyReq modifyReq);
+
+    /**
+     * 批量删除实体
+     *
+     * @param kgName 图谱名称
+     * @param ids    实体id
+     * @return 。。
+     */
+    @PostMapping("entity/{kgName}/batch/delete")
+    ApiReturn<List<DeleteResult>> batchDeleteEntities(@PathVariable("kgName") String kgName,
+                                                      @RequestBody List<Long> ids);
+
+
+    /**
+     * 批量删除关系
+     *
+     * @param kgName    图谱名称
+     * @param tripleIds 关系id
+     * @return 。
+     */
+    @PostMapping("attribute/{kgName}/batch/relation/delete")
+    ApiReturn deleteRelations(@PathVariable("kgName") String kgName,
+                              @RequestBody List<String> tripleIds);
+
+    /**
+     * 批量修改关系
+     *
+     * @param kgName kgName
+     * @param list   req
+     * @return .
+     */
+    @PatchMapping("attribute/relation/update/{kgName}")
+    ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName, @RequestBody List<RelationUpdateReq> list);
+
+
+    /**
+     * 实体查询
+     *
+     * @param kgName         kgName
+     * @param entityQueryReq req
+     * @return 。
+     */
+    @GetMapping("entity/{kgName}/list/search")
+    ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
+                                                   EntityQueryReq entityQueryReq);
+
+    /**
+     * 批量新增实体
+     *
+     * @param kgName      kgName
+     * @param add         req
+     * @param batchEntity 。
+     * @return 。
+     */
+    @PostMapping("entity/{kgName}")
+    ApiReturn saveOrUpdate(@PathVariable("kgName") String kgName, @RequestParam(value = "add", required = false) boolean add,
+                           @RequestBody List<OpenBatchSaveEntityRsp> batchEntity);
+
 }

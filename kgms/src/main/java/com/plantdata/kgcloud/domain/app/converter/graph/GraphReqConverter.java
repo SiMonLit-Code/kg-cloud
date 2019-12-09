@@ -90,15 +90,13 @@ public class GraphReqConverter {
 
 
     private static void fillRelation(CommonRelationReq relation, RelationFrom graphFrom) {
-        relation.setIds(relation.getIds());
-        relation.setDistance(relation.getDistance());
+        graphFrom.setIds(relation.getIds());
+        graphFrom.setDistance(relation.getDistance());
     }
 
     private static void fillCommon(CommonFiltersReq common, GraphFrom graphFrom) {
-
         graphFrom.setId(common.getId());
-        ///todo 底层支持关键词
-        //exploreReq.getKw()
+        graphFrom.setName(common.getKw());
         graphFrom.setQueryPrivate(common.isPrivateAttRead());
     }
 

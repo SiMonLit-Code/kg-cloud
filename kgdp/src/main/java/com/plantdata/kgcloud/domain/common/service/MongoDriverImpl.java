@@ -18,11 +18,8 @@ import java.util.List;
 public class MongoDriverImpl implements MongoDriver {
 
     @Autowired
-    private static MongoClient client;
+    private MongoClient client;
     
-    @Autowired
-    private Constants constants;
-
     /**
      * 添加
      *

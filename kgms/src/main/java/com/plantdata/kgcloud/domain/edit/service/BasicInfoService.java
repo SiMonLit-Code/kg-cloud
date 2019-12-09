@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoModifyReq;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.KgqlReq;

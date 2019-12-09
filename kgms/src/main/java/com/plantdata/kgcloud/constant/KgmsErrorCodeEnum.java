@@ -20,7 +20,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     FOLDER_DISABLE_DELETE(120103, "默认文件夹不允许删除"),
     DATASET_TYPE_NONSUPPORT(120104, "不支持的数据集类型"),
     DATASET_CONNECT_ERROR(120105, "数据连接失败"),
-
+    DATASET_KEY_EXISTS(120106,"唯一标识已存在"),
     MODEL_NOT_EXISTS(120201, "模型不存在"),
 
     CONF_ALGORITHM_NOT_EXISTS(120601, "算法配置不存在"),
@@ -34,6 +34,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     WORD_NOT_EXISTS(120302, "词条不存在"),
 
     GRAPH_NOT_EXISTS(120401, "图谱不存在"),
+    GRAPH_CREATE_FAIL(120402, "图谱创建失败"),
 
     REMOTE_SERVICE_ERROR(120501, "远程服务错误"),
 

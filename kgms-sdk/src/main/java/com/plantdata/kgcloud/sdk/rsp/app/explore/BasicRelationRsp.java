@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 /**
  * @author cjw
  * @version 1.0
@@ -30,8 +32,21 @@ public class BasicRelationRsp {
     private String startTime;
     @ApiModelProperty("结束时间")
     private String endTime;
-    //    private List<RelationInfoBean> nRInfo;
-//    private List<RelationInfoBean> oRInfo;
+    @ApiModelProperty("边数值属性")
+    private List<EdgeInfo> dataValAttrs;
+    @ApiModelProperty("边对象属性")
+    private List<EdgeInfo> objAttrs;
     @ApiModelProperty("关系方向")
     private Integer direction;
+
+    @Getter
+    @Setter
+    public static class EdgeInfo {
+        @ApiModelProperty("边属性名称")
+        private String name;
+        @ApiModelProperty("边属性序号")
+        private Integer seqNo;
+        @ApiModelProperty("边属性值")
+        private Object value;
+    }
 }

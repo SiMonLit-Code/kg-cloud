@@ -42,9 +42,9 @@ public class GraphCommonConverter {
      */
     public static <T extends GraphEntityRsp> void fillConcept(Long conceptId, T entityRsp, Map<Long, BasicInfo> conceptMap) {
         BasicInfo concept = conceptMap.get(conceptId);
-        entityRsp.setMainConcept(new ExploreConceptRsp(concept.getId(), concept.getName()));
+        entityRsp.setConceptName(concept.getName());
         BasicInfo topConcept = ConceptConverter.getTopConcept(conceptId, conceptMap);
-        entityRsp.setTopConcept(new ExploreConceptRsp(topConcept.getId(), topConcept.getName()));
+        entityRsp.setClassId(topConcept.getId());
         entityRsp.setConceptIdList(ConceptConverter.getAllParentConceptId(Lists.newArrayList(conceptId), conceptId, conceptMap));
     }
 
@@ -69,6 +69,7 @@ public class GraphCommonConverter {
         graphFrom.setInherit(exploreReq.isInherit());
         graphFrom.setDistance(exploreReq.getDistance());
         graphFrom.setSkip(page.getPage());
+        graphFrom.setDisAllowTypes(exploreReq.getDisAllowConcepts());
         graphFrom.setLimit(page.getSize());
         //读取元数据
         MetaData entityMetaData = new MetaData();

@@ -15,14 +15,14 @@ import java.util.List;
 /**
  * Created by plantdata-1007 on 2019/12/2.
  */
-@Api(tags = "图谱问答配置")
+@Api(tags = "图谱配置")
 @RestController
 @RequestMapping("/config")
 public class GraphConfQaController {
     @Autowired
     private GraphConfQaService graphConfQaService;
 
-    @ApiOperation("图谱新建问答")
+    @ApiOperation("图谱配置-问答-新建")
     @PostMapping("/qa/{kgName}")
     public ApiReturn<List<GraphConfQaRsp>> save(@PathVariable("kgName") String kgName , @RequestBody @Valid List<GraphConfQaReq> req) {
 
@@ -30,7 +30,7 @@ public class GraphConfQaController {
     }
 
 
-    @ApiOperation("图谱查询问答")
+    @ApiOperation("图谱配置-问答-查询")
     @GetMapping("/qa/{kgName}")
     public ApiReturn<List<GraphConfQaRsp>> selectQa(@PathVariable("kgName") String kgName) {
         return ApiReturn.success(graphConfQaService.findByKgName(kgName));

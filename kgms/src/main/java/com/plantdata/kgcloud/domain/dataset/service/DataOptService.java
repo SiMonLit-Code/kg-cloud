@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dataset.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
+import org.springframework.data.domain.Page;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +21,7 @@ public interface DataOptService {
      * @param req
      * @return
      */
-    List<Map<String, Object>> getData(Long datasetId, DataOptQueryReq req);
+    Page<Map<String, Object>> getData(Long datasetId, DataOptQueryReq req);
 
     /**
      * 获取
@@ -39,7 +40,7 @@ public interface DataOptService {
      * @param data
      * @return
      */
-    Map<String, Object> insertData(Long datasetId, JsonNode data);
+    Map<String, Object> insertData(Long datasetId, Map<String, Object> data);
 
     /**
      * 修改
@@ -49,7 +50,7 @@ public interface DataOptService {
      * @param data
      * @return
      */
-    Map<String, Object> updateData(Long datasetId, String dataId, JsonNode data);
+    Map<String, Object> updateData(Long datasetId, String dataId, Map<String, Object> data);
 
     /**
      * 删除
