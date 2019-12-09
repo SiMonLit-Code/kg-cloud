@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.share;
+package com.plantdata.kgcloud.domain.share.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;

@@ -1,9 +1,12 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfKgql;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import org.springframework.data.domain.Page;
+
+import java.util.Optional;
 
 /**
  * 图谱业务配置
@@ -42,5 +45,13 @@ public interface GraphConfKgqlService {
      * @param kgName
      * @return
      */
-    Page<GraphConfKgqlRsp> findByKgName(String kgName , BaseReq baseReq);
+    Page<GraphConfKgqlRsp> findByKgName(String kgName , BaseReq baseReq , Integer ruleType);
+
+
+    /**
+     * 根据id查询详情
+     * @param id
+     * @return
+     */
+    GraphConfKgqlRsp findById(Long id);
 }
