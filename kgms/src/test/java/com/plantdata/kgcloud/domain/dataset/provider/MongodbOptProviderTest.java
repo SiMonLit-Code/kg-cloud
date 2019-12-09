@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Test;
 
+import java.util.Collections;
+
 /**
  * @description:
  * @author: Bovin
@@ -15,7 +17,7 @@ public class MongodbOptProviderTest {
     @Test
     public void insert() {
         DataOptConnect datasetInfo = new DataOptConnect();
-        datasetInfo.setAddresses("192.168.4.11:19130");
+        datasetInfo.setAddresses(Collections.singletonList("192.168.4.11:19130"));
         datasetInfo.setDatabase("u_test001_data");
         datasetInfo.setTable("asdsd_test001");
         MongodbOptProvider provider = new MongodbOptProvider(datasetInfo);

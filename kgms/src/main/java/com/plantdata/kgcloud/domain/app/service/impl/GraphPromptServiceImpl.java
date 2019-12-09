@@ -133,9 +133,8 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     }
 
     private List<PromptEntityRsp> queryFromEs(String kgName, PromptSearchInterface promptReq) {
-        Optional<String> reduce = esProperties.getAddrs().stream().reduce((a, b) -> a.concat(",").concat(b));
         DataOptConnect connect = DataOptConnect.builder()
-                .addresses(reduce.orElse(org.apache.commons.lang3.StringUtils.EMPTY))
+                .addresses(esProperties.getAddrs())
                 .database(kgName)
                 .build();
         DataOptProvider provider = DataOptProviderFactory.createProvider(connect, DataType.ELASTIC);

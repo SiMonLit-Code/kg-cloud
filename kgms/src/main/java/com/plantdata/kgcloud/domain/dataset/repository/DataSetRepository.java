@@ -18,7 +18,7 @@ public interface DataSetRepository extends JpaRepository<DataSet, Long> {
      * @param id
      * @param userId
      */
-    void deleteByIdAndUserId(Long id, String userId);
+    void deleteByUserIdAndId(String userId, Long id);
 
     /**
      * 根据用户和id查询数据集
@@ -27,7 +27,10 @@ public interface DataSetRepository extends JpaRepository<DataSet, Long> {
      * @param userId
      * @return
      */
-    Optional<DataSet> findByIdAndUserId(Long id, String userId);
+    Optional<DataSet> findByUserIdAndId(String userId, Long id);
+
+
+    Optional<DataSet> findByDataName(String dataName);
 
     /**
      * 根据文件夹查询

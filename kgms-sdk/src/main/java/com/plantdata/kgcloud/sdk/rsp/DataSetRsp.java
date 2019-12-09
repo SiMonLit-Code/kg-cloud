@@ -1,8 +1,11 @@
 package com.plantdata.kgcloud.sdk.rsp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description:
@@ -16,8 +19,13 @@ public class DataSetRsp {
     private String userId;
     private String dataName;
     private String title;
+
+    @JsonProperty("private")
     private Boolean privately;
+
+    @JsonProperty("allowEdit")
     private Boolean editable;
+
     private Integer dataType;
     private Integer createType;
     private String addr;
@@ -27,7 +35,7 @@ public class DataSetRsp {
     private String tbName;
     private String createWay;
     private String fields;
-    private String schemaConfig;
+    private List<DataSetSchema> schema;
     private String mapper;
     private String skillConfig;
     private Date createAt;

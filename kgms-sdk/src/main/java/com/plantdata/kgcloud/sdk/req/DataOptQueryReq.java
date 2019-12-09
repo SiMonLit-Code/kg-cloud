@@ -11,12 +11,12 @@ import lombok.Data;
 @Data
 public class DataOptQueryReq extends BaseReq {
 
-    private String field;
+//    private String field;
     private String kw;
-    private Integer resultType;
-    private Long createAtBegin;
-    private Long createAtEnd;
-    private Long updateAtBegin;
-    private Long updateAtEnd;
+//    private Integer resultType;
+//    private Long createAtBegin;
+//    private Long createAtEnd;
+//    private Long updateAtBegin;
+//    private Long updateAtEnd;
 
 }

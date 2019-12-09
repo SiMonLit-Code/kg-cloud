@@ -21,6 +21,10 @@ public interface DataOptProvider extends Closeable {
 
     List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query);
 
+    long count(Map<String, Object> query);
+
+    Map<String, Object> findOne(String id);
+
     void createTable(List<DataSetSchema> colList);
 
     void dropTable();

@@ -13,6 +13,7 @@ import org.elasticsearch.client.RestClient;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class ElasticSearchOptProviderTest {
     @Test
     public void createTable() {
         DataOptConnect datasetInfo = new DataOptConnect();
-        datasetInfo.setAddresses("192.168.4.11:9200");
+        datasetInfo.setAddresses(Collections.singletonList("192.168.4.11:9200"));
         datasetInfo.setDatabase("0000000000_000");
         datasetInfo.setTable("attrs");
         ElasticSearchOptProvider provider = new ElasticSearchOptProvider(datasetInfo);
@@ -56,7 +57,7 @@ public class ElasticSearchOptProviderTest {
     @Test
     public void getAliases() {
         DataOptConnect datasetInfo = new DataOptConnect();
-        datasetInfo.setAddresses("192.168.4.11:9200");
+        datasetInfo.setAddresses(Collections.singletonList("192.168.4.11:9200"));
         datasetInfo.setDatabase("0000000000_000");
         datasetInfo.setTable("attrs");
         ElasticSearchOptProvider provider = new ElasticSearchOptProvider(datasetInfo);
@@ -66,7 +67,7 @@ public class ElasticSearchOptProviderTest {
     @Test
     public void putAliases() {
         DataOptConnect datasetInfo = new DataOptConnect();
-        datasetInfo.setAddresses("192.168.4.11:9200");
+        datasetInfo.setAddresses(Collections.singletonList("192.168.4.11:9200"));
         datasetInfo.setDatabase("aaaaaaaaaaaaa_1555333065195");
         datasetInfo.setTable("attrs");
         ElasticSearchOptProvider provider = new ElasticSearchOptProvider(datasetInfo);
