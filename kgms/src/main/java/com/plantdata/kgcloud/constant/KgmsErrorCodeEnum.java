@@ -29,7 +29,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     CONF_ALGORITHM_NOT_EXISTS(120601, "算法配置不存在"),
     CONF_KGQL_NOT_EXISTS(120602, "图谱业务不存在"),
     CONF_QA_NOT_EXISTS(120603, "图谱问答不存在"),
-    CONF_STATISTICAL_NOT_EXISTS(120604, "图谱统计不存在"),
+    CONF_REASONING_NOT_EXISTS(120604, "图谱统计不存在"),
+    CONF_STATISTICAL_NOT_EXISTS(120606, "图谱统计不存在"),
     ES_CONFIG_NOT_FOUND(120605, "未找到es配置"),
     GRAPH_TYPE_ERROR(120606, "图谱类型错误"),
 
