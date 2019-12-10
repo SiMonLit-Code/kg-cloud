@@ -43,7 +43,7 @@ public class GraphConfAlgorithmController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("图谱配置-算法-查询")
+    @ApiOperation("图谱配置-算法-获取")
     @GetMapping("/algorithm/{kgName}")
     public ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName , BaseReq baseReq) {
         return ApiReturn.success(graphConfAlgorithmService.findByKgName(kgName ,baseReq));

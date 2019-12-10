@@ -16,46 +16,46 @@ import java.util.List;
 /**
  * Created by plantdata-1007 on 2019/12/3.
  */
-@Api(tags = "图谱统计配置")
+@Api(tags = "图谱配置")
 @RestController
 @RequestMapping("/config")
 public class GraphConfStatisticalController {
     @Autowired
     private GraphConfStatisticalService graphConfStatisticalService;
 
-    @ApiOperation("图谱新建统计")
+    @ApiOperation("图谱配置-统计-新建")
     @PostMapping("/statistical/{kgName}")
     public ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfStatisticalReq req) {
         return ApiReturn.success(graphConfStatisticalService.createStatistical(kgName,req));
     }
 
-    @ApiOperation("图谱更新统计")
+    @ApiOperation("图谱配置-统计-更新")
     @PatchMapping("/statistical/{id}")
     public ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req) {
         return ApiReturn.success(graphConfStatisticalService.updateStatistical(id, req));
     }
 
-    @ApiOperation("图谱删除统计")
+    @ApiOperation("图谱配置-统计-删除")
     @DeleteMapping("/statistical/{id}")
     public ApiReturn deleteStatistical(@PathVariable("id") Long id) {
         graphConfStatisticalService.deleteStatistical(id);
         return ApiReturn.success();
     }
 
-    @ApiOperation("图谱批量删除统计")
+    @ApiOperation("图谱配置-统计-批量删除")
     @DeleteMapping("/statistical/{ids}")
     public ApiReturn batchDeleteStatistical(@PathVariable("ids") List<Long> ids) {
         graphConfStatisticalService.deleteInBatch(ids);
         return ApiReturn.success();
     }
 
-    @ApiOperation("图谱查询统计")
+    @ApiOperation("图谱配置-统计-获取")
     @GetMapping("/statistical/{kgName}")
     public ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName) {
         return ApiReturn.success(graphConfStatisticalService.findByKgName(kgName));
     }
 
-    @ApiOperation("图谱查询统计所有")
+    @ApiOperation("图谱配置-统计-获取所有")
     @GetMapping("/statistical")
     public ApiReturn<List<GraphConfStatisticalRsp>> selectStatisticalAll() {
         return ApiReturn.success(graphConfStatisticalService.findAll());
