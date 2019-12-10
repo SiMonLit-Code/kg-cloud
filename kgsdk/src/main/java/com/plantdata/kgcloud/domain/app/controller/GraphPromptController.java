@@ -32,7 +32,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("app/prompt")
+@RequestMapping("v3/app/prompt")
 public class GraphPromptController implements GraphApplicationInterface {
 
     @Autowired

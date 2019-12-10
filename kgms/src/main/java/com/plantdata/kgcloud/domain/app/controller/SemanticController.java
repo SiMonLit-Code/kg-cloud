@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2019/12/6 11:26
  */
 @RestController
-@RequestMapping("v3/app/semantic")
+@RequestMapping("app/semantic")
 @Api(tags = "问答")
 public class SemanticController {
 

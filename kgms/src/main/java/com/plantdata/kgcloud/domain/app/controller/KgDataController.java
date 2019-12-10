@@ -27,7 +27,7 @@ import java.util.Map;
  * @date 2019/12/7 10:59
  */
 @RestController
-@RequestMapping("v3/kgData")
+@RequestMapping("kgData")
 public class KgDataController {
 
 

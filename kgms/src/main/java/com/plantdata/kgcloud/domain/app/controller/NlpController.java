@@ -34,7 +34,7 @@ import java.util.List;
  * @date 2019/12/4 16:54
  */
 @RestController
-@RequestMapping("v3/app/nlp")
+@RequestMapping("app/nlp")
 @Api(tags = "自然语言处理")
 public class NlpController {
 

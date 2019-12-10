@@ -29,7 +29,7 @@ import java.util.List;
  * @date 2019/11/12 18:36
  */
 @RestController
-@RequestMapping("kgData/attribute")
+@RequestMapping("v3/kgData/attribute")
 public class AttributeController implements GraphDataObtainInterface {
 
     @Autowired

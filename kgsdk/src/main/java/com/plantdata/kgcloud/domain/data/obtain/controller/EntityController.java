@@ -26,7 +26,7 @@ import java.util.List;
  * @date 2019/12/7 10:49
  */
 @RestController
-@RequestMapping("kgData/entity")
+@RequestMapping("v3/kgData/entity")
 public class EntityController implements GraphDataObtainInterface {
 
     @Autowired

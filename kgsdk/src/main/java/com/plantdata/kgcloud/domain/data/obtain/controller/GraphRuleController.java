@@ -31,7 +31,7 @@ import javax.validation.Valid;
  */
 @Slf4j
 @RestController
-@RequestMapping("kgData/graphRule")
+@RequestMapping("v3/kgData/graphRule")
 public class GraphRuleController implements GraphDataObtainInterface {
 
     @Autowired

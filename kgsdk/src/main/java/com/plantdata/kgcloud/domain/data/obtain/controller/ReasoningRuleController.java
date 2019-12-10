@@ -27,7 +27,7 @@ import javax.validation.Valid;
  * @date 2019/11/14 12:02
  */
 @RestController
-@RequestMapping("kgData/reasoningRule")
+@RequestMapping("v3/kgData/reasoningRule")
 public class ReasoningRuleController implements GraphDataObtainInterface {
     @Autowired
     private KgmsClient kgmsClient;

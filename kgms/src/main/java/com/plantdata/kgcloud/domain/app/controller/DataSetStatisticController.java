@@ -25,7 +25,7 @@ import javax.validation.Valid;
  */
 @RestController
 @Api(tags = "图谱应用")
-@RequestMapping("v3/app/dataset/statistic")
+@RequestMapping("app/dataset/statistic")
 public class DataSetStatisticController {
 
     @Resource

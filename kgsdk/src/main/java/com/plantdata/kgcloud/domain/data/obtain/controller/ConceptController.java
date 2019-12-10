@@ -27,7 +27,7 @@ import java.util.List;
  * @date 2019/11/12 18:32
  */
 @RestController
-@RequestMapping("kgData/concept")
+@RequestMapping("v3/kgData/concept")
 public class ConceptController implements GraphDataObtainInterface {
 
     @Resource
