@@ -37,6 +37,25 @@ public interface DataSetRepository extends JpaRepository<DataSet, Long>, JpaSpec
      */
     Optional<DataSet> findByDataName(String dataName);
 
+
+    /**
+     * s
+     * @param userId
+     * @param dataNames
+     * @return
+     */
+    List<DataSet> findByUserIdAndDataNameIn(String userId,List<String> dataNames);
+
+
+    /**
+     * s
+     * @param userId
+     * @param dbName
+     * @param tbName
+     * @return
+     */
+    Optional<DataSet> findByUserIdAndDbNameAndTbName(String userId,String dbName,String tbName);
+
     /**
      * 根据文件夹查询
      *

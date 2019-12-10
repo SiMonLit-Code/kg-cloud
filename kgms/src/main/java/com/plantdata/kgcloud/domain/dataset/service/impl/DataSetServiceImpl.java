@@ -23,6 +23,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -141,6 +142,26 @@ public class DataSetServiceImpl implements DataSetService {
     }
 
     @Override
+    public List<Long> findByDataNames(String userId, List<String> dataNames) {
+        List<DataSet> list = dataSetRepository.findByUserIdAndDataNameIn(userId, dataNames);
+        List<Long> longs = new ArrayList<>();
+        for (DataSet dataSet : list) {
+            longs.add(dataSet.getId());
+        }
+        return longs;
+    }
+
+    @Override
+    public List<Long> findByDatabase(String userId, List<DataSetSdkReq> database) {
+        List<Long> longs = new ArrayList<>();
+        for (DataSetSdkReq req : database) {
+            Optional<DataSet> dataSet = dataSetRepository.findByUserIdAndDbNameAndTbName(userId, req.getDatabase(), req.getDatabase());
+            dataSet.ifPresent(k -> longs.add(k.getId()));
+        }
+        return longs;
+    }
+
+    @Override
     public List<DataSet> findByFolderId(Long folderId) {
         return dataSetRepository.findByFolderId(folderId);
     }
@@ -212,7 +233,6 @@ public class DataSetServiceImpl implements DataSetService {
         target.setPrivately(true);
         List<DataSetSchema> schema = req.getSchema();
         target.setFields(transformFields(schema));
-
 
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
         DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, type);

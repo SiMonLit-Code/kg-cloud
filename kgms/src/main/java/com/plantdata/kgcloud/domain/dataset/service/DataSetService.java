@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,21 @@ public interface DataSetService {
      */
     Page<DataSetRsp> findAll(String userId, DataSetPageReq req);
 
+
+    /**
+     *
+     * @param dataNames
+     * @return
+     */
+    List<Long> findByDataNames(String userId, List<String> dataNames);
+
+    /**
+     *
+     * @param userId
+     * @param database
+     * @return
+     */
+    List<Long> findByDatabase(String userId,List<DataSetSdkReq> database);
     /**
      * 根据文件夹查询数据集
      *
