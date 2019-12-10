@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.validation.Valid;
@@ -245,5 +246,6 @@ public interface KgmsClient {
      */
     @PostMapping("model/call/{id}")
     ApiReturn callJson(@PathVariable("id") Long id, @RequestBody KgmsCallReq req);
+
 
 }

@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.converter.graph;
 
 import ai.plantdata.kg.api.pub.req.CommonFilter;
+import ai.plantdata.kg.api.pub.req.EntityFilter;
 import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
 import ai.plantdata.kg.api.pub.resp.EdgeVO;
@@ -23,7 +24,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.NonNull;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -67,10 +67,19 @@ public class GraphCommonConverter {
      */
     static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(BaseReq page, T exploreReq, E graphFrom) {
         CommonFilter commonFilter = new GraphFrom();
-        commonFilter.setSkip(page.getOffset());
-        commonFilter.setLimit(exploreReq.getHighLevelSize() == null ? page.getLimit() : exploreReq.getHighLevelSize());
+        if(page!=null){
+            commonFilter.setSkip(page.getOffset());
+            commonFilter.setDirection(exploreReq.getDirection());
+            commonFilter.setDistance(exploreReq.getDistance());
+            commonFilter.setLimit(exploreReq.getHighLevelSize() == null ? page.getLimit() : exploreReq.getHighLevelSize());
+            graphFrom.setSkip(page.getPage());
+            graphFrom.setLimit(page.getSize());
+        }
+
         if (!CollectionUtils.isEmpty(exploreReq.getEntityFilters())) {
-            commonFilter.setEdgeFilter(ConditionConverter.entityListToMap(exploreReq.getEntityFilters()));
+            EntityFilter entityFilter = new EntityFilter();
+            entityFilter.setAttr(ConditionConverter.entityListToIntegerKeyMap(exploreReq.getEntityFilters()));
+            commonFilter.setEntityFilter(entityFilter);
         }
         //设置边属性筛选
         if (!CollectionUtils.isEmpty(exploreReq.getEdgeAttrFilters())) {
@@ -86,9 +95,9 @@ public class GraphCommonConverter {
         graphFrom.setDirection(exploreReq.getDirection());
         graphFrom.setInherit(exploreReq.isInherit());
         graphFrom.setDistance(exploreReq.getDistance());
-        graphFrom.setSkip(page.getPage());
+
         graphFrom.setDisAllowTypes(exploreReq.getDisAllowConcepts());
-        graphFrom.setLimit(page.getSize());
+
         //读取元数据
         MetaData entityMetaData = new MetaData();
         entityMetaData.setRead(true);
@@ -149,7 +158,7 @@ public class GraphCommonConverter {
     }
 
     private static List<BasicRelationRsp.EdgeInfo> edgeVoListToEdgeInfo(@NonNull List<EdgeVO> edgeList) {
-        return edgeList.stream().map(a -> new BasicRelationRsp.EdgeInfo(a.getName(), a.getSeqNo(), a.getValue(), null, null)).collect(Collectors.toList());
+        return edgeList.stream().map(a -> new BasicRelationRsp.EdgeInfo(a.getName(), a.getSeqNo(), a.getValue(), a.getDataType(), a.getObjRange())).collect(Collectors.toList());
     }
 
     /**

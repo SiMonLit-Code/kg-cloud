@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.data.statistics.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataStatisticsInterface;
-import com.plantdata.kgcloud.domain.common.rsp.DegreeRsp;
 import com.plantdata.kgcloud.domain.data.obtain.req.CountRelationByEntityReq;
 import com.plantdata.kgcloud.domain.data.statistics.req.AttributeStatisticReq;
 import com.plantdata.kgcloud.domain.data.statistics.req.StatisticEntityByConceptReq;
@@ -29,9 +28,9 @@ public class GraphDataEntityStatisticsController implements GraphDataStatisticsI
 
     @ApiOperation("查询实体的关系度数")
     @PostMapping("degree/{entityId}")
-    public ApiReturn<List<DegreeRsp>> countDegree(@ApiParam("实例ID") @PathVariable("entityId") Long entityId,
-                                                  @RequestBody @Valid CountRelationByEntityReq entityParam,
-                                                  BindingResult bindingResult) {
+    public ApiReturn<List<?>> countDegree(@ApiParam("实例ID") @PathVariable("entityId") Long entityId,
+                                          @RequestBody @Valid CountRelationByEntityReq entityParam,
+                                          BindingResult bindingResult) {
         return ApiReturn.success(null);
     }
 

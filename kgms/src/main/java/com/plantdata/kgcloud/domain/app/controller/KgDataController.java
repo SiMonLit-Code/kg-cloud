@@ -2,8 +2,11 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.model.service.ModelService;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
+import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
+import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,8 @@ public class KgDataController {
 
     @Autowired
     private ModelService modelService;
-
+    @Autowired
+    private KgDataService kgDataService;
 
     @ApiOperation("sparql查询")
     @PostMapping("sparQl/query/{kgName}")
@@ -57,4 +59,20 @@ public class KgDataController {
                                     @ApiParam("导出格式 0 txt  1 xls 2 xlsx") @RequestParam("type") int type) {
         return ApiReturn.success(null);
     }
+
+    @ApiOperation("查询实体的关系度数")
+    @PostMapping("/statistic/{kgName}/entity/degree/")
+    public ApiReturn<List<Map<String, Object>>> statisticCountEdgeByEntity(@PathVariable("kgName") String kgName,
+                                                                           @RequestBody EdgeStatisticByEntityIdReq statisticReq) {
+        return ApiReturn.success(kgDataService.statisticCountEdgeByEntity(kgName, statisticReq));
+
+    }
+
+    @ApiOperation("统计实体根据概念分组")
+    @PostMapping("/statistic/{kgName}/entity/groupByConcept/")
+    public ApiReturn<Object> statisticEntityGroupByConcept(@ApiParam(value = "查询语句", required = true) @PathVariable("kgName") String kgName,
+                                                           @RequestBody EntityStatisticGroupByConceptReq statisticReq) {
+        return ApiReturn.success(kgDataService.statEntityGroupByConcept(kgName, statisticReq));
+    }
+
 }

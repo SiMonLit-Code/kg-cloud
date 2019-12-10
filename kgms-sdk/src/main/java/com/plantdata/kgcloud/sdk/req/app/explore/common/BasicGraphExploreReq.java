@@ -33,7 +33,7 @@ public class BasicGraphExploreReq {
     @ApiModelProperty("实例id")
     private List<String> replaceClassKeys;
     @ApiModelProperty("读取层数")
-    private Integer distance;
+    private int distance = 1;
     @ApiModelProperty("是否关系合并")
     private boolean relationMerge;
     @ApiModelProperty("allowTypes字段指定的概念是否继承")

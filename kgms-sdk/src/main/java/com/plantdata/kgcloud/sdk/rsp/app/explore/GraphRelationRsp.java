@@ -15,7 +15,7 @@ import java.util.List;
  * @date 2019/12/10 9:53
  */
 @ToString
-@ApiModel("关系视图")
+@ApiModel("graph关系视图")
 @Getter
 @Setter
 public class GraphRelationRsp extends BasicRelationRsp {
