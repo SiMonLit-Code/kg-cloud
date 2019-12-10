@@ -133,8 +133,11 @@ public interface BasicInfoService {
     void clearMetaData(String kgName);
 
     /**
+     * kgql
+     *
      * @param kgqlReq
      * @return
      */
     Object executeQl(KgqlReq kgqlReq);
+
 }
