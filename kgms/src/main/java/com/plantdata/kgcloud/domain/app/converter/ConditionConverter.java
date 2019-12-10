@@ -71,38 +71,43 @@ public class ConditionConverter {
         return lists.stream().map(ConditionConverter::entityListToMap).collect(Collectors.toList());
     }
 
+    public static Map<Integer, Object> entityListToIntegerKeyMap(List<EntityQueryFiltersReq> entityScreeningList) {
+        if (entityScreeningList == null) {
+            return Collections.emptyMap();
+        }
+        return entityScreeningList.stream().collect(Collectors.toMap(EntityQueryFiltersReq::getAttrId, s -> s.getEq() != null ? s.getEq() : buildRangeMap(s)));
+    }
+
     public static Map<String, Object> entityListToMap(List<EntityQueryFiltersReq> entityScreeningList) {
         if (entityScreeningList == null) {
             return Collections.emptyMap();
         }
-        return entityScreeningList.stream().collect(Collectors.toMap(s -> String.valueOf(s.getAttrId()), s -> {
+        return entityScreeningList.stream().collect(Collectors.toMap(s -> String.valueOf(s.getAttrId()), s -> s.getEq() != null ? s.getEq() : buildRangeMap(s)));
+    }
 
-            if (s.getEq() != null) {
-                return s.getEq();
-            }
-            Map<String, Object> map = new HashMap<>();
-            if (s.getNe() != null) {
-                map.put("$ne", s.getNe());
-            }
-            if (s.getGt() != null) {
-                map.put("$gt", s.getGt());
-            }
-            if (s.getLt() != null) {
-                map.put("$lt", s.getLt());
-            }
-            if (s.getGte() != null) {
-                map.put("$gte", s.getGte());
-            }
-            if (s.getLte() != null) {
-                map.put("$lte", s.getLte());
-            }
-            if (s.getIn() != null) {
-                map.put("$in", s.getIn());
-            }
-            if (s.getNin() != null) {
-                map.put("$nin", s.getNin());
-            }
-            return map;
-        }));
+    private static Map<String, Object> buildRangeMap(EntityQueryFiltersReq filtersReq) {
+        Map<String, Object> map = Maps.newHashMap();
+        if (filtersReq.getNe() != null) {
+            map.put("$ne", filtersReq.getNe());
+        }
+        if (filtersReq.getGt() != null) {
+            map.put("$gt", filtersReq.getGt());
+        }
+        if (filtersReq.getLt() != null) {
+            map.put("$lt", filtersReq.getLt());
+        }
+        if (filtersReq.getGte() != null) {
+            map.put("$gte", filtersReq.getGte());
+        }
+        if (filtersReq.getLte() != null) {
+            map.put("$lte", filtersReq.getLte());
+        }
+        if (filtersReq.getIn() != null) {
+            map.put("$in", filtersReq.getIn());
+        }
+        if (filtersReq.getNin() != null) {
+            map.put("$nin", filtersReq.getNin());
+        }
+        return map;
     }
 }

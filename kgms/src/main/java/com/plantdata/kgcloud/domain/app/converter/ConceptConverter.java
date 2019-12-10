@@ -11,7 +11,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public class ConceptConverter {
                     conceptRsp.setOpenGis((Boolean) metaData.get(MetaDataInfo.OPEN_GIS.getFieldName()));
                 }
                 if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
-                    conceptRsp.setAdditional(JacksonUtils.readValue(metaData.get(MetaDataInfo.ADDITIONAL.getFieldName()).toString(), AdditionalRsp.class));
+                    conceptRsp.setAdditionalInfo(JacksonUtils.readValue(metaData.get(MetaDataInfo.ADDITIONAL.getFieldName()).toString(), AdditionalRsp.class));
                 }
             }
             baseConceptRspList.add(conceptRsp);
@@ -60,9 +59,6 @@ public class ConceptConverter {
         return baseConceptRspList;
     }
 
-    public static List<BasicConceptRsp> voToBasic(@NonNull List<BasicInfo> conceptList) {
-        return conceptList.stream().map(ConceptConverter::basicInfoToConcept).collect(Collectors.toList());
-    }
 
     public static BasicConceptTreeRsp voToConceptTree(@NonNull List<BasicInfo> conceptList, BasicConceptTreeRsp treeRsp) {
         return voToConceptTree(conceptList, Collections.emptyList(), treeRsp);

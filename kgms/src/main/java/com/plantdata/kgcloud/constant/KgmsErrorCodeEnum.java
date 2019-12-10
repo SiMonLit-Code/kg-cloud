@@ -20,13 +20,15 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     FOLDER_DISABLE_DELETE(120103, "默认文件夹不允许删除"),
     DATASET_TYPE_NONSUPPORT(120104, "不支持的数据集类型"),
     DATASET_CONNECT_ERROR(120105, "数据连接失败"),
-    DATASET_KEY_EXISTS(120106,"唯一标识已存在"),
-    DATASET_EXPORT_FAIL(120107,"数据集导出失败"),
-    DATASET_IMPORT_FAIL(120108,"数据集导出失败"),
-    ANNOTATION_NOT_EXISTS(120109,"标引不存在"),
+    DATASET_KEY_EXISTS(120106, "唯一标识已存在"),
+    DATASET_EXPORT_FAIL(120107, "数据集导出失败"),
+    DATASET_IMPORT_FAIL(120108, "数据集导出失败"),
+    ANNOTATION_NOT_EXISTS(120109, "标引不存在"),
 
     MODEL_NOT_EXISTS(120201, "模型不存在"),
-
+    /**
+     * app模块
+     */
     CONF_ALGORITHM_NOT_EXISTS(120601, "算法配置不存在"),
     CONF_KGQL_NOT_EXISTS(120602, "图谱业务不存在"),
     CONF_QA_NOT_EXISTS(120603, "图谱问答不存在"),
@@ -34,12 +36,15 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     CONF_STATISTICAL_NOT_EXISTS(120606, "图谱统计不存在"),
     ES_CONFIG_NOT_FOUND(120605, "未找到es配置"),
     GRAPH_TYPE_ERROR(120606, "图谱类型错误"),
+    MY_DATA_NULL_ES(120607, "数据集不为搜索数据集"),
+
 
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
 
     WORD_NOT_EXISTS(120302, "词条不存在"),
 
     GRAPH_NOT_EXISTS(120401, "图谱不存在"),
+
     GRAPH_CREATE_FAIL(120402, "图谱创建失败"),
 
     REMOTE_SERVICE_ERROR(120501, "远程服务错误"),
