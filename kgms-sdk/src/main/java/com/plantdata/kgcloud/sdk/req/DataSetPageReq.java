@@ -13,4 +13,6 @@ import lombok.Data;
 public class DataSetPageReq extends BaseReq {
 
     private Long folderId;
+
+    private Integer createWay;
 }

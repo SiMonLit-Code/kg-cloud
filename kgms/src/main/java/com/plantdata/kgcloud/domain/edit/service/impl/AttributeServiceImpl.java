@@ -120,7 +120,7 @@ public class AttributeServiceImpl implements AttributeService {
         Optional<List<AttrDefVO>> optional = RestRespConverter
                 .convert(attributeApi.getByConceptIds(kgName, attrQueryFrom));
         return optional.orElse(new ArrayList<>()).stream()
-                .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
+                .map(vo -> MapperUtils.mapAttr(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
     }
 
@@ -128,7 +128,7 @@ public class AttributeServiceImpl implements AttributeService {
     public List<AttrDefinitionRsp> getAttrDefinitionByEntityId(String kgName, Long entityId) {
         Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getByEntityId(kgName, entityId));
         return optional.orElse(new ArrayList<>()).stream()
-                .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
+                .map(vo -> MapperUtils.mapAttr(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
     }
 
@@ -139,7 +139,7 @@ public class AttributeServiceImpl implements AttributeService {
         Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getByConceptIds(kgName,
                 attrQueryFrom));
         return optional.orElse(new ArrayList<>()).stream()
-                .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
+                .map(vo -> MapperUtils.mapAttr(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
     }
 
@@ -162,7 +162,7 @@ public class AttributeServiceImpl implements AttributeService {
         Optional<BatchResult<AttributeDefinitionVO>> optional =
                 RestRespConverter.convert(batchApi.addAttributes(kgName, voList));
         return optional.map(result -> result.getError().stream()
-                .map(ConvertUtils.convert(AttrDefinitionBatchRsp.class))
+                .map(vo -> MapperUtils.mapAttr(vo,AttrDefinitionBatchRsp.class))
                 .collect(Collectors.toList())).orElse(null);
     }
 

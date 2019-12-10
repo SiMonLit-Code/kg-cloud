@@ -22,7 +22,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DATASET_CONNECT_ERROR(120105, "数据连接失败"),
     DATASET_KEY_EXISTS(120106,"唯一标识已存在"),
     DATASET_EXPORT_FAIL(120107,"数据集导出失败"),
-    DATASET_IMPORT_FAIL(120107,"数据集导出失败"),
+    DATASET_IMPORT_FAIL(120108,"数据集导出失败"),
+    ANNOTATION_NOT_EXISTS(120109,"标引不存在"),
 
     MODEL_NOT_EXISTS(120201, "模型不存在"),
 

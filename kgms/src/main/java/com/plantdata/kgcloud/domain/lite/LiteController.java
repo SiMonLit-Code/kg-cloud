@@ -34,55 +34,54 @@ public class LiteController {
 
     @Autowired
     private GraphService graphService;
+    @Autowired
+    private LinkShareService linkShareService;
 
     @GetMapping("/graph/all")
-    @ApiOperation("图谱查找所有")
+    @ApiOperation("图谱-图谱查找所有")
     public ApiReturn<List<GraphRsp>> findAll() {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(graphService.findAll(userId));
     }
 
-    @ApiOperation("图谱创建")
+    @ApiOperation("图谱-图谱创建")
     @PostMapping("/graph")
     public ApiReturn<GraphRsp> insert(@Valid @RequestBody GraphReq dictionaryReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(graphService.insert(userId, dictionaryReq));
     }
 
-    @ApiOperation("图谱编辑")
+    @ApiOperation("图谱-图谱编辑")
     @PatchMapping("/graph/{kgName}")
     public ApiReturn<GraphRsp> update(@PathVariable("kgName") String kgName, @Valid @RequestBody GraphReq req) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(graphService.update(userId, kgName, req));
     }
 
-    @ApiOperation("图谱删除")
-    @DeleteMapping("/{kgName}")
+    @ApiOperation("图谱-图谱删除")
+    @DeleteMapping("/graph/{kgName}")
     public ApiReturn delete(@PathVariable("kgName") String kgName) {
         String userId = SessionHolder.getUserId();
         graphService.delete(userId, kgName);
         return ApiReturn.success();
     }
 
-    @Autowired
-    private LinkShareService linkShareService;
-
     @GetMapping("/share/status/{kgName}")
-    @ApiOperation("分享状态列表")
+    @ApiOperation("分享-分享状态列表")
     public ApiReturn shareStatus(@PathVariable("kgName") String kgName) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(linkShareService.shareStatus(userId, kgName));
     }
 
     @GetMapping("/share/link/{kgName}")
-    @ApiOperation("分享链接")
+    @ApiOperation("分享-分享链接")
     public ApiReturn shareLink(@PathVariable("kgName") String kgName, @RequestParam("spaId") String spaId) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(linkShareService.shareLink(userId, kgName, spaId));
     }
 
     @GetMapping("/share/cancel/{kgName}")
-    @ApiOperation("取消分享")
+    @ApiOperation("分享-取消分享")
     public ApiReturn shareCancel(@PathVariable("kgName") String kgName, @RequestParam("spaId") String spaId) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(linkShareService.shareCancel(userId, kgName, spaId));

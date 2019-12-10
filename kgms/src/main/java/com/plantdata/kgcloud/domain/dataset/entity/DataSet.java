@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.domain.dataset.entity;
 
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.converter.AddressConverter;
-import com.plantdata.kgcloud.domain.dataset.converter.StringListConverter;
+import com.plantdata.kgcloud.domain.common.converter.StringListConverter;
 import com.plantdata.kgcloud.domain.dataset.converter.DataSetSchemaConverter;
 import com.plantdata.kgcloud.domain.dataset.converter.DataTypeConverter;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;

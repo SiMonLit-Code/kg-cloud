@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.edit.vo.ObjectAttrValueVO;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -109,7 +110,7 @@ public class ParserBeanUtils {
             }
         }
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
-        if (Objects.nonNull(attrValue) && !attrValue.isEmpty()) {
+        if (!CollectionUtils.isEmpty(attrValue)) {
             //填充关系的metadata
             List<EntityAttrValueVO> entityAttrValues = attrValue.stream().peek(entityAttrValueVO -> {
                 List<ObjectAttrValueVO> objectValues = entityAttrValueVO.getObjectValues();
@@ -120,6 +121,7 @@ public class ParserBeanUtils {
                 }
             }).collect(Collectors.toList());
             basicInfoRsp.setAttrValue(entityAttrValues);
+
         }
 
         return basicInfoRsp;

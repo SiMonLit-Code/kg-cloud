@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: LinHo
@@ -79,10 +80,10 @@ public class AttrDefinitionVO {
      * 前端使用
      */
     @ApiModelProperty(value = "业务额外信息")
-    private String additionalInfo;
+    private Map<String, Object> additionalInfo;
 
     @ApiModelProperty(value = "属性约束")
-    private String constraints;
+    private Map<String, Object> constraints;
     /**
      * 全局唯一
      */

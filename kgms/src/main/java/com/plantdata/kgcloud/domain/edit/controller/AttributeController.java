@@ -10,6 +10,8 @@ import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
+import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
@@ -215,6 +217,13 @@ public class AttributeController {
                                              @Valid @RequestBody AttrDefinitionAdditionalReq additionalReq) {
         attributeService.updateAttrDefinitionAdditional(kgName, additionalReq);
         return ApiReturn.success();
+    }
+
+    @ApiOperation("根据属性定义查询实体详情列表")
+    @PostMapping("/{kgName}/attr/entity")
+    ApiReturn<List<TripleRsp>> getRelationByAttr(@PathVariable("kgName") String kgName,
+                                                 @Valid @RequestBody TripleReq tripleReq) {
+        return ApiReturn.success(attributeService.getRelationByAttr(kgName, tripleReq));
     }
 
     @ApiOperation("批量关系新增")
