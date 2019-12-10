@@ -42,7 +42,7 @@ public class GraphRuleController implements GraphDataObtainInterface {
     public ApiReturn<Page<GraphConfKgqlRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                         @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
                                                         PageReq pageReq) {
-        return kgmsClient.select(kgName, type, pageReq);
+        return kgmsClient.selectKgql(kgName,pageReq);
     }
 
     @ApiOperation("业务规则详情")
@@ -55,7 +55,7 @@ public class GraphRuleController implements GraphDataObtainInterface {
     @ApiOperation("业务规则或者gis规则新增")
     @PostMapping("/kgql/{kgName}")
     public ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req) {
-        return kgmsClient.save(kgName, req);
+        return kgmsClient.saveKgql(kgName,req);
     }
 
     @ApiOperation("业务规则删除")
@@ -69,6 +69,6 @@ public class GraphRuleController implements GraphDataObtainInterface {
     @PatchMapping("/{id}")
     public ApiReturn<GraphConfKgqlRsp> modify(@ApiParam("规则id") @PathVariable("id") Long id,
                                               @RequestBody GraphConfKgqlReq graphRuleReq) {
-        return kgmsClient.update(id, graphRuleReq);
+        return kgmsClient.updateKgql(id, graphRuleReq);
     }
 }
