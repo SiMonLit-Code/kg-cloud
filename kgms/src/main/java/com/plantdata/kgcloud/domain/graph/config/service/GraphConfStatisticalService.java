@@ -19,6 +19,14 @@ public interface GraphConfStatisticalService {
 
     GraphConfStatisticalRsp createStatistical(String kgName, GraphConfStatisticalReq req);
 
+    /**
+     * 批量创建
+     * @param listReq
+     * @return
+     */
+    List<GraphConfStatisticalRsp> saveAll(String kgName ,List<GraphConfStatisticalReq> listReq);
+
+
 
 
     /**
@@ -28,6 +36,14 @@ public interface GraphConfStatisticalService {
      * @return
      */
     GraphConfStatisticalRsp updateStatistical(Long id, GraphConfStatisticalReq req);
+
+    /**
+     * 批量修改
+     * @param kgName
+     * @param reqs
+     * @return
+     */
+    List<GraphConfStatisticalRsp> updateAll(String kgName , List<GraphConfStatisticalReq> reqs);
 
 
 

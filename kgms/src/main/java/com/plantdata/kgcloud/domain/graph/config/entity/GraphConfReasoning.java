@@ -21,7 +21,6 @@ import java.util.Date;
 @Table(name = "graph_conf_reasoning")
 @EntityListeners(AuditingEntityListener.class)
 public class GraphConfReasoning {
-
     @Id
     @Column(name = "id")
     private Long id;

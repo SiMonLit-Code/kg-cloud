@@ -1,15 +1,9 @@
-package com.plantdata.kgcloud.domain.graph.config.rsp;
+package com.plantdata.kgcloud.sdk.rsp;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.plantdata.kgcloud.domain.common.converter.JsonNodeConcerter;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Id;
 
 /**
  * @description:

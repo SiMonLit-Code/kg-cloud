@@ -2,7 +2,9 @@ package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
+import com.plantdata.kgcloud.sdk.req.GraphConfFocusReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfFocusRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
 import io.swagger.annotations.Api;
@@ -29,10 +31,22 @@ public class GraphConfStatisticalController {
         return ApiReturn.success(graphConfStatisticalService.createStatistical(kgName,req));
     }
 
-    @ApiOperation("图谱配置-统计-更新统计")
+    @ApiOperation("图谱配置-统计-批量新建")
+    @PatchMapping("/statistical/{kgName}")
+    public ApiReturn<List<GraphConfStatisticalRsp>> saveStatisticalBatch(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfStatisticalReq> listReq) {
+        return ApiReturn.success(graphConfStatisticalService.saveAll(kgName,listReq));
+    }
+
+    @ApiOperation("图谱配置-统计-更新")
     @PatchMapping("/statistical/{id}")
     public ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req) {
         return ApiReturn.success(graphConfStatisticalService.updateStatistical(id, req));
+    }
+
+    @ApiOperation("图谱配置-统计-批量更新")
+    @PatchMapping("/statistical")
+    public ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfStatisticalReq> reqs) {
+        return ApiReturn.success(graphConfStatisticalService.saveAll(kgName,reqs));
     }
 
     @ApiOperation("图谱配置-统计-删除")
@@ -40,11 +54,11 @@ public class GraphConfStatisticalController {
     public ApiReturn deleteStatistical(@PathVariable("id") Long id) {
         graphConfStatisticalService.deleteStatistical(id);
         return ApiReturn.success();
-    }
+         }
 
-    @ApiOperation("图谱批量删除统计")
-    @DeleteMapping("/statistical/{ids}")
-    public ApiReturn batchDeleteStatistical(@PathVariable("ids") List<Long> ids) {
+    @ApiOperation("图谱配置-统计-批量删除")
+    @PatchMapping("/statistical/batch")
+    public ApiReturn deleteStatisticalBatch(@RequestBody List<Long> ids) {
         graphConfStatisticalService.deleteInBatch(ids);
         return ApiReturn.success();
     }

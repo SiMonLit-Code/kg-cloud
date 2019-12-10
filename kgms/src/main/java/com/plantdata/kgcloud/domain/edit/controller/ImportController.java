@@ -29,7 +29,7 @@ public class ImportController {
     @Autowired
     private ImportService importService;
 
-    @ApiOperation("概念导入")
+    @ApiOperation("模本文件下载")
     @GetMapping("/{kgName}/template")
     public ApiReturn getImportTemplate(@PathVariable("kgName") String kgName,
                                        ImportTemplateReq importTemplateReq,
