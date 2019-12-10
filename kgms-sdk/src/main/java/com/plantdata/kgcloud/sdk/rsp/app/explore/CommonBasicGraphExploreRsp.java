@@ -23,12 +23,9 @@ import java.util.List;
 @NoArgsConstructor
 public class CommonBasicGraphExploreRsp extends BasicGraphExploreRsp {
 
-    @ApiModelProperty("实例或者概念")
-    private List<CommonEntityRsp> entityList;
 
-    public CommonBasicGraphExploreRsp(List<BasicRelationRsp> relationList, Integer hasNextPage, List<CommonEntityRsp> entityList) {
-        super(relationList, hasNextPage);
-        this.entityList = entityList;
+    public CommonBasicGraphExploreRsp(List<GraphRelationRsp> relationList, Integer hasNextPage, List<CommonEntityRsp> entityList) {
+        super(relationList, entityList, hasNextPage);
     }
 
     public static final CommonBasicGraphExploreRsp EMPTY = new CommonBasicGraphExploreRsp(Collections.emptyList(), NumberUtils.INTEGER_ZERO, Collections.emptyList());

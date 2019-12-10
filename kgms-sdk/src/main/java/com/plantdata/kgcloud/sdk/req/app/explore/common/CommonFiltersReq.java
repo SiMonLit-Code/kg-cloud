@@ -29,7 +29,6 @@ public class CommonFiltersReq {
     @Min(value = 0, message = "hyponymyDistance最小值为0")
     @Max(value = 100, message = "hyponymyDistance最大值为100")
     private Integer hyponymyDistance;
-    @ApiModelProperty(value = "边附加属性排序参数")
-    private List<AttrSortReq> attSorts;
+
 
 }

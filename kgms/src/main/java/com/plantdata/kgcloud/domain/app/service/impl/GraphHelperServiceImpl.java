@@ -1,11 +1,18 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
-import ai.plantdata.kg.api.edit.GraphApi;
-import ai.plantdata.kg.api.edit.resp.SchemaVO;
+import ai.plantdata.kg.api.pub.EntityApi;
+import ai.plantdata.kg.api.pub.RelationApi;
 import ai.plantdata.kg.api.pub.SchemaApi;
+import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.plantdata.kgcloud.domain.app.bo.GraphCommonBO;
+import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
+import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
+import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
@@ -14,6 +21,9 @@ import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -23,9 +33,13 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,6 +58,11 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     private GraphHelperService graphHelperService;
     @Autowired
     private ConceptEntityApi conceptEntityApi;
+    @Autowired
+    private RelationApi relationApi;
+    @Autowired
+    private EntityApi entityApi;
+
 
     @Override
     public Map<Long, BasicInfo> getConceptIdMap(String kgName) {
@@ -52,12 +71,12 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     }
 
     @Override
-    public <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp) {
+    public <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, boolean relationMerge) {
         //统计
         List<GraphStatisticRsp> statisticRspList = DefaultUtils.getIfNoNull(configList, GraphRspConverter.buildStatisticResult(graphVO, configList));
         //组装结果
         Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
-        return GraphRspConverter.graphVoToStatisticRsp(graphVO, statisticRspList, conceptIdMap, pathAnalysisRsp);
+        return GraphRspConverter.graphVoToStatisticRsp(graphVO, statisticRspList, conceptIdMap, pathAnalysisRsp, relationMerge);
     }
 
     @Override
@@ -74,7 +93,6 @@ public class GraphHelperServiceImpl implements GraphHelperService {
         if (CollectionUtils.isEmpty(exploreReq.getReplaceClassIds()) && !CollectionUtils.isEmpty(exploreReq.getReplaceClassKeys())) {
             exploreReq.setReplaceClassIds(replaceByConceptKey(kgName, exploreReq.getReplaceClassKeys()));
         }
-
         //replace attrGroupIds->attrIds
         if (!CollectionUtils.isEmpty(exploreReq.getAllowAttrGroups())) {
             List<GraphAttrGroupDetails> detailsList = graphAttrGroupDetailsRepository.findAllByGroupIdIn(exploreReq.getAllowAttrGroups());
@@ -86,6 +104,46 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             }
         }
         return exploreReq;
+    }
+
+
+    /**
+     * 后置筛选
+     *
+     * @return
+     */
+    @Override
+    public <T extends BasicGraphExploreRsp, E extends BasicGraphExploreReq> Optional<T> dealByGraphReq(String kgName, E req, T rsp) {
+        if(req.getGraphReq()==null){
+            return Optional.empty();
+        }
+        if (rsp.getEntityList() == null && rsp.getRelationList() == null) {
+            return Optional.empty();
+        }
+        rsp.setEntityList(req.getGraphReq().getEntityList());
+        rsp.setRelationList(req.getGraphReq().getRelationList());
+
+        FilterRelationFrom relationFrom = InfoBoxConverter.reqToFilterRelationFrom(rsp, req.getEdgeAttrFilters(), req.getReservedEdgeAttrFilters());
+
+        //关系筛选
+        List<GraphRelationRsp> relationList = rsp.getRelationList();
+        if (!relationFrom.getRelationAttrFilters().isEmpty() || !relationFrom.getMetaFilters().isEmpty()) {
+            Optional<List<String>> relationOpt = RestRespConverter.convert(relationApi.filterRelation(kgName, relationFrom));
+            Set<String> relationIds = !relationOpt.isPresent() ? Collections.emptySet() : Sets.newHashSet(relationOpt.get());
+            rsp.setRelationList(relationList.stream().filter(a -> relationIds.contains(a.getId())).collect(Collectors.toList()));
+        }
+        //实体筛选
+        List<CommonEntityRsp> entity = rsp.getEntityList();
+        Map<String, Object> queryMaps = ConditionConverter.entityListToMap(req.getEntityFilters());
+        if (!queryMaps.isEmpty()) {
+            List<Long> entityIds = entity.stream().map(CommonEntityRsp::getId).collect(Collectors.toList());
+            Optional<List<Long>> entityIdOpt = RestRespConverter.convert(entityApi.filterIds(kgName, EntityConverter.buildEntityFilterFrom(entityIds, queryMaps)));
+            Set<Long> entityIdSet = !entityIdOpt.isPresent() ? Collections.emptySet() : Sets.newHashSet(entityIdOpt.get());
+            rsp.setEntityList(entity.stream().filter(a -> entityIdSet.contains(a.getId())).collect(Collectors.toList()));
+        }
+        GraphCommonBO.removeNoUseRelation(rsp);
+        return Optional.of(rsp);
+
     }
 
     @Override

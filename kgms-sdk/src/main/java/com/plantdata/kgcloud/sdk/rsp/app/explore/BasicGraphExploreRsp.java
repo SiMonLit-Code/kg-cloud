@@ -21,7 +21,9 @@ import java.util.List;
 @NoArgsConstructor
 public class BasicGraphExploreRsp {
     @ApiModelProperty("关系")
-    private List<BasicRelationRsp> relationList;
+    private List<GraphRelationRsp> relationList;
+    @ApiModelProperty("实例列表")
+    private List<CommonEntityRsp> entityList;
     @ApiModelProperty("是否有下一页 1 有 0无")
     private Integer hasNextPage;
 }

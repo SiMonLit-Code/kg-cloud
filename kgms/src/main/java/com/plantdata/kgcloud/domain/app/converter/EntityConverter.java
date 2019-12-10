@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.kg.api.pub.req.EntityFilterFrom;
 import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
@@ -50,6 +51,14 @@ public class EntityConverter {
         entityFrom.setReadReverseObjectAttribute(false);
         return entityFrom;
     }
+
+    public static EntityFilterFrom buildEntityFilterFrom(List<Long> entityIdSet,Map<String,Object> kvMap){
+        EntityFilterFrom entityFilterFrom = new EntityFilterFrom();
+        entityFilterFrom.setKvMap(kvMap);
+        entityFilterFrom.setIds(entityIdSet);
+        return entityFilterFrom;
+    }
+
 
     public static <T extends BasicEntityRsp> T voToBasicEntityRsp(EntityVO entityVO, T entity) {
         entity.setId(entityVO.getId());

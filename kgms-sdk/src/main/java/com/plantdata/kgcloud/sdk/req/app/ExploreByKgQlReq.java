@@ -24,4 +24,6 @@ public class ExploreByKgQlReq {
     @ApiModelProperty("kgQl语句")
     @NotEmpty
     private String kgQl;
+    @ApiModelProperty("关系是否合并")
+    private boolean relationMerge;
 }

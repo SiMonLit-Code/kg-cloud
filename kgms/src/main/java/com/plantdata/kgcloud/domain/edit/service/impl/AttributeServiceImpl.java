@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
+import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
@@ -33,6 +34,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.domain.edit.util.AttrConverterUtils;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -162,6 +164,16 @@ public class AttributeServiceImpl implements AttributeService {
         return optional.map(result -> result.getError().stream()
                 .map(vo -> MapperUtils.mapAttr(vo,AttrDefinitionBatchRsp.class))
                 .collect(Collectors.toList())).orElse(null);
+    }
+
+    @Override
+    public OpenBatchResult<AttrDefinitionBatchRsp> batchUpdate(String kgName, List<AttrDefinitionReq> attrDefinitionReqs) {
+        List<AttributeDefinitionVO> voList =
+                attrDefinitionReqs.stream().map(
+                        AttrConverterUtils::attrDefinitionReqConvert
+                ).collect(Collectors.toList());
+
+        return RestCopyConverter.copyRestRespResult(batchApi.updateAttributes(kgName, voList), new OpenBatchResult<>());
     }
 
     @Override

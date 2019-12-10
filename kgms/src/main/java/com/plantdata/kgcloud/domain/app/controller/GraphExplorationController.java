@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
+import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -47,11 +49,13 @@ public class GraphExplorationController {
     private GraphExplorationService graphExplorationService;
     @Autowired
     private GraphApplicationService graphApplicationService;
+    @Autowired
+    private GraphHelperService graphHelperService;
 
     @ApiOperation("初始化图探索数据")
     @PostMapping("init/{kgName}")
     public ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @ApiParam(value = "图类型", required = true)@RequestBody String type) throws JsonProcessingException {
+                                                        @ApiParam(value = "图类型", required = true) @RequestParam("type") String type) throws JsonProcessingException {
         Optional<GraphInitBaseEnum> enumObject = EnumUtils.getEnumObject(GraphInitBaseEnum.class, type);
         if (!enumObject.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.GRAPH_TYPE_ERROR);
@@ -85,23 +89,24 @@ public class GraphExplorationController {
     @PostMapping("common/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                         @RequestBody @Valid CommonExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
-
-        return ApiReturn.success(graphExplorationService.commonGraphExploration(kgName, exploreParam));
+        Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.dealByGraphReq(kgName, exploreParam, new CommonBasicGraphExploreRsp());
+        return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphExplorationService.commonGraphExploration(kgName, exploreParam)));
     }
 
     @ApiOperation("时序图探索")
     @PostMapping("timing/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> timingGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                         @RequestBody @Valid CommonTimingExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
-
-        return ApiReturn.success(graphExplorationService.timeGraphExploration(kgName, exploreParam));
+        Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.dealByGraphReq(kgName, exploreParam, new CommonBasicGraphExploreRsp());
+        return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphExplorationService.timeGraphExploration(kgName, exploreParam)));
     }
 
     @ApiOperation("推理图探索")
     @PostMapping("reasoning/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                            @RequestBody @Valid CommonReasoningExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
-        return ApiReturn.success(graphExplorationService.reasoningGraphExploration(kgName, exploreParam));
+        Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.dealByGraphReq(kgName, exploreParam, new CommonBasicGraphExploreRsp());
+        return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphExplorationService.reasoningGraphExploration(kgName, exploreParam)));
     }
 
 }

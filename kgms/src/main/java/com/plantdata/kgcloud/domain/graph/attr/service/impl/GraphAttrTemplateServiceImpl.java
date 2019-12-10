@@ -4,7 +4,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrTemplateReq;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
-import com.plantdata.kgcloud.domain.edit.vo.BasicInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrTemplate;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrTemplateRepository;
 import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrTemplateRsp;

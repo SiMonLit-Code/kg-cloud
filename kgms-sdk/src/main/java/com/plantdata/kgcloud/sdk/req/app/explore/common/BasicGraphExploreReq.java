@@ -1,8 +1,11 @@
 package com.plantdata.kgcloud.sdk.req.app.explore.common;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +32,6 @@ public class BasicGraphExploreReq {
     private List<Long> replaceClassIds;
     @ApiModelProperty("实例id")
     private List<String> replaceClassKeys;
-    @ApiModelProperty("实例筛选")
-    private List<EntityQueryFiltersReq> entityQueryFilters;
     @ApiModelProperty("读取层数")
     private Integer distance;
     @ApiModelProperty("是否关系合并")
@@ -47,12 +48,17 @@ public class BasicGraphExploreReq {
     private List<String> allowConceptsKey;
     @ApiModelProperty("指定屬性分组")
     private List<Long> allowAttrGroups;
-    @ApiModelProperty("边属性过滤条件")
-    private RelationAttrReq relationAttr;
-    @ApiModelProperty("要保留的边属性过滤条件")
-    private RelationAttrReq reservedAttFilters;
     @ApiModelProperty("分页")
     private BaseReq page;
 
-
+    @ApiModelProperty("实例筛选")
+    private List<EntityQueryFiltersReq> entityFilters;
+    @ApiModelProperty("边属性过滤条件")
+    private List<RelationAttrReq> edgeAttrFilters;
+    @ApiModelProperty(value = "边附加属性排序参数")
+    private List<AttrSortReq> edgeAttrSorts;
+    @ApiModelProperty("要保留的边属性过滤条件")
+    private List<RelationAttrReq> reservedEdgeAttrFilters;
+    @ApiModelProperty("要求的参数")
+    private BasicGraphExploreRsp graphReq;
 }

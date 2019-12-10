@@ -8,16 +8,20 @@ import ai.plantdata.kg.api.pub.resp.SimpleEntity;
 import ai.plantdata.kg.api.pub.resp.SimpleRelation;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
+import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.ImageConverter;
 import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.ExploreConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
@@ -25,6 +29,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -62,8 +67,19 @@ public class GraphCommonConverter {
      */
     static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(BaseReq page, T exploreReq, E graphFrom) {
         CommonFilter commonFilter = new GraphFrom();
-        commonFilter.setSkip(NumberUtils.INTEGER_ZERO);
-        commonFilter.setLimit(exploreReq.getHighLevelSize());
+        commonFilter.setSkip(page.getOffset());
+        commonFilter.setLimit(exploreReq.getHighLevelSize() == null ? page.getLimit() : exploreReq.getHighLevelSize());
+        if (!CollectionUtils.isEmpty(exploreReq.getEntityFilters())) {
+            commonFilter.setEdgeFilter(ConditionConverter.entityListToMap(exploreReq.getEntityFilters()));
+        }
+        //设置边属性筛选
+        if (!CollectionUtils.isEmpty(exploreReq.getEdgeAttrFilters())) {
+            commonFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(exploreReq.getEdgeAttrFilters())));
+        }
+        if (!CollectionUtils.isEmpty(exploreReq.getEdgeAttrSorts())) {
+            commonFilter.setEdgeSort(ConditionConverter.relationAttrSortToMap(exploreReq.getEdgeAttrSorts()));
+        }
+
         graphFrom.setHighLevelFilter(commonFilter);
         graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
         graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
@@ -80,8 +96,10 @@ public class GraphCommonConverter {
         MetaData relationMetaData = new MetaData();
         relationMetaData.setRead(true);
         graphFrom.setRelationMeta(relationMetaData);
+
         return graphFrom;
     }
+
 
     /**
      * 关系转换
@@ -89,30 +107,49 @@ public class GraphCommonConverter {
      * @param simpleRelationList 关系结果
      * @return 。。。
      */
-    static List<BasicRelationRsp> simpleRelationToBasicRelationRsp(@NonNull List<SimpleRelation> simpleRelationList) {
-        List<BasicRelationRsp> relationRspList = Lists.newArrayList();
-        BasicRelationRsp relationRsp;
+    static List<GraphRelationRsp> simpleRelationToGraphRelationRsp(@NonNull List<SimpleRelation> simpleRelationList, boolean relationMerge) {
+        List<GraphRelationRsp> relationRspList = Lists.newArrayList();
+        GraphRelationRsp relationRsp;
+        Map<Long, Set<Long>> relationMap = Maps.newHashMap();
         for (SimpleRelation relation : simpleRelationList) {
-            relationRsp = new BasicRelationRsp();
+
+
+            relationRsp = new GraphRelationRsp();
             relationRsp.setAttId(relation.getAttrId());
             relationRsp.setAttName(relation.getAttrName());
             relationRsp.setDirection(relation.getDirection());
             relationRsp.setStartTime(relation.getAttrTimeFrom());
             relationRsp.setEndTime(relation.getAttrTimeFrom());
             relationRsp.setId(relation.getId());
+            if (!CollectionUtils.isEmpty(relation.getMetaData())) {
+                Map<String, Object> additionalMap = (Map<String, Object>) relation.getMetaData().get(MetaDataInfo.ADDITIONAL.getFieldName());
+                relationRsp.setLabelStyle((Map<String, Object>) additionalMap.get("labelStyle"));
+                relationRsp.setLinkStyle((Map<String, Object>) additionalMap.get("linkStyle"));
+            }
             if (!CollectionUtils.isEmpty(relation.getEdgeNumericAttr())) {
                 relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
             }
             if (!CollectionUtils.isEmpty(relation.getEdgeObjAttr())) {
                 relationRsp.setObjAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
             }
-            relationRspList.add(relationRsp);
+            if (!relationMerge) {
+                relationRspList.add(relationRsp);
+                continue;
+            }
+            //关系合并
+            Set<Long> toSet = relationMap.computeIfAbsent(relation.getFrom(), Sets::newHashSet);
+            if (toSet.contains(relation.getTo())) {
+                relationRsp.getSourceRelationList().add(relationRsp);
+            } else {
+                relationRspList.add(relationRsp);
+                toSet.add(relation.getTo());
+            }
         }
         return relationRspList;
     }
 
     private static List<BasicRelationRsp.EdgeInfo> edgeVoListToEdgeInfo(@NonNull List<EdgeVO> edgeList) {
-        return edgeList.stream().map(a -> new BasicRelationRsp.EdgeInfo(a.getName(), a.getSeqNo(), a.getValue())).collect(Collectors.toList());
+        return edgeList.stream().map(a -> new BasicRelationRsp.EdgeInfo(a.getName(), a.getSeqNo(), a.getValue(), null, null)).collect(Collectors.toList());
     }
 
     /**

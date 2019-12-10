@@ -27,9 +27,9 @@ public class AttributeDefinitionRsp {
     @ApiModelProperty("属性定义类型")
     private Integer type;
     @ApiModelProperty("属性值域")
-    private List<Long> range;
+    private List<Long> rangeValue;
     @ApiModelProperty("所属概念id")
-    private Long domain;
+    private Long domainValue;
     @ApiModelProperty("属性值的类型")
     private Integer dataType;
     private List<AttributeExtraInfoItem> extraInfos;

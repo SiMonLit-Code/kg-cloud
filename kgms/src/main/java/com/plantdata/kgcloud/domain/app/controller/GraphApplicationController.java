@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
@@ -10,7 +11,6 @@ import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
@@ -78,9 +78,9 @@ public class GraphApplicationController {
 
     @ApiOperation("获取概念树")
     @GetMapping("concept/{kgName}")
-    public ApiReturn<List<BasicConceptRsp>> conceptTree(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @ApiParam("概念id 0或不传查询全部") @RequestParam("conceptId") Long conceptId,
-                                                        @ApiParam("概念唯一标识概念id为null时有效") @RequestParam("conceptKey") String conceptKey) {
+    public ApiReturn<List<BasicInfoVO>> conceptTree(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                    @ApiParam("概念id 0或不传查询全部") @RequestParam("conceptId") Long conceptId,
+                                                    @ApiParam("概念唯一标识概念id为null时有效") @RequestParam("conceptKey") String conceptKey) {
         return ApiReturn.success(graphApplicationService.conceptTree(kgName, conceptId, conceptKey));
     }
 

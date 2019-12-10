@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.app.converter;
+package com.plantdata.kgcloud.domain.common.converter;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;

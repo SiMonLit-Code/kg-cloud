@@ -31,8 +31,8 @@ public class AttrDefConverter {
             attrDefReq.setKey(att.getKey());
             attrDefReq.setType(att.getType());
             attrDefReq.setDirection(att.getDirection());
-            attrDefReq.setRange(att.getRangeValue());
-            attrDefReq.setDomain(att.getDomainValue());
+            attrDefReq.setRangeValue(att.getRangeValue());
+            attrDefReq.setDomainValue(att.getDomainValue());
             attrDefReq.setDataType(att.getDataType());
             if (!CollectionUtils.isEmpty(att.getExtraInfo())) {
                 List<AttributeExtraInfoItem> extraInfoItemList = att.getExtraInfo().stream().map(a -> {

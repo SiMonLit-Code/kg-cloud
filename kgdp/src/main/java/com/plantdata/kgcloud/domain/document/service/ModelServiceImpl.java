@@ -216,7 +216,7 @@ public class ModelServiceImpl implements ModelService {
                                 dataBean.setAttId(attBean.getId().intValue());
                                 dataBean.setAttType(attBean.getType().intValue());
                                 dataBean.setAttDataType(attBean.getDataType());
-                                dataBean.setAttRange(attBean.getRange());
+                                dataBean.setAttRange(attBean.getRangeValue());
                             }
                         }
 
