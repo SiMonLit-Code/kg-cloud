@@ -30,7 +30,7 @@ public class GraphConfQaController {
     }
 
 
-    @ApiOperation("图谱配置-问答-查询")
+    @ApiOperation("图谱配置-问答-获取")
     @GetMapping("/qa/{kgName}")
     public ApiReturn<List<GraphConfQaRsp>> selectQa(@PathVariable("kgName") String kgName) {
         return ApiReturn.success(graphConfQaService.findByKgName(kgName));
