@@ -4,10 +4,12 @@ import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -24,5 +26,8 @@ public interface GraphHelperService {
 
     <T extends BasicGraphExploreReq> T dealGraphReq(String kgName, T exploreReq);
 
-    <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp);
+    <T extends BasicGraphExploreRsp,E extends BasicGraphExploreReq> Optional<T> dealByGraphReq(String kgName, E req, T rsp);
+
+    <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, boolean relationMerge);
+
 }

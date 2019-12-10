@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.sdk.rsp.app.analysis;
 
-import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 import io.swagger.annotations.ApiModel;
@@ -24,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 public class PathAnalysisRsp extends StatisticRsp {
 
-    public PathAnalysisRsp(List<BasicRelationRsp> relationList, Integer hasNextPage, List<CommonEntityRsp> entityList, List<GraphStatisticRsp> statisticResult) {
+    public PathAnalysisRsp(List<GraphRelationRsp> relationList, Integer hasNextPage, List<CommonEntityRsp> entityList, List<GraphStatisticRsp> statisticResult) {
         super(relationList, hasNextPage, entityList, statisticResult);
     }
 }

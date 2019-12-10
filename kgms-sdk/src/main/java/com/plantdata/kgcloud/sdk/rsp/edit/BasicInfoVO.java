@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.edit.vo;
+package com.plantdata.kgcloud.sdk.rsp.edit;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;

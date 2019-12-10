@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.rsp.app;
 
-import com.plantdata.kgcloud.sdk.rsp.app.explore.StyleRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 
 import java.util.Date;
@@ -70,11 +69,5 @@ public interface MetaDataInterface {
 
     }
 
-    /**
-     * 标签
-     * @param style .
-     */
-    default void  setStyle(StyleRsp style){
 
-    }
 }

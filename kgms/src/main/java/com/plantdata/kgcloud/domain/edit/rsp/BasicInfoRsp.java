@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.rsp;
 
 
-import com.plantdata.kgcloud.domain.edit.vo.BasicInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;

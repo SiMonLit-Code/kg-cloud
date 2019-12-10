@@ -19,13 +19,14 @@ import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
+import com.plantdata.kgcloud.domain.edit.service.ConceptService;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfFocusRepository;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.converter.AttrDefConverter;
@@ -74,7 +75,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private GraphConfFocusRepository graphConfFocusRepository;
     @Autowired
     private GraphHelperService graphHelperService;
-
+    @Autowired
+    private  ConceptService conceptService;
     @Override
     public SchemaRsp querySchema(String kgName) {
         SchemaRsp schemaRsp = new SchemaRsp();
@@ -151,7 +153,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     }
 
     @Override
-    public List<BasicConceptRsp> conceptTree(String kgName, Long conceptId, String conceptKey) {
+    public List<BasicInfoVO> conceptTree(String kgName, Long conceptId, String conceptKey) {
         if (null == conceptId && null == conceptKey) {
             throw BizException.of(AppErrorCodeEnum.NULL_CONCEPT_ID_AND_KEY);
         }
@@ -162,19 +164,17 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (conceptId == null) {
             conceptId = NumberUtils.LONG_ZERO;
         }
-        Optional<List<BasicInfo>> conceptOpt = RestRespConverter.convert(conceptEntityApi.tree(kgName, conceptId));
-        if (!conceptOpt.isPresent()) {
-            return Collections.emptyList();
-        }
-        return ConceptConverter.voToBasic(conceptOpt.get());
+
+        return conceptService.getConceptTree(kgName, conceptId);
     }
 
     @Override
     public List<InfoBoxRsp> infoBox(String kgName, InfoBoxReq req) {
         KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();
         entityFrom.setIds(req.getEntityIdList());
-        entityFrom.setReadObjectAttribute(req.getIsRelationAttrs());
-
+        entityFrom.setReadObjectAttribute(req.getRelationAttrs());
+        entityFrom.setReadMetaData(false);
+        entityFrom.setReadReverseObjectAttribute(req.getReverseRelationAttrs());
         if (!CollectionUtils.isEmpty(req.getAllowAttrs())) {
             entityFrom.setAllowAtts(req.getAllowAttrs());
         } else if (!CollectionUtils.isEmpty(req.getAllowAttrsKey())) {

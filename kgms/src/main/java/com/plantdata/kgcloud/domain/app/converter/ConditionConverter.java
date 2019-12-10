@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import com.google.common.collect.Maps;
+import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
+import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -16,6 +19,35 @@ import java.util.stream.Collectors;
  * @date 2019/11/29 15:37
  */
 public class ConditionConverter {
+
+    public static Map<String, Map<String, Object>> relationAttrReqToMap(List<RelationAttrReq> attrReqList) {
+        return attrReqList.stream().collect(Collectors.toMap(a -> String.valueOf(a.getAttrId()), ConditionConverter::relationAttrReqToSeqMap));
+    }
+
+    public static Map<String, Integer> relationAttrSortToMap(List<AttrSortReq> sortReqList) {
+
+        return sortReqList.stream().collect(Collectors.toMap(a -> "attr_ext" + a.getAttrId() + "_" + a.getSeqNo(), AttrSortReq::getSort));
+    }
+
+
+    private static Map<String, Object> relationAttrReqToSeqMap(RelationAttrReq attrReq) {
+
+        Map<String, Object> seqMap = Maps.newHashMap();
+
+
+        Map<String, Object> map = Maps.newHashMap();
+        if (attrReq.getGt() != null) {
+            map.put("$gt", attrReq.getGt());
+        }
+        if (attrReq.getLt() != null) {
+            map.put("$lt", attrReq.getEq());
+        }
+        if (attrReq.getEq() != null) {
+            map.put("$eq", attrReq.getEq());
+        }
+        seqMap.put(String.valueOf(attrReq.getSeqNo()), map);
+        return seqMap;
+    }
 
 
     public static List<Map<String, Object>> entityScreeningListToMap(List<EntityQueryFiltersReq> entityScreeningList) {
@@ -39,7 +71,7 @@ public class ConditionConverter {
         return lists.stream().map(ConditionConverter::entityListToMap).collect(Collectors.toList());
     }
 
-    private static Map<String, Object> entityListToMap(List<EntityQueryFiltersReq> entityScreeningList) {
+    public static Map<String, Object> entityListToMap(List<EntityQueryFiltersReq> entityScreeningList) {
         if (entityScreeningList == null) {
             return Collections.emptyMap();
         }

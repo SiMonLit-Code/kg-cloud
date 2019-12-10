@@ -99,7 +99,7 @@ public interface EditClient {
      * @return 。
      */
     @PostMapping("attribute/relation/insert/{kgName}")
-    ApiReturn<BatchRelationRsp> importRelation(@PathVariable("kgName")  String kgName,
+    ApiReturn<BatchRelationRsp> importRelation(@PathVariable("kgName") String kgName,
                                                @RequestBody BatchRelationRsp relation);
 
     /**
@@ -124,10 +124,17 @@ public interface EditClient {
     ApiReturn updateAttrDefinition(@PathVariable("kgName") String kgName,
                                    @RequestBody AttrDefinitionModifyReq modifyReq);
 
-    @ApiOperation("批量修改属性定义")
-    @PatchMapping("/{kgName}/definition/batch")
+    /**
+     * 批量修改属性定义
+     *
+     * @param kgName             图谱名称
+     * @param attrDefinitionReqs req
+     * @return .
+     */
+    @PatchMapping("attribute/{kgName}/definition/batch")
     ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModifyAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                                @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
+                                                                                 @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
+
     /**
      * 批量删除实体
      *
