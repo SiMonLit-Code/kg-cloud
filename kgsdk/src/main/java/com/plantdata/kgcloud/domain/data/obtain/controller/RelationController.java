@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import io.swagger.annotations.ApiOperation;
@@ -31,10 +32,10 @@ public class RelationController implements GraphDataObtainInterface {
 
     @ApiOperation("批量关系新增")
     @PostMapping("relation/insert/{kgName}")
-    public ApiReturn<BatchRelationRsp> importRelation(@PathVariable("kgName") String kgName,
-                                                      @RequestBody BatchRelationRsp relation) {
+    public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
+                                                                       @RequestBody List<BatchRelationRsp> batchRelationList) {
 
-        return editClient.importRelation(kgName, relation);
+        return editClient.importRelation(kgName, batchRelationList);
     }
 
     @ApiOperation("批量关系删除")

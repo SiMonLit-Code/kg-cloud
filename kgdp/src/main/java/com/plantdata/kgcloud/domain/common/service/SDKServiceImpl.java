@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
@@ -37,15 +38,15 @@ public class SDKServiceImpl implements SDKService {
         promptReq.getConceptIds().add(conceptId);
         promptReq.setKw(name);
 
-        ApiReturn<List<PromptEntityRsp>> apiReturn = appClient.prompt(kgName,promptReq);
+        ApiReturn<List<PromptEntityRsp>> apiReturn = appClient.prompt(kgName, promptReq);
 
-        if(apiReturn.getErrCode() != 200){
+        if (apiReturn.getErrCode() != 200) {
             throw BizException.of(KgDocumentErrorCodes.HTTP_ERROR);
         }
 
         List<PromptEntityRsp> promptEntityRspList = apiReturn.getData();
 
-        if(Objects.nonNull(promptEntityRspList) && !promptEntityRspList.isEmpty()){
+        if (Objects.nonNull(promptEntityRspList) && !promptEntityRspList.isEmpty()) {
             return promptEntityRspList.get(0).getId();
         }
 
@@ -58,13 +59,13 @@ public class SDKServiceImpl implements SDKService {
         infoBoxReq.setEntityIdList(Stream.of(entityId).collect(Collectors.toList()));
 
 
-        ApiReturn<List<InfoBoxRsp>> apiReturn = appClient.infoBox(kgName,infoBoxReq);
-        if(apiReturn.getErrCode() != 200){
+        ApiReturn<List<InfoBoxRsp>> apiReturn = appClient.infoBox(kgName, infoBoxReq);
+        if (apiReturn.getErrCode() != 200) {
             throw BizException.of(KgDocumentErrorCodes.HTTP_ERROR);
         }
 
         List<InfoBoxRsp> infoBoxRspList = apiReturn.getData();
-        if(Objects.nonNull(infoBoxReq) && !infoBoxRspList.isEmpty()){
+        if (Objects.nonNull(infoBoxReq) && !infoBoxRspList.isEmpty()) {
             return infoBoxRspList.get(0);
         }
 
@@ -75,14 +76,14 @@ public class SDKServiceImpl implements SDKService {
     @Override
     public List<BatchRelationRsp> addBatchRelation(String kgName, List<BatchRelationRsp> relationList) {
 
-        ApiReturn<BatchRelationRsp> apiReturn = editClient.importRelation(kgName,relationList.get(0));
-        if(apiReturn.getErrCode() != 200){
+        ApiReturn<OpenBatchResult<BatchRelationRsp>> openBatchResultApiReturn = editClient.importRelation(kgName, relationList);
+        if (openBatchResultApiReturn.getErrCode() != 200) {
             throw BizException.of(KgDocumentErrorCodes.HTTP_ERROR);
         }
 
-        BatchRelationRsp relationRsp = apiReturn.getData();
-        if(Objects.nonNull(relationRsp)){
-            return Lists.newArrayList(relationRsp);
+        List<BatchRelationRsp> relationRsp = openBatchResultApiReturn.getData().getSuccess();
+        if (Objects.nonNull(relationRsp)) {
+            return relationRsp;
         }
 
         return null;
@@ -90,13 +91,13 @@ public class SDKServiceImpl implements SDKService {
 
     @Override
     public List<OpenBatchSaveEntityRsp> addBatchEntity(String kgName, List<OpenBatchSaveEntityRsp> entityList) {
-        ApiReturn<List<OpenBatchSaveEntityRsp>> apiReturn = editClient.saveOrUpdate(kgName,true,entityList);
-        if(apiReturn.getErrCode() != 200){
+        ApiReturn<List<OpenBatchSaveEntityRsp>> apiReturn = editClient.saveOrUpdate(kgName, true, entityList);
+        if (apiReturn.getErrCode() != 200) {
             throw BizException.of(KgDocumentErrorCodes.HTTP_ERROR);
         }
 
         List<OpenBatchSaveEntityRsp> entityRspList = apiReturn.getData();
-        if(Objects.nonNull(entityRspList) && !entityRspList.isEmpty()){
+        if (Objects.nonNull(entityRspList) && !entityRspList.isEmpty()) {
             return entityRspList;
         }
 
