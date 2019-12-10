@@ -16,6 +16,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 @EnableApolloConfig
 @EnableFeignClients(basePackages = CommonConstants.FeignConst.BASE_PKG)
 public class KgpreviewApplication extends SpringBootServletInitializer {
+
     public static void main(String[] args) {
         ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(KgpreviewApplication.class, args);
         PropertyUtils.printEnvAll(configurableApplicationContext);

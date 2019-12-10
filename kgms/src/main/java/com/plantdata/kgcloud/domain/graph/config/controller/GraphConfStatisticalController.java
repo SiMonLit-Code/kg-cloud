@@ -29,7 +29,7 @@ public class GraphConfStatisticalController {
         return ApiReturn.success(graphConfStatisticalService.createStatistical(kgName,req));
     }
 
-    @ApiOperation("图谱配置-统计-更新")
+    @ApiOperation("图谱配置-统计-更新统计")
     @PatchMapping("/statistical/{id}")
     public ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req) {
         return ApiReturn.success(graphConfStatisticalService.updateStatistical(id, req));
@@ -42,20 +42,20 @@ public class GraphConfStatisticalController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("图谱配置-统计-批量删除")
+    @ApiOperation("图谱批量删除统计")
     @DeleteMapping("/statistical/{ids}")
     public ApiReturn batchDeleteStatistical(@PathVariable("ids") List<Long> ids) {
         graphConfStatisticalService.deleteInBatch(ids);
         return ApiReturn.success();
     }
 
-    @ApiOperation("图谱配置-统计-获取")
+    @ApiOperation("图谱配置-统计-查询")
     @GetMapping("/statistical/{kgName}")
     public ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName) {
         return ApiReturn.success(graphConfStatisticalService.findByKgName(kgName));
     }
 
-    @ApiOperation("图谱配置-统计-获取所有")
+    @ApiOperation("图谱配置-统计-查询所有")
     @GetMapping("/statistical")
     public ApiReturn<List<GraphConfStatisticalRsp>> selectStatisticalAll() {
         return ApiReturn.success(graphConfStatisticalService.findAll());

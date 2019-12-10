@@ -24,8 +24,6 @@ public class StatisticConfigReq {
     @ApiModelProperty("统计类型")
     private String type;
     @ApiModelProperty("统计规则")
-    /**
-     *todo 修改为对象
-     */
+
     private Map<String, Object> rule;
 }

@@ -24,14 +24,14 @@ public class GraphConfReasonController {
     @Autowired
     private GraphConfReasonService graphConfReasoningService;
 
-    @ApiOperation("图谱配置-推理-新建")
+    @ApiOperation("图谱配置-推理-新增")
     @PostMapping("/reason/{kgName}")
     public ApiReturn<GraphConfReasonRsp> saveReasoning(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfReasonReq req) {
         return ApiReturn.success(graphConfReasoningService.createReasoning(kgName,req));
     }
 
 
-    @ApiOperation("图谱配置-推理-获取所有")
+    @ApiOperation("图谱配置-推理-查询所有")
     @GetMapping("/reason")
     public ApiReturn<List<GraphConfReasonRsp>> selectReasoninglAll() {
         return ApiReturn.success(graphConfReasoningService.findAll());
