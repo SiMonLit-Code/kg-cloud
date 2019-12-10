@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.scene.service;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgDocumentErrorCodes;
-import com.plantdata.kgcloud.domain.document.entity.Document;
 import com.plantdata.kgcloud.domain.scene.entiy.Scene;
 import com.plantdata.kgcloud.domain.scene.repository.SceneRepository;
 import com.plantdata.kgcloud.domain.scene.req.SceneQueryReq;
@@ -15,18 +14,12 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -135,17 +128,17 @@ public class SceneServiceImpl implements SceneService {
             for (AttributeDefinitionRsp attr : attrs) {
                 Integer attId = attIds.get(attr.getId());
                 attr.setId(attId);
-                Integer domain = typeIds.get(attr.getDomain());
-                attr.setDomain(domain.longValue());
+                Integer domain = typeIds.get(attr.getDomainValue());
+                attr.setDomainValue(domain.longValue());
 
-                if(attr.getRange() != null && !attr.getRange().isEmpty()){
-                    List<Long> rangeList = new ArrayList<>(attr.getRange().size());
-                    for(Long range : attr.getRange()){
+                if(attr.getRangeValue() != null && !attr.getRangeValue().isEmpty()){
+                    List<Long> rangeList = new ArrayList<>(attr.getRangeValue().size());
+                    for(Long range : attr.getRangeValue()){
                         Integer rangeId = typeIds.get(range);
                         rangeList.add(rangeId.longValue());
                     }
 
-                    attr.setRange(rangeList);
+                    attr.setRangeValue(rangeList);
                 }
             }
         }

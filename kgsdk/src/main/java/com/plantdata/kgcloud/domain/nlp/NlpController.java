@@ -61,7 +61,7 @@ public class NlpController implements NaturalLanguageProcessingInterface {
     }
 
     @ApiOperation("语义关联")
-    @PostMapping("/intent")
+    @PostMapping("association")
     public ApiReturn<IntentDataBean> intent(
             @ApiParam(value = "图谱名称") @RequestParam("kgName") String kgName,
             @ApiParam(value = "自然语言输入") @RequestParam("query") String query,

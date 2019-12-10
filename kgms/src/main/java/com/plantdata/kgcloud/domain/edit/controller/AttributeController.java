@@ -4,13 +4,14 @@ import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.converter.RestCopyConverter;
+import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
+import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
@@ -31,7 +32,6 @@ import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,8 +47,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.plantdata.kgcloud.domain.graph.config.constant.FocusType.relation;
 
 /**
  * @Author: LinHo
@@ -105,6 +103,13 @@ public class AttributeController {
     ApiReturn<List<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
                                                                    @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchAddAttrDefinition(kgName, attrDefinitionReqs));
+    }
+
+    @ApiOperation("批量修改属性定义")
+    @PatchMapping("/{kgName}/definition/batch")
+    ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModifyAttrDefinition(@PathVariable("kgName") String kgName,
+                                                                                @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs) {
+        return ApiReturn.success(attributeService.batchUpdate(kgName, attrDefinitionReqs));
     }
 
     @ApiOperation("修改属性定义")
@@ -214,10 +219,17 @@ public class AttributeController {
         return ApiReturn.success();
     }
 
+    @ApiOperation("根据属性定义查询实体详情列表")
+    @PostMapping("/{kgName}/attr/entity")
+    ApiReturn<List<TripleRsp>> getRelationByAttr(@PathVariable("kgName") String kgName,
+                                                 @Valid @RequestBody TripleReq tripleReq) {
+        return ApiReturn.success(attributeService.getRelationByAttr(kgName, tripleReq));
+    }
+
     @ApiOperation("批量关系新增")
     @PostMapping("relation/insert/{kgName}")
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
-                                                     @RequestBody List<BatchRelationRsp> relationList) {
+                                                                       @RequestBody List<BatchRelationRsp> relationList) {
         List<BatchRelationVO> collect = relationList.stream().map(a -> ConvertUtils.convert(BatchRelationVO.class).apply(a)).collect(Collectors.toList());
 
         OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, collect), new OpenBatchResult<>());

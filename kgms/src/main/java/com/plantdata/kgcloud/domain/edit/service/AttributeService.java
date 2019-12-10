@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import ai.plantdata.kg.api.edit.resp.AttributeDefinitionVO;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -84,6 +86,15 @@ public interface AttributeService {
      * @return
      */
     List<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName, List<AttrDefinitionReq> attrDefinitionReqs);
+
+    /**
+     * 批量修改属性定义
+     *
+     * @param kgName
+     * @param attrDefinitionReqs
+     * @return
+     */
+    OpenBatchResult<AttrDefinitionBatchRsp> batchUpdate(String kgName, List<AttrDefinitionReq> attrDefinitionReqs);
 
     /**
      * 修改属性定义

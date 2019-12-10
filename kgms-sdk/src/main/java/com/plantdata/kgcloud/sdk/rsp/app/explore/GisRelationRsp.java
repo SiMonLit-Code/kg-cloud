@@ -12,6 +12,6 @@ import lombok.Setter;
 @ApiModel("gis关系")
 @Getter
 @Setter
-public class GisRelationRsp extends BasicRelationRsp {
+public class GisRelationRsp extends GraphRelationRsp {
     private Integer ruleId;
 }

@@ -30,13 +30,16 @@ public class ConceptConverter {
 
 
     public static String getKgTittle(@NonNull List<BasicInfo> conceptList) {
-        return conceptList.stream().filter(a -> a.getConceptId() != null && a.getConceptId() > 0).findFirst().orElse(new BasicInfo()).getName();
+        return conceptList.stream().filter(a -> a.getId() == 0).findFirst().orElse(new BasicInfo()).getName();
     }
 
     public static List<BaseConceptRsp> voToRsp(@NonNull List<BasicInfo> conceptList) {
         List<BaseConceptRsp> baseConceptRspList = Lists.newArrayListWithCapacity(conceptList.size());
         BaseConceptRsp conceptRsp;
         for (BasicInfo basicInfo : conceptList) {
+            if (basicInfo.getId() == 0) {
+                continue;
+            }
             conceptRsp = new BaseConceptRsp();
             conceptRsp.setId(basicInfo.getId());
             conceptRsp.setKey(basicInfo.getKey());
@@ -121,8 +124,8 @@ public class ConceptConverter {
                     attrDef.getRangeValue().forEach(range -> {
                         BasicConceptTreeRsp conceptTreeRsp = conceptTreeRspMap.get(range);
                         if (null != conceptTreeRsp) {
-                            DefaultUtils.listAdd(conceptTreeRsp.getNumAttrs(),numberAttr);
-                            DefaultUtils.listAdd(a.getChildren(),conceptTreeRsp);
+                            DefaultUtils.listAdd(conceptTreeRsp.getNumAttrs(), numberAttr);
+                            DefaultUtils.listAdd(a.getChildren(), conceptTreeRsp);
                         }
                     });
 

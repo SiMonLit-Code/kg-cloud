@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import io.swagger.annotations.ApiOperation;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,15 +35,13 @@ public class AttributeController implements GraphDataObtainInterface {
     @Autowired
     private EditClient editClient;
 
-    ///todo 等待edit
-//    @ApiOperation("批量属性修改")
-//    @PatchMapping("batchModify/{kgName}")
-//    public ApiReturn<?> batchModify(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-//                                    @RequestBody @Valid List<AttributeDefinitionReq> attributeList) {
-//
-//        return ApiReturn.success();
-//    }
-//
+    @ApiOperation("批量属性修改")
+    @PatchMapping("batchModify/{kgName}")
+    public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModify(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                                          @RequestBody List<AttrDefinitionReq> attributeList) {
+        return editClient.batchModifyAttrDefinition(kgName, attributeList);
+    }
+
     @ApiOperation("删除属性定义")
     @DeleteMapping("{kgName}/{id}")
     public ApiReturn delete(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,

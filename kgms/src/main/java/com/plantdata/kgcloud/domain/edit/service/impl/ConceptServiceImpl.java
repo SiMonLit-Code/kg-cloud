@@ -9,7 +9,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ConceptReplaceReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.GisModifyReq;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
-import com.plantdata.kgcloud.domain.edit.vo.BasicInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
