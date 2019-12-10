@@ -6,10 +6,11 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.util.JpaFilter;
+import com.plantdata.kgcloud.domain.common.util.JpaQuery;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
@@ -27,7 +28,6 @@ import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +36,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -65,19 +70,21 @@ public class DataSetServiceImpl implements DataSetService {
     private final static String JSON_START = "{";
     private final static String ARRAY_START = "[";
     private final static String ARRAY_STRING_START = "[\"";
+    private final Function<DataSet, DataSetRsp> dataSet2rsp = (s) -> {
+        DataSetRsp dataSetRsp = new DataSetRsp();
+        BeanUtils.copyProperties(s, dataSetRsp);
+        DataType dataType = s.getDataType();
+        dataSetRsp.setDataType(dataType.getDataType());
+        return dataSetRsp;
+    };
     @Autowired
     private MongoProperties mongoProperties;
-
     @Autowired
     private EsProperties esProperties;
-
     @Autowired
     private DataSetRepository dataSetRepository;
-
     @Autowired
     private DataSetFolderService dataSetFolderService;
-
-
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
 
@@ -92,33 +99,35 @@ public class DataSetServiceImpl implements DataSetService {
                 .build();
 
         List<DataSet> all = dataSetRepository.findAll(Example.of(probe));
-        return all.stream()
-                .map(ConvertUtils.convert(DataSetRsp.class))
-                .collect(Collectors.toList());
+
+        return all.stream().map(dataSet2rsp).collect(Collectors.toList());
     }
 
-    @Override
-    @Deprecated
-    public Page<DataSetRsp> findAll(String userId, BaseReq baseReq) {
-        DataSet probe = DataSet.builder()
-                .userId(userId)
-                .build();
-        Page<DataSet> all = dataSetRepository.findAll(Example.of(probe), PageRequest.of(baseReq.getPage() - 1,
-                baseReq.getSize()));
-        return all.map(ConvertUtils.convert(DataSetRsp.class));
-    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Page<DataSetRsp> findAll(String userId, DataSetPageReq req) {
-        DataSet.DataSetBuilder dataSetBuilder = DataSet.builder()
-                .userId(userId);
-        Long folderId = req.getFolderId();
-        if (folderId != null) {
-            dataSetBuilder.folderId(folderId);
-        }
-        DataSet probe = dataSetBuilder.build();
-        Page<DataSet> all = dataSetRepository.findAll(Example.of(probe), PageRequest.of(req.getPage() - 1, req.getSize()));
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+
+        Specification<DataSet> specification = (Specification<DataSet>) (root, query, cb) -> {
+            Predicate predicate = cb.conjunction();
+            List<Expression<Boolean>> expressions = predicate.getExpressions();
+            expressions.add(cb.equal(root.<String>get("userId"), userId));
+            Long folderId = req.getFolderId();
+            if (folderId != null) {
+                expressions.add(cb.equal(root.<Long>get("folderId"), folderId));
+            }
+            Integer dataType = req.getDataType();
+            if (dataType != null) {
+                expressions.add(cb.equal(root.<DataType>get("dataType"), DataType.findType(dataType)));
+            }
+            if (StringUtils.hasText(req.getKw())) {
+                expressions.add(cb.like(root.get("title"), "%" + req.getKw() + "%"));
+            }
+            return predicate;
+        };
+
+        Page<DataSet> all = dataSetRepository.findAll(specification, pageable);
         DataSetFolder folder = dataSetFolderService.getDefaultFolder(userId);
         Set<Long> folderIds = dataSetFolderService.getFolderIds(userId);
         for (DataSet dataSet : all.getContent()) {
@@ -127,7 +136,7 @@ public class DataSetServiceImpl implements DataSetService {
                 dataSetRepository.save(dataSet);
             }
         }
-        return all.map(ConvertUtils.convert(DataSetRsp.class));
+        return all.map(dataSet2rsp);
     }
 
     @Override
@@ -151,7 +160,7 @@ public class DataSetServiceImpl implements DataSetService {
     @Override
     public DataSetRsp findById(String userId, Long id) {
         Optional<DataSet> one = dataSetRepository.findByUserIdAndId(userId, id);
-        return one.map(ConvertUtils.convert(DataSetRsp.class))
+        return one.map(dataSet2rsp)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
     }
 
@@ -216,10 +225,10 @@ public class DataSetServiceImpl implements DataSetService {
         provider.createTable(schema);
 
         target = dataSetRepository.save(target);
-        return ConvertUtils.convert(DataSetRsp.class).apply(target);
+        return dataSet2rsp.apply(target);
     }
 
-    private List<String> transformFields(List<DataSetSchema> schema){
+    private List<String> transformFields(List<DataSetSchema> schema) {
         List<String> fields = new ArrayList<>();
         for (DataSetSchema dataSetSchema : schema) {
             fields.add(dataSetSchema.getField());
@@ -236,12 +245,12 @@ public class DataSetServiceImpl implements DataSetService {
         List<DataSetSchema> schema = req.getSchema();
         target.setFields(transformFields(schema));
         target = dataSetRepository.save(target);
-        return ConvertUtils.convert(DataSetRsp.class).apply(target);
+        return dataSet2rsp.apply(target);
 
     }
 
     @Override
-    public List<DataSetSchema> resolve(Integer dataType, MultipartFile file) {
+    public List<DataSetSchema> schemaResolve(Integer dataType, MultipartFile file) {
         List<DataSetSchema> setSchemas = new ArrayList<>();
         try {
             EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {

@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dataset.repository;
 
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +12,7 @@ import java.util.Optional;
  * @author: Bovin
  * @create: 2019-11-04 18:45
  **/
-public interface DataSetRepository extends JpaRepository<DataSet, Long> {
+public interface DataSetRepository extends JpaRepository<DataSet, Long>, JpaSpecificationExecutor<DataSet> {
     /**
      * 根据用户和id删除数据集
      *
