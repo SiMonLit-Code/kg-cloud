@@ -67,7 +67,7 @@ public class GraphCommonConverter {
      */
     static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(BaseReq page, T exploreReq, E graphFrom) {
         CommonFilter commonFilter = new GraphFrom();
-        if(page!=null){
+        if (page != null) {
             commonFilter.setSkip(page.getOffset());
             commonFilter.setDirection(exploreReq.getDirection());
             commonFilter.setDistance(exploreReq.getDistance());
@@ -121,9 +121,9 @@ public class GraphCommonConverter {
         GraphRelationRsp relationRsp;
         Map<Long, Set<Long>> relationMap = Maps.newHashMap();
         for (SimpleRelation relation : simpleRelationList) {
-
-
             relationRsp = new GraphRelationRsp();
+            relationRsp.setFrom(relation.getFrom());
+            relationRsp.setTo(relation.getTo());
             relationRsp.setAttId(relation.getAttrId());
             relationRsp.setAttName(relation.getAttrName());
             relationRsp.setDirection(relation.getDirection());
