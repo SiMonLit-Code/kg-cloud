@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.entity;
 
+import com.plantdata.kgcloud.domain.dataset.converter.AnnotationConfConverter;
 import com.plantdata.kgcloud.sdk.req.AnnotationConf;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Id;
@@ -42,7 +44,6 @@ public class DataSetAnnotation {
     @Column(name = "id")
     private Long id;
 
-
     @Basic
     @Column(name = "user_id")
     private String userId;
@@ -61,6 +62,7 @@ public class DataSetAnnotation {
 
     @Basic
     @Column(name = "config")
+    @Convert(converter = AnnotationConfConverter.class)
     private List<AnnotationConf> config;
 
     @Basic
