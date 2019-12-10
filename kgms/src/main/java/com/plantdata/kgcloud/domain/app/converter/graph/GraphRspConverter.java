@@ -36,7 +36,7 @@ public class GraphRspConverter {
                 ? Collections.emptyList() : buildCommonEntityList(graph.getEntityList(), conceptIdMap);
         List<GraphRelationRsp> relationRspList = CollectionUtils.isEmpty(graph.getRelationList())
                 ? Collections.emptyList() : GraphCommonConverter.simpleRelationToGraphRelationRsp(graph.getRelationList(), relationMerge);
-        return new CommonBasicGraphExploreRsp(relationRspList, NumberUtils.INTEGER_ONE, commonEntityRspList);
+        return new CommonBasicGraphExploreRsp(relationRspList,graph.getLevel1HasNext(), commonEntityRspList);
     }
 
     public static <T extends StatisticRsp> T graphVoToStatisticRsp(GraphVO graph, List<GraphStatisticRsp> statisticRspList, Map<Long, BasicInfo> conceptIdMap, T analysisRsp, boolean relationMerge) {
