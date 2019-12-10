@@ -3,8 +3,6 @@ package com.plantdata.kgcloud.domain.model.service;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.KgmsModelReq;
 import com.plantdata.kgcloud.sdk.rsp.ModelRsp;
-import com.plantdata.kgcloud.domain.common.service.BaseService;
-import com.plantdata.kgcloud.sdk.req.WordReq;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
