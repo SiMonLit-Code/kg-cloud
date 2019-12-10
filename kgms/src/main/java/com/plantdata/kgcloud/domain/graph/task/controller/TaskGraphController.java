@@ -44,7 +44,6 @@ public class TaskGraphController {
         return ApiReturn.success();
     }
 
-
     @GetMapping("template")
     @ApiOperation("任务相关-模板-组合任务模板")
     public ApiReturn<List<TaskTemplateRsp>> taskTemplateList() {

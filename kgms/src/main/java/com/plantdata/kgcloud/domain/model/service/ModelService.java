@@ -27,6 +27,7 @@ public interface ModelService {
     /**
      * 查询所有接口
      *
+     * @param userId
      * @return
      */
     List<ModelRsp> findAll(String userId);
@@ -34,6 +35,8 @@ public interface ModelService {
     /**
      * 分页查询接口
      *
+     * @param userId
+     * @param baseReq
      * @return
      */
     Page<ModelRsp> findAll(String userId, BaseReq baseReq);
@@ -41,16 +44,17 @@ public interface ModelService {
     /**
      * 根据id查询接口
      *
+     * @param userId
      * @param id
      * @return
      */
     ModelRsp findById(String userId, Long id);
 
     /**
-     * 根据id删除接口
+     * 删除
      *
+     * @param userId
      * @param id
-     * @return
      */
     void delete(String userId, Long id);
 
@@ -65,6 +69,7 @@ public interface ModelService {
     /**
      * 修改接口
      *
+     * @param userId
      * @param id
      * @param r
      * @return
