@@ -50,7 +50,6 @@ public class D2rServiceImpl implements D2rService {
         int entitySize = 0, synSize = 0, attrSize = 0;
 
         for (D2RMapperConfigBean configBean : configBeanList) {
-
             int pageNo = 1;
             int pageSize = req.getEntSize() > 0 ? req.getEntSize() : 10;
             JSONArray datas = this.loadData(configBean.getDataSetId(), pageNo, pageSize);
@@ -69,11 +68,7 @@ public class D2rServiceImpl implements D2rService {
                         }
                     }
                 }
-                if (name == null || StringUtils.isEmpty(name)) {
-                    continue;
-                }
-
-                //添加实体
+                // 添加实体
                 if (entitySize < req.getEntSize()) {
                     EntRsp entBean = new EntRsp();
                     entBean.setName(name);
@@ -82,7 +77,6 @@ public class D2rServiceImpl implements D2rService {
                     list.add(entBean);
                     entitySize ++;
                 }
-
 
                 if (attrSize < req.getAttrSize() && configBean.getAttrs() != null) {
                     for (AttrMapperElementBean attrMapper : configBean.getAttrs()) {
@@ -117,8 +111,6 @@ public class D2rServiceImpl implements D2rService {
                         attrSize++;
                     }
                 }
-
-
                 if (synSize < req.getSynonymSize() && configBean.getSynonyms() != null) {
                     for (String k : configBean.getSynonyms().getMapField()) {
                         SynonymRsp synonymBean = new SynonymRsp();

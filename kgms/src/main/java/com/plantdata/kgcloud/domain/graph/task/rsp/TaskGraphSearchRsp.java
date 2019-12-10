@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.graph.task;
+package com.plantdata.kgcloud.domain.graph.task.rsp;
 
 /**
  * @description:

@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.model.entity.Model;
 import com.plantdata.kgcloud.domain.model.repository.ModelRepository;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.KgmsModelReq;
 import com.plantdata.kgcloud.sdk.req.WordReq;
 import com.plantdata.kgcloud.sdk.rsp.ModelRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -70,7 +71,7 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ModelRsp insert(WordReq.ModelReq req) {
+    public ModelRsp insert(KgmsModelReq req) {
         Model target = new Model();
         BeanUtils.copyProperties(req, target);
         target.setId(kgKeyGenerator.getNextId());
@@ -80,7 +81,7 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ModelRsp update(String userId, Long id, WordReq.ModelReq req) {
+    public ModelRsp update(String userId, Long id, KgmsModelReq req) {
         Model target = modelRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.MODEL_NOT_EXISTS));
         BeanUtils.copyProperties(req, target);

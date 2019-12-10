@@ -1,7 +1,6 @@
-package com.plantdata.kgcloud.domain.graph.task;
+package com.plantdata.kgcloud.domain.graph.task.entity;
 
 import lombok.Data;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -22,38 +21,17 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name = "task_graph_snapshot")
+@Table(name = "task_graph_search")
 @EntityListeners(AuditingEntityListener.class)
-public class TaskGraphSnapshot {
+public class TaskGraphSearch {
 
     @Id
-    @Column(name = "id")
-    private Long id;
-
-    @Basic
     @Column(name = "kg_name")
     private String kgName;
 
     @Basic
-    @Column(name = "user_id")
-    @CreatedBy
-    private String userId;
-
-    @Basic
-    @Column(name = "name")
-    private String name;
-
-    @Basic
-    @Column(name = "file_size")
-    private String fileSize;
-
-    @Basic
-    @Column(name = "status")
-    private Integer status;
-
-    @Basic
-    @Column(name = "restore_at")
-    private Date restoreAt;
+    @Column(name = "task_id")
+    private Integer taskId;
 
     @Basic
     @Column(name = "create_at", updatable = false)

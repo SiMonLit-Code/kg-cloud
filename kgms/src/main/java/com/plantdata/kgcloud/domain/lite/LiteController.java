@@ -34,6 +34,8 @@ public class LiteController {
 
     @Autowired
     private GraphService graphService;
+    @Autowired
+    private LinkShareService linkShareService;
 
     @GetMapping("/graph/all")
     @ApiOperation("图谱-图谱查找所有")
@@ -63,9 +65,6 @@ public class LiteController {
         graphService.delete(userId, kgName);
         return ApiReturn.success();
     }
-
-    @Autowired
-    private LinkShareService linkShareService;
 
     @GetMapping("/share/status/{kgName}")
     @ApiOperation("分享-分享状态列表")

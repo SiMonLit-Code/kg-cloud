@@ -1,10 +1,14 @@
 package com.plantdata.kgcloud.domain.j2r.entity;
+import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 
 /**
  * 概念J2r映射
  * @author xiezhenxiang 2019/12/9
  **/
+@Data
 public class ConceptConfig {
 
     /** 概念Id */
@@ -33,4 +37,16 @@ public class ConceptConfig {
     private String tableEntityCol;
     /** table实体起始位置 */
     private String tableEntityIndex;
+
+    public Integer getTableEntityRow() {
+        return StringUtils.isNotEmpty(tableEntityRow) ? Integer.parseInt(tableEntityRow) : null;
+    }
+
+    public Integer getTableEntityCol() {
+        return StringUtils.isNotEmpty(tableEntityCol) ? Integer.parseInt(tableEntityCol) : null;
+    }
+
+    public Integer getTableEntityIndex() {
+        return StringUtils.isNotEmpty(tableEntityIndex) ? Integer.parseInt(tableEntityIndex) : null;
+    }
 }
