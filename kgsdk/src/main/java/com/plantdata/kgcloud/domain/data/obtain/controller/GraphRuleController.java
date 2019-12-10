@@ -4,7 +4,6 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.domain.common.req.PageReq;
 import com.plantdata.kgcloud.domain.common.rsp.PageRsp;
-import com.plantdata.kgcloud.domain.data.obtain.req.GraphRuleReq;
 import com.plantdata.kgcloud.domain.data.obtain.rsp.GraphRuleRsp;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
@@ -13,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,18 +39,17 @@ public class GraphRuleController implements GraphDataObtainInterface {
 
     @GetMapping("{kgName}/{type}")
     @ApiOperation("业务规则列表")
-    public ApiReturn<PageRsp<GraphRuleRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                       @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
-                                                       @Valid PageReq pageReq) {
-        //todo 等待kgms
-        return ApiReturn.success(null);
+    public ApiReturn<Page<GraphConfKgqlRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                        @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
+                                                        PageReq pageReq) {
+        return kgmsClient.select(kgName, type, pageReq);
     }
 
     @ApiOperation("业务规则详情")
     @GetMapping("{id}")
-    public ApiReturn<GraphRuleRsp> detail(@ApiParam("规则id") @PathVariable("id") Integer id) {
-        //todo  等待kgms
-        return ApiReturn.success(null);
+    public ApiReturn<GraphConfKgqlRsp> detail(@ApiParam("规则id") @PathVariable("id") Long id) {
+
+        return kgmsClient.detailKgql(id);
     }
 
     @ApiOperation("业务规则或者gis规则新增")

@@ -2,7 +2,9 @@ package com.plantdata.kgcloud.sdk.rsp.app.explore;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -41,6 +43,8 @@ public class BasicRelationRsp {
 
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class EdgeInfo {
         @ApiModelProperty("边属性名称")
         private String name;
