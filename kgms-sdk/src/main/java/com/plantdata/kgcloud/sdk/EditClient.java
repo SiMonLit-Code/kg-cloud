@@ -95,12 +95,12 @@ public interface EditClient {
      * 批量新增关系
      *
      * @param kgName   图谱名称
-     * @param relation 批量参数
+     * @param relationList 批量参数
      * @return 。
      */
     @PostMapping("attribute/relation/insert/{kgName}")
-    ApiReturn<BatchRelationRsp> importRelation(@PathVariable("kgName") String kgName,
-                                               @RequestBody BatchRelationRsp relation);
+    ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
+                                                                @RequestBody List<BatchRelationRsp> relationList);
 
     /**
      * 修改概念名称,消歧,key
