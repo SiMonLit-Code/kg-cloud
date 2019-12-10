@@ -244,6 +244,6 @@ public interface KgmsClient {
      * @return .
      */
     @PostMapping("model/call/{id}")
-    ApiReturn callJson(@PathVariable("id") Long id, @RequestBody WordReq.ModelCallReq req);
+    ApiReturn callJson(@PathVariable("id") Long id, @RequestBody KgmsCallReq req);
 
 }
