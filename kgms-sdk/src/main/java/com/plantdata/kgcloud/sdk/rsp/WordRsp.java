@@ -2,6 +2,8 @@ package com.plantdata.kgcloud.sdk.rsp;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @description:
  * @author: Bovin
@@ -13,7 +15,7 @@ public class WordRsp {
 
     private String name;
 
-    private String syns;
+    private List<String> syns;
 
     private String nature;
 }
