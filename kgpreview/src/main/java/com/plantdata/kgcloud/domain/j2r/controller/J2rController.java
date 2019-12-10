@@ -10,9 +10,13 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -33,10 +37,10 @@ public class J2rController {
 
     @GetMapping("/json/get")
     @ApiOperation("获取单条json")
-    public ApiReturn<Page<String>> getJson(@ApiParam( "数据集Id") @NotNull Integer dataSetId,
+    public ApiReturn<Page<Document>> getJson(@ApiParam( "数据集Id") @NotNull Integer dataSetId,
                                            @ApiParam(value = "序号", defaultValue = "1") Integer index) {
 
-        Page<String> rs = j2rService.jsonStr(dataSetId, index);
+        Page<Document> rs = j2rService.jsonStr(dataSetId, index);
         return ApiReturn.success(rs);
     }
 
@@ -44,21 +48,23 @@ public class J2rController {
     @ApiOperation("检测配置格式是否正确")
     public ApiReturn<Boolean> checkSetting(@ApiParam("配置参数") @NotBlank String setting) {
 
-        Setting configs = JacksonUtils.readValue(setting, Setting.class);
-        return ApiReturn.success();
+        Setting j2rSetting = JacksonUtils.readValue(setting, Setting.class);
+        boolean bool = j2rService.checkSetting(j2rSetting);
+        return ApiReturn.success(bool);
     }
 
     @PostMapping("/path/preview")
     @ApiOperation("jsonPath配置预览")
-    public ApiReturn<List<Object>> pathReview(@ApiParam @NotNull String jsonStr,
+    public ApiReturn<Object> pathReview(@ApiParam @NotNull String jsonStr,
                                               @ApiParam("jsonPath[]") String jsonPaths) {
-        List<String> ls;
+        List<String> jsonPathLs;
         try {
-            ls = JacksonUtils.getInstance().readValue(jsonPaths, new TypeReference<List<String>>() {});
+            jsonPathLs = JacksonUtils.getInstance().readValue(jsonPaths, new TypeReference<List<String>>() {});
         } catch (IOException e) {
             throw BizException.of(CommonErrorCode.BAD_REQUEST);
         }
-        return ApiReturn.success();
+        Object rs = j2rService.pathReview(jsonStr, jsonPathLs);
+        return ApiReturn.success(rs);
     }
 
     @PostMapping("/config/preview")
@@ -66,7 +72,8 @@ public class J2rController {
     public ApiReturn<Map> configPreview(@ApiParam("预览jsonId") @NotNull String jsonId,
                                         @ApiParam("配置参数") @NotBlank String setting) {
 
-        Setting configs = JacksonUtils.readValue(setting, Setting.class);
-        return ApiReturn.success();
+        Setting j2rSetting = JacksonUtils.readValue(setting, Setting.class);
+        Map<String, Object> rsMap = j2rService.preview(jsonId, j2rSetting);
+        return ApiReturn.success(rsMap);
     }
 }
