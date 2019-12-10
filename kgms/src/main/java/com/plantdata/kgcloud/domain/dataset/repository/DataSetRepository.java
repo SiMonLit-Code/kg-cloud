@@ -29,7 +29,11 @@ public interface DataSetRepository extends JpaRepository<DataSet, Long> {
      */
     Optional<DataSet> findByUserIdAndId(String userId, Long id);
 
-
+    /**
+     *
+     * @param dataName
+     * @return
+     */
     Optional<DataSet> findByDataName(String dataName);
 
     /**

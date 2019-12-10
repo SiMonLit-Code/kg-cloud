@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.graph.task;
+package com.plantdata.kgcloud.domain.graph.task.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,7 +23,7 @@ import java.util.Date;
 @Entity
 @Table(name = "task_graph_reasoning")
 @EntityListeners(AuditingEntityListener.class)
-public class TaskGraphReasoning {
+public class TaskGraphReason {
 
     @Id
     @Column(name = "id")
