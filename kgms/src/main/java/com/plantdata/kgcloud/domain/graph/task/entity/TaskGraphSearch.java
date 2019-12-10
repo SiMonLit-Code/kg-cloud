@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.graph.task;
+package com.plantdata.kgcloud.domain.graph.task.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -21,21 +21,17 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name = "task_template")
+@Table(name = "task_graph_search")
 @EntityListeners(AuditingEntityListener.class)
-public class TaskTemplate {
+public class TaskGraphSearch {
 
     @Id
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "kg_name")
+    private String kgName;
 
     @Basic
-    @Column(name = "title")
-    private String title;
-
-    @Basic
-    @Column(name = "template")
-    private String template;
+    @Column(name = "task_id")
+    private Integer taskId;
 
     @Basic
     @Column(name = "create_at", updatable = false)
