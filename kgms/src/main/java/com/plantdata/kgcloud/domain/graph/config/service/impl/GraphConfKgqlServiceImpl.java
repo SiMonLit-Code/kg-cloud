@@ -62,9 +62,9 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     }
 
     @Override
-    public Page<GraphConfKgqlRsp> findByKgName(String kgName, BaseReq baseReq , Integer ruleType) {
+    public Page<GraphConfKgqlRsp> findByKgName(String kgName, BaseReq baseReq) {
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
-        Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgName(kgName, pageable , ruleType);
+        Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgName(kgName, pageable);
         return all.map(ConvertUtils.convert(GraphConfKgqlRsp.class));
     }
 

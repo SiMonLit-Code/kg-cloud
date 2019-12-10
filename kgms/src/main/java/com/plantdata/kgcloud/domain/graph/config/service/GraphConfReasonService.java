@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
-import com.plantdata.kgcloud.domain.graph.config.req.GraphConfReasonReq;
-import com.plantdata.kgcloud.domain.graph.config.rsp.GraphConfReasonRsp;
+import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 
 import java.util.List;
 
