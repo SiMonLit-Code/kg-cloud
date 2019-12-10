@@ -45,7 +45,7 @@ import java.util.List;
  */
 @RestController
 @Api(tags = "图谱应用")
-@RequestMapping("app")
+@RequestMapping("v3/app")
 public class GraphApplicationController {
 
     @Autowired

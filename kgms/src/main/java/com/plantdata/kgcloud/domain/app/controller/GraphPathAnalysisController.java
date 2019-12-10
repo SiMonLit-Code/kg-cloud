@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 @Api(tags = "路径分析")
 @RestController
-@RequestMapping("app/graphExplore/path")
+@RequestMapping("v3/app/graphExplore/path")
 public class GraphPathAnalysisController {
 
     @Autowired

@@ -30,7 +30,7 @@ import javax.validation.Valid;
  */
 @Api(tags = "关联分析")
 @RestController
-@RequestMapping("app/graphExplore/relation")
+@RequestMapping("v3/app/graphExplore/relation")
 public class GraphRelationAnalysisController {
 
     @Autowired

@@ -41,7 +41,7 @@ import java.util.Optional;
  * @date 2019/11/21 10:44
  */
 @RestController
-@RequestMapping("app/graphExplore")
+@RequestMapping("v3/app/graphExplore")
 @Api(tags = "图谱探索")
 public class GraphExplorationController {
 
