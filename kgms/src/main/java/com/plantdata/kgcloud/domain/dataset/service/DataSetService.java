@@ -46,14 +46,6 @@ public interface DataSetService {
     DataSet findOne(String userId, Long id);
 
     /**
-     * 根据Id查询
-     *
-     * @param id
-     * @return
-     */
-    DataSet findOne(Long id);
-
-    /**
      * 新增接口
      *
      * @param userId

@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.common.util.JpaFilter;
-import com.plantdata.kgcloud.domain.common.util.JpaQuery;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
@@ -36,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,9 +96,7 @@ public class DataSetServiceImpl implements DataSetService {
         DataSet probe = DataSet.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
-
         List<DataSet> all = dataSetRepository.findAll(Example.of(probe));
-
         return all.stream().map(dataSet2rsp).collect(Collectors.toList());
     }
 
@@ -107,7 +104,9 @@ public class DataSetServiceImpl implements DataSetService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Page<DataSetRsp> findAll(String userId, DataSetPageReq req) {
-        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+
+        Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(), sort);
 
         Specification<DataSet> specification = (Specification<DataSet>) (root, query, cb) -> {
             Predicate predicate = cb.conjunction();
@@ -128,6 +127,8 @@ public class DataSetServiceImpl implements DataSetService {
         };
 
         Page<DataSet> all = dataSetRepository.findAll(specification, pageable);
+
+
         DataSetFolder folder = dataSetFolderService.getDefaultFolder(userId);
         Set<Long> folderIds = dataSetFolderService.getFolderIds(userId);
         for (DataSet dataSet : all.getContent()) {
@@ -149,13 +150,6 @@ public class DataSetServiceImpl implements DataSetService {
         return dataSetRepository.findByUserIdAndId(userId, id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
     }
-
-    @Override
-    public DataSet findOne(Long id) {
-        return dataSetRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
-    }
-
 
     @Override
     public DataSetRsp findById(String userId, Long id) {
