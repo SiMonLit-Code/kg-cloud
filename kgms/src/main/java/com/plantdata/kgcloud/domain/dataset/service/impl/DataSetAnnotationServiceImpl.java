@@ -95,10 +95,10 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
     }
 
     @Override
-    public void annotation(String kgName, Long annotationId, AnnotationDataReq request) {
+    public void annotation(String userId,String kgName, Long annotationId, AnnotationDataReq request) {
         Long datasetId = request.getId();
         String objId = request.getObjId();
-        Map<String, Object> objectMap = dataOptService.updateData(datasetId, objId, request.getData());
+        Map<String, Object> objectMap = dataOptService.updateData(userId,datasetId, objId, request.getData());
         ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
         for (Map.Entry<String, Object> entry : objectMap.entrySet()) {
             objectNode.putPOJO(entry.getKey(), entry.getValue());

@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.sdk.req.AnnotationDataReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationQueryReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationReq;
 import com.plantdata.kgcloud.sdk.rsp.AnnotationRsp;
+import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +92,8 @@ public class DataSetAnnotationController {
             @PathVariable("annotation_id") Long id,
             @Valid @RequestBody AnnotationDataReq req
     ) {
-        annotationService.annotation(kgName, id, req);
+        String userId = SessionHolder.getUserId();
+        annotationService.annotation(userId,kgName, id, req);
         return ApiReturn.success();
     }
 
