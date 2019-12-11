@@ -75,7 +75,7 @@ public class ConceptConverter {
         if (!CollectionUtils.isEmpty(attrDefList)) {
             fillAttrDef(allConceptList, attrDefList);
         }
-        Map<Long, List<BasicConceptTreeRsp>> parentTreeItemMap = allConceptList.stream().collect(Collectors.groupingBy(BasicConceptTreeRsp::getParentId));
+        Map<Long, List<BasicConceptTreeRsp>> parentTreeItemMap = allConceptList.stream().filter(a->a.getParentId()!=null).collect(Collectors.groupingBy(BasicConceptTreeRsp::getParentId));
 
         fillTree(Lists.newArrayList(treeRsp), parentTreeItemMap);
         return treeRsp;
