@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphPathReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphTimingReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -21,7 +22,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("时序路径分析参数")
-public class PathTimingAnalysisReq extends BasicGraphExploreReq implements GraphPathReqInterface, GraphTimingReqInterface {
+public class PathTimingAnalysisReq extends BasicGraphExploreReq implements GraphPathReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
     @ApiModelProperty("路径")

@@ -37,9 +37,9 @@ public class PromptConverter {
     public static PromptListFrom reqToRemote(PromptReq req) {
         PromptListFrom from = new PromptListFrom();
         from.setConceptIds(req.getConceptIds());
-        from.setIsCaseInsensitive(req.getIsCaseInsensitive());
-        from.setIsFuzzy(req.getIsFuzzy());
-        from.setIsInherit(req.getIsInherit());
+        from.setIsCaseInsensitive(req.getCaseInsensitive());
+        from.setIsFuzzy(req.getFuzzy());
+        from.setIsInherit(req.getInherit());
         from.setText(req.getKw());
         PromptResultTypeEnum resultType = req.getType() == null ? PromptResultTypeEnum.CONCEPT_ENTITY : PromptResultTypeEnum.parseWithDefault(req.getType());
         from.setType(resultType.getId());

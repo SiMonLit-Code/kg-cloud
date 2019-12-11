@@ -70,21 +70,21 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
 
     @Override
     public CommonBasicGraphExploreRsp commonGraphExploration(String kgName, CommonExploreReq exploreReq) {
-        exploreReq = graphHelperService.dealGraphReq(kgName, exploreReq);
+        exploreReq = graphHelperService.keyToId(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
         return queryAndRebuildRsp(kgName, graphFrom, exploreReq.isRelationMerge());
     }
 
     @Override
     public CommonBasicGraphExploreRsp timeGraphExploration(String kgName, CommonTimingExploreReq exploreReq) {
-        exploreReq = graphHelperService.dealGraphReq(kgName, exploreReq);
+        exploreReq = graphHelperService.keyToId(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
         return queryAndRebuildRsp(kgName, graphFrom, exploreReq.isRelationMerge());
     }
 
     @Override
     public CommonBasicGraphExploreRsp reasoningGraphExploration(String kgName, CommonReasoningExploreReq exploreReq) {
-        exploreReq = graphHelperService.dealGraphReq(kgName, exploreReq);
+        exploreReq = graphHelperService.keyToId(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(kgName, graphFrom));
         if (!graphOpt.isPresent()) {

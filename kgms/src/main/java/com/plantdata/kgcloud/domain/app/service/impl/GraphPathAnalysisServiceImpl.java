@@ -39,7 +39,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
 
 
 
-        analysisReq = graphHelperService.dealGraphReq(kgName, analysisReq);
+        analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
         //路径探索
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(kgName, pathFrom));
@@ -54,7 +54,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
     @Override
     public PathAnalysisReasonRsp pathRuleReason(String kgName, PathReasoningAnalysisReq reasonReq) {
         PathAnalysisReasonRsp analysisRsp = new PathAnalysisReasonRsp();
-        reasonReq = graphHelperService.dealGraphReq(kgName, reasonReq);
+        reasonReq = graphHelperService.keyToId(kgName, reasonReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(reasonReq);
         //路径探索
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(kgName, pathFrom));
@@ -70,7 +70,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
     @Override
     public PathTimingAnalysisRsp pathTimingAnalysis(String kgName, PathTimingAnalysisReq analysisReq) {
         PathTimingAnalysisRsp analysisRsp = new PathTimingAnalysisRsp();
-        analysisReq = graphHelperService.dealGraphReq(kgName, analysisReq);
+        analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
         //路径探索
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(kgName, pathFrom));
