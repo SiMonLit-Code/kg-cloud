@@ -18,87 +18,99 @@ public interface DataOptService {
     /**
      * 分页
      *
+     * @param userId
      * @param datasetId
      * @param req
      * @return
      */
-    Page<Map<String, Object>> getData(Long datasetId, DataOptQueryReq req);
+    Page<Map<String, Object>> getData(String userId, Long datasetId, DataOptQueryReq req);
 
     /**
      * 获取
      *
+     * @param userId
      * @param datasetId
      * @param dataId
      * @return
      */
-    Map<String, Object> getDataById(Long datasetId, String dataId);
+    Map<String, Object> getDataById(String userId, Long datasetId, String dataId);
 
 
     /**
      * 新增
      *
+     * @param userId
      * @param datasetId
      * @param data
      * @return
      */
-    Map<String, Object> insertData(Long datasetId, Map<String, Object> data);
+    Map<String, Object> insertData(String userId, Long datasetId, Map<String, Object> data);
 
 
     /**
+     * 文件上传
      *
+     * @param userId
      * @param datasetId
      * @param file
+     * @throws Exception
      */
-    void upload(Long datasetId, MultipartFile file)  throws Exception ;
+    void upload(String userId, Long datasetId, MultipartFile file) throws Exception;
 
     /**
      * 修改
      *
+     * @param userId
      * @param datasetId
      * @param dataId
      * @param data
      * @return
      */
-    Map<String, Object> updateData(Long datasetId, String dataId, Map<String, Object> data);
+    Map<String, Object> updateData(String userId, Long datasetId, String dataId, Map<String, Object> data);
 
     /**
+     * 批量插入
      *
+     * @param userId
      * @param datasetId
      * @param dataList
      */
-    void batchInsertData(Long datasetId, List<Map<String,Object>> dataList);
+    void batchInsertData(String userId, Long datasetId, List<Map<String, Object>> dataList);
 
     /**
      * 删除
      *
+     * @param userId
      * @param datasetId
      * @param dataId
-     * @return
      */
-    void deleteData(Long datasetId, String dataId);
+    void deleteData(String userId, Long datasetId, String dataId);
 
 
     /**
-     * 删除
+     * 删除全部
      *
+     * @param userId
      * @param datasetId
-     * @return
      */
-    void deleteAll(Long datasetId);
+    void deleteAll(String userId, Long datasetId);
 
     /**
      * 批量删除
      *
+     * @param userId
      * @param datasetId
      * @param dataIds
-     * @return
      */
-    void batchDeleteData(Long datasetId, Collection<String> dataIds);
+    void batchDeleteData(String userId, Long datasetId, Collection<String> dataIds);
 
     /**
      * 导出
+     *
+     * @param userId
      * @param datasetId
      * @param response
+     * @throws Exception
      */
-    void exportData(Long datasetId, HttpServletResponse response) throws Exception;
+    void exportData(String userId, Long datasetId, HttpServletResponse response) throws Exception;
 }

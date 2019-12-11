@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.graph.manage.service;
 
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
@@ -23,6 +22,13 @@ public interface GraphService {
     Page<GraphRsp> findAll(String userId, GraphPageReq req);
 
     /**
+     * 查询所有接口
+     *
+     * @return
+     */
+    List<GraphRsp> findAll(String userId);
+
+    /**
      * 新增图谱
      *
      * @param userId
@@ -39,19 +45,6 @@ public interface GraphService {
      */
     GraphRsp createDefault(String userId);
 
-    /**
-     * 查询所有接口
-     *
-     * @return
-     */
-    List<GraphRsp> findAll(String userId);
-
-    /**
-     * 分页查询接口
-     *
-     * @return
-     */
-    Page<GraphRsp> findAll(String userId, BaseReq baseReq);
 
     /**
      * 根据id查询接口

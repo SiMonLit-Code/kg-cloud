@@ -80,10 +80,10 @@ public class AttrDefinitionVO {
      * 前端使用
      */
     @ApiModelProperty(value = "业务额外信息")
-    private Map<String, Object> additionalInfo;
+    private String additionalInfo;
 
     @ApiModelProperty(value = "属性约束")
-    private Map<String, Object> constraints;
+    private String constraints;
     /**
      * 全局唯一
      */

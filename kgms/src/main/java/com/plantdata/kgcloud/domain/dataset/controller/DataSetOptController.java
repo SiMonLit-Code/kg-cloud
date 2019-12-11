@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
+import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,7 +45,8 @@ public class DataSetOptController {
             @PathVariable("datasetId") Long datasetId,
             DataOptQueryReq baseReq
     ) {
-        return ApiReturn.success(dataOptService.getData(datasetId, baseReq));
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataOptService.getData(userId, datasetId, baseReq));
     }
 
     @ApiOperation("数据集-数据-根据Id查询")
@@ -53,7 +55,8 @@ public class DataSetOptController {
             @PathVariable("datasetId") Long datasetId,
             @PathVariable("dataId") String dataId
     ) {
-        return ApiReturn.success(dataOptService.getDataById(datasetId, dataId));
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataOptService.getDataById(userId, datasetId, dataId));
     }
 
     @ApiOperation("数据集-数据-插入")
@@ -61,7 +64,8 @@ public class DataSetOptController {
     public ApiReturn<Map<String, Object>> insertData(
             @PathVariable("datasetId") Long datasetId,
             @RequestBody Map<String, Object> data) {
-        return ApiReturn.success(dataOptService.insertData(datasetId, data));
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataOptService.insertData(userId, datasetId, data));
     }
 
     @ApiOperation("数据集-数据-修改")
@@ -70,7 +74,8 @@ public class DataSetOptController {
             @PathVariable("datasetId") Long datasetId,
             @PathVariable("dataId") String dataId,
             @RequestBody Map<String, Object> data) {
-        return ApiReturn.success(dataOptService.updateData(datasetId, dataId, data));
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataOptService.updateData(userId, datasetId, dataId, data));
     }
 
     @ApiOperation("数据集-数据-根据Id删除")
@@ -78,14 +83,16 @@ public class DataSetOptController {
     public ApiReturn deleteData(
             @PathVariable("datasetId") Long datasetId,
             @PathVariable("dataId") String dataId) {
-        dataOptService.deleteData(datasetId, dataId);
+        String userId = SessionHolder.getUserId();
+        dataOptService.deleteData(userId, datasetId, dataId);
         return ApiReturn.success();
     }
 
     @ApiOperation("数据集-数据-全部删除")
     @DeleteMapping("/{datasetId}/data")
     public ApiReturn deleteAll(@PathVariable("datasetId") Long datasetId) {
-        dataOptService.deleteAll(datasetId);
+        String userId = SessionHolder.getUserId();
+        dataOptService.deleteAll(userId, datasetId);
         return ApiReturn.success();
     }
 
@@ -94,7 +101,8 @@ public class DataSetOptController {
     public ApiReturn batchDeleteData(
             @PathVariable("datasetId") Long datasetId,
             @RequestBody List<String> ids) {
-        dataOptService.batchDeleteData(datasetId, ids);
+        String userId = SessionHolder.getUserId();
+        dataOptService.batchDeleteData(userId, datasetId, ids);
         return ApiReturn.success();
     }
 
@@ -103,7 +111,8 @@ public class DataSetOptController {
     @PostMapping("/{datasetId}/upload")
     public ApiReturn upload(@PathVariable("datasetId") Long datasetId, @RequestParam(value = "file") MultipartFile file, HttpServletResponse response) {
         try {
-            dataOptService.upload(datasetId, file);
+            String userId = SessionHolder.getUserId();
+            dataOptService.upload(userId, datasetId, file);
         } catch (Exception e) {
             return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_EXPORT_FAIL);
         }
@@ -113,7 +122,8 @@ public class DataSetOptController {
     @ApiOperation("数据集-数据-接口-导入")
     @PostMapping("/{datasetId}/import")
     public ApiReturn importData(@PathVariable("datasetId") Long datasetId, @RequestBody List<Map<String, Object>> dataList) {
-        dataOptService.batchInsertData(datasetId, dataList);
+        String userId = SessionHolder.getUserId();
+        dataOptService.batchInsertData(userId, datasetId, dataList);
         return ApiReturn.success();
     }
 
@@ -121,7 +131,8 @@ public class DataSetOptController {
     @GetMapping("/{datasetId}/export")
     public void exportData(@PathVariable("datasetId") Long datasetId, HttpServletResponse response) {
         try {
-            dataOptService.exportData(datasetId, response);
+            String userId = SessionHolder.getUserId();
+            dataOptService.exportData(userId, datasetId, response);
         } catch (Exception e) {
             response.reset();
             response.setContentType("application/json");
@@ -139,7 +150,8 @@ public class DataSetOptController {
     @ApiOperation("数据集-数据-smoke统计")
     @GetMapping("/{datasetId}/statistics")
     public ApiReturn statistics(@PathVariable("datasetId") Long datasetId) {
-        dataOptService.deleteAll(datasetId);
+        String userId = SessionHolder.getUserId();
+        dataOptService.deleteAll(userId, datasetId);
         return ApiReturn.success();
     }
 
