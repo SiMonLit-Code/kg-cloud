@@ -1,12 +1,14 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfReasonService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -31,10 +33,10 @@ public class GraphConfReasonController {
     }
 
 
-    @ApiOperation("图谱配置-推理-查询所有")
-    @GetMapping("/reason")
-    public ApiReturn<List<GraphConfReasonRsp>> selectReasoninglAll() {
-        return ApiReturn.success(graphConfReasoningService.findAll());
+    @ApiOperation("图谱配置-推理-分页")
+    @GetMapping("/reason/{kgName}")
+    public ApiReturn<Page<GraphConfReasonRsp>> selectReasoninglPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
+        return ApiReturn.success(graphConfReasoningService.findByKgName(kgName,baseReq));
     }
 
     @ApiOperation("图谱配置-推理-详情")

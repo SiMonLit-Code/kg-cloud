@@ -26,6 +26,7 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.freehep.graphicsio.emf.EMFInputStream;
 import org.freehep.graphicsio.emf.EMFRenderer;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
@@ -564,6 +565,11 @@ public class ConvertUtil {
         }else{
 
             Element nodeParent = new Element(n.nodeName());
+
+            if(n.attributes() != null && n.attributes().size() > 0){
+                n.attributes().forEach(att -> nodeParent.attr(att.getKey(),att.getValue()));
+            }
+
             List<Node> nodes = n.childNodes();
             for(Node node : nodes){
                 List<Node> list = parseSpan(node);

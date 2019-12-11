@@ -12,6 +12,9 @@ import lombok.Data;
 @Data
 public class GraphConfStatisticalReq {
 
+    @ApiModelProperty(value = "kgName")
+    private String kgName;
+
     @ApiModelProperty(value = "统计类型")
     private String statisType;
 
