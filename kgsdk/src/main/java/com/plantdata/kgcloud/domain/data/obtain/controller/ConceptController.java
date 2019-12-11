@@ -5,7 +5,7 @@ import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
-import com.plantdata.kgcloud.sdk.req.edit.BasicReq;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -46,7 +46,7 @@ public class ConceptController implements GraphDataObtainInterface {
     @ApiOperation("添加概念")
     @PostMapping("add/{kgName}")
     public ApiReturn<Long> addConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                      @RequestBody BasicReq basicInfoReq) {
+                                      @RequestBody BasicInfoReq basicInfoReq) {
         return editClient.createConcept(kgName, basicInfoReq);
     }
 
