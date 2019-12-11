@@ -16,7 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +35,6 @@ public class DataSetFolderServiceImpl implements DataSetFolderService {
     private DataSetFolderRepository dataSetFolderRepository;
     @Autowired
     private DataSetService dataSetService;
-
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
 
@@ -65,7 +68,7 @@ public class DataSetFolderServiceImpl implements DataSetFolderService {
     }
 
     @Override
-    public Optional<DataSetFolder> getFolder(String userId,Long id) {
+    public Optional<DataSetFolder> getFolder(String userId, Long id) {
         return dataSetFolderRepository.findByIdAndUserId(id, userId);
     }
 
@@ -90,7 +93,7 @@ public class DataSetFolderServiceImpl implements DataSetFolderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void folderDelete(String userId,Long id, Boolean deleteData) {
+    public void folderDelete(String userId, Long id, Boolean deleteData) {
         DataSetFolder folder = dataSetFolderRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.FOLDER_NOT_EXISTS));
         Boolean defaulted = folder.getDefaulted();
@@ -102,16 +105,16 @@ public class DataSetFolderServiceImpl implements DataSetFolderService {
         if (!dataSetList.isEmpty()) {
             List<Long> ids = dataSetList.stream().map(DataSet::getId).collect(Collectors.toList());
             if (Objects.equals(true, deleteData)) {
-                dataSetService.batchDelete(userId,ids);
+                dataSetService.batchDelete(userId, ids);
             } else {
-                dataSetService.move(userId,ids, null);
+                dataSetService.move(userId, ids, null);
             }
         }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public FolderRsp folderUpdate(String userId,Long id, FolderReq req) {
+    public FolderRsp folderUpdate(String userId, Long id, FolderReq req) {
         DataSetFolder folder = dataSetFolderRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.FOLDER_NOT_EXISTS));
         BeanUtils.copyProperties(req, folder);

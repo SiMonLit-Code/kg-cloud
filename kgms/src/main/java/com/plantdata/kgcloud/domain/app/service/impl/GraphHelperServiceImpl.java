@@ -7,7 +7,6 @@ import ai.plantdata.kg.api.pub.SchemaApi;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.domain.app.bo.GraphCommonBO;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
@@ -21,6 +20,7 @@ import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
+import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
@@ -33,9 +33,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -80,7 +77,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     }
 
     @Override
-    public <T extends BasicGraphExploreReq> T dealGraphReq(String kgName, T exploreReq) {
+    public <T extends BasicGraphExploreReq> T keyToId(String kgName, T exploreReq) {
 
         //replace attrKey
         if (CollectionUtils.isEmpty(exploreReq.getAllowAttrs()) && !CollectionUtils.isEmpty(exploreReq.getAllowAttrsKey())) {
@@ -113,7 +110,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
      * @return
      */
     @Override
-    public <T extends BasicGraphExploreRsp, E extends BasicGraphExploreReq> Optional<T> dealByGraphReq(String kgName, E req, T rsp) {
+    public <T extends BasicGraphExploreRsp> Optional<T> graphSearchBefore(String kgName, SecondaryScreeningInterface req, T rsp) {
         if(req.getGraphReq()==null){
             return Optional.empty();
         }
@@ -141,7 +138,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             Set<Long> entityIdSet = !entityIdOpt.isPresent() ? Collections.emptySet() : Sets.newHashSet(entityIdOpt.get());
             rsp.setEntityList(entity.stream().filter(a -> entityIdSet.contains(a.getId())).collect(Collectors.toList()));
         }
-        GraphCommonBO.removeNoUseRelation(rsp);
+        GraphCommonBO.rebuildGraphRelationAndEntity(rsp,req.getNeedSaveEntityIds());
         return Optional.of(rsp);
 
     }

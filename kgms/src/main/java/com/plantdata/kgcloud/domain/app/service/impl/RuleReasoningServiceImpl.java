@@ -20,7 +20,7 @@ import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepository;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.ReasoningReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

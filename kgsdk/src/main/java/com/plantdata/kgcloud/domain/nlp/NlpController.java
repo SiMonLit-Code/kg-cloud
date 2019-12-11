@@ -8,6 +8,8 @@ import com.plantdata.kgcloud.sdk.SemanticClient;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
+import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
@@ -132,5 +134,19 @@ public class NlpController implements NaturalLanguageProcessingInterface {
     public ApiReturn<List<String>> extractKeyword(@ApiParam(required = true) @RequestParam("input") String input,
                                                   @ApiParam(required = true, value = "个数") @RequestParam("size") Integer size) {
         return ApiReturn.success((hanLPService.extractKeyword(input, size)));
+    }
+
+    @ApiOperation("两个实体间语义距离查询")
+    @PostMapping("distance/score")
+    public ApiReturn<Double> semanticDistanceScore(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                   @RequestParam("entityIdOne") Long entityIdOne, @RequestParam("entityIdTwo") Long entityIdTwo) {
+        return semanticClient.semanticDistanceScore(kgName, entityIdOne, entityIdTwo);
+    }
+
+    @ApiOperation("实体语义相关实体查询")
+    @PostMapping("distance/list/{kgName}")
+    public ApiReturn<List<DistanceEntityRsp>> semanticDistanceRelevance(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                                        @RequestBody DistanceListReq listReq) {
+        return ApiReturn.success(null);
     }
 }

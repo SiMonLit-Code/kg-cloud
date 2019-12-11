@@ -4,7 +4,6 @@ import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.req.CopyGraphFrom;
 import ai.plantdata.kg.api.edit.req.CreateGraphFrom;
 import cn.hiboot.mcn.core.model.result.RestResp;
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
 import com.plantdata.kgcloud.domain.graph.manage.entity.GraphPk;
@@ -61,25 +60,13 @@ public class GraphServiceImpl implements GraphService {
     }
 
     @Override
-    @Deprecated
-    public Page<GraphRsp> findAll(String userId, BaseReq baseReq) {
-        Graph probe = Graph.builder()
-                .userId(userId)
-                .deleted(false)
-                .build();
-        Page<Graph> all = graphRepository.findAll(Example.of(probe), PageRequest.of(baseReq.getPage() - 1,
-                baseReq.getSize()));
-        return all.map(ConvertUtils.convert(GraphRsp.class));
-    }
-
-    @Override
     public Page<GraphRsp> findAll(String userId, GraphPageReq req) {
         Page<Graph> all;
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
         if (StringUtils.hasText(req.getKw())) {
             all = graphRepository.findByUserIdAndTitleContaining(userId, req.getKw(), pageable);
         } else {
-            Graph probe = Graph.builder().userId(userId).build();
+            Graph probe = Graph.builder().userId(userId).deleted(false).build();
             all = graphRepository.findAll(Example.of(probe), pageable);
         }
         return all.map(ConvertUtils.convert(GraphRsp.class));
@@ -163,7 +150,7 @@ public class GraphServiceImpl implements GraphService {
         Graph target = graphRepository.findById(graphPk).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_NOT_EXISTS));
         BeanUtils.copyProperties(req, target);
 
-
+        // TODO
         target = graphRepository.save(target);
         return ConvertUtils.convert(GraphRsp.class).apply(target);
     }

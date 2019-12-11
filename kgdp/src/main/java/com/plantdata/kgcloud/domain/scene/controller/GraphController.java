@@ -1,8 +1,6 @@
 package com.plantdata.kgcloud.domain.scene.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.scene.req.SceneQueryReq;
-import com.plantdata.kgcloud.domain.scene.rsp.SceneRsp;
 import com.plantdata.kgcloud.domain.scene.service.GraphService;
 import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
@@ -11,15 +9,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.websocket.server.PathParam;
 

@@ -5,7 +5,6 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
@@ -76,7 +75,7 @@ public class ConceptConverter {
         if (!CollectionUtils.isEmpty(attrDefList)) {
             fillAttrDef(allConceptList, attrDefList);
         }
-        Map<Long, List<BasicConceptTreeRsp>> parentTreeItemMap = allConceptList.stream().collect(Collectors.groupingBy(BasicConceptTreeRsp::getParentId));
+        Map<Long, List<BasicConceptTreeRsp>> parentTreeItemMap = allConceptList.stream().filter(a->a.getParentId()!=null).collect(Collectors.groupingBy(BasicConceptTreeRsp::getParentId));
 
         fillTree(Lists.newArrayList(treeRsp), parentTreeItemMap);
         return treeRsp;

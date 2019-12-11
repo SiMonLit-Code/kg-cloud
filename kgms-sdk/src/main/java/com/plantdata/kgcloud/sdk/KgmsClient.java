@@ -9,13 +9,11 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @FeignClient(value = "kgms", contextId = "kgms")
 public interface KgmsClient {
@@ -175,7 +173,7 @@ public interface KgmsClient {
      * @return
      */
     @PostMapping("/config/algorithm/{kgName}")
-    ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName ,@RequestBody @Valid GraphConfAlgorithmReq req);
+    ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfAlgorithmReq req);
 
     /**
      * 图谱配置-算法-更新
@@ -201,7 +199,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/config/algorithm/{kgName}")
-    ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName , BaseReq baseReq);
+    ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     /**
      * 图谱配置-焦点-获取
@@ -244,7 +242,7 @@ public interface KgmsClient {
      * @return
      */
     @DeleteMapping("/config/kgql/{id}")
-    ApiReturn deleteKgql(@PathVariable("id") Long id) ;
+    ApiReturn deleteKgql(@PathVariable("id") Long id);
 
     /**
      * 图谱配置-KGQL-查询
@@ -253,7 +251,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/config/kgql/{kgName}")
-    ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName , BaseReq baseReq);
+    ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     /**
      * 图谱配置-KGQL-详情
@@ -261,7 +259,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/kgql/{id}")
-    public ApiReturn<GraphConfKgqlRsp> detailKgql( @PathVariable("id") Long id);
+    public ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id);
 
     /**
      * 图谱配置-问答-新建
@@ -270,7 +268,7 @@ public interface KgmsClient {
      * @return
      */
     @PostMapping("/config/qa/{kgName}")
-    ApiReturn<List<GraphConfQaRsp>> save(@PathVariable("kgName") String kgName , @RequestBody @Valid List<GraphConfQaReq> req);
+    ApiReturn<List<GraphConfQaRsp>> save(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfQaReq> req);
 
     /**
      * 图谱配置-问答-获取
@@ -287,7 +285,7 @@ public interface KgmsClient {
      * @return
      */
     @PostMapping("/config/statistical/{kgName}")
-    ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfStatisticalReq req);
+    ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfStatisticalReq req);
 
     /**
      * 图谱配置-统计-批量新建
@@ -354,7 +352,7 @@ public interface KgmsClient {
      * @return
      */
     @PostMapping("/config/reason/{kgName}")
-    ApiReturn<GraphConfReasonRsp> saveReasoning(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfReasonReq req);
+    ApiReturn<GraphConfReasonRsp> saveReasoning(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfReasonReq req);
 
     /**
      * 图谱配置-推理-分页
@@ -389,6 +387,7 @@ public interface KgmsClient {
      */
     @PatchMapping("/config/reason/{kgName}/{id}")
     ApiReturn<GraphConfReasonRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasonReq req);
+
 
     /**
      * 模型调用

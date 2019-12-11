@@ -2,17 +2,21 @@ package com.plantdata.kgcloud.sdk.req.app.explore;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.GraphCommonReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.ReasoningReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphCommonReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author cjw
@@ -22,7 +26,7 @@ import java.util.Map;
 @ApiModel("普通图探索推理参数")
 @Getter
 @Setter
-public class CommonReasoningExploreReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphCommonReqInterface {
+public class CommonReasoningExploreReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphCommonReqInterface, SecondaryScreeningInterface {
 
     @ApiModelProperty("通用参数")
     private CommonFiltersReq common;
@@ -47,5 +51,10 @@ public class CommonReasoningExploreReq extends BasicGraphExploreReq implements R
     @Override
     public CommonFiltersReq fetchCommon() {
         return common;
+    }
+
+    @Override
+    public Set<Long> getNeedSaveEntityIds() {
+        return common.getId() == null ? Collections.emptySet() : Sets.newHashSet(common.getId());
     }
 }

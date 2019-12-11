@@ -1,9 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.obtain.controller;
 
 import com.plantdata.kgcloud.domain.common.module.DataSetDataObtainInterface;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.BaseTableReq;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.ReadTableReq;
-import com.plantdata.kgcloud.domain.dataset.statistic.controller.req.SearchTableReq;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

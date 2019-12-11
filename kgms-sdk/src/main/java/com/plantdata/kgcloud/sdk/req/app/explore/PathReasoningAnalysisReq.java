@@ -6,9 +6,10 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.GraphPathReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.GraphTimingReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.ReasoningReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphPathReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphTimingReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -26,7 +27,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ApiModel("路径分析推理参数")
-public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphPathReqInterface, GraphTimingReqInterface {
+public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphPathReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
 
     @NotNull
     @ApiModelProperty(value = "路径参数", required = true)

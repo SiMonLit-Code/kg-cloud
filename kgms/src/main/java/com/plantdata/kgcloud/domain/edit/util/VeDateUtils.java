@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.edit.util;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -174,4 +175,85 @@ public class VeDateUtils {
         SimpleDateFormat formatter = new SimpleDateFormat(sformat);
         return formatter.format(currentTime);
     }
+
+    public static String DataToStrDay(Date date){
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        return  sdf.format( date);
+
+    }
+    public static String DateToLongString(Date date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return simpleDateFormat.format(date);
+    }
+
+    /**
+     * 将短时间格式时间转换为字符串 yyyy
+     *
+     * @param dateDate
+     * @param
+     * @return
+     */
+    public static String dateToStrYear(Date dateDate) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+        String dateString = formatter.format(dateDate);
+        return dateString;
+    }
+
+    public static String dateToStrQuarter(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        int currentMonth = c.get(Calendar.MONTH) + 1;
+        Date now = null;
+        String quarter = "";
+        try {
+            if (currentMonth >= 1 && currentMonth <= 3)
+                quarter = "年第一季度";
+            else if (currentMonth >= 4 && currentMonth <= 6)
+                quarter = "年第二季度";
+            else if (currentMonth >= 7 && currentMonth <= 9)
+                quarter = "年第三季度";
+            else if (currentMonth >= 10 && currentMonth <= 12)
+                quarter = "年第四季度";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dateToStrYear(date) + quarter;
+    }
+
+    /**
+     * 将短时间格式时间转换为字符串 yyyy-MM
+     *
+     * @param dateDate
+     * @param
+     * @return
+     */
+    public static String dateToStrMean(Date dateDate) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM");
+        String dateString = formatter.format(dateDate);
+        return dateString;
+    }
+
+    /**
+     * 将长时间格式时间转换为字符串 yyyy-MM-dd HH:mm:ss
+     *
+     * @param dateDate
+     * @return
+     */
+    public static String dateToStrLongHH(Date dateDate) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH");
+        String dateString = formatter.format(dateDate);
+        return dateString;
+    }
+    /**
+     * 将长时间格式时间转换为字符串 yyyy-MM-dd HH:mm:ss
+     *
+     * @param dateDate
+     * @return
+     */
+    public static String dateToStrLongMM(Date dateDate) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String dateString = formatter.format(dateDate);
+        return dateString;
+    }
+
 }

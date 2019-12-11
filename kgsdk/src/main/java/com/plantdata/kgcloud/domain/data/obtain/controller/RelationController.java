@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.data.obtain.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.EditClient;
-import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
@@ -46,6 +45,10 @@ public class RelationController implements GraphDataObtainInterface {
     }
 
 //    @ApiOperation("批量关系查询")
+//    public ApiReturn queryAllRelation() {
+//        //todo 等待底层提供接口
+//        return editClient.updateRelations(null);
+//    }
 
     @ApiOperation("批量关系修改")
     @PatchMapping("relations/update/{kgName}")

@@ -4,6 +4,7 @@ import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
+import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 
@@ -24,9 +25,25 @@ public interface GraphHelperService {
 
     Map<Long, BasicInfo> getConceptIdMap(String kgName);
 
-    <T extends BasicGraphExploreReq> T dealGraphReq(String kgName, T exploreReq);
+    /**
+     * 图探索 属性，概念 key->转id
+     *
+     * @param kgName
+     * @param exploreReq
+     * @param <T>
+     * @return
+     */
+    <T extends BasicGraphExploreReq> T keyToId(String kgName, T exploreReq);
 
-    <T extends BasicGraphExploreRsp,E extends BasicGraphExploreReq> Optional<T> dealByGraphReq(String kgName, E req, T rsp);
+    /**
+     * @param kgName
+     * @param req
+     * @param rsp
+     * @param <T>
+     * @param <E>
+     * @return
+     */
+    <T extends BasicGraphExploreRsp> Optional<T> graphSearchBefore(String kgName, SecondaryScreeningInterface req, T rsp);
 
     <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, boolean relationMerge);
 
