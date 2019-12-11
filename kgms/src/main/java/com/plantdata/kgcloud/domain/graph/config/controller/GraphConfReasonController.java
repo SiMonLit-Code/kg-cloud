@@ -34,9 +34,9 @@ public class GraphConfReasonController {
 
 
     @ApiOperation("图谱配置-推理-分页")
-    @GetMapping("/reason/{kgName}")
+    @GetMapping("/reason/page/{kgName}")
     public ApiReturn<Page<GraphConfReasonRsp>> selectReasoninglPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
-        return ApiReturn.success(graphConfReasoningService.findByKgName(kgName,baseReq));
+        return ApiReturn.success(graphConfReasoningService.getByKgName(kgName,baseReq));
     }
 
     @ApiOperation("图谱配置-推理-详情")

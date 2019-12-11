@@ -64,7 +64,8 @@ public class ParserBeanUtils {
      * @return
      */
     public static BasicInfoRsp parserEntityVO(EntityVO vo) {
-        BasicInfoRsp basicInfoRsp = MapperUtils.map(vo, BasicInfoRsp.class);
+        BasicInfoRsp basicInfoRsp = MapperUtils.mapAttr(vo, BasicInfoRsp.class);
+
         Map<String, Object> entityMetaData = vo.getMetaData();
         if (Objects.nonNull(entityMetaData)) {
             if (entityMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {

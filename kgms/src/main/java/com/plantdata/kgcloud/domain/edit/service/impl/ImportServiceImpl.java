@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.ImportType;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
@@ -127,7 +128,8 @@ public class ImportServiceImpl implements ImportService {
         header.add(Collections.singletonList("简介"));
         header.add(Collections.singletonList("数据来源"));
         header.add(Collections.singletonList("置信度"));
-        BasicInfoRsp details = basicInfoService.getDetails(kgName, conceptId);
+        BasicInfoRsp details = basicInfoService.getDetails(kgName,
+                BasicReq.builder().id(conceptId).isEntity(false).build());
         GisVO gis = details.getGis();
         if (Objects.nonNull(gis) && gis.getIsOpenGis()) {
             header.add(Collections.singletonList("GIS名称"));

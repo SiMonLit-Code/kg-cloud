@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -80,14 +81,21 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public List<GraphConfStatisticalRsp> updateAll(List<Long> ids, List<GraphConfStatisticalReq> reqs) {
-        List<GraphConfStatistical> list = graphConfStatisticalRepository.findAllById(ids);
+    public List<GraphConfStatisticalRsp> updateAll( List<GraphConfStatisticalReq> reqs) {
+        List<Long> list = new ArrayList<>();
+
+        for (GraphConfStatisticalReq req : reqs){
+            GraphConfStatistical targe = new GraphConfStatistical();
+            Long id = targe.getId();
+            list.add(id);
+        }
+        List<GraphConfStatistical> list1 = graphConfStatisticalRepository.findAllById(list);
         for (GraphConfStatisticalReq req : reqs){
             GraphConfStatistical targe = new GraphConfStatistical();
             BeanUtils.copyProperties(req, targe);
-            list.add(targe);
+            list1.add(targe);
         }
-        List<GraphConfStatistical> list1 = graphConfStatisticalRepository.saveAll(list);
+        List<GraphConfStatistical> list2 = graphConfStatisticalRepository.saveAll(list1);
         return list1.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
     }
 
