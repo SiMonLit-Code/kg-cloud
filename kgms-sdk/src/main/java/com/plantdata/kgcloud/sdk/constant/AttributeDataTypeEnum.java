@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.sdk.constant;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author cjw
@@ -32,7 +32,8 @@ public enum AttributeDataTypeEnum {
     IMAGE(91, "图片"),
     VIDEO(92, "音、视频"),
     ATTACHMENT(93, "文件");
-    public static final List<AttributeDataTypeEnum> DATA_VALUE_LIST = Lists.newArrayList(INTEGER, FLOAT);
+    public static final Set<AttributeDataTypeEnum> DATA_VALUE_SET = Sets.newHashSet(INTEGER, FLOAT);
+    public static final Set<AttributeDataTypeEnum> DATE_SET = Sets.newHashSet(DATE, TIME, DATETIME);
 
     AttributeDataTypeEnum(int value, String desc) {
         this.value = value;

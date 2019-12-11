@@ -19,7 +19,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.ExploreConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;

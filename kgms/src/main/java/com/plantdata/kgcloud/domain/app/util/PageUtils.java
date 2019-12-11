@@ -12,11 +12,13 @@ import java.util.List;
  */
 public class PageUtils {
 
+    public static final int DEFAULT_SIZE = 10;
+
     public static <T> List<T> subList(Integer pageNo, Integer pageSize, List<T> list) {
         int start;
         int length;
         if (pageSize <= 0) {
-            pageSize = 10;
+            pageSize = DEFAULT_SIZE;
         }
         if (pageNo == 0) {
             pageNo = 1;

@@ -2,11 +2,9 @@ package com.plantdata.kgcloud.domain.data.obtain.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
-import com.plantdata.kgcloud.domain.common.req.PageReq;
-import com.plantdata.kgcloud.domain.common.rsp.PageRsp;
-import com.plantdata.kgcloud.domain.data.obtain.req.ReasoningRuleReq;
-import com.plantdata.kgcloud.domain.data.obtain.rsp.ReasoningRuleRsp;
 import com.plantdata.kgcloud.sdk.KgmsClient;
+import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
 /**
  * @author cjw
  * @version 1.0
@@ -32,42 +28,38 @@ public class ReasoningRuleController implements GraphDataObtainInterface {
     @Autowired
     private KgmsClient kgmsClient;
 
-    @GetMapping("{kgName}/{type}")
-    @ApiOperation("推理规则列表")
-    public ApiReturn<PageRsp<ReasoningRuleRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                           @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
-                                                           @Valid PageReq pageReq) {
-
-        return ApiReturn.success(null);
-    }
+//    @GetMapping("{kgName}/{type}")
+//    @ApiOperation("推理规则列表")
+//    public ApiReturn<PageRsp<ReasoningRuleRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+//                                                           @Valid PageReq pageReq) {
+//
+//        return ApiReturn.success(null);
+//    }
 
     @ApiOperation("推理规则详情")
-    @GetMapping("{kgName}/(id)")
-    public ApiReturn<ReasoningRuleRsp> detail(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                              @ApiParam("规则id") @PathVariable("id") Integer id) {
-        return ApiReturn.success(null);
+    @GetMapping("{id}")
+    public ApiReturn<GraphConfReasonRsp> detail(@ApiParam("规则id") @PathVariable("id") Long id) {
+
+        return kgmsClient.detailReasoning(id);
     }
 
     @ApiOperation("推理规则新增")
     @PostMapping("{kgName}")
-    public ApiReturn<ReasoningRuleRsp> add(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                           @RequestBody ReasoningRuleReq reasoningRuleReq) {
+    public ApiReturn<GraphConfReasonRsp> add(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                             @RequestBody GraphConfReasonReq reasoningRuleReq) {
 
-        return ApiReturn.success(null);
+        return kgmsClient.saveReasoning(kgName, reasoningRuleReq);
     }
 
     @ApiOperation("推理规则删除")
-    @DeleteMapping("{kgName}/(id)")
-    public ApiReturn<ReasoningRuleRsp> delete(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                              @ApiParam("规则id") @PathVariable("id") Integer id) {
-        return ApiReturn.success(null);
+    @DeleteMapping("{id}")
+    public ApiReturn delete(@ApiParam("规则id") @PathVariable("id") Long id) {
+        return kgmsClient.deleteReasoning(id);
     }
 
     @ApiOperation("推理规则修改")
-    @PatchMapping("{kgName}/(id)")
-    public ApiReturn modify(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                            @ApiParam("规则id") @PathVariable("id") Integer id,
-                            @RequestBody ReasoningRuleReq reasoningRuleReq) {
-        return ApiReturn.success();
+    @PatchMapping("{id}")
+    public ApiReturn modify(@ApiParam("规则id") @PathVariable("id") Long id, @RequestBody GraphConfReasonReq reasoningRuleReq) {
+        return kgmsClient.updateReasoning(id, reasoningRuleReq);
     }
 }

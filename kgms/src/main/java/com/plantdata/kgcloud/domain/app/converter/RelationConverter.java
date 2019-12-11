@@ -1,20 +1,12 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
-import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;

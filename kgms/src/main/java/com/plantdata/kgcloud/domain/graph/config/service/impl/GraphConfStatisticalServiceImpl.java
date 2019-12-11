@@ -1,15 +1,11 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.graph.config.constant.FocusType;
-import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfStatisticalRepository;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.req.GraphConfFocusReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfFocusRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;

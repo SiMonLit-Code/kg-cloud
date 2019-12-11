@@ -6,7 +6,6 @@ import com.plantdata.kgcloud.domain.model.entity.Model;
 import com.plantdata.kgcloud.domain.model.repository.ModelRepository;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.KgmsModelReq;
-import com.plantdata.kgcloud.sdk.req.WordReq;
 import com.plantdata.kgcloud.sdk.rsp.ModelRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;

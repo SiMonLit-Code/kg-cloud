@@ -7,7 +7,6 @@ import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.KgqlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;

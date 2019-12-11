@@ -1,8 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.util;
 
-import ai.plantdata.kg.api.edit.req.AttributeDefinitionFrom;
 import ai.plantdata.kg.api.edit.resp.AttributeDefinitionVO;
-import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;

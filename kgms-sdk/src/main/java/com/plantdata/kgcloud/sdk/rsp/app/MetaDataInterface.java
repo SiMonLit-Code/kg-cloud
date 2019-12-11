@@ -14,6 +14,7 @@ import java.util.Map;
 public interface MetaDataInterface {
     /**
      * 开始时间
+     *
      * @param startTime 。
      */
     default void setStartTime(Date startTime) {
@@ -21,6 +22,7 @@ public interface MetaDataInterface {
 
     /**
      * 结束时间
+     *
      * @param endTime 。
      */
     default void setEndTime(Date endTime) {
@@ -28,46 +30,60 @@ public interface MetaDataInterface {
 
     /**
      * gis开启
+     *
      * @param openGis 。。。
      */
-    default void setOpenGis(Boolean openGis){
+    default void setOpenGis(Boolean openGis) {
     }
 
     /**
      * 经度
+     *
      * @param lng 。
      */
-    default void setLng(Double lng){
+    default void setLng(Double lng) {
     }
 
     /**
      * 纬度
+     *
      * @param lat 。
      */
-    default void setLat(Double lat){
+    default void setLat(Double lat) {
     }
 
     /**
      * 地址
+     *
      * @param address 。
      */
-    default void  setAddress(String address){}
+    default void setAddress(String address) {
+    }
 
     /**
      * 样式
-     *  @param  additional .
+     *
+     * @param additional .
      */
-    default void setAdditional(Map<String,Object> additional){
+    default void setAdditional(Map<String, Object> additional) {
 
     }
 
     /**
      * 标签
+     *
      * @param tagRspList .
      */
-    default void  setTags(List<TagRsp> tagRspList){
+    default void setTags(List<TagRsp> tagRspList) {
 
     }
 
+    /**
+     * 分数
+     *
+     * @param score .
+     */
+    default void setScore(Double score) {
 
+    }
 }

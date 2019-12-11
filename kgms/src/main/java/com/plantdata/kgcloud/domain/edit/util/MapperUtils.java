@@ -9,7 +9,6 @@ import ma.glasnost.orika.MappingContext;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.Type;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
