@@ -95,7 +95,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     }
 
     @Override
-    public void updateBasicInfo(String kgName, BasicInfoModifyReq basicInfoModifyReq) {
+    public void updateBasicInfo(String kgName,  BasicInfoModifyReq basicInfoModifyReq) {
         UpdateBasicInfoFrom updateBasicInfoFrom =
                 ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(basicInfoModifyReq);
         RestRespConverter.convertVoid(conceptEntityApi.update(kgName, updateBasicInfoFrom));
