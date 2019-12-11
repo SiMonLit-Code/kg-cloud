@@ -20,8 +20,8 @@ import java.util.function.Function;
  * @version 1.0
  * @date 2019/11/28 10:22
  */
-//@SpringBootTest
-//@RunWith(SpringRunner.class)
+@SpringBootTest
+@RunWith(SpringRunner.class)
 public class GraphExplorationTest {
     @Autowired
     private GraphExplorationService graphExplorationService;
