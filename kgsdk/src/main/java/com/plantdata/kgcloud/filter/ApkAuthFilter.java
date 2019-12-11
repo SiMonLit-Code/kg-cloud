@@ -45,7 +45,7 @@ public class ApkAuthFilter extends OncePerRequestFilter {
         String apk = WebUtils.getKgApk(httpServletRequest);
         if (StringUtils.isEmpty(apk)) {
             log.debug("ApkAuthFilter reject request uri [{}]", requestUri);
-            WebUtils.sendResponse(httpServletResponse, ApiReturn.fail(CommonErrorCode.BAD_REQUEST.getErrorCode(), "Apk不能为空"));
+            WebUtils.sendResponse(httpServletResponse, ApiReturn.fail(CommonErrorCode.BAD_REQUEST));
             return;
         }
         ApiReturn<LoginRsp> loginRspApiReturn = null;
