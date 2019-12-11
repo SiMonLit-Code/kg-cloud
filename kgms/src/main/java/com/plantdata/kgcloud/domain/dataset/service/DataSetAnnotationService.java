@@ -65,5 +65,5 @@ public interface DataSetAnnotationService {
      * @param id
      * @param req
      */
-    void annotation(String kgName, Long id, AnnotationDataReq req);
+    void annotation(String userId,String kgName, Long id, AnnotationDataReq req);
 }

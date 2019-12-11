@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.rsp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.util.List;
  * @create: 2019-11-06 10:37
  **/
 @Data
+@JsonIgnoreProperties({"dbName","tbName","username","password","addr"})
 public class DataSetRsp {
     private Long id;
     private Long folderId;
@@ -34,7 +36,7 @@ public class DataSetRsp {
     private String dbName;
     private String tbName;
     private String createWay;
-    private String fields;
+    private List<String> fields;
     private List<DataSetSchema> schema;
     private String mapper;
     private String skillConfig;
