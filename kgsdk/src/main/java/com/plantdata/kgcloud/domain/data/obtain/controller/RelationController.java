@@ -45,6 +45,10 @@ public class RelationController implements GraphDataObtainInterface {
     }
 
 //    @ApiOperation("批量关系查询")
+//    public ApiReturn queryAllRelation() {
+//        //todo 等待底层提供接口
+//        return editClient.updateRelations(null);
+//    }
 
     @ApiOperation("批量关系修改")
     @PatchMapping("relations/update/{kgName}")

@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
+import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
+import com.plantdata.kgcloud.sdk.req.RelationSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
@@ -22,6 +24,10 @@ import java.util.stream.Collectors;
  * @date 2019/11/25 17:15
  */
 public class RelationConverter {
+
+    public static FilterRelationFrom searchReqFilterRelationFrom(RelationSearchReq searchReq) {
+        return new FilterRelationFrom();
+    }
 
 
     static List<GisRelationRsp> voToGisRsp(List<GisRelationVO> relationList, Map<String, Integer> ruleIdMap) {

@@ -51,6 +51,8 @@ public class KgDataServiceImpl implements KgDataService {
     @Autowired
     public StatisticsApi statisticsApi;
 
+
+
     @Override
     public List<Map<String, Object>> statisticCountEdgeByEntity(String kgName, EdgeStatisticByEntityIdReq statisticReq) {
         EntityRelationDegreeFrom degreeFrom = GraphRelationStatisticBO.buildDegreeFrom(statisticReq);
