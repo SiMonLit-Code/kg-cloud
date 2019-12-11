@@ -54,7 +54,7 @@ public class MetaConverter {
         if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
             Map<String, Object> objectMap = (Map<String, Object>) metaData.get(MetaDataInfo.ADDITIONAL.getFieldName());
             StyleRsp styleRsp = new StyleRsp();
-            metaDataImpl.setStyle(styleRsp);
+            //metaDataImpl.setStyle(styleRsp);
         }
     }
 }

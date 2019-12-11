@@ -22,25 +22,25 @@ public class PromptReq extends BaseReq {
     private String kw;
 
     @ApiModelProperty(value = "是否忽略大小写,默认忽略大小写")
-    private boolean ignore = true;
+    private Boolean ignore = true;
 
     @ApiModelProperty(value = "是否模糊查询,默认前缀搜索")
-    private boolean like = false;
+    private Boolean like = false;
 
     @ApiModelProperty(value = "是否查询概念")
-    private boolean concept;
+    private Boolean concept;
 
     @ApiModelProperty(value = "是否查询实体")
-    private boolean entity;
+    private Boolean entity;
 
     @ApiModelProperty(value = "是否查询属性")
-    private boolean attribute;
+    private Boolean attribute;
 
     @ApiModelProperty(value = "概念ids")
     private List<Long> conceptIds;
 
     @ApiModelProperty(value = "是否继承")
-    private boolean inherit = false;
+    private Boolean inherit = false;
 
     @ApiModelProperty(value = "消歧标识")
     private String meaningTag;

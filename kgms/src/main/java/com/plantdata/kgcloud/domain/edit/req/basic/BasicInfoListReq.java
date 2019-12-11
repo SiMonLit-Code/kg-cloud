@@ -24,16 +24,16 @@ public class BasicInfoListReq extends BaseReq {
     private String kw;
 
     @ApiModelProperty(value = "是否忽略大小写")
-    private boolean ignore;
+    private Boolean ignore;
 
     @ApiModelProperty(value = "是否开启模糊查询")
-    private boolean like;
+    private Boolean like;
 
     @ApiModelProperty(value = "消歧标识")
     private String meaningTag;
 
     @ApiModelProperty(value = "是否继承")
-    private boolean inherit;
+    private Boolean inherit;
 
     @ApiModelProperty(value = "0:概念,1:实体")
     private Integer type;

@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.parse.controller;
 
 import com.hiekn.pddocument.bean.PdDocument;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.parse.req.NlpParseReq;
 import com.plantdata.kgcloud.domain.parse.service.ParseService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,7 +34,7 @@ public class ParseController {
 
     @ApiOperation("nlp解析")
     @PostMapping("nlp")
-    public ApiReturn<PdDocument> nlp(String url, @RequestBody List<String> texts) {
-        return parseService.nlpParse(url,texts);
+    public ApiReturn<List<PdDocument>> nlp(@RequestBody NlpParseReq nlpParseReq) {
+        return parseService.nlpParse(nlpParseReq);
     }
 }

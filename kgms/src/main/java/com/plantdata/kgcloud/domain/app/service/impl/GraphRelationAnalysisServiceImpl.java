@@ -38,6 +38,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
 
     @Override
     public RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReq analysisReq) {
+
         analysisReq = graphHelperService.dealGraphReq(kgName,analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationAnalysisRsp analysisRsp = new RelationAnalysisRsp();
@@ -47,7 +48,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp,analysisReq.isRelationMerge());
     }
 
     @Override
@@ -61,7 +62,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp,analysisReq.isRelationMerge());
     }
 
     @Override
@@ -77,7 +78,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
         //推理
         GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), analysisReq);
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphVO, analysisRsp);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphVO, analysisRsp,analysisReq.isRelationMerge());
     }
 
 

@@ -11,7 +11,7 @@ import java.util.Map;
  * @Description:
  */
 @Data
-@ApiModel("批量关系新建结果")
+@ApiModel("批量关系新建结果.")
 public class BatchRelationRsp {
     private Integer attrId;
     private Long entityId;

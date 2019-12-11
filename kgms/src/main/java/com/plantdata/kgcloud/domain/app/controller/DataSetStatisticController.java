@@ -31,7 +31,7 @@ public class DataSetStatisticController {
     @Resource
     private DataSetStatisticService dataSetStatisticService;
 
-    @ApiOperation("统计数据二维")
+    @ApiOperation("统计数据二维(仅支持搜索数据集)")
     @PostMapping("2d/{dataSetKey}")
     public ApiReturn<DataSetStatisticRsp> statistic2d(
             @ApiParam("数据集唯一标识") @PathVariable("dataSetKey") String dataSetKey,
@@ -39,7 +39,7 @@ public class DataSetStatisticController {
         return ApiReturn.success(dataSetStatisticService.statisticByDimension(twoDimensional, dataSetKey, DimensionEnum.TWO));
     }
 
-    @ApiOperation("统计数据三维")
+    @ApiOperation("统计数据三维(仅支持搜索数据集)")
     @PostMapping("3d/{dataSetKey}")
     public ApiReturn<DataSetStatisticRsp> statistic3d(@ApiParam("数据集唯一标识") @PathVariable("dataSetKey") String dataSetKey,
                                                       @Valid StatisticByDimensionalReq twoDimensional) {

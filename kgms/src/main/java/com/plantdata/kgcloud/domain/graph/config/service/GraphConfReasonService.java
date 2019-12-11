@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
-import com.plantdata.kgcloud.domain.graph.config.req.GraphConfReasonReq;
-import com.plantdata.kgcloud.domain.graph.config.rsp.GraphConfReasonRsp;
+import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -28,7 +30,7 @@ public interface GraphConfReasonService {
      * 查询所有
      * @return
      */
-    List<GraphConfReasonRsp> findAll();
+    Page<GraphConfReasonRsp> findByKgName(String kgName , BaseReq baseReq);
 
     /**
      * 根据id查询详情

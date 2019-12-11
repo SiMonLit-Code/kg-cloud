@@ -1,5 +1,8 @@
 package com.plantdata.kgcloud.domain.app.bo;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.plantdata.kgcloud.domain.app.dto.AggsDTO;
 import com.plantdata.kgcloud.domain.app.dto.EsDTO;
 import com.plantdata.kgcloud.sdk.constant.DataSetStatisticEnum;
@@ -11,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -58,9 +63,9 @@ public class DataSetStatisticBO {
     }
 
     private DataSetStatisticRsp postDataDealByReturnType(List<Map<String, Object>> data) {
-        JSONArray arr = this.buildAttrArray(data);
-        DataSetStatisticRsp rsp = new DataSetStatisticRsp();
-        //  List<String> xData = arr == null ? Collections.emptyList() : new ArrayList<>(arr.size());
+//        JSONArray arr = this.buildAttrArray(data);
+//        DataSetStatisticRsp rsp = new DataSetStatisticRsp();
+//        List<String> xData = arr == null ? Collections.emptyList() : new ArrayList<>(arr.size());
 //        List<Double> sData = arr == null ? Collections.emptyList() : new ArrayList<>(arr.size());
 //        if (Objects.nonNull(arr)) {
 //            for (int i = 0; i < arr.size(); i++) {
@@ -78,11 +83,11 @@ public class DataSetStatisticBO {
 //        }
 //        rsp.addData2X(xData);
 //        rsp.addData2Series(StringUtils.EMPTY, sData);
-        return rsp;
+        return null;
     }
 
     private DataSetStatisticRsp postDataDealNoReturnType(List<Map<String, Object>> data) {
-        JSONArray arr = this.buildAttrArray(data);
+//        JSONArray arr = this.buildAttrArray(data);
         DataSetStatisticRsp rsp = new DataSetStatisticRsp();
 //        Table<String, String, Double> rsTable = HashBasedTable.create();
 //        if (Objects.nonNull(arr)) {
@@ -117,11 +122,14 @@ public class DataSetStatisticBO {
         return rsp;
     }
 
-    private JSONArray buildAttrArray(List<Map<String, Object>> data) {
-//        JSONObject jsonObj = JSON.parseObject(JSON.toJSONString(data));
-//        JSONObject byKey = jsonObj.getJSONObject("aggregations").getJSONObject("by_key1");
-//        return aggsDTO.getIsNested() ? byKey.getJSONObject(aggsDTO.getNestedName()).getJSONArray("buckets") : byKey.getJSONArray("buckets");
-        return null;
+    private ArrayNode buildAttrArray(List<Map<String, Object>> data) {
+        JsonNode jsonObj = JsonNodeFactory.instance.pojoNode(data);
+        JsonNode byKey = jsonObj.get("aggregations").get("by_key1");
+        JsonNode arrayNode = aggsDTO.getIsNested() ? byKey.get(aggsDTO.getNestedName()).get("buckets") : byKey.get("buckets");
+        return (ArrayNode) arrayNode;
     }
 
+    public static void main(String[] args) {
+        String str = "{'aggregations':{'by_key1':{'nest':{'buckets'}}}}";
+    }
 }

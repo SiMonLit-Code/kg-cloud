@@ -37,9 +37,9 @@ public enum CountType {
 
     private String type;
 
-    private Integer code;
+    private int code;
 
-    CountType(String type, Integer code) {
+    CountType(String type, int code) {
         this.type = type;
         this.code = code;
     }

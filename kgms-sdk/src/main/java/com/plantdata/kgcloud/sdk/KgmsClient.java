@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.validation.Valid;
@@ -167,74 +168,105 @@ public interface KgmsClient {
     @DeleteMapping("/graph/{kgName}")
     ApiReturn graphDelete(@PathVariable("kgName") String kgName);
 
-    @ApiOperation("图谱新建算法")
+    @ApiOperation("图谱配置-算法-新建")
     @PostMapping("/config/algorithm/{kgName}")
-    ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfAlgorithmReq req);
+    ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName ,@RequestBody @Valid GraphConfAlgorithmReq req);
 
-    @ApiOperation("图谱更新算法")
+    @ApiOperation("图谱配置-算法-更新")
     @PatchMapping("/config/algorithm/{id}")
-    ApiReturn<GraphConfAlgorithmRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfAlgorithmReq req);
+    public ApiReturn<GraphConfAlgorithmRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfAlgorithmReq req);
 
-    @ApiOperation("图谱删除算法")
+    @ApiOperation("图谱配置-算法-删除")
     @DeleteMapping("/config/algorithm/{id}")
     ApiReturn delete(@PathVariable("id") Long id);
 
-    @ApiOperation("图谱查询算法")
+    @ApiOperation("图谱配置-算法-获取")
     @GetMapping("/config/algorithm/{kgName}")
-    ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq);
+    ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName , BaseReq baseReq);
 
-    @ApiOperation("图谱焦点")
+    @ApiOperation("图谱配置-焦点-获取")
     @GetMapping("/config/focus/{kgName}")
     ApiReturn<List<GraphConfFocusRsp>> find(@PathVariable("kgName") String kgName);
 
-    @ApiOperation("图谱焦点保存")
+    @ApiOperation("图谱配置-焦点-保存")
     @PatchMapping("/config/focus/{kgName}")
-    ApiReturn<List<GraphConfFocusRsp>> save(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfFocusReq> req);
+    ApiReturn<List<GraphConfFocusRsp>> saveFocus(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfFocusReq> req);
 
-    @ApiOperation("图谱新建业务")
-    @PostMapping("/config/kgql/{kgName}")
-    ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req);
+    @ApiOperation("图谱配置-KGQL-新建")
+    @PostMapping("/kgql/{kgName}")
+    ApiReturn<GraphConfKgqlRsp> saveKgql(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req);
 
-    @ApiOperation("图谱更新业务")
+    @ApiOperation("图谱配置-KGQL-更新")
     @PatchMapping("/config/kgql/{id}")
-    ApiReturn<GraphConfKgqlRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfKgqlReq req);
+    ApiReturn<GraphConfKgqlRsp> updateKgql(@PathVariable("id") Long id, @RequestBody @Valid GraphConfKgqlReq req);
 
-    @ApiOperation("图谱删除业务")
+    @ApiOperation("图谱配置-KGQL-删除")
     @DeleteMapping("/config/kgql/{id}")
-    ApiReturn deleteKgql(@PathVariable("id") Long id);
+    ApiReturn deleteKgql(@PathVariable("id") Long id) ;
 
-    @ApiOperation("图谱查询业务")
+    @ApiOperation("图谱配置-KGQL-查询")
     @GetMapping("/config/kgql/{kgName}")
-    ApiReturn<Page<GraphConfKgqlRsp>> select(@PathVariable("kgName") String kgName, @RequestParam("kgName") Integer ruleType, BaseReq baseReq);
+    ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName , BaseReq baseReq);
 
-    @ApiOperation("图谱业务详情")
-    @GetMapping("/config/kgql/{id}")
-    ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id);
+    @ApiOperation("图谱配置-KGQL-详情")
+    @GetMapping("/kgql/{id}")
+    public ApiReturn<GraphConfKgqlRsp> detailKgql( @PathVariable("id") Long id);
 
-    @ApiOperation("图谱新建问答")
+    @ApiOperation("图谱配置-问答-新建")
     @PostMapping("/config/qa/{kgName}")
-    ApiReturn<List<GraphConfQaRsp>> saveQa(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfQaReq> req);
+    ApiReturn<List<GraphConfQaRsp>> save(@PathVariable("kgName") String kgName , @RequestBody @Valid List<GraphConfQaReq> req);
 
-    @ApiOperation("图谱查询问答")
+    @ApiOperation("图谱配置-问答-获取")
     @GetMapping("/config/qa/{kgName}")
     ApiReturn<List<GraphConfQaRsp>> selectQa(@PathVariable("kgName") String kgName);
 
-    @ApiOperation("图谱新建统计")
+    @ApiOperation("图谱配置-统计-新建")
     @PostMapping("/config/statistical/{kgName}")
-    ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfStatisticalReq req);
+    ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfStatisticalReq req);
 
-    @ApiOperation("图谱更新统计")
+    @ApiOperation("图谱配置-统计-批量新建")
+    @PostMapping("/config/statistical/batch/save")
+    ApiReturn<List<GraphConfStatisticalRsp>> saveStatisticalBatch( @RequestBody @Valid List<GraphConfStatisticalReq> listReq);
+
+    @ApiOperation("图谱配置-统计-更新")
     @PatchMapping("/config/statistical/{id}")
     ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req);
 
-    @ApiOperation("图谱删除统计")
+    @ApiOperation("图谱配置-统计-删除")
     @DeleteMapping("/config/statistical/{id}")
     ApiReturn deleteStatistical(@PathVariable("id") Long id);
 
+    @ApiOperation("图谱配置-统计-批量删除")
+    @PatchMapping("/config/statistical/batch")
+    ApiReturn deleteStatisticalBatch(@RequestBody List<Long> ids);
 
-    @ApiOperation("图谱查询统计")
+    @ApiOperation("图谱配置-统计-查询")
     @GetMapping("/config/statistical/{kgName}")
-    ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName);
+    public ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName);
+
+    @ApiOperation("图谱配置-统计-分页")
+    @GetMapping("/config/statistical/{kgName}")
+    ApiReturn<Page<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
+
+    @ApiOperation("图谱配置-推理-新增")
+    @PostMapping("/config/reason/{kgName}")
+    ApiReturn<GraphConfReasonRsp> saveReasoning(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfReasonReq req);
+
+    @ApiOperation("图谱配置-推理-分页")
+    @GetMapping("/config/reason/{kgName}")
+    ApiReturn<Page<GraphConfReasonRsp>> selectReasoninglPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
+
+    @ApiOperation("图谱配置-推理-详情")
+    @GetMapping("/config/reason/{id}")
+    ApiReturn<GraphConfReasonRsp> detailReasoning(@PathVariable("id") Long id);
+
+    @ApiOperation("图谱配置-推理-删除")
+    @DeleteMapping("/config/reason/{kgName}/{id}")
+    ApiReturn deleteReasoning(@PathVariable("id") Long id);
+
+    @ApiOperation("图谱配置-推理-更新")
+    @PatchMapping("/config/reason/{kgName}/{id}")
+    ApiReturn<GraphConfReasonRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasonReq req);
 
     /**
      * 模型调用
@@ -245,5 +277,6 @@ public interface KgmsClient {
      */
     @PostMapping("model/call/{id}")
     ApiReturn callJson(@PathVariable("id") Long id, @RequestBody KgmsCallReq req);
+
 
 }

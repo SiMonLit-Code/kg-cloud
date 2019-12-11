@@ -1,14 +1,23 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
+import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
+import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -48,7 +57,7 @@ public class RelationConverter {
         from.setSeqNo(req.getSeqNo());
         from.setAttrId(req.getAttrId());
         from.setIsReserved(req.getReserved());
-        from.setSearchOption(req.getSearchOption());
+        from.setSearchOption(StringUtils.isEmpty(req.getSearchOption()) ? req.getKw() : req.getSearchOption());
         if (!CollectionUtils.isEmpty(req.getSorts())) {
             String sort = req.getSorts().get(1);
             Optional<SortTypeEnum> typeOpt = SortTypeEnum.parseByName(sort);
@@ -59,8 +68,6 @@ public class RelationConverter {
         }
         return from;
     }
-
-
 
 
     public static List<EdgeAttributeRsp> mapToEdgeAttributeRsp(@NonNull List<Map<Object, Integer>> mapList) {

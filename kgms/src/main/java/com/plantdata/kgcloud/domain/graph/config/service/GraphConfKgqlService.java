@@ -45,7 +45,7 @@ public interface GraphConfKgqlService {
      * @param kgName
      * @return
      */
-    Page<GraphConfKgqlRsp> findByKgName(String kgName , BaseReq baseReq , Integer ruleType);
+    Page<GraphConfKgqlRsp> findByKgName(String kgName , BaseReq baseReq );
 
 
     /**

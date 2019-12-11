@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -20,8 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 public class BasicRelationRsp {
-    @ApiModelProperty("id")
-    private String id;
+
     @ApiModelProperty("起点id")
     private Long from;
     @ApiModelProperty("终点id")
@@ -30,16 +30,18 @@ public class BasicRelationRsp {
     private Integer attId;
     @ApiModelProperty("属性名称")
     private String attName;
+    @ApiModelProperty("关系方向")
+    private Integer direction;
+    @ApiModelProperty("id")
+    private String id;
+    @ApiModelProperty("样式1")
+    private Map<String, Object> labelStyle;
+    @ApiModelProperty("样式2")
+    private Map<String, Object> linkStyle;
     @ApiModelProperty("开始时间")
     private String startTime;
     @ApiModelProperty("结束时间")
     private String endTime;
-    @ApiModelProperty("边数值属性")
-    private List<EdgeInfo> dataValAttrs;
-    @ApiModelProperty("边对象属性")
-    private List<EdgeInfo> objAttrs;
-    @ApiModelProperty("关系方向")
-    private Integer direction;
 
     @Getter
     @Setter
@@ -52,5 +54,9 @@ public class BasicRelationRsp {
         private Integer seqNo;
         @ApiModelProperty("边属性值")
         private Object value;
+        @ApiModelProperty("边属性值")
+        private Integer dataType;
+        @ApiModelProperty("值域")
+        private List<Long> rangeValue;
     }
 }

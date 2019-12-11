@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2019/11/14 15:58
  */
 @RestController
-@RequestMapping("app/semantic/kbqa")
+@RequestMapping("v3/app/semantic/kbqa")
 public class GraphSemanticController implements GraphSemanticApplicationInterface {
 
     @Autowired

@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.graph.config.entity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.domain.common.converter.JsonNodeConcerter;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -17,6 +18,7 @@ import java.util.Date;
  **/
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "graph_conf_statistical")
 @EntityListeners(AuditingEntityListener.class)

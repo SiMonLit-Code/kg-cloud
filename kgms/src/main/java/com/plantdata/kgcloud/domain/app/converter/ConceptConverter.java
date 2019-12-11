@@ -11,7 +11,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -30,13 +29,16 @@ public class ConceptConverter {
 
 
     public static String getKgTittle(@NonNull List<BasicInfo> conceptList) {
-        return conceptList.stream().filter(a -> a.getConceptId() != null && a.getConceptId() > 0).findFirst().orElse(new BasicInfo()).getName();
+        return conceptList.stream().filter(a -> a.getId() == 0).findFirst().orElse(new BasicInfo()).getName();
     }
 
     public static List<BaseConceptRsp> voToRsp(@NonNull List<BasicInfo> conceptList) {
         List<BaseConceptRsp> baseConceptRspList = Lists.newArrayListWithCapacity(conceptList.size());
         BaseConceptRsp conceptRsp;
         for (BasicInfo basicInfo : conceptList) {
+            if (basicInfo.getId() == 0) {
+                continue;
+            }
             conceptRsp = new BaseConceptRsp();
             conceptRsp.setId(basicInfo.getId());
             conceptRsp.setKey(basicInfo.getKey());
@@ -49,7 +51,7 @@ public class ConceptConverter {
                     conceptRsp.setOpenGis((Boolean) metaData.get(MetaDataInfo.OPEN_GIS.getFieldName()));
                 }
                 if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
-                    conceptRsp.setAdditional(JacksonUtils.readValue(metaData.get(MetaDataInfo.ADDITIONAL.getFieldName()).toString(), AdditionalRsp.class));
+                    conceptRsp.setAdditionalInfo(JacksonUtils.readValue(metaData.get(MetaDataInfo.ADDITIONAL.getFieldName()).toString(), AdditionalRsp.class));
                 }
             }
             baseConceptRspList.add(conceptRsp);
@@ -57,9 +59,6 @@ public class ConceptConverter {
         return baseConceptRspList;
     }
 
-    public static List<BasicConceptRsp> voToBasic(@NonNull List<BasicInfo> conceptList) {
-        return conceptList.stream().map(ConceptConverter::basicInfoToConcept).collect(Collectors.toList());
-    }
 
     public static BasicConceptTreeRsp voToConceptTree(@NonNull List<BasicInfo> conceptList, BasicConceptTreeRsp treeRsp) {
         return voToConceptTree(conceptList, Collections.emptyList(), treeRsp);
@@ -121,8 +120,8 @@ public class ConceptConverter {
                     attrDef.getRangeValue().forEach(range -> {
                         BasicConceptTreeRsp conceptTreeRsp = conceptTreeRspMap.get(range);
                         if (null != conceptTreeRsp) {
-                            DefaultUtils.listAdd(conceptTreeRsp.getNumAttrs(),numberAttr);
-                            DefaultUtils.listAdd(a.getChildren(),conceptTreeRsp);
+                            DefaultUtils.listAdd(conceptTreeRsp.getNumAttrs(), numberAttr);
+                            DefaultUtils.listAdd(a.getChildren(), conceptTreeRsp);
                         }
                     });
 

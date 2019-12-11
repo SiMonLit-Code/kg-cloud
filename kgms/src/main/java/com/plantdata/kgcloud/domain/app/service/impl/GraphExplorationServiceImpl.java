@@ -50,7 +50,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     @Override
     public CommonBasicGraphExploreRsp exploreByKgQl(String kgName, ExploreByKgQlReq kgQlReq) {
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.traversalRule(kgName, kgQlReq.getEntityId(), kgQlReq.getKgQl()));
-        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO)).orElse(CommonBasicGraphExploreRsp.EMPTY);
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, kgQlReq.isRelationMerge())).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
     @Override
@@ -71,13 +71,15 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     @Override
     public CommonBasicGraphExploreRsp commonGraphExploration(String kgName, CommonExploreReq exploreReq) {
         exploreReq = graphHelperService.dealGraphReq(kgName, exploreReq);
-        return queryAndRebuildRsp(kgName, GraphReqConverter.commonReqProxy(exploreReq));
+        GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
+        return queryAndRebuildRsp(kgName, graphFrom, exploreReq.isRelationMerge());
     }
 
     @Override
     public CommonBasicGraphExploreRsp timeGraphExploration(String kgName, CommonTimingExploreReq exploreReq) {
         exploreReq = graphHelperService.dealGraphReq(kgName, exploreReq);
-        return queryAndRebuildRsp(kgName, GraphReqConverter.commonReqProxy(exploreReq));
+        GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
+        return queryAndRebuildRsp(kgName, graphFrom, exploreReq.isRelationMerge());
     }
 
     @Override
@@ -90,18 +92,16 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
         }
         //推理
         GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), exploreReq);
-
-        return this.buildExploreRspWithConcept(kgName, graphVO);
+        return this.buildExploreRspWithConcept(kgName, graphVO, exploreReq.isRelationMerge());
     }
 
-
-    private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom) {
+    private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, boolean relationMerge) {
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(kgName, graphFrom));
-        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO)).orElse(CommonBasicGraphExploreRsp.EMPTY);
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, relationMerge)).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
-    private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphVO graph) {
+    private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphVO graph, boolean relationMerge) {
         Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
-        return GraphRspConverter.graphVoToCommonRsp(graph, conceptIdMap);
+        return GraphRspConverter.graphVoToCommonRsp(graph, conceptIdMap, relationMerge);
     }
 }

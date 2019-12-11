@@ -30,6 +30,7 @@ import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -84,7 +85,7 @@ public class EntityController {
     @PostMapping("/{kgName}/update")
     ApiReturn updateEntity(@PathVariable("kgName") String kgName,
                            @Valid @RequestBody EntityModifyReq entityModifyReq) {
-        basicInfoService.updateBasicInfo(kgName, (BasicInfoModifyReq) entityModifyReq);
+        basicInfoService.updateBasicInfo(kgName, ConvertUtils.convert(BasicInfoModifyReq.class).apply(entityModifyReq));
         return ApiReturn.success();
     }
 

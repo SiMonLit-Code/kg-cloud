@@ -15,11 +15,17 @@ import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
 import ai.plantdata.kg.api.pub.req.ConceptStatisticsBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.plantdata.kgcloud.constant.AttributeValueType;
+import com.plantdata.kgcloud.constant.BasicInfoType;
 import com.plantdata.kgcloud.constant.CountType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
+import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
+import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupSearchReq;
+import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
+import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
@@ -38,6 +44,7 @@ import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +79,9 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     @Autowired
     private QlApi qlApi;
 
+    @Autowired
+    private GraphAttrGroupService graphAttrGroupService;
+
     @Override
     public Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq) {
         BasicInfoFrom basicInfoFrom = ConvertUtils.convert(BasicInfoFrom.class).apply(basicInfoReq);
@@ -85,7 +95,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     }
 
     @Override
-    public void updateBasicInfo(String kgName, BasicInfoModifyReq basicInfoModifyReq) {
+    public void updateBasicInfo(String kgName,  BasicInfoModifyReq basicInfoModifyReq) {
         UpdateBasicInfoFrom updateBasicInfoFrom =
                 ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(basicInfoModifyReq);
         RestRespConverter.convertVoid(conceptEntityApi.update(kgName, updateBasicInfoFrom));
@@ -98,7 +108,28 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         if (!optional.isPresent() || optional.get().isEmpty()) {
             throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
         }
-        return ParserBeanUtils.parserEntityVO(optional.get().get(0));
+        BasicInfoRsp basicInfoRsp = ParserBeanUtils.parserEntityVO(optional.get().get(0));
+
+        List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
+        if (CollectionUtils.isEmpty(attrValue) || BasicInfoType.isEntity(basicInfoRsp.getType())) {
+            return basicInfoRsp;
+        } else {
+            List<GraphAttrGroupRsp> groupRsps = graphAttrGroupService.listAttrGroups(kgName,
+                    new AttrGroupSearchReq());
+            if (CollectionUtils.isEmpty(groupRsps)) {
+                return basicInfoRsp;
+            }
+            List<Integer> attrIds =
+                    attrValue.stream().filter(attrVO -> AttributeValueType.isNumeric(attrVO.getType()))
+                            .map(EntityAttrValueVO::getId).collect(Collectors.toList());
+            List<GraphAttrGroupRsp> attrGroupRsps = groupRsps.stream().filter(graphAttrGroupRsp -> {
+                List<Integer> rspAttrIds = graphAttrGroupRsp.getAttrIds();
+                rspAttrIds.retainAll(attrIds);
+                return !rspAttrIds.isEmpty();
+            }).collect(Collectors.toList());
+            basicInfoRsp.setAttrGroup(attrGroupRsps);
+            return basicInfoRsp;
+        }
     }
 
     @Override
