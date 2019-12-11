@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.graph.config.repository;
 
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -10,4 +12,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  **/
 public interface GraphConfReasonRepository extends JpaRepository<GraphConfReasoning, Long> {
 
+    Page<GraphConfReasoning> findByKgName(String kgName, Pageable pageable);
 }
