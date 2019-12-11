@@ -29,7 +29,7 @@ import javax.validation.Valid;
  * @date 2019/11/1 16:45
  */
 @RestController
-@RequestMapping("app/graphExplore")
+@RequestMapping("v3/app/graphExplore")
 public class GraphExplorationController implements GraphApplicationInterface {
 
     @Autowired

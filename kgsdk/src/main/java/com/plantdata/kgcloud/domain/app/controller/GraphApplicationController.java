@@ -28,7 +28,7 @@ import java.util.List;
  * @date 2019/11/4 14:27
  */
 @RestController
-@RequestMapping("app")
+@RequestMapping("v3/app")
 public class GraphApplicationController implements GraphApplicationInterface {
 
     @Autowired
