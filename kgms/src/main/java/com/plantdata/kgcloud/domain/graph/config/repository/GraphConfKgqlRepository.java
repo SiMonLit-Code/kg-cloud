@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.config.repository;
 
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfKgql;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,5 +20,5 @@ public interface GraphConfKgqlRepository extends JpaRepository<GraphConfKgql, Lo
      *
      * @return
      */
-    Page<GraphConfKgql> findByKgName(String kgName, Pageable pageable);
+    Page<GraphConfKgql> findByKgNameAndRuleType(String kgName,Integer ruleType, Pageable pageable);
 }

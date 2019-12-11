@@ -29,4 +29,9 @@ public class GraphConfKgqlRsp {
     @ApiModelProperty(value = "kgql")
     private String kgql;
 
+    @ApiModelProperty(value = "创建时间")
+    private Date createAt;
+
+    @ApiModelProperty(value = "更新时间")
+    private Date updateAt;
 }

@@ -4,10 +4,10 @@ import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfKgql;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfKgqlRepository;
-import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfKgqlService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
@@ -17,8 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * 图谱业务配置
@@ -62,9 +60,9 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     }
 
     @Override
-    public Page<GraphConfKgqlRsp> findByKgName(String kgName, BaseReq baseReq) {
+    public Page<GraphConfKgqlRsp> findByKgNameAndRuleType(String kgName, Integer ruleType, BaseReq baseReq) {
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
-        Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgName(kgName, pageable);
+        Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgNameAndRuleType(kgName,ruleType, pageable);
         return all.map(ConvertUtils.convert(GraphConfKgqlRsp.class));
     }
 

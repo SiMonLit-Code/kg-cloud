@@ -2,12 +2,9 @@ package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
-import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
-import com.plantdata.kgcloud.sdk.req.GraphConfFocusReq;
-import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfFocusRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
+import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
