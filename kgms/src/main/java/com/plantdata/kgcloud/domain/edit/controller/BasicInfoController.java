@@ -3,15 +3,15 @@ package com.plantdata.kgcloud.domain.edit.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
-import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.KgqlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +54,10 @@ public class BasicInfoController {
     }
 
     @ApiOperation("概念或实体详情")
-    @GetMapping("/{kgName}/{id}")
-    ApiReturn<BasicInfoRsp> getDetails(@PathVariable("kgName") String kgName, @PathVariable("id") Long id) {
-        return ApiReturn.success(basicInfoService.getDetails(kgName, id));
+    @GetMapping("/{kgName}/detail")
+    ApiReturn<BasicInfoRsp> getDetails(@PathVariable("kgName") String kgName,
+                                       @Valid BasicReq basicReq) {
+        return ApiReturn.success(basicInfoService.getDetails(kgName, basicReq));
     }
 
     @ApiOperation("修改概念或实体摘要")

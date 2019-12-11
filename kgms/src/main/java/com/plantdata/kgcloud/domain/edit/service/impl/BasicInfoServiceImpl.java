@@ -22,12 +22,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
-import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
-import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupSearchReq;
-import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
-import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
-import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
-import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.KgqlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
@@ -38,8 +33,14 @@ import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
+import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.StatisticVO;
+import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupSearchReq;
+import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
+import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -95,20 +95,20 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     }
 
     @Override
-    public void updateBasicInfo(String kgName,  BasicInfoModifyReq basicInfoModifyReq) {
+    public void updateBasicInfo(String kgName, BasicInfoModifyReq basicInfoModifyReq) {
         UpdateBasicInfoFrom updateBasicInfoFrom =
                 ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(basicInfoModifyReq);
         RestRespConverter.convertVoid(conceptEntityApi.update(kgName, updateBasicInfoFrom));
     }
 
     @Override
-    public BasicInfoRsp getDetails(String kgName, Long id) {
-        RestResp<List<EntityVO>> restResp = conceptEntityApi.listByIds(kgName, Arrays.asList(id));
-        Optional<List<EntityVO>> optional = RestRespConverter.convert(restResp);
-        if (!optional.isPresent() || optional.get().isEmpty()) {
+    public BasicInfoRsp getDetails(String kgName, BasicReq basicReq) {
+        RestResp<EntityVO> restResp = conceptEntityApi.get(kgName, basicReq.getIsEntity(), basicReq.getId());
+        Optional<EntityVO> optional = RestRespConverter.convert(restResp);
+        if (!optional.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
         }
-        BasicInfoRsp basicInfoRsp = ParserBeanUtils.parserEntityVO(optional.get().get(0));
+        BasicInfoRsp basicInfoRsp = ParserBeanUtils.parserEntityVO(optional.get());
 
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
         if (CollectionUtils.isEmpty(attrValue) || BasicInfoType.isEntity(basicInfoRsp.getType())) {
@@ -141,7 +141,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public List<BasicInfoRsp> listByIds(String kgName, List<Long> ids) {
-        RestResp<List<EntityVO>> restResp = conceptEntityApi.listByIds(kgName, ids);
+        RestResp<List<EntityVO>> restResp = conceptEntityApi.listByIds(kgName, true, ids);
         Optional<List<EntityVO>> optional = RestRespConverter.convert(restResp);
         return optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
     }
