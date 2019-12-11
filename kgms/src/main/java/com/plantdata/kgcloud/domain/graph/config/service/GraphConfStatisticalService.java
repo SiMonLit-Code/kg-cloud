@@ -45,7 +45,7 @@ public interface GraphConfStatisticalService {
      * @param reqs
      * @return
      */
-    List<GraphConfStatisticalRsp> updateAll(List<Long> ids , List<GraphConfStatisticalReq> reqs);
+    List<GraphConfStatisticalRsp> updateAll( List<GraphConfStatisticalReq> reqs);
 
 
 

@@ -56,9 +56,9 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     }
 
     @Override
-    public Page<GraphConfReasonRsp> findByKgName(String kgName , BaseReq baseReq) {
+    public Page<GraphConfReasonRsp> getByKgName(String kgName , BaseReq baseReq) {
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
-        Page<GraphConfReasoning> all = graphConfReasoningRepository.findByKgName(kgName, pageable);
+        Page<GraphConfReasoning> all = graphConfReasoningRepository.getByKgName(kgName, pageable);
         return all.map(ConvertUtils.convert(GraphConfReasonRsp.class));
     }
 
