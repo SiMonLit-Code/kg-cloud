@@ -27,6 +27,7 @@ import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.DeleteEdgeObjectReq;
@@ -248,7 +249,8 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void addEntityTag(String kgName, Long entityId, List<EntityTagVO> vos) {
-        BasicInfoRsp details = basicInfoService.getDetails(kgName, entityId);
+        BasicInfoRsp details = basicInfoService.getDetails(kgName,
+                BasicReq.builder().id(entityId).isEntity(true).build());
         List<EntityTagVO> beforeTags = details.getTags();
         if (Objects.isNull(beforeTags) || beforeTags.isEmpty()) {
             beforeTags = new ArrayList<>();
@@ -262,7 +264,8 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void updateEntityTag(String kgName, Long entityId, List<EntityTagVO> vos) {
-        BasicInfoRsp details = basicInfoService.getDetails(kgName, entityId);
+        BasicInfoRsp details = basicInfoService.getDetails(kgName,
+                BasicReq.builder().id(entityId).isEntity(true).build());
         List<EntityTagVO> beforeTags = details.getTags();
         if (Objects.isNull(beforeTags) || beforeTags.isEmpty()) {
             return;
@@ -278,7 +281,8 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void deleteEntityTag(String kgName, Long entityId, List<String> tagNames) {
-        BasicInfoRsp details = basicInfoService.getDetails(kgName, entityId);
+        BasicInfoRsp details = basicInfoService.getDetails(kgName,
+                BasicReq.builder().id(entityId).isEntity(true).build());
         List<EntityTagVO> beforeTags = details.getTags();
         if (Objects.isNull(beforeTags) || beforeTags.isEmpty()) {
             return;
@@ -293,7 +297,8 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void addEntityLink(String kgName, Long entityId, List<EntityLinkVO> vos) {
-        BasicInfoRsp details = basicInfoService.getDetails(kgName, entityId);
+        BasicInfoRsp details = basicInfoService.getDetails(kgName,
+                BasicReq.builder().id(entityId).isEntity(true).build());
         Set<EntityLinkVO> entityLinks = details.getEntityLinks();
         if (Objects.isNull(entityLinks) || entityLinks.isEmpty()) {
             entityLinks = new HashSet<>();
@@ -306,7 +311,8 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void deleteEntityLink(String kgName, Long entityId, List<EntityLinkVO> vos) {
-        BasicInfoRsp details = basicInfoService.getDetails(kgName, entityId);
+        BasicInfoRsp details = basicInfoService.getDetails(kgName,
+                BasicReq.builder().id(entityId).isEntity(true).build());
         Set<EntityLinkVO> entityLinks = details.getEntityLinks();
         if (Objects.isNull(entityLinks) || entityLinks.isEmpty()) {
             return;
@@ -414,22 +420,26 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq) {
         if (entityQueryReq.getConceptId() == null && org.apache.commons.lang3.StringUtils.isNotEmpty(entityQueryReq.getConceptKey())) {
-            List<Long> longList = graphHelperService.replaceByConceptKey(kgName, Lists.newArrayList(entityQueryReq.getConceptKey()));
+            List<Long> longList = graphHelperService.replaceByConceptKey(kgName,
+                    Lists.newArrayList(entityQueryReq.getConceptKey()));
             if (!CollectionUtils.isEmpty(longList)) {
                 entityQueryReq.setConceptId(longList.get(0));
             }
         }
         SearchByAttributeFrom attributeFrom = EntityConverter.entityQueryReqToSearchByAttributeFrom(entityQueryReq);
-        Optional<List<ai.plantdata.kg.api.pub.resp.EntityVO>> entityOpt = RestRespConverter.convert(entityApi.searchByAttribute(kgName, attributeFrom));
+        Optional<List<ai.plantdata.kg.api.pub.resp.EntityVO>> entityOpt =
+                RestRespConverter.convert(entityApi.searchByAttribute(kgName, attributeFrom));
         return entityOpt.orElse(new ArrayList<>()).stream().map(EntityConverter::voToOpenEntityRsp).collect(Collectors.toList());
     }
 
     @Override
-    public List<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity) {
+    public List<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update,
+                                                     List<OpenBatchSaveEntityRsp> batchEntity) {
         List<BatchEntityVO> entityList = batchEntity.stream()
                 .map(a -> ConvertUtils.convert(BatchEntityVO.class).apply(a))
                 .collect(Collectors.toList());
-        Optional<BatchResult<BatchEntityVO>> entityOpt = RestRespConverter.convert(batchApi.addEntities(kgName, update, entityList));
+        Optional<BatchResult<BatchEntityVO>> entityOpt = RestRespConverter.convert(batchApi.addEntities(kgName,
+                update, entityList));
         return entityOpt.map(result -> result.getSuccess().stream()
                 .map(a -> ConvertUtils.convert(OpenBatchSaveEntityRsp.class).apply(a))
                 .collect(Collectors.toList())).orElse(Collections.emptyList());

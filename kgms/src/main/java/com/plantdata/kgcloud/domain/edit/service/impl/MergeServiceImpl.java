@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.MergeType;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.merge.EntityMergeReq;
 import com.plantdata.kgcloud.domain.edit.req.merge.MergeRecommendedReq;
 import com.plantdata.kgcloud.domain.edit.req.merge.RecommendedMergeReq;
@@ -92,7 +93,8 @@ public class MergeServiceImpl implements MergeService {
      */
     private Map<Integer, Object> getMergeRule(String kgName, EntityMergeReq entityMergeReq) {
         Map<Integer, Object> dataAttrValues = new HashMap<>();
-        BasicInfoRsp basicInfoRsp = basicInfoService.getDetails(kgName, entityMergeReq.getEntityId());
+        BasicInfoRsp basicInfoRsp = basicInfoService.getDetails(kgName,
+                BasicReq.builder().id(entityMergeReq.getEntityId()).isEntity(true).build());
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
         List<EntityAttrValueVO> collect = attrValue.stream()
                 .filter(entityAttributeValueVO -> Objects.isNull(entityAttributeValueVO.getDataValue()))
