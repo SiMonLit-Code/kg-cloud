@@ -232,6 +232,10 @@ public interface KgmsClient {
     @PatchMapping("/config/statistical/{id}")
     ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req);
 
+    @ApiOperation("图谱配置-统计-批量更新")
+    @PatchMapping("/config/statistical/batch/update")
+    ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch( @RequestBody @Valid List<GraphConfStatisticalReq> reqs);
+
     @ApiOperation("图谱配置-统计-删除")
     @DeleteMapping("/config/statistical/{id}")
     ApiReturn deleteStatistical(@PathVariable("id") Long id);

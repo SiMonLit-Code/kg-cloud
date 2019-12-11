@@ -19,4 +19,7 @@ public interface GraphConfStatisticalRepository extends JpaRepository<GraphConfS
     List<GraphConfStatistical> findByKgName(String kgName);
 
     Page<GraphConfStatistical> getByKgName(String kgName, Pageable pageable);
+
+
+
 }
