@@ -51,7 +51,7 @@ public class GraphConfKgqlController {
     }
 
     @ApiOperation("图谱配置-KGQL-详情")
-    @GetMapping("/kgql/{id}")
+    @GetMapping("/kgql/detail/{id}")
     public ApiReturn<GraphConfKgqlRsp> detailKgql( @PathVariable("id") Long id) {
         return ApiReturn.success(graphConfKgqlService.findById(id));
     }
