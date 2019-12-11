@@ -2,16 +2,11 @@ package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.graph.config.constant.FocusType;
-import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
-import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfStatisticalRepository;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfFocusRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
@@ -25,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -82,20 +77,17 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     @Transactional(rollbackFor = Exception.class)
     public List<GraphConfStatisticalRsp> updateAll( List<GraphConfStatisticalReq> reqs) {
         List<Long> list = new ArrayList<>();
-
         for (GraphConfStatisticalReq req : reqs){
-            GraphConfStatistical targe = new GraphConfStatistical();
-            Long id = targe.getId();
+            Long id = req.getId();
             list.add(id);
         }
         List<GraphConfStatistical> list1 = graphConfStatisticalRepository.findAllById(list);
         for (GraphConfStatisticalReq req : reqs){
-            GraphConfStatistical targe = new GraphConfStatistical();
-            BeanUtils.copyProperties(req, targe);
-            list1.add(targe);
+            BeanUtils.copyProperties(req, list1);
         }
+        graphConfStatisticalRepository.deleteInBatch(list1);
         List<GraphConfStatistical> list2 = graphConfStatisticalRepository.saveAll(list1);
-        return list1.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
+        return list2.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
     }
 
     @Override
