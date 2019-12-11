@@ -109,7 +109,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
      * @return
      */
     @Override
-    public <T extends BasicGraphExploreRsp, E extends BasicGraphExploreReq> Optional<T> dealByGraphReq(String kgName, E req, T rsp) {
+    public <T extends BasicGraphExploreRsp, E extends BasicGraphExploreReq> Optional<T> graphSearchBefore(String kgName, E req, T rsp) {
         if(req.getGraphReq()==null){
             return Optional.empty();
         }

@@ -2,6 +2,9 @@ package com.plantdata.kgcloud.domain.app;
 
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Test;
@@ -10,13 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.function.Function;
+
 /**
  * @author cjw
  * @version 1.0
  * @date 2019/11/28 10:22
  */
-@SpringBootTest
-@RunWith(SpringRunner.class)
+//@SpringBootTest
+//@RunWith(SpringRunner.class)
 public class GraphExplorationTest {
     @Autowired
     private GraphExplorationService graphExplorationService;
@@ -33,5 +38,16 @@ public class GraphExplorationTest {
 //        exploreReq.setInherit(true);
         CommonBasicGraphExploreRsp commonGraphExploreRsp = graphExplorationService.commonGraphExploration(KG_NAME, exploreReq);
         System.out.println(JacksonUtils.writeValueAsString(commonGraphExploreRsp));
+    }
+
+
+    BasicGraphExploreRsp commonGraphExploration(CommonExploreReq req) {
+        System.out.println("req");
+        return new BasicGraphExploreRsp();
+    }
+    @Test
+    public void testFunction() {
+        Function<CommonExploreReq, BasicGraphExploreRsp> test = this::commonGraphExploration;
+        test.apply(new CommonExploreReq());
     }
 }

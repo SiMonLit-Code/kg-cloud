@@ -38,6 +38,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
     public PathAnalysisRsp path(String kgName, PathAnalysisReq analysisReq) {
 
 
+
         analysisReq = graphHelperService.dealGraphReq(kgName, analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
         //路径探索

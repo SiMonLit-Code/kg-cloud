@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.sdk.req.app.explore;
 
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.GraphCommonReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphCommonReqInterface;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
