@@ -27,10 +27,10 @@ public interface GraphConfReasonService {
     void deleteReasoning(Long id );
 
     /**
-     * 查询所有
+     * 分页查询
      * @return
      */
-    Page<GraphConfReasonRsp> findByKgName(String kgName , BaseReq baseReq);
+    Page<GraphConfReasonRsp> getByKgName(String kgName , BaseReq baseReq);
 
     /**
      * 根据id查询详情

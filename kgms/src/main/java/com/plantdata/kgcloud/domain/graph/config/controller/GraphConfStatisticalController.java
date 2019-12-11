@@ -47,8 +47,8 @@ public class GraphConfStatisticalController {
 
     @ApiOperation("图谱配置-统计-批量更新")
     @PatchMapping("/statistical/batch/update")
-    public ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@RequestBody List<Long> ids, @RequestBody @Valid List<GraphConfStatisticalReq> reqs) {
-        return ApiReturn.success(graphConfStatisticalService.updateAll(ids , reqs));
+    public ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch( @RequestBody @Valid List<GraphConfStatisticalReq> reqs) {
+        return ApiReturn.success(graphConfStatisticalService.saveAll(reqs));
     }
 
     @ApiOperation("图谱配置-统计-删除")
