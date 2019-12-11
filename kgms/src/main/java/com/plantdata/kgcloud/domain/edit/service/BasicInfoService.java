@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
@@ -52,10 +53,10 @@ public interface BasicInfoService {
      * 概念或实体详情
      *
      * @param kgName
-     * @param id
+     * @param basicReq
      * @return
      */
-    BasicInfoRsp getDetails(String kgName, Long id);
+    BasicInfoRsp getDetails(String kgName, BasicReq basicReq);
 
 
     /**
