@@ -37,7 +37,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     ES_CONFIG_NOT_FOUND(120605, "未找到es配置"),
     GRAPH_TYPE_ERROR(120606, "图谱类型错误"),
     MY_DATA_NULL_ES(120607, "数据集不为搜索数据集"),
-
+    DATE_PARSE_ERROR(120608, "数据时间格式转换失败"),
+    EDGE_ATTR_DEF_NULL(120609,"边属性定义不存在"),
 
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
 

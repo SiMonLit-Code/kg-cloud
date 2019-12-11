@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import ai.plantdata.kg.api.pub.resp.GraphVO;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.ReasoningReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
 
 /**
  * @author cjw

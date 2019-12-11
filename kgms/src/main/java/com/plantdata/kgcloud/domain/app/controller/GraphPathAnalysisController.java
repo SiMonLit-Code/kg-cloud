@@ -41,7 +41,8 @@ public class GraphPathAnalysisController {
     @PostMapping("{kgName}")
     public ApiReturn<PathAnalysisRsp> path(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                            @RequestBody @Valid PathAnalysisReq analysisReq) {
-        Optional<PathAnalysisRsp> rspOpt = graphHelperService.dealByGraphReq(kgName, analysisReq, new PathAnalysisRsp());
+
+        Optional<PathAnalysisRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, analysisReq, new PathAnalysisRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphPathAnalysisService.path(kgName, analysisReq)));
     }
 
@@ -58,7 +59,7 @@ public class GraphPathAnalysisController {
     @PostMapping("reasoning/{kgName}")
     public ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                            @RequestBody @Valid PathReasoningAnalysisReq analysisReq) {
-        Optional<PathAnalysisReasonRsp> rspOpt = graphHelperService.dealByGraphReq(kgName, analysisReq, new PathAnalysisReasonRsp());
+        Optional<PathAnalysisReasonRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, analysisReq, new PathAnalysisReasonRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphPathAnalysisService.pathRuleReason(kgName, analysisReq)));
     }
 
@@ -66,7 +67,7 @@ public class GraphPathAnalysisController {
     @PostMapping("timing/{kgName}")
     public ApiReturn<PathTimingAnalysisRsp> pathTimingAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                                @RequestBody @Valid PathTimingAnalysisReq analysisReq) {
-        Optional<PathTimingAnalysisRsp> rspOpt = graphHelperService.dealByGraphReq(kgName, analysisReq, new PathTimingAnalysisRsp());
+        Optional<PathTimingAnalysisRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, analysisReq, new PathTimingAnalysisRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphPathAnalysisService.pathTimingAnalysis(kgName, analysisReq)));
     }
 }

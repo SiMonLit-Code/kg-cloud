@@ -4,7 +4,6 @@ import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.req.app.explore.common;
 
-import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -8,7 +7,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.util.List;
 
 /**
  * @author cjw

@@ -5,7 +5,6 @@ import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.sdk.req.GraphConfFocusReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfFocusRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
 import io.swagger.annotations.Api;

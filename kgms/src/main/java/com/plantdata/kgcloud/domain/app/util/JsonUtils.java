@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,6 +20,15 @@ public class JsonUtils {
         try {
             return JacksonUtils.getInstance().treeToValue(arrayNode, List.class);
         } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
+    public static <T> List<T> readToList(String str, Class<T> clazz) {
+        try {
+            return (List<T>) JacksonUtils.getInstance().readValue(str, clazz);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return Collections.emptyList();

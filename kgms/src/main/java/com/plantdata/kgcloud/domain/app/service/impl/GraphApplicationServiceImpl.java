@@ -19,6 +19,7 @@ import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
@@ -62,6 +63,8 @@ import java.util.stream.Collectors;
 public class GraphApplicationServiceImpl implements GraphApplicationService {
 
     @Autowired
+    private ai.plantdata.kg.api.pub.GraphApi editGraphApi;
+    @Autowired
     private GraphApi graphApi;
     @Autowired
     private GraphAttrGroupService graphAttrGroupService;
@@ -76,7 +79,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     @Autowired
     private GraphHelperService graphHelperService;
     @Autowired
-    private  ConceptService conceptService;
+    private ConceptService conceptService;
+
     @Override
     public SchemaRsp querySchema(String kgName) {
         SchemaRsp schemaRsp = new SchemaRsp();
@@ -133,18 +137,16 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         GraphInitRsp graphInitRsp = new GraphInitRsp();
         if (focusOpt.isPresent()) {
             GraphConfFocus initGraphBean = focusOpt.get();
-            if ((initGraphBean.getEntities() != null) && initGraphBean.getEntities().fieldNames().hasNext()) {
-                List<GraphInitRsp.GraphInitEntityRsp> list = JacksonUtils.getInstance().treeToValue(initGraphBean.getEntities(), List.class);
-                graphInitRsp.setEntities(list);
+            if (initGraphBean.getEntities() != null && initGraphBean.getEntities().fieldNames().hasNext()) {
+                graphInitRsp.setEntities(JsonUtils.readToList(initGraphBean.getEntities(), GraphInitRsp.GraphInitEntityRsp.class));
                 return graphInitRsp;
             }
         }
-        Optional<Long> entityIdOpt = RestRespConverter.convert(entityApi.initGraphEntity(kgName));
+        Optional<List<Long>> entityIdOpt = RestRespConverter.convert(editGraphApi.getRelationEntity(kgName));
         if (!entityIdOpt.isPresent()) {
             return graphInitRsp;
         }
-
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, EntityConverter.buildIdsQuery(Lists.newArrayList(entityIdOpt.get()))));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, EntityConverter.buildIdsQuery(entityIdOpt.get())));
         if (!entityOpt.isPresent()) {
             return graphInitRsp;
         }
@@ -205,7 +207,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             }
         });
         Optional<List<AttributeDefinition>> attrDefOpt = RestRespConverter.convert(attributeApi.listByIds(kgName, Lists.newArrayList(attrDefIdSet)));
-        Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> relationEntityOpt = RestRespConverter.convert(conceptEntityApi.listByIds(kgName, Lists.newArrayList(relationEntityIdSet)));
+        Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> relationEntityOpt = RestRespConverter.convert(conceptEntityApi.listByIds(kgName, true, Lists.newArrayList(relationEntityIdSet)));
 
         return EntityConverter.voToInfoBox(entityOpt.get(), attrDefOpt.orElse(Collections.emptyList()), relationEntityOpt.orElse(Collections.emptyList()));
     }

@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.data.statistics.req;
+package com.plantdata.kgcloud.sdk.req.app.statistic;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,20 +10,31 @@ import java.util.List;
 /**
  * @author cjw
  * @version 1.0
- * @date 2019/11/1 17:20
+ * @date 2019/12/11 12:03
  */
 @Getter
 @Setter
-public class StatEntityGroupByAttributeByConceptIdReq {
+public class EdgeStatisticByConceptIdReq {
+
 
     private Long conceptId;
+
     private String conceptKey;
+
     private List<String> tripleIds;
+
+    // @ChooseCheck(value = "[-1,1]", name = "sort")
     private Integer sort = -1;
-    private List<Integer> allowAttrs;
-    List<String> allowAttrsKey;
+
+    //@AttrId("allowAtts")
+    private List<Integer> allowAtts;
+    // @AttrKey("allowAtts")
+    private List<String> allowAttsKey;
+
     private String fromTime;
     private String toTime;
+
+    //@ChooseCheck(value = "[0,1]", name = "returnType")
     private Integer returnType = 0;
     @Min(-1)
     @Max(1000)

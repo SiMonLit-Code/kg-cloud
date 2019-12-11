@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.req.app.explore.common;
+package com.plantdata.kgcloud.sdk.req.app.function;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 推理功能
+ *
  * @author cjw
  * @version 1.0
  * @date 2019/12/4 15:19

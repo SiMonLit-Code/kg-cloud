@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.config.repository;
 
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfKgql;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

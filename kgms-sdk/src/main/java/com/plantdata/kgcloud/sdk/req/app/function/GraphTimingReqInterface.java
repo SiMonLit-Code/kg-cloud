@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.req.app.explore.common;
+package com.plantdata.kgcloud.sdk.req.app.function;
 
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 
@@ -8,5 +8,10 @@ import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
  * @date 2019/12/6 13:57
  */
 public interface GraphTimingReqInterface {
+    /**
+     * 时间过滤
+     *
+     * @return 。。
+     */
     TimeFilterExploreReq fetchTimeFilter();
 }

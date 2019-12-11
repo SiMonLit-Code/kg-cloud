@@ -8,4 +8,5 @@ package com.plantdata.kgcloud.constant;
 public class AppConstants {
     public static final Integer NER_NUMBER = 3;
     public static final Integer NER_ENTITY_NUMBER = 2;
+    public static final int COUNT_MERGE_SIZE = 10;
 }
