@@ -1,19 +1,27 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import ai.plantdata.kg.api.pub.EntityApi;
+import ai.plantdata.kg.api.pub.SemanticApi;
 import ai.plantdata.kg.api.pub.req.EntityLinkingFrom;
+import ai.plantdata.kg.api.pub.req.SemanticDistanceFrom;
+import ai.plantdata.kg.common.bean.SemanticDistance;
+import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.app.service.NlpService;
+import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
+import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +35,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -42,6 +51,7 @@ public class NlpController {
     private NlpService nlpService;
     @Autowired
     private EntityApi entityApi;
+
 
     /**
      * 命名实体识别
@@ -67,11 +77,13 @@ public class NlpController {
     }
 
     @ApiOperation("语义标注")
-    @PostMapping("annotation")
-    public ApiReturn<List<TaggingItemRsp>> tagging(@RequestParam("kgName") String kgName, @RequestBody EntityLinkingReq linkingFrom) {
+    @PostMapping("annotation/{kgName}")
+    public ApiReturn<List<TaggingItemRsp>> tagging(@ApiParam("图谱名称") @PathVariable("kgName") String kgName, @RequestBody EntityLinkingReq linkingFrom) {
         EntityLinkingFrom entityLinkingFrom = new EntityLinkingFrom();
         entityLinkingFrom.setConceptIds(linkingFrom.getConceptIds());
         entityLinkingFrom.setText(linkingFrom.getText());
         return ApiReturn.success(RestCopyConverter.copyRestRespResult(entityApi.tagging(kgName, entityLinkingFrom), Collections.emptyList()));
     }
+
+
 }

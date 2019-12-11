@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.dataset.converter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.sdk.req.AnnotationConf;
-import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 
 import javax.persistence.AttributeConverter;

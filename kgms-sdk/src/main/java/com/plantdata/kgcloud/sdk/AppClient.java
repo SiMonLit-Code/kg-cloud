@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
@@ -44,6 +43,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -159,7 +159,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/init/{kgName}")
     ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                 @ApiParam(value = "图类型", required = true)@RequestBody String type);
+                                                 @ApiParam(value = "图类型", required = true) @RequestBody String type);
 
     /**
      * kgQl查询
@@ -304,4 +304,14 @@ public interface AppClient {
     ApiReturn<RelationReasoningAnalysisRsp> relationReasoningAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                                       @RequestBody RelationReasoningAnalysisReq analysisReq);
 
+    /**
+     * 图片导出
+     *
+     * @param fileName 文件名称
+     * @param data     数据
+     * @return 。
+     * @throws IOException
+     */
+    @PostMapping("png/export")
+    ApiReturn exportPng(@RequestParam("name") String fileName, @RequestParam("data") String data) throws IOException;
 }

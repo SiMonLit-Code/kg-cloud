@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.sdk.req.app.explore;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.GraphPathReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphPathReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

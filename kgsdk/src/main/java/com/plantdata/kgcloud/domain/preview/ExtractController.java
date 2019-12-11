@@ -7,6 +7,7 @@ import com.hiekn.pddocument.bean.PdDocument;
 import com.hiekn.pddocument.bean.element.PdEntity;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.ExtractTypeEnum;
+import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.util.JsonUtils;
 import io.swagger.annotations.ApiOperation;
@@ -30,7 +31,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("kgData/extract")
-public class ExtractController {
+public class ExtractController implements GraphApplicationInterface {
 
     private IE ie = new IEImpl();
     @Autowired

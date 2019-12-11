@@ -26,7 +26,7 @@ public interface GraphHelperService {
 
     <T extends BasicGraphExploreReq> T dealGraphReq(String kgName, T exploreReq);
 
-    <T extends BasicGraphExploreRsp,E extends BasicGraphExploreReq> Optional<T> dealByGraphReq(String kgName, E req, T rsp);
+    <T extends BasicGraphExploreRsp,E extends BasicGraphExploreReq> Optional<T> graphSearchBefore(String kgName, E req, T rsp);
 
     <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, boolean relationMerge);
 

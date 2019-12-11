@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/12/10 17:56
  */
-public class GraphStatiticBO {
+public class GraphRelationStatisticBO {
 
 
     public static EntityRelationDegreeFrom buildDegreeFrom(EdgeStatisticByEntityIdReq statisticReq) {
-        Map<Integer, List<Integer>> allowAttrMap = GraphStatiticBO.buildDataFilterMap(statisticReq.getAllowAttrs());
-        Map<Integer, List<Long>> allowTypeMap = GraphStatiticBO.buildDataFilterMap(statisticReq.getAllowTypes());
+        Map<Integer, List<Integer>> allowAttrMap = GraphRelationStatisticBO.buildDataFilterMap(statisticReq.getAllowAttrs());
+        Map<Integer, List<Long>> allowTypeMap = GraphRelationStatisticBO.buildDataFilterMap(statisticReq.getAllowTypes());
         EntityRelationDegreeFrom degreeFrom = new EntityRelationDegreeFrom();
         degreeFrom.setAllowAtts(allowAttrMap);
         degreeFrom.setAllowTypes(allowTypeMap);

@@ -89,7 +89,7 @@ public class GraphExplorationController {
     @PostMapping("common/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                         @RequestBody @Valid CommonExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
-        Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.dealByGraphReq(kgName, exploreParam, new CommonBasicGraphExploreRsp());
+        Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, exploreParam, new CommonBasicGraphExploreRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphExplorationService.commonGraphExploration(kgName, exploreParam)));
     }
 
@@ -97,7 +97,7 @@ public class GraphExplorationController {
     @PostMapping("timing/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> timingGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                         @RequestBody @Valid CommonTimingExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
-        Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.dealByGraphReq(kgName, exploreParam, new CommonBasicGraphExploreRsp());
+        Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, exploreParam, new CommonBasicGraphExploreRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphExplorationService.timeGraphExploration(kgName, exploreParam)));
     }
 
@@ -105,7 +105,7 @@ public class GraphExplorationController {
     @PostMapping("reasoning/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                            @RequestBody @Valid CommonReasoningExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
-        Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.dealByGraphReq(kgName, exploreParam, new CommonBasicGraphExploreRsp());
+        Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, exploreParam, new CommonBasicGraphExploreRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphExplorationService.reasoningGraphExploration(kgName, exploreParam)));
     }
 

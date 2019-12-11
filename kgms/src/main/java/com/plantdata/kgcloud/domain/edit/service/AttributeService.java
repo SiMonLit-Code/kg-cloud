@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
-import ai.plantdata.kg.api.edit.resp.AttributeDefinitionVO;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;

@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.task.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.graph.task.entity.TaskTemplate;
 import com.plantdata.kgcloud.domain.graph.task.req.TaskGraphSnapshotReq;
 import com.plantdata.kgcloud.domain.graph.task.rsp.TaskGraphSnapshotRsp;
 import com.plantdata.kgcloud.domain.graph.task.rsp.TaskTemplateRsp;

@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.common.service;
 
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgDocumentErrorCodes;
 import com.plantdata.kgcloud.exception.BizException;

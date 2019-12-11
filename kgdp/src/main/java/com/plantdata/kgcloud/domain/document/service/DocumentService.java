@@ -8,7 +8,6 @@ import com.plantdata.kgcloud.domain.document.req.DocumentReq;
 import com.plantdata.kgcloud.domain.document.rsp.DirectoryRsp;
 import com.plantdata.kgcloud.domain.document.rsp.DocumentRsp;
 import com.plantdata.kgcloud.domain.document.rsp.PageRsp;
-import com.plantdata.kgcloud.domain.scene.entiy.Scene;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;

@@ -19,7 +19,10 @@ import java.util.Map;
  */
 public class MetaConverter {
 
-    public static void fillMetaWithNoNull(Map<String, Object> metaData, MetaDataInterface metaDataImpl)  {
+    public static void fillMetaWithNoNull(Map<String, Object> metaData, MetaDataInterface metaDataImpl) {
+        if (metaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
+
+        }
         if (metaData.containsKey(MetaDataInfo.FROM_TIME.getFieldName())) {
             Object o = metaData.get(MetaDataInfo.FROM_TIME.getFieldName());
             metaDataImpl.setStartTime(DateUtils.parseDatetime(o.toString()));
