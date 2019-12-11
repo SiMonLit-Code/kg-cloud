@@ -1,8 +1,10 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
+import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.config.constant.FocusType;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
+import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfStatisticalRepository;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
@@ -10,11 +12,15 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.GraphConfFocusReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfFocusRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,12 +54,13 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     }
 
     @Override
-    public List<GraphConfStatisticalRsp> saveAll(String kgName ,List<GraphConfStatisticalReq> listReq) {
+    @Transactional(rollbackFor = Exception.class)
+    public List<GraphConfStatisticalRsp> saveAll(List<GraphConfStatisticalReq> listReq) {
         List<GraphConfStatistical> list = new ArrayList<>();
         for (GraphConfStatisticalReq req : listReq){
             GraphConfStatistical targe = new GraphConfStatistical();
             BeanUtils.copyProperties(req, targe);
-            targe.setKgName(kgName);
+            targe.setId(kgKeyGenerator.getNextId());
             list.add(targe);
         }
         List<GraphConfStatistical> list1 = graphConfStatisticalRepository.saveAll(list);
@@ -72,8 +79,9 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     }
 
     @Override
-    public List<GraphConfStatisticalRsp> updateAll(String kgName, List<GraphConfStatisticalReq> reqs) {
-        List<GraphConfStatistical> list = graphConfStatisticalRepository.findByKgName(kgName);
+    @Transactional(rollbackFor = Exception.class)
+    public List<GraphConfStatisticalRsp> updateAll(List<Long> ids, List<GraphConfStatisticalReq> reqs) {
+        List<GraphConfStatistical> list = graphConfStatisticalRepository.findAllById(ids);
         for (GraphConfStatisticalReq req : reqs){
             GraphConfStatistical targe = new GraphConfStatistical();
             BeanUtils.copyProperties(req, targe);
@@ -105,8 +113,9 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     }
 
     @Override
-    public List<GraphConfStatisticalRsp> findAll() {
-        List<GraphConfStatistical> all = graphConfStatisticalRepository.findAll();
-        return all.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
+    public Page<GraphConfStatisticalRsp> getByKgName(String kgName , BaseReq baseReq) {
+        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
+        Page<GraphConfStatistical> all = graphConfStatisticalRepository.getByKgName(kgName, pageable);
+        return all.map(ConvertUtils.convert(GraphConfStatisticalRsp.class));
     }
 }

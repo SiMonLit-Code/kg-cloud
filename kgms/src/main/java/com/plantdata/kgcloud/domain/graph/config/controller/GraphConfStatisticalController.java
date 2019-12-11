@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.sdk.req.GraphConfFocusReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
@@ -10,6 +11,7 @@ import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalSer
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -32,9 +34,9 @@ public class GraphConfStatisticalController {
     }
 
     @ApiOperation("图谱配置-统计-批量新建")
-    @PatchMapping("/statistical/{kgName}")
-    public ApiReturn<List<GraphConfStatisticalRsp>> saveStatisticalBatch(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfStatisticalReq> listReq) {
-        return ApiReturn.success(graphConfStatisticalService.saveAll(kgName,listReq));
+    @PostMapping("/statistical/batch/save")
+    public ApiReturn<List<GraphConfStatisticalRsp>> saveStatisticalBatch( @RequestBody @Valid List<GraphConfStatisticalReq> listReq) {
+        return ApiReturn.success(graphConfStatisticalService.saveAll(listReq));
     }
 
     @ApiOperation("图谱配置-统计-更新")
@@ -44,9 +46,9 @@ public class GraphConfStatisticalController {
     }
 
     @ApiOperation("图谱配置-统计-批量更新")
-    @PatchMapping("/statistical")
-    public ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfStatisticalReq> reqs) {
-        return ApiReturn.success(graphConfStatisticalService.saveAll(kgName,reqs));
+    @PatchMapping("/statistical/batch/update")
+    public ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@RequestBody List<Long> ids, @RequestBody @Valid List<GraphConfStatisticalReq> reqs) {
+        return ApiReturn.success(graphConfStatisticalService.updateAll(ids , reqs));
     }
 
     @ApiOperation("图谱配置-统计-删除")
@@ -57,7 +59,7 @@ public class GraphConfStatisticalController {
          }
 
     @ApiOperation("图谱配置-统计-批量删除")
-    @PatchMapping("/statistical/batch")
+    @PatchMapping("/statistical/batch/delete")
     public ApiReturn deleteStatisticalBatch(@RequestBody List<Long> ids) {
         graphConfStatisticalService.deleteInBatch(ids);
         return ApiReturn.success();
@@ -69,9 +71,9 @@ public class GraphConfStatisticalController {
         return ApiReturn.success(graphConfStatisticalService.findByKgName(kgName));
     }
 
-    @ApiOperation("图谱配置-统计-查询所有")
-    @GetMapping("/statistical")
-    public ApiReturn<List<GraphConfStatisticalRsp>> selectStatisticalAll() {
-        return ApiReturn.success(graphConfStatisticalService.findAll());
+    @ApiOperation("图谱配置-统计-分页")
+    @GetMapping("/statistical/page/{kgName}")
+    public ApiReturn<Page<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
+        return ApiReturn.success(graphConfStatisticalService.getByKgName(kgName,baseReq));
     }
 }

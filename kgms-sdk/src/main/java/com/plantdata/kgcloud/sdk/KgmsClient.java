@@ -224,6 +224,10 @@ public interface KgmsClient {
     @PostMapping("/config/statistical/{kgName}")
     ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfStatisticalReq req);
 
+    @ApiOperation("图谱配置-统计-批量新建")
+    @PostMapping("/config/statistical/batch/save")
+    ApiReturn<List<GraphConfStatisticalRsp>> saveStatisticalBatch( @RequestBody @Valid List<GraphConfStatisticalReq> listReq);
+
     @ApiOperation("图谱配置-统计-更新")
     @PatchMapping("/config/statistical/{id}")
     ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req);
@@ -240,17 +244,17 @@ public interface KgmsClient {
     @GetMapping("/config/statistical/{kgName}")
     public ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName);
 
-    @ApiOperation("图谱配置-统计-查询所有")
-    @GetMapping("/config/statistical")
-    ApiReturn<List<GraphConfStatisticalRsp>> selectStatisticalAll();
+    @ApiOperation("图谱配置-统计-分页")
+    @GetMapping("/config/statistical/{kgName}")
+    ApiReturn<Page<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
 
     @ApiOperation("图谱配置-推理-新增")
     @PostMapping("/config/reason/{kgName}")
     ApiReturn<GraphConfReasonRsp> saveReasoning(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfReasonReq req);
 
-    @ApiOperation("图谱配置-推理-查询所有")
-    @GetMapping("/config/reason")
-    ApiReturn<List<GraphConfReasonRsp>> selectReasoninglAll();
+    @ApiOperation("图谱配置-推理-分页")
+    @GetMapping("/config/reason/{kgName}")
+    ApiReturn<Page<GraphConfReasonRsp>> selectReasoninglPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
 
     @ApiOperation("图谱配置-推理-详情")
     @GetMapping("/config/reason/{id}")
