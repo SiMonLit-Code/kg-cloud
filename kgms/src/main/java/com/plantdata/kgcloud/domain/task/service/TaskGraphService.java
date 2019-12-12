@@ -28,4 +28,13 @@ public interface TaskGraphService {
 
 
     List<TaskTemplateRsp> taskTemplateList();
+
+
+    Integer searchStatus(String kgName);
+
+    Integer openSearch(String kgName);
+
+    void closeSearch(String kgName);
+
+    void flushSearch(String kgName);
 }
