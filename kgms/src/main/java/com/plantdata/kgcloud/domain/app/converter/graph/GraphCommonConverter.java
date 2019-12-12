@@ -49,7 +49,9 @@ public class GraphCommonConverter {
      */
     public static <T extends GraphEntityRsp> void fillConcept(Long conceptId, T entityRsp, Map<Long, BasicInfo> conceptMap) {
         BasicInfo concept = conceptMap.get(conceptId);
-        entityRsp.setConceptName(concept.getName());
+        if(concept!=null){
+            entityRsp.setConceptName(concept.getName());
+        }
         BasicInfo topConcept = ConceptConverter.getTopConcept(conceptId, conceptMap);
         entityRsp.setClassId(topConcept.getId());
         entityRsp.setConceptIdList(ConceptConverter.getAllParentConceptId(Lists.newArrayList(conceptId), conceptId, conceptMap));
