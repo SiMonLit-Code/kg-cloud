@@ -46,12 +46,6 @@ public class KettleServiceImpl implements KettleService {
     @Autowired
     private FastFileStorageClient storageClient;
 
-    @Value("${model_path}")
-    private String path;
-
-    @Value("${upload.basePath}")
-    private String basePath;
-
     @Override
     public Object kettleService(KettleReq etl) {
         DataSource dataSource = getDataSource(etl);

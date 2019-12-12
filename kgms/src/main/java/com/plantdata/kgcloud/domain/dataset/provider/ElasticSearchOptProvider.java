@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.dataset.provider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
@@ -49,7 +48,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     private final ObjectMapper objectMapper = JacksonUtils.getInstance();
 
-    private final String alias;
+    private final String database;
     private final String type;
 
     public ElasticSearchOptProvider(DataOptConnect info) {
@@ -58,63 +57,19 @@ public class ElasticSearchOptProvider implements DataOptProvider {
                 .filter(Objects::nonNull)
                 .toArray(HttpHost[]::new);
         this.client = RestClient.builder(hosts).setMaxRetryTimeoutMillis(60000).build();
-        this.alias = info.getDatabase();
+        this.database = info.getDatabase();
         this.type = info.getTable();
     }
 
-    private HttpHost buildHttpHost(String addr) {
-        String[] address = addr.split(":");
-        if (address.length == 2) {
-            String ip = address[0];
-            int port = Integer.parseInt(address[1]);
-            return new HttpHost(ip, port);
-        }
-        return null;
-    }
-
-    private Optional<String> send(Request request) {
-        try {
-            Response response = client.performRequest(request);
-            HttpEntity entity = response.getEntity();
-            return Optional.of(EntityUtils.toString(entity));
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
-
-
-    private JsonNode readTree(String s) {
-        try {
-            return objectMapper.readTree(s);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
-        }
-    }
-
-    private Optional<String> getIndexByAlias() {
-        String endpoint = "/_alias/" + alias;
-        Request request = new Request(GET, endpoint);
-        Optional<String> send = send(request);
-        if (send.isPresent()) {
-            JsonNode node = readTree(send.get());
-            Iterator<String> iterator = node.fieldNames();
-            if (iterator.hasNext()) {
-                String next = iterator.next();
-                return Optional.of(next);
-            }
-        }
-        return Optional.empty();
-    }
 
     @Override
     public List<String> getFields() {
         List<String> fields = new ArrayList<>();
-        Request request = new Request(GET, "/" + alias + "/_mapping/" + type);
+        Request request = new Request(GET, "/" + database + "/_mapping/" + type);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
         JsonNode node = readTree(result);
-        JsonNode prop = node.get(alias).get("mappings").get(type).get("properties");
+        JsonNode prop = node.get(database).get("mappings").get(type).get("properties");
         Iterator<String> iterator = prop.fieldNames();
         while (iterator.hasNext()) {
             fields.add(iterator.next());
@@ -126,9 +81,9 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
         List<Map<String, Object>> mapList = new ArrayList<>();
 
-        String endpoint = "/" + alias + "/" + type + "/_search";
-        if (StringUtils.hasText(type)) {
-            endpoint = "/" + alias + "/_search";
+        String endpoint = "/" + database + "/" + type + "/_search?_source=false";
+        if (!StringUtils.hasText(type)) {
+            endpoint = "/" + database + "/_search";
         }
         Request request = new Request(POST, endpoint);
 
@@ -140,69 +95,40 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
         JsonNode node = readTree(result);
-
         System.out.println(node.toString());
-
+//        for (JsonNode jsonNode : node.get("hits").get("hits")) {
+//            String id = jsonNode.get("_id").asText();
+//            Map<String, Object> map = JacksonUtils.readValue(jsonNode.get("_source").traverse(), new TypeReference<Map<String, Object>>() {
+//            });
+//            map.put("_id", id);
+//            mapList.add(map);
+//        }
         return mapList;
     }
 
     @Override
     public long count(Map<String, Object> query) {
-        return 0;
+        String endpoint = "/" + database + "/" + type + "/_search";
+        Request request = new Request(POST, endpoint);
+        Optional<String> send = send(request);
+        String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        JsonNode node = readTree(result);
+        return node.get("hits").get("total").asLong();
     }
 
     @Override
     public Map<String, Object> findOne(String id) {
-        return null;
+        String endpoint = "/" + database + "/" + type + "/" + id;
+        Request request = new Request(GET, endpoint);
+        String send = send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        JsonNode node = readTree(send);
+        String objId = node.get("_id").asText();
+        Map<String, Object> map = JacksonUtils.readValue(node.get("_source").traverse(), new TypeReference<Map<String, Object>>() {
+        });
+        map.put("_id", objId);
+        return map;
     }
 
-    public String sendDelete(String index, String type, String id) {
-        String endpoint = "/" + index + "/" + type + "/" + id;
-        if (StringUtils.isEmpty(type)) {
-            endpoint = "/" + index;
-        } else if (StringUtils.isEmpty(id)) {
-            endpoint = "/" + index + "/" + type;
-        }
-        Request request = new Request(DELETE, endpoint);
-        Optional<String> send = send(request);
-        String rs = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        if (readTree(rs).get("acknowledged").asBoolean()) {
-            log.info("index {}, type {}, id {} 删除成功", index, type, id);
-        }
-        return rs;
-    }
-
-
-    public String addAlias(String index) {
-        String endpoint = "/" + index + "/_alias/" + alias;
-        Request request = new Request(PUT, endpoint);
-        return send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-    }
-
-    public void deleteAlias(String index) {
-        String endpoint = "/" + index + "/_alias/" + alias;
-        Request request = new Request(DELETE, endpoint);
-        String rs = send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        if (readTree(rs).get("acknowledged").asBoolean()) {
-            log.info("{} 的 alias {} 删除成功", index, alias);
-        }
-    }
-
-    private boolean indicesExists(String index) {
-        String endpoint = "/" + index;
-        Request request = new Request(HEAD, endpoint);
-        Response response = null;
-        try {
-            response = client.performRequest(request);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int code = 0;
-        if (response != null) {
-            code = response.getStatusLine().getStatusCode();
-        }
-        return code == 200;
-    }
 
     @Override
     public void createTable(List<DataSetSchema> colList) {
@@ -216,13 +142,93 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
     }
 
+
+    @Override
+    public void dropTable() {
+        String index = getIndexByAlias().orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        if (indicesExists(index)) {
+            deleteAlias(index);
+            sendDelete(index, null, null);
+        }
+    }
+
+    @Override
+    public Map<String, Object> insert(JsonNode node) {
+        String endpoint = "/" + database + "/" + type;
+        Request request = new Request(POST, endpoint);
+        String string = node.toString();
+        request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
+        String send = send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        JsonNode result = readTree(send);
+        String id = result.get("_id").asText();
+        Map<String, Object> map = JacksonUtils.readValue(string, new TypeReference<Map<String, Object>>() {
+        });
+        map.put("_id", id);
+        return map;
+
+    }
+
+    @Override
+    public Map<String, Object> update(String id, JsonNode node) {
+        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/";
+        Request request = new Request(POST, endpoint);
+        String string = node.toString();
+        request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
+        send(request);
+        return JacksonUtils.readValue(string, new TypeReference<Map<String, Object>>() {
+        });
+    }
+
+    @Override
+    public void delete(String id) {
+        String index = getIndexByAlias().orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        sendDelete(index, type, id);
+    }
+
+    @Override
+    public void deleteAll() {
+        String index = getIndexByAlias().orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        String endpoint = "/" + index + "/" + type + "/_delete_by_query?wait_for_completion=false";
+        String body = "{\"query\":{\"match_all\":{}}}";
+        Request request = new Request(POST, endpoint);
+        request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
+        send(request);
+    }
+
+    @Override
+    public void batchInsert(List<JsonNode> nodes) {
+        String endpoint = "/" + database + "/" + type + "/_bulk";
+        StringBuilder body = new StringBuilder();
+        for (JsonNode node : nodes) {
+            body.append("{\"create\" :").append(node.toString()).append("}\n");
+        }
+        Request request = new Request(POST, endpoint);
+        request.setEntity(new StringEntity(body.toString(), ContentType.APPLICATION_JSON));
+        send(request);
+    }
+
+    @Override
+    public void batchDelete(Collection<String> ids) {
+        String index = getIndexByAlias().orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        for (String id : ids) {
+            sendDelete(index, type, id);
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        client.close();
+    }
+
+
     private void createMapping(ObjectNode mapping) {
-        String type = alias + "_" + Long.toHexString(System.currentTimeMillis());
+        String type = database + "_" + Long.toHexString(System.currentTimeMillis());
         String endpoint = "/" + type;
         Request request = new Request(PUT, endpoint);
-        HttpEntity entity = new StringEntity(mapping.toString(), ContentType.APPLICATION_JSON);
+        String string = mapping.toString();
+        HttpEntity entity = new StringEntity(string, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
-        send(request).orElseThrow(()->BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
         addAlias(type);
     }
 
@@ -266,89 +272,95 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         return mapping;
     }
 
-    @Override
-    public void dropTable() {
-        String index = getIndexByAlias().orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        if (indicesExists(index)) {
-            deleteAlias(index);
-            sendDelete(index, null, null);
+    private String sendDelete(String index, String type, String id) {
+        String endpoint = "/" + index + "/" + type + "/" + id;
+        if (StringUtils.isEmpty(type)) {
+            endpoint = "/" + index;
+        } else if (StringUtils.isEmpty(id)) {
+            endpoint = "/" + index + "/" + type;
         }
+        Request request = new Request(DELETE, endpoint);
+        Optional<String> send = send(request);
+        String rs = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        if (readTree(rs).get("acknowledged").asBoolean()) {
+            log.info("index {}, type {}, id {} 删除成功", index, type, id);
+        }
+        return rs;
     }
 
-    @Override
-    public Map<String, Object> insert(JsonNode node) {
-        String endpoint = "/" + alias + "/" + type;
+    private String addAlias(String index) {
+        String endpoint = "/" + index + "/_alias/" + database;
         Request request = new Request(PUT, endpoint);
-        String string = node.toString();
-        request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
-        String send = send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        JsonNode result = readTree(send);
-        String id = result.get("_id").asText();
+        return send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+    }
+
+    private void deleteAlias(String index) {
+        String endpoint = "/" + index + "/_alias/" + database;
+        Request request = new Request(DELETE, endpoint);
+        String rs = send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        if (readTree(rs).get("acknowledged").asBoolean()) {
+            log.info("{} 的 database {} 删除成功", index, database);
+        }
+    }
+
+    private boolean indicesExists(String index) {
+        String endpoint = "/" + index;
+        Request request = new Request(HEAD, endpoint);
+        Response response = null;
         try {
-            Map<String, Object> map = objectMapper.readValue(string, new TypeReference<Map<String, Object>>() {
-            });
-            map.put("_id", id);
-            return map;
+            response = client.performRequest(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int code = 0;
+        if (response != null) {
+            code = response.getStatusLine().getStatusCode();
+        }
+        return code == 200;
+    }
+
+
+    private HttpHost buildHttpHost(String addr) {
+        String[] address = addr.split(":");
+        if (address.length == 2) {
+            String ip = address[0];
+            int port = Integer.parseInt(address[1]);
+            return new HttpHost(ip, port);
+        }
+        return null;
+    }
+
+    private Optional<String> send(Request request) {
+        try {
+            Response response = client.performRequest(request);
+            HttpEntity entity = response.getEntity();
+            return Optional.of(EntityUtils.toString(entity));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    private JsonNode readTree(String s) {
+        try {
+            return objectMapper.readTree(s);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException();
         }
     }
 
-    @Override
-    public Map<String, Object> update(String id, JsonNode node) {
-        String endpoint = "/" + alias + "/" + type + "/" + id + "/_update/";
-        Request request = new Request(POST, endpoint);
-        String string = node.toString();
-        request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
-        send(request);
-        try {
-            return objectMapper.readValue(string, new TypeReference<Map<String, Object>>() {
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+    private Optional<String> getIndexByAlias() {
+        String endpoint = "/_alias/" + database;
+        Request request = new Request(GET, endpoint);
+        Optional<String> send = send(request);
+        if (send.isPresent()) {
+            JsonNode node = readTree(send.get());
+            Iterator<String> iterator = node.fieldNames();
+            if (iterator.hasNext()) {
+                String next = iterator.next();
+                return Optional.of(next);
+            }
         }
-    }
-
-    @Override
-    public void delete(String id) {
-        String index = getIndexByAlias().orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        sendDelete(index, type, id);
-    }
-
-    @Override
-    public void deleteAll() {
-        String index = getIndexByAlias().orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        String endpoint = "/" + index + "/" + type + "/_delete_by_query?wait_for_completion=false";
-        String body = "{\"query\":{\"match_all\":{}}}";
-        Request request = new Request(POST, endpoint);
-        request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
-        send(request);
-    }
-
-    @Override
-    public void batchInsert(List<JsonNode> nodes) {
-        String endpoint = "/" + alias + "/" + type + "/_bulk";
-        StringBuilder body = new StringBuilder();
-        for (JsonNode node : nodes) {
-            body.append("{\"create\" :").append(node.toString()).append("}\n");
-        }
-        Request request = new Request(POST, endpoint);
-        request.setEntity(new StringEntity(body.toString(), ContentType.APPLICATION_JSON));
-        send(request);
-    }
-
-    @Override
-    public void batchDelete(Collection<String> ids) {
-        String index = getIndexByAlias().orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        for (String id : ids) {
-            sendDelete(index, type, id);
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-        client.close();
+        return Optional.empty();
     }
 }
