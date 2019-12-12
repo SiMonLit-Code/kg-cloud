@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
@@ -15,6 +16,8 @@ import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
+import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -91,7 +94,7 @@ public interface EditClient {
     /**
      * 批量新增关系
      *
-     * @param kgName   图谱名称
+     * @param kgName       图谱名称
      * @param relationList 批量参数
      * @return 。
      */
@@ -188,5 +191,15 @@ public interface EditClient {
     @PostMapping("entity/{kgName}")
     ApiReturn saveOrUpdate(@PathVariable("kgName") String kgName, @RequestParam(value = "add", required = false) boolean add,
                            @RequestBody List<OpenBatchSaveEntityRsp> batchEntity);
+
+    /**
+     * 批量查询关系
+     *
+     * @param kgName   kgName
+     * @param queryReq req
+     * @return ..
+     */
+    @PostMapping("attribute/relation/search/{kgName}")
+    ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName, @RequestBody EdgeSearchReq queryReq);
 
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -39,29 +40,26 @@ public class GraphStatisticConfigController implements GraphDataObtainInterface 
     }
 
 
-//    @ApiOperation("批量新增统计配置")
-//    @PostMapping("batch/{kgName}")
-//    public ApiReturn<List<StatisticConfigRsp>> batchAdd(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-//                                                        @RequestBody List<StatisticConfigReq> configList) {
-//
-//        return kgmsClient.updateStatistical();
-//    }
-//
-//    @ApiOperation("批量修改统计配置")
-//    @PatchMapping("batch/{kgName}")
-//    public ApiReturn<List<StatisticConfigRsp>> batchModify(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-//                                                           @RequestBody List<StatisticConfigReq> configList) {
-//        //todo kgms
-//        return ApiReturn.success();
-//    }
-//
-//    @ApiOperation("批量删除统计配置")
-//    @DeleteMapping("batch/{kgName}")
-//    public ApiReturn batchRemove(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-//                                 @RequestParam("ids") List<Integer> ids) {
-//
-//        return kgmsClient.deleteStatistical();
-//    }
+    @ApiOperation("批量新增统计配置")
+    @PostMapping("batch")
+    public ApiReturn<List<GraphConfStatisticalRsp>> batchAdd(@RequestBody List<GraphConfStatisticalReq> listReq) {
+
+        return kgmsClient.saveStatisticalBatch(listReq);
+    }
+
+    @ApiOperation("批量修改统计配置")
+    @PatchMapping("batch")
+    public ApiReturn<List<GraphConfStatisticalRsp>> batchModify(@RequestBody List<GraphConfStatisticalReq> reqList) {
+
+        return kgmsClient.updateStatisticalBatch(reqList);
+    }
+
+    @ApiOperation("批量删除统计配置")
+    @DeleteMapping("batch")
+    public ApiReturn batchRemove(@RequestParam("ids") List<Long> ids) {
+
+        return kgmsClient.deleteStatisticalBatch(ids);
+    }
 
     @ApiOperation("新增统计配置")
     @PostMapping("{kgName}")

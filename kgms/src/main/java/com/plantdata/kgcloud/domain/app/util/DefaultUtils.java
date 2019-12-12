@@ -42,11 +42,11 @@ public class DefaultUtils {
      * @param <R>
      * @return
      */
-    public static <T, R> List<R> getIfNoNull(List<T> list1, Function<List<T>, List<R>> function) {
+    public static <T, R> List<R> executeIfNoNull(List<T> list1, Function<List<T>, List<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1);
     }
 
-    public static <T, R> Set<R> getIfNoNull(Set<T> list1, Function<Set<T>, Set<R>> function) {
+    public static <T, R> Set<R> executeIfNoNull(Set<T> list1, Function<Set<T>, Set<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptySet() : function.apply(list1);
     }
 

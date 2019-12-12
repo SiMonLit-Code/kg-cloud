@@ -12,15 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("dataSet/obtain")
 public class DataSetObtainController implements DataSetDataObtainInterface {
-//
-//    @Resource
-//    private DataSetObtainService dataSetObtainService;
-//
-//    @ApiOperation("读数搜索据集的数据")
-//    @PostMapping("searchByTable")
-//    public ApiReturn<DataCountRsp<Map<String, Object>>> search(@RequestBody @Valid SearchTableReq searchTableParam) {
-//        return ApiReturn.success(dataSetObtainService.readSearch(searchTableParam));
-//    }
+
 
 
 //

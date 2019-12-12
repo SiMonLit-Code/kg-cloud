@@ -1,16 +1,19 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.edit.req.BatchQueryRelationFrom;
+import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
@@ -93,4 +96,39 @@ public class RelationConverter {
     public static List<EdgeAttributeRsp> mapToEdgeAttributeRsp(@NonNull List<Map<Object, Integer>> mapList) {
         return mapList.stream().flatMap(map -> map.entrySet().stream()).map(entry -> new EdgeAttributeRsp(entry.getKey(), entry.getValue())).collect(Collectors.toList());
     }
+
+    public static List<EdgeSearchRsp> batchVoToEdgeSearchRsp(@NonNull List<BatchRelationVO> relationList) {
+
+        return relationList.stream().map(a -> {
+            EdgeSearchRsp.EdgeSearchEntityRsp from = new EdgeSearchRsp.EdgeSearchEntityRsp();
+            from.setId(a.getEntityId());
+            from.setConceptId(a.getEntityConcept());
+            from.setMeaningTag(a.getEntityMeaningTag());
+            from.setName(a.getEntityName());
+            EdgeSearchRsp.EdgeSearchEntityRsp to = new EdgeSearchRsp.EdgeSearchEntityRsp();
+            to.setId(a.getAttrValueId());
+            to.setConceptId(a.getAttrValueConcept());
+            to.setMeaningTag(a.getAttrValueMeaningTag());
+            to.setName(a.getAttrValueName());
+            EdgeSearchRsp edgeSearchRsp = new EdgeSearchRsp();
+            edgeSearchRsp.setFromEntity(from);
+            edgeSearchRsp.setToEntity(to);
+            edgeSearchRsp.setTripleId(a.getId());
+            edgeSearchRsp.setExtraInfoMap(a.getExtraInfoMap());
+            Map<String, Object> metaData = a.getMetaData();
+            if (metaData != null) {
+                if (metaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
+                    edgeSearchRsp.setScore(metaData.get(MetaDataInfo.SCORE.getFieldName()).toString());
+                }
+                if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
+                    edgeSearchRsp.setSource(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+                }
+                if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
+                    edgeSearchRsp.setReliability(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+                }
+            }
+            return edgeSearchRsp;
+        }).collect(Collectors.toList());
+    }
+
 }

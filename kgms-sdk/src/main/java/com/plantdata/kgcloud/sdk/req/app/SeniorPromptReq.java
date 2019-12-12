@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk.req.app;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

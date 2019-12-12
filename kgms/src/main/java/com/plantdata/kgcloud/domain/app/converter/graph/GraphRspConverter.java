@@ -30,14 +30,14 @@ import java.util.stream.Collectors;
 public class GraphRspConverter {
 
     public static CommonBasicGraphExploreRsp graphVoToCommonRsp(GraphVO graph, Map<Long, BasicInfo> conceptIdMap, boolean relationMerge) {
-        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.getIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap));
-        List<GraphRelationRsp> relationRspList = DefaultUtils.getIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, relationMerge));
+        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap));
+        List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, relationMerge));
         return new CommonBasicGraphExploreRsp(relationRspList, graph.getLevel1HasNext(), commonEntityRspList);
     }
 
     public static <T extends StatisticRsp> T graphVoToStatisticRsp(GraphVO graph, List<GraphStatisticRsp> statisticRspList, Map<Long, BasicInfo> conceptIdMap, T analysisRsp, boolean relationMerge) {
-        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.getIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap));
-        List<GraphRelationRsp> relationRspList = DefaultUtils.getIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, relationMerge));
+        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap));
+        List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, relationMerge));
         analysisRsp.setEntityList(commonEntityRspList);
         analysisRsp.setHasNextPage(NumberUtils.INTEGER_ONE);
         analysisRsp.setRelationList(relationRspList);
