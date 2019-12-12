@@ -51,8 +51,8 @@ public class KgDataController {
     public ApiReturn<Object> extractThirdModel(@PathVariable("modelId") Long modelId,
                                                @RequestParam("input") String input, @RequestBody List<Map<String, String>> configList) {
         //todo kgms实现
-        modelService.call(modelId, Lists.newArrayList(input));
-        return ApiReturn.success(null);
+        ;
+        return ApiReturn.success(modelService.call(modelId, Lists.newArrayList(input)));
     }
 
     @ApiOperation("sparkSql结果导出")
@@ -94,8 +94,8 @@ public class KgDataController {
 
     @ApiOperation("边数值属性统计，按数值属性值分组")
     @PostMapping("statistic/{kgName}/edgeAttr/groupByAttrValue")
-    public ApiReturn<Object>  statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                           EdgeAttrStatisticByAttrValueReq statisticReq) {
+    public ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                      EdgeAttrStatisticByAttrValueReq statisticReq) {
         return ApiReturn.success(kgDataService.statEdgeGroupByEdgeValue(kgName, statisticReq));
     }
 }

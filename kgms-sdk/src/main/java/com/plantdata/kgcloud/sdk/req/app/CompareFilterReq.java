@@ -16,7 +16,33 @@ import lombok.Setter;
 public class CompareFilterReq {
 
     @ApiModelProperty("大于")
-    private String gt;
+    private String $gt;
     @ApiModelProperty("小于")
-    private String lt;
+    private String $lt;
+    @ApiModelProperty("等于")
+    private String $eq;
+
+    public String get$gt() {
+        return $gt;
+    }
+
+    public void set$gt(String $gt) {
+        this.$gt = $gt;
+    }
+
+    public String get$lt() {
+        return $lt;
+    }
+
+    public void set$lt(String $lt) {
+        this.$lt = $lt;
+    }
+
+    public String get$eq() {
+        return $eq;
+    }
+
+    public void set$eq(String $eq) {
+        this.$eq = $eq;
+    }
 }

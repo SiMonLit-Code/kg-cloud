@@ -25,7 +25,7 @@ public class BasicGraphExploreReq {
     @ApiModelProperty("查询边关系的方向，0表示双向，1表示出发，2表示到达,默认0")
     private int direction = 0;
     @ApiModelProperty("第二层以上节点查询个数，如果指定，第2层及第2层以上返回的节点以此数为限")
-    @Min(value = 0, message = "highLevelSize最小为0")
+    @Min(value = 1, message = "highLevelSize最小为0")
     private Integer highLevelSize = 10;
     @ApiModelProperty("要替换的概念id")
     private List<Long> replaceClassIds;
