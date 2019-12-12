@@ -21,13 +21,8 @@ public class EntityModifyReq {
     @NotNull
     private Long id;
 
-    @ApiModelProperty(value = "所属概念ID", required = true)
-    @NotNull
-    private Long conceptId;
-
-    @ApiModelProperty(value = "0:概念,1:实体", allowableValues = "0,1", required = true)
-    @NotNull
-    private Integer type;
+    @ApiModelProperty(hidden = true, value = "0:概念,1:实体", allowableValues = "0,1")
+    private Integer type = 1;
 
     @ApiModelProperty(required = true, value = "概念或实体名称")
     @NotEmpty
@@ -36,5 +31,4 @@ public class EntityModifyReq {
 
     @ApiModelProperty(value = "消歧标识")
     private String meaningTag;
-
 }

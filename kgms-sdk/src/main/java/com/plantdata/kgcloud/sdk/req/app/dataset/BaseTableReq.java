@@ -1,6 +1,5 @@
-package com.plantdata.kgcloud.domain.dataset.statistic.controller.req;
+package com.plantdata.kgcloud.sdk.req.app.dataset;
 
-import com.plantdata.kgcloud.bean.BaseReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -16,9 +15,11 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel
-public class BaseTableReq extends BaseReq {
+public class BaseTableReq extends PageReq {
     @ApiModelProperty("es query条件")
     private String query;
     @ApiModelProperty("要查询的字段")
     private List<String> fields;
+    @ApiModelProperty("mongodb 语法")
+    private String sort;
 }

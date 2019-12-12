@@ -361,7 +361,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/config/reason/{kgName}")
-    ApiReturn<Page<GraphConfReasonRsp>> selectReasoninglPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
+    ApiReturn<Page<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
 
     /**
      * 图谱配置-推理-详情

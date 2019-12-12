@@ -28,13 +28,13 @@ public class PromptReq extends BaseReq {
     private Boolean like = false;
 
     @ApiModelProperty(value = "是否查询概念")
-    private Boolean concept;
+    private Boolean concept = true;
 
     @ApiModelProperty(value = "是否查询实体")
-    private Boolean entity;
+    private Boolean entity = true;
 
     @ApiModelProperty(value = "是否查询属性")
-    private Boolean attribute;
+    private Boolean attribute = false;
 
     @ApiModelProperty(value = "概念ids")
     private List<Long> conceptIds;

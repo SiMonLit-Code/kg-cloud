@@ -3,13 +3,16 @@ package com.plantdata.kgcloud.domain.app.controller;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
+import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.model.service.ModelService;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.ReadTableReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
+import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +33,7 @@ import java.util.Map;
  * @date 2019/12/7 10:59
  */
 @RestController
-@RequestMapping("kgData")
+@RequestMapping("kgdata")
 public class KgDataController {
 
 
@@ -38,6 +41,8 @@ public class KgDataController {
     private ModelService modelService;
     @Autowired
     private KgDataService kgDataService;
+    @Autowired
+    private DataSetService dataSetService;
 
     @ApiOperation("sparql查询")
     @PostMapping("sparQl/query/{kgName}")
@@ -51,8 +56,8 @@ public class KgDataController {
     public ApiReturn<Object> extractThirdModel(@PathVariable("modelId") Long modelId,
                                                @RequestParam("input") String input, @RequestBody List<Map<String, String>> configList) {
         //todo kgms实现
-        modelService.call(modelId, Lists.newArrayList(input));
-        return ApiReturn.success(null);
+        ;
+        return ApiReturn.success(modelService.call(modelId, Lists.newArrayList(input)));
     }
 
     @ApiOperation("sparkSql结果导出")
@@ -72,7 +77,7 @@ public class KgDataController {
     }
 
     @ApiOperation("统计实体根据概念分组")
-    @PostMapping("/statistic/{kgName}/entity/groupByConcept/")
+    @PostMapping("statistic/{kgName}/entity/groupByConcept/")
     public ApiReturn<Object> statisticEntityGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                            @RequestBody EntityStatisticGroupByConceptReq statisticReq) {
         return ApiReturn.success(kgDataService.statEntityGroupByConcept(kgName, statisticReq));
@@ -94,8 +99,14 @@ public class KgDataController {
 
     @ApiOperation("边数值属性统计，按数值属性值分组")
     @PostMapping("statistic/{kgName}/edgeAttr/groupByAttrValue")
-    public ApiReturn<Object>  statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                           EdgeAttrStatisticByAttrValueReq statisticReq) {
+    public ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                      EdgeAttrStatisticByAttrValueReq statisticReq) {
         return ApiReturn.success(kgDataService.statEdgeGroupByEdgeValue(kgName, statisticReq));
+    }
+
+    @ApiOperation("读取普通数据集")
+    @PostMapping("dataset/common/read")
+    public ApiReturn<RestData<Map<String, Object>>> a(ReadTableReq tableReq) {
+        return ApiReturn.success(kgDataService.readMongoDataSet(tableReq));
     }
 }

@@ -7,12 +7,14 @@ import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.req.AttrQueryFrom;
 import ai.plantdata.kg.api.edit.req.AttributeConstraints;
 import ai.plantdata.kg.api.edit.req.AttributeDefinitionFrom;
+import ai.plantdata.kg.api.edit.req.BatchQueryRelationFrom;
 import ai.plantdata.kg.api.edit.req.DeleteRelationFrom;
 import ai.plantdata.kg.api.edit.req.EdgeFrom;
 import ai.plantdata.kg.api.edit.req.UpdateRelationFrom;
 import ai.plantdata.kg.api.edit.resp.AttrConstraintsVO;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.api.edit.resp.AttributeDefinitionVO;
+import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.pub.RelationApi;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
@@ -26,6 +28,7 @@ import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
+import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
@@ -34,6 +37,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.domain.edit.util.AttrConverterUtils;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
@@ -56,6 +60,7 @@ import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.domain.edit.vo.IdNameVO;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.BeanUtils;
@@ -64,9 +69,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,7 +169,7 @@ public class AttributeServiceImpl implements AttributeService {
         Optional<BatchResult<AttributeDefinitionVO>> optional =
                 RestRespConverter.convert(batchApi.addAttributes(kgName, voList));
         return optional.map(result -> result.getError().stream()
-                .map(vo -> MapperUtils.map(vo,AttrDefinitionBatchRsp.class))
+                .map(vo -> MapperUtils.map(vo, AttrDefinitionBatchRsp.class))
                 .collect(Collectors.toList())).orElse(null);
     }
 
@@ -326,5 +333,15 @@ public class AttributeServiceImpl implements AttributeService {
         TripleFrom tripleFrom = ConvertUtils.convert(TripleFrom.class).apply(tripleReq);
         Optional<List<TripleVO>> optional = RestRespConverter.convert(relationApi.aggRelation(kgName, tripleFrom));
         return optional.orElse(new ArrayList<>()).stream().map(vo -> MapperUtils.map(vo, TripleRsp.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq) {
+        BatchQueryRelationFrom relationFrom = RelationConverter.edgeAttrSearch(queryReq);
+        Optional<List<BatchRelationVO>> resOpt = RestRespConverter.convert(batchApi.queryRelation(kgName, relationFrom));
+        if (!resOpt.isPresent() || CollectionUtils.isEmpty(resOpt.get())) {
+            return Collections.emptyList();
+        }
+        return RelationConverter.batchVoToEdgeSearchRsp(resOpt.get());
     }
 }

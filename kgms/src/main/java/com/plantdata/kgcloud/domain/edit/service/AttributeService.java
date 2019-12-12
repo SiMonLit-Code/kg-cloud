@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
@@ -19,6 +20,7 @@ import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -214,4 +216,13 @@ public interface AttributeService {
      * @return
      */
     List<TripleRsp> getRelationByAttr(String kgName, TripleReq tripleReq);
+
+    /**
+     * 批量关系搜索
+     *
+     * @param kgName   图谱名称
+     * @param queryReq 查询参数
+     * @return 。。
+     */
+    List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq);
 }

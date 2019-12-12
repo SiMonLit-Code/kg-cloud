@@ -106,6 +106,30 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         return mapList;
     }
 
+    public List<Map<String, Object>> batchFind(Integer offset, Integer limit, Map<String, Object> query) {
+        List<Map<String, Object>> mapList = new ArrayList<>();
+
+        String endpoint = "/" + alias + "/" + type + "/_search";
+        if (StringUtils.hasText(type)) {
+            endpoint = "/" + alias + "/_search";
+        }
+        Request request = new Request(POST, endpoint);
+
+//            NStringEntity entity = new NStringEntity(query, ContentType.APPLICATION_JSON);
+//
+//            request.setEntity(entity);
+
+
+        Optional<String> send = send(request);
+        String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        JsonNode node = readTree(result);
+
+        System.out.println(node.toString());
+
+        return mapList;
+    }
+
+
     @Override
     public long count(Map<String, Object> query) {
         String endpoint = "/" + database + "/" + type + "/_search";

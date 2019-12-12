@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
+import com.plantdata.kgcloud.sdk.req.app.CompareFilterReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import org.springframework.util.CollectionUtils;
@@ -20,7 +21,11 @@ import java.util.stream.Collectors;
 public class ConditionConverter {
 
     public static Map<String, Map<String, Object>> relationAttrReqToMap(List<RelationAttrReq> attrReqList) {
-        return attrReqList.stream().collect(Collectors.toMap(a -> String.valueOf(a.getAttrId()), ConditionConverter::relationAttrReqToSeqMap));
+        return attrReqList.stream().collect(Collectors.toMap(a -> String.valueOf(a.getAttrId()), ConditionConverter::relationAttrReqToStringMap));
+    }
+
+    public static Map<Integer, Map<Integer, Object>> buildEdgeAttrSearchMap(List<RelationAttrReq> attrReqList) {
+        return attrReqList.stream().collect(Collectors.toMap(RelationAttrReq::getAttrId, ConditionConverter::relationAttrReqToIntMap));
     }
 
     public static Map<String, Integer> relationAttrSortToMap(List<AttrSortReq> sortReqList) {
@@ -29,23 +34,30 @@ public class ConditionConverter {
     }
 
 
-    private static Map<String, Object> relationAttrReqToSeqMap(RelationAttrReq attrReq) {
-
+    private static Map<String, Object> relationAttrReqToStringMap(RelationAttrReq attrReq) {
         Map<String, Object> seqMap = Maps.newHashMap();
-
-
-        Map<String, Object> map = Maps.newHashMap();
-        if (attrReq.getGt() != null) {
-            map.put("$gt", attrReq.getGt());
-        }
-        if (attrReq.getLt() != null) {
-            map.put("$lt", attrReq.getEq());
-        }
-        if (attrReq.getEq() != null) {
-            map.put("$eq", attrReq.getEq());
-        }
-        seqMap.put(String.valueOf(attrReq.getSeqNo()), map);
+        seqMap.put(String.valueOf(attrReq.getSeqNo()), buildMongoQueryMap(attrReq));
         return seqMap;
+    }
+
+    private static Map<Integer, Object> relationAttrReqToIntMap(RelationAttrReq attrReq) {
+        Map<Integer, Object> seqMap = Maps.newHashMap();
+        seqMap.put(attrReq.getSeqNo(), buildMongoQueryMap(attrReq));
+        return seqMap;
+    }
+
+    private static <T extends CompareFilterReq> Map<String, Object> buildMongoQueryMap(T attrReq) {
+        Map<String, Object> map = Maps.newHashMap();
+        if (attrReq.get$gt() != null) {
+            map.put("$gt", attrReq.get$gt());
+        }
+        if (attrReq.get$lt() != null) {
+            map.put("$lt", attrReq.get$lt());
+        }
+        if (attrReq.get$eq() != null) {
+            map.put("$eq", attrReq.get$eq());
+        }
+        return map;
     }
 
 
