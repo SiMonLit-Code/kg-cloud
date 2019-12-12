@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
+import com.plantdata.kgcloud.domain.edit.req.upload.RdfExportReq;
+import com.plantdata.kgcloud.domain.edit.req.upload.RdfReq;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -89,5 +91,24 @@ public interface ImportService {
      * @return
      */
     String importRelation(String kgName, Integer attrId, Integer mode, MultipartFile file);
+
+    /**
+     * rdf导入
+     *
+     * @param kgName
+     * @param file
+     * @param rdfReq
+     * @return
+     */
+    String importRdf(String kgName, MultipartFile file, RdfReq rdfReq);
+
+    /**
+     * rdf导出
+     *
+     * @param kgName
+     * @param rdfExportReq
+     * @return
+     */
+    String exportRdf(String kgName, RdfExportReq rdfExportReq);
 
 }
