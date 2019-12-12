@@ -10,7 +10,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description:
@@ -65,9 +67,9 @@ public class ElasticSearchOptProviderTest {
 
     @Test
     public void insert() {
-        ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
-        objectNode.putPOJO("a","111");
-        objectNode.putPOJO("b","222");
+        Map<String,Object> objectNode = new HashMap<>();
+        objectNode.put("a","111");
+        objectNode.put("b","222");
         objectNode.put("c", DateUtils.formatDatetime());
 
             provider.insert(objectNode);
