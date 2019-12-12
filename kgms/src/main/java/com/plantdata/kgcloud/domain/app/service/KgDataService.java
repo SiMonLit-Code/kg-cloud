@@ -1,10 +1,12 @@
 package com.plantdata.kgcloud.domain.app.service;
 
+import com.plantdata.kgcloud.sdk.req.app.dataset.ReadTableReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
+import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 
 import java.util.List;
 import java.util.Map;
@@ -60,4 +62,12 @@ public interface KgDataService {
      * @return 。
      */
     Object statEdgeGroupByEdgeValue(String kgName, EdgeAttrStatisticByAttrValueReq statisticReq);
+
+    /**
+     * 读取mongodb 普通数据集
+     *
+     * @param readTableReq req
+     * @return 。
+     */
+    RestData<Map<String, Object>> readMongoDataSet(ReadTableReq readTableReq);
 }

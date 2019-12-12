@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.req.app;
+package com.plantdata.kgcloud.sdk.req.app.function;
 
 import java.util.List;
 

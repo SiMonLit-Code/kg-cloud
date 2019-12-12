@@ -60,6 +60,7 @@ import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.domain.edit.vo.IdNameVO;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.BeanUtils;
@@ -334,13 +335,13 @@ public class AttributeServiceImpl implements AttributeService {
         return optional.orElse(new ArrayList<>()).stream().map(vo -> MapperUtils.map(vo, TripleRsp.class)).collect(Collectors.toList());
     }
 
-//    @Override
-    public List edgeSearch(String kgName, EdgeSearchReq queryReq) {
+    @Override
+    public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq) {
         BatchQueryRelationFrom relationFrom = RelationConverter.edgeAttrSearch(queryReq);
         Optional<List<BatchRelationVO>> resOpt = RestRespConverter.convert(batchApi.queryRelation(kgName, relationFrom));
         if (!resOpt.isPresent() || CollectionUtils.isEmpty(resOpt.get())) {
             return Collections.emptyList();
         }
-        return null;
+        return RelationConverter.batchVoToEdgeSearchRsp(resOpt.get());
     }
 }
