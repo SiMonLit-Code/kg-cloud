@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.task.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
@@ -19,6 +19,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.XxlAdminClient;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -113,19 +114,19 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     private Integer createSearchTaskAndRun(String userId, String kgName) {
 
         // create task
-        JSONObject config = new JSONObject()
-                .fluentPut("title", "拼音检索导出_" + System.currentTimeMillis())
-                .fluentPut("dataName", "pinyin_" + System.currentTimeMillis())
-                .fluentPut("kgName", kgName)
-                .fluentPut("type", 1)
-                .fluentPut("conceptIds", new ArrayList<>());
-        JSONObject task = new JSONObject()
-                .fluentPut("kgName", kgName)
-                .fluentPut("name", "拼音检索导出_" + System.currentTimeMillis())
-                .fluentPut("taskType", "kg_export")
-                .fluentPut("userId", userId)
-                .fluentPut("config", config.toJSONString());
-        ApiReturn apiReturn = xxlAdminClient.taskAdd(userId, task.toJSONString());
+        ObjectNode config = JacksonUtils.getInstance().createObjectNode()
+                .put("title", "拼音检索导出_" + System.currentTimeMillis())
+                .put("dataName", "pinyin_" + System.currentTimeMillis())
+                .put("kgName", kgName)
+                .put("type", 1)
+                .putPOJO("conceptIds", new ArrayList<>());
+        ObjectNode task = JacksonUtils.getInstance().createObjectNode()
+                .put("kgName", kgName)
+                .put("name", "拼音检索导出_" + System.currentTimeMillis())
+                .put("taskType", "kg_export")
+                .put("userId", userId)
+                .put("config", config.toString());
+        ApiReturn apiReturn = xxlAdminClient.taskAdd(userId, task.toString());
         if (apiReturn.getErrCode() != 200) {
             throw new BizException(apiReturn.getErrCode(), apiReturn.getMessage());
         }

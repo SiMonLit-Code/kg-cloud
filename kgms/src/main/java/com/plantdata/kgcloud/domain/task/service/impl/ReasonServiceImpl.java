@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.task.service.impl;
 
 
-import com.alibaba.fastjson.JSON;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
@@ -85,7 +84,7 @@ public class ReasonServiceImpl implements ReasonService {
                     Document doc = cursor.next();
                     Object data = doc.get("data");
                     batch = doc.getString("batch");
-                    String temp = JSON.toJSONString(data);
+                    String temp = JacksonUtils.writeValueAsString(data);
                     TripleBean tripleBean = JacksonUtils.readValue(temp, TripleBean.class);
                     tripleList.add(tripleBean);
                 }
@@ -145,7 +144,7 @@ public class ReasonServiceImpl implements ReasonService {
             }
             map.put("status", 1);
             map.put("msg", "成功");
-        }catch (Exception e){
+        } catch (Exception e) {
             map.put("status", 2);
             map.put("msg", "失败");
         }
