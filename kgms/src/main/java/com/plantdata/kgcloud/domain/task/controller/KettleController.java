@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author: Bovin
  * @create: 2019-12-12 14:07
  **/
-@Api(tags = "数据集管理")
+@Api(tags = "任务相关")
 @RestController
 @RequestMapping("/task")
 public class KettleController {
@@ -25,22 +25,22 @@ public class KettleController {
     @Autowired
     private KettleService kettleService;
 
-    @PostMapping("/etl/save")
     @ApiOperation("etl配置保存")
-    public ApiReturn<String> saveEtl(@RequestBody KettleReq etlSaveRequest) throws Exception {
+    @PostMapping("/etl/save")
+    public ApiReturn<String> saveEtl(@RequestBody KettleReq kettleReq) throws Exception {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(kettleService.kettleSave(userId, etlSaveRequest));
+        return ApiReturn.success(kettleService.kettleSave(userId, kettleReq));
     }
 
     @PostMapping("/etl/test")
     @ApiOperation("etl配置connect测试")
-    public ApiReturn testEtl(@RequestBody KettleReq etlSaveRequest) {
-        return ApiReturn.success(kettleService.kettleService(etlSaveRequest));
+    public ApiReturn testEtl(@RequestBody KettleReq kettleReq) {
+        return ApiReturn.success(kettleService.kettleService(kettleReq));
     }
 
     @ApiOperation("etl配置sql预览")
     @PostMapping("/etl/preview")
-    public ApiReturn previewEtl(@RequestBody KettleReq etlSaveRequest) {
-        return ApiReturn.success(kettleService.kettlePreview(etlSaveRequest));
+    public ApiReturn previewEtl(@RequestBody KettleReq kettleReq) {
+        return ApiReturn.success(kettleService.kettlePreview(kettleReq));
     }
 }
