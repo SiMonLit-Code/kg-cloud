@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
+import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionGroupRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfFocusRepository;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -97,8 +99,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             schemaRsp.setTypes(ConceptConverter.voToRsp(schemaVO.getConcepts()));
         }
         List<AttrDefGroupDTO> attrDefGroupList = graphAttrGroupService.queryAllByKgName(kgName);
-
-        schemaRsp.setAttrGroups(DefaultUtils.getIfNoNull(attrDefGroupList, AttrDefGroupConverter.dtoToRsp(attrDefGroupList)));
+        schemaRsp.setAttrGroups(DefaultUtils.getIfNoNull(attrDefGroupList, AttrDefGroupConverter::dtoToRsp));
         return schemaRsp;
     }
 

@@ -56,7 +56,7 @@ public class GisConverter {
 
     public static GisGraphExploreRsp voToGisAnalysisRsp(@NonNull List<BasicInfo> entityList, Map<Long, BasicInfo> conceptIdMap) {
         GisGraphExploreRsp exploreRsp = new GisGraphExploreRsp();
-        exploreRsp.setEntityList(DefaultUtils.getIfNoNull(entityList, EntityConverter.basicInfoToGisEntity(entityList, conceptIdMap)));
+        exploreRsp.setEntityList(DefaultUtils.getIfNoNull(entityList, a -> EntityConverter.basicInfoToGisEntity(a, conceptIdMap)));
         return exploreRsp;
     }
 

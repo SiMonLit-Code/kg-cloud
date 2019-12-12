@@ -1,17 +1,19 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.kg.api.edit.req.BatchQueryRelationFrom;
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
-import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
-import com.plantdata.kgcloud.sdk.req.RelationSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -25,8 +27,28 @@ import java.util.stream.Collectors;
  */
 public class RelationConverter {
 
-    public static FilterRelationFrom searchReqFilterRelationFrom(RelationSearchReq searchReq) {
-        return new FilterRelationFrom();
+    public static BatchQueryRelationFrom edgeAttrSearch(EdgeSearchReq searchReq) {
+        BatchQueryRelationFrom queryRelationFrom = new BatchQueryRelationFrom();
+        queryRelationFrom.setEntityIds(searchReq.getEntityIds());
+        queryRelationFrom.setAttrIds(searchReq.getAttrIds());
+        queryRelationFrom.setAttrValueIds(searchReq.getAttrValueIds());
+        queryRelationFrom.setLimit(searchReq.getLimit());
+        queryRelationFrom.setSkip(searchReq.getOffset());
+        queryRelationFrom.setAttrExtInfoFilters(ConditionConverter.buildEdgeAttrSearchMap(searchReq.getEdgeAttrQuery()));
+        queryRelationFrom.setDirection(searchReq.getDirection());
+        //时间筛选
+        Map<String, Object> attrTimeFilters = Maps.newHashMap();
+        if (StringUtils.isNoneBlank(searchReq.getAttrTimeFrom())) {
+            attrTimeFilters.put("attr_time_from", JSON.parse(searchReq.getAttrTimeFrom()));
+        }
+        if (StringUtils.isNoneBlank(searchReq.getAttrTimeTo())) {
+            attrTimeFilters.put("attr_time_to", JSON.parse(searchReq.getAttrTimeTo()));
+        }
+        if (!CollectionUtils.isEmpty(attrTimeFilters)) {
+            queryRelationFrom.setAttrTimeFilters(attrTimeFilters);
+        }
+        return queryRelationFrom;
+
     }
 
 

@@ -172,6 +172,7 @@ public class GraphCommonConverter {
      */
     static <T extends GraphEntityRsp> T simpleToGraphEntityRsp(T graphEntityRsp, SimpleEntity simpleEntity, Map<Long, BasicInfo> conceptMap) {
         graphEntityRsp.setId(simpleEntity.getId());
+        graphEntityRsp.setConceptId(simpleEntity.getConceptId());
         graphEntityRsp.setName(simpleEntity.getName());
         graphEntityRsp.setType(EntityTypeEnum.parseById(simpleEntity.getType()));
         graphEntityRsp.setMeaningTag(simpleEntity.getMeaningTag());
