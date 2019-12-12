@@ -9,11 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,4 +44,32 @@ public class TaskGraphController {
     public ApiReturn<List<TaskTemplateRsp>> taskTemplateList() {
         return ApiReturn.success(taskGraphService.taskTemplateList());
     }
+
+    @GetMapping("search/{kgName}")
+    @ApiOperation("拼音检索-查看开启状态")
+    public ApiReturn<Integer> searchStatus(@PathVariable("kgName") String kgName) {
+        return ApiReturn.success(taskGraphService.searchStatus(kgName));
+    }
+
+    @PostMapping("/search/open/{kgName}")
+    @ApiOperation("拼音检索-开启")
+    public ApiReturn<Integer> openSearch(@PathVariable("kgName") String kgName) {
+        Integer taskId = taskGraphService.openSearch(kgName);
+        return ApiReturn.success(taskId);
+    }
+
+    @PostMapping("/search/close/{kgName}")
+    @ApiOperation("拼音检索-关闭")
+    public ApiReturn closeSearch(@PathVariable("kgName") String kgName) {
+        taskGraphService.closeSearch(kgName);
+        return ApiReturn.success();
+    }
+
+    @PostMapping("/search/flush/{kgName}")
+    @ApiOperation("拼音检索-刷新结果")
+    public ApiReturn flushSearch(@PathVariable("kgName") String kgName) {
+        taskGraphService.flushSearch(kgName);
+        return ApiReturn.success();
+    }
+
 }
