@@ -13,8 +13,17 @@ import java.util.List;
  * @create: 2019-12-10 10:31
  **/
 public interface TaskGraphService {
+    /**
+     * 快照列表
+     * @param req
+     * @return
+     */
     Page<TaskGraphSnapshotRsp> snapshotList(TaskGraphSnapshotReq req);
 
+    /**
+     *
+     * @param id
+     */
     void snapshotDelete(Long id);
 
 
