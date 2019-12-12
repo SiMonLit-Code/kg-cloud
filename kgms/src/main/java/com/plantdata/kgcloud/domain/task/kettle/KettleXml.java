@@ -1,5 +1,8 @@
-package com.plantdata.kgcloud.domain.dataset.kettle;
+package com.plantdata.kgcloud.domain.task.kettle;
 
+/**
+ * @author: Bovin
+ */
 public class KettleXml {
     /**
      * Date: 2019-05-08

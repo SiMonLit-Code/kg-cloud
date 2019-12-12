@@ -1,6 +1,6 @@
-package com.plantdata.kgcloud.domain.dataset.kettle;
+package com.plantdata.kgcloud.domain.task.kettle;
 
-import com.plantdata.kgcloud.domain.dataset.req.EtlSaveRequest;
+import com.plantdata.kgcloud.domain.task.req.KettleReq;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -32,7 +32,7 @@ public class CreateKettleJob {
      * @return
      * @throws IOException
      */
-    public static File getKettleXml(EtlSaveRequest etlSaveRequest, List<String> mongoFields, String targetFile) throws IOException {
+    public static File getKettleXml(KettleReq etlSaveRequest, List<String> mongoFields, String targetFile) throws IOException {
         String xml = KettleXml.xml;
         String connectionXml = KettleXml.connectionxml;
         String sqlXml = KettleXml.sqlxml;
@@ -52,9 +52,9 @@ public class CreateKettleJob {
         String username = etlSaveRequest.getUsername();
         // 密码
         String password = etlSaveRequest.getPassword();
-        List<String> mongoAddresses = etlSaveRequest.getMongoip();
-        String mongoDbName = etlSaveRequest.getMongodbname();
-        String mongoTbName = etlSaveRequest.getMongotbname();
+        List<String> mongoAddresses = etlSaveRequest.getMongoAddress();
+        String mongoDbName = etlSaveRequest.getMongoDbName();
+        String mongoTbName = etlSaveRequest.getMongoTbName();
         sqlXml = changeSql(sqlXml, sql);
 
         connectionXml = changeDBConnection(connectionXml, ip, port, dbName, username, password, type);

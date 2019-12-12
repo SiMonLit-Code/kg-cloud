@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.dataset.req;
+package com.plantdata.kgcloud.domain.task.req;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiParam;
@@ -13,7 +13,7 @@ import java.util.List;
  **/
 @Data
 @ApiModel
-public class EtlSaveRequest {
+public class KettleReq {
 
     @ApiParam(value = "图谱名称")
     private String kgName;
@@ -43,11 +43,11 @@ public class EtlSaveRequest {
     private String sql;
 
     @ApiParam(hidden = true)
-    private List<String> mongoip;
+    private List<String> mongoAddress;
 
-    @ApiParam(value = "mongodbname", hidden = true)
-    private String mongodbname;
+    @ApiParam(value = "mongoDbName", hidden = true)
+    private String mongoDbName;
 
-    @ApiParam(value = "mongotbname", hidden = true)
-    private String mongotbname;
+    @ApiParam(value = "mongoTbName", hidden = true)
+    private String mongoTbName;
 }

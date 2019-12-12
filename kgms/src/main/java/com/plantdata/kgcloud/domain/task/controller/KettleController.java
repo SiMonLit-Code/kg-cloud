@@ -1,8 +1,8 @@
-package com.plantdata.kgcloud.domain.dataset.controller;
+package com.plantdata.kgcloud.domain.task.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.dataset.req.EtlSaveRequest;
-import com.plantdata.kgcloud.domain.dataset.service.KettleService;
+import com.plantdata.kgcloud.domain.task.req.KettleReq;
+import com.plantdata.kgcloud.domain.task.service.KettleService;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,28 +19,28 @@ import org.springframework.web.bind.annotation.RestController;
  **/
 @Api(tags = "数据集管理")
 @RestController
-@RequestMapping("/etl")
-public class DataSetTaskController {
+@RequestMapping("/task")
+public class KettleController {
 
     @Autowired
     private KettleService kettleService;
 
-    @PostMapping("/config/save")
+    @PostMapping("/etl/save")
     @ApiOperation("etl配置保存")
-    public ApiReturn<String> saveEtl(@RequestBody EtlSaveRequest etlSaveRequest) throws Exception {
+    public ApiReturn<String> saveEtl(@RequestBody KettleReq etlSaveRequest) throws Exception {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(kettleService.saveEtl(userId, etlSaveRequest));
+        return ApiReturn.success(kettleService.kettleSave(userId, etlSaveRequest));
     }
 
-    @PostMapping("/config/test")
+    @PostMapping("/etl/test")
     @ApiOperation("etl配置connect测试")
-    public ApiReturn testEtl(@RequestBody EtlSaveRequest etlSaveRequest) {
+    public ApiReturn testEtl(@RequestBody KettleReq etlSaveRequest) {
         return ApiReturn.success(kettleService.kettleService(etlSaveRequest));
     }
 
     @ApiOperation("etl配置sql预览")
-    @PostMapping("/config/preview")
-    public ApiReturn previewEtl(@RequestBody EtlSaveRequest etlSaveRequest) {
-        return ApiReturn.success(kettleService.previewSqlEtl(etlSaveRequest));
+    @PostMapping("/etl/preview")
+    public ApiReturn previewEtl(@RequestBody KettleReq etlSaveRequest) {
+        return ApiReturn.success(kettleService.kettlePreview(etlSaveRequest));
     }
 }

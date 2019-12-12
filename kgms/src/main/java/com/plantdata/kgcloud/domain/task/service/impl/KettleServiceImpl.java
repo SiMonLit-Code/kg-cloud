@@ -1,12 +1,12 @@
-package com.plantdata.kgcloud.domain.dataset.service.impl;
+package com.plantdata.kgcloud.domain.task.service.impl;
 
 
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.plantdata.kgcloud.config.MongoProperties;
-import com.plantdata.kgcloud.domain.dataset.kettle.CreateKettleJob;
-import com.plantdata.kgcloud.domain.dataset.req.EtlSaveRequest;
-import com.plantdata.kgcloud.domain.dataset.service.KettleService;
+import com.plantdata.kgcloud.domain.task.kettle.CreateKettleJob;
+import com.plantdata.kgcloud.domain.task.req.KettleReq;
+import com.plantdata.kgcloud.domain.task.service.KettleService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,7 +53,7 @@ public class KettleServiceImpl implements KettleService {
     private String basePath;
 
     @Override
-    public Object kettleService(EtlSaveRequest etl) {
+    public Object kettleService(KettleReq etl) {
         DataSource dataSource = getDataSource(etl);
         Map<String, String> map = new HashMap<>();
         String s = "";
@@ -101,7 +101,7 @@ public class KettleServiceImpl implements KettleService {
     }
 
     @Override
-    public Object previewSqlEtl(EtlSaveRequest etlSaveRequest) {
+    public Object kettlePreview(KettleReq etlSaveRequest) {
         DataSource dataSource = getDataSource(etlSaveRequest);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         if (etlSaveRequest.getSql() == null) {
@@ -115,7 +115,7 @@ public class KettleServiceImpl implements KettleService {
         }
     }
 
-    public List<String> dbFiledName(EtlSaveRequest etlSaveRequest) {
+    public List<String> dbFiledName(KettleReq etlSaveRequest) {
         DataSource dataSource = getDataSource(etlSaveRequest);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         String sql = getSql(etlSaveRequest);
@@ -129,7 +129,7 @@ public class KettleServiceImpl implements KettleService {
         return tableFieldList;
     }
 
-    private DataSource getDataSource(EtlSaveRequest etl) {
+    private DataSource getDataSource(KettleReq etl) {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
 
         if ("mysql".equalsIgnoreCase(etl.getConnectType())) {
@@ -147,7 +147,7 @@ public class KettleServiceImpl implements KettleService {
         return dataSourceBuilder.build();
     }
 
-    private String getSql(EtlSaveRequest etlSaveRequest) {
+    private String getSql(KettleReq etlSaveRequest) {
         String sql = "";
         String s = "select * from ( ";
         if ("mysql".equalsIgnoreCase(etlSaveRequest.getConnectType())) {
@@ -161,17 +161,17 @@ public class KettleServiceImpl implements KettleService {
     }
 
     @Override
-    public String saveEtl(String userId, EtlSaveRequest etlSaveRequest) {
-        etlSaveRequest.setMongoip(Arrays.asList(mongoProperties.getAddrs()));
-        etlSaveRequest.setMongotbname("kettleConfig_" + Long.toHexString(System.currentTimeMillis()));
-        etlSaveRequest.setMongodbname(userId + JOIN + DATA_PREFIX);
+    public String kettleSave(String userId, KettleReq kettleReq) {
+        kettleReq.setMongoAddress(Arrays.asList(mongoProperties.getAddrs()));
+        kettleReq.setMongoTbName("kettleConfig_" + Long.toHexString(System.currentTimeMillis()));
+        kettleReq.setMongoDbName(userId + JOIN + DATA_PREFIX);
         //获取从mysql接受的字段值，传递到MongoDB
-        List<String> arrayList = dbFiledName(etlSaveRequest);
+        List<String> arrayList = dbFiledName(kettleReq);
         //转变成kettle文件
         String string = UUID.randomUUID().toString();
         String file = string + ".ktr";
         try {
-            File kettleXml = CreateKettleJob.getKettleXml(etlSaveRequest, arrayList, file);
+            File kettleXml = CreateKettleJob.getKettleXml(kettleReq, arrayList, file);
             StorePath ktr = storageClient.uploadFile(new FileInputStream(kettleXml), kettleXml.length(), "ktr", null);
             return ktr.getFullPath();
         } catch (IOException e) {
