@@ -5,8 +5,6 @@ import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
-
 /**
  * Created by jdm on 2019/12/9 15:45.
  */

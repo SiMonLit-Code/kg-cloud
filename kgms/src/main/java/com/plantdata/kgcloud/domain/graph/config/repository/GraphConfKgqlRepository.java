@@ -20,5 +20,5 @@ public interface GraphConfKgqlRepository extends JpaRepository<GraphConfKgql, Lo
      *
      * @return
      */
-    Page<GraphConfKgql> findByKgName(String kgName, Pageable pageable);
+    Page<GraphConfKgql> findByKgNameAndRuleType(String kgName,Integer ruleType, Pageable pageable);
 }

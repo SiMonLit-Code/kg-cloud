@@ -39,7 +39,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
     @Override
     public RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReq analysisReq) {
 
-        analysisReq = graphHelperService.dealGraphReq(kgName,analysisReq);
+        analysisReq = graphHelperService.keyToId(kgName,analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationAnalysisRsp analysisRsp = new RelationAnalysisRsp();
         //执行分析
@@ -53,7 +53,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
 
     @Override
     public RelationTimingAnalysisRsp relationTimingAnalysis(String kgName, RelationTimingAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(kgName,analysisReq);
+        analysisReq = graphHelperService.keyToId(kgName,analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationTimingAnalysisRsp analysisRsp = new RelationTimingAnalysisRsp();
         //执行分析
@@ -67,7 +67,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
 
     @Override
     public RelationReasoningAnalysisRsp relationReasoningAnalysis(String kgName, RelationReasoningAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(kgName,analysisReq);
+        analysisReq = graphHelperService.keyToId(kgName,analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationReasoningAnalysisRsp analysisRsp = new RelationReasoningAnalysisRsp();
         //执行分析

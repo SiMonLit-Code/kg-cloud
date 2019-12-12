@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class GraphConfFocusServiceImpl implements GraphConfFocusService {
     GraphConfFocusRepository graphConfFocusRepository;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<GraphConfFocusRsp> save(String kgName, List<GraphConfFocusReq> reqs) {
         List<GraphConfFocus> list = new ArrayList<>();
         for (GraphConfFocusReq req : reqs) {

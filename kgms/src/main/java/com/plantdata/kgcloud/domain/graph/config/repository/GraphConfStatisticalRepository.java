@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.graph.config.repository;
 
-import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

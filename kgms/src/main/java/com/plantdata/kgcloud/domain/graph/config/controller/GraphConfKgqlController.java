@@ -2,9 +2,9 @@ package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.graph.config.service.GraphConfKgqlService;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
-import com.plantdata.kgcloud.domain.graph.config.service.GraphConfKgqlService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +45,9 @@ public class GraphConfKgqlController {
     }
 
     @ApiOperation("图谱配置-KGQL-查询")
-    @GetMapping("/kgql/{kgName}")
-    public ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName , BaseReq baseReq) {
-        return ApiReturn.success(graphConfKgqlService.findByKgName(kgName, baseReq));
+    @GetMapping("/kgql/{kgName}/{ruleType}")
+    public ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName ,@PathVariable("ruleType") Integer ruleType, BaseReq baseReq) {
+        return ApiReturn.success(graphConfKgqlService.findByKgNameAndRuleType(kgName,ruleType, baseReq));
     }
 
     @ApiOperation("图谱配置-KGQL-详情")
