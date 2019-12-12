@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class RelationSearchReq extends BaseReq {
+public class EdgeSearchReq extends BaseReq {
 
     private List<Long> entityIds;
     private List<Integer> attrIds;

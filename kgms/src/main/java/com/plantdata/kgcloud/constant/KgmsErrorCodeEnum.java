@@ -26,6 +26,9 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     QUERYSETTING_NOT_EXISTS(120110, "规则配置不存在"),
 
     ANNOTATION_NOT_EXISTS(120109, "标引不存在"),
+    DATASET_ES_REQUEST_ERROR(120110,"es请求失败"),
+    DATASET_ES_KEY_EXISTS(120111,"es唯一标识已存在"),
+
 
     MODEL_NOT_EXISTS(120201, "模型不存在"),
     /**

@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -88,7 +89,7 @@ public class GraphExplorationController {
     @ApiOperation("普通图探索")
     @PostMapping("common/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                        @RequestBody @Valid CommonExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
+                                                                        @RequestBody  @Valid CommonExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
         Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, exploreParam, new CommonBasicGraphExploreRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphExplorationService.commonGraphExploration(kgName, exploreParam)));
     }

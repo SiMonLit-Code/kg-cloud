@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("实体提示参数")
-public class PromptReq extends BaseReq implements PromptSearchInterface{
+public class PromptReq extends BaseReq implements PromptSearchInterface {
 
     @ApiModelProperty("关键字")
     private String kw;

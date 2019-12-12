@@ -18,6 +18,4 @@ public class RelationAttrReq extends CompareFilterReq {
     private Integer attrId;
     @ApiModelProperty("属性数据id")
     private Integer seqNo;
-    @ApiModelProperty("等于")
-    private String eq;
 }

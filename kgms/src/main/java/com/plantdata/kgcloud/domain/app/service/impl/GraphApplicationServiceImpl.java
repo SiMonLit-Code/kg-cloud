@@ -39,7 +39,6 @@ import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,8 +96,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             schemaRsp.setTypes(ConceptConverter.voToRsp(schemaVO.getConcepts()));
         }
         List<AttrDefGroupDTO> attrDefGroupList = graphAttrGroupService.queryAllByKgName(kgName);
-
-        schemaRsp.setAttrGroups(DefaultUtils.getIfNoNull(attrDefGroupList, AttrDefGroupConverter.dtoToRsp(attrDefGroupList)));
+        schemaRsp.setAttrGroups(DefaultUtils.executeIfNoNull(attrDefGroupList, AttrDefGroupConverter::dtoToRsp));
         return schemaRsp;
     }
 

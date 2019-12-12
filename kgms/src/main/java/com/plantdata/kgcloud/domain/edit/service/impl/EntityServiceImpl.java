@@ -19,6 +19,7 @@ import ai.plantdata.kg.api.edit.resp.BatchEntityVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.EntityApi;
+import ai.plantdata.kg.api.pub.req.EntityTagFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -37,6 +38,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
@@ -47,6 +49,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
+import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
@@ -414,6 +417,13 @@ public class EntityServiceImpl implements EntityService {
                 ConvertUtils.convert(EntityPrivateRelationFrom.class).apply(batchPrivateRelationReq);
         Optional<List<String>> optional = RestRespConverter.convert(conceptEntityApi.batchAddRelation(kgName,
                 entityPrivateRelationFrom));
+        return optional.orElse(new ArrayList<>());
+    }
+
+    @Override
+    public List<String> tagSearch(String kgName, EntityTagSearchReq entityTagSearchReq) {
+        Optional<List<String>> optional = RestRespConverter.convert(entityApi.tagList(kgName,
+                MapperUtils.map(entityTagSearchReq, EntityTagFrom.class)));
         return optional.orElse(new ArrayList<>());
     }
 

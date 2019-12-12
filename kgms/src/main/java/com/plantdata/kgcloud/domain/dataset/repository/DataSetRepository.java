@@ -63,4 +63,6 @@ public interface DataSetRepository extends JpaRepository<DataSet, Long>, JpaSpec
      * @return
      */
     List<DataSet> findByFolderId(Long folderId);
+
+    List<DataSet> findByDataTypeAndCreateWayAndDataNameLike(Integer dataType, String createWay, String dataName);
 }

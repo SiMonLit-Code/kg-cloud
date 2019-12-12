@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.websocket.server.PathParam;
+import java.util.List;
 
 @Api(tags = "图谱")
 @RestController
@@ -26,14 +27,14 @@ public class GraphController {
     private GraphService graphService;
 
     @ApiOperation("图谱列表")
-    @PostMapping("/get/list/page")
-    public ApiReturn<Page<GraphRsp>> getListPage(GraphPageReq graphPageReq) {
-        return graphService.getListPage(graphPageReq);
+    @PostMapping("/get/list")
+    public ApiReturn<List<GraphRsp>> getListPage() {
+        return graphService.getListPage();
     }
 
     @ApiOperation("获取schema")
-    @PatchMapping("/schema/{kgName}")
-    public ApiReturn<SchemaRsp> getSchema(@PathParam("kgName")String kgName) {
+    @PostMapping("/schema")
+    public ApiReturn<SchemaRsp> getSchema(String kgName) {
         return graphService.getSchema(kgName);
     }
 
