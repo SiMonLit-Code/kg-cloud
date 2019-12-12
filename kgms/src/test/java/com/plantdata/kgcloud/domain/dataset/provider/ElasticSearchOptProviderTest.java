@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.dataset.provider;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,10 +68,10 @@ public class ElasticSearchOptProviderTest {
         ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
         objectNode.putPOJO("a","111");
         objectNode.putPOJO("b","222");
-        objectNode.putPOJO("c","20191212");
-        for (int i = 0; i < 1000; i++) {
+        objectNode.put("c", DateUtils.formatDatetime());
+
             provider.insert(objectNode);
-        }
+
 
 
     }
@@ -86,5 +87,11 @@ public class ElasticSearchOptProviderTest {
     @Test
     public void find() {
         provider.find(null,null,null);
+    }
+
+    @Test
+    public void count() {
+        long count = provider.count(null);
+        System.out.println(count);
     }
 }

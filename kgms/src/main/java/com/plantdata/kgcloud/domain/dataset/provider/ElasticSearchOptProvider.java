@@ -8,12 +8,14 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
@@ -81,39 +83,46 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
         List<Map<String, Object>> mapList = new ArrayList<>();
 
-        String endpoint = "/" + database + "/" + type + "/_search?_source=false";
+        String endpoint = "/" + database + "/" + type + "/_search";
         if (!StringUtils.hasText(type)) {
             endpoint = "/" + database + "/_search";
         }
         Request request = new Request(POST, endpoint);
 
-//            NStringEntity entity = new NStringEntity(query, ContentType.APPLICATION_JSON);
-//
-//            request.setEntity(entity);
+        ObjectNode queryNode = objectMapper.createObjectNode();
 
+        if (offset != null) {
+            queryNode.putPOJO("from", offset);
+        }
 
+        if (limit != null) {
+            queryNode.putPOJO("size", limit);
+        }
+
+        NStringEntity entity = new NStringEntity(query.toString(), ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
         JsonNode node = readTree(result);
-        System.out.println(node.toString());
-//        for (JsonNode jsonNode : node.get("hits").get("hits")) {
-//            String id = jsonNode.get("_id").asText();
-//            Map<String, Object> map = JacksonUtils.readValue(jsonNode.get("_source").traverse(), new TypeReference<Map<String, Object>>() {
-//            });
-//            map.put("_id", id);
-//            mapList.add(map);
-//        }
+        for (JsonNode jsonNode : node.get("hits").get("hits")) {
+            String id = jsonNode.get("_id").asText();
+            Map<String, Object> map = JacksonUtils.readValue(jsonNode.get("_source").traverse(), new TypeReference<Map<String, Object>>() {
+            });
+            map.put("_id", id);
+            mapList.add(map);
+        }
         return mapList;
     }
 
     public List<Map<String, Object>> batchFind(Integer offset, Integer limit, Map<String, Object> query) {
         List<Map<String, Object>> mapList = new ArrayList<>();
 
-        String endpoint = "/" + alias + "/" + type + "/_search";
+        String endpoint = "/" + database + "/" + type + "/_search";
         if (StringUtils.hasText(type)) {
-            endpoint = "/" + alias + "/_search";
+            endpoint = "/" + database + "/_search";
         }
         Request request = new Request(POST, endpoint);
+
 
 //            NStringEntity entity = new NStringEntity(query, ContentType.APPLICATION_JSON);
 //
@@ -132,7 +141,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public long count(Map<String, Object> query) {
-        String endpoint = "/" + database + "/" + type + "/_search";
+        String endpoint = "/" + database + "/" + type + "/_search?_source=false";
         Request request = new Request(POST, endpoint);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
@@ -177,10 +186,10 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     }
 
     @Override
-    public Map<String, Object> insert(JsonNode node) {
+    public Map<String, Object> insert(Map<String,Object>  node) {
         String endpoint = "/" + database + "/" + type;
         Request request = new Request(POST, endpoint);
-        String string = node.toString();
+        String string = JacksonUtils.writeValueAsString(node);
         request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
         String send = send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
         JsonNode result = readTree(send);
@@ -189,14 +198,13 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         });
         map.put("_id", id);
         return map;
-
     }
 
     @Override
-    public Map<String, Object> update(String id, JsonNode node) {
+    public Map<String, Object> update(String id, Map<String,Object> node) {
         String endpoint = "/" + database + "/" + type + "/" + id + "/_update/";
         Request request = new Request(POST, endpoint);
-        String string = node.toString();
+        String string = JacksonUtils.writeValueAsString(node);
         request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
         send(request);
         return JacksonUtils.readValue(string, new TypeReference<Map<String, Object>>() {
@@ -220,11 +228,11 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     }
 
     @Override
-    public void batchInsert(List<JsonNode> nodes) {
+    public void batchInsert(List<Map<String,Object>> nodes) {
         String endpoint = "/" + database + "/" + type + "/_bulk";
         StringBuilder body = new StringBuilder();
-        for (JsonNode node : nodes) {
-            body.append("{\"create\" :").append(node.toString()).append("}\n");
+        for (Map<String,Object> node : nodes) {
+            body.append("{\"create\" :").append(JacksonUtils.writeValueAsString(node)).append("}\n");
         }
         Request request = new Request(POST, endpoint);
         request.setEntity(new StringEntity(body.toString(), ContentType.APPLICATION_JSON));
