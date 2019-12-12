@@ -1,12 +1,6 @@
-package com.plantdata.kgcloud.domain.graph.task.entity;
+package com.plantdata.kgcloud.domain.task.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -27,16 +21,9 @@ import java.util.Date;
 
 @Data
 @Entity
-
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@DynamicInsert
-@DynamicUpdate
-
-@Table(name = "task_graph_snapshot")
+@Table(name = "task_graph_reasoning")
 @EntityListeners(AuditingEntityListener.class)
-public class TaskGraphSnapshot {
+public class TaskGraphReason {
 
     @Id
     @Column(name = "id")
@@ -47,25 +34,16 @@ public class TaskGraphSnapshot {
     private String kgName;
 
     @Basic
-    @Column(name = "user_id")
-    @CreatedBy
-    private String userId;
+    @Column(name = "rule_config")
+    private String ruleConfig;
 
     @Basic
-    @Column(name = "name")
-    private String name;
-
-    @Basic
-    @Column(name = "file_size")
-    private String fileSize;
+    @Column(name = "task_id")
+    private Integer taskId;
 
     @Basic
     @Column(name = "status")
     private Integer status;
-
-    @Basic
-    @Column(name = "restore_at")
-    private Date restoreAt;
 
     @Basic
     @Column(name = "create_at", updatable = false)

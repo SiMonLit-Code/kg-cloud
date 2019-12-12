@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.graph.task.rsp;
+package com.plantdata.kgcloud.domain.task.rsp;
 
 import lombok.Data;
 

@@ -1,5 +1,6 @@
-package com.plantdata.kgcloud.domain.graph.task.entity;
+package com.plantdata.kgcloud.domain.task.entity;
 
+import com.plantdata.kgcloud.domain.common.converter.StringListConverter;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -7,11 +8,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description:
@@ -21,29 +24,22 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name = "task_graph_reasoning")
+@Table(name = "task_template")
 @EntityListeners(AuditingEntityListener.class)
-public class TaskGraphReason {
+public class TaskTemplate {
 
     @Id
     @Column(name = "id")
     private Long id;
 
     @Basic
-    @Column(name = "kg_name")
-    private String kgName;
+    @Column(name = "title")
+    private String title;
 
     @Basic
-    @Column(name = "rule_config")
-    private String ruleConfig;
-
-    @Basic
-    @Column(name = "task_id")
-    private Integer taskId;
-
-    @Basic
-    @Column(name = "status")
-    private Integer status;
+    @Column(name = "template")
+    @Convert(converter = StringListConverter.class)
+    private List<String> template;
 
     @Basic
     @Column(name = "create_at", updatable = false)

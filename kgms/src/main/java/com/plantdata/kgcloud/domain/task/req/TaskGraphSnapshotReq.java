@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.graph.task.req;
+package com.plantdata.kgcloud.domain.task.req;
 
 import com.plantdata.kgcloud.bean.BaseReq;
 import lombok.Data;

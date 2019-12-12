@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.graph.task.entity;
+package com.plantdata.kgcloud.domain.task.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;

@@ -1,10 +1,10 @@
-package com.plantdata.kgcloud.domain.graph.task.controller;
+package com.plantdata.kgcloud.domain.task.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.graph.task.req.TaskGraphSnapshotReq;
-import com.plantdata.kgcloud.domain.graph.task.rsp.TaskGraphSnapshotRsp;
-import com.plantdata.kgcloud.domain.graph.task.rsp.TaskTemplateRsp;
-import com.plantdata.kgcloud.domain.graph.task.service.TaskGraphService;
+import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotReq;
+import com.plantdata.kgcloud.domain.task.rsp.TaskGraphSnapshotRsp;
+import com.plantdata.kgcloud.domain.task.rsp.TaskTemplateRsp;
+import com.plantdata.kgcloud.domain.task.service.TaskGraphService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

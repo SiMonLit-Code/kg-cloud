@@ -1,8 +1,8 @@
-package com.plantdata.kgcloud.domain.graph.task.service;
+package com.plantdata.kgcloud.domain.task.service;
 
-import com.plantdata.kgcloud.domain.graph.task.req.TaskGraphSnapshotReq;
-import com.plantdata.kgcloud.domain.graph.task.rsp.TaskGraphSnapshotRsp;
-import com.plantdata.kgcloud.domain.graph.task.rsp.TaskTemplateRsp;
+import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotReq;
+import com.plantdata.kgcloud.domain.task.rsp.TaskGraphSnapshotRsp;
+import com.plantdata.kgcloud.domain.task.rsp.TaskTemplateRsp;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

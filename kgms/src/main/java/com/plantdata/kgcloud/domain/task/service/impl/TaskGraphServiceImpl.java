@@ -1,13 +1,13 @@
-package com.plantdata.kgcloud.domain.graph.task.service.impl;
+package com.plantdata.kgcloud.domain.task.service.impl;
 
-import com.plantdata.kgcloud.domain.graph.task.entity.TaskGraphSnapshot;
-import com.plantdata.kgcloud.domain.graph.task.entity.TaskTemplate;
-import com.plantdata.kgcloud.domain.graph.task.repository.TaskGraphSnapshotRepository;
-import com.plantdata.kgcloud.domain.graph.task.repository.TaskTemplateRepository;
-import com.plantdata.kgcloud.domain.graph.task.req.TaskGraphSnapshotReq;
-import com.plantdata.kgcloud.domain.graph.task.rsp.TaskGraphSnapshotRsp;
-import com.plantdata.kgcloud.domain.graph.task.rsp.TaskTemplateRsp;
-import com.plantdata.kgcloud.domain.graph.task.service.TaskGraphService;
+import com.plantdata.kgcloud.domain.task.entity.TaskGraphSnapshot;
+import com.plantdata.kgcloud.domain.task.entity.TaskTemplate;
+import com.plantdata.kgcloud.domain.task.repository.TaskGraphSnapshotRepository;
+import com.plantdata.kgcloud.domain.task.repository.TaskTemplateRepository;
+import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotReq;
+import com.plantdata.kgcloud.domain.task.rsp.TaskGraphSnapshotRsp;
+import com.plantdata.kgcloud.domain.task.rsp.TaskTemplateRsp;
+import com.plantdata.kgcloud.domain.task.service.TaskGraphService;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;

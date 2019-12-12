@@ -1,6 +1,6 @@
-package com.plantdata.kgcloud.domain.graph.task.repository;
+package com.plantdata.kgcloud.domain.task.repository;
 
-import com.plantdata.kgcloud.domain.graph.task.entity.TaskGraphSearch;
+import com.plantdata.kgcloud.domain.task.entity.TaskGraphSearch;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
