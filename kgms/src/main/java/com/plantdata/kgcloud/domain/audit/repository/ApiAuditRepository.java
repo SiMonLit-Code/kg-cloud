@@ -2,12 +2,13 @@ package com.plantdata.kgcloud.domain.audit.repository;
 
 import com.plantdata.kgcloud.domain.audit.entity.ApiAudit;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
  * @description:
  * @author: Bovin
  * @create: 2019-11-04 18:45
  **/
-public interface ApiAuditRepository extends JpaRepository<ApiAudit, Long> {
+public interface ApiAuditRepository extends JpaRepository<ApiAudit, Long>, JpaSpecificationExecutor<ApiAudit> {
 
 }
