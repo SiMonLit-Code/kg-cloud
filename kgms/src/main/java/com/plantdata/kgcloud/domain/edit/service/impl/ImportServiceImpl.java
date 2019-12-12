@@ -204,7 +204,7 @@ public class ImportServiceImpl implements ImportService {
      * @return
      */
     private String handleUploadError(ResponseEntity<byte[]> body) {
-        if (!body.getStatusCode().equals(HttpStatus.OK)) {
+        if (!body.getStatusCode().equals(HttpStatus.CREATED)) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
         }
         List<String> hasError = body.getHeaders().get("HAS-ERROR");
