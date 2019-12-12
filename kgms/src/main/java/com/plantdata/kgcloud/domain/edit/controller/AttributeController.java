@@ -168,9 +168,9 @@ public class AttributeController {
     }
 
     @ApiOperation("关系溯源")
-    @PostMapping("/{kgName}/relation")
+    @GetMapping("/{kgName}/relation")
     ApiReturn<Page<RelationRsp>> listRelations(@PathVariable("kgName") String kgName,
-                                               @Valid @RequestBody RelationSearchReq relationSearchReq) {
+                                               RelationSearchReq relationSearchReq) {
         return ApiReturn.success(attributeService.listRelations(kgName, relationSearchReq));
     }
 
