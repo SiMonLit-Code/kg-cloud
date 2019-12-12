@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author: Bovin
  * @create: 2019-11-04 18:45
  **/
-public interface TaskGraphSearchRepository extends JpaRepository<TaskGraphSearch, Long> {
+public interface TaskGraphSearchRepository extends JpaRepository<TaskGraphSearch, String> {
 }

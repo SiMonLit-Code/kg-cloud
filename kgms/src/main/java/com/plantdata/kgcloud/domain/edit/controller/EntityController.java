@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
@@ -283,6 +284,12 @@ public class EntityController {
         return ApiReturn.success(entityService.batchAddPrivateRelation(kgName, batchPrivateRelationReq));
     }
 
+    @ApiOperation("实体标签搜索")
+    @GetMapping("/{kgName}/entity/tag/prompt")
+    ApiReturn<List<String>> tagSearch(@PathVariable("kgName") String kgName, EntityTagSearchReq entityTagSearchReq) {
+        return ApiReturn.success(entityService.tagSearch(kgName, entityTagSearchReq));
+    }
+
 
     @ApiOperation("实体查询")
     @GetMapping("/{kgName}/list/search")
@@ -294,14 +301,16 @@ public class EntityController {
 
     @ApiOperation("批量新增或新增实体")
     @PostMapping("/{kgName}")
-    public ApiReturn<List<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName, @ApiParam("是否只是更新，默认不是") boolean add,
+    public ApiReturn<List<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName, @ApiParam(
+            "是否只是更新，默认不是") boolean add,
                                                                 @RequestBody List<OpenBatchSaveEntityRsp> batchEntity) {
         return ApiReturn.success(entityService.saveOrUpdate(kgName, add, batchEntity));
     }
 
     @ApiOperation("批量实体数值属性删除")
     @DeleteMapping("/attr/{kgName}")
-    public ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName, @RequestBody BatchEntityAttrDeleteReq deleteReq) {
+    public ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName,
+                                           @RequestBody BatchEntityAttrDeleteReq deleteReq) {
         entityService.batchDeleteEntityAttr(kgName, deleteReq);
         return ApiReturn.success();
     }
