@@ -6,8 +6,10 @@ import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface GraphService {
-    ApiReturn<Page<GraphRsp>> getListPage(GraphPageReq graphPageReq);
+    ApiReturn<List<GraphRsp>> getListPage();
 
     ApiReturn<SchemaRsp> getSchema(String kgName);
 }
