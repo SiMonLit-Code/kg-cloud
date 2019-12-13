@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
 import ai.plantdata.kg.api.edit.UploadApi;
+import ai.plantdata.kg.api.rdf.RdfApi;
 import com.alibaba.excel.EasyExcel;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
@@ -10,6 +11,8 @@ import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
+import com.plantdata.kgcloud.domain.edit.req.upload.RdfExportReq;
+import com.plantdata.kgcloud.domain.edit.req.upload.RdfReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
@@ -48,6 +51,9 @@ public class ImportServiceImpl implements ImportService {
 
     @Autowired
     private UploadApi uploadApi;
+
+    @Autowired
+    private RdfApi rdfApi;
 
     @Override
     public void getImportTemplate(String kgName, ImportTemplateReq importTemplateReq, HttpServletResponse response) {
@@ -195,6 +201,20 @@ public class ImportServiceImpl implements ImportService {
     @Override
     public String importRelation(String kgName, Integer attrId, Integer mode, MultipartFile file) {
         return handleUploadError(uploadApi.relation(kgName, attrId, mode, file));
+    }
+
+    @Override
+    public String importRdf(String kgName, MultipartFile file, RdfReq rdfReq) {
+        return handleUploadError(rdfApi.importRdf(kgName,rdfReq.getFormat(),file));
+    }
+
+    @Override
+    public String exportRdf(String kgName, RdfExportReq rdfExportReq) {
+        ResponseEntity<byte[]> body = rdfApi.exportRdf(kgName, rdfExportReq.getScope(),
+                rdfExportReq.getFormat());
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(Objects.requireNonNull(body.getBody()));
+        StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, rdfExportReq.getFormat(), null);
+        return "/" + storePath.getFullPath();
     }
 
     /**
