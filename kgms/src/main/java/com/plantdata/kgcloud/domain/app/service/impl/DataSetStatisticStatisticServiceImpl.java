@@ -3,22 +3,27 @@ package com.plantdata.kgcloud.domain.app.service.impl;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.bo.DataSetStatisticBO;
-import com.plantdata.kgcloud.domain.app.dto.DataCountRsp;
 import com.plantdata.kgcloud.domain.app.service.DataSetStatisticService;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
+import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
+import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
+import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
+import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetTwoDimStatisticReq;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -30,23 +35,40 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
 
     @Autowired
     private DataSetRepository dataSetRepository;
+    @Autowired
+    private DataSetService dataSetService;
+    @Autowired
+    private DataOptService dataOptService;
 
     @Override
-    public DataSetStatisticRsp statisticByDimensionAndTable(TableStatisticByDimensionalReq param, DimensionEnum dimension) {
-
-        DataSetStatisticBO statistic = new DataSetStatisticBO().init(param.getAggs(), param.getQuery(), dimension, param.getReturnType());
-
-        DataCountRsp<Map<String, Object>> mapDataCountRsp = null;
-        ///todo kgms提供sdk
-        // elasticSearchRepository.searchData(param.getDatabases(), param.getTables(), statistic.getEsDTO());
-
-        return statistic.postDealData(mapDataCountRsp.getRsData());
+    public DataSetStatisticRsp dataSetStatistic(String userId, DataSetTwoDimStatisticReq statisticReq, DimensionEnum dimension) {
+        Optional<DataSet> dataOpt = dataSetRepository.findByDataName(statisticReq.getDataName());
+        if (!dataOpt.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
+        }
+        DataSetStatisticBO statistic = new DataSetStatisticBO().init(statisticReq.getAggregation(), statisticReq.getQuery(), dimension, statisticReq.getReturnType());
+        DataOptProvider provider = dataOptService.getProvider(userId, dataOpt.get().getId());
+        //todo 根据数据查询id
+        return statistic.postDealData(null);
     }
 
     @Override
-    public DataSetStatisticRsp statisticByDimension(StatisticByDimensionalReq dimensionalReq, String dataSetKey, DimensionEnum dimension) {
+    public DataSetStatisticRsp statisticByDimensionAndTable(String userId, TableStatisticByDimensionalReq dimensionalReq, DimensionEnum dimension) {
+        List<DataSetSdkReq> sdkReqList = dimensionalReq.getDataBaseList().stream().map(a -> {
+            DataSetSdkReq setSdkReq = new DataSetSdkReq();
+            setSdkReq.setDatabase(a.getDatabase());
+            setSdkReq.setTable(a.getTable());
+            return setSdkReq;
+        }).collect(Collectors.toList());
+
+        List<Long> dataSetList = dataSetService.findByDatabase(userId, sdkReqList);
+        return null;
+    }
+
+    @Override
+    public DataSetStatisticRsp statisticByDimension(String userId, StatisticByDimensionalReq dimensionalReq, String dataName, DimensionEnum dimension) {
         //查询数据集存储信息
-        Optional<DataSet> dataOpt = dataSetRepository.findByDataName(dataSetKey);
+        Optional<DataSet> dataOpt = dataSetRepository.findByDataName(dataName);
         if (!dataOpt.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
         }
@@ -56,9 +78,11 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
         }
         TableStatisticByDimensionalReq tableStatisticReq = new TableStatisticByDimensionalReq();
         BeanUtils.copyProperties(dimensionalReq, tableStatisticReq);
-        tableStatisticReq.setDatabases(Lists.newArrayList(dataSet.getDbName()));
-        tableStatisticReq.setTables(Lists.newArrayList(dataSet.getTbName()));
-        return statisticByDimensionAndTable(tableStatisticReq, dimension);
+        TableStatisticByDimensionalReq.DataBaseReq setSdkReq = new TableStatisticByDimensionalReq.DataBaseReq();
+        setSdkReq.setDatabase(dataSet.getDbName());
+        setSdkReq.setTable(dataSet.getTbName());
+        tableStatisticReq.setDataBaseList(Lists.newArrayList(setSdkReq));
+        return statisticByDimensionAndTable(userId, tableStatisticReq, dimension);
     }
 
 

@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.dataset.statistic.controller.req;
+package com.plantdata.kgcloud.domain.dataset.statistic.req;
 
 import lombok.Getter;
 import lombok.Setter;

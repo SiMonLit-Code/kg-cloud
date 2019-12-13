@@ -32,7 +32,7 @@ public class AttributeDefinitionRsp {
     private Long domainValue;
     @ApiModelProperty("属性值的类型")
     private Integer dataType;
-    private List<AttributeExtraInfoItem> extraInfos;
+    private List<AttrExtraRsp> extraInfos;
     @ApiModelProperty("方向")
     private Integer direction;
     @ApiModelProperty("属性值的附加信息")

@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.req.edit;
 
-import com.plantdata.kgcloud.sdk.rsp.edit.EntityModifyReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.structure.analysis.controller;
+package com.plantdata.kgcloud.domain.structure.analysis;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphStructureAnalysisInterface;
@@ -26,7 +26,7 @@ import javax.validation.Valid;
  * @date 2019/11/12 11:37
  */
 @RestController
-@RequestMapping("structure/relation")
+@RequestMapping("v3/structure/relation")
 public class GraphRelationAnalysisController implements GraphStructureAnalysisInterface {
 
     @Autowired

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service;
 
-import com.plantdata.kgcloud.sdk.req.app.dataset.ReadTableReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
@@ -64,10 +64,13 @@ public interface KgDataService {
     Object statEdgeGroupByEdgeValue(String kgName, EdgeAttrStatisticByAttrValueReq statisticReq);
 
     /**
-     * 读取mongodb 普通数据集
+     * 读取数据集
      *
-     * @param readTableReq req
-     * @return 。
+     * @param userId      用户id
+     * @param nameReadReq 。。
+     * @return a
      */
-    RestData<Map<String, Object>> readMongoDataSet(ReadTableReq readTableReq);
+    RestData<Map<String, Object>> searchDataSet(String userId, NameReadReq nameReadReq);
+
+
 }

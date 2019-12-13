@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.req.app.dataset;
 
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel
 public class BaseTableReq extends PageReq {
     @ApiModelProperty("es query条件")
     private String query;
