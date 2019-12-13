@@ -41,7 +41,7 @@ public interface GraphConfStatisticalService {
 
     /**
      * 批量修改
-     * @param ids
+     * @param
      * @param reqs
      * @return
      */

@@ -20,13 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 import java.util.stream.Collectors;
 
 /**
- *
  * Created by plantdata-1007 on 2019/12/3.
- *
  */
 @Service
 public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalService {
@@ -52,7 +50,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     @Transactional(rollbackFor = Exception.class)
     public List<GraphConfStatisticalRsp> saveAll(List<GraphConfStatisticalReq> listReq) {
         List<GraphConfStatistical> list = new ArrayList<>();
-        for (GraphConfStatisticalReq req : listReq){
+        for (GraphConfStatisticalReq req : listReq) {
             GraphConfStatistical targe = new GraphConfStatistical();
             BeanUtils.copyProperties(req, targe);
             targe.setId(kgKeyGenerator.getNextId());
@@ -75,18 +73,22 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public List<GraphConfStatisticalRsp> updateAll( List<GraphConfStatisticalReq> reqs) {
+    public List<GraphConfStatisticalRsp> updateAll(List<GraphConfStatisticalReq> reqs) {
         List<Long> list = new ArrayList<>();
-        for (GraphConfStatisticalReq req : reqs){
+        for (GraphConfStatisticalReq req : reqs) {
             Long id = req.getId();
             list.add(id);
         }
         List<GraphConfStatistical> list1 = graphConfStatisticalRepository.findAllById(list);
-        for (GraphConfStatisticalReq req : reqs){
-            BeanUtils.copyProperties(req, list1);
+        List<GraphConfStatistical> list3 = new ArrayList<>();
+        for (int i = 0; i < list1.size(); i++) {
+            for (GraphConfStatisticalReq req : reqs) {
+                BeanUtils.copyProperties(req, list1.get(i));
+                list3.add(list1.get(i));
+            }
         }
         graphConfStatisticalRepository.deleteInBatch(list1);
-        List<GraphConfStatistical> list2 = graphConfStatisticalRepository.saveAll(list1);
+        List<GraphConfStatistical> list2 = graphConfStatisticalRepository.saveAll(list3);
         return list2.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
     }
 
@@ -100,7 +102,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteInBatch( List<Long> ids) {
+    public void deleteInBatch(List<Long> ids) {
         List<GraphConfStatistical> allById = graphConfStatisticalRepository.findAllById(ids);
         graphConfStatisticalRepository.deleteInBatch(allById);
     }
@@ -112,7 +114,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     }
 
     @Override
-    public Page<GraphConfStatisticalRsp> getByKgName(String kgName , BaseReq baseReq) {
+    public Page<GraphConfStatisticalRsp> getByKgName(String kgName, BaseReq baseReq) {
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
         Page<GraphConfStatistical> all = graphConfStatisticalRepository.getByKgName(kgName, pageable);
         return all.map(ConvertUtils.convert(GraphConfStatisticalRsp.class));
