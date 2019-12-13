@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.task.kettle;
+package com.plantdata.kgcloud.domain.task.util;
 
 /**
  * @author: Bovin
