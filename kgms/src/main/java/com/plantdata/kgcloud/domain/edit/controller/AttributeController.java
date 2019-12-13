@@ -89,9 +89,9 @@ public class AttributeController {
     }
 
     @ApiOperation("查询多概念下的属性定义")
-    @GetMapping("/{kgName}/concepts")
+    @PostMapping("/{kgName}/concepts")
     ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptIds(@PathVariable("kgName") String kgName,
-                                                                     AttrDefinitionConceptsReq attrDefinitionConceptsReq) {
+                                                                     @RequestBody AttrDefinitionConceptsReq attrDefinitionConceptsReq) {
         return ApiReturn.success(attributeService.getAttrDefinitionByConceptIds(kgName, attrDefinitionConceptsReq));
     }
 
