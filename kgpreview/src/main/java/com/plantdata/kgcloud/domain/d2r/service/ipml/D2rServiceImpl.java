@@ -63,11 +63,15 @@ public class D2rServiceImpl implements D2rService {
                     if (en.getProperty().equals("name")) {
                         for (String k : en.getMapField()) {
                             if (!StringUtils.isEmpty(data.getString(k))) {
-                                name += data.getString(k);
+                                name += data.getString(k) + " ";
                             }
                         }
                     }
                 }
+                if (name.isEmpty()) {
+                    continue;
+                }
+                name = name.substring(0, name.length() - 1);
                 // 添加实体
                 if (entitySize < req.getEntSize()) {
                     EntRsp entBean = new EntRsp();
