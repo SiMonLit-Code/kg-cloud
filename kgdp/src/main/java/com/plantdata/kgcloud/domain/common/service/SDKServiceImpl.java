@@ -5,7 +5,7 @@ import com.plantdata.kgcloud.constant.KgDocumentErrorCodes;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.EditClient;
-import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
@@ -54,17 +54,17 @@ public class SDKServiceImpl implements SDKService {
 
     @Override
     public InfoBoxRsp infobox(String kgName, Long entityId) {
-        InfoBoxReq infoBoxReq = new InfoBoxReq();
-        infoBoxReq.setEntityIdList(Stream.of(entityId).collect(Collectors.toList()));
+        BatchInfoBoxReq batchInfoBoxReq = new BatchInfoBoxReq();
+        batchInfoBoxReq.setEntityIdList(Stream.of(entityId).collect(Collectors.toList()));
 
 
-        ApiReturn<List<InfoBoxRsp>> apiReturn = appClient.infoBox(kgName, infoBoxReq);
+        ApiReturn<List<InfoBoxRsp>> apiReturn = appClient.listInfoBox(kgName, batchInfoBoxReq);
         if (apiReturn.getErrCode() != 200) {
             throw BizException.of(KgDocumentErrorCodes.HTTP_ERROR);
         }
 
         List<InfoBoxRsp> infoBoxRspList = apiReturn.getData();
-        if (Objects.nonNull(infoBoxReq) && !infoBoxRspList.isEmpty()) {
+        if (Objects.nonNull(batchInfoBoxReq) && !infoBoxRspList.isEmpty()) {
             return infoBoxRspList.get(0);
         }
 

@@ -33,7 +33,7 @@ import java.util.Map;
  * @date 2019/12/4 17:07
  */
 @RestController
-@RequestMapping("nlp")
+@RequestMapping("v3/nlp")
 public class NlpController implements NaturalLanguageProcessingInterface {
 
     @Autowired

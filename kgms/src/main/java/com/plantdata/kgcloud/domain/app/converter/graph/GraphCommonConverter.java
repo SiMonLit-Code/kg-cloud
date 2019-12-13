@@ -24,6 +24,8 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/12/2 16:43
  */
+@Slf4j
 public class GraphCommonConverter {
 
     /**
@@ -49,8 +52,12 @@ public class GraphCommonConverter {
      */
     public static <T extends GraphEntityRsp> void fillConcept(Long conceptId, T entityRsp, Map<Long, BasicInfo> conceptMap) {
         BasicInfo concept = conceptMap.get(conceptId);
-        entityRsp.setConceptName(concept.getName());
         BasicInfo topConcept = ConceptConverter.getTopConcept(conceptId, conceptMap);
+        if (concept == null || topConcept == null) {
+            log.error("conceptId:{}概念不存在", conceptId);
+            return;
+        }
+        entityRsp.setConceptName(concept.getName());
         entityRsp.setClassId(topConcept.getId());
         entityRsp.setConceptIdList(ConceptConverter.getAllParentConceptId(Lists.newArrayList(conceptId), conceptId, conceptMap));
     }
@@ -58,7 +65,7 @@ public class GraphCommonConverter {
     /**
      * 填充基础参数
      *
-     * @param page       分页
+     * @param page       分页参数 仅使用 page->(default:0) size->(default:10)
      * @param exploreReq req
      * @param graphFrom  remote 参数
      * @param <T>        子类
@@ -67,15 +74,17 @@ public class GraphCommonConverter {
      */
     static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(BaseReq page, T exploreReq, E graphFrom) {
         CommonFilter commonFilter = new GraphFrom();
-        if (page != null) {
-            commonFilter.setSkip(page.getOffset());
-            commonFilter.setDirection(exploreReq.getDirection());
-            commonFilter.setDistance(exploreReq.getDistance());
-            commonFilter.setLimit(exploreReq.getHighLevelSize() == null ? page.getLimit() : exploreReq.getHighLevelSize());
-            graphFrom.setSkip(page.getPage());
-            graphFrom.setLimit(page.getSize());
+        if (page == null) {
+            page = new BaseReq();
+            page.setPage(NumberUtils.INTEGER_ZERO);
+            page.setSize(10);
         }
-
+        commonFilter.setSkip(page.getOffset());
+        commonFilter.setDirection(exploreReq.getDirection());
+        commonFilter.setDistance(exploreReq.getDistance());
+        commonFilter.setLimit(exploreReq.getHighLevelSize() == null ? page.getLimit() : exploreReq.getHighLevelSize());
+        graphFrom.setSkip(page.getPage());
+        graphFrom.setLimit(page.getSize());
         if (!CollectionUtils.isEmpty(exploreReq.getEntityFilters())) {
             EntityFilter entityFilter = new EntityFilter();
             entityFilter.setAttr(ConditionConverter.entityListToIntegerKeyMap(exploreReq.getEntityFilters()));
@@ -172,6 +181,7 @@ public class GraphCommonConverter {
      */
     static <T extends GraphEntityRsp> T simpleToGraphEntityRsp(T graphEntityRsp, SimpleEntity simpleEntity, Map<Long, BasicInfo> conceptMap) {
         graphEntityRsp.setId(simpleEntity.getId());
+        graphEntityRsp.setConceptId(simpleEntity.getConceptId());
         graphEntityRsp.setName(simpleEntity.getName());
         graphEntityRsp.setType(EntityTypeEnum.parseById(simpleEntity.getType()));
         graphEntityRsp.setMeaningTag(simpleEntity.getMeaningTag());

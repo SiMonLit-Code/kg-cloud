@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
@@ -29,6 +30,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -108,7 +110,7 @@ public class AttributeController {
     @ApiOperation("批量修改属性定义")
     @PatchMapping("/{kgName}/definition/batch")
     ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModifyAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                                @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs) {
+                                                                                 @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchUpdate(kgName, attrDefinitionReqs));
     }
 
@@ -165,9 +167,9 @@ public class AttributeController {
     }
 
     @ApiOperation("关系溯源")
-    @PostMapping("/{kgName}/relation")
+    @GetMapping("/{kgName}/relation")
     ApiReturn<Page<RelationRsp>> listRelations(@PathVariable("kgName") String kgName,
-                                               @Valid @RequestBody RelationSearchReq relationSearchReq) {
+                                               RelationSearchReq relationSearchReq) {
         return ApiReturn.success(attributeService.listRelations(kgName, relationSearchReq));
     }
 
@@ -246,5 +248,11 @@ public class AttributeController {
         return edgeOpt.map(result -> ApiReturn.success(RestCopyConverter.copyToNewList(result.getSuccess(),
                 RelationUpdateReq.class)))
                 .orElseGet(() -> ApiReturn.success(Collections.emptyList()));
+    }
+
+    @ApiOperation("批量查询关系")
+    @PostMapping("relation/search/{kgName}")
+    public ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName, @RequestBody EdgeSearchReq queryReq) {
+        return ApiReturn.success(attributeService.edgeSearch(kgName, queryReq));
     }
 }

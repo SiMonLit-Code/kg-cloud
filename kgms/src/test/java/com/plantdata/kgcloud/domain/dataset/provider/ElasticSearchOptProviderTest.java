@@ -1,21 +1,18 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import org.apache.http.HttpHost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
+import com.plantdata.kgcloud.util.DateUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description:
@@ -24,21 +21,30 @@ import java.util.List;
  **/
 public class ElasticSearchOptProviderTest {
 
+    private DataOptProvider provider;
+
+    @Before
+    public void before() {
+        DataOptConnect datasetInfo = new DataOptConnect();
+        List<String> addrs = new ArrayList<>();
+        addrs.add("192.168.4.16:9200");
+        addrs.add("192.168.4.17:9200");
+        addrs.add("192.168.4.18:9200");
+        datasetInfo.setAddresses(addrs);
+        datasetInfo.setDatabase("0000000000_0004");
+        datasetInfo.setTable("_doc");
+        provider = new ElasticSearchOptProvider(datasetInfo);
+    }
+
+
     @Test
     public void createTable() {
-        DataOptConnect datasetInfo = new DataOptConnect();
-        datasetInfo.setAddresses(Collections.singletonList("192.168.4.11:9200"));
-        datasetInfo.setDatabase("0000000000_000");
-        datasetInfo.setTable("attrs");
-        ElasticSearchOptProvider provider = new ElasticSearchOptProvider(datasetInfo);
-        List<DataSetSchema> colList =new ArrayList<>();
-
+        List<DataSetSchema> colList = new ArrayList<>();
         DataSetSchema schema = new DataSetSchema();
         schema.setField("a");
         schema.setIsIndex(1);
         schema.setType(1);
         colList.add(schema);
-
 
         DataSetSchema schema2 = new DataSetSchema();
         schema2.setField("b");
@@ -50,52 +56,44 @@ public class ElasticSearchOptProviderTest {
         schema3.setType(3);
         colList.add(schema3);
 
-
         provider.createTable(colList);
     }
 
     @Test
-    public void getAliases() {
-        DataOptConnect datasetInfo = new DataOptConnect();
-        datasetInfo.setAddresses(Collections.singletonList("192.168.4.11:9200"));
-        datasetInfo.setDatabase("0000000000_000");
-        datasetInfo.setTable("attrs");
-        ElasticSearchOptProvider provider = new ElasticSearchOptProvider(datasetInfo);
-        provider.dropTable();
+    public void findOne() {
+
+        provider.findOne("mfaN-W4BAruisY1fX8XP");
     }
 
     @Test
-    public void putAliases() {
-        DataOptConnect datasetInfo = new DataOptConnect();
-        datasetInfo.setAddresses(Collections.singletonList("192.168.4.11:9200"));
-        datasetInfo.setDatabase("aaaaaaaaaaaaa_1555333065195");
-        datasetInfo.setTable("attrs");
-        ElasticSearchOptProvider provider = new ElasticSearchOptProvider(datasetInfo);
+    public void insert() {
+        Map<String,Object> objectNode = new HashMap<>();
+        objectNode.put("a","111");
+        objectNode.put("b","222");
+        objectNode.put("c", DateUtils.formatDatetime());
+
+            provider.insert(objectNode);
+
+
 
     }
 
     @Test
-    public void clear(){
-        HttpHost httpHost = new HttpHost("192.168.4.11", 9200);
-        RestClient client = RestClient.builder(httpHost).setMaxRetryTimeoutMillis(60000).build();
+    public void update() {
+    }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Request stats = new Request("GET", "/_stats");
+    @Test
+    public void delete() {
+    }
 
-        try {
-            Response response = client.performRequest(stats);
-            String string = EntityUtils.toString(response.getEntity());
-            JsonNode node = objectMapper.readTree(string);
-            Iterator<String> iterator = node.get("indices").fieldNames();
-            while (iterator.hasNext()){
-                String next = iterator.next();
-                Request put = new Request("PUT", "/" + next + "/_settings");
-                put.setEntity(new StringEntity("{\"number_of_replicas\":0}"));
-                client.performRequest(put);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Test
+    public void find() {
+        provider.find(null,null,null);
+    }
 
+    @Test
+    public void count() {
+        long count = provider.count(null);
+        System.out.println(count);
     }
 }

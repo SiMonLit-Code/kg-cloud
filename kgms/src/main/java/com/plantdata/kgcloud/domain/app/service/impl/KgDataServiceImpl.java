@@ -9,23 +9,31 @@ import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
 import ai.plantdata.kg.api.pub.req.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.RelationStatisticsBean;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.bo.GraphAttributeStatisticBO;
 import com.plantdata.kgcloud.domain.app.bo.GraphRelationStatisticBO;
 import com.plantdata.kgcloud.domain.app.converter.GraphStatisticConverter;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
+import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
+import com.plantdata.kgcloud.domain.dataset.constant.DataType;
+import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
+import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
+import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.DateTypeReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
+import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,8 +58,12 @@ public class KgDataServiceImpl implements KgDataService {
     public AttributeApi attributeApi;
     @Autowired
     public StatisticsApi statisticsApi;
-
-
+    @Autowired
+    private DataSetService dataSetService;
+    @Autowired
+    public DataSetSearchService dataSetSearchService;
+    @Autowired
+    public DataOptService dataOptService;
 
     @Override
     public List<Map<String, Object>> statisticCountEdgeByEntity(String kgName, EdgeStatisticByEntityIdReq statisticReq) {
@@ -135,6 +147,21 @@ public class KgDataServiceImpl implements KgDataService {
         return buildStatisticResult(dataType, attrIdReq.getMerge(), dataList, attrIdReq.getDateType(), attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
     }
 
+    @Override
+    public RestData<Map<String, Object>> searchDataSet(String userId, NameReadReq nameReadReq) {
+        PageUtils pageUtils = new PageUtils(nameReadReq.getPage(), nameReadReq.getSize());
+        List<Long> dataSetIds = dataSetService.findByDataNames(userId, Lists.newArrayList(nameReadReq.getDataName()));
+
+        DataSetRsp dataSetRsp = dataSetService.findById(userId, dataSetIds.get(0));
+        if (DataType.MONGO.getDataType() == dataSetRsp.getDataType()) {
+            return dataSetSearchService.readMongoData(dataSetRsp.getDbName(), dataSetRsp.getTbName(),
+                    pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getFields(), nameReadReq.getSort());
+        }
+        return dataSetSearchService.readEsDataSet(Lists.newArrayList(dataSetRsp.getDbName()),
+                Lists.newArrayList(dataSetRsp.getTbName()), nameReadReq.getFields(), nameReadReq.getQuery(), nameReadReq.getSort(), pageUtils.getOffset(), pageUtils.getLimit());
+    }
+
+
     private Object buildStatisticResult(AttributeDataTypeEnum dataType, boolean merge, List<StatisticDTO> dataList, DateTypeReq dateType, int sort, int reSize, int returnType) {
         boolean isNum = AttributeDataTypeEnum.DATA_VALUE_SET.contains(dataType);
         boolean isDate = AttributeDataTypeEnum.DATE_SET.contains(dataType);
@@ -152,6 +179,7 @@ public class KgDataServiceImpl implements KgDataService {
         dataList = PageUtils.subList(NumberUtils.INTEGER_ZERO, reSize, dataList);
         return GraphStatisticConverter.statisticByType(dataList, returnType, StatisticResultTypeEnum.VALUE);
     }
+
 
 
 }

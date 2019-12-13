@@ -1,7 +1,11 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
+import ai.plantdata.kg.api.pub.QlApi;
+import ai.plantdata.kg.api.pub.resp.QuerySetting;
+import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfKgql;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfKgqlRepository;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfKgqlService;
@@ -9,6 +13,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +22,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.swing.text.html.Option;
+import java.util.Optional;
 
 /**
  * 图谱业务配置
@@ -30,6 +38,9 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
 
+    @Autowired
+    private QlApi qlApi;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public GraphConfKgqlRsp createKgql(String kgName,GraphConfKgqlReq req ) {
@@ -37,6 +48,15 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
         BeanUtils.copyProperties(req, targe);
         targe.setId(kgKeyGenerator.getNextId());
         targe.setKgName(kgName);
+
+        RestResp<QuerySetting> restResp =  qlApi.business(kgName,targe.getKgql());
+        Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
+        if (!convert.isPresent()){
+            BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
+        }
+        String s = JacksonUtils.writeValueAsString(convert.get());
+        targe.setRuleSettings(s);
+
         GraphConfKgql result = graphConfKgqlRepository.save(targe);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);
     }

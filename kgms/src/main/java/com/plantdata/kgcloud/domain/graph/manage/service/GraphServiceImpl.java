@@ -3,8 +3,8 @@ package com.plantdata.kgcloud.domain.graph.manage.service;
 import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.req.CopyGraphFrom;
 import ai.plantdata.kg.api.edit.req.CreateGraphFrom;
-import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
 import com.plantdata.kgcloud.domain.graph.manage.entity.GraphPk;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -87,11 +86,11 @@ public class GraphServiceImpl implements GraphService {
         Optional<Graph> one = graphRepository.findById(graphPk);
         if (one.isPresent()) {
             Graph entity = one.get();
+            RestRespConverter.convertVoid(graphApi.delete(kgName));
             entity.setDeleted(true);
             graphRepository.save(entity);
-            graphApi.delete(kgName);
-        }
 
+        }
     }
 
     @Override
@@ -104,10 +103,7 @@ public class GraphServiceImpl implements GraphService {
         CreateGraphFrom createGraphFrom = new CreateGraphFrom();
         createGraphFrom.setKgName(kgName);
         createGraphFrom.setDisplayName(req.getTitle());
-        RestResp restResp = graphApi.create(createGraphFrom);
-        if (restResp.getActionStatus() == RestResp.ActionStatusMethod.FAIL) {
-            throw BizException.of(KgmsErrorCodeEnum.GRAPH_CREATE_FAIL);
-        }
+        RestRespConverter.convertVoid(graphApi.create(createGraphFrom));
         target.setKgName(kgName);
         target.setDeleted(false);
         target.setPrivately(true);
@@ -126,11 +122,7 @@ public class GraphServiceImpl implements GraphService {
                     CopyGraphFrom copyGraphFrom = new CopyGraphFrom();
                     copyGraphFrom.setSourceKgName("default_graph");
                     copyGraphFrom.setTargetKgName(kgName);
-                    RestResp resp = graphApi.copy(copyGraphFrom);
-                    if (resp.getActionStatus() == RestResp.ActionStatusMethod.FAIL
-                            && !Objects.equals(resp.getErrorCode(), 100002)) {
-                        throw BizException.of(KgmsErrorCodeEnum.GRAPH_CREATE_FAIL);
-                    }
+                    RestRespConverter.convertVoid(graphApi.copy(copyGraphFrom));
                     Graph target = new Graph();
                     target.setKgName(kgName);
                     target.setTitle("示例图谱");
@@ -149,8 +141,7 @@ public class GraphServiceImpl implements GraphService {
         GraphPk graphPk = new GraphPk(userId, kgName);
         Graph target = graphRepository.findById(graphPk).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_NOT_EXISTS));
         BeanUtils.copyProperties(req, target);
-
-        // TODO
+        RestRespConverter.convertVoid(graphApi.update(kgName, req.getTitle()));
         target = graphRepository.save(target);
         return ConvertUtils.convert(GraphRsp.class).apply(target);
     }

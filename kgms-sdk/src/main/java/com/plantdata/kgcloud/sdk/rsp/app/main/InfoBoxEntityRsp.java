@@ -1,14 +1,8 @@
 package com.plantdata.kgcloud.sdk.rsp.app.main;
 
-import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author cjw
@@ -17,15 +11,10 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@ApiModel("知识卡片实体视图")
-public class InfoBoxEntityRsp extends BasicEntityRsp {
+@ApiModel("知识卡片父子概念视图")
+public class InfoBoxEntityRsp {
 
-    @ApiModelProperty("标签信息")
-    private List<TagRsp> tags;
-    @ApiModelProperty("数据集关联")
-    private List<DataSetLinkRsp> dataLinks;
-    @ApiModelProperty("实体关联")
-    private List<EntityLinkRsp> entityLinks;
-    @ApiModelProperty("私有属性")
-    private List<Map<String, Object>> extra;
+    private Long id;
+    private String name;
+    private String meaningTag;
 }

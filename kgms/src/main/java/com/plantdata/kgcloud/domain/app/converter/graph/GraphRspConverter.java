@@ -16,7 +16,6 @@ import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,16 +30,14 @@ import java.util.stream.Collectors;
 public class GraphRspConverter {
 
     public static CommonBasicGraphExploreRsp graphVoToCommonRsp(GraphVO graph, Map<Long, BasicInfo> conceptIdMap, boolean relationMerge) {
-        List<CommonEntityRsp> commonEntityRspList = CollectionUtils.isEmpty(graph.getRelationList())
-                ? Collections.emptyList() : buildCommonEntityList(graph.getEntityList(), conceptIdMap);
-        List<GraphRelationRsp> relationRspList = CollectionUtils.isEmpty(graph.getRelationList())
-                ? Collections.emptyList() : GraphCommonConverter.simpleRelationToGraphRelationRsp(graph.getRelationList(), relationMerge);
-        return new CommonBasicGraphExploreRsp(relationRspList,graph.getLevel1HasNext(), commonEntityRspList);
+        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap));
+        List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, relationMerge));
+        return new CommonBasicGraphExploreRsp(relationRspList, graph.getLevel1HasNext(), commonEntityRspList);
     }
 
     public static <T extends StatisticRsp> T graphVoToStatisticRsp(GraphVO graph, List<GraphStatisticRsp> statisticRspList, Map<Long, BasicInfo> conceptIdMap, T analysisRsp, boolean relationMerge) {
-        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.getOrDefault(buildCommonEntityList(graph.getEntityList(), conceptIdMap));
-        List<GraphRelationRsp> relationRspList = DefaultUtils.getOrDefault(GraphCommonConverter.simpleRelationToGraphRelationRsp(graph.getRelationList(), relationMerge));
+        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap));
+        List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, relationMerge));
         analysisRsp.setEntityList(commonEntityRspList);
         analysisRsp.setHasNextPage(NumberUtils.INTEGER_ONE);
         analysisRsp.setRelationList(relationRspList);

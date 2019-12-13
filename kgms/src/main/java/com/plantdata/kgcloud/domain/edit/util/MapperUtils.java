@@ -1,20 +1,11 @@
 package com.plantdata.kgcloud.domain.edit.util;
 
-import ai.plantdata.kg.common.bean.AttributeDefinition;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
-import com.plantdata.kgcloud.util.JacksonUtils;
-import ma.glasnost.orika.CustomConverter;
-import ma.glasnost.orika.CustomMapper;
-import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.MappingContext;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
-import ma.glasnost.orika.metadata.Type;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author: LinHo

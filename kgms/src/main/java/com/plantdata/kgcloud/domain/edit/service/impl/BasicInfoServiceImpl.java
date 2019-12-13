@@ -32,6 +32,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.StatisticVO;
@@ -166,7 +167,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public List<PromptRsp> prompt(String kgName, PromptReq promptReq) {
-        PromptFrom promptFrom = ConvertUtils.convert(PromptFrom.class).apply(promptReq);
+        PromptFrom promptFrom = MapperUtils.map(promptReq, PromptFrom.class);
         Optional<List<PromptVO>> optional = RestRespConverter.convert(graphApi.prompt(kgName, promptFrom));
         return optional.orElse(new ArrayList<>()).stream().map(promptVO -> {
             PromptRsp promptRsp = new PromptRsp();

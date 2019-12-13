@@ -11,6 +11,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -133,18 +134,18 @@ public class MongodbOptProvider implements DataOptProvider {
     }
 
     @Override
-    public Map<String, Object> insert(JsonNode node) {
+    public Map<String, Object> insert(Map<String,Object> node) {
         MongoCollection<Document> collection = getCollection();
-        Document map = Document.parse(node.toString());
+        Document map = Document.parse(JacksonUtils.writeValueAsString(node));
         collection.insertOne(map);
         map.put(MONGO_ID, map.getObjectId(MONGO_ID).toHexString());
         return map;
     }
 
     @Override
-    public Map<String, Object> update(String id, JsonNode node) {
+    public Map<String, Object> update(String id, Map<String,Object> node) {
         MongoCollection<Document> collection = getCollection();
-        Document map = Document.parse(node.toString());
+        Document map = Document.parse(JacksonUtils.writeValueAsString(node));
         collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(id)), new Document("$set", map));
         map.put(MONGO_ID, map.getObjectId(MONGO_ID).toHexString());
         return map;
@@ -163,11 +164,11 @@ public class MongodbOptProvider implements DataOptProvider {
     }
 
     @Override
-    public void batchInsert(List<JsonNode> nodes) {
+    public void batchInsert(List<Map<String,Object>> nodes) {
         MongoCollection<Document> collection = getCollection();
         List<Document> docList = new ArrayList<>();
-        for (JsonNode node : nodes) {
-            Document map = Document.parse(node.toString());
+        for (Map<String,Object> node : nodes) {
+            Document map = Document.parse(JacksonUtils.writeValueAsString(node));
             docList.add(map);
         }
         collection.insertMany(docList);

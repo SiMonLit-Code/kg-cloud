@@ -14,7 +14,6 @@ import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
-import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
@@ -70,7 +69,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     @Override
     public <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, boolean relationMerge) {
         //统计
-        List<GraphStatisticRsp> statisticRspList = DefaultUtils.getIfNoNull(configList, GraphRspConverter.buildStatisticResult(graphVO, configList));
+        List<GraphStatisticRsp> statisticRspList = CollectionUtils.isEmpty(configList) ? Collections.emptyList() : GraphRspConverter.buildStatisticResult(graphVO, configList);
         //组装结果
         Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
         return GraphRspConverter.graphVoToStatisticRsp(graphVO, statisticRspList, conceptIdMap, pathAnalysisRsp, relationMerge);
@@ -111,7 +110,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
      */
     @Override
     public <T extends BasicGraphExploreRsp> Optional<T> graphSearchBefore(String kgName, SecondaryScreeningInterface req, T rsp) {
-        if(req.getGraphReq()==null){
+        if (req.getGraphReq() == null) {
             return Optional.empty();
         }
         if (rsp.getEntityList() == null && rsp.getRelationList() == null) {
@@ -138,7 +137,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             Set<Long> entityIdSet = !entityIdOpt.isPresent() ? Collections.emptySet() : Sets.newHashSet(entityIdOpt.get());
             rsp.setEntityList(entity.stream().filter(a -> entityIdSet.contains(a.getId())).collect(Collectors.toList()));
         }
-        GraphCommonBO.rebuildGraphRelationAndEntity(rsp,req.getNeedSaveEntityIds());
+        GraphCommonBO.rebuildGraphRelationAndEntity(rsp, req.getNeedSaveEntityIds());
         return Optional.of(rsp);
 
     }

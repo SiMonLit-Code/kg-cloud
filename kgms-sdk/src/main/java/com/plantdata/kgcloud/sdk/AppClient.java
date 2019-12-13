@@ -1,10 +1,13 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
+import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
+import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
@@ -19,6 +22,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
@@ -35,7 +39,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
-import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +46,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -63,16 +67,28 @@ public interface AppClient {
     @GetMapping("schema/{kgName}")
     ApiReturn<SchemaRsp> querySchema(@PathVariable("kgName") String kgName);
 
+
     /**
-     * 知识卡片
+     * 批量读取知识卡片
+     *
+     * @param kgName          kgName
+     * @param batchInfoBoxReq batchReq
+     * @return .
+     */
+    @PostMapping("infoBox/list/{kgName}")
+    ApiReturn<List<InfoBoxRsp>> listInfoBox(@PathVariable("kgName") String kgName,
+                                            @RequestBody BatchInfoBoxReq batchInfoBoxReq);
+
+    /**
+     * 读取知识卡片
      *
      * @param kgName     kgName
-     * @param infoBoxReq param
-     * @return 。。
+     * @param infoBoxReq req
+     * @return .
      */
     @PostMapping("infoBox/{kgName}")
-    ApiReturn<List<InfoBoxRsp>> infoBox(@PathVariable("kgName") String kgName,
-                                        @RequestBody InfoBoxReq infoBoxReq);
+    ApiReturn<InfoBoxRsp> infoBox(@PathVariable("kgName") String kgName,
+                                  @RequestBody InfoBoxReq infoBoxReq);
 
     /**
      * 知识推荐
@@ -104,7 +120,7 @@ public interface AppClient {
      * @return List
      */
     @GetMapping("concept/{kgName}")
-    ApiReturn<List<BasicConceptRsp>> conceptTree(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+    ApiReturn<List<BasicConceptRsp>> conceptTree(@PathVariable("kgName") String kgName,
                                                  @RequestParam("conceptId") Long conceptId,
                                                  @RequestParam("conceptKey") String conceptKey);
 
@@ -147,7 +163,7 @@ public interface AppClient {
      * @return list
      */
     @PostMapping("attributes/{kgName}")
-    ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+    ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@PathVariable("kgName") String kgName,
                                                  EdgeAttrPromptReq edgeAttrPromptReq);
 
     /**
@@ -158,8 +174,8 @@ public interface AppClient {
      * @return 。。
      */
     @PostMapping("graphExplore/init/{kgName}")
-    ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                 @ApiParam(value = "图类型", required = true) @RequestBody String type);
+    ApiReturn<GraphInitRsp> initGraphExploration(@PathVariable("kgName") String kgName,
+                                                 @RequestParam String type);
 
     /**
      * kgQl查询
@@ -180,7 +196,7 @@ public interface AppClient {
      * @return 。。。
      */
     @PostMapping("graphExplore/common/{kgName}")
-    ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+    ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@PathVariable("kgName") String kgName,
                                                                  @RequestBody CommonExploreReq exploreParam);
 
     /**
@@ -191,7 +207,7 @@ public interface AppClient {
      * @return 。。。
      */
     @PostMapping("graphExplore/timing/{kgName}")
-    ApiReturn<CommonBasicGraphExploreRsp> timingGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+    ApiReturn<CommonBasicGraphExploreRsp> timingGraphExploration(@PathVariable("kgName") String kgName,
                                                                  @RequestBody CommonTimingExploreReq exploreParam);
 
     /**
@@ -224,7 +240,7 @@ public interface AppClient {
      * @return 。。。
      */
     @PostMapping("graphExplore/path/{kgName}")
-    ApiReturn<PathAnalysisRsp> path(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    ApiReturn<PathAnalysisRsp> path(@PathVariable("kgName") String kgName,
                                     @RequestBody PathAnalysisReq analysisReq);
 
     /**
@@ -235,7 +251,7 @@ public interface AppClient {
      * @return 。。。
      */
     @PostMapping("graphExplore/path/shortest/{kgName}")
-    ApiReturn<PathAnalysisRsp> shortestPath(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    ApiReturn<PathAnalysisRsp> shortestPath(@PathVariable("kgName") String kgName,
                                             @RequestBody PathAnalysisReq analysisReq);
 
     /**
@@ -246,7 +262,7 @@ public interface AppClient {
      * @return 。。。
      */
     @PostMapping("graphExplore/path/reasoning/{kgName}")
-    ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@PathVariable("kgName") String kgName,
                                                     @RequestBody PathReasoningAnalysisReq analysisReq);
 
     /**
@@ -257,7 +273,7 @@ public interface AppClient {
      * @return ...
      */
     @PostMapping("graphExplore/path/timing/{kgName}")
-    ApiReturn<PathTimingAnalysisRsp> pathTimingAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    ApiReturn<PathTimingAnalysisRsp> pathTimingAnalysis(@PathVariable("kgName") String kgName,
                                                         @RequestBody PathTimingAnalysisReq analysisReq);
 
     /**
@@ -268,7 +284,7 @@ public interface AppClient {
      * @return ...
      */
     @PostMapping("graphExplore/relation/{kgName}")
-    ApiReturn<RelationAnalysisRsp> relationAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    ApiReturn<RelationAnalysisRsp> relationAnalysis(@PathVariable("kgName") String kgName,
                                                     @RequestBody RelationReqAnalysisReq analysisReq);
 
     /**
@@ -279,7 +295,7 @@ public interface AppClient {
      * @return ...
      */
     @PostMapping("graphExplore/relation/direct/{kgName}")
-    ApiReturn<RelationAnalysisRsp> relationDirect(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    ApiReturn<RelationAnalysisRsp> relationDirect(@PathVariable("kgName") String kgName,
                                                   @RequestBody RelationReqAnalysisReq analysisReq);
 
     /**
@@ -290,7 +306,7 @@ public interface AppClient {
      * @return ...
      */
     @PostMapping("graphExplore/relation/timing/{kgName}")
-    ApiReturn<RelationTimingAnalysisRsp> relationTimingAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    ApiReturn<RelationTimingAnalysisRsp> relationTimingAnalysis(@PathVariable("kgName") String kgName,
                                                                 @RequestBody RelationTimingAnalysisReq analysisReq);
 
     /**
@@ -301,7 +317,7 @@ public interface AppClient {
      * @return ...
      */
     @PostMapping("graphExplore/relation/reasoning/{kgName}")
-    ApiReturn<RelationReasoningAnalysisRsp> relationReasoningAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    ApiReturn<RelationReasoningAnalysisRsp> relationReasoningAnalysis(@PathVariable("kgName") String kgName,
                                                                       @RequestBody RelationReasoningAnalysisReq analysisReq);
 
     /**
@@ -310,8 +326,49 @@ public interface AppClient {
      * @param fileName 文件名称
      * @param data     数据
      * @return 。
-     * @throws IOException
+     * @throws IOException 转换异常
      */
     @PostMapping("png/export")
     ApiReturn exportPng(@RequestParam("name") String fileName, @RequestParam("data") String data) throws IOException;
+
+    /**
+     * 统计数据二维(仅支持搜索数据集)
+     *
+     * @param dataName       图谱名称
+     * @param twoDimensional 2维
+     * @return 。
+     */
+    @PostMapping("dataset/statistic/2d/{dataName}")
+    ApiReturn<DataSetStatisticRsp> statistic2d(
+            @PathVariable("dataName") String dataName,
+            @RequestBody StatisticByDimensionalReq twoDimensional);
+
+    /**
+     * 统计数据三维(仅支持搜索数据集)
+     *
+     * @param dataName       数据集名称
+     * @param dimensionalReq ..
+     * @return .
+     */
+    @PostMapping("dataset/statistic/3d/{dataName}")
+    ApiReturn<DataSetStatisticRsp> statistic3d(@PathVariable("dataName") String dataName,
+                                               @RequestBody StatisticByDimensionalReq dimensionalReq);
+
+    /**
+     * 统计数据二维/按表统计
+     *
+     * @param twoDimensional dataName
+     * @return .
+     */
+    @PostMapping("dataset/statistic/2dByTable")
+    ApiReturn<DataSetStatisticRsp> statistic2dByTable(@RequestBody TableStatisticByDimensionalReq twoDimensional);
+
+    /**
+     * 统计数据三维/按表统计
+     *
+     * @param thirdDimensional dataName
+     * @return .
+     */
+    @PostMapping("dataset/statistic/3dByTable")
+    ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid TableStatisticByDimensionalReq thirdDimensional);
 }

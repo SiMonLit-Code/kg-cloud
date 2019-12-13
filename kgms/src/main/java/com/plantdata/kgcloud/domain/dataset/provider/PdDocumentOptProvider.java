@@ -47,12 +47,12 @@ public class PdDocumentOptProvider implements DataOptProvider {
     }
 
     @Override
-    public Map<String, Object> insert(JsonNode node) {
+    public Map<String, Object> insert(Map<String,Object> node) {
         return null;
     }
 
     @Override
-    public Map<String, Object> update(String id, JsonNode node) {
+    public Map<String, Object> update(String id, Map<String,Object> node) {
         return null;
     }
 
@@ -67,7 +67,7 @@ public class PdDocumentOptProvider implements DataOptProvider {
     }
 
     @Override
-    public void batchInsert(List<JsonNode> nodes) {
+    public void batchInsert(List<Map<String,Object>> nodes) {
 
     }
 
