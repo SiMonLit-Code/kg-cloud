@@ -3,7 +3,10 @@ package com.plantdata.kgcloud.domain.app.service.impl;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.bo.DataSetStatisticBO;
+import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.DataSetStatisticService;
+import com.plantdata.kgcloud.domain.app.util.EsUtils;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -17,11 +20,15 @@ import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetTwoDimStatisticReq;
+import com.plantdata.kgcloud.sdk.rsp.app.RestData;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,6 +46,8 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
     private DataSetService dataSetService;
     @Autowired
     private DataOptService dataOptService;
+    @Autowired
+    private DataSetSearchService dataSetSearchService;
 
     @Override
     public DataSetStatisticRsp dataSetStatistic(String userId, DataSetTwoDimStatisticReq statisticReq, DimensionEnum dimension) {
@@ -48,21 +57,16 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
         }
         DataSetStatisticBO statistic = new DataSetStatisticBO().init(statisticReq.getAggregation(), statisticReq.getQuery(), dimension, statisticReq.getReturnType());
         DataOptProvider provider = dataOptService.getProvider(userId, dataOpt.get().getId());
-        //todo 根据数据查询id
-        return statistic.postDealData(null);
+
+        List<Map<String, Object>> maps = provider.find(0, Integer.MAX_VALUE - 1, statistic.getEsDTO().parseMap());
+        return statistic.postDealData(maps);
     }
 
     @Override
     public DataSetStatisticRsp statisticByDimensionAndTable(String userId, TableStatisticByDimensionalReq dimensionalReq, DimensionEnum dimension) {
-        List<DataSetSdkReq> sdkReqList = dimensionalReq.getDataBaseList().stream().map(a -> {
-            DataSetSdkReq setSdkReq = new DataSetSdkReq();
-            setSdkReq.setDatabase(a.getDatabase());
-            setSdkReq.setTable(a.getTable());
-            return setSdkReq;
-        }).collect(Collectors.toList());
-
-        List<Long> dataSetList = dataSetService.findByDatabase(userId, sdkReqList);
-        return null;
+        DataSetStatisticBO statistic = new DataSetStatisticBO().init(dimensionalReq.getAggs(), dimensionalReq.getQuery(), dimension, dimensionalReq.getReturnType());
+        RestData<Map<String, Object>> mapRestData = dataSetSearchService.readEsDataSet(dimensionalReq.getDataBaseList(), dimensionalReq.getTableList(), Collections.emptyList(), dimensionalReq.getQuery(), null, 0, 0);
+        return statistic.postDealData(mapRestData.getRsData());
     }
 
     @Override
@@ -78,10 +82,8 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
         }
         TableStatisticByDimensionalReq tableStatisticReq = new TableStatisticByDimensionalReq();
         BeanUtils.copyProperties(dimensionalReq, tableStatisticReq);
-        TableStatisticByDimensionalReq.DataBaseReq setSdkReq = new TableStatisticByDimensionalReq.DataBaseReq();
-        setSdkReq.setDatabase(dataSet.getDbName());
-        setSdkReq.setTable(dataSet.getTbName());
-        tableStatisticReq.setDataBaseList(Lists.newArrayList(setSdkReq));
+        tableStatisticReq.setDataBaseList(Lists.newArrayList(dataSet.getDbName()));
+        tableStatisticReq.setTableList(Lists.newArrayList(dataSet.getTbName()));
         return statisticByDimensionAndTable(userId, tableStatisticReq, dimension);
     }
 

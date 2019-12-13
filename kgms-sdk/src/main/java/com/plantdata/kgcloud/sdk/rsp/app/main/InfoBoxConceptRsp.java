@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @ApiModel("知识卡片父子概念视图")
-public class InfoBoxEntityRsp {
+public class InfoBoxConceptRsp {
 
     private Long id;
     private String name;

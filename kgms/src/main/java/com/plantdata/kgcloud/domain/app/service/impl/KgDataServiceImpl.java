@@ -161,7 +161,6 @@ public class KgDataServiceImpl implements KgDataService {
                 Lists.newArrayList(dataSetRsp.getTbName()), nameReadReq.getFields(), nameReadReq.getQuery(), nameReadReq.getSort(), pageUtils.getOffset(), pageUtils.getLimit());
     }
 
-
     private Object buildStatisticResult(AttributeDataTypeEnum dataType, boolean merge, List<StatisticDTO> dataList, DateTypeReq dateType, int sort, int reSize, int returnType) {
         boolean isNum = AttributeDataTypeEnum.DATA_VALUE_SET.contains(dataType);
         boolean isDate = AttributeDataTypeEnum.DATE_SET.contains(dataType);
@@ -179,7 +178,6 @@ public class KgDataServiceImpl implements KgDataService {
         dataList = PageUtils.subList(NumberUtils.INTEGER_ZERO, reSize, dataList);
         return GraphStatisticConverter.statisticByType(dataList, returnType, StatisticResultTypeEnum.VALUE);
     }
-
 
 
 }

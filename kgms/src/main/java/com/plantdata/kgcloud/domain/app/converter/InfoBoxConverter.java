@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
+import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
-import ai.plantdata.kg.api.pub.resp.EntityVO;
-import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -15,8 +15,8 @@ import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -37,8 +37,7 @@ import java.util.stream.Collectors;
  * @date 2019/12/10 13:58
  */
 @Slf4j
-public class InfoBoxConverter {
-
+public class InfoBoxConverter extends BasicConverter {
 
     public static KgServiceEntityFrom batchInfoBoxReqToKgServiceEntityFrom(BatchInfoBoxReq boxReq) {
         KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();
@@ -50,7 +49,7 @@ public class InfoBoxConverter {
         return entityFrom;
     }
 
-    public static FilterRelationFrom reqToFilterRelationFrom(BasicGraphExploreRsp rsp, List<RelationAttrReq> attrReqList, List<RelationAttrReq> revserdAttrReqList) {
+    public static FilterRelationFrom reqToFilterRelationFrom(BasicGraphExploreRsp rsp, List<RelationAttrReq> attrReqList, List<RelationAttrReq> reversedAttrReqList) {
         FilterRelationFrom relationFrom = new FilterRelationFrom();
         if (!CollectionUtils.isEmpty(rsp.getRelationList())) {
             List<String> relationIdSet = Lists.newArrayList();
@@ -69,36 +68,42 @@ public class InfoBoxConverter {
         if (!CollectionUtils.isEmpty(attrReqList)) {
             relationFrom.setRelationAttrFilters(ConditionConverter.relationAttrReqToMap(attrReqList));
         }
-        if (!CollectionUtils.isEmpty(revserdAttrReqList)) {
-            relationFrom.setMetaFilters(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(revserdAttrReqList)));
-        }
+        relationFrom.setMetaFilters(executeNoNull(reversedAttrReqList, a -> Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
         return relationFrom;
     }
 
-    public static List<InfoBoxRsp> voToInfoBox(@NonNull List<EntityVO> entityList, List<AttributeDefinition> attrDefList,
-                                               List<ai.plantdata.kg.api.edit.resp.EntityVO> relationEntityList) {
-        Map<Integer, AttributeDefinition> definitionMap = attrDefList.stream().collect(Collectors.toMap(AttributeDefinition::getId, Function.identity()));
-        Map<Long, ai.plantdata.kg.api.edit.resp.EntityVO> entityMap = relationEntityList.stream().collect(Collectors.toMap(ai.plantdata.kg.api.edit.resp.EntityVO::getId, Function.identity()));
-        return entityList.stream().map(entity -> voToInfoBoxRsp(entity, definitionMap, entityMap)).collect(Collectors.toList());
+    public static List<InfoBoxRsp> voToInfoBox(@NonNull List<Long> sourceEntityIds,
+                                               List<EntityVO> relationEntityList) {
+        Map<Long, EntityVO> entityMap = relationEntityList.stream().collect(Collectors.toMap(ai.plantdata.kg.api.edit.resp.EntityVO::getId, Function.identity()));
+        return listToRsp(sourceEntityIds, entity -> voToInfoBoxRsp(entity, entityMap));
     }
 
 
-    private static InfoBoxRsp voToInfoBoxRsp(EntityVO entity, Map<Integer, AttributeDefinition> attrDefMap, Map<Long, ai.plantdata.kg.api.edit.resp.EntityVO> entityMap) {
+    private static InfoBoxRsp voToInfoBoxRsp(Long sourceEntityId,
+                                             Map<Long, EntityVO> entityMap) {
+        EntityVO entity = entityMap.get(sourceEntityId);
+
+        List<EntityAttributeValueVO> objAttrList = Lists.newArrayList();
+        List<EntityAttributeValueVO> otherDataAttrList = Lists.newArrayList();
+        entity.getAttrValue().forEach(a -> {
+            if (a.getType() != null && a.getType() == AttributeDataTypeEnum.OBJECT.getValue()) {
+                objAttrList.add(a);
+            } else {
+                otherDataAttrList.add(a);
+            }
+        });
+
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
+        //设置父概念
+        infoBoxRsp.setParents(listToRsp(entity.getParent(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //基本字段
-        infoBoxRsp.setSelf(voToSelf(entity, attrDefMap));
+        infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList));
         //对象属性
-        if (!CollectionUtils.isEmpty(entity.getObjectAttributes())) {
-            infoBoxRsp.setAttrs(voToInfoBoxAttrRsp(entity.getObjectAttributes(), entityMap, attrDefMap));
-        }
-        if (!CollectionUtils.isEmpty(entity.getReverseObjectAttributes())) {
-            infoBoxRsp.setReAttrs(voToInfoBoxAttrRsp(entity.getReverseObjectAttributes(), entityMap, attrDefMap));
-        }
-        //todo 设置父概念
+        infoBoxRsp.setAttrs(listToRsp(objAttrList, a -> attrValToInfoBoxAttrRsp(a, entityMap)));
         return infoBoxRsp;
     }
 
-    private static EntityLinksRsp voToSelf(EntityVO entity, Map<Integer, AttributeDefinition> attrDefMap) {
+    private static EntityLinksRsp voToSelf(EntityVO entity, List<EntityAttributeValueVO> dataAttrList) {
         EntityLinksRsp self = new EntityLinksRsp();
         self.setId(entity.getId());
         self.setName(entity.getName());
@@ -115,72 +120,59 @@ public class InfoBoxConverter {
         if (!StringUtils.isEmpty(entity.getAbs())) {
             extraList.add(new EntityLinksRsp.ExtraRsp(-1, "简介", entity.getAbs()));
         }
-        if (!CollectionUtils.isEmpty(entity.getSynonyms())) {
-            String synonyms = org.springframework.util.StringUtils.collectionToDelimitedString(entity.getSynonyms(), ",");
+        if (!CollectionUtils.isEmpty(entity.getSynonym())) {
+            String synonyms = org.springframework.util.StringUtils.collectionToDelimitedString(entity.getSynonym(), ",");
             extraList.add(new EntityLinksRsp.ExtraRsp(-1, "别称", synonyms));
         }
-        //数值属性
-        if (!CollectionUtils.isEmpty(entity.getDataAttributes())) {
-            fillDataAttr(extraList, entity.getDataAttributes(), attrDefMap);
-        }
-        //私有属性
-        if (!CollectionUtils.isEmpty(entity.getPrivateDataAttributes())) {
-
-        }
-        if (!CollectionUtils.isEmpty(entity.getPrivateObjectAttributes())) {
-
-        }
-        if (!CollectionUtils.isEmpty(entity.getPrivateReverseObjectAttributes())) {
-
-        }
+        //设置数值,私有属性
+        fillAttr(extraList, dataAttrList);
         self.setExtraList(extraList);
         return self;
     }
 
-    /**
-     * @param extraList   属性
-     * @param dataAttrMap k->attrId v->attrVal
-     */
-    private static void fillDataAttr(List<EntityLinksRsp.ExtraRsp> extraList, Map<String, Object> dataAttrMap, Map<Integer, AttributeDefinition> attrDefMap) {
+    private static InfoBoxRsp.InfoBoxAttrRsp attrValToInfoBoxAttrRsp(EntityAttributeValueVO attrVal, Map<Long, EntityVO> entityMap) {
+        InfoBoxRsp.InfoBoxAttrRsp objectAttributeRsp = new InfoBoxRsp.InfoBoxAttrRsp();
+        objectAttributeRsp.setAttrDefId(attrVal.getId());
+        objectAttributeRsp.setAttrDefName(attrVal.getName());
+        List<EntityVO> entityList = attrVal.getObjectValues().stream().map(a -> entityMap.get(a.getId())).collect(Collectors.toList());
+        objectAttributeRsp.setEntityList(listToRsp(entityList, InfoBoxConverter::voToPromptEntityRsp));
+        return objectAttributeRsp;
+    }
 
-        for (Map.Entry<String, Object> entry : dataAttrMap.entrySet()) {
-            AttributeDefinition definition = attrDefMap.get(Integer.parseInt(entry.getKey()));
-            if (definition == null) {
-                log.error("attributeDefinition:{},不存在", entry.getKey());
-                continue;
+    private static void fillAttr(List<EntityLinksRsp.ExtraRsp> extraList, List<EntityAttributeValueVO> attrValueList) {
+        for (EntityAttributeValueVO value : attrValueList) {
+            //数值属性
+            if (value.getType() == 1) {
+                extraList.add(dataAttrToExtraRsp(value));
             }
-            AttributeDataTypeEnum dataType = AttributeDataTypeEnum.parseById(definition.getDataType());
-            if (null == dataType) {
-                continue;
+            //私有对象属性
+            if (value.getType() == 0) {
+                value.getObjectValues().forEach(a -> {
+                    Map<Integer, List<BasicInfo>> relationObjectValues = a.getRelationObjectValues();
+                    extraList.add(new EntityLinksRsp.ExtraRsp(a.getAttrId(), a.getName(), relationObjectValues.values()));
+                });
             }
-            switch (dataType) {
-                case IMAGE:
-                case URL:
-                    extraList.add(new EntityLinksRsp.ExtraRsp(definition.getId(), definition.getName(), JacksonUtils.readValue(JacksonUtils.writeValueAsString(entry.getValue()), ImageRsp.class)));
-                    break;
-                default:
-                    extraList.add(new EntityLinksRsp.ExtraRsp(definition.getId(), definition.getName(), StringUtils.isNotEmpty(definition.getDataUnit()) ? entry.getValue() + definition.getDataUnit() : entry.getValue()));
+            //私有属性
+            if (value.getType() == null) {
+                extraList.add(new EntityLinksRsp.ExtraRsp(-1, value.getName(), value.getDataValue()));
             }
         }
     }
 
-    private static List<InfoBoxRsp.InfoBoxAttrRsp> voToInfoBoxAttrRsp(Map<String, List<Long>> relationEntityIdMap, Map<Long, ai.plantdata.kg.api.edit.resp.EntityVO> relationEntityMap, Map<Integer, AttributeDefinition> attrDefMap) {
-        List<InfoBoxRsp.InfoBoxAttrRsp> rspList = Lists.newArrayList();
-        relationEntityIdMap.forEach((k, v) -> {
-            Integer attrDefId = Integer.parseInt(k);
+    private static EntityLinksRsp.ExtraRsp dataAttrToExtraRsp(EntityAttributeValueVO attributeValue) {
+        AttributeDataTypeEnum dataType = AttributeDataTypeEnum.parseById(attributeValue.getDataType());
+        if (dataType == null) {
+            log.error("attributeDefinition:{},不存在", attributeValue.getDataType());
+            return new EntityLinksRsp.ExtraRsp(-1, attributeValue.getName(), attributeValue.getDataValue());
+        }
+        switch (dataType) {
+            case IMAGE:
+            case URL:
+                return new EntityLinksRsp.ExtraRsp(attributeValue.getId(), attributeValue.getName(), JacksonUtils.readValue(JacksonUtils.writeValueAsString(attributeValue.getDataValue()), ImageRsp.class));
+            default:
+                return new EntityLinksRsp.ExtraRsp(attributeValue.getId(), attributeValue.getName(), StringUtils.isNotEmpty(attributeValue.getDataUnit()) ? attributeValue.getDataValue() + attributeValue.getDataUnit() : attributeValue.getDataValue());
+        }
 
-            AttributeDefinition definition = attrDefMap.get(attrDefId);
-            InfoBoxRsp.InfoBoxAttrRsp infoBoxAttrRsp = new InfoBoxRsp.InfoBoxAttrRsp();
-            infoBoxAttrRsp.setAttrDefId(attrDefId);
-            infoBoxAttrRsp.setAttrDefName(definition.getName());
-            List<PromptEntityRsp> entityList = v.stream().filter(relationEntityMap::containsKey).map(entityId -> {
-                ai.plantdata.kg.api.edit.resp.EntityVO entityVO = relationEntityMap.get(entityId);
-                return voToPromptEntityRsp(entityVO);
-            }).collect(Collectors.toList());
-            infoBoxAttrRsp.setEntityList(entityList);
-            rspList.add(infoBoxAttrRsp);
-        });
-        return rspList;
     }
 
     private static PromptEntityRsp voToPromptEntityRsp(@NonNull ai.plantdata.kg.api.edit.resp.EntityVO entityVO) {
@@ -214,4 +206,11 @@ public class InfoBoxConverter {
         }
     }
 
+    private static InfoBoxConceptRsp basicInfoToInfoBoxConceptRsp(@NonNull BasicInfo basicInfo) {
+        InfoBoxConceptRsp entityRsp = new InfoBoxConceptRsp();
+        entityRsp.setId(basicInfo.getId());
+        entityRsp.setName(basicInfo.getName());
+        entityRsp.setMeaningTag(basicInfo.getMeaningTag());
+        return entityRsp;
+    }
 }

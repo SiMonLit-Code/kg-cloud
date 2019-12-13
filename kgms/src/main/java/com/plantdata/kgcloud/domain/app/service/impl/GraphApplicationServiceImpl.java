@@ -8,7 +8,6 @@ import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
-import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -205,17 +204,16 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             req.setAllowAttrs(graphHelperService.replaceByAttrKey(kgName, req.getAllowAttrsKey()));
         }
         KgServiceEntityFrom entityFrom = InfoBoxConverter.batchInfoBoxReqToKgServiceEntityFrom(req);
+
         Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, entityFrom));
         if (!entityOpt.isPresent()) {
             return Collections.emptyList();
         }
         InfoBoxQueryDTO query = InfoBoxQueryDTO.build(entityOpt.get());
-        List<AttributeDefinition> attrDefList = RestRespConverter
-                .convert(attributeApi.listByIds(kgName, query.getAttrDefIdSet()))
-                .orElse(Collections.emptyList());
+
         List<ai.plantdata.kg.api.edit.resp.EntityVO> relationEntityList = RestRespConverter
                 .convert(conceptEntityApi.listByIds(kgName, true, query.getRelationEntityIdSet()))
                 .orElse(Collections.emptyList());
-        return InfoBoxConverter.voToInfoBox(entityOpt.get(), attrDefList, relationEntityList);
+        return InfoBoxConverter.voToInfoBox(query.getSourceEntityIds(),relationEntityList);
     }
 }

@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.plantdata.kgcloud.domain.app.dto.AggsDTO;
 import com.plantdata.kgcloud.domain.app.dto.EsDTO;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.constant.DataSetStatisticEnum;
 import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
@@ -129,6 +132,17 @@ public class DataSetStatisticBO {
         JsonNode byKey = jsonObj.get("aggregations").get("by_key1");
         JsonNode arrayNode = aggsDTO.getIsNested() ? byKey.get(aggsDTO.getNestedName()).get("buckets") : byKey.get("buckets");
         return (ArrayNode) arrayNode;
+    }
+
+
+    public String buildQuery() {
+        Map<String, Object> requestData = Maps.newHashMap();
+        requestData.put("aggs", aggsDTO);
+        requestData.put("size", 0);
+        if (null != esDTO) {
+            requestData.put("query", esDTO);
+        }
+        return JsonUtils.toJson(requestData);
     }
 
     public static void main(String[] args) {
