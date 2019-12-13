@@ -1,12 +1,16 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
 import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,5 +65,19 @@ public class GraphApplicationController implements GraphApplicationInterface {
                                 @ApiParam(value = "概念id", required = true) @PathVariable("conceptId") long conceptId,
                                 @ApiParam(value = "是否显示对象属性", defaultValue = "false") @RequestParam("display") boolean display) {
         return ApiReturn.success(appClient.visualModels(kgName, conceptId, display));
+    }
+
+    @ApiOperation("批量读取知识卡片")
+    @PostMapping("infoBox/list/{kgName}")
+    public ApiReturn<List<InfoBoxRsp>> listInfoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                   @RequestBody BatchInfoBoxReq batchInfoBoxReq) {
+        return appClient.listInfoBox(kgName, batchInfoBoxReq);
+    }
+
+    @ApiOperation("读取知识卡片")
+    @PostMapping("infoBox/{kgName}")
+    public ApiReturn<InfoBoxRsp> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                         @RequestBody InfoBoxReq infoBoxReq) {
+        return appClient.infoBox(kgName, infoBoxReq);
     }
 }

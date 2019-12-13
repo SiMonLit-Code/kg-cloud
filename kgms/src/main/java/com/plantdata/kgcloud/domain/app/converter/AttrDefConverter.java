@@ -4,7 +4,7 @@ import ai.plantdata.kg.api.edit.req.AttrQueryFrom;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeExtraInfoItem;
+import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import lombok.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
@@ -35,8 +35,8 @@ public class AttrDefConverter {
             attrDefReq.setDomainValue(att.getDomainValue());
             attrDefReq.setDataType(att.getDataType());
             if (!CollectionUtils.isEmpty(att.getExtraInfo())) {
-                List<AttributeExtraInfoItem> extraInfoItemList = att.getExtraInfo().stream().map(a -> {
-                    AttributeExtraInfoItem infoItem = new AttributeExtraInfoItem();
+                List<AttrExtraRsp> extraInfoItemList = att.getExtraInfo().stream().map(a -> {
+                    AttrExtraRsp infoItem = new AttrExtraRsp();
                     //!!要求属性名称一致
                     BeanUtils.copyProperties(a, infoItem);
                     return infoItem;

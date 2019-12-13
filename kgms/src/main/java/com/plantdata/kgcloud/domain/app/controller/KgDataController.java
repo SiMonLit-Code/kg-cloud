@@ -3,16 +3,18 @@ package com.plantdata.kgcloud.domain.app.controller;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
-import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
+import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.model.service.ModelService;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.ReadTableReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
+import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,7 @@ public class KgDataController {
     @Autowired
     private KgDataService kgDataService;
     @Autowired
-    private DataSetService dataSetService;
+    private DataOptService dataOptService;
 
     @ApiOperation("sparql查询")
     @PostMapping("sparQl/query/{kgName}")
@@ -104,9 +106,18 @@ public class KgDataController {
         return ApiReturn.success(kgDataService.statEdgeGroupByEdgeValue(kgName, statisticReq));
     }
 
-    @ApiOperation("读取普通数据集")
-    @PostMapping("dataset/common/read")
-    public ApiReturn<RestData<Map<String, Object>>> a(ReadTableReq tableReq) {
-        return ApiReturn.success(kgDataService.readMongoDataSet(tableReq));
+    @ApiOperation("读取数据集")
+    @PostMapping("dataset/read")
+    public ApiReturn<RestData<Map<String, Object>>> searchDataSet(NameReadReq nameReadReq) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(kgDataService.searchDataSet(userId, nameReadReq));
+    }
+
+    @ApiOperation("新增数据集")
+    @PostMapping("dataset/name")
+    public ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq) {
+        String userId = SessionHolder.getUserId();
+        dataOptService.batchAddDataForDataSet(userId, addReq);
+        return ApiReturn.success();
     }
 }

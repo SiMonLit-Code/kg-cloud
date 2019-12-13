@@ -12,11 +12,10 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.ConvertConstent;
 import com.plantdata.kgcloud.domain.common.service.MongoDriver;
 import com.plantdata.kgcloud.domain.common.service.SDKService;
-import com.plantdata.kgcloud.domain.document.req.PdDocumentReq;
 import com.plantdata.kgcloud.domain.document.rsp.DataCheckRsp;
 import com.plantdata.kgcloud.domain.scene.entiy.Scene;
 import com.plantdata.kgcloud.domain.scene.service.SceneService;
-import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
@@ -97,8 +96,8 @@ public class ResultServiceImpl implements ResultService {
                 }else{
                     //查询图谱中的同名实体 判断属性值是否冲突
 
-                    InfoBoxReq infoBoxReq = new InfoBoxReq();
-                    infoBoxReq.setEntityIdList(Stream.of(entityId).collect(Collectors.toList()));
+                    BatchInfoBoxReq batchInfoBoxReq = new BatchInfoBoxReq();
+                    batchInfoBoxReq.setEntityIdList(Stream.of(entityId).collect(Collectors.toList()));
 
 
                     List<String> existAttrIdList = Lists.newArrayList();

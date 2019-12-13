@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
+import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -113,4 +115,20 @@ public interface DataOptService {
      * @throws Exception
      */
     void exportData(String userId, Long datasetId, HttpServletResponse response) throws Exception;
+
+    /**
+     * 获取 Provider
+     * @param userId
+     * @param datasetId
+     * @return
+     */
+    DataOptProvider getProvider(String userId, Long datasetId);
+
+    /**
+     * 批量新增数据集
+     *
+     * @param userId
+     * @param addReq
+     */
+    void batchAddDataForDataSet(String userId, DataSetAddReq addReq);
 }

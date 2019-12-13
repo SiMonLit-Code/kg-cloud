@@ -1,18 +1,13 @@
 package com.plantdata.kgcloud.domain.app.util;
 
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
-import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionGroupRsp;
 import org.springframework.util.CollectionUtils;
 
-import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author cjw

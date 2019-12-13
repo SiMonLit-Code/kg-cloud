@@ -25,6 +25,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -64,7 +65,7 @@ public class GraphCommonConverter {
     /**
      * 填充基础参数
      *
-     * @param page       分页
+     * @param page       分页参数 仅使用 page->(default:0) size->(default:10)
      * @param exploreReq req
      * @param graphFrom  remote 参数
      * @param <T>        子类
@@ -73,15 +74,17 @@ public class GraphCommonConverter {
      */
     static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(BaseReq page, T exploreReq, E graphFrom) {
         CommonFilter commonFilter = new GraphFrom();
-        if (page != null) {
-            commonFilter.setSkip(page.getOffset());
-            commonFilter.setDirection(exploreReq.getDirection());
-            commonFilter.setDistance(exploreReq.getDistance());
-            commonFilter.setLimit(exploreReq.getHighLevelSize() == null ? page.getLimit() : exploreReq.getHighLevelSize());
-            graphFrom.setSkip(page.getPage());
-            graphFrom.setLimit(page.getSize());
+        if (page == null) {
+            page = new BaseReq();
+            page.setPage(NumberUtils.INTEGER_ZERO);
+            page.setSize(10);
         }
-
+        commonFilter.setSkip(page.getOffset());
+        commonFilter.setDirection(exploreReq.getDirection());
+        commonFilter.setDistance(exploreReq.getDistance());
+        commonFilter.setLimit(exploreReq.getHighLevelSize() == null ? page.getLimit() : exploreReq.getHighLevelSize());
+        graphFrom.setSkip(page.getPage());
+        graphFrom.setLimit(page.getSize());
         if (!CollectionUtils.isEmpty(exploreReq.getEntityFilters())) {
             EntityFilter entityFilter = new EntityFilter();
             entityFilter.setAttr(ConditionConverter.entityListToIntegerKeyMap(exploreReq.getEntityFilters()));

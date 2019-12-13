@@ -5,6 +5,7 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
@@ -15,12 +16,15 @@ import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
@@ -45,7 +49,8 @@ public class DataOptServiceImpl implements DataOptService {
     @Autowired
     private DataSetService dataSetService;
 
-    private DataOptProvider getProvider(String userId, Long datasetId) {
+    @Override
+    public DataOptProvider getProvider(String userId, Long datasetId) {
         DataSet one = dataSetService.findOne(userId, datasetId);
         DataOptConnect connect = DataOptConnect.of(one);
         return DataOptProviderFactory.createProvider(connect, one.getDataType());
@@ -205,6 +210,16 @@ public class DataOptServiceImpl implements DataOptService {
             ServletOutputStream outputStream = response.getOutputStream();
             EasyExcel.write(outputStream).head(head(schema)).sheet().doWrite(resultList);
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchAddDataForDataSet(String userId, DataSetAddReq addReq) {
+        List<Long> ids = dataSetService.findByDataNames(userId, Lists.newArrayList(addReq.getDataName()));
+        if (CollectionUtils.isEmpty(ids)) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
+        }
+        this.batchInsertData(userId, ids.get(0), addReq.getDataList());
     }
 
 

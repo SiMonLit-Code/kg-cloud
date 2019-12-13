@@ -1,8 +1,10 @@
-package com.plantdata.kgcloud.domain.dataset.statistic.controller.req;
+package com.plantdata.kgcloud.sdk.req.app.dataset;
 
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -12,9 +14,9 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class InterfaceUploadReq {
+public class DataSetAddReq {
     @NotBlank
-    private String data;
+    private List<Map<String, Object>> dataList;
     @NotBlank
     private String dataName;
 
