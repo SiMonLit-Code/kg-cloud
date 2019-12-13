@@ -4,7 +4,7 @@ import ai.plantdata.kg.api.edit.req.BatchQueryRelationFrom;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -14,6 +14,7 @@ import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
@@ -42,10 +43,12 @@ public class RelationConverter {
         //时间筛选
         Map<String, Object> attrTimeFilters = Maps.newHashMap();
         if (StringUtils.isNoneBlank(searchReq.getAttrTimeFrom())) {
-            attrTimeFilters.put("attr_time_from", JSON.parse(searchReq.getAttrTimeFrom()));
+            attrTimeFilters.put("attr_time_from", JacksonUtils.readValue(searchReq.getAttrTimeFrom(), new TypeReference<Map<String, Object>>() {
+            }));
         }
         if (StringUtils.isNoneBlank(searchReq.getAttrTimeTo())) {
-            attrTimeFilters.put("attr_time_to", JSON.parse(searchReq.getAttrTimeTo()));
+            attrTimeFilters.put("attr_time_to", JacksonUtils.readValue(searchReq.getAttrTimeTo(), new TypeReference<Map<String, Object>>() {
+            }));
         }
         if (!CollectionUtils.isEmpty(attrTimeFilters)) {
             queryRelationFrom.setAttrTimeFilters(attrTimeFilters);

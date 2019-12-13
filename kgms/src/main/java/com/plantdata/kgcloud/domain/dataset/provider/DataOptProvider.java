@@ -29,15 +29,15 @@ public interface DataOptProvider extends Closeable {
 
     void dropTable();
 
-    Map<String, Object> insert(JsonNode node);
+    Map<String, Object> insert(Map<String,Object> node);
 
-    Map<String, Object> update(String id, JsonNode node);
+    Map<String, Object> update(String id, Map<String,Object> node);
 
     void delete(String id);
 
     void deleteAll();
 
-    void batchInsert(List<JsonNode> nodes);
+    void batchInsert(List<Map<String,Object>> nodes);
 
     void batchDelete(Collection<String> ids);
 

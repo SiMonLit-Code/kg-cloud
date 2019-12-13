@@ -1,10 +1,13 @@
 package com.plantdata.kgcloud.domain.share.service.impl;
 
+import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.share.entity.LinkShare;
 import com.plantdata.kgcloud.domain.share.repository.LinkShareRepository;
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
 import com.plantdata.kgcloud.domain.share.rsp.ShareRsp;
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
+import com.plantdata.kgcloud.sdk.UserClient;
+import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,20 +25,25 @@ public class LinkShareServiceImpl implements LinkShareService {
 
 
     @Autowired
+    private UserClient userClient;
+
+    @Autowired
     private LinkShareRepository linkShareRepository;
 
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
 
+
     @Override
     public LinkShareRsp shareStatus(String userId, String kgName) {
-//        Integer i = linkShareRepository.hasShareRole(userId);
+        ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
+        UserLimitRsp data = detail.getData();
         LinkShareRsp linkShareRsp = new LinkShareRsp();
-//        if (Objects.equals(i, 0)) {
-//            linkShareRsp.setHasRole(0);
-//        } else {
-//            linkShareRsp.setHasRole(1);
-//        }
+        if (data.getShareable()) {
+            linkShareRsp.setHasRole(1);
+        } else {
+            linkShareRsp.setHasRole(0);
+        }
         List<LinkShare> all = linkShareRepository.findByUserIdAndKgName(userId, kgName);
         List<ShareRsp> collect = all.stream().map(ConvertUtils.convert(ShareRsp.class)).collect(Collectors.toList());
         linkShareRsp.setShareList(collect);
@@ -43,7 +51,7 @@ public class LinkShareServiceImpl implements LinkShareService {
     }
 
 
-    private LinkShare getOne(String kgName, String spaId){
+    private LinkShare getOne(String kgName, String spaId) {
         Optional<LinkShare> bean = linkShareRepository.findByKgNameAndSpaId(kgName, spaId);
         return bean.orElseGet(() -> {
             LinkShare share = new LinkShare();

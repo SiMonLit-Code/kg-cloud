@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import com.alibaba.fastjson.JSON;
@@ -8,7 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mongodb.*;
+import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.plantdata.kgcloud.config.EsProperties;
@@ -23,6 +24,7 @@ import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.LinksRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -62,7 +64,8 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     public RestData<Map<String, Object>> readMongoData(String database, String table, int start, int offset, String query, List<String> fieldList, String sort) {
         Document bson = new Document();
         if (StringUtils.isNoneBlank(query)) {
-            bson.putAll(JSON.parseObject(query));
+            bson.putAll(JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
+            }));
         }
         Document field = new Document();
         if (fieldList != null) {
@@ -70,7 +73,8 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         }
         Document sortDoc = new Document();
         if (StringUtils.isNoneBlank(sort)) {
-            sortDoc.putAll(JSON.parseObject(sort));
+            sortDoc.putAll(JacksonUtils.readValue(sort, new TypeReference<Map<String, Object>>() {
+            }));
         }
         final List<Map<String, Object>> rsList = Lists.newArrayList();
         long rsCount = 0;

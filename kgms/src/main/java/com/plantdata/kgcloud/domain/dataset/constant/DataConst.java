@@ -25,7 +25,7 @@ public interface DataConst {
     String LONG = "{\"type\": \"long\"}";
     JsonNode JSON_LONG = JacksonUtils.readValue(LONG, JsonNode.class);
 
-    String DATE = "{\"type\":\"date\",\"format\": \"yyyyMMdd || yyyy-MM-dd HH:mm:ss || yyyy-MM-dd || HH:mm:ss\"}";
+    String DATE = "{\"type\":\"date\",\"format\": \"yyyyMMdd||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||HH:mm:ss\"}";
     JsonNode JSON_DATE = JacksonUtils.readValue(DATE, JsonNode.class);
 
     String OBJECT = "{\"type\": \"object\"}";

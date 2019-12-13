@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
@@ -260,6 +261,15 @@ public interface EntityService {
      * @return
      */
     List<String> batchAddPrivateRelation(String kgName, BatchPrivateRelationReq batchPrivateRelationReq);
+
+    /**
+     * 实体标签搜索
+     *
+     * @param kgName
+     * @param entityTagSearchReq
+     * @return
+     */
+    List<String> tagSearch(String kgName, EntityTagSearchReq entityTagSearchReq);
 
     List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq);
 
