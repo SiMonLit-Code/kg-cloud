@@ -3,10 +3,8 @@ package com.plantdata.kgcloud.domain.app.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
@@ -15,6 +13,7 @@ import com.mongodb.client.MongoCollection;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -113,28 +112,29 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             requestData.put("_source", fields);
         }
         if (StringUtils.isNoneBlank(query)) {
-            requestData.put("query", JSON.parse(query));
+            requestData.put("query", JacksonUtils.readValue(query, Object.class));
             requestData.put("from", start);
             requestData.put("size", offset);
         }
         if (StringUtils.isNoneBlank(sort)) {
-            requestData.put("sort", JSON.parse(sort));
+            requestData.put("sort", JacksonUtils.readValue(sort, Object.class));
         }
-        String rs = EsUtils.sendPost(EsUtils.buildEsQuery(esProperties.getAddrs()), databases, tables, JSON.toJSONString(requestData));
+        String rs = EsUtils.sendPost(EsUtils.buildEsQuery(esProperties.getAddrs()), databases, tables, JsonUtils.toJson(requestData));
         List<Map<String, Object>> rsList = new ArrayList<>(offset);
         long rsCount = 0;
-        if (Objects.nonNull(rs)) {
-            JSONObject jsonObj = JSON.parseObject(rs);
-            JSONObject hits = jsonObj.getJSONObject("hits");
-            JSONArray arr = hits.getJSONArray("hits");
+        Optional<JsonNode> jsonObjOpt = JsonUtils.parseJsonNode(rs);
+        if (jsonObjOpt.isPresent()) {
+            JsonNode jsonNode = jsonObjOpt.get();
+            JsonNode hits = jsonNode.get("hits");
+            ArrayNode arr = (ArrayNode) hits.get("hits");
             if (Objects.nonNull(arr)) {
-                rsCount = hits.getLong("total");
+                rsCount = hits.get("total").longValue();
                 if (rsCount > 0) {
                     for (int i = 0; i < arr.size(); i++) {
-                        Map<String, Object> map = arr.getJSONObject(i).getJSONObject("_source");
-                        map.put("_id", arr.getJSONObject(i).getString("_id"));
-                        map.put("_type", arr.getJSONObject(i).getString("_type"));
-                        map.put("_index", arr.getJSONObject(i).getString("_index"));
+                        Map<String, Object> map = (Map<String, Object>) arr.get(i).get("_source");
+                        map.put("_id", arr.get(i).get("_id"));
+                        map.put("_type", arr.get(i).get("_type"));
+                        map.put("_index", arr.get(i).get("_index"));
                         rsList.add(map);
                     }
                 }
@@ -142,6 +142,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         }
         return new RestData<>(rsList, rsCount);
     }
+
     @Override
     public List<DataLinkRsp> getDataLinks(String kgName, String userId, Long entityId) {
 
