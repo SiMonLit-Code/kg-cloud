@@ -15,6 +15,7 @@ import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -79,7 +80,10 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     public Map<String, Object> insertData(String userId, Long datasetId, Map<String, Object> data) {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            return provider.insert(createNode(data));
+            data.remove("_id");
+            data.put("_oprTime", DateUtils.formatDatetime());
+            data.put("_persistTime",DateUtils.formatDatetime());
+            return provider.insert(data);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
@@ -102,6 +106,9 @@ public class DataOptServiceImpl implements DataOptService {
                 for (Map.Entry<Integer, Object> entry : data.entrySet()) {
                     map.put(head.get(entry.getKey()), entry.getValue());
                 }
+                map.remove("_id");
+                map.put("_oprTime", DateUtils.formatDatetime());
+                map.put("_persistTime",DateUtils.formatDatetime());
                 mapList.add(map);
                 if (mapList.size() == 10000) {
                     batchInsertData(userId, datasetId, mapList);
@@ -123,34 +130,18 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     public Map<String, Object> updateData(String userId, Long datasetId, String dataId, Map<String, Object> data) {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                objectNode.putPOJO(entry.getKey(), entry.getValue());
-            }
-            return provider.update(dataId, objectNode);
+            data.put("_oprTime", DateUtils.formatDatetime());
+            return provider.update(dataId, data);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
     }
 
-    private JsonNode createNode(Map<String, Object> map) {
-        ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            if (!"_id".equals(entry.getKey())) {
-                objectNode.putPOJO(entry.getKey(), entry.getValue());
-            }
-        }
-        return objectNode;
-    }
 
     @Override
     public void batchInsertData(String userId, Long datasetId, List<Map<String, Object>> dataList) {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            List<JsonNode> jsonNodes = new ArrayList<>();
-            for (Map<String, Object> objectMap : dataList) {
-                jsonNodes.add(createNode(objectMap));
-            }
-            provider.batchInsert(jsonNodes);
+            provider.batchInsert(dataList);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
@@ -187,7 +178,7 @@ public class DataOptServiceImpl implements DataOptService {
     public void exportData(String userId, Long datasetId, HttpServletResponse response) throws Exception {
         DataSet one = dataSetService.findOne(userId, datasetId);
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            List<Map<String, Object>> mapList = provider.find(null, null, null);
+            List<Map<String, Object>> mapList = provider.find(0, 10000, null);
             List<List<Object>> resultList = new ArrayList<>();
             List<DataSetSchema> schema = one.getSchema();
             for (Map<String, Object> objectMap : mapList) {

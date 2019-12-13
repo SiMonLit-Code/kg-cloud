@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.app.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +20,6 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class EsDTO {
-    @JSONField(name = "_source")
     @JsonProperty("_source")
     private List<String> source;
     private Object query;

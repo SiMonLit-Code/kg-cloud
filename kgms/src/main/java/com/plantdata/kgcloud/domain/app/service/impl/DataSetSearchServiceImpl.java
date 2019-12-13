@@ -1,29 +1,22 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mongodb.*;
+import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
-import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
-import com.plantdata.kgcloud.domain.dataset.provider.ElasticSearchOptProvider;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
-import org.elasticsearch.client.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 
 /**
  * @author Administrator
@@ -39,7 +32,8 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     public RestData<Map<String, Object>> readMongoData(String database, String table, int start, int offset, String query, List<String> fieldList, String sort) {
         Document bson = new Document();
         if (StringUtils.isNoneBlank(query)) {
-            bson.putAll(JSON.parseObject(query));
+            bson.putAll(JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
+            }));
         }
         Document field = new Document();
         if (fieldList != null) {
@@ -47,7 +41,8 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         }
         Document sortDoc = new Document();
         if (StringUtils.isNoneBlank(sort)) {
-            sortDoc.putAll(JSON.parseObject(sort));
+            sortDoc.putAll(JacksonUtils.readValue(sort, new TypeReference<Map<String, Object>>() {
+            }));
         }
         final List<Map<String, Object>> rsList = Lists.newArrayList();
         long rsCount = 0;

@@ -1,12 +1,18 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.util.DateUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description:
@@ -26,7 +32,7 @@ public class ElasticSearchOptProviderTest {
         addrs.add("192.168.4.18:9200");
         datasetInfo.setAddresses(addrs);
         datasetInfo.setDatabase("0000000000_0004");
-        datasetInfo.setTable("doc");
+        datasetInfo.setTable("_doc");
         provider = new ElasticSearchOptProvider(datasetInfo);
     }
 
@@ -53,4 +59,41 @@ public class ElasticSearchOptProviderTest {
         provider.createTable(colList);
     }
 
+    @Test
+    public void findOne() {
+
+        provider.findOne("mfaN-W4BAruisY1fX8XP");
+    }
+
+    @Test
+    public void insert() {
+        Map<String,Object> objectNode = new HashMap<>();
+        objectNode.put("a","111");
+        objectNode.put("b","222");
+        objectNode.put("c", DateUtils.formatDatetime());
+
+            provider.insert(objectNode);
+
+
+
+    }
+
+    @Test
+    public void update() {
+    }
+
+    @Test
+    public void delete() {
+    }
+
+    @Test
+    public void find() {
+        provider.find(null,null,null);
+    }
+
+    @Test
+    public void count() {
+        long count = provider.count(null);
+        System.out.println(count);
+    }
 }

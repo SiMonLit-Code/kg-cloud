@@ -4,7 +4,7 @@ import ai.plantdata.kg.api.pub.req.AggAttrValueFrom;
 import ai.plantdata.kg.api.pub.req.PromptListFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.PromptItemVO;
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.constant.PromptResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
@@ -76,7 +76,8 @@ public class PromptConverter {
                 try {
                     entityBean.setConceptId(Long.parseLong(conceptId.toString()));
                 } catch (Exception e) {
-                    List<Long> conceptIds = JSON.parseArray(conceptId.toString(), Long.class);
+                    List<Long> conceptIds = JacksonUtils.readValue(conceptId.toString(), new TypeReference<List<Long>>() {
+                    });
                     if (conceptIds.size() > 0) {
                         entityBean.setConceptId(conceptIds.get(0));
                     }
