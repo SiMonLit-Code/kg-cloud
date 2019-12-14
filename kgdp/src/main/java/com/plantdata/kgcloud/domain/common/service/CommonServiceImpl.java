@@ -119,12 +119,12 @@ public class CommonServiceImpl implements CommonService {
         GridFSBucket gridFSBucket = GridFSBuckets.create(database);
         String f = charsetTransform(name, "ISO_8859_1", "UTF-8");
 
-        String fileOrgName = name;
-        String fileOrgSource = constants.getKgdpUrl()+"/common/resource/download?name="+UUIDUtils.getShortString() + fileOrgName;
+        String fileOrgName = UUIDUtils.getShortString() +name;
+        String fileOrgSource = constants.getKgdpUrl()+"/common/resource/download?name="+fileOrgName;
         try {
             ObjectId objectId = gridFSBucket.uploadFromStream(f, new ByteArrayInputStream(content));
-            Document filter =  new Document("name", fileOrgName);
-            filter.put("source",fileOrgSource);
+            Document filter =  new Document("name", name);
+            filter.put("source",fileOrgName);
             fileCollection.updateOne(filter, new Document("$set", new Document("file_id", objectId)), new UpdateOptions().upsert(true));
         }catch (Exception e){
             e.printStackTrace();
