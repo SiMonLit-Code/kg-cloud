@@ -96,6 +96,8 @@ public class InfoBoxConverter extends BasicConverter {
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
         //设置父概念
         infoBoxRsp.setParents(listToRsp(entity.getParent(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
+        //设置子概念 todo
+        infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //基本字段
         infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList));
         //对象属性

@@ -1,9 +1,13 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
+import ai.plantdata.kg.api.ql.SparqlApi;
+import ai.plantdata.kg.api.ql.resp.QueryResultVO;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.converter.SparQlConverter;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
+import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.model.service.ModelService;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
@@ -14,6 +18,7 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
+import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -47,12 +53,14 @@ public class KgDataController {
     private KgDataService kgDataService;
     @Autowired
     private DataOptService dataOptService;
+    @Autowired
+    private SparqlApi sparqlApi;
 
     @ApiOperation("sparql查询")
     @PostMapping("sparQl/query/{kgName}")
-    public ApiReturn<Object> sparQlQuery(@PathVariable("kgName") String kgName, @RequestBody SparQlReq sparQlReq) {
-        //todo 底层提供api
-        return ApiReturn.success();
+    public ApiReturn<QueryResultRsp> sparQlQuery(@PathVariable("kgName") String kgName, @RequestBody SparQlReq sparQlReq) {
+        Optional<QueryResultVO> resOpt = RestRespConverter.convert(sparqlApi.query(kgName, sparQlReq.getQuery(), sparQlReq.getSize()));
+        return ApiReturn.success(resOpt.map(SparQlConverter::queryResultVoToRsp).orElseGet(QueryResultRsp::new));
     }
 
     @ApiOperation("第三方模型抽取")

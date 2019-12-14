@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.preview;
 
-import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.sdk.WrapperClient;
@@ -29,7 +28,7 @@ public class WrapperController implements GraphApplicationInterface {
     private WrapperClient wrapperClient;
 
     @PostMapping("preview")
-    @ApiOperation("预览")
+    @ApiOperation("wrapper预览")
     public ApiReturn<Map<String, Object>> parse(@ApiParam(required = true) @RequestParam String html,
                                                 @ApiParam(value = "字段配置", required = true) @RequestParam String config) {
         return wrapperClient.parse(html, config);
