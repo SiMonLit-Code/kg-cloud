@@ -63,6 +63,10 @@ public class Scene {
     private SchemaRsp labelModel;
 
     @Basic
+    @Column(name = "kg_name")
+    private String kgName;
+
+    @Basic
     @Column(name = "label_model_type")
     private Integer labelModelType;
 
