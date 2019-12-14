@@ -49,7 +49,7 @@ public class ResultServiceImpl implements ResultService {
 
         Scene scene = sceneService.checkScene(sceneId, SessionHolder.getUserId());
 
-        if(!scene.getLabelModelType().equals(1) || scene.getLabelModel() == null ||scene.getLabelModel().getKgName() == null){
+        if(!scene.getLabelModelType().equals(1) || scene.getLabelModel() == null ||scene.getKgName() == null){
             //非图谱引入不做冲突检测
             return ApiReturn.success();
         }
@@ -62,7 +62,7 @@ public class ResultServiceImpl implements ResultService {
         List<PdDocument> pdDocumentList = apiReturn.getData();
         List<DataCheckRsp> rsList = Lists.newArrayList();
 
-        String kgName = scene.getLabelModel().getKgName();
+        String kgName = scene.getKgName();
 
         for(PdDocument pdDocument : pdDocumentList){
             List<PdEntity> entityList = pdDocument.getPdEntity();
@@ -164,7 +164,7 @@ public class ResultServiceImpl implements ResultService {
         String userId = SessionHolder.getUserId();
         Scene scene = sceneService.checkScene(sceneId,userId);
 
-        if(!scene.getLabelModelType().equals(1) || scene.getLabelModel() == null ||scene.getLabelModel().getKgName() == null){
+        if(!scene.getLabelModelType().equals(1) || scene.getLabelModel() == null ||scene.getKgName() == null){
             //非图谱引入不入图
             return ;
         }
@@ -174,7 +174,7 @@ public class ResultServiceImpl implements ResultService {
             return ;
         }
 
-        String kgName = scene.getLabelModel().getKgName();
+        String kgName = scene.getKgName();
 
         List<DataCheckRsp> checkList = check(sceneId,id).getData();
         Map<String, DataCheckRsp> checkMap = Maps.newHashMap();
@@ -386,7 +386,7 @@ public class ResultServiceImpl implements ResultService {
 
         //新增关系
         if(!importRelationList.isEmpty()){
-            List<BatchRelationRsp> success = sdkService.addBatchRelation(scene.getLabelModel().getKgName(),importRelationList);
+            List<BatchRelationRsp> success = sdkService.addBatchRelation(scene.getKgName(),importRelationList);
 
             //返回关系id写回去
             Map<String, BatchRelationRsp> relationMap = Maps.newHashMap();
