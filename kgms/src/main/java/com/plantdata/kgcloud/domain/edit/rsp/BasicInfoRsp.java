@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.rsp;
 
 
+import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
@@ -80,6 +81,9 @@ public class BasicInfoRsp extends BasicInfoVO {
 
     @ApiModelProperty(value = "父概念")
     private List<BasicInfoVO> parent;
+
+    @ApiModelProperty(value = "子概念")
+    private List<BasicInfoVO> sons;
 
     @ApiModelProperty(value = "实体属性值")
     private List<EntityAttrValueVO> attrValue;
