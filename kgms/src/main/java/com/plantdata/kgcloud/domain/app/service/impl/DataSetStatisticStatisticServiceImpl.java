@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.bo.DataSetStatisticBO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
@@ -78,7 +79,7 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
         }
         DataSet dataSet = dataOpt.get();
         if (!DataType.ELASTIC.equals(dataSet.getDataType())) {
-            throw BizException.of(KgmsErrorCodeEnum.MY_DATA_NULL_ES);
+            throw BizException.of(AppErrorCodeEnum.MY_DATA_NULL_ES);
         }
         TableStatisticByDimensionalReq tableStatisticReq = new TableStatisticByDimensionalReq();
         BeanUtils.copyProperties(dimensionalReq, tableStatisticReq);

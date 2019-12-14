@@ -21,8 +21,9 @@ public enum AttrDefinitionTypeEnum implements BaseEnum {
     private int id;
     private String desc;
 
+
     @Override
-    public Object getValue() {
+    public Integer fetchId() {
         return id;
     }
 }

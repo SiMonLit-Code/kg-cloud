@@ -6,6 +6,10 @@ import ai.plantdata.kg.api.pub.req.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.RelationStatisticsBean;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.ExtraInfo;
+import com.alibaba.excel.write.builder.ExcelWriterTableBuilder;
+import com.alibaba.excel.write.metadata.WriteTable;
+import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
@@ -37,6 +41,12 @@ import java.util.stream.Collectors;
  * @date 2019/12/11 9:59
  */
 public class GraphStatisticConverter {
+
+    public static void main(String[] args) {
+        ExcelWriterTableBuilder tableBuilder = new ExcelWriterTableBuilder();
+        WriteTable build = tableBuilder.head(Lists.newArrayList(Lists.newArrayList("a"), Lists.newArrayList("b"))).build();
+        build.setTableStyle();
+    }
 
 
     public static AttributeStatisticsBean attrReqToAttributeStatisticsBean(int reSize, EntityStatisticGroupByAttrIdReq attrIdReq) {
@@ -147,7 +157,7 @@ public class GraphStatisticConverter {
         }
         Optional<ExtraInfo> firstOpt = attrDef.getExtraInfo().stream().filter(a -> a.getSeqNo() == seqNo).findFirst();
         if (!firstOpt.isPresent()) {
-            throw BizException.of(KgmsErrorCodeEnum.EDGE_ATTR_DEF_NULL);
+            throw BizException.of(AppErrorCodeEnum.EDGE_ATTR_DEF_NULL);
         }
         return AttributeDataTypeEnum.parseById(firstOpt.get().getDataType());
     }
