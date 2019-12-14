@@ -15,6 +15,7 @@ import java.util.List;
 public interface GraphConfStatisticalRepository extends JpaRepository<GraphConfStatistical, Long> {
 
 
+
     List<GraphConfStatistical> findByKgName(String kgName);
 
     Page<GraphConfStatistical> getByKgName(String kgName, Pageable pageable);
