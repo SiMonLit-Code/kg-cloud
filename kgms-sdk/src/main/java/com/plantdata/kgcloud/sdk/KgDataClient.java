@@ -1,11 +1,14 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
+import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,7 +46,7 @@ public interface KgDataClient {
      * @param statisticReq
      * @return
      */
-    @PostMapping("kgData/statistic/{kgName}/entity/degree/")
+    @PostMapping("statistic/{kgName}/entity/degree/")
     ApiReturn<List<Map<String, Object>>> statisticCountEdgeByEntity(@PathVariable("kgName") String kgName,
                                                                     @RequestBody EdgeStatisticByEntityIdReq statisticReq);
 
@@ -54,7 +57,7 @@ public interface KgDataClient {
      * @param statisticReq
      * @return
      */
-    @PostMapping("kgData/statistic/{kgName}/entity/groupByConcept/")
+    @PostMapping("statistic/{kgName}/entity/groupByConcept/")
     ApiReturn<Object> statisticEntityGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                     @RequestBody EntityStatisticGroupByConceptReq statisticReq);
 
@@ -65,7 +68,7 @@ public interface KgDataClient {
      * @param statisticReq
      * @return
      */
-    @PostMapping("kgData/statistic/{kgName}/attr/groupByAttrValue")
+    @PostMapping("statistic/{kgName}/attr/groupByAttrValue")
     ApiReturn<Object> statisticAttrGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                   @RequestBody EntityStatisticGroupByAttrIdReq statisticReq);
 
@@ -76,7 +79,7 @@ public interface KgDataClient {
      * @param statisticReq
      * @return
      */
-    @PostMapping("kgData/statistic/{kgName}/edge/groupByAttrName")
+    @PostMapping("statistic/{kgName}/edge/groupByAttrName")
     ApiReturn<Object> statisticRelation(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                         @RequestBody EdgeStatisticByConceptIdReq statisticReq);
 
@@ -87,7 +90,25 @@ public interface KgDataClient {
      * @param statisticReq
      * @return
      */
-    @PostMapping("kgData/statistic/{kgName}/edgeAttr/groupByAttrValue")
+    @PostMapping("statistic/{kgName}/edgeAttr/groupByAttrValue")
     ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                    EdgeAttrStatisticByAttrValueReq statisticReq);
+                                               EdgeAttrStatisticByAttrValueReq statisticReq);
+
+    /**
+     * 读取数据集
+     *
+     * @param nameReadReq 搜索参数
+     * @return 。
+     */
+    @PostMapping("dataset/read")
+    ApiReturn<RestData<Map<String, Object>>> searchDataSet(NameReadReq nameReadReq);
+
+    /**
+     * 批量新增数据集
+     *
+     * @param addReq
+     * @return
+     */
+    @PostMapping("dataset/dataname")
+    ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq);
 }

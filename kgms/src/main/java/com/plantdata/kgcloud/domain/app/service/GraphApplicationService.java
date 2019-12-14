@@ -1,10 +1,11 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
@@ -67,11 +68,21 @@ public interface GraphApplicationService {
     List<BasicInfoVO> conceptTree(String kgName, Long conceptId, String conceptKey);
 
     /**
+     * 单个查询知识卡片 包含标引数据集
+     *
+     * @param kgName
+     * @param userId
+     * @param infoBoxReq
+     * @return
+     */
+    InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq);
+
+    /**
      * 知识卡片
      *
      * @param kgName 图谱名称
      * @param req    参数
      * @return obj
      */
-    List<InfoBoxRsp> infoBox(String kgName, InfoBoxReq req);
+    List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReq req);
 }

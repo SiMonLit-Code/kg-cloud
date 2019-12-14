@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AttributeExtraInfoItem {
+public class AttrExtraRsp {
 
     private Integer seqNo;
     private String name;

@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.dataset.statistic.controller.req;
+package com.plantdata.kgcloud.domain.dataset.statistic.req;
 
 import com.plantdata.kgcloud.sdk.req.app.dataset.BaseTableReq;
 import io.swagger.annotations.ApiModel;

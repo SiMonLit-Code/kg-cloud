@@ -1,13 +1,9 @@
 package com.plantdata.kgcloud.domain.edit.util;
 
-import ai.plantdata.kg.common.bean.AttributeDefinition;
+import com.google.gson.Gson;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import ma.glasnost.orika.CustomConverter;
-import ma.glasnost.orika.CustomMapper;
-import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.MappingContext;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -25,13 +21,17 @@ public class MapperUtils {
 
     private static final MapperFactory MAPPER_FACTORY = new DefaultMapperFactory.Builder().build();
 
+    static {
+        MAPPER_FACTORY.getConverterFactory().registerConverter(new MyConverter());
+    }
+
     public static MapperFactory getMapperFactory() {
         return MAPPER_FACTORY;
     }
 
     public static <S, T> T map(S source, Class<T> clazz) {
         try {
-            return MAPPER_FACTORY.getMapperFacade().map(source, clazz);
+            return getMapperFactory().getMapperFacade().map(source, clazz);
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.DATA_CONVERSION_ERROR);
         }
@@ -39,10 +39,19 @@ public class MapperUtils {
 
     public static <S, T> List<T> map(List<S> source, Class<T> clazz) {
         try {
-            return MAPPER_FACTORY.getMapperFacade().mapAsList(source, clazz);
+            return getMapperFactory().getMapperFacade().mapAsList(source, clazz);
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.DATA_CONVERSION_ERROR);
         }
     }
 
+    public static class MyConverter extends CustomConverter<String, Map<String, Object>> {
+
+        @Override
+        public Map<String, Object> convert(String stringObjectMap, Type<? extends Map<String, Object>> type,
+                                           MappingContext mappingContext) {
+            return new Gson().fromJson(stringObjectMap, type.getRawType());
+        }
+
+    }
 }

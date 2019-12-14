@@ -19,10 +19,10 @@ public class SegmentConverter {
 
     public static SemanticSegFrom segmentReqToSemanticSegFrom(SegmentReq segmentReq) {
         SemanticSegFrom segFrom = new SemanticSegFrom();
-        segFrom.setIsEntity(segmentReq.getUseEntity());
+        segFrom.setEntity(segmentReq.getUseEntity());
         segFrom.setInput(segmentReq.getKw());
-        segFrom.setIsAttr(segmentReq.getUseAttr());
-        segFrom.setIsConcept(segmentReq.getUseConcept());
+        segFrom.setAttr(segmentReq.getUseAttr());
+        segFrom.setConcept(segmentReq.getUseConcept());
         return segFrom;
     }
 

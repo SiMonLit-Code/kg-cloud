@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.parse.service;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hiekn.pddocument.bean.PdDocument;
@@ -12,10 +13,12 @@ import com.hiekn.pddocument.bean.element.PdSegment;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgDocumentErrorCodes;
 import com.plantdata.kgcloud.domain.document.rsp.PddocumentRsp;
+import com.plantdata.kgcloud.domain.document.rsp.RestDataRsp;
 import com.plantdata.kgcloud.domain.parse.concerter.RestRespConverter;
 import com.plantdata.kgcloud.domain.parse.req.NlpParseReq;
 import com.plantdata.kgcloud.domain.parse.util.ParseCountryUtils;
 import com.plantdata.kgcloud.domain.scene.entiy.Scene;
+import com.plantdata.kgcloud.domain.scene.rsp.KVRsp;
 import com.plantdata.kgcloud.domain.scene.rsp.NlpRsp;
 import com.plantdata.kgcloud.domain.scene.service.SceneService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -32,9 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,16 +73,54 @@ public class ParseServiceImpl implements ParseService {
             return ApiReturn.success(Lists.newArrayList());
         }
 
-        List<PdDocument> pdDocumentList = parseDefaultPdDocument(nlpParseReq.getInputs());
+        List<PdDocument> pdDocumentList = parseDefaultPdDocument(nlpParseReq.getInputs(),nlpParseReq.getPdEntityList());
 
         for(NlpRsp nlpRsp : nlpConfigList){
 
+            List<List<PdEntity>> entityList = pdDocumentList.stream().map(pdDocument -> pdDocument.getPdEntity()).collect(Collectors.toList());
+
             String url = nlpRsp.getModelApi();
-            List<PdDocument> pdDocuments = getNlpResult(url, nlpParseReq.getInputs());
+            List<PdDocument> pdDocuments = getNlpResult(url, nlpParseReq.getInputs(),entityList);
+
+            parsePdDocumentByTag(pdDocuments,nlpRsp.getTags());
+
             mergePdDocuments(pdDocumentList, pdDocuments);
         }
 
         return ApiReturn.success(pdDocumentList);
+    }
+
+    private void parsePdDocumentByTag(List<PdDocument> pdDocuments, List<KVRsp> tags) {
+        if(pdDocuments == null || tags == null){
+            return ;
+        }
+
+        Map<String,String> tagMap = Maps.newHashMap();
+        tags.forEach(tag -> tagMap.put(tag.getKey(),tag.getValue()));
+
+        for(PdDocument pdDocument : pdDocuments){
+            if(pdDocument.getPdEntity() != null && !pdDocument.getPdEntity().isEmpty()){
+                for(PdEntity entity : pdDocument.getPdEntity()){
+                    if (tagMap.containsKey(entity.getTag())) {
+                        entity.setTag(tagMap.get(entity.getTag()));
+                    }
+                }
+            }
+
+            if(pdDocument.getPdRelation() != null && !pdDocument.getPdRelation().isEmpty()){
+                for(PdRelation relation : pdDocument.getPdRelation()){
+
+                    if(relation.getPredicate() != null && !relation.getPredicate().isEmpty()){
+                        relation.setAttName(relation.getPredicate());
+                        relation.setPredicate(null);
+                    }
+
+                    if(tagMap.containsKey(relation.getAttName())){
+                        relation.setAttName(tagMap.get(relation.getAttName()));
+                    }
+                }
+            }
+        }
     }
 
     private void mergePdDocuments(List<PdDocument> master, List<PdDocument> branch) {
@@ -158,7 +197,7 @@ public class ParseServiceImpl implements ParseService {
 
     }
 
-    private List<PdDocument> getNlpResult(String url, List<String> inputs) {
+    private List<PdDocument> getNlpResult(String url, List<String> inputs,List<List<PdEntity>> pdEntityList) {
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -166,6 +205,7 @@ public class ParseServiceImpl implements ParseService {
 
         MultiValueMap<String, String> postParameters = new LinkedMultiValueMap<>();
         postParameters.add("input", JSON.toJSONString(inputs));
+        postParameters.add("entities", JSON.toJSONString(pdEntityList));
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(postParameters, headers);
 
@@ -176,28 +216,37 @@ public class ParseServiceImpl implements ParseService {
             throw BizException.of(KgDocumentErrorCodes.HTTP_ERROR);
         }
 
-        RestResp<List<PdDocument>> restResp = new Gson().fromJson(rs, new TypeToken<RestResp<List<PdDocument>>>(){}.getType());
+        RestResp<RestDataRsp<PdDocument>> restResp = new Gson().fromJson(rs, new TypeToken<RestResp<RestDataRsp<PdDocument>>>(){}.getType());
 
-        Optional<List<PdDocument>> optional = RestRespConverter.convert(restResp);
+        Optional<RestDataRsp<PdDocument>> optional = RestRespConverter.convert(restResp);
 
-        return optional.get();
-
-    }
-
-    private List<PdDocument> parseDefaultPdDocument(List<String> inputs){
-        if(Objects.isNull(inputs) || inputs.isEmpty()){
+        if(optional == null || !optional.isPresent()){
             return Lists.newArrayList();
         }
 
-        List<PdDocument> rsList =  inputs.stream().map(input -> {
-            PdDocument pdDocument = new PdDocument();
+        return optional.get().getRsData();
 
-            pdDocument.setContent(input);
-            pdDocument.setPdEntity(Lists.newArrayList());
-            pdDocument.setPdRelation(Lists.newArrayList());
-            return pdDocument;
-        }).collect(Collectors.toList());
+    }
 
-        return rsList;
+    private List<PdDocument> parseDefaultPdDocument(List<String> inputs,List<List<PdEntity>> pdEntityList){
+
+        List<PdDocument> pdDocumentList = new ArrayList<>(inputs.size());
+        for(int i = 0; i<inputs.size(); i++){
+
+            String input = inputs.get(i);
+            PdDocument pd = new PdDocument();
+            pd.setContent(input);
+            if(pdEntityList != null && pdEntityList.size() > i){
+                pd.setPdEntity(pdEntityList.get(i));
+            }else{
+                pd.setPdEntity(Lists.newArrayList());
+            }
+            pd.setPdRelation(Lists.newArrayList());
+            pd.setPdEvent(Lists.newArrayList());
+            pdDocumentList.add(pd);
+        }
+
+        return pdDocumentList;
+
     }
 }

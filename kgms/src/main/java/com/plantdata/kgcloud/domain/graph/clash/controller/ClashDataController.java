@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.graph.clash.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
+import com.plantdata.kgcloud.domain.graph.clash.entity.ClashListReq;
 import com.plantdata.kgcloud.domain.graph.clash.entity.ClashToGraphReq;
 import com.plantdata.kgcloud.domain.graph.clash.service.ClashService;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -30,10 +31,8 @@ public class ClashDataController {
     @GetMapping("/clash/{kgName}")
     @ApiOperation("列表")
     public ApiReturn<Map> list(@PathVariable("kgName") String kgName,
-                               @ApiParam("实体名称") @RequestParam("name") String name,
-                               @ApiParam("pageNo") @RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo,
-                               @ApiParam("pageSize") @RequestParam(value = "pageNo", defaultValue = "10") Integer pageSize) {
-        Map<String, Object> page = clashService.list(kgName, name, pageNo, pageSize);
+                               @RequestBody ClashListReq req) {
+        Map<String, Object> page = clashService.list(kgName, req);
         return ApiReturn.success(page);
     }
 

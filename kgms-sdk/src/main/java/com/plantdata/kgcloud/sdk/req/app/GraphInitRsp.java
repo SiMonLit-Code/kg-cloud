@@ -21,8 +21,6 @@ import java.util.Map;
 @Setter
 @ApiModel("图初始化视图")
 public class GraphInitRsp {
-    @ApiModelProperty("唯一标识")
-    private Integer id;
     @ApiModelProperty("图谱名称")
     private String kgName;
     @ApiModelProperty("初始化类型")

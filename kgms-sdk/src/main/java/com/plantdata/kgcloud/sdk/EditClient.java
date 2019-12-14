@@ -17,7 +17,6 @@ import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

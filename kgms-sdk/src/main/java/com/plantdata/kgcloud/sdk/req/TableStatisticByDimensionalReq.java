@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -17,9 +16,15 @@ import java.util.List;
 @Setter
 @ApiModel("按照table统计数据集参数")
 public class TableStatisticByDimensionalReq extends StatisticByDimensionalReq {
-    @ApiModelProperty("数据集表名对应es中的type")
-    private List<String> tables;
-    @ApiModelProperty("数据集库名对应es中的index")
-    @NotNull
-    private List<String> databases;
+
+    private List<DataBaseReq> dataBaseList;
+
+    @Getter
+    @Setter
+    public static class DataBaseReq {
+        @ApiModelProperty("数据集库名对应es中的index")
+        private String database;
+        @ApiModelProperty("数据集表名对应es中的type")
+        private String table;
+    }
 }
