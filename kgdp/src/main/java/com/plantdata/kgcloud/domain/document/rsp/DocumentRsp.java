@@ -18,6 +18,7 @@ public class DocumentRsp {
     private Date updateTime;
     private String source;
     private Integer docStatus;
+    private Integer parseStatus;
     private Integer modelStatus;
     private String docType;
     private Long docSize;
