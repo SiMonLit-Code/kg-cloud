@@ -90,7 +90,7 @@ public class DocumentServiceImpl implements DocumentService {
                     }
 
                     Document document = Document.builder().sceneId(sceneId).docSize(file.getSize())
-                            .docStatus(0).docType(docType).modelStatus(0)
+                            .docStatus(0).docType(docType).modelStatus(0).parseStatus(0)
                             .name(file.getOriginalFilename()).source(name).build();
 
                     documentRepository.save(document);
@@ -159,7 +159,7 @@ public class DocumentServiceImpl implements DocumentService {
             return ApiReturn.success();
         }
 
-        int status = document.get().getDocStatus();
+        int status = document.get().getParseStatus();
         if(status == 0){
             //文档 未解析
 
@@ -287,7 +287,7 @@ public class DocumentServiceImpl implements DocumentService {
             throw BizException.of(KgDocumentErrorCodes.DOCUMENT_NOT_EXISTS);
         }
 
-        int status = document.get().getDocStatus();
+        int status = document.get().getParseStatus();
 
         synchronized (this){
             if(status == 0){
@@ -295,11 +295,7 @@ public class DocumentServiceImpl implements DocumentService {
                 mongoDriver.insertMany(ConvertConstent.databases,scene.getId()+"_"+ ConvertConstent.collection_html,docs);
                 Document docFile = document.get();
                 //更新状态
-                if(scene.getModelAnalysis() != null && !scene.getModelAnalysis().isEmpty()){
-                    docFile.setDocStatus(1);
-                }else{
-                    docFile.setDocStatus(2);
-                }
+                docFile.setParseStatus(1);
                 documentRepository.save(docFile);
 
                 savePddocument(scene.getId(),docId,pdDocuments);

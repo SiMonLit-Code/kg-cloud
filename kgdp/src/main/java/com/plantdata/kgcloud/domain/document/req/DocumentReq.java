@@ -29,4 +29,9 @@ public class DocumentReq extends BaseReq {
     @ApiModelProperty(value = "入图模式")
     private Integer model;
 
+    @ApiModelProperty(value = "文档解析状态 0未解析 1已解析")
+    private Integer parseStatus;
+
+
+
 }

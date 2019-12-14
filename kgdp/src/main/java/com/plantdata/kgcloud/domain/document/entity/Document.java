@@ -61,6 +61,10 @@ public class Document {
     private Integer modelStatus;
 
     @Basic
+    @Column(name = "parse_status")
+    private Integer parseStatus;
+
+    @Basic
     @Column(name = "doc_type")
     private String docType;
 
