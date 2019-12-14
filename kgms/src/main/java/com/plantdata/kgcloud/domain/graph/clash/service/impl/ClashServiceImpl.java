@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.domain.common.util.KgQueryUtil;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
+import com.plantdata.kgcloud.domain.graph.clash.entity.ClashListReq;
 import com.plantdata.kgcloud.domain.graph.clash.entity.ClashToGraphReq;
 import com.plantdata.kgcloud.domain.graph.clash.service.ClashService;
 import com.plantdata.kgcloud.sdk.EditClient;
@@ -41,17 +42,17 @@ public class ClashServiceImpl implements ClashService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map<String, Object> list(String kgName, String name, Integer pageNo, Integer pageSize) {
+    public Map<String, Object> list(String kgName, ClashListReq req) {
 
         String kgDbName = KgQueryUtil.getKgDbName(mongoClient, kgName);
-        pageNo = (pageNo - 1) * pageSize;
+        int pageNo = (req.getPage() - 1) * req.getSize();
         List<Bson> aggLs = new ArrayList<>();
         aggLs.add(Aggregates.lookup("basic_info", "entity_id", "id", "basic"));
-        if (StringUtils.isNotBlank(name)) {
-            aggLs.add(Aggregates.match(Filters.elemMatch("basic", Filters.regex("name",  name))));
+        if (StringUtils.isNotBlank(req.getName())) {
+            aggLs.add(Aggregates.match(Filters.elemMatch("basic", Filters.regex("name",  req.getName()))));
         }
         aggLs.add(Aggregates.skip(pageNo));
-        aggLs.add(Aggregates.limit(pageSize + 1));
+        aggLs.add(Aggregates.limit(req.getSize() + 1));
         MongoCursor<Document> cursor = mongoClient.getDatabase(kgDbName).getCollection(CLASH_DB_NAME).aggregate(aggLs).iterator();
 
         List<Document> ls = new ArrayList<>();
@@ -109,7 +110,7 @@ public class ClashServiceImpl implements ClashService {
         });
 
         int hasNext = 0;
-        if (ls.size() > pageSize) {
+        if (ls.size() > req.getSize()) {
             hasNext = 1;
             ls.remove(ls.get(ls.size() - 1));
         }

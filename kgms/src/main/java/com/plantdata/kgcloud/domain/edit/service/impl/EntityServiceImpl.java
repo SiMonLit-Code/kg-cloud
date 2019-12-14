@@ -116,7 +116,7 @@ public class EntityServiceImpl implements EntityService {
         basicInfoListFrom.setSort(ParserBeanUtils.parserSortMetadata(basicInfoListReq.getSorts()));
         basicInfoListFrom.setSkip(basicInfoListReq.getPage());
         basicInfoListFrom.setLimit(basicInfoListReq.getSize() + 1);
-        Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(kgName, basicInfoListFrom));
+        Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(kgName, true, basicInfoListFrom));
         List<BasicInfoRsp> basicInfoRspList =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
 
