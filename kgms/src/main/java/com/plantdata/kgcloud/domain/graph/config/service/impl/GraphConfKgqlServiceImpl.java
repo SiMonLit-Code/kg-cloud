@@ -48,7 +48,6 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
         BeanUtils.copyProperties(req, targe);
         targe.setId(kgKeyGenerator.getNextId());
         targe.setKgName(kgName);
-
         RestResp<QuerySetting> restResp =  qlApi.business(kgName,targe.getKgql());
         Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
         if (!convert.isPresent()){
@@ -56,7 +55,6 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
         }
         String s = JacksonUtils.writeValueAsString(convert.get());
         targe.setRuleSettings(s);
-
         GraphConfKgql result = graphConfKgqlRepository.save(targe);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);
     }
