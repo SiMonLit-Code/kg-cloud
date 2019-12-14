@@ -27,7 +27,7 @@ public class SegmentConverter {
     }
 
     public static List<SegmentEntityDTO> entityVoToSegmentEntityDto(@NotNull List<EntityVO> entityList, Map<Long, Double> scoreMap,
-                                                                     Map<Long, String> wordMap) {
+                                                                    Map<Long, String> wordMap) {
 
         return entityList.stream().map(a -> {
             SegmentEntityDTO entityDto = EntityConverter.voToBasicEntityRsp(a, new SegmentEntityDTO());

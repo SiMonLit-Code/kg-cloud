@@ -17,9 +17,9 @@ public class InfoBoxRsp {
     @ApiModelProperty("基本属性")
     private EntityLinksRsp self;
     @ApiModelProperty("父节点")
-    private List<InfoBoxEntityRsp> parents;
+    private List<InfoBoxConceptRsp> parents;
     @ApiModelProperty("字节点")
-    private List<InfoBoxEntityRsp> sons;
+    private List<InfoBoxConceptRsp> sons;
     @ApiModelProperty("正向对象属性")
     private List<InfoBoxAttrRsp> attrs;
     @ApiModelProperty("反向对象属性")
