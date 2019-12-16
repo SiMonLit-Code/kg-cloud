@@ -70,7 +70,7 @@ public class TaskGraphController {
     }
 
     @PostMapping("/reason/{kgName}/import")
-    @ApiOperation("结果入图")
+    @ApiOperation("任务相关-推理-结果入图")
     public ApiReturn<Map<String, Object>> importTriples(
             @PathVariable("kgName") String kgName,
             @RequestBody ImportTripleReq req) {
@@ -102,6 +102,12 @@ public class TaskGraphController {
     public ApiReturn flushSearch(@PathVariable("kgName") String kgName) {
         taskGraphService.flushSearch(kgName);
         return ApiReturn.success();
+    }
+
+    @PostMapping("/graph/export/conversion")
+    @ApiOperation("概念转拼音")
+    public ApiReturn<List<Map<String, Object>>> nameConversion(@RequestBody List<Map<String,Object>> maps) {
+        return ApiReturn.success(taskGraphService.nameConversion(maps));
     }
 
 }
