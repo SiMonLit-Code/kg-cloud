@@ -1,24 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteEdgeObjectReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.NumericalUrlAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.PrivateAttrDataReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
