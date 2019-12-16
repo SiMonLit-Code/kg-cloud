@@ -49,6 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -180,7 +181,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     }
 
     @Override
-    public InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq) {
+    public InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq) throws IOException {
         BatchInfoBoxReq batchInfoBoxReq = new BatchInfoBoxReq();
         batchInfoBoxReq.setAllowAttrs(infoBoxReq.getAllowAttrs());
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
@@ -188,7 +189,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         batchInfoBoxReq.setRelationAttrs(infoBoxReq.getRelationAttrs());
         List<InfoBoxRsp> list = infoBox(kgName, batchInfoBoxReq);
         if (CollectionUtils.isEmpty(list)) {
-            new InfoBoxRsp();
+            return null;
         }
         InfoBoxRsp infoBoxRsp = list.get(0);
         List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(kgName, userId, infoBoxRsp.getSelf().getId());
@@ -214,6 +215,6 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         List<ai.plantdata.kg.api.edit.resp.EntityVO> relationEntityList = RestRespConverter
                 .convert(conceptEntityApi.listByIds(kgName, true, query.getRelationEntityIdSet()))
                 .orElse(Collections.emptyList());
-        return InfoBoxConverter.voToInfoBox(query.getSourceEntityIds(),relationEntityList);
+        return InfoBoxConverter.voToInfoBox(query.getSourceEntityIds(), relationEntityList);
     }
 }

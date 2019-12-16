@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -75,7 +76,7 @@ public interface GraphApplicationService {
      * @param infoBoxReq
      * @return
      */
-    InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq);
+    InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq) throws IOException;
 
     /**
      * 知识卡片

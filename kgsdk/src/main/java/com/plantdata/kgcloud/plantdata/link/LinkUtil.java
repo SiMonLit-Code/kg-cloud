@@ -13,7 +13,9 @@ import org.springframework.core.annotation.AnnotationUtils;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 仅用于基本数据类型
@@ -122,6 +124,7 @@ public class LinkUtil {
         if (type.equals(Date.class)) {
             return DateUtils.parseDate(val.toString(), DATE_REG);
         }
+
         log.debug("noParse,class:{},sourceType:{};targetType:{}", toName, val.getClass().getSimpleName(), type.getSimpleName());
         return null;
     }

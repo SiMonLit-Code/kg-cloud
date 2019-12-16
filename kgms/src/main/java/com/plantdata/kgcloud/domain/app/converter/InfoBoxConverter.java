@@ -82,17 +82,21 @@ public class InfoBoxConverter extends BasicConverter {
     private static InfoBoxRsp voToInfoBoxRsp(Long sourceEntityId,
                                              Map<Long, EntityVO> entityMap) {
         EntityVO entity = entityMap.get(sourceEntityId);
-
+        if (entity == null) {
+            return null;
+        }
         List<EntityAttributeValueVO> objAttrList = Lists.newArrayList();
         List<EntityAttributeValueVO> otherDataAttrList = Lists.newArrayList();
-        entity.getAttrValue().forEach(a -> {
-            if (a.getType() != null && a.getType() == AttributeDataTypeEnum.OBJECT.getValue()) {
-                objAttrList.add(a);
-            } else {
-                otherDataAttrList.add(a);
-            }
-        });
-
+        //属性
+        if (!CollectionUtils.isEmpty(entity.getAttrValue())) {
+            entity.getAttrValue().forEach(a -> {
+                if (a.getType() != null && a.getType() == AttributeDataTypeEnum.OBJECT.getValue()) {
+                    objAttrList.add(a);
+                } else {
+                    otherDataAttrList.add(a);
+                }
+            });
+        }
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
         //设置父概念
         infoBoxRsp.setParents(listToRsp(entity.getParent(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
@@ -136,28 +140,31 @@ public class InfoBoxConverter extends BasicConverter {
         InfoBoxRsp.InfoBoxAttrRsp objectAttributeRsp = new InfoBoxRsp.InfoBoxAttrRsp();
         objectAttributeRsp.setAttrDefId(attrVal.getId());
         objectAttributeRsp.setAttrDefName(attrVal.getName());
-        List<EntityVO> entityList = attrVal.getObjectValues().stream().map(a -> entityMap.get(a.getId())).collect(Collectors.toList());
-        objectAttributeRsp.setEntityList(listToRsp(entityList, InfoBoxConverter::voToPromptEntityRsp));
+        if (!CollectionUtils.isEmpty(attrVal.getObjectValues())) {
+            List<EntityVO> entityList = attrVal.getObjectValues().stream().map(a -> entityMap.get(a.getId())).collect(Collectors.toList());
+            objectAttributeRsp.setEntityList(listToRsp(entityList, InfoBoxConverter::voToPromptEntityRsp));
+        }
         return objectAttributeRsp;
     }
 
     private static void fillAttr(List<EntityLinksRsp.ExtraRsp> extraList, List<EntityAttributeValueVO> attrValueList) {
         for (EntityAttributeValueVO value : attrValueList) {
+            //私有属性
+            if (value.getType() == null) {
+                extraList.add(new EntityLinksRsp.ExtraRsp(-1, value.getName(), value.getDataValue()));
+            }
             //数值属性
-            if (value.getType() == 1) {
+            else if (value.getType() == 1) {
                 extraList.add(dataAttrToExtraRsp(value));
             }
             //私有对象属性
-            if (value.getType() == 0) {
+            else if (value.getType() == 0) {
                 value.getObjectValues().forEach(a -> {
                     Map<Integer, List<BasicInfo>> relationObjectValues = a.getRelationObjectValues();
                     extraList.add(new EntityLinksRsp.ExtraRsp(a.getAttrId(), a.getName(), relationObjectValues.values()));
                 });
             }
-            //私有属性
-            if (value.getType() == null) {
-                extraList.add(new EntityLinksRsp.ExtraRsp(-1, value.getName(), value.getDataValue()));
-            }
+
         }
     }
 

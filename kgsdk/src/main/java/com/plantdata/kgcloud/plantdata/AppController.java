@@ -1,9 +1,12 @@
 package com.plantdata.kgcloud.plantdata;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.plantdata.kgcloud.plantdata.converter.app.InfoBoxConverter;
 import com.plantdata.kgcloud.plantdata.converter.graph.GraphInitBasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.SchemaBasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
+import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameter;
+import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
 import com.plantdata.kgcloud.plantdata.req.explore.GeneralGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.GraphBean;
 import com.plantdata.kgcloud.plantdata.rsp.app.InitGraphBean;
@@ -53,5 +56,20 @@ public class AppController {
         return new RestResp<>(initGraphBean);
     }
 
+    @ApiOperation("读取知识卡片")
+    @PostMapping("infobox")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "id", required = true, dataType = "long", paramType = "form", value = "实体id"),
+            @ApiImplicitParam(name = "isRelationAtts", dataType = "boolean", defaultValue = "true", paramType = "form", value = "是否读取对象属性,默认true"),
+            @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "查询指定的属性，格式为json数组格式，默认为读取全部"),
+            @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts为空时生效"),
+    })
+    public RestResp<EntityProfileBean> infoBox(@Valid @ApiIgnore InfoBoxParameter infoBoxParameter) {
+        EntityProfileBean res = BasicConverter.convert(appClient.infoBox(infoBoxParameter.getKgName(),
+                InfoBoxConverter.infoBoxParameterToInfoBoxReq(infoBoxParameter)),
+                InfoBoxConverter::infoBoxRspToEntityProfileBean);
+        return new RestResp<>(res);
+    }
 
 }

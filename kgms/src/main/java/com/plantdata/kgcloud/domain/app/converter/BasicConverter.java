@@ -25,7 +25,7 @@ public class BasicConverter {
     }
 
     public static <T extends Collection, R> List<R> executeListNoNull(T list1, Function<T, List<R>> function) {
-        return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1);
+        return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1).stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     public static <T extends Map, R> List<R> executeMapNoNull(T list1, Function<T, List<R>> function) {
