@@ -14,6 +14,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.NumericalUrlAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.PrivateAttrDataReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
