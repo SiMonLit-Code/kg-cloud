@@ -9,6 +9,9 @@ import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
 import ai.plantdata.kg.api.pub.req.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.RelationStatisticsBean;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
+import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
@@ -18,6 +21,7 @@ import com.plantdata.kgcloud.domain.app.converter.GraphStatisticConverter;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
+import com.plantdata.kgcloud.domain.app.util.ExcelUtils;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
@@ -39,6 +43,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +167,6 @@ public class KgDataServiceImpl implements KgDataService {
                 Lists.newArrayList(dataSetRsp.getTbName()), nameReadReq.getFields(), nameReadReq.getQuery(), nameReadReq.getSort(), pageUtils.getOffset(), pageUtils.getLimit());
     }
 
-
     private Object buildStatisticResult(AttributeDataTypeEnum dataType, boolean merge, List<StatisticDTO> dataList, DateTypeReq dateType, int sort, int reSize, int returnType) {
         boolean isNum = AttributeDataTypeEnum.DATA_VALUE_SET.contains(dataType);
         boolean isDate = AttributeDataTypeEnum.DATE_SET.contains(dataType);
@@ -181,16 +186,15 @@ public class KgDataServiceImpl implements KgDataService {
     }
 
 
-
 }
 
 
-//
+
 //    @Override
-//    public void sparkSqlExport(String kgName) {
+//    public void sparkSqlExport(String kgName, HttpServletResponse response) throws IOException {
 //
 //        String exportName = "sparql_" + kgName + "_" + System.currentTimeMillis();
-//
+//    EasyExcelFactory.write(response.getOutputStream());
 //        //查询搜索结果
 //        QueryResultBean queryResultBean = sparqlQuery(SparqlQueryParameter.builder()
 //                .kgName(kgName)

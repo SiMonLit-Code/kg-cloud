@@ -62,6 +62,51 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--wrapper 预览-->
+        <dependency>
+            <groupId>com.hiekn</groupId>
+            <artifactId>wrapper</artifactId>
+            <version>1.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.hiekn.boot</groupId>
+                    <artifactId>mcn-spring-boot-starter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>fastjson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mongodb</groupId>
+                    <artifactId>mongo-java-driver</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>fastjson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.elasticsearch.client</groupId>
+                    <artifactId>rest</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <dependency>
             <groupId>com.plantdata</groupId>
             <artifactId>kg-cloud-persistence</artifactId>
@@ -75,6 +120,11 @@
         <dependency>
             <groupId>com.plantdata</groupId>
             <artifactId>kgms-sdk</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.plantdata</groupId>
+            <artifactId>sparql-api</artifactId>
             <version>3.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>

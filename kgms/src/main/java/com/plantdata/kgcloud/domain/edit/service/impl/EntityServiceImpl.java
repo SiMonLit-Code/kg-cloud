@@ -111,7 +111,7 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq) {
-        BasicInfoListFrom basicInfoListFrom = ConvertUtils.convert(BasicInfoListFrom.class).apply(basicInfoListReq);
+        BasicInfoListFrom basicInfoListFrom = MapperUtils.map(basicInfoListReq,BasicInfoListFrom.class);
         basicInfoListFrom.setMetaData(parserFilterMetadata(basicInfoListReq));
         basicInfoListFrom.setSort(ParserBeanUtils.parserSortMetadata(basicInfoListReq.getSorts()));
         basicInfoListFrom.setSkip(basicInfoListReq.getPage());
