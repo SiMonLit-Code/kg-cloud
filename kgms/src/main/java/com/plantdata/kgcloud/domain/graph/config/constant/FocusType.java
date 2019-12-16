@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.graph.config.constant;
 
 /**
- * Created by plantdata-1007 on 2019/11/29.
+ *
+ * @author jiangdeming
+ * @date 2019/11/29
  */
 public enum FocusType {
     /**

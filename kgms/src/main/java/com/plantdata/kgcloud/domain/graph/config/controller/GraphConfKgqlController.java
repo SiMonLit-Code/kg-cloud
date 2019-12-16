@@ -15,7 +15,9 @@ import javax.validation.Valid;
 
 /**
  * 图谱业务配置
- * Created by plantdata-1007 on 2019/12/2.
+ *
+ * @author jiangdeming
+ * @date 2019/12/2
  */
 @Api(tags = "图谱配置")
 @RestController

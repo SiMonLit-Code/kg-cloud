@@ -6,7 +6,9 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import org.springframework.data.domain.Page;
 
 /**
- * Created by jdm on 2019/12/9 15:45.
+ *
+ * @author jdm
+ * @date 2019/12/9 15:45
  */
 public interface GraphConfReasonService {
     /**
@@ -25,7 +27,9 @@ public interface GraphConfReasonService {
     void deleteReasoning(Long id );
 
     /**
-     * 分页查询
+     * 分页
+     * @param kgName
+     * @param baseReq
      * @return
      */
     Page<GraphConfReasonRsp> getByKgName(String kgName , BaseReq baseReq);
@@ -39,7 +43,7 @@ public interface GraphConfReasonService {
 
     /**
      * 修改
-     *
+     * @param id
      * @param req
      * @return
      */

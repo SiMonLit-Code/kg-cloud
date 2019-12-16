@@ -28,7 +28,9 @@ import java.util.Optional;
 
 /**
  * 图谱业务配置
- * Created by plantdata-1007 on 2019/12/2.
+ *
+ * @author jiangdeming
+ * @date 2019/12/2
  */
 @Service
 public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
@@ -51,7 +53,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
         RestResp<QuerySetting> restResp =  qlApi.business(kgName,targe.getKgql());
         Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
         if (!convert.isPresent()){
-            BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
+          throw  BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
         }
         String s = JacksonUtils.writeValueAsString(convert.get());
         targe.setRuleSettings(s);

@@ -6,7 +6,9 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
 import java.util.List;
 
 /**
- * Created by plantdata-1007 on 2019/12/2.
+ *
+ * @author jiangdeming
+ * @date 2019/12/2
  */
 public interface GraphConfQaService {
     /**
