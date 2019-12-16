@@ -15,6 +15,9 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
+
 import java.util.List;
 
 /**
@@ -38,12 +41,15 @@ public class ExploreRspConverter extends BasicConverter {
 
     private static EntityBean entityBeanToCommonEntityRsp(CommonEntityRsp newEntity) {
         EntityBean oldEntity = new EntityBean();
+        oldEntity.setName(newEntity.getName());
+        oldEntity.setMeaningTag(newEntity.getMeaningTag());
+        oldEntity.setClassId(newEntity.getClassId());
         oldEntity.setConceptId(newEntity.getConceptId());
         oldEntity.setConceptIdList(newEntity.getConceptIdList());
         oldEntity.setConceptName(newEntity.getConceptName());
         oldEntity.setCreationTime(newEntity.getCreationTime());
-        oldEntity.setFromTime(dateToString(newEntity.getStartTime()));
-        oldEntity.setToTime(dateToString(newEntity.getEndTime()));
+        setIfNoNull(newEntity.getStartTime(), a -> oldEntity.setFromTime(dateToString(a)));
+        setIfNoNull(newEntity.getEndTime(), a -> oldEntity.setToTime(dateToString(a)));
         oldEntity.setNodeStyle(newEntity.getNodeStyle());
         oldEntity.setLabelStyle(newEntity.getLabelStyle());
         oldEntity.setScore(newEntity.getScore());
@@ -58,16 +64,19 @@ public class ExploreRspConverter extends BasicConverter {
     }
 
     private static RelationBean relationBeanToGraphRelationRsp(GraphRelationRsp newBean) {
-        RelationBean oldBean = LinkUtil.link(newBean);
+        RelationBean oldBean = new RelationBean();
+        BeanUtils.copyProperties(newBean, oldBean);
         oldBean.addEndTime(newBean.getEndTime());
         oldBean.addStartTime(newBean.getStartTime());
         oldBean.setBatch(newBean.getBatch());
         oldBean.setAttId(newBean.getAttId());
         oldBean.setAttName(newBean.getAttName());
         //时间
-        for (GraphRelationRsp relationRsp : newBean.getSourceRelationList()) {
-            setIfNoNull(relationRsp.getEndTime(), oldBean::addEndTime);
-            setIfNoNull(relationRsp.getStartTime(), oldBean::addStartTime);
+        if (!CollectionUtils.isEmpty(newBean.getSourceRelationList())) {
+            newBean.getSourceRelationList().forEach(relationRsp -> {
+                setIfNoNull(relationRsp.getEndTime(), oldBean::addEndTime);
+                setIfNoNull(relationRsp.getStartTime(), oldBean::addStartTime);
+            });
         }
         //边属性
         List<GraphRelationRsp> allRelation = Lists.newArrayList();

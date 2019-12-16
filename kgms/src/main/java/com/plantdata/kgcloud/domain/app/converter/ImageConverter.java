@@ -30,7 +30,7 @@ public class ImageConverter {
                 return Optional.of(new ImageRsp(name, href));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            return Optional.of(new ImageRsp("image", imageUrl));
         }
         return Optional.empty();
     }

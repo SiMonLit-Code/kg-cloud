@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.explore;
 
+import com.plantdata.kgcloud.config.MarkObject;
 import com.plantdata.kgcloud.plantdata.req.common.RelationBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class GraphBean {
+public class GraphBean implements MarkObject {
 
     private List<EntityBean> entityList;
     private List<RelationBean> relationList;
