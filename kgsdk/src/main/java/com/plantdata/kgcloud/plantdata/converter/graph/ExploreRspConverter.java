@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.link.LinkUtil;
 import com.plantdata.kgcloud.plantdata.req.common.Additional;
