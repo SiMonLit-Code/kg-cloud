@@ -3,11 +3,12 @@ package com.plantdata.kgcloud.domain.app.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
-import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
@@ -84,13 +85,19 @@ public class GraphApplicationController {
         return ApiReturn.success(graphApplicationService.conceptTree(kgName, conceptId, conceptKey));
     }
 
-    @ApiOperation("读取知识卡片")
-    @PostMapping("infoBox/{kgName}")
-    public ApiReturn<List<InfoBoxRsp>> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                               @RequestBody InfoBoxReq infoBoxReq) {
-        return ApiReturn.success(graphApplicationService.infoBox(kgName, infoBoxReq));
+    @ApiOperation("批量读取知识卡片")
+    @PostMapping("infoBox/list/{kgName}")
+    public ApiReturn<List<InfoBoxRsp>> listInfoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                   @RequestBody BatchInfoBoxReq batchInfoBoxReq) {
+        return ApiReturn.success(graphApplicationService.infoBox(kgName, batchInfoBoxReq));
     }
 
+    @ApiOperation("读取知识卡片")
+    @PostMapping("infoBox/{kgName}")
+    public ApiReturn<InfoBoxRsp> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                         @RequestBody InfoBoxReq infoBoxReq) {
+        return ApiReturn.success(graphApplicationService.infoBox(kgName, SessionHolder.getUserId(), infoBoxReq));
+    }
 
     @ApiOperation("获取所有图谱名称")
     @GetMapping("kgName/all/{apk}")

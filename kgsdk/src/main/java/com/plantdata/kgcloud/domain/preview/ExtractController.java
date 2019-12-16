@@ -30,7 +30,7 @@ import java.util.Map;
  * @date 2019/12/7 15:38
  */
 @RestController
-@RequestMapping("kgData/extract")
+@RequestMapping("v3/kgData/extract")
 public class ExtractController implements GraphApplicationInterface {
 
     private IE ie = new IEImpl();

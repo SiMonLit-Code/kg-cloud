@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.data.obtain.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
-import com.plantdata.kgcloud.domain.common.req.PageReq;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;

@@ -12,11 +12,10 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.ConvertConstent;
 import com.plantdata.kgcloud.domain.common.service.MongoDriver;
 import com.plantdata.kgcloud.domain.common.service.SDKService;
-import com.plantdata.kgcloud.domain.document.req.PdDocumentReq;
 import com.plantdata.kgcloud.domain.document.rsp.DataCheckRsp;
 import com.plantdata.kgcloud.domain.scene.entiy.Scene;
 import com.plantdata.kgcloud.domain.scene.service.SceneService;
-import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
@@ -26,6 +25,7 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +49,7 @@ public class ResultServiceImpl implements ResultService {
 
         Scene scene = sceneService.checkScene(sceneId, SessionHolder.getUserId());
 
-        if(!scene.getLabelModelType().equals(1)){
+        if(!scene.getLabelModelType().equals(1) || scene.getLabelModel() == null ||scene.getKgName() == null){
             //非图谱引入不做冲突检测
             return ApiReturn.success();
         }
@@ -61,6 +61,8 @@ public class ResultServiceImpl implements ResultService {
 
         List<PdDocument> pdDocumentList = apiReturn.getData();
         List<DataCheckRsp> rsList = Lists.newArrayList();
+
+        String kgName = scene.getKgName();
 
         for(PdDocument pdDocument : pdDocumentList){
             List<PdEntity> entityList = pdDocument.getPdEntity();
@@ -81,7 +83,7 @@ public class ResultServiceImpl implements ResultService {
 
                 if(entityId == null){
                     //实体没入过图 从图谱里面查
-                    entityId = sdkService.getEntityIdByName(scene.getKgName(), name,conceptId);
+                    entityId = sdkService.getEntityIdByName(kgName, name,conceptId);
 
                 }
 
@@ -97,12 +99,12 @@ public class ResultServiceImpl implements ResultService {
                 }else{
                     //查询图谱中的同名实体 判断属性值是否冲突
 
-                    InfoBoxReq infoBoxReq = new InfoBoxReq();
-                    infoBoxReq.setEntityIdList(Stream.of(entityId).collect(Collectors.toList()));
+                    BatchInfoBoxReq batchInfoBoxReq = new BatchInfoBoxReq();
+                    batchInfoBoxReq.setEntityIdList(Stream.of(entityId).collect(Collectors.toList()));
 
 
                     List<String> existAttrIdList = Lists.newArrayList();
-                    InfoBoxRsp infoBoxRsp = sdkService.infobox(scene.getKgName(),entityId);
+                    InfoBoxRsp infoBoxRsp = sdkService.infobox(kgName,entityId);
                     EntityLinksRsp entityLinksRsp = infoBoxRsp.getSelf();
                     List<EntityLinksRsp.ExtraRsp> extra = entityLinksRsp.getExtraList();
                     if(Objects.nonNull(extra) && !extra.isEmpty()){
@@ -161,10 +163,18 @@ public class ResultServiceImpl implements ResultService {
 
         String userId = SessionHolder.getUserId();
         Scene scene = sceneService.checkScene(sceneId,userId);
+
+        if(!scene.getLabelModelType().equals(1) || scene.getLabelModel() == null ||scene.getKgName() == null){
+            //非图谱引入不入图
+            return ;
+        }
+
         List<PdDocument> pdDocumentList = getPddocument(sceneId,id).getData();
         if(pdDocumentList == null || pdDocumentList.isEmpty()){
             return ;
         }
+
+        String kgName = scene.getKgName();
 
         List<DataCheckRsp> checkList = check(sceneId,id).getData();
         Map<String, DataCheckRsp> checkMap = Maps.newHashMap();
@@ -191,7 +201,7 @@ public class ResultServiceImpl implements ResultService {
                     Long entityId =entity.getId();
 
                     if(entityId == null) {
-                        entityId = sdkService.getEntityIdByName(scene.getKgName(),entity.getName(),entity.getClassId());
+                        entityId = sdkService.getEntityIdByName(kgName,entity.getName(),entity.getClassId());
                     }
 
 
@@ -289,7 +299,7 @@ public class ResultServiceImpl implements ResultService {
 
         Map<String,Long> idMap = Maps.newHashMap();
         if(!importEntityList.isEmpty()){
-            List<OpenBatchSaveEntityRsp> success = sdkService.addBatchEntity(scene.getKgName(),importEntityList);
+            List<OpenBatchSaveEntityRsp> success = sdkService.addBatchEntity(kgName,importEntityList);
             if(success != null && !success.isEmpty()){
                 for(OpenBatchSaveEntityRsp entityBean : success){
                     idMap.put(entityBean.getConceptId()+"_"+entityBean.getName(),entityBean.getId());
@@ -311,12 +321,11 @@ public class ResultServiceImpl implements ResultService {
                     Long entityId = idMap.get(entity.getClassId()+"_"+entity.getName());
                     if(entityId == null){
 
-                        entityId = sdkService.getEntityIdByName(scene.getKgName(),entity.getName(),entity.getClassId());
+                        entityId = sdkService.getEntityIdByName(kgName,entity.getName(),entity.getClassId());
                         idMap.put(entity.getClassId()+"_"+entity.getName(),entityId);
                     }
 
-                    //前面没加私有属性，在这这层循环中添加
-                    List<PdValue> elements = entity.getElements();
+                    /*List<PdValue> elements = entity.getElements();
                     if(elements != null && !elements.isEmpty()){
                         for(PdValue element : elements){
 
@@ -335,7 +344,7 @@ public class ResultServiceImpl implements ResultService {
                             element.setPredicate("已入图");
 //                            sdkSerivce.addPrivateAtt(taskBean.getGraphName(),id,attName,attType,value);
                         }
-                    }
+                    }*/
 
                     entity.setId(entityId);
                 }
@@ -377,8 +386,7 @@ public class ResultServiceImpl implements ResultService {
 
         //新增关系
         if(!importRelationList.isEmpty()){
-//            List<ImportRelationRsp> success = sdkService.importRelation(scene.getLabelModel().getKgName(),importRelationList);
-            List<BatchRelationRsp> success = null;
+            List<BatchRelationRsp> success = sdkService.addBatchRelation(scene.getKgName(),importRelationList);
 
             //返回关系id写回去
             Map<String, BatchRelationRsp> relationMap = Maps.newHashMap();
@@ -432,7 +440,17 @@ public class ResultServiceImpl implements ResultService {
 
         List rs = doc.get("pd_document", List.class);
 
-        return ApiReturn.success(rs);
+        if(rs != null && !rs.isEmpty()){
+            List<PdDocument> pdDocumentList = new ArrayList<>(rs.size());
+            for(Object document : rs){
+                PdDocument pdDocument = JSON.parseObject(JSON.toJSONString(document),PdDocument.class);
+                pdDocumentList.add(pdDocument);
+            }
+
+            return ApiReturn.success(pdDocumentList);
+        }
+
+        return ApiReturn.success(Lists.newArrayList());
     }
 
     @Override

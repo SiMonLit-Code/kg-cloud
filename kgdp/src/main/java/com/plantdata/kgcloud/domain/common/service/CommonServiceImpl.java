@@ -226,7 +226,6 @@ public class CommonServiceImpl implements CommonService {
             XHTMLConverter xhtmlConverter = (XHTMLConverter) XHTMLConverter.getInstance();
             xhtmlConverter.convert(document, outputStreamWriter, options);
 
-
             if(structureDismantling){
                 pElements = ConvertUtil.setTitleAtt(targetFileName,titleBean);
             }else{

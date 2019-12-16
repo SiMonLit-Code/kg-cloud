@@ -3,18 +3,26 @@ package com.plantdata.kgcloud.domain.app.bo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 import com.plantdata.kgcloud.domain.app.dto.AggsDTO;
 import com.plantdata.kgcloud.domain.app.dto.EsDTO;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.constant.DataSetStatisticEnum;
 import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author cjw
@@ -60,62 +68,62 @@ public class DataSetStatisticBO {
     }
 
     private DataSetStatisticRsp postDataDealByReturnType(List<Map<String, Object>> data) {
-//        JSONArray arr = this.buildAttrArray(data);
-//        DataSetStatisticRsp rsp = new DataSetStatisticRsp();
-//        List<String> xData = arr == null ? Collections.emptyList() : new ArrayList<>(arr.size());
-//        List<Double> sData = arr == null ? Collections.emptyList() : new ArrayList<>(arr.size());
-//        if (Objects.nonNull(arr)) {
-//            for (int i = 0; i < arr.size(); i++) {
-//                JSONObject obj = arr.getJSONObject(i);
-//                String k = obj.getString("key_as_string");
-//                k = Objects.isNull(k) ? obj.getString("key") : k;
-//                long v = obj.getLong("doc_count");
-//                if (DataSetStatisticEnum.KV.equals(setStatisticEnum)) {
-//                    rsp.addKVData2Series(k, v);
-//                } else {
-//                    xData.add(k);
-//                    sData.add((double) v);
-//                }
-//            }
-//        }
-//        rsp.addData2X(xData);
-//        rsp.addData2Series(StringUtils.EMPTY, sData);
+        ArrayNode arr = this.buildAttrArray(data);
+        DataSetStatisticRsp rsp = new DataSetStatisticRsp();
+        List<String> xData = arr == null ? Collections.emptyList() : new ArrayList<>(arr.size());
+        List<Double> sData = arr == null ? Collections.emptyList() : new ArrayList<>(arr.size());
+        if (Objects.nonNull(arr)) {
+            for (int i = 0; i < arr.size(); i++) {
+                JsonNode obj = arr.get(i);
+                String k = obj.get("key_as_string").toString();
+                k = Objects.isNull(k) ? obj.get("key").toString() : k;
+                long v = Long.parseLong(obj.get("doc_count").toString());
+                if (DataSetStatisticEnum.KV.equals(setStatisticEnum)) {
+                    rsp.addData2Series(k, v);
+                } else {
+                    xData.add(k);
+                    sData.add((double) v);
+                }
+            }
+        }
+        rsp.addData2xAxis(xData);
+        rsp.addData2Series(StringUtils.EMPTY, sData);
         return null;
     }
 
     private DataSetStatisticRsp postDataDealNoReturnType(List<Map<String, Object>> data) {
-//        JSONArray arr = this.buildAttrArray(data);
+        ArrayNode arr = this.buildAttrArray(data);
         DataSetStatisticRsp rsp = new DataSetStatisticRsp();
-//        Table<String, String, Double> rsTable = HashBasedTable.create();
-//        if (Objects.nonNull(arr)) {
-//            for (int i = 0; i < arr.size(); i++) {
-//                JSONObject obj1 = arr.getJSONObject(i);
-//                String k1 = obj1.getString("key_as_string");
-//                k1 = Objects.isNull(k1) ? obj1.getString("key") : k1;
-//                JSONObject byKey2 = obj1.getJSONObject("by_key2");
-//                JSONArray arr2 = byKey2.getJSONArray("buckets");
-//                for (int j = 0; j < arr2.size(); j++) {
-//                    JSONObject obj2 = arr2.getJSONObject(j);
-//                    String k2 = obj2.getString("key_as_string");
-//                    k2 = Objects.isNull(k2) ? obj2.getString("key") : k2;
-//                    long v = obj2.getLong("doc_count");
-//                    rsTable.put(k1, k2, (double) v);
-//                }
-//            }
-//        }
-//
-//        List<String> xData = new ArrayList<>(rsTable.rowKeySet());
-//        rsp.addData2X(xData);
-//
-//        for (String k2 : rsTable.columnKeySet()) {
-//            List<Double> sData = new ArrayList<>();
-//            for (String k1 : xData) {
-//                Double v = rsTable.get(k1, k2);
-//                v = Objects.isNull(v) ? 0.0 : v;
-//                sData.add(v);
-//            }
-//            rsp.addData2Series(k2, sData);
-//    }
+        Table<String, String, Double> rsTable = HashBasedTable.create();
+        if (Objects.nonNull(arr)) {
+            for (int i = 0; i < arr.size(); i++) {
+                JsonNode obj1 = arr.get(i);
+                String k1 = obj1.get("key_as_string").toString();
+                k1 = Objects.isNull(k1) ? obj1.get("key").toString() : k1;
+                JsonNode byKey2 = obj1.get("by_key2");
+                ArrayNode arr2 = (ArrayNode) byKey2.get("buckets");
+                for (int j = 0; j < arr2.size(); j++) {
+                    JsonNode obj2 = arr2.get(j);
+                    String k2 = obj2.get("key_as_string").toString();
+                    k2 = Objects.isNull(k2) ? obj2.get("key").toString() : k2;
+                    long v = Long.parseLong(obj2.get("doc_count").toString());
+                    rsTable.put(k1, k2, (double) v);
+                }
+            }
+        }
+
+        List<String> xData = new ArrayList<>(rsTable.rowKeySet());
+        rsp.addData2xAxis(xData);
+
+        for (String k2 : rsTable.columnKeySet()) {
+            List<Double> sData = new ArrayList<>();
+            for (String k1 : xData) {
+                Double v = rsTable.get(k1, k2);
+                v = Objects.isNull(v) ? 0.0 : v;
+                sData.add(v);
+            }
+            rsp.addData2Series(k2, sData);
+        }
         return rsp;
     }
 
@@ -124,6 +132,17 @@ public class DataSetStatisticBO {
         JsonNode byKey = jsonObj.get("aggregations").get("by_key1");
         JsonNode arrayNode = aggsDTO.getIsNested() ? byKey.get(aggsDTO.getNestedName()).get("buckets") : byKey.get("buckets");
         return (ArrayNode) arrayNode;
+    }
+
+
+    public String buildQuery() {
+        Map<String, Object> requestData = Maps.newHashMap();
+        requestData.put("aggs", aggsDTO);
+        requestData.put("size", 0);
+        if (null != esDTO) {
+            requestData.put("query", esDTO);
+        }
+        return JsonUtils.toJson(requestData);
     }
 
     public static void main(String[] args) {

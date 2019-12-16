@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.structure.analysis.controller;
+package com.plantdata.kgcloud.domain.structure.analysis;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphStructureAnalysisInterface;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2019/11/14 15:33
  */
 @RestController
-@RequestMapping("algorithm")
+@RequestMapping("v3/algorithm")
 public class GraphAlgorithmAnalysisController implements GraphStructureAnalysisInterface {
 
     @ApiOperation("复杂图分析坐标显示")

@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.req.app.explore;
 
-import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
@@ -13,7 +12,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author cjw

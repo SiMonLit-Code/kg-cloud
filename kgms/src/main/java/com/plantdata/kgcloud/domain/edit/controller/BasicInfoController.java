@@ -77,8 +77,8 @@ public class BasicInfoController {
     }
 
     @ApiOperation("概念实体同义属性提示")
-    @GetMapping("/{kgName}/prompt")
-    ApiReturn<List<PromptRsp>> prompt(@PathVariable("kgName") String kgName, PromptReq promptReq) {
+    @PostMapping("/{kgName}/prompt")
+    ApiReturn<List<PromptRsp>> prompt(@PathVariable("kgName") String kgName, @RequestBody PromptReq promptReq) {
         return ApiReturn.success(basicInfoService.prompt(kgName, promptReq));
     }
 

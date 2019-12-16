@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.structure.analysis.controller;
+package com.plantdata.kgcloud.domain.structure.analysis;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphStructureAnalysisInterface;
@@ -26,7 +26,7 @@ import javax.validation.Valid;
  * @date 2019/11/13 16:53
  */
 @RestController
-@RequestMapping("structure/path")
+@RequestMapping("v3/structure/path")
 public class GraphPathAnalysisController implements GraphStructureAnalysisInterface {
 
 

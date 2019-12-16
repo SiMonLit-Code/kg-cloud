@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.req.app;
+package com.plantdata.kgcloud.sdk.req.app.infobox;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,7 +15,7 @@ import java.util.List;
 @ApiModel("知识卡片参数")
 @Getter
 @Setter
-public class InfoBoxReq {
+public class BatchInfoBoxReq {
     @ApiModelProperty("实体id")
     private List<Long> entityIdList;
     @ApiModelProperty("是否读取对象属性,默认true")

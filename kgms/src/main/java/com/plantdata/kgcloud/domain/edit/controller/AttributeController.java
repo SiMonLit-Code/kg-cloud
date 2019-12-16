@@ -1,12 +1,10 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
 import ai.plantdata.kg.api.edit.BatchApi;
-import ai.plantdata.kg.api.edit.req.BatchQueryRelationFrom;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
@@ -89,9 +87,9 @@ public class AttributeController {
     }
 
     @ApiOperation("查询多概念下的属性定义")
-    @GetMapping("/{kgName}/concepts")
+    @PostMapping("/{kgName}/concepts")
     ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptIds(@PathVariable("kgName") String kgName,
-                                                                     AttrDefinitionConceptsReq attrDefinitionConceptsReq) {
+                                                                     @RequestBody AttrDefinitionConceptsReq attrDefinitionConceptsReq) {
         return ApiReturn.success(attributeService.getAttrDefinitionByConceptIds(kgName, attrDefinitionConceptsReq));
     }
 
