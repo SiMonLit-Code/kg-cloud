@@ -196,9 +196,10 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public void addEdgeAttr(String kgName, Integer attrId, EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
+    public Integer addEdgeAttr(String kgName, Integer attrId, EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
         EdgeFrom edgeFrom = ConvertUtils.convert(EdgeFrom.class).apply(edgeAttrDefinitionReq);
-        RestRespConverter.convertVoid(attributeApi.addEdgeAttr(kgName, attrId, edgeFrom));
+        Optional<Integer> optional = RestRespConverter.convert(attributeApi.addEdgeAttr(kgName, attrId, edgeFrom));
+        return optional.get();
     }
 
     @Override
