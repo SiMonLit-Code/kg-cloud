@@ -42,12 +42,6 @@ import java.util.stream.Collectors;
  */
 public class GraphStatisticConverter {
 
-    public static void main(String[] args) {
-        ExcelWriterTableBuilder tableBuilder = new ExcelWriterTableBuilder();
-        WriteTable build = tableBuilder.head(Lists.newArrayList(Lists.newArrayList("a"), Lists.newArrayList("b"))).build();
-        build.setTableStyle();
-    }
-
 
     public static AttributeStatisticsBean attrReqToAttributeStatisticsBean(int reSize, EntityStatisticGroupByAttrIdReq attrIdReq) {
         Integer appendId = attrIdReq.getEntityIds() == null || attrIdReq.getEntityIds().isEmpty() ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;

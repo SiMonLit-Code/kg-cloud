@@ -13,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @LinkModel(clazz = GraphRelationRsp.class)
 public class RelationBean extends RelationMetaData {
-
+    private static final String RELATION_START_TIME_SSE_KEY = "开始时间";
+    private static final String RELATION_END_TIME_SSE_KEY = "结束时间";
     private String id;
     private Long from;
     private Long to;
@@ -41,19 +42,28 @@ public class RelationBean extends RelationMetaData {
         this.endTime.add(endTime);
     }
 
-    public List<RelationInfoBean> getnRInfo() {
-        return nRInfo;
-    }
-
-    public List<RelationInfoBean> getoRInfo() {
-        return oRInfo;
-    }
 
     public void addrNumInfo(RelationInfoBean one) {
         if (this.nRInfo == null) {
             this.nRInfo = new ArrayList<>();
         }
         this.nRInfo.add(one);
+    }
+
+    public List<RelationInfoBean> getnRInfo() {
+        return nRInfo;
+    }
+
+    public void setnRInfo(List<RelationInfoBean> nRInfo) {
+        this.nRInfo = nRInfo;
+    }
+
+    public List<RelationInfoBean> getoRInfo() {
+        return oRInfo;
+    }
+
+    public void setoRInfo(List<RelationInfoBean> oRInfo) {
+        this.oRInfo = oRInfo;
     }
 
     public void addrObjectInfo(RelationInfoBean one) {

@@ -30,6 +30,6 @@ public class GraphRelationRsp extends BasicRelationRsp implements MetaDataInterf
     @ApiModelProperty("边对象属性")
     private List<BasicRelationRsp.EdgeInfo> objAttrs;
     @ApiModelProperty("源关系")
-    private List<BasicRelationRsp> sourceRelationList;
+    private List<GraphRelationRsp> sourceRelationList;
 
 }

@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RelationInfoBean {
-
+	private static final String RELATION_START_TIME_SSE_KEY = "开始时间";
+	private static final String RELATION_END_TIME_SSE_KEY = "结束时间";
 	private String id;
 	private List<KVBean<String,String>> kvs;
 

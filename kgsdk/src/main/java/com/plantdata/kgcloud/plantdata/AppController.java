@@ -4,9 +4,13 @@ import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.plantdata.converter.graph.GraphInitBasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.SchemaBasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
+import com.plantdata.kgcloud.plantdata.req.explore.GeneralGraphParameter;
+import com.plantdata.kgcloud.plantdata.req.explore.GraphBean;
 import com.plantdata.kgcloud.plantdata.rsp.app.InitGraphBean;
 import com.plantdata.kgcloud.plantdata.rsp.schema.SchemaBean;
 import com.plantdata.kgcloud.sdk.AppClient;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +19,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 /**
  * @author cjw
@@ -46,4 +52,6 @@ public class AppController {
         InitGraphBean initGraphBean = BasicConverter.convert(appClient.initGraphExploration(request.getParameter("kgName"), type), GraphInitBasicConverter::graphInitRspToInitGraphBean);
         return new RestResp<>(initGraphBean);
     }
+
+
 }
