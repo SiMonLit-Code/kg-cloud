@@ -18,7 +18,6 @@
         <module>kgms</module>
         <module>kgms-sdk</module>
         <module>kgsdk</module>
-        <module>kgdp</module>
         <module>kgpreview</module>
     </modules>
 </project>

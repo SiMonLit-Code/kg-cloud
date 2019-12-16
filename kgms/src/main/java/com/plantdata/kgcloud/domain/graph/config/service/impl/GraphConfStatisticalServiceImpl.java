@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfStatisticalRepository;
@@ -64,7 +65,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     @Transactional(rollbackFor = Exception.class)
     public GraphConfStatisticalRsp updateStatistical(Long id, GraphConfStatisticalReq req) {
         GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfStatistical);
         GraphConfStatistical result = graphConfStatisticalRepository.save(graphConfStatistical);
         return ConvertUtils.convert(GraphConfStatisticalRsp.class).apply(result);
@@ -80,10 +81,10 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         }
         List<GraphConfStatistical> list1 = graphConfStatisticalRepository.findAllById(list);
         List<GraphConfStatistical> list3 = new ArrayList<>();
-        for (int i = 0; i < list1.size(); i++) {
+        for (GraphConfStatistical graphConfStatistical : list1) {
             for (GraphConfStatisticalReq req : reqs) {
-                BeanUtils.copyProperties(req, list1.get(i));
-                list3.add(list1.get(i));
+                BeanUtils.copyProperties(req, graphConfStatistical);
+                list3.add(graphConfStatistical);
             }
         }
         graphConfStatisticalRepository.deleteInBatch(list1);
@@ -95,7 +96,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     @Transactional(rollbackFor = Exception.class)
     public void deleteStatistical(Long id) {
         GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
         graphConfStatisticalRepository.delete(graphConfStatistical);
     }
 

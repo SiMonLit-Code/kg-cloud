@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfAlgorithm;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfAlgorithmRepository;
@@ -45,7 +46,7 @@ public class GraphConfAlgorithmServiceImpl implements GraphConfAlgorithmService 
     @Transactional(rollbackFor = Exception.class)
     public GraphConfAlgorithmRsp updateAlgorithm(Long id, GraphConfAlgorithmReq req) {
         GraphConfAlgorithm graphConfAlgorithm = graphConfAlgorithmRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_ALGORITHM_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_ALGORITHM_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfAlgorithm);
         GraphConfAlgorithm result = graphConfAlgorithmRepository.save(graphConfAlgorithm);
         return ConvertUtils.convert(GraphConfAlgorithmRsp.class).apply(result);
@@ -55,7 +56,7 @@ public class GraphConfAlgorithmServiceImpl implements GraphConfAlgorithmService 
     @Transactional(rollbackFor = Exception.class)
     public void deleteAlgorithm(Long id) {
         GraphConfAlgorithm graphConfAlgorithm = graphConfAlgorithmRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_ALGORITHM_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_ALGORITHM_NOT_EXISTS));
         graphConfAlgorithmRepository.delete(graphConfAlgorithm);
     }
 

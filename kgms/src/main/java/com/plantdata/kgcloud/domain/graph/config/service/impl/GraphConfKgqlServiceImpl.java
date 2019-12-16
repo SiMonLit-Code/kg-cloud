@@ -4,6 +4,7 @@ import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.resp.QuerySetting;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfKgql;
@@ -51,7 +52,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
         RestResp<QuerySetting> restResp =  qlApi.business(kgName,targe.getKgql());
         Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
         if (!convert.isPresent()){
-            BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
+           throw  BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
         }
         String s = JacksonUtils.writeValueAsString(convert.get());
         targe.setRuleSettings(s);
@@ -63,7 +64,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     @Transactional(rollbackFor = Exception.class)
     public GraphConfKgqlRsp updateKgql(Long id, GraphConfKgqlReq req) {
         GraphConfKgql graphConfKgql = graphConfKgqlRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfKgql);
         GraphConfKgql result = graphConfKgqlRepository.save(graphConfKgql);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);
@@ -73,7 +74,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteKgql(Long id) {
         GraphConfKgql graphConfKgql = graphConfKgqlRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
         graphConfKgqlRepository.delete(graphConfKgql);
     }
 
@@ -87,7 +88,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     @Override
     public GraphConfKgqlRsp findById(Long id) {
         GraphConfKgql graphConfKgql = graphConfKgqlRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(graphConfKgql);
     }
 }

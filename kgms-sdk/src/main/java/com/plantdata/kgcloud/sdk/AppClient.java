@@ -175,7 +175,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/init/{kgName}")
     ApiReturn<GraphInitRsp> initGraphExploration(@PathVariable("kgName") String kgName,
-                                                 @RequestParam String type);
+                                                 @RequestParam("type") String type);
 
     /**
      * kgQl查询
