@@ -1,8 +1,8 @@
-package com.plantdata.kgcloud.plantdata.common.converter;
+package com.plantdata.kgcloud.plantdata.converter.graph;
 
+import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.rsp.app.InitGraphBean;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import lombok.NonNull;
 
 import java.util.List;
@@ -12,13 +12,13 @@ import java.util.List;
  * @version 1.0
  * @date 2019/12/13 13:46
  */
-public class GraphConverter extends ConverterUtils {
+public class GraphInitBasicConverter extends BasicConverter {
 
     public static InitGraphBean graphInitRspToInitGraphBean(@NonNull GraphInitRsp graphInitRsp) {
         InitGraphBean initGraphBean = new InitGraphBean();
         initGraphBean.setConfig(graphInitRsp.getConfig());
         initGraphBean.setCreateTime(graphInitRsp.getCreateTime());
-        List<InitGraphBean.InitGraphEntity> initGraphEntities = listToRsp(graphInitRsp.getEntities(), GraphConverter::graphInitEntityRspToInitGraphEntity);
+        List<InitGraphBean.InitGraphEntity> initGraphEntities = listToRsp(graphInitRsp.getEntities(), GraphInitBasicConverter::graphInitEntityRspToInitGraphEntity);
         initGraphBean.setEntities(initGraphEntities);
         initGraphBean.setCreateTime(graphInitRsp.getCreateTime());
         initGraphBean.setKgName(graphInitRsp.getKgName());

@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.bo;
 
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDateDTO;
@@ -48,7 +49,7 @@ public class GraphAttributeStatisticBO {
         try {
             range = countRange(min, max, size, type);
         } catch (ParseException e) {
-            throw BizException.of(KgmsErrorCodeEnum.DATE_PARSE_ERROR);
+            throw BizException.of(AppErrorCodeEnum.DATE_PARSE_ERROR);
         }
         List<StatisticDTO> newResList = new ArrayList<>();
         range.forEach(s -> {

@@ -27,7 +27,22 @@ public class EnumUtils {
         } else {
             ts = (T[]) obj;
         }
-        return Arrays.stream(ts).filter(s -> s.getValue().toString().equals(dataValue)).findFirst();
+        return Arrays.stream(ts).filter(s -> s.getValue().equals(dataValue)).findFirst();
     }
 
+
+    public static <T extends BaseEnum> Optional<T> parseById(Class<T> className, Integer id) {
+        if (!className.isEnum() || id == null) {
+            return Optional.empty();
+        }
+        Object obj = map.get(className);
+        T[] ts;
+        if (obj == null) {
+            ts = className.getEnumConstants();
+            map.put(className, ts);
+        } else {
+            ts = (T[]) obj;
+        }
+        return Arrays.stream(ts).filter(s -> s.fetchId().equals(id)).findFirst();
+    }
 }

@@ -86,4 +86,17 @@ public interface MetaDataInterface {
     default void setScore(Double score) {
 
     }
+
+    /**
+     * 批次
+     *
+     * @param batch .
+     */
+    default void setBatch(String batch) {
+
+    }
+
+    default void setReliability(Double reliability) {
+
+    }
 }

@@ -6,6 +6,7 @@ import ai.plantdata.kg.api.pub.req.MetaData;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.req.RelationFrom;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
@@ -18,6 +19,7 @@ import com.plantdata.kgcloud.sdk.req.app.function.GraphTimingReqInterface;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -98,6 +100,12 @@ public class GraphReqConverter {
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
         graphFrom.setQueryPrivate(common.isPrivateAttRead());
+        graphFrom.getHighLevelFilter().setDirection(common.getDirection());
+        graphFrom.getHighLevelFilter().setLimit(common.getHighLevelSize() == null ? graphFrom.getLimit() : common.getHighLevelSize());
+
+        if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
+            graphFrom.getHighLevelFilter().setEdgeSort(ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts()));
+        }
     }
 
     private static void fillPath(CommonPathReq pathReq, PathFrom pathFrom) {

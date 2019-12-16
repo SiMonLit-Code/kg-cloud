@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.plantdata.common.converter;
+package com.plantdata.kgcloud.plantdata.converter.common;
 
 import com.plantdata.kgcloud.plantdata.rsp.schema.Additional;
 import com.plantdata.kgcloud.plantdata.rsp.schema.AttBean;
@@ -22,16 +22,16 @@ import java.util.List;
  * @version 1.0
  * @date 2019/12/13 10:55
  */
-public class SchemaConverter extends ConverterUtils {
+public class SchemaBasicConverter extends BasicConverter {
 
 
     public static SchemaBean schemaRspToSchemaBean(SchemaRsp rsp) {
         SchemaBean schemaBean = new SchemaBean();
         //属性分组
-        List<AttrCategoryOutputBean> attrDefGroupList = listToRsp(rsp.getAttrGroups(), SchemaConverter::attrDefGroupRspToAttrCategoryOutputBean);
+        List<AttrCategoryOutputBean> attrDefGroupList = listToRsp(rsp.getAttrGroups(), SchemaBasicConverter::attrDefGroupRspToAttrCategoryOutputBean);
         //属性定义
-        List<AttBean> attBeanList = listToRsp(rsp.getAttrs(), SchemaConverter::attrDefRspToAttBean);
-        List<TypeBean> typeBeanList = listToRsp(rsp.getTypes(), SchemaConverter::baseConceptRspToTypeBean);
+        List<AttBean> attBeanList = listToRsp(rsp.getAttrs(), SchemaBasicConverter::attrDefRspToAttBean);
+        List<TypeBean> typeBeanList = listToRsp(rsp.getTypes(), SchemaBasicConverter::baseConceptRspToTypeBean);
         schemaBean.setAttGroup(attrDefGroupList);
         schemaBean.setAtts(attBeanList);
         schemaBean.setKgTitle(rsp.getKgTitle());
@@ -54,7 +54,7 @@ public class SchemaConverter extends ConverterUtils {
         attBean.setDataType(attrDefRsp.getDataType());
         attBean.setDirection(attrDefRsp.getDirection());
         attBean.setDomain(attrDefRsp.getDomainValue());
-        List<AttributeExtraInfoItem> extraInfoItemList = listToRsp(attrDefRsp.getExtraInfos(), SchemaConverter::attrExtraItemToAttributeExtraInfoItem);
+        List<AttributeExtraInfoItem> extraInfoItemList = listToRsp(attrDefRsp.getExtraInfos(), SchemaBasicConverter::attrExtraItemToAttributeExtraInfoItem);
         attBean.setExtraInfos(extraInfoItemList);
         attBean.setRange(attrDefRsp.getRangeValue());
         attBean.setK(Long.valueOf(attrDefRsp.getId()));

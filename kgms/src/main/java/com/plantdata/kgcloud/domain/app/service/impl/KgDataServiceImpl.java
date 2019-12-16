@@ -8,12 +8,16 @@ import ai.plantdata.kg.api.pub.req.ConceptStatisticsBean;
 import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
 import ai.plantdata.kg.api.pub.req.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.RelationStatisticsBean;
+import ai.plantdata.kg.api.ql.SparqlApi;
+import ai.plantdata.kg.api.ql.resp.NodeBean;
+import ai.plantdata.kg.api.ql.resp.QueryResultVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import com.alibaba.excel.EasyExcelFactory;
-import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppConstants;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
+import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.bo.GraphAttributeStatisticBO;
 import com.plantdata.kgcloud.domain.app.bo.GraphRelationStatisticBO;
@@ -21,14 +25,17 @@ import com.plantdata.kgcloud.domain.app.converter.GraphStatisticConverter;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
-import com.plantdata.kgcloud.domain.app.util.ExcelUtils;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
+import com.plantdata.kgcloud.domain.app.util.TextUtils;
+import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
+import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.DateTypeReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
@@ -45,6 +52,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +78,8 @@ public class KgDataServiceImpl implements KgDataService {
     public DataSetSearchService dataSetSearchService;
     @Autowired
     public DataOptService dataOptService;
+    @Autowired
+    public SparqlApi sparqlApi;
 
     @Override
     public List<Map<String, Object>> statisticCountEdgeByEntity(String kgName, EdgeStatisticByEntityIdReq statisticReq) {
@@ -185,41 +195,38 @@ public class KgDataServiceImpl implements KgDataService {
         return GraphStatisticConverter.statisticByType(dataList, returnType, StatisticResultTypeEnum.VALUE);
     }
 
+    @Override
+    public void sparkSqlExport(String kgName, ExportTypeEnum exportType, SparQlReq sparQlReq, HttpServletResponse response) throws IOException {
+
+        //查询搜索结果
+        Optional<QueryResultVO> resOpt = RestRespConverter.convert(sparqlApi.query(kgName, sparQlReq.getQuery(), sparQlReq.getSize()));
+        if (!resOpt.isPresent()) {
+            return;
+        }
+        List<List<NodeBean>> sparQlNodeBeans = resOpt.get().getResult();
+        String exportName = "sparql_" + kgName + "_" + System.currentTimeMillis();
+
+        if (ExportTypeEnum.TXT.equals(exportType)) {
+            //导出txt
+            TextUtils.exportJson(exportName, JsonUtils.toJson(sparQlNodeBeans), response);
+            return;
+        }
+        List<List<String>> titleList = Lists.newArrayList();
+        List<List<String>> valueList = Lists.newArrayList();
+        if (sparQlNodeBeans != null && sparQlNodeBeans.size() > 0) {
+            List<NodeBean> sparQlNodeBeanList = sparQlNodeBeans.get(0);
+            if (sparQlNodeBeanList.size() > 0) {
+                for (NodeBean sparQlNodeBean : sparQlNodeBeanList) {
+                    titleList.add(Lists.newArrayList(sparQlNodeBean.getKey()));
+                    valueList.add(Lists.newArrayList(sparQlNodeBean.getValue()));
+                }
+            }
+        }
+        ExcelTypeEnum excelType = ExportTypeEnum.XLS.equals(exportType) ? ExcelTypeEnum.XLS : ExcelTypeEnum.XLSX;
+        EasyExcelFactory.write().file(response.getOutputStream()).head(titleList).excelType(excelType).sheet(0, exportName).doWrite(valueList);
+    }
 
 }
 
 
 
-//    @Override
-//    public void sparkSqlExport(String kgName, HttpServletResponse response) throws IOException {
-//
-//        String exportName = "sparql_" + kgName + "_" + System.currentTimeMillis();
-//    EasyExcelFactory.write(response.getOutputStream());
-//        //查询搜索结果
-//        QueryResultBean queryResultBean = sparqlQuery(SparqlQueryParameter.builder()
-//                .kgName(kgName)
-//                .query(sparkSqlExportParameter.getQuery())
-//                .size(sparkSqlExportParameter.getSize())
-//                .build()
-//        );
-//        List<List<SparqlNodeBean>> sparqlNodeBeans = queryResultBean.getResult();
-//
-//        if (sparkSqlExportParameter.getType() == 0) {
-//            //导出txt
-//            JsonUtils.exportJson(exportName, JsonUtils.toJson(sparqlNodeBeans));
-//        } else if (sparkSqlExportParameter.getType() == 1 || sparkSqlExportParameter.getType() == 2) {
-//            //创建标题
-//            List<String> titleList = Lists.newArrayList();
-//            if (sparqlNodeBeans != null && sparqlNodeBeans.size() > 0) {
-//                List<SparqlNodeBean> sparqlNodeBeanList = sparqlNodeBeans.get(0);
-//                if (sparqlNodeBeanList.size() > 0) {
-//                    for (SparqlNodeBean sparqlNodeBean : sparqlNodeBeanList) {
-//                        titleList.add(sparqlNodeBean.getKey());
-//                    }
-//                }
-//            }
-//
-//            //导出excel
-//            ExcelUtils.generateWorkbook(exportName, "xls", titleList, sparqlNodeBeans);
-//        }
-//    }

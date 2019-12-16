@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -37,7 +38,7 @@ public class GraphExplorationController implements GraphApplicationInterface {
     @ApiOperation("初始化图探索数据")
     @PostMapping("init/{kgName}")
     public ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @ApiParam(value = "图类型", required = true) @RequestBody String type) {
+                                                        @ApiParam(value = "图类型", required = true) @RequestParam("type") String type) {
         return appClient.initGraphExploration(kgName, type);
     }
 

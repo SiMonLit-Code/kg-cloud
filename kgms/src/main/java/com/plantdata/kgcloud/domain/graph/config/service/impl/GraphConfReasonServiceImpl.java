@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepository;
@@ -46,7 +47,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteReasoning(Long id) {
         GraphConfReasoning graphConfReasoning = graphConfReasoningRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
         graphConfReasoningRepository.delete(graphConfReasoning);
     }
 
@@ -60,7 +61,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     @Override
     public GraphConfReasonRsp findById(Long id) {
         GraphConfReasoning confReasoning = graphConfReasoningRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
         return ConvertUtils.convert(GraphConfReasonRsp.class).apply(confReasoning);
     }
 
@@ -68,7 +69,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     @Transactional(rollbackFor = Exception.class)
     public GraphConfReasonRsp updateReasoning(Long id, GraphConfReasonReq req) {
         GraphConfReasoning graphConfReasoning = graphConfReasoningRepository.findById(id)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfReasoning);
         GraphConfReasoning result = graphConfReasoningRepository.save(graphConfReasoning);
         return ConvertUtils.convert(GraphConfReasonRsp.class).apply(result);

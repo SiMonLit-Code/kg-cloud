@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
@@ -58,7 +59,7 @@ public class GraphExplorationController {
                                                         @ApiParam(value = "图类型", required = true) @RequestParam("type") String type) throws JsonProcessingException {
         Optional<GraphInitBaseEnum> enumObject = EnumUtils.getEnumObject(GraphInitBaseEnum.class, type);
         if (!enumObject.isPresent()) {
-            throw BizException.of(KgmsErrorCodeEnum.GRAPH_TYPE_ERROR);
+            throw BizException.of(AppErrorCodeEnum.GRAPH_TYPE_ERROR);
         }
         return ApiReturn.success(graphApplicationService.initGraphExploration(kgName, enumObject.get()));
     }

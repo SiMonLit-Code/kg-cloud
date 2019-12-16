@@ -15,7 +15,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class GraphEntityRsp extends BasicEntityRsp {
-
+    private Double score;
     @ApiModelProperty("默认顶层概念id传replaceClassId则为replaceClassId")
     private Long classId;
     @ApiModelProperty("直接父概念名称")
@@ -28,4 +28,5 @@ public class GraphEntityRsp extends BasicEntityRsp {
     private Map<String, Object> nodeStyle;
     @ApiModelProperty("label样式")
     private Map<String, Object> labelStyle;
+
 }
