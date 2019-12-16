@@ -17,10 +17,10 @@ import com.plantdata.kgcloud.sdk.mq.ApiAuditMessage;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -74,15 +74,15 @@ public class ApiAuditServiceImpl implements ApiAuditService {
     }
 
     private <T extends ApiAuditReq> void setInvokeTime(T req) {
-        if (StringUtils.isBlank(req.getFrom())) {
-            req.setBeginTime(DateUtils.getStartTimeOfDate(System.currentTimeMillis()));
-        } else {
+        if (StringUtils.hasText(req.getFrom())) {
             req.setBeginTime(DateUtils.parseDatetime(req.getFrom()));
-        }
-        if (StringUtils.isBlank(req.getTo())) {
-            req.setEndTime(DateUtils.getEndTimeOfDate(System.currentTimeMillis()));
         } else {
+            req.setBeginTime(DateUtils.getStartTimeOfDate(System.currentTimeMillis()));
+        }
+        if (StringUtils.hasText(req.getTo())) {
             req.setEndTime(DateUtils.parseDatetime(req.getTo()));
+        } else {
+            req.setEndTime(DateUtils.getEndTimeOfDate(System.currentTimeMillis()));
         }
     }
 
@@ -126,17 +126,7 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         Root<ApiAudit> root = query.from(ApiAudit.class);
         Predicate predicate = cb.conjunction();
         List<Expression<Boolean>> expressions = predicate.getExpressions();
-        expressions.add(cb.between(root.<Date>get("invokeAt"), req.getBeginTime(), req.getEndTime()));
-        if (req.getUrls() != null) {
-            expressions.add(cb.in(root.<String>get("url")).in(req.getUrls()));
-        }
-        if (req.getKgName() != null) {
-            expressions.add(cb.equal(root.<String>get("kgName"), req.getKgName()));
-        }
-
-        if (req.getPage() != null) {
-            expressions.add(cb.equal(root.<String>get("page"), req.getPage()));
-        }
+        setApiQuery(expressions,root,cb,req);
 
         Path<String> page = root.<String>get("kgName");
         Selection<String> name = page.alias("name");
@@ -201,16 +191,9 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         Predicate predicate = cb.conjunction();
         List<Expression<Boolean>> expressions = predicate.getExpressions();
         Path<Date> invokeAt = root.<Date>get("invokeAt");
-        expressions.add(cb.between(invokeAt, req.getBeginTime(), req.getEndTime()));
-        if (req.getUrls() != null) {
-            expressions.add(cb.in(root.<String>get("url")).in(req.getUrls()));
-        }
-        if (req.getKgName() != null) {
-            expressions.add(cb.equal(root.<String>get("kgName"), req.getKgName()));
-        }
-        if (req.getPage() != null) {
-            expressions.add(cb.equal(root.<String>get("page"), req.getPage()));
-        }
+
+        setApiQuery(expressions,root,cb,req);
+
         Path<String> urlPath = root.<String>get("url");
         Selection<String> name = urlPath.alias("name");
         Expression<String> year = cb.function("year", String.class, invokeAt);
@@ -250,22 +233,22 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         Map<String, List<ApiAuditVoRsp>> collect = auditVoRspList.stream().collect(Collectors.groupingBy(ApiAuditVoRsp::getName));
 
         List<ApiAuditUrlRsp.VerticalData> vertical = Lists.newArrayList();
-        ApiAuditUrlRsp sdkLogGroupUrlVO = new ApiAuditUrlRsp(times,vertical);
+        ApiAuditUrlRsp sdkLogGroupUrlVO = new ApiAuditUrlRsp(times, vertical);
 
-        collect.forEach((url,sdkLogTopVoList) -> {
+        collect.forEach((url, sdkLogTopVoList) -> {
             ApiAuditUrlRsp.VerticalData m = new ApiAuditUrlRsp.VerticalData();
             m.setName(url);
             List<Long> y = new ArrayList<>();
             for (String time : times) {
                 int i = 0;
                 for (ApiAuditVoRsp sdkLogTopVo : sdkLogTopVoList) {
-                    if(sdkLogTopVo.getTime().equals(time)){
+                    if (sdkLogTopVo.getTime().equals(time)) {
                         y.add(sdkLogTopVo.getValue());
                         break;
                     }
                     i++;
                 }
-                if(i == sdkLogTopVoList.size()){
+                if (i == sdkLogTopVoList.size()) {
                     y.add(0L);
                 }
             }
@@ -318,17 +301,14 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         Root<ApiAudit> root = query.from(ApiAudit.class);
         Predicate predicate = cb.conjunction();
         List<Expression<Boolean>> expressions = predicate.getExpressions();
-        if (req.getKgName() != null) {
-            expressions.add(cb.equal(root.<String>get("kgName"), req.getKgName()));
-        }
-        if (req.getPage() != null) {
-            expressions.add(cb.equal(root.<String>get("page"), req.getPage()));
-        }
+        setApiQuery(expressions,root,cb,req);
+
         Path<String> urlPath = root.<String>get("url");
         Expression<Long> count = cb.count(urlPath);
         query.multiselect(urlPath.alias("name"), count.alias("value"));
         query.groupBy(urlPath).orderBy(cb.desc(count));
         query.where(predicate);
+
         List<Tuple> countTuple = entityManager.createQuery(query).getResultList();
 
         Map<String, Long> countMap = new LinkedHashMap<>();
@@ -421,28 +401,16 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         Root<ApiAudit> root = query.from(ApiAudit.class);
         Predicate predicate = cb.conjunction();
         List<Expression<Boolean>> expressions = predicate.getExpressions();
-        expressions.add(cb.between(root.<Date>get("invokeAt"), req.getBeginTime(), req.getEndTime()));
-        if (req.getUrls() != null) {
-            expressions.add(cb.in(root.<String>get("url")).in(req.getUrls()));
-        }
-        if (req.getKgName() != null) {
-            expressions.add(cb.equal(root.<String>get("kgName"), req.getKgName()));
-        }
-        if (req.getPage() != null) {
-            expressions.add(cb.equal(root.<String>get("page"), req.getPage()));
-        }
-
+        setApiQuery(expressions,root,cb,req);
 
         Selection<String> name = root.<String>get("page").alias("name");
         Selection<Long> value = cb.count(root.<String>get("page")).alias("value");
-
         query.multiselect(name, value);
-
         List<Order> orderList = new ArrayList<>();
         orderList.add(cb.desc(cb.count(root.<String>get("page"))));
         query.groupBy(root.<String>get("page")).orderBy(orderList);
-
         query.where(predicate);
+
         TypedQuery<Tuple> typedQuery = entityManager.createQuery(query);
         List<Tuple> resultList = typedQuery.getResultList();
         List<ApiAuditRsp> auditRspList = new ArrayList<>();
@@ -453,5 +421,18 @@ public class ApiAuditServiceImpl implements ApiAuditService {
             auditRspList.add(apiAuditRsp);
         }
         return auditRspList;
+    }
+
+    private void setApiQuery(List<Expression<Boolean>> expressions,Root<ApiAudit> root, CriteriaBuilder cb, ApiAuditReq req){
+        expressions.add(cb.between(root.<Date>get("invokeAt"), req.getBeginTime(), req.getEndTime()));
+        if (req.getUrls() != null && !req.getUrls().isEmpty()) {
+            expressions.add(cb.in(root.<String>get("url")).in(req.getUrls()));
+        }
+        if (StringUtils.hasText(req.getKgName())) {
+            expressions.add(cb.equal(root.<String>get("kgName"), req.getKgName()));
+        }
+        if (StringUtils.hasText(req.getPage())) {
+            expressions.add(cb.equal(root.<String>get("page"), req.getPage()));
+        }
     }
 }

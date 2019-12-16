@@ -40,7 +40,7 @@ public class TaskGraphController {
     @Autowired
     private ReasonService reasonService;
 
-    @ApiOperation("任务相关-快照-根据id删除")
+    @ApiOperation("任务相关-快照-快照列表")
     @GetMapping("/snapshot")
     public ApiReturn<Page<TaskGraphSnapshotRsp>> listByPage(TaskGraphSnapshotReq req) {
         return ApiReturn.success(taskGraphService.snapshotList(req));

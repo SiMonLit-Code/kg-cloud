@@ -12,14 +12,18 @@ import com.plantdata.kgcloud.domain.dataset.entity.DataSetAnnotation;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetAnnotationRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetAnnotationService;
+import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
+import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.AnnotationConf;
+import com.plantdata.kgcloud.sdk.req.AnnotationCreateReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationDataReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationQueryReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationReq;
 import com.plantdata.kgcloud.sdk.rsp.AnnotationRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.bson.Document;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +52,13 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
 
     @Autowired
     private DataOptService dataOptService;
+
+    @Autowired
+    private GraphService graphService;
+    @Autowired
+    private DataSetService dataSetService;
+    @Autowired
+    private KgKeyGenerator kgKeyGenerator;
 
     @Autowired
     private MongoClient mongoClient;
@@ -86,19 +97,22 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
     }
 
     @Override
-    public AnnotationRsp add(String kgName, AnnotationReq req) {
+    public AnnotationRsp add(String userId, String kgName, AnnotationCreateReq req) {
+        graphService.findById(userId, kgName);
+        dataSetService.findOne(userId, req.getDataId());
         DataSetAnnotation dataSetAnnotation = new DataSetAnnotation();
         BeanUtils.copyProperties(req, dataSetAnnotation);
+        dataSetAnnotation.setId(kgKeyGenerator.getNextId());
         dataSetAnnotation.setKgName(kgName);
         DataSetAnnotation save = dataSetAnnotationRepository.save(dataSetAnnotation);
         return ConvertUtils.convert(AnnotationRsp.class).apply(save);
     }
 
     @Override
-    public void annotation(String userId,String kgName, Long annotationId, AnnotationDataReq request) {
+    public void annotation(String userId, String kgName, Long annotationId, AnnotationDataReq request) {
         Long datasetId = request.getId();
         String objId = request.getObjId();
-        Map<String, Object> objectMap = dataOptService.updateData(userId,datasetId, objId, request.getData());
+        Map<String, Object> objectMap = dataOptService.updateData(userId, datasetId, objId, request.getData());
         ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
         for (Map.Entry<String, Object> entry : objectMap.entrySet()) {
             objectNode.putPOJO(entry.getKey(), entry.getValue());
