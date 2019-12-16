@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.entity;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.plantdata.kgcloud.domain.common.converter.ArrayNodeConcerter;
+import com.plantdata.kgcloud.domain.common.converter.ArrayNodeConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,7 +38,7 @@ public class GraphConfFocus {
 
     @Basic
     @Column(name = "focus_entity")
-    @Convert(converter = ArrayNodeConcerter.class)
+    @Convert(converter = ArrayNodeConverter.class)
     private ArrayNode entities;
 
     @Basic

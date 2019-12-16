@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.domain.audit.service.ApiAuditService;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.sdk.mq.ApiAuditMessage;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,12 +59,11 @@ public class ApiAuditServiceImpl implements ApiAuditService {
     }
 
     private <T extends ApiAuditReq> void setInvokeTime(T req) {
-        LocalDate today = LocalDate.now();
         if (StringUtils.isBlank(req.getFrom())) {
-            req.setFrom(today.with(TemporalAdjusters.firstDayOfMonth()).toString() + " 00:00:00");
+            req.setBeginTime(DateUtils.getStartTimeOfDate(System.currentTimeMillis()));
         }
         if (StringUtils.isBlank(req.getTo())) {
-            req.setTo(today.with(TemporalAdjusters.firstDayOfNextMonth()).toString() + " 00:00:00");
+            req.setBeginTime(DateUtils.getEndTimeOfDate(System.currentTimeMillis()));
         }
     }
 
@@ -112,6 +114,8 @@ public class ApiAuditServiceImpl implements ApiAuditService {
      group by page order by value DESC
 
      */
+
+
     @Override
     public List<ApiAuditRsp> groupByPage(ApiAuditReq req) {
         setInvokeTime(req);
@@ -119,19 +123,9 @@ public class ApiAuditServiceImpl implements ApiAuditService {
             @Override
             public Predicate toPredicate(Root<ApiAudit> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 Predicate predicate = cb.conjunction();
-//                List<Expression<Boolean>> expressions = predicate.getExpressions();
-//                expressions.add(cb.equal(root.<String>get("userId"), userId));
-//                Long folderId = req.getFolderId();
-//                if (folderId != null) {
-//                    expressions.add(cb.equal(root.<Long>get("folderId"), folderId));
-//                }
-//                Integer dataType = req.getDataType();
-//                if (dataType != null) {
-//                    expressions.add(cb.equal(root.<DataType>get("dataType"), DataType.findType(dataType)));
-//                }
-//                if (StringUtils.hasText(req.getKw())) {
-//                    expressions.add(cb.like(root.get("title"), "%" + req.getKw() + "%"));
-//                }
+                List<Expression<Boolean>> expressions = predicate.getExpressions();
+                expressions.add(cb.between(root.<Date>get("invokeAt"),req.getBeginTime(),req.getEndTime()));
+
                 return predicate;
             }
         };

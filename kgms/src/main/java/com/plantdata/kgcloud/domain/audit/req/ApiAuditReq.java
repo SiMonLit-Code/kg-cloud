@@ -1,7 +1,10 @@
 package com.plantdata.kgcloud.domain.audit.req;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,4 +24,11 @@ public class ApiAuditReq {
     private String page;
 
     private List<String> urls;
+
+
+    @JsonIgnore
+    private Date beginTime;
+
+    @JsonIgnore
+    private Date endTime;
 }
