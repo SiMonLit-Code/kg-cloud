@@ -15,13 +15,16 @@ import java.util.List;
 @Data
 public class ApiAuditReq {
 
+
     private String from;
 
     private String to;
 
+
     private String kgName;
 
     private String page;
+
 
     private List<String> urls;
 
