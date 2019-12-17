@@ -27,7 +27,7 @@ public class ModelController {
     @Autowired
     private ModelService modelService;
 
-    @GetMapping("/db/test")
+    @PostMapping("/db/test")
     @ApiOperation("测试数据库连接")
     public ApiReturn test(@RequestBody DbTestReq req) {
 
