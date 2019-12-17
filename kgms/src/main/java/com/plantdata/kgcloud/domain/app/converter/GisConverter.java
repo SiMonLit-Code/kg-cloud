@@ -26,7 +26,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/11/25 9:34
  */
-public class GisConverter {
+public class GisConverter extends BasicConverter {
 
     public static GisFrom reqToGisFrom(GisGraphExploreReq exploreReq) {
         GisFrom gisFrom = new GisFrom();
@@ -64,8 +64,8 @@ public class GisConverter {
         GisLocusAnalysisRsp exploreRsp = new GisLocusAnalysisRsp();
         exploreRsp.setEntityList(CollectionUtils.isEmpty(gisLocusVO.getEntityList()) ? Collections.emptyList()
                 : EntityConverter.voToGisRsp(gisLocusVO.getEntityList()));
-        List<GisRelationRsp> relationRspList = CollectionUtils.isEmpty(gisLocusVO.getRelationList()) ? Collections.emptyList()
-                : RelationConverter.voToGisRsp(gisLocusVO.getRelationList(), gisLocusVO.getRuleRelationMap());
+        List<GisRelationRsp> relationRspList = listConvert(gisLocusVO.getRelationList(), a -> RelationConverter.voToGisRsp(a, gisLocusVO.getRuleRelationMap()));
+
         exploreRsp.setRelationList(relationRspList);
         exploreRsp.setHasNextPage(gisLocusVO.getHasNextPage());
 

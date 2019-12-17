@@ -5,7 +5,6 @@ import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
@@ -19,6 +18,7 @@ import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/11/25 17:15
  */
-public class RelationConverter {
+public class RelationConverter  extends BasicConverter{
 
     public static BatchQueryRelationFrom edgeAttrSearch(EdgeSearchReq searchReq) {
         BatchQueryRelationFrom queryRelationFrom = new BatchQueryRelationFrom();
@@ -58,22 +58,17 @@ public class RelationConverter {
     }
 
 
-    static List<GisRelationRsp> voToGisRsp(List<GisRelationVO> relationList, Map<String, Integer> ruleIdMap) {
-        List<GisRelationRsp> relationRspList = Lists.newArrayListWithCapacity(relationList.size());
-        GisRelationRsp relationRsp;
-        for (GisRelationVO relation : relationList) {
-            relationRsp = new GisRelationRsp();
-            relationRsp.setRuleId(ruleIdMap.get(relation.getId()));
-            relationRsp.setAttId(relation.getAttId());
-            relationRsp.setAttName(relationRsp.getAttName());
-            relationRsp.setDirection(relationRsp.getDirection());
-            relationRsp.setFrom(relationRsp.getFrom());
-            relationRsp.setTo(relationRsp.getTo());
-            relationRsp.setStartTime(relationRsp.getStartTime());
-            relationRsp.setEndTime(relationRsp.getEndTime());
-            relationRspList.add(relationRsp);
-        }
-        return relationRspList;
+    static GisRelationRsp voToGisRsp(@NotNull GisRelationVO relation, Map<String, Integer> ruleIdMap) {
+        GisRelationRsp relationRsp = new GisRelationRsp();
+        relationRsp.setRuleId(ruleIdMap.get(relation.getId()));
+        relationRsp.setAttId(relation.getAttId());
+        relationRsp.setAttName(relation.getAttrName());
+        relationRsp.setDirection(relation.getDirection());
+        relationRsp.setFrom(relation.getFromId());
+        relationRsp.setTo(relation.getToId());
+        relationRsp.setStartTime(relationRsp.getStartTime());
+        relationRsp.setEndTime(relationRsp.getEndTime());
+        return relationRsp;
     }
 
     public static AggRelationFrom edgeAttrPromptReqToAggRelationFrom(EdgeAttrPromptReq req) {
@@ -100,38 +95,36 @@ public class RelationConverter {
         return mapList.stream().flatMap(map -> map.entrySet().stream()).map(entry -> new EdgeAttributeRsp(entry.getKey(), entry.getValue())).collect(Collectors.toList());
     }
 
-    public static List<EdgeSearchRsp> batchVoToEdgeSearchRsp(@NonNull List<BatchRelationVO> relationList) {
+    public static EdgeSearchRsp batchVoToEdgeSearchRsp(@NonNull BatchRelationVO relation) {
+        EdgeSearchRsp.EdgeSearchEntityRsp from = new EdgeSearchRsp.EdgeSearchEntityRsp();
+        from.setId(relation.getEntityId());
+        from.setConceptId(relation.getEntityConcept());
+        from.setMeaningTag(relation.getEntityMeaningTag());
+        from.setName(relation.getEntityName());
+        EdgeSearchRsp.EdgeSearchEntityRsp to = new EdgeSearchRsp.EdgeSearchEntityRsp();
+        to.setId(relation.getAttrValueId());
+        to.setConceptId(relation.getAttrValueConcept());
+        to.setMeaningTag(relation.getAttrValueMeaningTag());
+        to.setName(relation.getAttrValueName());
 
-        return relationList.stream().map(a -> {
-            EdgeSearchRsp.EdgeSearchEntityRsp from = new EdgeSearchRsp.EdgeSearchEntityRsp();
-            from.setId(a.getEntityId());
-            from.setConceptId(a.getEntityConcept());
-            from.setMeaningTag(a.getEntityMeaningTag());
-            from.setName(a.getEntityName());
-            EdgeSearchRsp.EdgeSearchEntityRsp to = new EdgeSearchRsp.EdgeSearchEntityRsp();
-            to.setId(a.getAttrValueId());
-            to.setConceptId(a.getAttrValueConcept());
-            to.setMeaningTag(a.getAttrValueMeaningTag());
-            to.setName(a.getAttrValueName());
-            EdgeSearchRsp edgeSearchRsp = new EdgeSearchRsp();
-            edgeSearchRsp.setFromEntity(from);
-            edgeSearchRsp.setToEntity(to);
-            edgeSearchRsp.setTripleId(a.getId());
-            edgeSearchRsp.setExtraInfoMap(a.getExtraInfoMap());
-            Map<String, Object> metaData = a.getMetaData();
-            if (metaData != null) {
-                if (metaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-                    edgeSearchRsp.setScore(metaData.get(MetaDataInfo.SCORE.getFieldName()).toString());
-                }
-                if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
-                    edgeSearchRsp.setSource(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
-                }
-                if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
-                    edgeSearchRsp.setReliability(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
-                }
+        EdgeSearchRsp edgeSearchRsp = new EdgeSearchRsp();
+        edgeSearchRsp.setFromEntity(from);
+        edgeSearchRsp.setToEntity(to);
+        edgeSearchRsp.setTripleId(relation.getId());
+        edgeSearchRsp.setExtraInfoMap(relation.getExtraInfoMap());
+        Map<String, Object> metaData = relation.getMetaData();
+        if (metaData != null) {
+            if (metaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
+                edgeSearchRsp.setScore(metaData.get(MetaDataInfo.SCORE.getFieldName()).toString());
             }
-            return edgeSearchRsp;
-        }).collect(Collectors.toList());
+            if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
+                edgeSearchRsp.setSource(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+            }
+            if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
+                edgeSearchRsp.setReliability(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+            }
+        }
+        return edgeSearchRsp;
     }
 
 }

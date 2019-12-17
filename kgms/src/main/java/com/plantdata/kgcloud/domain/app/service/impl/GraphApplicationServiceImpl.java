@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.AttrDefGroupConverter;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
 import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
@@ -95,9 +96,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             return schemaRsp;
         }
         SchemaVO schemaVO = schemaOptional.get();
-        if (!CollectionUtils.isEmpty(schemaVO.getAttrs())) {
-            schemaRsp.setAttrs(AttrDefConverter.voToRsp(schemaVO.getAttrs()));
-        }
+        schemaRsp.setAttrs(BasicConverter.listConvert(schemaVO.getAttrs(), AttrDefConverter::attrDefToAttrDefRsp));
         if (!CollectionUtils.isEmpty(schemaVO.getConcepts())) {
             schemaRsp.setKgTitle(ConceptConverter.getKgTittle(schemaVO.getConcepts()));
             schemaRsp.setTypes(ConceptConverter.voToRsp(schemaVO.getConcepts()));
