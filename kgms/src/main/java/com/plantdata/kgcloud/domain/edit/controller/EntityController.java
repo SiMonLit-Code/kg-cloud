@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
@@ -105,10 +106,9 @@ public class EntityController {
 
     @ApiOperation("删除概念下的实体")
     @PostMapping("/{kgName}/concept/delete")
-    ApiReturn deleteByConceptId(@PathVariable("kgName") String kgName,
-                                @Valid @RequestBody EntityDeleteReq entityDeleteReq) {
-        entityService.deleteByConceptId(kgName, entityDeleteReq);
-        return ApiReturn.success();
+    ApiReturn<Long> deleteByConceptId(@PathVariable("kgName") String kgName,
+                                      @Valid @RequestBody EntityDeleteReq entityDeleteReq) {
+        return ApiReturn.success(entityService.deleteByConceptId(kgName, entityDeleteReq));
     }
 
     @ApiOperation("根据来源 ,批次号删除实体")
@@ -120,10 +120,11 @@ public class EntityController {
     }
 
     @ApiOperation("实体列表")
-    @GetMapping("/{kgName}/list")
+    @PostMapping("/{kgName}/list")
     ApiReturn<Page<BasicInfoRsp>> listEntities(@PathVariable("kgName") String kgName,
-                                               BasicInfoListReq basicInfoListReq) {
-        return ApiReturn.success(entityService.listEntities(kgName, basicInfoListReq));
+                                               BasicInfoListReq basicInfoListReq,
+                                               @RequestBody BasicInfoListBodyReq bodyReq) {
+        return ApiReturn.success(entityService.listEntities(kgName, basicInfoListReq, bodyReq));
     }
 
     @ApiOperation("更新权重,来源,可信度")
