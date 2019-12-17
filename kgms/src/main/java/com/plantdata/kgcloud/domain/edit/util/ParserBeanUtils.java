@@ -5,7 +5,7 @@ import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
-import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.edit.vo.ObjectAttrValueVO;

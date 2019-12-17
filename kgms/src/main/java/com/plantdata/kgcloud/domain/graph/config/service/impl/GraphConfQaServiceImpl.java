@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by plantdata-1007 on 2019/12/2.
+ *
+ * @author jiangdeming
+ * @date 2019/12/2
  */
 @Service
 public class GraphConfQaServiceImpl implements GraphConfQaService {

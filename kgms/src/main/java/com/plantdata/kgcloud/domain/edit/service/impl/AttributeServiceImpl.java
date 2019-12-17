@@ -28,6 +28,7 @@ import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -72,6 +73,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -118,10 +120,17 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public List<AttrDefinitionRsp> getAttrDefinitionByConceptId(String kgName,
+    public List<AttrDefinitionRsp>  getAttrDefinitionByConceptId(String kgName,
                                                                 AttrDefinitionSearchReq attrDefinitionSearchReq) {
         List<Long> ids = attrDefinitionSearchReq.getIds();
-        ids.add(attrDefinitionSearchReq.getConceptId());
+        Long conceptId = attrDefinitionSearchReq.getConceptId();
+        if (0L == conceptId){
+            Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getAll(kgName));
+            return optional.orElse(new ArrayList<>()).stream()
+                    .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
+                    .collect(Collectors.toList());
+        }
+        ids.add(conceptId);
         AttrQueryFrom attrQueryFrom = ConvertUtils.convert(AttrQueryFrom.class).apply(attrDefinitionSearchReq);
         attrQueryFrom.setIds(ids);
         Optional<List<AttrDefVO>> optional = RestRespConverter
@@ -340,9 +349,9 @@ public class AttributeServiceImpl implements AttributeService {
     public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq) {
         BatchQueryRelationFrom relationFrom = RelationConverter.edgeAttrSearch(queryReq);
         Optional<List<BatchRelationVO>> resOpt = RestRespConverter.convert(batchApi.queryRelation(kgName, relationFrom));
-        if (!resOpt.isPresent() || CollectionUtils.isEmpty(resOpt.get())) {
+        if (!resOpt.isPresent()) {
             return Collections.emptyList();
         }
-        return RelationConverter.batchVoToEdgeSearchRsp(resOpt.get());
+        return BasicConverter.listConvert(resOpt.get(), RelationConverter::batchVoToEdgeSearchRsp);
     }
 }

@@ -1,11 +1,13 @@
 package com.plantdata.kgcloud.domain.model.entity;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 /**
  * @author xiezhenxiang 2019/7/30
  */
 @Data
+@ApiModel
 public class ReferTable {
 
     /** 关联表名 */

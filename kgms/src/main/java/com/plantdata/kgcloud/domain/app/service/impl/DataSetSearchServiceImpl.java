@@ -5,6 +5,8 @@ import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
@@ -12,6 +14,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
+import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
@@ -33,8 +36,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -143,16 +148,10 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     }
 
 
-
     @Override
-    public List<DataLinkRsp> getDataLinks(String kgName, String userId, Long entityId) {
+    public List<DataLinkRsp> getDataLinks(String kgName, String userId, Long entityId) throws IOException {
+        MongoQueryFrom mongoQueryFrom = buildMongoQuery(kgName, entityId);
 
-        MongoQueryFrom mongoQueryFrom = new MongoQueryFrom();
-        mongoQueryFrom.setKgName(kgName);
-        mongoQueryFrom.setCollection("entity_annotation");
-        List<Map<String, Object>> query = JacksonUtils.readValue("[{ $match : { entity_id : " + entityId.toString() + " } },{'$group':{'_id':'$data_set_id',count:{'$sum':1}}},{$limit : 5}]", new TypeReference<List<Map<String, Object>>>() {
-        });
-        mongoQueryFrom.setQuery(query);
         Optional<List<Map<String, Object>>> opt = RestRespConverter.convert(mongoApi.postJson(mongoQueryFrom));
         if (!opt.isPresent() || CollectionUtils.isEmpty(opt.get())) {
             return Collections.emptyList();
@@ -162,7 +161,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         for (Map<String, Object> map : opt.get()) {
             Long dataSetId = Long.valueOf(map.get("_id").toString());
 
-            query = JacksonUtils.readValue("[{ $match : { data_set_id:" + dataSetId + ",entity_id : " + entityId.toString() + " } },{ $sort: {score: -1 }},{$limit : 5}]", new TypeReference<List<Map<String, Object>>>() {
+            List<Map<String, Object>> query = JacksonUtils.getInstance().readValue("[{ $match : { data_set_id:" + dataSetId + ",entity_id : " + entityId.toString() + " } },{ $sort: {score: -1 }},{$limit : 5}]", new TypeReference<List<Map<String, Object>>>() {
             });
             mongoQueryFrom.setQuery(query);
             Optional<List<Map<String, Object>>> oneOpt = RestRespConverter.convert(mongoApi.postJson(mongoQueryFrom));
@@ -191,6 +190,21 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             dataLinks.add(dataLink);
         }
         return dataLinks;
+    }
+
+
+    private static MongoQueryFrom buildMongoQuery(String kgName, long entityId) {
+        MongoQueryFrom mongoQueryFrom = new MongoQueryFrom();
+        mongoQueryFrom.setKgName(kgName);
+        mongoQueryFrom.setCollection("entity_annotation");
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("_id", "$data_set_id");
+        map.put("count", DefaultUtils.oneElMap("$sum", 1));
+        List<Map<String, Object>> mathMapList = Lists.newArrayList();
+        mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("entity_id", String.valueOf(entityId))));
+        mathMapList.add(DefaultUtils.oneElMap("$group", map));
+        mongoQueryFrom.setQuery(mathMapList);
+        return mongoQueryFrom;
     }
 
     /**

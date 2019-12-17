@@ -1,12 +1,15 @@
 package com.plantdata.kgcloud.domain.app.util;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -56,6 +59,10 @@ public class DefaultUtils {
         }
     }
 
-
+    public static <K, V> Map<K, V> oneElMap(K k, V v) {
+        HashMap<K, V> hashMap = Maps.newHashMapWithExpectedSize(1);
+        hashMap.put(k, v);
+        return hashMap;
+    }
 
 }

@@ -7,7 +7,9 @@ import org.springframework.data.domain.Page;
 
 /**
  * 图谱业务配置
- * Created by plantdata-1007 on 2019/12/2.
+ *
+ * @author jiangdeming
+ * @date 2019/12/2
  */
 public interface GraphConfKgqlService {
 
@@ -22,7 +24,7 @@ public interface GraphConfKgqlService {
 
     /**
      * 修改kgql业务
-     *
+     * @param id
      * @param req
      * @return
      */
@@ -37,9 +39,10 @@ public interface GraphConfKgqlService {
     void deleteKgql(Long id);
 
     /**
-     * 查询kgql业务
-     *
+     * 分页
      * @param kgName
+     * @param ruleType
+     * @param baseReq
      * @return
      */
     Page<GraphConfKgqlRsp> findByKgNameAndRuleType(String kgName ,Integer ruleType, BaseReq baseReq );

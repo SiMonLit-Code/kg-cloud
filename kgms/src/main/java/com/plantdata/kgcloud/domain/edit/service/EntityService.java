@@ -1,9 +1,10 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
-import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -46,7 +47,7 @@ public interface EntityService {
      * @param basicInfoListReq
      * @return
      */
-    Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq);
+    Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq, BasicInfoListBodyReq bodyReq);
 
     /**
      * 批量删除实体
@@ -65,7 +66,7 @@ public interface EntityService {
      * @param entityDeleteReq
      * @return
      */
-    void deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq);
+    Long deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq);
 
     /**
      * 修改实体权重,来源,置信度

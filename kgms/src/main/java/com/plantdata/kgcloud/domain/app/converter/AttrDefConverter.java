@@ -21,31 +21,26 @@ public class AttrDefConverter {
     /**
      * 属性定义 vo转return
      */
-    public static List<AttributeDefinitionRsp> voToRsp(@NonNull List<AttributeDefinition> attrDefList) {
-        List<AttributeDefinitionRsp> attributeDefinitionRspList = Lists.newArrayListWithCapacity(attrDefList.size());
-        AttributeDefinitionRsp attrDefReq;
-        for (AttributeDefinition att : attrDefList) {
-            attrDefReq = new AttributeDefinitionRsp();
-            attrDefReq.setId(att.getId());
-            attrDefReq.setName(att.getName());
-            attrDefReq.setKey(att.getKey());
-            attrDefReq.setType(att.getType());
-            attrDefReq.setDirection(att.getDirection());
-            attrDefReq.setRangeValue(att.getRangeValue());
-            attrDefReq.setDomainValue(att.getDomainValue());
-            attrDefReq.setDataType(att.getDataType());
-            if (!CollectionUtils.isEmpty(att.getExtraInfo())) {
-                List<AttrExtraRsp> extraInfoItemList = att.getExtraInfo().stream().map(a -> {
-                    AttrExtraRsp infoItem = new AttrExtraRsp();
-                    //!!要求属性名称一致
-                    BeanUtils.copyProperties(a, infoItem);
-                    return infoItem;
-                }).collect(Collectors.toList());
-                attrDefReq.setExtraInfos(extraInfoItemList);
-            }
-            attributeDefinitionRspList.add(attrDefReq);
+    public static AttributeDefinitionRsp attrDefToAttrDefRsp(@NonNull AttributeDefinition att) {
+        AttributeDefinitionRsp attrDefReq = new AttributeDefinitionRsp();
+        attrDefReq.setId(att.getId());
+        attrDefReq.setName(att.getName());
+        attrDefReq.setKey(att.getKey());
+        attrDefReq.setType(att.getType());
+        attrDefReq.setDirection(att.getDirection());
+        attrDefReq.setRangeValue(att.getRangeValue());
+        attrDefReq.setDomainValue(att.getDomainValue());
+        attrDefReq.setDataType(att.getDataType());
+        if (!CollectionUtils.isEmpty(att.getExtraInfo())) {
+            List<AttrExtraRsp> extraInfoItemList = att.getExtraInfo().stream().map(a -> {
+                AttrExtraRsp infoItem = new AttrExtraRsp();
+                //!!要求属性名称一致
+                BeanUtils.copyProperties(a, infoItem);
+                return infoItem;
+            }).collect(Collectors.toList());
+            attrDefReq.setExtraInfos(extraInfoItemList);
         }
-        return attributeDefinitionRspList;
+        return attrDefReq;
     }
 
     public static AttrQueryFrom convertToQuery(List<Long> conceptIdList, boolean inherit, int type) {

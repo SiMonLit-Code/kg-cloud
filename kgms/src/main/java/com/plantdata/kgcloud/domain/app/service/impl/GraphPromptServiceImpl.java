@@ -16,6 +16,7 @@ import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.PromptQaTypeEnum;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.PromptConverter;
 import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
@@ -87,10 +88,9 @@ public class GraphPromptServiceImpl implements GraphPromptService {
                 return entityRspList;
             }
         }
+        Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(kgName, PromptConverter.promptReqReqToPromptListFrom(promptReq)));
 
-        Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(kgName, PromptConverter.reqToRemote(promptReq)));
-
-        List<PromptEntityRsp> entityRspList = PromptConverter.voToRsp(promptOpt.orElse(Lists.newArrayList()));
+        List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
 
         if (PromptQaTypeEnum.END.equals(qaType)) {
             entityRspList.addAll(queryAnswer(kgName, promptReq));
@@ -103,7 +103,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         if (seniorPromptReq.getOpenExportDate() && !StringUtils.isEmpty(seniorPromptReq.getKw())) {
             List<PromptEntityRsp> entityRspList = queryFromEs(kgName, seniorPromptReq);
             if (!CollectionUtils.isEmpty(entityRspList)) {
-                return PromptConverter.rspToBelow(entityRspList);
+                return BasicConverter.listConvert(entityRspList, PromptConverter::seniorPromptRspToPromptEntityRsp);
             }
         }
         Set<Long> entityIds = queryEntityIdsByAttr(kgName, seniorPromptReq);
@@ -111,18 +111,17 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return Collections.emptyList();
         }
-        return PromptConverter.voToSeniorRsp(entityOpt.get());
+        return BasicConverter.listConvert(entityOpt.get(), PromptConverter::entityVoToSeniorPromptRsp);
     }
 
     @Override
     public List<EdgeAttributeRsp> edgeAttributeSearch(String kgName, EdgeAttrPromptReq promptReq) {
         Optional<List<Map<Object, Integer>>> aggOpt;
         Optional<AttrDefinitionTypeEnum> enumObject = EnumUtils.getEnumObject(AttrDefinitionTypeEnum.class, String.valueOf(promptReq.getDataType()));
-        AttrDefinitionTypeEnum dataType=enumObject.orElse(AttrDefinitionTypeEnum.OBJECT);
+        AttrDefinitionTypeEnum dataType = enumObject.orElse(AttrDefinitionTypeEnum.OBJECT);
         if (AttrDefinitionTypeEnum.OBJECT.equals(dataType)) {
             AggRelationFrom relationFrom = RelationConverter.edgeAttrPromptReqToAggRelationFrom(promptReq);
             aggOpt = RestRespConverter.convert(relationApi.aggRelation(kgName, relationFrom));
-
         } else if (AttrDefinitionTypeEnum.DATA_VALUE.equals(dataType)) {
             aggOpt = RestRespConverter.convert(schemaApi.aggAttr(kgName, PromptConverter.edgeAttrPromptReqToAggAttrValueFrom(promptReq)));
         } else {
@@ -140,9 +139,15 @@ public class GraphPromptServiceImpl implements GraphPromptService {
                 .addresses(esProperties.getAddrs())
                 .database(kgName)
                 .build();
-        DataOptProvider provider = DataOptProviderFactory.createProvider(connect, DataType.ELASTIC);
-        List<Map<String, Object>> maps = provider.find(promptReq.getOffset(), promptReq.getLimit(), PromptConverter.buildEsParam(promptReq));
-        if (maps == null || maps.isEmpty()) {
+        List<Map<String, Object>> maps = null;
+        try {
+            DataOptProvider provider = DataOptProviderFactory.createProvider(connect, DataType.ELASTIC);
+            maps = provider.find(promptReq.getOffset(), promptReq.getLimit(), PromptConverter.buildEsParam(promptReq));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("promptReq:{}", JsonUtils.toJson(promptReq));
+        }
+        if (CollectionUtils.isEmpty(maps)) {
             return Collections.emptyList();
         }
         return PromptConverter.esResultToEntity(maps);
@@ -155,8 +160,8 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         NerSearchReq nerParam = new NerSearchReq();
         nerParam.setKgName(kgName);
         nerParam.setQuery(promptReq.getKw());
-
         List<SemanticSegWordVO> ner = RestRespConverter.convert(questionAnswersApi.ner(nerParam)).orElse(Collections.emptyList());
+
         if (ner.isEmpty() || ner.size() > AppConstants.NER_NUMBER) {
             return rs;
         }

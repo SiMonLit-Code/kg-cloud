@@ -7,7 +7,7 @@ package com.plantdata.kgcloud.sdk.constant;
  */
 public interface BaseEnum {
 
-    default String getValue() {
+    default Object getValue() {
         return null;
     }
 

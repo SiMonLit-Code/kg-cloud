@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface J2rService {
 
-    Page<Document> jsonStr(Integer dataSetId, Integer index);
+    String jsonStr(Integer dataSetId, Integer index);
 
     boolean checkSetting(Setting configs);
 

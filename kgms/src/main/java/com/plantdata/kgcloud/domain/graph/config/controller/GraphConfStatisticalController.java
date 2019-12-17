@@ -15,7 +15,9 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * Created by plantdata-1007 on 2019/12/3.
+ *
+ * @author jiangdeming
+ * @date 2019/12/3
  */
 @Api(tags = "图谱配置")
 @RestController

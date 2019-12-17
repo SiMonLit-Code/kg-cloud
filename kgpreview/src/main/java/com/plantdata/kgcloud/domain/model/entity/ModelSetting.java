@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.model.entity;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
  * @author xiezhenxiang 2019/7/5
  */
 @Data
+@ApiModel
 public class ModelSetting {
 
     /** 读取方式，0数据库 1接口路径 */
