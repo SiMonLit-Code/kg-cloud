@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.model.service;
 
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.model.entity.ModelSetting;
 import com.plantdata.kgcloud.domain.model.entity.TableSchemaRsp;
 import org.springframework.data.domain.Page;
@@ -13,7 +14,7 @@ public interface ModelService {
 
     void dbTest(String path, Integer type, String ip, Integer port, String database, String userName, String pwd);
 
-    Page<String> getTables(String path, Integer type, String ip, Integer port, String database, String userName, String pwd, String kw, Integer pageNo, Integer pageSize);
+    BasePage<String> getTables(String path, Integer type, String ip, Integer port, String database, String userName, String pwd, String kw, Integer pageNo, Integer pageSize);
 
     List<TableSchemaRsp> getTableSchema(String path, Integer type, String ip, Integer port, String database, String userName, String pwd, List<String> ls);
 

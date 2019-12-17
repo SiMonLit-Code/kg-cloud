@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.j2r.entity;
 
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -9,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author xiezhenxiang 2019/12/9
  **/
 @Data
+@ApiModel
 public class AttrConfig {
 
     private Integer id;

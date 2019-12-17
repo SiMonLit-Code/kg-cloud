@@ -42,15 +42,11 @@ public class J2rServiceImpl implements J2rService {
     private KgmsClient kgmsClient;
 
     @Override
-    public Page<Document> jsonStr(Integer dataSetId, Integer index) {
-
-        List<Document> ls = new ArrayList<>();
+    public String jsonStr(Integer dataSetId, Integer index) {
 
         DataSetRsp dataSetRsp = kgmsClient.dataSetFindById(Long.valueOf(dataSetId)).getData();
         MongoUtil mongoUtil = new MongoUtil(dataSetRsp.getAddr());
         MongoCursor<Document> cursor = mongoUtil.find(dataSetRsp.getDbName(), dataSetRsp.getTbName(), null, null, index, 1);
-        Long count = mongoUtil.count(dataSetRsp.getDbName(), dataSetRsp.getTbName(), null);
-
         Document doc = cursor.hasNext() ? cursor.next() : new Document();
         if (!doc.isEmpty()) {
             doc.append("jsonId", doc.get("_id").toString());
@@ -58,10 +54,8 @@ public class J2rServiceImpl implements J2rService {
             doc.remove("_persistTime");
             doc.remove("_oprTime");
             doc.remove("oprTime");
-            ls.add(doc);
         }
-
-        return new PageImpl<>(ls, PageRequest.of(index, 1), count);
+        return JacksonUtils.writeValueAsString(doc);
     }
 
     @Override
