@@ -72,6 +72,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -121,7 +122,14 @@ public class AttributeServiceImpl implements AttributeService {
     public List<AttrDefinitionRsp>  getAttrDefinitionByConceptId(String kgName,
                                                                 AttrDefinitionSearchReq attrDefinitionSearchReq) {
         List<Long> ids = attrDefinitionSearchReq.getIds();
-        ids.add(attrDefinitionSearchReq.getConceptId());
+        Long conceptId = attrDefinitionSearchReq.getConceptId();
+        if (0L == conceptId){
+            Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getAll(kgName));
+            return optional.orElse(new ArrayList<>()).stream()
+                    .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
+                    .collect(Collectors.toList());
+        }
+        ids.add(conceptId);
         AttrQueryFrom attrQueryFrom = ConvertUtils.convert(AttrQueryFrom.class).apply(attrDefinitionSearchReq);
         attrQueryFrom.setIds(ids);
         Optional<List<AttrDefVO>> optional = RestRespConverter

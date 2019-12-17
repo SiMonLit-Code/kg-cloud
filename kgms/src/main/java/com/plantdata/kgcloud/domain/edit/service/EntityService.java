@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
@@ -46,7 +47,7 @@ public interface EntityService {
      * @param basicInfoListReq
      * @return
      */
-    Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq);
+    Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq, BasicInfoListBodyReq bodyReq);
 
     /**
      * 批量删除实体

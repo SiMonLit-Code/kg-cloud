@@ -30,6 +30,7 @@ import com.plantdata.kgcloud.constant.TaskType;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
@@ -128,11 +129,12 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq) {
+    public Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq,
+                                           BasicInfoListBodyReq bodyReq) {
         BasicInfoListFrom basicInfoListFrom = MapperUtils.map(basicInfoListReq, BasicInfoListFrom.class);
-        basicInfoListFrom.setMetaData(parserFilterMetadata(basicInfoListReq));
+        basicInfoListFrom.setMetaData(parserFilterMetadata(basicInfoListReq, bodyReq));
         basicInfoListFrom.setSort(ParserBeanUtils.parserSortMetadata(basicInfoListReq.getSorts()));
-        basicInfoListFrom.setSkip(basicInfoListReq.getPage());
+        basicInfoListFrom.setSkip(basicInfoListReq.getPage() -1);
         basicInfoListFrom.setLimit(basicInfoListReq.getSize() + 1);
         Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(kgName, true,
                 basicInfoListFrom));
@@ -157,24 +159,24 @@ public class EntityServiceImpl implements EntityService {
      * @param basicInfoListReq
      * @return
      */
-    private Map<String, Object> parserFilterMetadata(BasicInfoListReq basicInfoListReq) {
+    private Map<String, Object> parserFilterMetadata(BasicInfoListReq basicInfoListReq, BasicInfoListBodyReq bodyReq) {
         Map<String, Object> filters = new HashMap<>();
-        if (Objects.nonNull(basicInfoListReq.getReliability())) {
-            filters.put(MetaDataInfo.RELIABILITY.getCode(), basicInfoListReq.getReliability());
+        if (Objects.nonNull(bodyReq.getReliability())) {
+            filters.put(MetaDataInfo.RELIABILITY.getCode(), bodyReq.getReliability());
         }
-        if (StringUtils.hasText(basicInfoListReq.getSource())) {
+        if (StringUtils.hasText(bodyReq.getSource())) {
             Map<String, Object> operation = new HashMap<>();
-            operation.put(MongoOperation.EQUAL.getType(), basicInfoListReq.getSource());
+            operation.put(MongoOperation.EQUAL.getType(), bodyReq.getSource());
             filters.put(MetaDataInfo.SOURCE.getCode(), operation);
         }
-        if (StringUtils.hasText(basicInfoListReq.getBatchNo())) {
+        if (StringUtils.hasText(bodyReq.getBatchNo())) {
             Map<String, Object> operation = new HashMap<>();
-            operation.put(MongoOperation.EQUAL.getType(), basicInfoListReq.getBatchNo());
+            operation.put(MongoOperation.EQUAL.getType(), bodyReq.getBatchNo());
             filters.put(MetaDataInfo.BATCH_NO.getCode(), operation);
         }
-        if (Objects.nonNull(basicInfoListReq.getTags()) && !basicInfoListReq.getTags().isEmpty()) {
+        if (Objects.nonNull(bodyReq.getTags()) && !bodyReq.getTags().isEmpty()) {
             Map<String, Object> operation = new HashMap<>();
-            operation.put(MongoOperation.IN.getType(), basicInfoListReq.getTags());
+            operation.put(MongoOperation.IN.getType(), bodyReq.getTags());
             filters.put(MetaDataInfo.TAG.getCode(), operation);
         }
         return filters;

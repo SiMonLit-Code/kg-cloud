@@ -35,19 +35,7 @@ public class BasicInfoListReq extends BaseReq {
     @ApiModelProperty(value = "是否继承")
     private Boolean inherit;
 
-    @ApiModelProperty(value = "0:概念,1:实体")
-    private Integer type;
-
-    @ApiModelProperty(value = "来源")
-    private String source;
-
-    @ApiModelProperty(value = "批次号")
-    private String batchNo;
-
-    @ApiModelProperty(value = "实体标签")
-    private List<String> tags;
-
-    @ApiModelProperty(value = "置信度筛选,{$gt:0}")
-    private Map<String, Object> reliability;
+    @ApiModelProperty(hidden = true,value = "0:概念,1:实体")
+    private Integer type = 1;
 
 }
