@@ -7,6 +7,7 @@ import ai.plantdata.kg.api.pub.SchemaApi;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.domain.app.bo.GraphCommonBO;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
@@ -19,6 +20,8 @@ import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
+import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
@@ -79,15 +82,12 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     public <T extends BasicGraphExploreReq> T keyToId(String kgName, T exploreReq) {
 
         //replace attrKey
-        if (CollectionUtils.isEmpty(exploreReq.getAllowAttrs()) && !CollectionUtils.isEmpty(exploreReq.getAllowAttrsKey())) {
-            exploreReq.setAllowAttrs(replaceByAttrKey(kgName, exploreReq.getAllowAttrsKey()));
-        }
+        replaceByAttrKey(kgName, exploreReq);
         //replace conceptKey
-        if (CollectionUtils.isEmpty(exploreReq.getAllowConceptsKey()) && !CollectionUtils.isEmpty(exploreReq.getAllowConceptsKey())) {
-            exploreReq.setAllowConcepts(replaceByConceptKey(kgName, exploreReq.getAllowConceptsKey()));
-        }
+        replaceByConceptKey(kgName, exploreReq);
+
         if (CollectionUtils.isEmpty(exploreReq.getReplaceClassIds()) && !CollectionUtils.isEmpty(exploreReq.getReplaceClassKeys())) {
-            exploreReq.setReplaceClassIds(replaceByConceptKey(kgName, exploreReq.getReplaceClassKeys()));
+            exploreReq.setReplaceClassIds(queryConceptByKey(kgName, exploreReq.getReplaceClassKeys()));
         }
         //replace attrGroupIds->attrIds
         if (!CollectionUtils.isEmpty(exploreReq.getAllowAttrGroups())) {
@@ -143,21 +143,32 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     }
 
     @Override
-    public List<Long> replaceByConceptKey(String kgName, List<String> keys) {
-        Optional<Map<String, Long>> keyConvertOpt = RestRespConverter.convert(schemaApi.getConceptIdByKey(kgName, keys));
-        if (!keyConvertOpt.isPresent()) {
-            return Collections.emptyList();
+    public void replaceByConceptKey(String kgName, ConceptKeyReqInterface conceptKeyReq) {
+        if (!CollectionUtils.isEmpty(conceptKeyReq.getAllowConcepts()) || CollectionUtils.isEmpty(conceptKeyReq.getAllowConceptsKey())) {
+            return;
         }
-        return new ArrayList<>(keyConvertOpt.orElse(Collections.emptyMap()).values());
+        conceptKeyReq.setAllowConcepts(queryConceptByKey(kgName, conceptKeyReq.getAllowConceptsKey()));
     }
 
     @Override
-    public List<Integer> replaceByAttrKey(String kgName, List<String> keys) {
-        Optional<Map<String, Integer>> keyConvertOpt = RestRespConverter.convert(schemaApi.getAttrIdByKey(kgName, keys));
-        if (!keyConvertOpt.isPresent()) {
+    public List<Long> queryConceptByKey(String kgName, List<String> keyList) {
+        Optional<Map<String, Long>> keyConvertOpt = RestRespConverter.convert(schemaApi.getConceptIdByKey(kgName, keyList));
+        if (!keyConvertOpt.isPresent() || CollectionUtils.isEmpty(keyConvertOpt.get())) {
             return Collections.emptyList();
         }
-        return new ArrayList<>(keyConvertOpt.orElse(Collections.emptyMap()).values());
+        return Lists.newArrayList(keyConvertOpt.get().values());
+    }
+
+    @Override
+    public void replaceByAttrKey(String kgName, AttrDefKeyReqInterface attrDefKeyReq) {
+        if (!CollectionUtils.isEmpty(attrDefKeyReq.getAllowAttrs()) || CollectionUtils.isEmpty(attrDefKeyReq.getAllowAttrsKey())) {
+            return;
+        }
+        Optional<Map<String, Integer>> keyConvertOpt = RestRespConverter.convert(schemaApi.getAttrIdByKey(kgName, attrDefKeyReq.getAllowAttrsKey()));
+        if (!keyConvertOpt.isPresent()) {
+            return;
+        }
+        attrDefKeyReq.setAllowAttrs(Lists.newArrayList(keyConvertOpt.get().values()));
     }
 
 }

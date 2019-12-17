@@ -24,6 +24,7 @@ import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -112,7 +113,7 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq) {
-        BasicInfoListFrom basicInfoListFrom = MapperUtils.map(basicInfoListReq,BasicInfoListFrom.class);
+        BasicInfoListFrom basicInfoListFrom = MapperUtils.map(basicInfoListReq, BasicInfoListFrom.class);
         basicInfoListFrom.setMetaData(parserFilterMetadata(basicInfoListReq));
         basicInfoListFrom.setSort(ParserBeanUtils.parserSortMetadata(basicInfoListReq.getSorts()));
         basicInfoListFrom.setSkip(basicInfoListReq.getPage());
@@ -332,7 +333,7 @@ public class EntityServiceImpl implements EntityService {
         AttributeValueFrom attributeValueFrom =
                 ConvertUtils.convert(AttributeValueFrom.class).apply(numericalAttrValueReq);
         NumericalAttrValueReq.UrlAttrValue urlAttrValue = numericalAttrValueReq.getUrlAttrValue();
-        if (Objects.isNull(numericalAttrValueReq.getAttrValue()) && Objects.nonNull(urlAttrValue)){
+        if (Objects.isNull(numericalAttrValueReq.getAttrValue()) && Objects.nonNull(urlAttrValue)) {
             attributeValueFrom.setAttrValue(JacksonUtils.writeValueAsString(urlAttrValue));
         }
         RestRespConverter.convertVoid(conceptEntityApi.addNumericAttrValue(kgName, attributeValueFrom));
@@ -435,17 +436,16 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq) {
-        if (entityQueryReq.getConceptId() == null && org.apache.commons.lang3.StringUtils.isNotEmpty(entityQueryReq.getConceptKey())) {
-            List<Long> longList = graphHelperService.replaceByConceptKey(kgName,
+        if (entityQueryReq.getConceptId() == null && !StringUtils.isEmpty(entityQueryReq.getConceptKey())) {
+            List<Long> longList = graphHelperService.queryConceptByKey(kgName,
                     Lists.newArrayList(entityQueryReq.getConceptKey()));
-            if (!CollectionUtils.isEmpty(longList)) {
-                entityQueryReq.setConceptId(longList.get(0));
-            }
+            BasicConverter.setIfNoNull(longList, a -> entityQueryReq.setConceptId(a.get(0)));
         }
         SearchByAttributeFrom attributeFrom = EntityConverter.entityQueryReqToSearchByAttributeFrom(entityQueryReq);
         Optional<List<ai.plantdata.kg.api.pub.resp.EntityVO>> entityOpt =
                 RestRespConverter.convert(entityApi.searchByAttribute(kgName, attributeFrom));
-        return entityOpt.orElse(new ArrayList<>()).stream().map(EntityConverter::voToOpenEntityRsp).collect(Collectors.toList());
+        return entityOpt.orElse(new ArrayList<>()).stream().map(EntityConverter::voToOpenEntityRsp)
+                .collect(Collectors.toList());
     }
 
     @Override

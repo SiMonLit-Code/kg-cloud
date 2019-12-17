@@ -3,12 +3,14 @@ package com.plantdata.kgcloud.domain.app.converter;
 import ai.plantdata.kg.api.edit.resp.RelationAttrValueVO;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -38,5 +40,15 @@ public class BasicConverter {
 
     public static <T, R> List<R> listConvert(@NonNull Collection<T> list, Function<T, R> function) {
         return list.stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
+    }
+
+    public static <T> void setIfNoNull(T param, Consumer<T> function) {
+        if (param instanceof String && !StringUtils.isEmpty(param)) {
+            function.accept(param);
+        } else if (param instanceof Collection && !CollectionUtils.isEmpty((Collection) param)) {
+            function.accept(param);
+        } else if (param != null) {
+            function.accept(param);
+        }
     }
 }
