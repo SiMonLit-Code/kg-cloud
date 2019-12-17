@@ -8,7 +8,9 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 /**
- * Created by plantdata-1007 on 2019/12/3.
+ *
+ * @author jiangdeming
+ * @date 2019/12/3
  */
 public interface GraphConfStatisticalService {
     /**
@@ -33,7 +35,7 @@ public interface GraphConfStatisticalService {
 
     /**
      * 修改统计
-     *
+     * @param id
      * @param req
      * @return
      */
@@ -73,8 +75,9 @@ public interface GraphConfStatisticalService {
     List<GraphConfStatisticalRsp> findByKgName(String kgName);
 
     /**
-     * 查询所有
-     *
+     * 分页
+     * @param kgName
+     * @param baseReq
      * @return
      */
     Page<GraphConfStatisticalRsp> getByKgName(String kgName , BaseReq baseReq);

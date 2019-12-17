@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 /**
- * Created by jdm on 2019/12/9 16:10.
+ *
+ * @author jdm
+ * @date 2019/12/9 16:10
  */
 
 @Api(tags = "图谱配置")

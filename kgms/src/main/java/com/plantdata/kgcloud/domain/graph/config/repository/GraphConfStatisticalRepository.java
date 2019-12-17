@@ -15,9 +15,19 @@ import java.util.List;
 public interface GraphConfStatisticalRepository extends JpaRepository<GraphConfStatistical, Long> {
 
 
-
+    /**
+     * 查询
+     * @param kgName
+     * @return
+     */
     List<GraphConfStatistical> findByKgName(String kgName);
 
+    /**
+     * 分页
+     * @param kgName
+     * @param pageable
+     * @return
+     */
     Page<GraphConfStatistical> getByKgName(String kgName, Pageable pageable);
 
 
