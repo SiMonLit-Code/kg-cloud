@@ -21,13 +21,17 @@ import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityTagFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
+import com.plantdata.kgcloud.constant.TaskStatus;
+import com.plantdata.kgcloud.constant.TaskType;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
@@ -54,6 +58,10 @@ import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
+import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
+import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
+import com.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
+import com.plantdata.kgcloud.producer.KafkaMessageProducer;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
@@ -62,6 +70,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -101,6 +110,15 @@ public class EntityServiceImpl implements EntityService {
     @Autowired
     private GraphHelperService graphHelperService;
 
+    @Value("${topic.kg.task}")
+    private String topicKgTask;
+
+    @Autowired
+    private KafkaMessageProducer kafkaMessageProducer;
+
+    @Autowired
+    private TaskGraphStatusService taskGraphStatusService;
+
     @Override
     public void addMultipleConcept(String kgName, Long conceptId, Long entityId) {
         RestRespConverter.convertVoid(conceptEntityApi.addMultipleConcept(kgName, conceptId, entityId));
@@ -112,13 +130,15 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq) {
+    public Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq,
+                                           BasicInfoListBodyReq bodyReq) {
         BasicInfoListFrom basicInfoListFrom = MapperUtils.map(basicInfoListReq, BasicInfoListFrom.class);
-        basicInfoListFrom.setMetaData(parserFilterMetadata(basicInfoListReq));
+        basicInfoListFrom.setMetaData(parserFilterMetadata(basicInfoListReq, bodyReq));
         basicInfoListFrom.setSort(ParserBeanUtils.parserSortMetadata(basicInfoListReq.getSorts()));
-        basicInfoListFrom.setSkip(basicInfoListReq.getPage());
+        basicInfoListFrom.setSkip(basicInfoListReq.getPage() -1);
         basicInfoListFrom.setLimit(basicInfoListReq.getSize() + 1);
-        Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(kgName, true, basicInfoListFrom));
+        Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(kgName, true,
+                basicInfoListFrom));
         List<BasicInfoRsp> basicInfoRspList =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
 
@@ -140,24 +160,24 @@ public class EntityServiceImpl implements EntityService {
      * @param basicInfoListReq
      * @return
      */
-    private Map<String, Object> parserFilterMetadata(BasicInfoListReq basicInfoListReq) {
+    private Map<String, Object> parserFilterMetadata(BasicInfoListReq basicInfoListReq, BasicInfoListBodyReq bodyReq) {
         Map<String, Object> filters = new HashMap<>();
-        if (Objects.nonNull(basicInfoListReq.getReliability())) {
-            filters.put(MetaDataInfo.RELIABILITY.getCode(), basicInfoListReq.getReliability());
+        if (Objects.nonNull(bodyReq.getReliability())) {
+            filters.put(MetaDataInfo.RELIABILITY.getCode(), bodyReq.getReliability());
         }
-        if (StringUtils.hasText(basicInfoListReq.getSource())) {
+        if (StringUtils.hasText(bodyReq.getSource())) {
             Map<String, Object> operation = new HashMap<>();
-            operation.put(MongoOperation.EQUAL.getType(), basicInfoListReq.getSource());
+            operation.put(MongoOperation.EQUAL.getType(), bodyReq.getSource());
             filters.put(MetaDataInfo.SOURCE.getCode(), operation);
         }
-        if (StringUtils.hasText(basicInfoListReq.getBatchNo())) {
+        if (StringUtils.hasText(bodyReq.getBatchNo())) {
             Map<String, Object> operation = new HashMap<>();
-            operation.put(MongoOperation.EQUAL.getType(), basicInfoListReq.getBatchNo());
+            operation.put(MongoOperation.EQUAL.getType(), bodyReq.getBatchNo());
             filters.put(MetaDataInfo.BATCH_NO.getCode(), operation);
         }
-        if (Objects.nonNull(basicInfoListReq.getTags()) && !basicInfoListReq.getTags().isEmpty()) {
+        if (Objects.nonNull(bodyReq.getTags()) && !bodyReq.getTags().isEmpty()) {
             Map<String, Object> operation = new HashMap<>();
-            operation.put(MongoOperation.IN.getType(), basicInfoListReq.getTags());
+            operation.put(MongoOperation.IN.getType(), bodyReq.getTags());
             filters.put(MetaDataInfo.TAG.getCode(), operation);
         }
         return filters;
@@ -186,8 +206,18 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public void deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq) {
-        conceptEntityApi.deleteEntities(kgName, entityDeleteReq.isInherit(), entityDeleteReq.getConceptId());
+    public Long deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq) {
+        TaskGraphStatusReq taskGraphStatusReq = TaskGraphStatusReq.builder()
+                .kgName(kgName)
+                .status(TaskStatus.PROCESSING.getStatus())
+                .type(TaskType.CLEAR_ENTITY.getType())
+                .params(JacksonUtils.readValue(JacksonUtils.writeValueAsString(entityDeleteReq),
+                        new TypeReference<Map<String, Object>>() {
+                        }))
+                .build();
+        TaskGraphStatus taskGraphStatus = taskGraphStatusService.create(taskGraphStatusReq);
+        kafkaMessageProducer.sendMessage(topicKgTask, taskGraphStatus);
+        return taskGraphStatus.getId();
     }
 
     @Override

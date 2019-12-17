@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.task.req;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiParam;
 import lombok.Data;
@@ -43,11 +44,14 @@ public class KettleReq {
     private String sql;
 
     @ApiParam(hidden = true)
+    @JsonIgnore
     private List<String> mongoAddress;
 
     @ApiParam(value = "mongoDbName", hidden = true)
+    @JsonIgnore
     private String mongoDbName;
 
     @ApiParam(value = "mongoTbName", hidden = true)
+    @JsonIgnore
     private String mongoTbName;
 }

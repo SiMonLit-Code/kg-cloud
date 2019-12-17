@@ -13,11 +13,18 @@ import java.util.List;
  * @create: 2019-11-04 18:45
  **/
 public interface GraphConfKgqlRepository extends JpaRepository<GraphConfKgql, Long> {
+    /**
+     * 查询
+     * @param kgName
+     * @return
+     */
     List<GraphConfKgql> findByKgName(String kgName);
 
     /**
      * 分页
-     *
+     * @param kgName
+     * @param ruleType
+     * @param pageable
      * @return
      */
     Page<GraphConfKgql> findByKgNameAndRuleType(String kgName,Integer ruleType, Pageable pageable);

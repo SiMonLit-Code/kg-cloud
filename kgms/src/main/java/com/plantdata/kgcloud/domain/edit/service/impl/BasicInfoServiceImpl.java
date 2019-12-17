@@ -125,6 +125,9 @@ public class BasicInfoServiceImpl implements BasicInfoService {
                             .map(EntityAttrValueVO::getId).collect(Collectors.toList());
             List<GraphAttrGroupRsp> attrGroupRsps = groupRsps.stream().filter(graphAttrGroupRsp -> {
                 List<Integer> rspAttrIds = graphAttrGroupRsp.getAttrIds();
+                if (CollectionUtils.isEmpty(rspAttrIds)){
+                    return false;
+                }
                 rspAttrIds.retainAll(attrIds);
                 return !rspAttrIds.isEmpty();
             }).collect(Collectors.toList());

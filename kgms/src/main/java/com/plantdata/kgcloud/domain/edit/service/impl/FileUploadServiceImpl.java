@@ -29,7 +29,7 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public ThumbPathRsp uploadPicture(MultipartFile file) {
-        FastdfsPathDto fastdfsPathDto = fastdfsTemplate.uploadFile(file);
+        FastdfsPathDto fastdfsPathDto = fastdfsTemplate.uploadImage(file);
         return ConvertUtils.convert(ThumbPathRsp.class).apply(fastdfsPathDto);
     }
 }

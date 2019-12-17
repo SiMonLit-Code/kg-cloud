@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by plantdata-1007 on 2019/12/3.
+ *
+ * @author jiangdeming
+ * @date 2019/12/3
  */
 @Service
 public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalService {
