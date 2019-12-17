@@ -41,7 +41,7 @@ public class ClashDataController {
         return ApiReturn.success();
     }
 
-    @PostMapping("/clash/{kgName}")
+    @PostMapping("/clash/delete/{kgName}")
     @ApiOperation("删除")
     public ApiReturn remove(@PathVariable("kgName") String kgName,
                             @ApiParam("id数组") @RequestBody List<String> ids) {
