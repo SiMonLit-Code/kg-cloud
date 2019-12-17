@@ -3,9 +3,11 @@ package com.plantdata.kgcloud.domain.app;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
+import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,4 +58,14 @@ public class GraphExplorationTest {
         System.out.println(JacksonUtils.writeValueAsString(exploreRsp));
     }
 
+    /**
+     * gis图探索
+     */
+    @Test
+    public void gisGraphExplorationTest() {
+        GisGraphExploreReq gisGraphExploreReq = new GisGraphExploreReq();
+        gisGraphExploreReq.setIsInherit(true);
+        GisGraphExploreRsp gisGraphExploreRsp = graphExplorationService.gisGraphExploration(KG_NAME, gisGraphExploreReq);
+        System.out.println(JacksonUtils.writeValueAsString(gisGraphExploreRsp));
+    }
 }
