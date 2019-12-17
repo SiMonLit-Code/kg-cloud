@@ -11,6 +11,7 @@ import ai.plantdata.kg.api.pub.resp.PromptItemVO;
 import ai.plantdata.kg.api.semantic.QuestionAnswersApi;
 import ai.plantdata.kg.api.semantic.req.NerSearchReq;
 import ai.plantdata.kg.api.semantic.rsp.SemanticSegWordVO;
+import ai.plantdata.kg.support.SegmentWordVO;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.constant.AppConstants;
@@ -160,7 +161,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         NerSearchReq nerParam = new NerSearchReq();
         nerParam.setKgName(kgName);
         nerParam.setQuery(promptReq.getKw());
-        List<SemanticSegWordVO> ner = RestRespConverter.convert(questionAnswersApi.ner(nerParam)).orElse(Collections.emptyList());
+        List<SegmentWordVO> ner = RestRespConverter.convert(questionAnswersApi.ner(nerParam)).orElse(Collections.emptyList());
 
         if (ner.isEmpty() || ner.size() > AppConstants.NER_NUMBER) {
             return rs;
@@ -186,7 +187,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         }
         //取一个实体和一个实体的模板
         if (rs.isEmpty() && ner.size() > 1) {
-            for (SemanticSegWordVO nerResult : ner) {
+            for (SegmentWordVO nerResult : ner) {
                 for (GraphConfQaRsp template : qaTemplates) {
                     if (rs.size() == 2) {
                         break;
@@ -207,10 +208,10 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         return rs.stream().filter(e -> e.getName().toLowerCase().startsWith(promptReq.getKw().toLowerCase())).collect(Collectors.toList());
     }
 
-    private String buildQuestion(String kgName, List<SemanticSegWordVO> entities, GraphConfQaRsp template) {
+    private String buildQuestion(String kgName, List<SegmentWordVO> entities, GraphConfQaRsp template) {
         String question = template.getQuestion();
         for (int i = 0; i < template.getCount(); i++) {
-            SemanticSegWordVO nerResult = entities.get(i);
+            SegmentWordVO nerResult = entities.get(i);
             if (!checkConcept(JsonUtils.readToList(template.getConceptIds(), Long.class), nerResult.getEntityClassIdList(), kgName)) {
                 question = null;
                 break;
