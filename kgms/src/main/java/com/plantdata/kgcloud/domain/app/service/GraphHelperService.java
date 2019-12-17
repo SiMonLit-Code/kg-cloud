@@ -4,6 +4,8 @@ import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
+import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
@@ -18,10 +20,30 @@ import java.util.Optional;
  * @date 2019/12/2 16:33
  */
 public interface GraphHelperService {
+    /**
+     * 查询概念id
+     *
+     * @param kgName  图谱名称
+     * @param keyList 概念key
+     * @return
+     */
+    List<Long> queryConceptByKey(String kgName, List<String> keyList);
 
-    List<Long> replaceByConceptKey(String kgName, List<String> keys);
+    /**
+     * 替换conceptKey
+     *
+     * @param kgName        图谱名称
+     * @param conceptKeyReq req
+     */
+    void replaceByConceptKey(String kgName, ConceptKeyReqInterface conceptKeyReq);
 
-    List<Integer> replaceByAttrKey(String kgName, List<String> keys);
+    /**
+     * 替换属性key 为attrs  Id
+     *
+     * @param kgName        图谱名称
+     * @param attrDefKeyReq req
+     */
+    void replaceByAttrKey(String kgName, AttrDefKeyReqInterface attrDefKeyReq);
 
     Map<Long, BasicInfo> getConceptIdMap(String kgName);
 
@@ -36,15 +58,27 @@ public interface GraphHelperService {
     <T extends BasicGraphExploreReq> T keyToId(String kgName, T exploreReq);
 
     /**
+     * 前置搜索
+     *
      * @param kgName
      * @param req
      * @param rsp
      * @param <T>
-     * @param <E>
      * @return
      */
     <T extends BasicGraphExploreRsp> Optional<T> graphSearchBefore(String kgName, SecondaryScreeningInterface req, T rsp);
 
+    /**
+     * 构建统计结果
+     *
+     * @param kgName
+     * @param configList
+     * @param graphVO
+     * @param pathAnalysisRsp
+     * @param relationMerge
+     * @param <T>
+     * @return
+     */
     <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, boolean relationMerge);
 
 }

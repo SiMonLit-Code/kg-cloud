@@ -1,17 +1,17 @@
 package com.plantdata.kgcloud.sdk.req.app.explore.common;
 
-import com.plantdata.kgcloud.bean.BaseReq;
-import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
+
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -21,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class BasicGraphExploreReq {
+public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyReqInterface {
 
 
     @ApiModelProperty("要替换的概念id")
@@ -55,4 +55,5 @@ public class BasicGraphExploreReq {
     private List<RelationAttrReq> reservedEdgeAttrFilters;
     @ApiModelProperty("要求的参数")
     private BasicGraphExploreRsp graphReq;
+
 }

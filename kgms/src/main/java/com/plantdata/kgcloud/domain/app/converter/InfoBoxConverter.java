@@ -8,6 +8,7 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.sdk.constant.AttrDefinitionTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
@@ -90,7 +91,7 @@ public class InfoBoxConverter extends BasicConverter {
         //属性
         if (!CollectionUtils.isEmpty(entity.getAttrValue())) {
             entity.getAttrValue().forEach(a -> {
-                if (a.getType() != null && a.getType() == AttributeDataTypeEnum.OBJECT.getValue()) {
+                if (a.getType() != null && AttrDefinitionTypeEnum.OBJECT.fetchId().equals(a.getType())) {
                     objAttrList.add(a);
                 } else {
                     otherDataAttrList.add(a);
@@ -158,7 +159,7 @@ public class InfoBoxConverter extends BasicConverter {
                 extraList.add(dataAttrToExtraRsp(value));
             }
             //私有对象属性
-            else if (value.getType() == 0) {
+            else if (value.getType() == 0 && !CollectionUtils.isEmpty(value.getObjectValues())) {
                 value.getObjectValues().forEach(a -> {
                     Map<Integer, List<BasicInfo>> relationObjectValues = a.getRelationObjectValues();
                     extraList.add(new EntityLinksRsp.ExtraRsp(a.getAttrId(), a.getName(), relationObjectValues.values()));

@@ -13,11 +13,9 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/11/29 9:54
  */
-public class ApkConverter {
-    public static List<ApkRsp> graphRspToApkRsp(List<GraphRsp> graphList, String apk) {
-        if (CollectionUtils.isEmpty(graphList)) {
-            return Collections.emptyList();
-        }
-        return graphList.stream().map(a -> new ApkRsp(a.getKgName(), a.getTitle(), apk)).collect(Collectors.toList());
+public class ApkConverter extends BasicConverter {
+
+    public static ApkRsp graphRspToApkRsp(GraphRsp graphRsp, String apk) {
+        return new ApkRsp(graphRsp.getKgName(), graphRsp.getTitle(), apk);
     }
 }

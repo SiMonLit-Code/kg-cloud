@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app.infobox;
 
+import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.List;
 @ApiModel("知识卡片参数")
 @Getter
 @Setter
-public class BatchInfoBoxReq {
+public class BatchInfoBoxReq implements AttrDefKeyReqInterface {
     @ApiModelProperty("实体id")
     private List<Long> entityIdList;
     @ApiModelProperty("是否读取对象属性,默认true")
