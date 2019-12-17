@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.rsp.app;
 
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 
 import java.util.Date;
@@ -18,6 +19,15 @@ public interface MetaDataInterface {
      * @param startTime 。
      */
     default void setStartTime(Date startTime) {
+    }
+
+    /**
+     * 实体关联
+     *
+     * @param entityLinks 。
+     */
+    default void setEntityLinks(List<EntityLinkVO> entityLinks) {
+
     }
 
     /**
@@ -84,6 +94,19 @@ public interface MetaDataInterface {
      * @param score .
      */
     default void setScore(Double score) {
+
+    }
+
+    /**
+     * 批次
+     *
+     * @param batch .
+     */
+    default void setBatch(String batch) {
+
+    }
+
+    default void setReliability(Double reliability) {
 
     }
 }

@@ -17,10 +17,52 @@ public class CompareFilterReq {
 
     @ApiModelProperty("大于")
     private String $gt;
+    @ApiModelProperty("大于等于")
+    private String $gte;
     @ApiModelProperty("小于")
-    private String $lt;
+    private Object $lt;
+    @ApiModelProperty("小于等于")
+    private Object $lte;
     @ApiModelProperty("等于")
     private String $eq;
+    @ApiModelProperty("包含")
+    private Object $in;
+    @ApiModelProperty("不等于")
+    private Object $neq;
+    @ApiModelProperty("不等于")
+    private Object $nin;
+
+    public Object get$nin() {
+        return $nin;
+    }
+
+    public void set$nin(Object $nin) {
+        this.$nin = $nin;
+    }
+
+    public Object get$neq() {
+        return $neq;
+    }
+
+    public void set$neq(Object $neq) {
+        this.$neq = $neq;
+    }
+
+    public Object get$lte() {
+        return $lte;
+    }
+
+    public void set$lte(Object $lte) {
+        this.$lte = $lte;
+    }
+
+    public Object get$in() {
+        return $in;
+    }
+
+    public void set$in(Object $in) {
+        this.$in = $in;
+    }
 
     public String get$gt() {
         return $gt;
@@ -30,11 +72,11 @@ public class CompareFilterReq {
         this.$gt = $gt;
     }
 
-    public String get$lt() {
+    public Object get$lt() {
         return $lt;
     }
 
-    public void set$lt(String $lt) {
+    public void set$lt(Object $lt) {
         this.$lt = $lt;
     }
 
@@ -44,5 +86,13 @@ public class CompareFilterReq {
 
     public void set$eq(String $eq) {
         this.$eq = $eq;
+    }
+
+    public String get$gte() {
+        return $gte;
+    }
+
+    public void set$gte(String $gte) {
+        this.$gte = $gte;
     }
 }

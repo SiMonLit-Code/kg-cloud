@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
+
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,7 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("实体提示参数")
-public class PromptReq extends BaseReq implements PromptSearchInterface {
+public class PromptReq extends PageReq implements PromptSearchInterface {
 
     @ApiModelProperty("关键字")
     private String kw;
@@ -38,7 +40,8 @@ public class PromptReq extends BaseReq implements PromptSearchInterface {
     private Boolean fuzzy = false;
     @ApiModelProperty("是否使用导出实体数据集检索")
     private Boolean openExportDate = true;
-
+    @ApiModelProperty("排序")
+    private Integer sort;
 
     @Override
     public Boolean getInherit() {

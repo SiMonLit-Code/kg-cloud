@@ -37,8 +37,6 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
     @Override
     public PathAnalysisRsp path(String kgName, PathAnalysisReq analysisReq) {
 
-
-
         analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
         //路径探索

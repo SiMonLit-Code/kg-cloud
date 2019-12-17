@@ -35,7 +35,7 @@ public class ApiAuditUrlRsp {
 
     public static class VerticalData {
         private String name;
-        private List<Integer> val;
+        private List<Long> val;
 
         public String getName() {
             return name;
@@ -45,11 +45,11 @@ public class ApiAuditUrlRsp {
             this.name = name;
         }
 
-        public List<Integer> getVal() {
+        public List<Long> getVal() {
             return val;
         }
 
-        public void setVal(List<Integer> val) {
+        public void setVal(List<Long> val) {
             this.val = val;
         }
     }

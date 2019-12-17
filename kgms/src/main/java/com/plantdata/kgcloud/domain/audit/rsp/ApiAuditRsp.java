@@ -11,5 +11,5 @@ import lombok.Data;
 @Data
 public class ApiAuditRsp {
     private String name;
-    private Integer value;
+    private Long value;
 }

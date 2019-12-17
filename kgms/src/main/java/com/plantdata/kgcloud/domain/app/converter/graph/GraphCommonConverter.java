@@ -11,14 +11,15 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.ImageConverter;
 import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.rsp.app.MetaDataInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
@@ -72,17 +73,15 @@ public class GraphCommonConverter {
      * @param <E>        子类
      * @return 。。。
      */
-    static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(BaseReq page, T exploreReq, E graphFrom) {
+    static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(PageReq page, T exploreReq, E graphFrom) {
         CommonFilter commonFilter = new GraphFrom();
         if (page == null) {
-            page = new BaseReq();
+            page = new PageReq();
             page.setPage(NumberUtils.INTEGER_ZERO);
             page.setSize(10);
         }
         commonFilter.setSkip(page.getOffset());
-        commonFilter.setDirection(exploreReq.getDirection());
         commonFilter.setDistance(exploreReq.getDistance());
-        commonFilter.setLimit(exploreReq.getHighLevelSize() == null ? page.getLimit() : exploreReq.getHighLevelSize());
         graphFrom.setSkip(page.getPage());
         graphFrom.setLimit(page.getSize());
         if (!CollectionUtils.isEmpty(exploreReq.getEntityFilters())) {
@@ -94,14 +93,11 @@ public class GraphCommonConverter {
         if (!CollectionUtils.isEmpty(exploreReq.getEdgeAttrFilters())) {
             commonFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(exploreReq.getEdgeAttrFilters())));
         }
-        if (!CollectionUtils.isEmpty(exploreReq.getEdgeAttrSorts())) {
-            commonFilter.setEdgeSort(ConditionConverter.relationAttrSortToMap(exploreReq.getEdgeAttrSorts()));
-        }
+
 
         graphFrom.setHighLevelFilter(commonFilter);
         graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
         graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
-        graphFrom.setDirection(exploreReq.getDirection());
         graphFrom.setInherit(exploreReq.isInherit());
         graphFrom.setDistance(exploreReq.getDistance());
 
@@ -140,6 +136,7 @@ public class GraphCommonConverter {
             relationRsp.setEndTime(relation.getAttrTimeFrom());
             relationRsp.setId(relation.getId());
             if (!CollectionUtils.isEmpty(relation.getMetaData())) {
+                MetaConverter.fillMetaWithNoNull(relation.getMetaData(), relationRsp);
                 Map<String, Object> additionalMap = (Map<String, Object>) relation.getMetaData().get(MetaDataInfo.ADDITIONAL.getFieldName());
                 relationRsp.setLabelStyle((Map<String, Object>) additionalMap.get("labelStyle"));
                 relationRsp.setLinkStyle((Map<String, Object>) additionalMap.get("linkStyle"));

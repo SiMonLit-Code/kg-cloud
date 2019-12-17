@@ -35,5 +35,4 @@ public class BasicEntityRsp  implements MetaDataInterface {
     private Date endTime;
     @ApiModelProperty("创建时间")
     private String creationTime;
-
 }

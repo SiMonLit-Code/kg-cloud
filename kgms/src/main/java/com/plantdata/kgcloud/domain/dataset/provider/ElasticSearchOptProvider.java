@@ -99,8 +99,10 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             queryNode.putPOJO("size", limit);
         }
 
-        NStringEntity entity = new NStringEntity(query.toString(), ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
+        if(query!=null) {
+            NStringEntity entity = new NStringEntity(query.toString(), ContentType.APPLICATION_JSON);
+            request.setEntity(entity);
+        }
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
         JsonNode node = readTree(result);

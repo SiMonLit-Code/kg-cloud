@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.entity;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.plantdata.kgcloud.domain.common.converter.ArrayNodeConcerter;
+import com.plantdata.kgcloud.domain.common.converter.ArrayNodeConverter;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -44,7 +44,7 @@ public class GraphConfQa {
 
     @Basic
     @Column(name = "concept_ids")
-    @Convert(converter = ArrayNodeConcerter.class)
+    @Convert(converter = ArrayNodeConverter.class)
     private ArrayNode conceptIds;
 
     @Basic

@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.plantdata.kgcloud.domain.common.converter.JsonNodeConcerter;
+import com.plantdata.kgcloud.domain.common.converter.JsonNodeConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,7 +38,7 @@ public class GraphConfStatistical {
 
     @Basic
     @Column(name = "statis_rule")
-    @Convert(converter = JsonNodeConcerter.class)
+    @Convert(converter = JsonNodeConverter.class)
     private JsonNode statisRule;
 
     @Basic

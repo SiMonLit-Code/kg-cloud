@@ -26,8 +26,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     QUERYSETTING_NOT_EXISTS(120110, "规则配置不存在"),
 
     ANNOTATION_NOT_EXISTS(120109, "标引不存在"),
-    DATASET_ES_REQUEST_ERROR(120110,"es请求失败"),
-    DATASET_ES_KEY_EXISTS(120111,"es唯一标识已存在"),
+    DATASET_ES_REQUEST_ERROR(120110, "es请求失败"),
+    DATASET_ES_KEY_EXISTS(120111, "es唯一标识已存在"),
 
 
     MODEL_NOT_EXISTS(120201, "模型不存在"),
@@ -52,6 +52,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     GRAPH_NOT_EXISTS(120401, "图谱不存在"),
 
     GRAPH_CREATE_FAIL(120402, "图谱创建失败"),
+
+    GRAPH_OUT_LIMIT(120403, "超过图谱创建限制,请联系管理员"),
 
     REMOTE_SERVICE_ERROR(120501, "远程服务错误"),
 

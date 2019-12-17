@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -46,6 +47,7 @@ public class DataSetAnnotation {
 
     @Basic
     @Column(name = "user_id")
+    @CreatedBy
     private String userId;
 
     @Basic
@@ -54,7 +56,7 @@ public class DataSetAnnotation {
 
     @Basic
     @Column(name = "dataset_id")
-    private Long datasetId;
+    private Long dataId;
 
     @Basic
     @Column(name = "title")

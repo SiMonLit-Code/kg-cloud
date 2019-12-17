@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.app.MetaDataInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.StyleRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
@@ -11,6 +12,7 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author cjw
@@ -21,7 +23,16 @@ public class MetaConverter {
 
     public static void fillMetaWithNoNull(Map<String, Object> metaData, MetaDataInterface metaDataImpl) {
         if (metaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-
+            Object o = metaData.get(MetaDataInfo.SCORE.getFieldName());
+            metaDataImpl.setScore((Double) o);
+        }
+        if (metaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
+            Object o = metaData.get(MetaDataInfo.RELIABILITY.getFieldName());
+            metaDataImpl.setReliability((Double) o);
+        }
+        if (metaData.containsKey(MetaDataInfo.BATCH_NO.getFieldName())) {
+            Object o = metaData.get(MetaDataInfo.BATCH_NO.getFieldName());
+            metaDataImpl.setBatch(o.toString());
         }
         if (metaData.containsKey(MetaDataInfo.FROM_TIME.getFieldName())) {
             Object o = metaData.get(MetaDataInfo.FROM_TIME.getFieldName());
@@ -30,6 +41,9 @@ public class MetaConverter {
         if (metaData.containsKey(MetaDataInfo.TO_TIME.getFieldName())) {
             Object o = metaData.get(MetaDataInfo.TO_TIME.getFieldName());
             metaDataImpl.setEndTime(DateUtils.parseDatetime(o.toString()));
+        }
+        if (metaData.containsKey(MetaDataInfo.ENTITY_LINK.getFieldName())) {
+            metaDataImpl.setEntityLinks((List<EntityLinkVO>) metaData.get(MetaDataInfo.ENTITY_LINK.getFieldName()));
         }
         if (metaData.containsKey(MetaDataInfo.OPEN_GIS.getFieldName())) {
             metaDataImpl.setOpenGis((Boolean) metaData.get(MetaDataInfo.OPEN_GIS.getFieldName()));

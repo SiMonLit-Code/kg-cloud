@@ -31,7 +31,7 @@ public class GraphAttrTemplate {
 
     @Id
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
     @Basic
     @Column(name = "name")

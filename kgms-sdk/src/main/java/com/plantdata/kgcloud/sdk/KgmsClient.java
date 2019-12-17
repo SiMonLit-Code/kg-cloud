@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.*;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.rsp.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -251,7 +252,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/config/kgql/{kgName}")
-    ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, BaseReq baseReq);
+    ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, PageReq baseReq);
 
     /**
      * 图谱配置-KGQL-详情
@@ -259,7 +260,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/kgql/{id}")
-    public ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id);
+     ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id);
 
     /**
      * 图谱配置-问答-新建
