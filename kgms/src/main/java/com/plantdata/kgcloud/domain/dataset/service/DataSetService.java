@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
+import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -103,7 +104,7 @@ public interface DataSetService {
      * @param id
      * @return
      */
-    DataSetRsp findById(String userId, Long id);
+    DataSetUpdateRsp findById(String userId, Long id);
 
     /**
      * 根据id删除接口

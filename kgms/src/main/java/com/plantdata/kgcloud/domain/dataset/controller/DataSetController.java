@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.req.FolderReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
+import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
 import com.plantdata.kgcloud.sdk.rsp.FolderRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
@@ -52,19 +53,6 @@ public class DataSetController {
         return ApiReturn.success(dataSetService.findAll(userId));
     }
 
-    @ApiOperation("数据集-schema-根据 dataNames 查询ids")
-    @PostMapping("/dataname")
-    public ApiReturn<List<Long>> findByDataName(@RequestBody List<String> dataNames) {
-        String userId = SessionHolder.getUserId();
-        return ApiReturn.success(dataSetService.findByDataNames(userId, dataNames));
-    }
-
-    @ApiOperation("数据集-schema-根据 dbName tbName 查询ids")
-    @PostMapping("/database")
-    public ApiReturn<List<Long>> findByDatabase(@RequestBody List<DataSetSdkReq> dataNames) {
-        String userId = SessionHolder.getUserId();
-        return ApiReturn.success(dataSetService.findByDatabase(userId, dataNames));
-    }
 
     @ApiOperation("数据集-schema-分页查找")
     @GetMapping("/")
@@ -75,7 +63,7 @@ public class DataSetController {
 
     @ApiOperation("数据集-schema-根据Id查找")
     @GetMapping("/{id}")
-    public ApiReturn<DataSetRsp> findById(@PathVariable Long id) {
+    public ApiReturn<DataSetUpdateRsp> findById(@PathVariable Long id) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dataSetService.findById(userId, id));
     }
@@ -153,4 +141,19 @@ public class DataSetController {
         return ApiReturn.success();
     }
 
+
+
+    @ApiOperation("数据集-schema-根据 dataNames 查询ids")
+    @PostMapping("/dataname")
+    public ApiReturn<List<Long>> findByDataName(@RequestBody List<String> dataNames) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataSetService.findByDataNames(userId, dataNames));
+    }
+
+    @ApiOperation("数据集-schema-根据 dbName tbName 查询ids")
+    @PostMapping("/database")
+    public ApiReturn<List<Long>> findByDatabase(@RequestBody List<DataSetSdkReq> dataNames) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataSetService.findByDatabase(userId, dataNames));
+    }
 }
