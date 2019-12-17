@@ -66,11 +66,11 @@ public class LiteController {
         return ApiReturn.success();
     }
 
-    @GetMapping("/share/status/{kgName}")
+    @GetMapping("/share/status")
     @ApiOperation("分享-分享状态列表")
-    public ApiReturn shareStatus(@PathVariable("kgName") String kgName) {
+    public ApiReturn shareStatus() {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(linkShareService.shareStatus(userId, kgName));
+        return ApiReturn.success(linkShareService.liteShareStatus(userId));
     }
 
     @GetMapping("/share/link/{kgName}")

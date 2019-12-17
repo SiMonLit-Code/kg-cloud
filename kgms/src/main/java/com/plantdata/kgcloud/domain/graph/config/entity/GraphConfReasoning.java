@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.plantdata.kgcloud.domain.common.converter.JsonNodeConcerter;
+import com.plantdata.kgcloud.domain.common.converter.JsonNodeConverter;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -35,7 +35,7 @@ public class GraphConfReasoning {
 
     @Basic
     @Column(name = "rule_config")
-    @Convert(converter = JsonNodeConcerter.class)
+    @Convert(converter = JsonNodeConverter.class)
     private JsonNode ruleConfig;
 
     @Basic

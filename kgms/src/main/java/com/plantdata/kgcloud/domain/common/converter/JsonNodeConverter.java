@@ -8,7 +8,7 @@ import javax.persistence.AttributeConverter;
 /**
  * Created by plantdata-1007 on 2019/12/6.
  */
-public class JsonNodeConcerter implements AttributeConverter<JsonNode,String> {
+public class JsonNodeConverter implements AttributeConverter<JsonNode,String> {
     @Override
     public String convertToDatabaseColumn(JsonNode attribute) {
         return JacksonUtils.writeValueAsString(attribute);

@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,6 +51,24 @@ public class LinkShareServiceImpl implements LinkShareService {
         return linkShareRsp;
     }
 
+    @Override
+    public LinkShareRsp liteShareStatus(String userId) {
+        ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
+        UserLimitRsp data = detail.getData();
+        LinkShareRsp linkShareRsp = new LinkShareRsp();
+        if (data.getShareable()) {
+            linkShareRsp.setHasRole(1);
+        } else {
+            linkShareRsp.setHasRole(0);
+        }
+        LinkShare linkShare = new LinkShare();
+        linkShare.setUserId(userId);
+        linkShare.setSpaId("graph");
+        List<LinkShare> all = linkShareRepository.findAll(Example.of(linkShare));
+        List<ShareRsp> collect = all.stream().map(ConvertUtils.convert(ShareRsp.class)).collect(Collectors.toList());
+        linkShareRsp.setShareList(collect);
+        return linkShareRsp;
+    }
 
     private LinkShare getOne(String kgName, String spaId) {
         Optional<LinkShare> bean = linkShareRepository.findByKgNameAndSpaId(kgName, spaId);

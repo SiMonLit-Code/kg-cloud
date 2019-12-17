@@ -26,11 +26,24 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     QUERYSETTING_NOT_EXISTS(120110, "规则配置不存在"),
 
     ANNOTATION_NOT_EXISTS(120109, "标引不存在"),
-    DATASET_ES_REQUEST_ERROR(120110,"es请求失败"),
-    DATASET_ES_KEY_EXISTS(120111,"es唯一标识已存在"),
+    DATASET_ES_REQUEST_ERROR(120110, "es请求失败"),
+    DATASET_ES_KEY_EXISTS(120111, "es唯一标识已存在"),
 
 
     MODEL_NOT_EXISTS(120201, "模型不存在"),
+    /**
+     * app模块
+     */
+    CONF_ALGORITHM_NOT_EXISTS(120601, "算法配置不存在"),
+    CONF_KGQL_NOT_EXISTS(120602, "图谱业务不存在"),
+    CONF_QA_NOT_EXISTS(120603, "图谱问答不存在"),
+    CONF_REASONING_NOT_EXISTS(120604, "图谱统计不存在"),
+    CONF_STATISTICAL_NOT_EXISTS(120606, "图谱统计不存在"),
+    ES_CONFIG_NOT_FOUND(120605, "未找到es配置"),
+    GRAPH_TYPE_ERROR(120606, "图谱类型错误"),
+    MY_DATA_NULL_ES(120607, "数据集不为搜索数据集"),
+    DATE_PARSE_ERROR(120608, "数据时间格式转换失败"),
+    EDGE_ATTR_DEF_NULL(120609,"边属性定义不存在"),
 
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
 
@@ -39,6 +52,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     GRAPH_NOT_EXISTS(120401, "图谱不存在"),
 
     GRAPH_CREATE_FAIL(120402, "图谱创建失败"),
+
+    GRAPH_OUT_LIMIT(120403, "超过图谱创建限制,请联系管理员"),
 
     REMOTE_SERVICE_ERROR(120501, "远程服务错误"),
 

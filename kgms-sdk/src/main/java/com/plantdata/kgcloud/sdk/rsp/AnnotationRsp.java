@@ -20,7 +20,7 @@ public class AnnotationRsp {
 
     private String kgName;
 
-    private Long datasetId;
+    private Long dataId;
 
     private String name;
 

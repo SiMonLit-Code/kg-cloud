@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 public enum ApiAuditStatusEnum {
     INVOKE_SUCCESS(1),
-    INVOKE_FAILURE(2);
+    INVOKE_FAILURE(0);
 
     private Integer code;
 

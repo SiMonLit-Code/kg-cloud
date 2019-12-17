@@ -9,9 +9,11 @@ import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
 import com.plantdata.kgcloud.domain.graph.manage.entity.GraphPk;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
+import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,9 @@ public class GraphServiceImpl implements GraphService {
     private GraphRepository graphRepository;
     @Autowired
     private GraphApi graphApi;
+
+    @Autowired
+    private UserClient userClient;
 
     private String genKgName(String userId) {
         return userId + JOIN + GRAPH_PREFIX + JOIN + Long.toHexString(System.currentTimeMillis());
@@ -96,6 +101,18 @@ public class GraphServiceImpl implements GraphService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public GraphRsp insert(String userId, GraphReq req) {
+
+        UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
+        if (data != null) {
+            Graph probe = new Graph();
+            probe.setDeleted(false);
+            long count = graphRepository.count(Example.of(probe));
+            Integer graphCount = data.getGraphCount();
+            if (graphCount != null && count >= graphCount) {
+                throw BizException.of(KgmsErrorCodeEnum.GRAPH_OUT_LIMIT);
+            }
+        }
+
         Graph target = new Graph();
         BeanUtils.copyProperties(req, target);
         String kgName = genKgName(userId);
