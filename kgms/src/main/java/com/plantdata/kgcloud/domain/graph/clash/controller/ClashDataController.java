@@ -1,12 +1,9 @@
 package com.plantdata.kgcloud.domain.graph.clash.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.graph.clash.entity.ClashListReq;
 import com.plantdata.kgcloud.domain.graph.clash.entity.ClashToGraphReq;
 import com.plantdata.kgcloud.domain.graph.clash.service.ClashService;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -28,7 +25,7 @@ public class ClashDataController {
     @Autowired
     private ClashService clashService;
 
-    @GetMapping("/clash/{kgName}")
+    @PostMapping("/clash/{kgName}")
     @ApiOperation("列表")
     public ApiReturn<Map> list(@PathVariable("kgName") String kgName,
                                @RequestBody ClashListReq req) {
@@ -44,12 +41,11 @@ public class ClashDataController {
         return ApiReturn.success();
     }
 
-    @PostMapping("/clash/{kgName}")
+    @PostMapping("/clash/delete/{kgName}")
     @ApiOperation("删除")
     public ApiReturn remove(@PathVariable("kgName") String kgName,
-                            @ApiParam("id数组") @RequestParam("ids") String ids) {
-        List<String> ls = JacksonUtils.readValue(ids, new TypeReference<List<String>>(){});
-        clashService.delete(kgName, ls);
+                            @ApiParam("id数组") @RequestBody List<String> ids) {
+        clashService.delete(kgName, ids);
         return ApiReturn.success();
     }
 }

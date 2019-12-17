@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CommonFiltersReq {
-    @ApiModelProperty("实例id")
+    @ApiModelProperty("实例id kw和id不能同时为空")
     private Long id;
     @ApiModelProperty("实体或概念名称,若id为空时此参数生效，kw和id不能同时为空")
     private String kw;

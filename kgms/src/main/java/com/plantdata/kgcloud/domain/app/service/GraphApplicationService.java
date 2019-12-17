@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public interface GraphApplicationService {
      * @param knowledgeRecommendReq 过滤参数
      * @return result
      */
-    List<ObjectAttributeRsp> knowledgeRecommend(String kgName, KnowledgeRecommendReq knowledgeRecommendReq);
+    List<ObjectAttributeRsp> knowledgeRecommend(String kgName,@Valid KnowledgeRecommendReq knowledgeRecommendReq);
 
     /**
      * 获取可视化模型数据

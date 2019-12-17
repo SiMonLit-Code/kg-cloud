@@ -190,8 +190,7 @@ public class DriverUtil {
 
         if (dataSource == null || dataSource.isClosed()) {
 
-            String key = url;
-
+            String key = AlgorithmUtil.elfHash(url + userName + pwd).toString();
             if (pool.containsKey(key)) {
                 dataSource = pool.get(key);
                 if (dataSource == null || dataSource.isClosed()) {

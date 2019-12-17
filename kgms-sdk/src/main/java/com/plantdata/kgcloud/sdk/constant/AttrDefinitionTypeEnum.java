@@ -14,9 +14,9 @@ import lombok.Getter;
 public enum AttrDefinitionTypeEnum implements BaseEnum {
 
     /**
-     * todo
+     *
      */
-    DATA_VALUE(1, "数值属性"), OBJECT(2, "对象属性");
+    DATA_VALUE(0, "数值属性"), OBJECT(1, "对象属性");
 
     private int id;
     private String desc;

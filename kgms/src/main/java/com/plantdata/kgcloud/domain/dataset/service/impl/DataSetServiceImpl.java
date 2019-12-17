@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
+import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
@@ -173,10 +174,18 @@ public class DataSetServiceImpl implements DataSetService {
     }
 
     @Override
-    public DataSetRsp findById(String userId, Long id) {
+    public DataSetUpdateRsp findById(String userId, Long id) {
         Optional<DataSet> one = dataSetRepository.findByUserIdAndId(userId, id);
-        return one.map(dataSet2rsp)
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
+        DataSetUpdateRsp dataSetUpdateRsp = one.map((s) -> {
+            DataSetUpdateRsp dataSetRsp = new DataSetUpdateRsp();
+            BeanUtils.copyProperties(s, dataSetRsp);
+            DataType dataType = s.getDataType();
+            dataSetRsp.setDataType(dataType.getDataType());
+            return dataSetRsp;
+        }).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
+
+
+        return dataSetUpdateRsp;
     }
 
     @Override

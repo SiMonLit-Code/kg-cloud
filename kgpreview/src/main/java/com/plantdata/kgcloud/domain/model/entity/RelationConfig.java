@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.model.entity;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
  * @author xiezhenxiang 2019/7/30
  */
 @Data
+@ApiModel
 public class RelationConfig {
 
     private String tableName;
