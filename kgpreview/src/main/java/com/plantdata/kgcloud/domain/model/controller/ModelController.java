@@ -2,23 +2,17 @@ package com.plantdata.kgcloud.domain.model.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
-import com.plantdata.kgcloud.domain.model.entity.ModelSetting;
-import com.plantdata.kgcloud.domain.model.entity.TableSchemaRsp;
+import com.plantdata.kgcloud.domain.model.entity.*;
 import com.plantdata.kgcloud.domain.model.service.ModelService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.List;
 
@@ -35,53 +29,27 @@ public class ModelController {
 
     @GetMapping("/db/test")
     @ApiOperation("测试数据库连接")
-    public ApiReturn test(@ApiParam("接口路径") String path,
-                          @ApiParam("连接类型 0:mysql,1:hive") Integer type,
-                          @ApiParam("主机地址") String ip,
-                          @ApiParam("端口") Integer port,
-                          @ApiParam("数据库名") String database,
-                          @ApiParam("用户名") String userName,
-                          @ApiParam("密码") String pwd) {
+    public ApiReturn test(@RequestBody DbTestReq req) {
 
-        modelService.dbTest(path, type, ip, port, database, userName, pwd);
+        modelService.dbTest(req.getPath(), req.getType(), req.getIp(), req.getPort(), req.getDatabase(), req.getUserName(), req.getPwd());
         return ApiReturn.success();
     }
 
     @PostMapping("/tables/name")
     @ApiOperation("获取所有数据表名称")
-    public ApiReturn<Page<String>> getTableName(@ApiParam("接口路径") String path,
-                                                @ApiParam("连接类型 0:mysql,1:hive") Integer type,
-                                                @ApiParam("主机地址") String ip,
-                                                @ApiParam("端口") Integer port,
-                                                @ApiParam("数据库名") String database,
-                                                @ApiParam("用户名") String userName,
-                                                @ApiParam("密码") String pwd,
-                                                @ApiParam("关键词") String kw,
-                                                @ApiParam(value = "pageNo", defaultValue = "1") Integer pageNo,
-                                                @ApiParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+    public ApiReturn<BasePage<String>> getTableName(@RequestBody TableNameReq req) {
 
-        Page<String> pageList = modelService.getTables(path, type, ip, port, database, userName, pwd, kw, pageNo, pageSize);
+        BasePage<String> pageList = modelService.getTables(req.getPath(), req.getType(), req.getIp(), req.getPort(), req.getDatabase(),
+                req.getUserName(), req.getPwd(), req.getKw(), req.getPage(), req.getSize());
         return ApiReturn.success(pageList);
     }
 
     @PostMapping("/tables/schema")
     @ApiOperation("获取所有数据表结构schema")
-    public ApiReturn<List<TableSchemaRsp>> getTableSchema(@ApiParam("接口路径") String path,
-                                                          @ApiParam("连接类型 0:mysql,1:hive") Integer type,
-                                                          @ApiParam("主机地址") String ip,
-                                                          @ApiParam("端口") Integer port,
-                                                          @ApiParam("数据库名") String database,
-                                                          @ApiParam("用户名") String userName,
-                                                          @ApiParam("密码") String pwd,
-                                                          @ApiParam("数据表名数组") @NotBlank String tables) {
+    public ApiReturn<List<TableSchemaRsp>> getTableSchema(@RequestBody TableSchemaReq req) {
 
-        List<String> ls;
-        try {
-            ls = JacksonUtils.getInstance().readValue(tables, new TypeReference<String>(){});
-        } catch (IOException e) {
-            throw BizException.of(CommonErrorCode.BAD_REQUEST);
-        }
-        List<TableSchemaRsp> tableSchemaLs = modelService.getTableSchema(path, type, ip, port, database, userName, pwd, ls);
+        List<TableSchemaRsp> tableSchemaLs = modelService.getTableSchema(req.getPath(), req.getType(), req.getIp(), req.getPort(),
+                req.getDatabase(), req.getUserName(), req.getPwd(), req.getTables());
         return ApiReturn.success(tableSchemaLs);
     }
 
@@ -102,10 +70,8 @@ public class ModelController {
 
     @PostMapping("/config/test")
     @ApiOperation("配置参数测试")
-    public ApiReturn testConfig(@ApiParam("config")
-                                @NotBlank String config) {
+    public ApiReturn testConfig(@RequestBody ModelSetting modelSetting) {
 
-        ModelSetting modelSetting = JacksonUtils.readValue(config, ModelSetting.class);
         modelService.testConfig(modelSetting);
         return ApiReturn.success();
     }

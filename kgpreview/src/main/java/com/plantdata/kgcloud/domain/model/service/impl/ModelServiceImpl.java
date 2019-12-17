@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.model.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.common.util.DriverUtil;
 import com.plantdata.kgcloud.common.util.HttpUtil;
 import com.plantdata.kgcloud.domain.model.entity.*;
@@ -57,7 +58,7 @@ public class ModelServiceImpl implements ModelService {
     }
 
     @Override
-    public Page<String> getTables(String path, Integer type, String ip, Integer port, String database, String userName, String pwd, String kw, Integer pageNo, Integer pageSize) {
+    public BasePage<String> getTables(String path, Integer type, String ip, Integer port, String database, String userName, String pwd, String kw, Integer pageNo, Integer pageSize) {
 
         List<String> ls;
         if (StringUtils.isBlank(path)) {
@@ -79,7 +80,7 @@ public class ModelServiceImpl implements ModelService {
 
         pageNo = (pageNo - 1) * pageSize;
         pageSize = Math.min(pageNo + pageSize, ls.size());
-        return new PageImpl<>(ls.subList(pageNo, pageSize), PageRequest.of(pageNo, pageSize), ls.size());
+        return new BasePage<>(ls.size(), ls.subList(pageNo, pageSize));
     }
 
     @Override

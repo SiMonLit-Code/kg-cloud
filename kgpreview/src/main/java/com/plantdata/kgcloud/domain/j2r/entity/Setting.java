@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.j2r.entity;
 
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
  * @author xiezhenxiang 2019/5/8
  */
 @Data
+@ApiModel("配置参数")
 public class Setting {
 
     public Integer dataSetId;
