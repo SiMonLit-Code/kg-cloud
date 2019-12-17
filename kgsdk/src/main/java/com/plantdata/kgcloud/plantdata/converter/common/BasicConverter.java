@@ -66,11 +66,9 @@ public class BasicConverter {
     protected static <T> void setIfNoNull(T param, Consumer<T> function) {
         if (param instanceof String && !StringUtils.isEmpty(param)) {
             function.accept(param);
-        }
-        if (param instanceof Collection && !CollectionUtils.isEmpty((Collection) param)) {
+        } else if (param instanceof Collection && !CollectionUtils.isEmpty((Collection) param)) {
             function.accept(param);
-        }
-        if (param != null) {
+        } else if (param != null) {
             function.accept(param);
         }
     }

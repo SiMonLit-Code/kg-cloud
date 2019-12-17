@@ -31,10 +31,12 @@ public class PromptConverter extends BasicConverter {
 
     public static EntityBean promptEntityRspToEntityBean(PromptEntityRsp newEntity) {
         EntityBean entityBean = new EntityBean();
+        entityBean.setName(entityBean.getName());
+        entityBean.setConceptName(entityBean.getConceptName());
         entityBean.setMeaningTag(newEntity.getMeaningTag());
         entityBean.setConceptId(newEntity.getConceptId());
         entityBean.setId(newEntity.getId());
-        entityBean.setQa(newEntity.getQa());
+        setIfNoNull(newEntity.getQa(), entityBean::setQa);
         entityBean.setScore(newEntity.getScore());
         setIfNoNull(newEntity.getType(), a -> entityBean.setType(a.getValue()));
         return entityBean;
