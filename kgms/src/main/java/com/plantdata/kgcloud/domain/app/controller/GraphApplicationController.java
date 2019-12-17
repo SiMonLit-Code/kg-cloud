@@ -66,7 +66,7 @@ public class GraphApplicationController {
     @ApiOperation("知识推荐")
     @PostMapping("knowledgeRecommend/{kgName}")
     public ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                  @RequestBody @Valid KnowledgeRecommendReq recommendParam) {
+                                                                  @RequestBody @Valid KnowledgeRecommendReq recommendParam, @ApiIgnore BindingResult bindingResult) {
         return ApiReturn.success(graphApplicationService.knowledgeRecommend(kgName, recommendParam));
     }
 
