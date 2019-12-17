@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
@@ -105,7 +106,7 @@ public class GraphApplicationController {
     public ApiReturn<List<ApkRsp>> getKgName(@PathVariable("apk") String apk) {
         String userId = SessionHolder.getUserId();
         List<GraphRsp> all = graphService.findAll(userId);
-        return ApiReturn.success(ApkConverter.graphRspToApkRsp(all, apk));
+        return ApiReturn.success(BasicConverter.listConvert(all, a -> ApkConverter.graphRspToApkRsp(a, apk)));
     }
 
 

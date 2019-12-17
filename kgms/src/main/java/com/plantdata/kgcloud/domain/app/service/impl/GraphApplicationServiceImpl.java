@@ -103,7 +103,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             schemaRsp.setTypes(ConceptConverter.voToRsp(schemaVO.getConcepts()));
         }
         List<AttrDefGroupDTO> attrDefGroupList = graphAttrGroupService.queryAllByKgName(kgName);
-        schemaRsp.setAttrGroups(DefaultUtils.executeIfNoNull(attrDefGroupList, AttrDefGroupConverter::dtoToRsp));
+        schemaRsp.setAttrGroups(BasicConverter.listConvert(attrDefGroupList, AttrDefGroupConverter::dtoToRsp));
         return schemaRsp;
     }
 
