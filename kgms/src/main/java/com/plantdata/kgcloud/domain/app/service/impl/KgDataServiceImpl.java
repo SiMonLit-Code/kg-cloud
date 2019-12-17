@@ -16,7 +16,6 @@ import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppConstants;
-import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.bo.GraphAttributeStatisticBO;
@@ -28,12 +27,10 @@ import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.domain.app.util.TextUtils;
-import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
@@ -43,7 +40,7 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
-import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
+import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +49,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -73,13 +69,13 @@ public class KgDataServiceImpl implements KgDataService {
     @Autowired
     public StatisticsApi statisticsApi;
     @Autowired
-    private DataSetService dataSetService;
-    @Autowired
     public DataSetSearchService dataSetSearchService;
     @Autowired
     public DataOptService dataOptService;
     @Autowired
     public SparqlApi sparqlApi;
+    @Autowired
+    private DataSetService dataSetService;
 
     @Override
     public List<Map<String, Object>> statisticCountEdgeByEntity(String kgName, EdgeStatisticByEntityIdReq statisticReq) {
@@ -168,7 +164,7 @@ public class KgDataServiceImpl implements KgDataService {
         PageUtils pageUtils = new PageUtils(nameReadReq.getPage(), nameReadReq.getSize());
         List<Long> dataSetIds = dataSetService.findByDataNames(userId, Lists.newArrayList(nameReadReq.getDataName()));
 
-        DataSetRsp dataSetRsp = dataSetService.findById(userId, dataSetIds.get(0));
+        DataSetUpdateRsp dataSetRsp = dataSetService.findById(userId, dataSetIds.get(0));
         if (DataType.MONGO.getDataType() == dataSetRsp.getDataType()) {
             return dataSetSearchService.readMongoData(dataSetRsp.getDbName(), dataSetRsp.getTbName(),
                     pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getFields(), nameReadReq.getSort());
