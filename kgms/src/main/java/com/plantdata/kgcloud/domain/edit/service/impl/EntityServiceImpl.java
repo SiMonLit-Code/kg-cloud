@@ -59,6 +59,7 @@ import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -330,8 +331,13 @@ public class EntityServiceImpl implements EntityService {
     public void upsertNumericalAttrValue(String kgName, NumericalAttrValueReq numericalAttrValueReq) {
         AttributeValueFrom attributeValueFrom =
                 ConvertUtils.convert(AttributeValueFrom.class).apply(numericalAttrValueReq);
+        NumericalAttrValueReq.UrlAttrValue urlAttrValue = numericalAttrValueReq.getUrlAttrValue();
+        if (Objects.isNull(numericalAttrValueReq.getAttrValue()) && Objects.nonNull(urlAttrValue)){
+            attributeValueFrom.setAttrValue(JacksonUtils.writeValueAsString(urlAttrValue));
+        }
         RestRespConverter.convertVoid(conceptEntityApi.addNumericAttrValue(kgName, attributeValueFrom));
     }
+
 
     @Override
     public void addObjectAttrValue(String kgName, ObjectAttrValueReq objectAttrValueReq) {

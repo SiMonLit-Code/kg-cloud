@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
+import com.plantdata.kgcloud.sdk.req.AnnotationCreateReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationDataReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationQueryReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationReq;
@@ -56,7 +57,7 @@ public interface DataSetAnnotationService {
      * @param req
      * @return
      */
-    AnnotationRsp add(String kgName, AnnotationReq req);
+    AnnotationRsp add(String userId,String kgName, AnnotationCreateReq req);
 
     /**
      * 标引

@@ -10,6 +10,8 @@ public interface LinkShareService {
 
     LinkShareRsp shareStatus(String userId, String kgName);
 
+    LinkShareRsp liteShareStatus(String userId);
+
     ShareRsp shareLink(String userId, String kgName, String spaId);
 
     ShareRsp shareCancel(String userId, String kgName, String spaId);

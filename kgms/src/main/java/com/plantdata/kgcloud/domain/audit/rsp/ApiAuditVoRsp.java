@@ -3,13 +3,13 @@ package com.plantdata.kgcloud.domain.audit.rsp;
 import lombok.Data;
 
 /**
- * describe about this class
- *
- * @author DingHao
- * @date 2019/2/28 13:19
- */
+ * @description:
+ * @author: Bovin
+ * @create: 2019-12-16 21:00
+ **/
 @Data
-public class ApiAuditRsp {
+public class ApiAuditVoRsp {
     private String name;
     private Long value;
+    private String time;
 }

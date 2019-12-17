@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.domain.task.service.impl;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.stuxuhai.jpinyin.PinyinException;
+import com.github.stuxuhai.jpinyin.PinyinFormat;
+import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
@@ -30,6 +33,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -170,6 +174,21 @@ public class TaskGraphServiceImpl implements TaskGraphService {
         } else {
             throw new BizException("任务不存在");
         }
+    }
+
+    @Override
+    public List<Map<String, Object>> nameConversion(List<Map<String, Object>> maps) {
+        try {
+            for (Map<String, Object> map : maps) {
+                String mapperName = map.get("mapperName").toString();
+                String id = map.get("id").toString();
+                String after = PinyinHelper.convertToPinyinString(mapperName, "", PinyinFormat.WITHOUT_TONE) + "_" + id;
+                map.put("mapperName", after);
+            }
+        } catch (PinyinException e) {
+            e.printStackTrace();
+        }
+        return maps;
     }
 
 }

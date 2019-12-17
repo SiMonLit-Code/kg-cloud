@@ -10,7 +10,7 @@ import javax.persistence.AttributeConverter;
  * @author: Bovin
  * @create: 2019-11-11 10:10
  **/
-public class ArrayNodeConcerter implements AttributeConverter<ArrayNode, String> {
+public class ArrayNodeConverter implements AttributeConverter<ArrayNode, String> {
     @Override
     public String convertToDatabaseColumn(ArrayNode attribute) {
         return JacksonUtils.writeValueAsString(attribute);

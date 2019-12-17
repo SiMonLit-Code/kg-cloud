@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk.req;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -10,5 +11,6 @@ import lombok.Data;
  **/
 @Data
 public class AnnotationQueryReq extends BaseReq {
+    @ApiModelProperty("关键词")
     private String name;
 }

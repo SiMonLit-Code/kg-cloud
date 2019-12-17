@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dataset.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetAnnotationService;
+import com.plantdata.kgcloud.sdk.req.AnnotationCreateReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationDataReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationQueryReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationReq;
@@ -39,7 +40,7 @@ public class DataSetAnnotationController {
     @GetMapping("/annotation/{kgName}")
     public ApiReturn<Page<AnnotationRsp>> findAll(
             @PathVariable("kgName") String kgName,
-            @Valid @RequestBody AnnotationQueryReq baseReq
+            AnnotationQueryReq baseReq
     ) {
         return ApiReturn.success(annotationService.findAll(kgName, baseReq));
     }
@@ -58,10 +59,11 @@ public class DataSetAnnotationController {
     @PostMapping("/annotation/{kgName}")
     public ApiReturn<AnnotationRsp> add(
             @PathVariable("kgName") String kgName,
-            @Valid @RequestBody AnnotationReq req
+            @Valid @RequestBody AnnotationCreateReq req
 
     ) {
-        return ApiReturn.success(annotationService.add(kgName, req));
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(annotationService.add(userId,kgName, req));
     }
 
     @ApiOperation("数据集-标引-删除")

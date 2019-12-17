@@ -5,7 +5,7 @@ import com.plantdata.kgcloud.domain.task.req.KettleReq;
 
 public interface KettleService {
     /**
-     * kettle 测试
+     * util 测试
      *
      * @param etlSaveRequest
      * @return
@@ -13,7 +13,7 @@ public interface KettleService {
     Object kettleService(KettleReq etlSaveRequest);
 
     /**
-     * kettle sql预览
+     * util sql预览
      *
      * @param etlSaveRequest
      * @return
@@ -21,7 +21,7 @@ public interface KettleService {
     Object kettlePreview(KettleReq etlSaveRequest);
 
     /**
-     * kettle 保存
+     * util 保存
      *
      * @param userId
      * @param kettleReq

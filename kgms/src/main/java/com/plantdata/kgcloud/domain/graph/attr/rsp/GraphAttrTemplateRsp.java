@@ -17,7 +17,7 @@ import java.util.List;
 public class GraphAttrTemplateRsp {
 
     @ApiModelProperty(value = "属性模板id")
-    private Integer id;
+    private Long id;
 
     @ApiModelProperty(value = "概念名称")
     private String name;

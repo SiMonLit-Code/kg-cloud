@@ -132,11 +132,10 @@ public class AttributeController {
 
     @ApiOperation("添加边属性定义")
     @PostMapping("/{kgName}/{attrId}/edge/definition")
-    ApiReturn addEdgeAttr(@PathVariable("kgName") String kgName,
+    ApiReturn<Integer> addEdgeAttr(@PathVariable("kgName") String kgName,
                           @PathVariable("attrId") Integer attrId,
                           @Valid @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
-        attributeService.addEdgeAttr(kgName, attrId, edgeAttrDefinitionReq);
-        return ApiReturn.success();
+        return ApiReturn.success(attributeService.addEdgeAttr(kgName, attrId, edgeAttrDefinitionReq));
     }
 
     @ApiOperation("修改边属性定义")

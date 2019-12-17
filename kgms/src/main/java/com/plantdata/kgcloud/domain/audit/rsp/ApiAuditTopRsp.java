@@ -11,7 +11,7 @@ import lombok.Data;
 public class ApiAuditTopRsp {
 
     private String name;
-    private Integer value;
+    private Long value;
     private Double success;
     private Double fail;
 }

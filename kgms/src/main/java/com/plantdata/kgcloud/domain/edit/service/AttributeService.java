@@ -120,7 +120,7 @@ public interface AttributeService {
      * @param attrId
      * @param edgeAttrDefinitionReq
      */
-    void addEdgeAttr(String kgName, Integer attrId, EdgeAttrDefinitionReq edgeAttrDefinitionReq);
+    Integer addEdgeAttr(String kgName, Integer attrId, EdgeAttrDefinitionReq edgeAttrDefinitionReq);
 
     /**
      * 修改边属性定义
