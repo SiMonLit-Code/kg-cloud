@@ -118,7 +118,7 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public List<AttrDefinitionRsp> getAttrDefinitionByConceptId(String kgName,
+    public List<AttrDefinitionRsp>  getAttrDefinitionByConceptId(String kgName,
                                                                 AttrDefinitionSearchReq attrDefinitionSearchReq) {
         List<Long> ids = attrDefinitionSearchReq.getIds();
         ids.add(attrDefinitionSearchReq.getConceptId());

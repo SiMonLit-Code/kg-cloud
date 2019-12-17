@@ -65,7 +65,7 @@ public interface EntityService {
      * @param entityDeleteReq
      * @return
      */
-    void deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq);
+    Long deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq);
 
     /**
      * 修改实体权重,来源,置信度
