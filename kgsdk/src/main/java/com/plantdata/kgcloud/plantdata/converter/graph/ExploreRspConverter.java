@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.plantdata.converter.graph;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
-import com.plantdata.kgcloud.plantdata.link.LinkUtil;
 import com.plantdata.kgcloud.plantdata.req.common.Additional;
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
 import com.plantdata.kgcloud.plantdata.req.common.RelationBean;
@@ -41,6 +40,7 @@ public class ExploreRspConverter extends BasicConverter {
 
     private static EntityBean entityBeanToCommonEntityRsp(CommonEntityRsp newEntity) {
         EntityBean oldEntity = new EntityBean();
+        oldEntity.setId(newEntity.getId());
         oldEntity.setName(newEntity.getName());
         oldEntity.setMeaningTag(newEntity.getMeaningTag());
         oldEntity.setClassId(newEntity.getClassId());

@@ -30,7 +30,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
-import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;

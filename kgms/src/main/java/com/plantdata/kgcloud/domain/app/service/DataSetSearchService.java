@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.service;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public interface DataSetSearchService {
      * @param entityId
      * @return
      */
-    List<DataLinkRsp> getDataLinks(String kgName, String userId, Long entityId);
+    List<DataLinkRsp> getDataLinks(String kgName, String userId, Long entityId) throws IOException;
 
     RestData<Map<String, Object>> readMongoData(String database, String table, int start, int offset, String query, List<String> fieldList, String sort);
 

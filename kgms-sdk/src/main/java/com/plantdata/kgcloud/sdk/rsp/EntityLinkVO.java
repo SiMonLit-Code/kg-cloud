@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.edit.vo;
+package com.plantdata.kgcloud.sdk.rsp;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

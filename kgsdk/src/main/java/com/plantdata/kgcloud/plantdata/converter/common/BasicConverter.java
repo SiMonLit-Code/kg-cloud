@@ -32,12 +32,9 @@ public class BasicConverter {
     private static final int SUCCESS = 200;
     private static final String DATE_REG = "yyyy-MM-ddd hh:mm:ss";
 
-    private static <T> Optional<T> apiReturnData(ApiReturn<T> apiReturn) {
-        if (SUCCESS != (apiReturn.getErrCode())) {
-            //todo
-            throw new BizException(apiReturn.getErrCode(), apiReturn.getMessage());
-        }
-        return Optional.ofNullable(apiReturn.getData());
+
+    public static <T, R> List<R> listToRsp(List<T> list, Function<T, R> function) {
+        return executeIfNoNull(list, a -> listConvert(a, function));
     }
 
     public static <T, R> R convert(ApiReturn<T> apiReturn, Function<T, R> function) {
@@ -46,6 +43,22 @@ public class BasicConverter {
         return data == null ? null : function.apply(data);
     }
 
+    public static <T, R> List<R> convertList(ApiReturn<List<T>> apiReturn, Function<T, R> function) {
+        Optional<List<T>> ts = apiReturnData(apiReturn);
+        List<T> data = ts.orElse(null);
+        return CollectionUtils.isEmpty(data) ? Collections.emptyList() : listConvert(data, function);
+    }
+
+
+    private static <T> Optional<T> apiReturnData(ApiReturn<T> apiReturn) {
+        if (SUCCESS != (apiReturn.getErrCode())) {
+            //todo
+            throw new BizException(apiReturn.getErrCode(), apiReturn.getMessage());
+        }
+        return Optional.ofNullable(apiReturn.getData());
+    }
+
+
     protected static <T, R> R executeIfNoNull(T param, Function<T, R> function) {
         return param == null ? null : function.apply(param);
     }
@@ -53,18 +66,13 @@ public class BasicConverter {
     protected static <T> void setIfNoNull(T param, Consumer<T> function) {
         if (param instanceof String && !StringUtils.isEmpty(param)) {
             function.accept(param);
-        }
-        if (param instanceof Collection && !CollectionUtils.isEmpty((Collection) param)) {
+        } else if (param instanceof Collection && !CollectionUtils.isEmpty((Collection) param)) {
             function.accept(param);
-        }
-        if (param != null) {
+        } else if (param != null) {
             function.accept(param);
         }
     }
 
-    protected static <T, R> List<R> listToRsp(List<T> list, Function<T, R> function) {
-        return executeIfNoNull(list, a -> listConvert(a, function));
-    }
 
     private static <T, R> List<R> executeIfNoNull(List<T> list1, Function<List<T>, List<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1);

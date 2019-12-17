@@ -29,6 +29,8 @@ public class JsonUtils {
         return Collections.emptyList();
     }
 
+
+
     public static <T> List<T> readToList(String str, Class<T> clazz) {
         try {
             return (List<T>) JacksonUtils.getInstance().readValue(str, clazz);

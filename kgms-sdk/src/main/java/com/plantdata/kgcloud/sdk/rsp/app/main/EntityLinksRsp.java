@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.sdk.rsp.app.main;
 
 
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +23,10 @@ public class EntityLinksRsp extends BasicEntityRsp {
     private List<ExtraRsp> extraList;
     @ApiModelProperty("关联的数据集")
     private List<DataLinkRsp> dataLinks;
+    @ApiModelProperty("标签信息")
+    private List<TagRsp> tags;
+    @ApiModelProperty("实体关联")
+    private List<EntityLinkVO> entityLinks;
 
     @Setter
     @Getter

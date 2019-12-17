@@ -55,7 +55,7 @@ import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
-import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;

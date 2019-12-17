@@ -7,7 +7,9 @@ import org.springframework.data.domain.Page;
 
 /**
  *
- * Created by plantdata-1007 on 2019/11/29.
+ *
+ * @author jiangdeming
+ * @date 2019/11/29
  */
 public interface GraphConfAlgorithmService {
     /**
@@ -23,6 +25,7 @@ public interface GraphConfAlgorithmService {
     /**
      * 修改算法
      *
+     *@param id
      * @param req
      * @return
      */
@@ -39,6 +42,7 @@ public interface GraphConfAlgorithmService {
      * 查询算法
      *
      * @param kgName
+     * @param baseReq
      * @return
      */
     Page<GraphConfAlgorithmRsp> findByKgName(String kgName , BaseReq baseReq);

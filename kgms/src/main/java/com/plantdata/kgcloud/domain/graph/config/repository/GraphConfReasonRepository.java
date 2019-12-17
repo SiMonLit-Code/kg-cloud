@@ -12,5 +12,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
  **/
 public interface GraphConfReasonRepository extends JpaRepository<GraphConfReasoning, Long> {
 
+    /**
+     * 分页
+     * @param kgName
+     * @param pageable
+     * @return
+     */
     Page<GraphConfReasoning> getByKgName(String kgName, Pageable pageable);
 }

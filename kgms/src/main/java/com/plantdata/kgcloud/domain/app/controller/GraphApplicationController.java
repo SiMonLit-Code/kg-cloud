@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -95,7 +96,7 @@ public class GraphApplicationController {
     @ApiOperation("读取知识卡片")
     @PostMapping("infoBox/{kgName}")
     public ApiReturn<InfoBoxRsp> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                         @RequestBody InfoBoxReq infoBoxReq) {
+                                         @RequestBody InfoBoxReq infoBoxReq) throws IOException {
         return ApiReturn.success(graphApplicationService.infoBox(kgName, SessionHolder.getUserId(), infoBoxReq));
     }
 

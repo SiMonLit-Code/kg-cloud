@@ -13,12 +13,18 @@ import java.util.List;
  * @create: 2019-11-04 18:45
  **/
 public interface GraphConfAlgorithmRepository extends JpaRepository<GraphConfAlgorithm, Long> {
+    /**
+     * 根据kgName查询
+     * @param kgName
+     * @return
+     */
 
     List<GraphConfAlgorithm> findByKgName(String kgName);
 
     /**
      * 分页
-     *
+     * @param kgName
+     * @param pageable
      * @return
      */
     Page<GraphConfAlgorithm> findByKgName(String kgName, Pageable pageable);
