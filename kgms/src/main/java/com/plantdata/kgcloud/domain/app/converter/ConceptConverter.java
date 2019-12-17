@@ -28,14 +28,14 @@ public class ConceptConverter {
 
 
     public static String getKgTittle(@NonNull List<BasicInfo> conceptList) {
-        return conceptList.stream().filter(a -> a.getId() == 0).findFirst().orElse(new BasicInfo()).getName();
+        return conceptList.stream().filter(a -> a.getConceptId() == null || a.getId() == 0).findFirst().orElse(new BasicInfo()).getName();
     }
 
     public static List<BaseConceptRsp> voToRsp(@NonNull List<BasicInfo> conceptList) {
         List<BaseConceptRsp> baseConceptRspList = Lists.newArrayListWithCapacity(conceptList.size());
         BaseConceptRsp conceptRsp;
         for (BasicInfo basicInfo : conceptList) {
-            if (basicInfo.getId() == 0) {
+            if (basicInfo.getId() == 0 || basicInfo.getConceptId() == null) {
                 continue;
             }
             conceptRsp = new BaseConceptRsp();
@@ -75,7 +75,7 @@ public class ConceptConverter {
         if (!CollectionUtils.isEmpty(attrDefList)) {
             fillAttrDef(allConceptList, attrDefList);
         }
-        Map<Long, List<BasicConceptTreeRsp>> parentTreeItemMap = allConceptList.stream().filter(a->a.getParentId()!=null).collect(Collectors.groupingBy(BasicConceptTreeRsp::getParentId));
+        Map<Long, List<BasicConceptTreeRsp>> parentTreeItemMap = allConceptList.stream().filter(a -> a.getParentId() != null).collect(Collectors.groupingBy(BasicConceptTreeRsp::getParentId));
 
         fillTree(Lists.newArrayList(treeRsp), parentTreeItemMap);
         return treeRsp;

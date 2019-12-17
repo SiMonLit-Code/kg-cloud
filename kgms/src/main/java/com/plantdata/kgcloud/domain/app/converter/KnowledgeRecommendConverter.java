@@ -28,7 +28,7 @@ public class KnowledgeRecommendConverter {
     public static EntityAttributesObjectFrom reqToFrom(KnowledgeRecommendReq req) {
         EntityAttributesObjectFrom from = new EntityAttributesObjectFrom();
         from.setEntityId(req.getEntityId());
-        from.setAttributeIds(from.getAttributeIds());
+        from.setAttributeIds(req.getAllowAttrs());
         if (!CollectionUtils.isEmpty(req.getAllowAttrs())) {
             Map<Integer, Integer> directionMap = Maps.newHashMapWithExpectedSize(req.getAllowAttrs().size());
             Map<Integer, Integer> sizeMap = Maps.newHashMapWithExpectedSize(req.getAllowAttrs().size());

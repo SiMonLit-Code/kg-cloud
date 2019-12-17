@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.ImportType;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.constant.RdfType;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.RdfExportReq;
@@ -204,16 +205,15 @@ public class ImportServiceImpl implements ImportService {
     }
 
     @Override
-    public String importRdf(String kgName, MultipartFile file, RdfReq rdfReq) {
-        return handleUploadError(rdfApi.importRdf(kgName,rdfReq.getFormat(),file));
+    public String importRdf(String kgName, MultipartFile file, String format) {
+        return handleUploadError(rdfApi.importRdf(kgName, format, file));
     }
 
     @Override
-    public String exportRdf(String kgName, RdfExportReq rdfExportReq) {
-        ResponseEntity<byte[]> body = rdfApi.exportRdf(kgName, rdfExportReq.getScope(),
-                rdfExportReq.getFormat());
+    public String exportRdf(String kgName, String format, Integer scope) {
+        ResponseEntity<byte[]> body = rdfApi.exportRdf(kgName, scope,  RdfType.findByType(format).getFormat());
         ByteArrayInputStream inputStream = new ByteArrayInputStream(Objects.requireNonNull(body.getBody()));
-        StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, rdfExportReq.getFormat(), null);
+        StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, format, null);
         return "/" + storePath.getFullPath();
     }
 

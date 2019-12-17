@@ -49,6 +49,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -102,12 +103,18 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             schemaRsp.setTypes(ConceptConverter.voToRsp(schemaVO.getConcepts()));
         }
         List<AttrDefGroupDTO> attrDefGroupList = graphAttrGroupService.queryAllByKgName(kgName);
-        schemaRsp.setAttrGroups(DefaultUtils.executeIfNoNull(attrDefGroupList, AttrDefGroupConverter::dtoToRsp));
+        schemaRsp.setAttrGroups(BasicConverter.listConvert(attrDefGroupList, AttrDefGroupConverter::dtoToRsp));
         return schemaRsp;
     }
 
     @Override
     public List<ObjectAttributeRsp> knowledgeRecommend(String kgName, KnowledgeRecommendReq knowledgeRecommendReq) {
+        if (CollectionUtils.isEmpty(knowledgeRecommendReq.getAllowAttrs()) && CollectionUtils.isEmpty(knowledgeRecommendReq.getAllowAttrsKey())) {
+            return Collections.emptyList();
+        }
+        //replace attrKey
+        graphHelperService.replaceByAttrKey(kgName, knowledgeRecommendReq);
+
         Optional<Map<Integer, Set<Long>>> entityAttrOpt = RestRespConverter.convert(entityApi.entityAttributesObject(kgName, KnowledgeRecommendConverter.reqToFrom(knowledgeRecommendReq)));
         if (!entityAttrOpt.isPresent()) {
             return Collections.emptyList();
@@ -117,7 +124,6 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             return Collections.emptyList();
         }
         Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, EntityConverter.buildIdsQuery(entityIdList)));
-
         return KnowledgeRecommendConverter.voToRsp(entityAttrOpt.get(), entityOpt.orElse(Collections.emptyList()));
     }
 
@@ -165,17 +171,14 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
     @Override
     public List<BasicInfoVO> conceptTree(String kgName, Long conceptId, String conceptKey) {
-        if (null == conceptId && null == conceptKey) {
-            throw BizException.of(AppErrorCodeEnum.NULL_CONCEPT_ID_AND_KEY);
-        }
+
         if (null == conceptId && StringUtils.isNotEmpty(conceptKey)) {
-            List<Long> longs = graphHelperService.replaceByConceptKey(kgName, Lists.newArrayList(conceptKey));
+            List<Long> longs = graphHelperService.queryConceptByKey(kgName, Lists.newArrayList(conceptKey));
             conceptId = CollectionUtils.isEmpty(longs) ? NumberUtils.LONG_ZERO : longs.get(0);
         }
         if (conceptId == null) {
             conceptId = NumberUtils.LONG_ZERO;
         }
-
         return conceptService.getConceptTree(kgName, conceptId);
     }
 
@@ -198,11 +201,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
     @Override
     public List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReq req) {
-        if (!CollectionUtils.isEmpty(req.getAllowAttrs())) {
-            req.setAllowAttrs(req.getAllowAttrs());
-        } else if (!CollectionUtils.isEmpty(req.getAllowAttrsKey())) {
-            req.setAllowAttrs(graphHelperService.replaceByAttrKey(kgName, req.getAllowAttrsKey()));
-        }
+        graphHelperService.replaceByAttrKey(kgName, req);
         KgServiceEntityFrom entityFrom = InfoBoxConverter.batchInfoBoxReqToKgServiceEntityFrom(req);
 
         Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, entityFrom));

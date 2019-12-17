@@ -97,18 +97,19 @@ public interface ImportService {
      *
      * @param kgName
      * @param file
-     * @param rdfReq
+     * @param format
      * @return
      */
-    String importRdf(String kgName, MultipartFile file, RdfReq rdfReq);
+    String importRdf(String kgName, MultipartFile file, String format);
 
     /**
      * rdf导出
      *
      * @param kgName
-     * @param rdfExportReq
+     * @param format
+     * @param scope
      * @return
      */
-    String exportRdf(String kgName, RdfExportReq rdfExportReq);
+    String exportRdf(String kgName, String format, Integer scope);
 
 }
