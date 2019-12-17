@@ -32,6 +32,7 @@ public enum AppErrorCodeEnum implements ErrorCode {
     NULL_GIS_KG_QL(120611, "kgQl语句不能为空"),
     NULL_CONCEPT_ID_AND_KEY(120611, "概念id和key不能同时为空"),
     EXPORT_TYPE_ERROR(120612, "导出类型错误"),
+    ALGORITHM_PARAM_ERROR(120613, "算法参数错误"),
     ;
     private final int errorCode;
 

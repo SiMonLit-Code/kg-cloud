@@ -28,6 +28,7 @@ import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -340,9 +341,9 @@ public class AttributeServiceImpl implements AttributeService {
     public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq) {
         BatchQueryRelationFrom relationFrom = RelationConverter.edgeAttrSearch(queryReq);
         Optional<List<BatchRelationVO>> resOpt = RestRespConverter.convert(batchApi.queryRelation(kgName, relationFrom));
-        if (!resOpt.isPresent() || CollectionUtils.isEmpty(resOpt.get())) {
+        if (!resOpt.isPresent()) {
             return Collections.emptyList();
         }
-        return RelationConverter.batchVoToEdgeSearchRsp(resOpt.get());
+        return BasicConverter.listConvert(resOpt.get(), RelationConverter::batchVoToEdgeSearchRsp);
     }
 }
