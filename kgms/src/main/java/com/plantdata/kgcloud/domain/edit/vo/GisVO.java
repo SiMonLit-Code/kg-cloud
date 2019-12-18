@@ -15,7 +15,7 @@ import lombok.Data;
 public class GisVO {
 
     @ApiModelProperty(value = "是否开启gis")
-    private Boolean isOpenGis = true;
+    private Boolean isOpenGis;
 
     @ApiModelProperty(value = "经度")
     private Double lng;

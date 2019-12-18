@@ -37,7 +37,7 @@ public class ModelServiceImpl implements ModelService {
 
     private static DriverUtil getDriverUtil(Integer type, String ip, Integer port, String database, String userName, String pwd) {
 
-        String url = "jdbc:mysql://" + ip + ":" + "3306/" + database + "?serverTimezone=UTC&characterEncoding=utf8"
+        String url = "jdbc:mysql://" + ip + ":" + port + "/" + database + "?serverTimezone=UTC&characterEncoding=utf8"
                 + "&autoReconnect=true&failOverReadOnly=false&useSSL=false";
         if (type == 1) {
             url = "jdbc:hive2://" + ip + ":" + port + "/" + database;
