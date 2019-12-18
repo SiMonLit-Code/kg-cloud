@@ -20,11 +20,11 @@ public class DictReq {
     private String nature;
 
     @NotEmpty
-    @ApiModelProperty(value = "领域词")
+    @ApiModelProperty(required = true, value = "领域词")
     private String name;
 
     @NotNull
-    @ApiModelProperty(value = "概念id")
+    @ApiModelProperty(required = true, value = "概念id")
     private Long conceptId;
 
     @ApiModelProperty(value = "实体id")

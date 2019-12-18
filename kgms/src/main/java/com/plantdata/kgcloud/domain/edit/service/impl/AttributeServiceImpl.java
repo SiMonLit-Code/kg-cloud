@@ -34,6 +34,7 @@ import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.attr.RelationSearchMetaReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.domain.edit.util.AttrConverterUtils;
@@ -120,11 +121,11 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public List<AttrDefinitionRsp>  getAttrDefinitionByConceptId(String kgName,
+    public List<AttrDefinitionRsp> getAttrDefinitionByConceptId(String kgName,
                                                                 AttrDefinitionSearchReq attrDefinitionSearchReq) {
         List<Long> ids = attrDefinitionSearchReq.getIds();
         Long conceptId = attrDefinitionSearchReq.getConceptId();
-        if (0L == conceptId){
+        if (0L == conceptId) {
             Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getAll(kgName));
             return optional.orElse(new ArrayList<>()).stream()
                     .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
@@ -183,7 +184,8 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public OpenBatchResult<AttrDefinitionBatchRsp> batchUpdate(String kgName, List<AttrDefinitionReq> attrDefinitionReqs) {
+    public OpenBatchResult<AttrDefinitionBatchRsp> batchUpdate(String kgName,
+                                                               List<AttrDefinitionReq> attrDefinitionReqs) {
         List<AttributeDefinitionVO> voList =
                 attrDefinitionReqs.stream().map(
                         AttrConverterUtils::attrDefinitionReqConvert
@@ -251,23 +253,24 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public Page<RelationRsp> listRelations(String kgName, RelationSearchReq relationSearchReq) {
+    public Page<RelationRsp> listRelations(String kgName, RelationSearchReq relationSearchReq, RelationSearchMetaReq metaReq) {
         FilterRelationFrom filterRelationFrom = ConvertUtils.convert(FilterRelationFrom.class).apply(relationSearchReq);
-        filterRelationFrom.setSkip(relationSearchReq.getPage() - 1);
-        filterRelationFrom.setLimit(relationSearchReq.getSize());
+        Integer size = relationSearchReq.getSize();
+        filterRelationFrom.setSkip((relationSearchReq.getPage() - 1) * size);
+        filterRelationFrom.setLimit(size);
         Map<String, Object> metaFilters = new HashMap<>(4);
-        if (StringUtils.hasText(relationSearchReq.getSource())) {
+        if (StringUtils.hasText(metaReq.getSource())) {
             Map<String, Object> mongoOperation = new HashMap<>();
-            mongoOperation.put(MongoOperation.EQUAL.getType(), relationSearchReq.getSource());
+            mongoOperation.put(MongoOperation.EQUAL.getType(), metaReq.getSource());
             metaFilters.put(MetaDataInfo.SOURCE.getCode(), mongoOperation);
         }
-        if (StringUtils.hasText(relationSearchReq.getBatchNo())) {
+        if (StringUtils.hasText(metaReq.getBatchNo())) {
             Map<String, Object> mongoOperation = new HashMap<>();
-            mongoOperation.put(MongoOperation.EQUAL.getType(), relationSearchReq.getBatchNo());
+            mongoOperation.put(MongoOperation.EQUAL.getType(), metaReq.getBatchNo());
             metaFilters.put(MetaDataInfo.BATCH_NO.getCode(), mongoOperation);
         }
-        if (Objects.nonNull(relationSearchReq.getReliability())) {
-            metaFilters.put(MetaDataInfo.RELIABILITY.getCode(), relationSearchReq.getReliability());
+        if (Objects.nonNull(metaReq.getReliability()) && !metaReq.getReliability().isEmpty()) {
+            metaFilters.put(MetaDataInfo.RELIABILITY.getCode(), metaReq.getReliability());
         }
         if (!metaFilters.isEmpty()) {
             filterRelationFrom.setMetaFilters(metaFilters);
@@ -277,10 +280,10 @@ public class AttributeServiceImpl implements AttributeService {
         RestResp<List<RelationVO>> restResp = relationApi.listRelation(kgName, filterRelationFrom);
         Optional<List<RelationVO>> optional = RestRespConverter.convert(restResp);
         List<RelationRsp> relationRsps =
-                optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(RelationRsp.class)).collect(Collectors.toList());
+                optional.orElse(new ArrayList<>()).stream().map(vo -> MapperUtils.map(vo,RelationRsp.class)).collect(Collectors.toList());
         Optional<Integer> count = RestRespConverter.convertCount(restResp);
         return new PageImpl<>(relationRsps, PageRequest.of(relationSearchReq.getPage() - 1,
-                relationSearchReq.getSize()), count.get());
+                size), count.get());
     }
 
     @Override
@@ -350,7 +353,8 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq) {
         BatchQueryRelationFrom relationFrom = RelationConverter.edgeAttrSearch(queryReq);
-        Optional<List<BatchRelationVO>> resOpt = RestRespConverter.convert(batchApi.queryRelation(kgName, relationFrom));
+        Optional<List<BatchRelationVO>> resOpt = RestRespConverter.convert(batchApi.queryRelation(kgName,
+                relationFrom));
         if (!resOpt.isPresent()) {
             return Collections.emptyList();
         }
