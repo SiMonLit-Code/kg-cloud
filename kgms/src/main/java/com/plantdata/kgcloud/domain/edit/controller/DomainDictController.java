@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class DomainDictController {
     @ApiOperation("批量添加领域词")
     @PostMapping("/{kgName}/batch/add")
     ApiReturn batchInsert(@PathVariable("kgName") String kgName,
-                          @Valid @RequestBody List<DictReq> dictReqs) {
+                          @Size(min = 1) @RequestBody List<DictReq> dictReqs) {
         domainDictService.batchInsert(kgName, dictReqs);
         return ApiReturn.success();
     }

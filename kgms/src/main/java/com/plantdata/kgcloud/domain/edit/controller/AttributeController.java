@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.attr.RelationSearchMetaReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
@@ -166,10 +167,11 @@ public class AttributeController {
     }
 
     @ApiOperation("关系溯源")
-    @GetMapping("/{kgName}/relation")
+    @PostMapping("/{kgName}/relation")
     ApiReturn<Page<RelationRsp>> listRelations(@PathVariable("kgName") String kgName,
-                                               RelationSearchReq relationSearchReq) {
-        return ApiReturn.success(attributeService.listRelations(kgName, relationSearchReq));
+                                               RelationSearchReq relationSearchReq,
+                                               @RequestBody RelationSearchMetaReq metaReq) {
+        return ApiReturn.success(attributeService.listRelations(kgName, relationSearchReq,metaReq));
     }
 
     @ApiOperation("批量删除关系")

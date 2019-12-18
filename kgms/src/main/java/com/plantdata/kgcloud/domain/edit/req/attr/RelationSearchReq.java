@@ -25,12 +25,4 @@ public class RelationSearchReq extends BaseReq {
     @ApiModelProperty(value = "关系名称")
     private String name;
 
-    @ApiModelProperty(value = "来源")
-    private String source;
-
-    @ApiModelProperty(value = "批次号")
-    private String batchNo;
-
-    @ApiModelProperty(value = "置信度筛选,{$gt:0}")
-    private Map<String, Object> reliability;
 }

@@ -92,8 +92,8 @@ public class EntityController {
     }
 
     @ApiOperation("批量实体详情")
-    @GetMapping("/{kgName}/entities")
-    ApiReturn<List<BasicInfoRsp>> batchEntityDetails(@PathVariable("kgName") String kgName, List<Long> ids) {
+    @PostMapping("/{kgName}/entities")
+    ApiReturn<List<BasicInfoRsp>> batchEntityDetails(@PathVariable("kgName") String kgName, @RequestBody List<Long> ids) {
         return ApiReturn.success(basicInfoService.listByIds(kgName, ids));
     }
 
