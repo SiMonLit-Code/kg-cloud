@@ -216,6 +216,7 @@ public class AttributeServiceImpl implements AttributeService {
                                EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
 
         ExtraInfo extraInfo = ConvertUtils.convert(ExtraInfo.class).apply(edgeAttrDefinitionReq);
+        extraInfo.setSeqNo(seqNo);
         RestRespConverter.convertVoid(attributeApi.updateEdgeAttr(kgName, attrId, seqNo, extraInfo));
     }
 

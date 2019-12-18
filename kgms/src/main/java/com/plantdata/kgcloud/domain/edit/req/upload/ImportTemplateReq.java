@@ -19,6 +19,6 @@ public class ImportTemplateReq {
     @ApiModelProperty(value = "属性id")
     private Integer attrId;
 
-    @ApiModelProperty(value = "模板类型,concept|entity|relation|synonymy|number|object|specific|field")
+    @ApiModelProperty(required = true, value = "模板类型,concept|entity|relation|synonymy|number|object|specific|field")
     private String type;
 }
