@@ -93,10 +93,10 @@ public class WordServiceImpl implements WordService {
         MongoCollection<Document> mdb = getMongodb(userId, dictId);
         long count = mdb.countDocuments();
         FindIterable<Document> findIterable = mdb.find();
-        int page = baseReq.getPage();
-        int size = baseReq.getSize();
-        if (page > 0 && size > 0) {
-            findIterable = findIterable.skip(page * size);
+        int page = baseReq.getOffset();
+        int size = baseReq.getLimit();
+        if (page >= 0 && size > 0) {
+            findIterable = findIterable.skip(page);
             findIterable = findIterable.limit(size);
         }
         ArrayList<WordRsp> words = new ArrayList<>();
