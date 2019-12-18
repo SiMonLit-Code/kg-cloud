@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.dictionary.controller;
 
 
-import com.plantdata.kgcloud.domain.dictionary.service.DictionaryService;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.dictionary.service.DictionaryService;
 import com.plantdata.kgcloud.sdk.req.DictionaryReq;
 import com.plantdata.kgcloud.sdk.rsp.DictionaryRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -49,14 +49,14 @@ public class DictionaryController {
     @GetMapping("/")
     public ApiReturn<Page<DictionaryRsp>> findAll(BaseReq baseReq) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(dictionaryService.findAll(userId,baseReq));
+        return ApiReturn.success(dictionaryService.findAll(userId, baseReq));
     }
 
     @ApiOperation("词典根据Id查找")
     @GetMapping("/{id}")
-    public ApiReturn<DictionaryRsp> findById(@PathVariable Long id) {
+    public ApiReturn<DictionaryRsp> findById(@PathVariable("id") Long id) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(dictionaryService.findById(userId,id));
+        return ApiReturn.success(dictionaryService.findById(userId, id));
     }
 
     @ApiOperation("词典创建")
@@ -67,16 +67,16 @@ public class DictionaryController {
 
     @ApiOperation("词典编辑")
     @PatchMapping("/{id}")
-    public ApiReturn<DictionaryRsp> update(@PathVariable Long id, @Valid @RequestBody DictionaryReq req) {
+    public ApiReturn<DictionaryRsp> update(@PathVariable("id") Long id, @Valid @RequestBody DictionaryReq req) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(dictionaryService.update(userId,id, req));
+        return ApiReturn.success(dictionaryService.update(userId, id, req));
     }
 
     @ApiOperation("词典删除")
     @DeleteMapping("/{id}")
-    public ApiReturn delete(@PathVariable Long id) {
+    public ApiReturn delete(@PathVariable("id") Long id) {
         String userId = SessionHolder.getUserId();
-        dictionaryService.delete(userId,id);
+        dictionaryService.delete(userId, id);
         return ApiReturn.success();
     }
 

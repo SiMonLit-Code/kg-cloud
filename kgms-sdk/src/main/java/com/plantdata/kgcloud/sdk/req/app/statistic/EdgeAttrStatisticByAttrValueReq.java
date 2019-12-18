@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app.statistic;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import javax.validation.constraints.Max;
@@ -21,7 +22,7 @@ public class EdgeAttrStatisticByAttrValueReq {
     private String kgName;
     private Integer attrId;
     private String attrKey;
-
+    @NonNull
     private Integer seqNo;
 
     private Set<Long> entityIds;

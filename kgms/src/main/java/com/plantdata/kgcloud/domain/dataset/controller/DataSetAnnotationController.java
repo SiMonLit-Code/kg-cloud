@@ -51,7 +51,6 @@ public class DataSetAnnotationController {
             @PathVariable("kgName") String kgName,
             @PathVariable("id") Long id
     ) {
-
         return ApiReturn.success(annotationService.findById(kgName, id));
     }
 

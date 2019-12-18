@@ -1,10 +1,12 @@
 package com.plantdata.kgcloud.sdk.rsp;
 
+import com.plantdata.kgcloud.sdk.req.ModelPrf;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description:
@@ -31,16 +33,17 @@ public class ModelRsp {
     private Integer modelType;
 
     @ApiModelProperty(value = "模型prf值")
-    private String prf;
+    private ModelPrf prf;
 
     @ApiModelProperty(value = "模型标签")
-    private String labels;
+    private List<String> labels;
 
     @ApiModelProperty(value = "模型描述")
     private String remark;
 
     @ApiModelProperty(value = "创建时间")
     private Date createAt;
+
     @ApiModelProperty(value = "修改时间")
     private Date updateAt;
 }

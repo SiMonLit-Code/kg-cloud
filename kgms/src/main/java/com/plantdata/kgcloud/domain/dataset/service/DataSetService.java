@@ -32,19 +32,18 @@ public interface DataSetService {
 
 
     /**
-     *
      * @param dataNames
      * @return
      */
     List<Long> findByDataNames(String userId, List<String> dataNames);
 
     /**
-     *
      * @param userId
      * @param database
      * @return
      */
-    List<Long> findByDatabase(String userId,List<DataSetSdkReq> database);
+    List<Long> findByDatabase(String userId, List<DataSetSdkReq> database);
+
     /**
      * 根据文件夹查询数据集
      *

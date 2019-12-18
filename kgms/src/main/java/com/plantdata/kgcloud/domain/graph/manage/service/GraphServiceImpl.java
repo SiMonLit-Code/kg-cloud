@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -57,7 +58,7 @@ public class GraphServiceImpl implements GraphService {
                 .userId(userId)
                 .deleted(false)
                 .build();
-        List<Graph> all = graphRepository.findAll(Example.of(probe));
+        List<Graph> all = graphRepository.findAll(Example.of(probe), Sort.by(Sort.Direction.DESC,"createAt"));
         return all.stream()
                 .map(ConvertUtils.convert(GraphRsp.class))
                 .collect(Collectors.toList());
@@ -66,7 +67,7 @@ public class GraphServiceImpl implements GraphService {
     @Override
     public Page<GraphRsp> findAll(String userId, GraphPageReq req) {
         Page<Graph> all;
-        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(),Sort.by(Sort.Direction.DESC,"createAt"));
         if (StringUtils.hasText(req.getKw())) {
             all = graphRepository.findByUserIdAndTitleContaining(userId, req.getKw(), pageable);
         } else {
@@ -112,7 +113,6 @@ public class GraphServiceImpl implements GraphService {
                 throw BizException.of(KgmsErrorCodeEnum.GRAPH_OUT_LIMIT);
             }
         }
-
         Graph target = new Graph();
         BeanUtils.copyProperties(req, target);
         String kgName = genKgName(userId);

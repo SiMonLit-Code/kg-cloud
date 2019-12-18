@@ -33,7 +33,7 @@ public enum AppErrorCodeEnum implements ErrorCode {
     NULL_CONCEPT_ID_AND_KEY(120611, "概念id和key不能同时为空"),
     EXPORT_TYPE_ERROR(120612, "导出类型错误"),
     ALGORITHM_PARAM_ERROR(120613, "算法参数错误"),
-    ;
+    NULL_KW_AND_ID(120614, "实体名称和id不能同时为空");
     private final int errorCode;
 
     private final String message;

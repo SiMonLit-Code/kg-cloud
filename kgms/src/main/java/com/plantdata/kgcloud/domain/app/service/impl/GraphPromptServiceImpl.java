@@ -10,7 +10,6 @@ import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.PromptItemVO;
 import ai.plantdata.kg.api.semantic.QuestionAnswersApi;
 import ai.plantdata.kg.api.semantic.req.NerSearchReq;
-import ai.plantdata.kg.api.semantic.rsp.SemanticSegWordVO;
 import ai.plantdata.kg.support.SegmentWordVO;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.config.EsProperties;
@@ -118,7 +117,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     @Override
     public List<EdgeAttributeRsp> edgeAttributeSearch(String kgName, EdgeAttrPromptReq promptReq) {
         Optional<List<Map<Object, Integer>>> aggOpt;
-        Optional<AttrDefinitionTypeEnum> enumObject = EnumUtils.getEnumObject(AttrDefinitionTypeEnum.class, String.valueOf(promptReq.getDataType()));
+        Optional<AttrDefinitionTypeEnum> enumObject = EnumUtils.parseById(AttrDefinitionTypeEnum.class, promptReq.getDataType());
         AttrDefinitionTypeEnum dataType = enumObject.orElse(AttrDefinitionTypeEnum.OBJECT);
         if (AttrDefinitionTypeEnum.OBJECT.equals(dataType)) {
             AggRelationFrom relationFrom = RelationConverter.edgeAttrPromptReqToAggRelationFrom(promptReq);
