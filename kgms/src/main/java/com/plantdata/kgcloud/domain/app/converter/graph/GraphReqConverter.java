@@ -5,8 +5,11 @@ import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.req.RelationFrom;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
@@ -18,6 +21,7 @@ import com.plantdata.kgcloud.sdk.req.app.function.GraphRelationReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphTimingReqInterface;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
@@ -30,7 +34,7 @@ import java.util.Map;
  * @date 2019/11/28 10:01
  */
 @Slf4j
-public class GraphReqConverter {
+public class GraphReqConverter extends BasicConverter {
 
     /**
      * 图探索参数 构建 GraphFrom
@@ -91,24 +95,28 @@ public class GraphReqConverter {
     }
 
 
-    private static void fillRelation(CommonRelationReq relation, RelationFrom graphFrom) {
+    private static void fillRelation(@NonNull CommonRelationReq relation, RelationFrom graphFrom) {
         graphFrom.setIds(relation.getIds());
         graphFrom.setDistance(relation.getDistance());
     }
 
-    private static void fillCommon(CommonFiltersReq common, GraphFrom graphFrom) {
+    private static void fillCommon(@NonNull CommonFiltersReq common, GraphFrom graphFrom) {
+        if (common.getId() == null && common.getKw() == null) {
+            throw BizException.of(AppErrorCodeEnum.NULL_KW_AND_ID);
+        }
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
         graphFrom.setQueryPrivate(common.isPrivateAttRead());
         graphFrom.getHighLevelFilter().setDirection(common.getDirection());
         graphFrom.getHighLevelFilter().setLimit(common.getHighLevelSize() == null ? graphFrom.getLimit() : common.getHighLevelSize());
-
+        setIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
         if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
-            graphFrom.getHighLevelFilter().setEdgeSort(ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts()));
+            Map<String, Integer> edgeAttrQuery = ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts());
+            graphFrom.getHighLevelFilter().setEdgeSort(edgeAttrQuery);
         }
     }
 
-    private static void fillPath(CommonPathReq pathReq, PathFrom pathFrom) {
+    private static void fillPath(@NonNull CommonPathReq pathReq, PathFrom pathFrom) {
         pathFrom.setStart(pathReq.getStart());
         pathFrom.setEnd(pathReq.getEnd());
         pathFrom.setDistance(pathReq.getDistance());

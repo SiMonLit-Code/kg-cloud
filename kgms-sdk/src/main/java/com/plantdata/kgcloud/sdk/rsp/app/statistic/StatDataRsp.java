@@ -15,10 +15,10 @@ import java.util.Map;
 @Setter
 public class StatDataRsp {
 
-	public class keyType {
-		public final static String Term = "term";
-		public final static String Date = "date";
-	}
+    public class keyType {
+        public final static String Term = "term";
+        public final static String Date = "date";
+    }
 
     private List<Object> xAxis = new ArrayList<>();
     private List<Object> series = new ArrayList<>();
@@ -32,24 +32,9 @@ public class StatDataRsp {
     }
 
     @SuppressWarnings("rawtypes")
-    public void addData2Series(String name, List data) {
+    public void addData2Series(List data) {
         Map<String, Object> m = new HashMap<>(2);
-        m.put("name", name);
         m.put("data", data);
-        this.series.add(m);
-    }
-
-    public void addKVData2Series(String k, Double v) {
-        Map<String, Object> m = new HashMap<>(2);
-        m.put("name", k);
-        m.put("value", v);
-        this.series.add(m);
-    }
-
-    public void addKVData2Series(String k, Long v) {
-        Map<String, Object> m = new HashMap<>(2);
-        m.put("name", k);
-        m.put("value", v);
         this.series.add(m);
     }
 }

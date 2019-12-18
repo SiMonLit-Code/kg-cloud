@@ -27,7 +27,7 @@ public class SynonymController {
     @Autowired
     private BasicInfoService basicInfoService;
 
-    @ApiOperation("添加概念同义词")
+    @ApiOperation("添加概念或实体同义词")
     @PostMapping("/{kgName}/synonym/add")
     ApiReturn addSynonym(@PathVariable("kgName") String kgName,
                          @Valid @RequestBody SynonymReq synonymReq) {
@@ -35,7 +35,7 @@ public class SynonymController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("删除概念同义词")
+    @ApiOperation("删除概念或实体同义词")
     @PostMapping("/{kgName}/synonym/delete")
     ApiReturn deleteSynonym(@PathVariable("kgName") String kgName,
                             @Valid @RequestBody SynonymReq synonymReq) {

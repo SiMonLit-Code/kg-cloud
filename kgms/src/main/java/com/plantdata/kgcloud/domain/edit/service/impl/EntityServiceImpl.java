@@ -135,20 +135,23 @@ public class EntityServiceImpl implements EntityService {
         BasicInfoListFrom basicInfoListFrom = MapperUtils.map(basicInfoListReq, BasicInfoListFrom.class);
         basicInfoListFrom.setMetaData(parserFilterMetadata(basicInfoListReq, bodyReq));
         basicInfoListFrom.setSort(ParserBeanUtils.parserSortMetadata(basicInfoListReq.getSorts()));
-        basicInfoListFrom.setSkip(basicInfoListReq.getPage() -1);
-        basicInfoListFrom.setLimit(basicInfoListReq.getSize() + 1);
+        Integer size = basicInfoListReq.getSize();
+        Integer page = (basicInfoListReq.getPage() - 1) * size;
+        basicInfoListFrom.setSkip(page);
+        basicInfoListFrom.setLimit(size + 1);
         Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(kgName, true,
                 basicInfoListFrom));
         List<BasicInfoRsp> basicInfoRspList =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
-
+        List<BasicInfoRsp> retBasicInfoList = new ArrayList<>(basicInfoRspList);
         Page<BasicInfoRsp> pages;
-        if (basicInfoRspList.size() > basicInfoListReq.getSize()) {
-            pages = new PageImpl<>(basicInfoRspList, PageRequest.of(basicInfoListReq.getPage() - 1,
-                    basicInfoListReq.getSize()), basicInfoListReq.getSize() + 1);
+        if (basicInfoRspList.size() > size) {
+            retBasicInfoList.remove(retBasicInfoList.size() - 1);
+            pages = new PageImpl<>(retBasicInfoList, PageRequest.of(basicInfoListReq.getPage() - 1,
+                    size), size + 1);
         } else {
-            pages = new PageImpl<>(basicInfoRspList, PageRequest.of(basicInfoListReq.getPage() - 1,
-                    basicInfoListReq.getSize()), basicInfoListReq.getSize() - 1);
+            pages = new PageImpl<>(retBasicInfoList, PageRequest.of(basicInfoListReq.getPage() - 1,
+                    size), size - 1);
         }
         return pages;
     }

@@ -21,6 +21,9 @@ import java.util.Set;
  */
 public class MetaConverter {
 
+    private static final String LABEL_STYLE = "labelStyle";
+    private static final String NODE_STYLE = "nodeStyle";
+
     public static void fillMetaWithNoNull(Map<String, Object> metaData, MetaDataInterface metaDataImpl) {
         if (metaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
             Object o = metaData.get(MetaDataInfo.SCORE.getFieldName());
@@ -57,7 +60,7 @@ public class MetaConverter {
             metaDataImpl.setAddress((String) metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()));
         }
         if (metaData.containsKey(MetaDataInfo.TAG.getFieldName())) {
-            List<Map<String, Object>> tagMaps = (List<Map<String, Object>>) metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName());
+            List<Map<String, Object>> tagMaps = (List<Map<String, Object>>) metaData.get(MetaDataInfo.TAG.getFieldName());
             List<TagRsp> tagList = Lists.newArrayListWithCapacity(tagMaps.size());
             for (Map<String, Object> map : tagMaps) {
                 try {
@@ -70,8 +73,14 @@ public class MetaConverter {
         }
         if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
             Map<String, Object> objectMap = (Map<String, Object>) metaData.get(MetaDataInfo.ADDITIONAL.getFieldName());
-            StyleRsp styleRsp = new StyleRsp();
-            //metaDataImpl.setStyle(styleRsp);
+            metaDataImpl.setAdditional(objectMap);
+            if (objectMap.containsKey(LABEL_STYLE)) {
+                metaDataImpl.setLabelStyle((Map<String, Object>) objectMap.get(LABEL_STYLE));
+            }
+            if (objectMap.containsKey(NODE_STYLE)) {
+                metaDataImpl.setNodeStyle((Map<String, Object>) objectMap.get(NODE_STYLE));
+            }
+
         }
     }
 }

@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.domain.edit.req.upload.RdfReq;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,7 +46,8 @@ public class ImportController {
 
     @ApiOperation("概念导入")
     @PostMapping("/{kgName}/concept")
-    public ApiReturn importConcepts(@PathVariable("kgName") String kgName, MultipartFile file) {
+    public ApiReturn importConcepts(@PathVariable("kgName") String kgName,
+                                    @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
@@ -56,7 +58,7 @@ public class ImportController {
     @PostMapping("/{kgName}/{conceptId}/entity")
     public ApiReturn importEntities(@PathVariable("kgName") String kgName,
                                     @PathVariable("conceptId") Long conceptId,
-                                    MultipartFile file) {
+                                    @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
@@ -65,7 +67,8 @@ public class ImportController {
 
     @ApiOperation("同义词导入")
     @PostMapping("/{kgName}/synonym")
-    public ApiReturn importSynonyms(@PathVariable("kgName") String kgName, MultipartFile file) {
+    public ApiReturn importSynonyms(@PathVariable("kgName") String kgName,
+                                    @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
@@ -76,7 +79,7 @@ public class ImportController {
     @PostMapping("/{kgName}/attr/{type}")
     public ApiReturn importAttrDefinition(@PathVariable("kgName") String kgName,
                                           @PathVariable("type") Integer type,
-                                          MultipartFile file) {
+                                          @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
@@ -87,7 +90,7 @@ public class ImportController {
     @PostMapping("/{kgName}/{conceptId}/domain")
     public ApiReturn importDomain(@PathVariable("kgName") String kgName,
                                   @PathVariable("conceptId") Long conceptId,
-                                  MultipartFile file) {
+                                  @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
@@ -98,7 +101,7 @@ public class ImportController {
     @PostMapping("/{kgName}/{mode}/relation")
     public ApiReturn importRelation(@PathVariable("kgName") String kgName,
                                     @PathVariable("mode") Integer mode,
-                                    MultipartFile file) {
+                                    @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
@@ -110,7 +113,7 @@ public class ImportController {
     public ApiReturn importRelation(@PathVariable("kgName") String kgName,
                                     @PathVariable("attrId") Integer attrId,
                                     @PathVariable("mode") Integer mode,
-                                    MultipartFile file) {
+                                    @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
@@ -121,7 +124,7 @@ public class ImportController {
     @PostMapping("/{kgName}/rdf")
     public ApiReturn importRdf(@PathVariable("kgName") String kgName,
                                @RequestParam("format") String format,
-                               MultipartFile file) {
+                               @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }

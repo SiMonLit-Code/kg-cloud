@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.app;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.app.PromptParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
@@ -23,18 +24,19 @@ public class PromptConverter extends BasicConverter {
         promptReq.setKw(promptParam.getKw());
         promptReq.setOpenExportDate(promptParam.getOpenExportDate());
         promptReq.setPage(promptParam.getPageNo());
-        promptReq.setPromptType(promptReq.getPromptType());
-        promptReq.setSize(promptReq.getSize());
+        promptReq.setPromptType(promptParam.getPromptType());
+        promptReq.setSize(promptParam.getPageSize());
         setIfNoNull(promptParam.getSort(), a -> promptReq.setSort(a.getValue()));
         return promptReq;
     }
 
     public static EntityBean promptEntityRspToEntityBean(PromptEntityRsp newEntity) {
         EntityBean entityBean = new EntityBean();
-        entityBean.setName(entityBean.getName());
-        entityBean.setConceptName(entityBean.getConceptName());
+        entityBean.setName(newEntity.getName());
         entityBean.setMeaningTag(newEntity.getMeaningTag());
+        entityBean.setClassId(newEntity.getConceptId());
         entityBean.setConceptId(newEntity.getConceptId());
+        entityBean.setClassIdList(Lists.newArrayList(newEntity.getConceptId()));
         entityBean.setId(newEntity.getId());
         setIfNoNull(newEntity.getQa(), entityBean::setQa);
         entityBean.setScore(newEntity.getScore());

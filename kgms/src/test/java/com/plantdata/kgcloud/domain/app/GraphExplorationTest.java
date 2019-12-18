@@ -1,13 +1,19 @@
 package com.plantdata.kgcloud.domain.app;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
+import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,7 +71,48 @@ public class GraphExplorationTest {
     public void gisGraphExplorationTest() {
         GisGraphExploreReq gisGraphExploreReq = new GisGraphExploreReq();
         gisGraphExploreReq.setIsInherit(true);
+        gisGraphExploreReq.setConceptIds(Lists.newArrayList(1L));
         GisGraphExploreRsp gisGraphExploreRsp = graphExplorationService.gisGraphExploration(KG_NAME, gisGraphExploreReq);
         System.out.println(JacksonUtils.writeValueAsString(gisGraphExploreRsp));
     }
+
+    @Test
+    public void gisLocusAnalysisTest() {
+        GisLocusReq gisLocusReq = new GisLocusReq();
+        GisLocusReq.GisRuleParam gisRuleParam = new GisLocusReq.GisRuleParam();
+        gisRuleParam.setIds(Lists.newArrayList(3L));
+        gisRuleParam.setRuleId(1);
+        gisRuleParam.setKql("concept('人').relation('任职机构')");
+        gisLocusReq.setRules(Lists.newArrayList(gisRuleParam));
+        GisLocusAnalysisRsp analysisRsp = graphExplorationService.gisLocusAnalysis(KG_NAME, gisLocusReq);
+        System.out.println(JacksonUtils.writeValueAsString(analysisRsp));
+    }
+
+
+    @Test
+    public void timeGraphExplorationTest() {
+        CommonTimingExploreReq exploreReq = new CommonTimingExploreReq();
+        CommonFiltersReq common = new CommonFiltersReq();
+        common.setKw("李岩");
+        exploreReq.setCommon(common);
+        TimeFilterExploreReq timeFilterExploreReq = new TimeFilterExploreReq();
+//        timeFilterExploreReq.setFromTime();
+//        timeFilterExploreReq.setToTime();
+//        timeFilterExploreReq.setTimeFilterType();
+//        exploreReq.setTimeFilters();
+        CommonBasicGraphExploreRsp exploreRsp = graphExplorationService.timeGraphExploration(KG_NAME, exploreReq);
+        System.out.println(JacksonUtils.writeValueAsString(exploreRsp));
+
+    }
+
+    @Test
+    public void reasoningGraphExplorationTest() {
+        CommonReasoningExploreReq exploreReq = new CommonReasoningExploreReq();
+        CommonFiltersReq common = new CommonFiltersReq();
+        common.setKw("李岩");
+        exploreReq.setCommon(common);
+        CommonBasicGraphExploreRsp exploreRsp = graphExplorationService.reasoningGraphExploration(KG_NAME, exploreReq);
+        System.out.println(JacksonUtils.writeValueAsString(exploreRsp));
+    }
+
 }

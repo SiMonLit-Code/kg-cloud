@@ -14,9 +14,30 @@ import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
  */
 public interface GraphRelationAnalysisService {
 
+    /**
+     * 关联分析
+     *
+     * @param kgName
+     * @param analysisReq
+     * @return
+     */
     RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReq analysisReq);
 
-    RelationTimingAnalysisRsp relationTimingAnalysis(String kgName,RelationTimingAnalysisReq analysisReq);
+    /**
+     * 时序关联分析
+     *
+     * @param kgName
+     * @param analysisReq
+     * @return
+     */
+    RelationTimingAnalysisRsp relationTimingAnalysis(String kgName, RelationTimingAnalysisReq analysisReq);
 
+    /**
+     * 推理关联分析
+     *
+     * @param kgName
+     * @param analysisReq
+     * @return
+     */
     RelationReasoningAnalysisRsp relationReasoningAnalysis(String kgName, RelationReasoningAnalysisReq analysisReq);
 }

@@ -20,6 +20,9 @@ import com.plantdata.kgcloud.domain.task.rsp.TaskTemplateRsp;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.XxlAdminClient;
+import com.plantdata.kgcloud.sdk.bean.RunTaskReq;
+import com.plantdata.kgcloud.sdk.bean.ScheduleReq;
+import com.plantdata.kgcloud.sdk.bean.TaskBean;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -30,11 +33,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -111,7 +110,12 @@ public class TaskGraphServiceImpl implements TaskGraphService {
             searchRepository.save(confSearch);
         }
         String cron = "0 0 0 ? * *";
-        xxlAdminClient.taskSchedule(userId, taskId, cron, 0L);
+        ScheduleReq req = new ScheduleReq();
+        req.setStdDataOffset(0L);
+        req.setUserId(userId);
+        req.setId(taskId);
+        req.setCronExp(cron);
+        xxlAdminClient.taskSchedule(req);
         return taskId;
     }
 
@@ -124,20 +128,25 @@ public class TaskGraphServiceImpl implements TaskGraphService {
                 .put("kgName", kgName)
                 .put("type", 1)
                 .putPOJO("conceptIds", new ArrayList<>());
-        ObjectNode task = JacksonUtils.getInstance().createObjectNode()
-                .put("kgName", kgName)
-                .put("name", "拼音检索导出_" + System.currentTimeMillis())
-                .put("taskType", "kg_export")
-                .put("userId", userId)
-                .put("config", config.toString());
-        ApiReturn apiReturn = xxlAdminClient.taskAdd(userId, task.toString());
+        TaskBean task = new TaskBean();
+        task.setUserId(userId);
+        task.setKgName(kgName);
+        task.setName("拼音检索导出_" + System.currentTimeMillis());
+        task.setTaskType("kg_export");
+        task.setConfig(config.toString());
+        ApiReturn apiReturn = xxlAdminClient.taskAdd(task);
         if (apiReturn.getErrCode() != 200) {
             throw new BizException(apiReturn.getErrCode(), apiReturn.getMessage());
         }
 
         // run task
         Integer taskId = (Integer) apiReturn.getData();
-        apiReturn = xxlAdminClient.taskRun(userId, taskId, null, 0L, 0L);
+        RunTaskReq runReq = new RunTaskReq();
+        runReq.setUserId(userId);
+        runReq.setId(taskId);
+        runReq.setStdDataOffset(0L);
+        runReq.setStdFireTime(0L);
+        apiReturn = xxlAdminClient.taskRun(runReq);
         if (apiReturn.getErrCode() != 200) {
             throw new BizException(apiReturn.getErrCode(), apiReturn.getMessage());
         }
@@ -167,7 +176,12 @@ public class TaskGraphServiceImpl implements TaskGraphService {
         Optional<TaskGraphSearch> optional = searchRepository.findById(kgName);
         String userId = SessionHolder.getUserId();
         if (optional.isPresent()) {
-            ApiReturn apiReturn = xxlAdminClient.taskRun(userId, optional.get().getTaskId(), null, 0L, 0L);
+            RunTaskReq runReq = new RunTaskReq();
+            runReq.setUserId(userId);
+            runReq.setId(optional.get().getTaskId());
+            runReq.setStdDataOffset(0L);
+            runReq.setStdFireTime(0L);
+            ApiReturn apiReturn = xxlAdminClient.taskRun(runReq);
             if (apiReturn.getErrCode() != 200) {
                 throw new BizException(apiReturn.getMessage());
             }

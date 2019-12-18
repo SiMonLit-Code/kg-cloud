@@ -17,18 +17,38 @@ import java.util.Set;
  */
 public interface SecondaryScreeningInterface {
 
-    BasicGraphExploreRsp  getGraphReq();
+    /**
+     * 二次筛选的实体和关系
+     *
+     * @return 二次筛选的bean
+     */
+    BasicGraphExploreRsp getGraphReq();
 
+    /**
+     * 边属性筛选
+     *
+     * @return 。
+     */
     List<RelationAttrReq> getEdgeAttrFilters();
 
+    /**
+     * 反向边属性筛选
+     *
+     * @return 。
+     */
     List<RelationAttrReq> getReservedEdgeAttrFilters();
 
+    /**
+     * 实体筛选
+     *
+     * @return 。
+     */
     List<EntityQueryFiltersReq> getEntityFilters();
 
     /**
      * 需要保留的实体ids
      *
-     * @retur ..
+     * @return .
      */
     default Set<Long> getNeedSaveEntityIds() {
         return Collections.emptySet();
