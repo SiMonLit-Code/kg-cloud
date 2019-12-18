@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.audit.rsp;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -9,7 +10,13 @@ import lombok.Data;
  **/
 @Data
 public class ApiAuditVoRsp {
+
+    @ApiModelProperty("路径")
     private String name;
+
+    @ApiModelProperty("数量")
     private Long value;
+
+    @ApiModelProperty("时间")
     private String time;
 }

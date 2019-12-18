@@ -85,8 +85,9 @@ public class WordController {
 
     @ApiOperation("词典-词条删除")
     @DeleteMapping("/{dictId}/word/{wordId}")
-    public ApiReturn delete(@PathVariable("dictId") Long dictId,
-                            @PathVariable("wordId") String wordId) {
+    public ApiReturn delete(
+            @PathVariable("dictId") Long dictId,
+            @PathVariable("wordId") String wordId) {
         String userId = SessionHolder.getUserId();
         wordService.delete(userId, dictId, wordId);
         return ApiReturn.success();

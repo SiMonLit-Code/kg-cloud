@@ -17,8 +17,10 @@ public class AnnotationCreateReq {
     @NotNull
     @ApiModelProperty("数据集Id")
     private Long dataId;
+
     @ApiModelProperty("任务名称")
     private String name;
 
+    @ApiModelProperty("描述")
     private String description;
 }
