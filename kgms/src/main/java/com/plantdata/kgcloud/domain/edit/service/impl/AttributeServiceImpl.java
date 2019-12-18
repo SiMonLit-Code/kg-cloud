@@ -237,6 +237,7 @@ public class AttributeServiceImpl implements AttributeService {
                                                 .type(0).name(idNameVO.getName()).build());
                                 idNameVO.setId(conceptId);
                             });
+                    attrTemplateReq.setDataType(0);
                     attrTemplateReq.setRange(ranges);
                 });
         List<AttrDefinitionReq> attrDefinitionReqs =
