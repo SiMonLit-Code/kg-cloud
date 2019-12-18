@@ -17,7 +17,7 @@ import java.util.List;
 @ApiModel("删除私有数值或对象属性值模型")
 public class DeletePrivateDataReq {
 
-    @NotNull
+
     @ApiModelProperty(value = "实体id")
     private Long entityId;
 

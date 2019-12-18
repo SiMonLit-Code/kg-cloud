@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -14,16 +15,16 @@ import java.util.List;
 @Data
 @ApiModel("边属性定义创建模型")
 public class EdgeAttrDefinitionReq {
-    @ApiModelProperty(value = "边属性id")
-    private Integer seqNo;
 
-    @ApiModelProperty(value = "边属性名称")
+    @ApiModelProperty(required = true,value = "边属性名称")
     private String name;
 
-    @ApiModelProperty(value = "边属性类型")
+    @ApiModelProperty(required = true,value = "边属性类型")
+    @NotNull
     private Integer dataType;
 
-    @ApiModelProperty(value = "边属性类型,0:数值属性,1:对象属性")
+    @ApiModelProperty(required = true,value = "边属性类型,0:数值属性,1:对象属性")
+    @NotNull
     private Integer type;
 
     @ApiModelProperty(value = "边属性单位")
