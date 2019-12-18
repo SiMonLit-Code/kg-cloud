@@ -118,6 +118,7 @@ public interface DataOptService {
 
     /**
      * 获取 Provider
+     *
      * @param userId
      * @param datasetId
      * @return
@@ -131,4 +132,13 @@ public interface DataOptService {
      * @param addReq
      */
     void batchAddDataForDataSet(String userId, DataSetAddReq addReq);
+
+    /**
+     * smoke统计
+     *
+     * @param userId
+     * @param datasetId
+     * @return
+     */
+    List<Map<String, Long>> statistics(String userId, Long datasetId);
 }

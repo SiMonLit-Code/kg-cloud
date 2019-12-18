@@ -1,23 +1,35 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.Sorts;
 import com.plantdata.kgcloud.constant.CommonConstants;
+import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -29,23 +41,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MongodbOptProvider implements DataOptProvider {
 
+    private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private final MongoClient client;
-
     private final String database;
     private final String table;
-
-    private static final String MONGO_ID = CommonConstants.MongoConst.ID;
-
-    private ServerAddress buildServerAddress(String addr) {
-        String[] host = addr.trim().split(":");
-        if (host.length == 2) {
-            String ip = host[0].trim();
-            int port = Integer.parseInt(host[1].trim());
-            return new ServerAddress(ip, port);
-        }
-        return null;
-    }
-
 
     public MongodbOptProvider(DataOptConnect info) {
         List<ServerAddress> addressList = info.getAddresses().stream()
@@ -67,6 +66,16 @@ public class MongodbOptProvider implements DataOptProvider {
         this.table = info.getTable();
     }
 
+    private ServerAddress buildServerAddress(String addr) {
+        String[] host = addr.trim().split(":");
+        if (host.length == 2) {
+            String ip = host[0].trim();
+            int port = Integer.parseInt(host[1].trim());
+            return new ServerAddress(ip, port);
+        }
+        return null;
+    }
+
     private MongoCollection<Document> getCollection() {
         return client.getDatabase(database).getCollection(table);
     }
@@ -81,17 +90,46 @@ public class MongodbOptProvider implements DataOptProvider {
         return fields;
     }
 
+    private Bson buildQuery(Map<String, Object> query) {
+        List<Bson> bsonList = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : query.entrySet()) {
+            if (Objects.equals(entry.getKey(), "search")) {
+                Map<String, String> value = (Map<String, String>) entry.getValue();
+                for (Map.Entry<String, String> objectEntry : value.entrySet()) {
+                    bsonList.add(Filters.regex(objectEntry.getKey(), objectEntry.getValue()));
+                }
+            }
+            if (Objects.equals(entry.getKey(), "resultType")) {
+                Integer resultType = (Integer) entry.getValue();
+                if (Objects.equals(resultType, 2)) {
+                    bsonList.add(Filters.eq(DataConst.HAS_SMOKE, true));
+                } else if (Objects.equals(resultType, 3)) {
+                    bsonList.add(Filters.eq(DataConst.HAS_SMOKE, false));
+                } else if (Objects.equals(resultType, 4)) {
+                    bsonList.add(Filters.exists(DataConst.HAS_SMOKE, false));
+                }
+            }
+        }
+        return Filters.and(bsonList);
+    }
+
     @Override
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
-        FindIterable<Document> findIterable = getCollection().find();
-        if (offset != null && offset > 0) {
+        FindIterable<Document> findIterable;
+        if (query != null && !query.isEmpty()) {
+            findIterable = getCollection().find(buildQuery(query));
+        } else {
+            findIterable = getCollection().find();
+        }
+        if (offset != null && offset >= 0) {
             findIterable = findIterable.skip(offset);
         }
         int size = 10;
         if (limit != null && limit > 0) {
+            limit = size;
             findIterable = findIterable.limit(limit);
-            size = limit;
         }
+        findIterable.sort(Sorts.descending(DataConst.CREATE_AT));
         List<Map<String, Object>> mapList = new ArrayList<>();
         for (Document document : findIterable) {
             Map<String, Object> map = new HashMap<>(size);
@@ -104,7 +142,11 @@ public class MongodbOptProvider implements DataOptProvider {
 
     @Override
     public long count(Map<String, Object> query) {
-        return getCollection().countDocuments();
+        if (query != null && !query.isEmpty()) {
+            return getCollection().countDocuments(buildQuery(query));
+        } else {
+            return getCollection().countDocuments();
+        }
     }
 
     @Override
@@ -134,7 +176,7 @@ public class MongodbOptProvider implements DataOptProvider {
     }
 
     @Override
-    public Map<String, Object> insert(Map<String,Object> node) {
+    public Map<String, Object> insert(Map<String, Object> node) {
         MongoCollection<Document> collection = getCollection();
         Document map = Document.parse(JacksonUtils.writeValueAsString(node));
         collection.insertOne(map);
@@ -143,7 +185,7 @@ public class MongodbOptProvider implements DataOptProvider {
     }
 
     @Override
-    public Map<String, Object> update(String id, Map<String,Object> node) {
+    public Map<String, Object> update(String id, Map<String, Object> node) {
         MongoCollection<Document> collection = getCollection();
         Document map = Document.parse(JacksonUtils.writeValueAsString(node));
         collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(id)), new Document("$set", map));
@@ -164,10 +206,10 @@ public class MongodbOptProvider implements DataOptProvider {
     }
 
     @Override
-    public void batchInsert(List<Map<String,Object>> nodes) {
+    public void batchInsert(List<Map<String, Object>> nodes) {
         MongoCollection<Document> collection = getCollection();
         List<Document> docList = new ArrayList<>();
-        for (Map<String,Object> node : nodes) {
+        for (Map<String, Object> node : nodes) {
             Document map = Document.parse(JacksonUtils.writeValueAsString(node));
             docList.add(map);
         }
@@ -184,6 +226,37 @@ public class MongodbOptProvider implements DataOptProvider {
             objs.add(objectId);
         }
         collection.deleteMany(Filters.in(MONGO_ID, objs));
+    }
+
+    @Override
+    public List<Map<String, Long>> statistics() {
+        MongoCollection<Document> collection = getCollection();
+        long passed = collection.countDocuments(Filters.eq(DataConst.HAS_SMOKE, true));
+        long unPassed = collection.countDocuments(Filters.eq(DataConst.HAS_SMOKE, false));
+        long unDone = collection.countDocuments(Filters.exists(DataConst.HAS_SMOKE, false));
+        Map<String, Long> countMap = new HashMap<>();
+        countMap.put("2", passed);
+        countMap.put("3", unPassed);
+        countMap.put("4", unDone);
+
+        Map<String, Long> reasonMap = new HashMap<>();
+        AggregateIterable<Document> total = collection.aggregate(Arrays.asList(
+                Aggregates.group("$_smokeMsg.msg", Accumulators.sum("total", 1L))
+        ));
+
+        for (Document document : total) {
+            if (document.get("_id") != null) {
+                List<String> msgList = (List<String>) document.get("_id");
+                Long tempTotal = document.getLong("total");
+                for (String s : msgList) {
+                    reasonMap.compute(s, (k, v) -> v == null ? tempTotal : v + tempTotal);
+                }
+            }
+        }
+        List<Map<String, Long>> result = Lists.newArrayList();
+        result.add(countMap);
+        result.add(reasonMap);
+        return result;
     }
 
     @Override
