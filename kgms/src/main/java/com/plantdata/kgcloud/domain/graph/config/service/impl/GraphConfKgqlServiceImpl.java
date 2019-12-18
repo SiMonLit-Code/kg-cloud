@@ -48,13 +48,15 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
         BeanUtils.copyProperties(req, targe);
         targe.setId(kgKeyGenerator.getNextId());
         targe.setKgName(kgName);
-        RestResp<QuerySetting> restResp =  qlApi.business(kgName,targe.getKgql());
-        Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
-        if (!convert.isPresent()){
-           throw  BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
+        if (!targe.getKgql().isEmpty()) {
+            RestResp<QuerySetting> restResp = qlApi.business(kgName, targe.getKgql());
+            Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
+            if (!convert.isPresent()) {
+                throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
+            }
+            String s = JacksonUtils.writeValueAsString(convert.get());
+            targe.setRuleSettings(s);
         }
-        String s = JacksonUtils.writeValueAsString(convert.get());
-        targe.setRuleSettings(s);
         GraphConfKgql result = graphConfKgqlRepository.save(targe);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);
     }
