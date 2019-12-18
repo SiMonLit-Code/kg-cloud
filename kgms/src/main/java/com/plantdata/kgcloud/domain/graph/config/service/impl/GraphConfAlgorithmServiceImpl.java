@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +65,8 @@ public class GraphConfAlgorithmServiceImpl implements GraphConfAlgorithmService 
 
     @Override
     public Page<GraphConfAlgorithmRsp> findByKgName(String kgName , BaseReq baseReq) {
-        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
+        Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
+        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(),sort);
         Page<GraphConfAlgorithm> all = graphConfAlgorithmRepository.findByKgName(kgName, pageable);
         return all.map(ConvertUtils.convert(GraphConfAlgorithmRsp.class));
     }
