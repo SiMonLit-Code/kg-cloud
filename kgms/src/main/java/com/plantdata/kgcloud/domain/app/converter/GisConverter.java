@@ -49,10 +49,25 @@ public class GisConverter extends BasicConverter {
         gisLocusParam.setFromTime(req.getFromTime());
         gisLocusParam.setToTime(req.getToTime());
         gisLocusParam.setGisFilters(req.getGisFilters());
+        if (page == null) {
+            page = new BaseReq();
+            page.setPage(0);
+            page.setSize(10);
+        }
+        gisLocusParam.setRules(listConvert(req.getRules(), GisConverter::gisRuleParamToGisLocusRulesParam));
         gisLocusParam.setPos(page.getPage());
         gisLocusParam.setSize(page.getSize());
         return gisLocusParam;
     }
+
+    private static GisLocusParam.GisLocusRulesParam gisRuleParamToGisLocusRulesParam(GisLocusReq.GisRuleParam gisRuleParam) {
+        GisLocusParam.GisLocusRulesParam rulesParam = new GisLocusParam.GisLocusRulesParam();
+        rulesParam.setIds(gisRuleParam.getIds());
+        rulesParam.setKql(gisRuleParam.getKql());
+        rulesParam.setRuleId(gisRuleParam.getRuleId());
+        return rulesParam;
+    }
+
 
     public static GisGraphExploreRsp voToGisAnalysisRsp(@NonNull List<BasicInfo> entityList, Map<Long, BasicInfo> conceptIdMap) {
         GisGraphExploreRsp exploreRsp = new GisGraphExploreRsp();

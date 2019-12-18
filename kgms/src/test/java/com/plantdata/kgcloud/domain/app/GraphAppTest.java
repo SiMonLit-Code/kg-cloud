@@ -70,7 +70,7 @@ public class GraphAppTest {
     }
 
     /**
-     * 知识卡片 todo 再次测试
+     * 知识卡片
      */
     @Test
     public void infoBoxTest() throws IOException {
@@ -81,7 +81,7 @@ public class GraphAppTest {
     }
 
     /**
-     * 知识卡片 todo 再次测试
+     * 知识卡片
      */
     @Test
     public void batchInfoBoxTest() {
