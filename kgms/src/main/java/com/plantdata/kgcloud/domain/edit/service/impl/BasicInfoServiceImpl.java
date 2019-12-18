@@ -171,6 +171,9 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     @Override
     public List<PromptRsp> prompt(String kgName, PromptReq promptReq) {
         PromptFrom promptFrom = MapperUtils.map(promptReq, PromptFrom.class);
+        //第一页
+        promptFrom.setSkip(0);
+        promptFrom.setLimit(promptReq.getSize());
         Optional<List<PromptVO>> optional = RestRespConverter.convert(graphApi.prompt(kgName, promptFrom));
         return optional.orElse(new ArrayList<>()).stream().map(promptVO -> {
             PromptRsp promptRsp = new PromptRsp();

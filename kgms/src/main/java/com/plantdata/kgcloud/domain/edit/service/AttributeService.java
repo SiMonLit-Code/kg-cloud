@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
+import com.plantdata.kgcloud.domain.edit.req.attr.RelationSearchMetaReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
@@ -156,7 +157,7 @@ public interface AttributeService {
      * @param relationSearchReq
      * @return
      */
-    Page<RelationRsp> listRelations(String kgName, RelationSearchReq relationSearchReq);
+    Page<RelationRsp> listRelations(String kgName, RelationSearchReq relationSearchReq, RelationSearchMetaReq metaReq);
 
     /**
      * 批量删除关系
