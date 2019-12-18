@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.rsp;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -15,8 +16,10 @@ public class FolderRsp {
 
     private String userId;
 
+    @ApiModelProperty("文件夹名称")
     private String folderName;
 
+    @ApiModelProperty("是否默认")
     private Boolean defaulted;
 
     private Date createAt;

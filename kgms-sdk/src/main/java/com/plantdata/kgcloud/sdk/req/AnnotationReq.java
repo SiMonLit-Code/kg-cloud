@@ -13,6 +13,7 @@ import java.util.List;
 @Data
 public class AnnotationReq {
 
+
     private String name;
 
     private List<AnnotationConf> config;
