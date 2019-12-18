@@ -21,7 +21,7 @@ public class GraphPromptServiceTest {
     private GraphPromptService graphPromptService;
 
     @Test
-    public void test3(){
+    public void edgeAttributeSearchTest(){
         EdgeAttrPromptReq promptReq = new EdgeAttrPromptReq();
         promptReq.setAttrId(2);
         promptReq.setReserved(0);

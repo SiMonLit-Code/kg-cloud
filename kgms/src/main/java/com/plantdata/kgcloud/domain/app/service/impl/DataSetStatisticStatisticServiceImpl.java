@@ -44,8 +44,6 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
     @Autowired
     private DataSetRepository dataSetRepository;
     @Autowired
-    private DataSetService dataSetService;
-    @Autowired
     private DataOptService dataOptService;
     @Autowired
     private DataSetSearchService dataSetSearchService;

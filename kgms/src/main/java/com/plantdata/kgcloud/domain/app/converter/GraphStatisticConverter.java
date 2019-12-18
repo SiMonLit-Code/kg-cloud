@@ -127,7 +127,7 @@ public class GraphStatisticConverter {
         });
 
         statDataRsp.addData2X(xData);
-        statDataRsp.addData2Series(StringUtils.EMPTY, sData);
+        statDataRsp.addData2Series(sData);
         return statDataRsp;
     }
 

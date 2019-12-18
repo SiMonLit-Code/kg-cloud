@@ -39,17 +39,14 @@ public class GraphRelationAnalysisController {
     @ApiOperation("关联分析")
     @PostMapping("{kgName}")
     public ApiReturn<RelationAnalysisRsp> relationAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                            @RequestBody @Valid RelationReqAnalysisReq analysisReq,
-                                                            @ApiIgnore BindingResult bindingResult) {
-
+                                                           @RequestBody @Valid RelationReqAnalysisReq analysisReq) {
         return ApiReturn.success(graphRelationAnalysisService.relationAnalysis(kgName, analysisReq));
     }
 
     @ApiOperation("直接关联关系")
     @PostMapping("direct/{kgName}")
     public ApiReturn<RelationAnalysisRsp> relationDirect(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                          @RequestBody @Valid RelationReqAnalysisReq analysisReq,
-                                                          @ApiIgnore BindingResult bindingResult) {
+                                                         @RequestBody @Valid RelationReqAnalysisReq analysisReq) {
         analysisReq.setDistance(NumberUtils.INTEGER_ONE);
         return ApiReturn.success(graphRelationAnalysisService.relationAnalysis(kgName, analysisReq));
     }
@@ -57,16 +54,14 @@ public class GraphRelationAnalysisController {
     @ApiOperation("时序关联分析")
     @PostMapping("timing/{kgName}")
     public ApiReturn<RelationTimingAnalysisRsp> relationTimingAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                        @RequestBody @Valid RelationTimingAnalysisReq analysisReq,
-                                                                        @ApiIgnore BindingResult bindingResult) {
+                                                                       @RequestBody @Valid RelationTimingAnalysisReq analysisReq) {
         return ApiReturn.success(graphRelationAnalysisService.relationTimingAnalysis(kgName, analysisReq));
     }
 
     @ApiOperation("关联推理分析")
     @PostMapping("reasoning/{kgName}")
     public ApiReturn<RelationReasoningAnalysisRsp> relationReasoningAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                              @RequestBody @Valid RelationReasoningAnalysisReq analysisReq,
-                                                                              @ApiIgnore BindingResult bindingResult) {
+                                                                             @RequestBody @Valid RelationReasoningAnalysisReq analysisReq) {
         return ApiReturn.success(graphRelationAnalysisService.relationReasoningAnalysis(kgName, analysisReq));
     }
 

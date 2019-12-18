@@ -6,7 +6,10 @@ import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
+import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
@@ -84,4 +87,32 @@ public class GraphExplorationTest {
         GisLocusAnalysisRsp analysisRsp = graphExplorationService.gisLocusAnalysis(KG_NAME, gisLocusReq);
         System.out.println(JacksonUtils.writeValueAsString(analysisRsp));
     }
+
+
+    @Test
+    public void timeGraphExplorationTest() {
+        CommonTimingExploreReq exploreReq = new CommonTimingExploreReq();
+        CommonFiltersReq common = new CommonFiltersReq();
+        common.setKw("李岩");
+        exploreReq.setCommon(common);
+        TimeFilterExploreReq timeFilterExploreReq = new TimeFilterExploreReq();
+//        timeFilterExploreReq.setFromTime();
+//        timeFilterExploreReq.setToTime();
+//        timeFilterExploreReq.setTimeFilterType();
+//        exploreReq.setTimeFilters();
+        CommonBasicGraphExploreRsp exploreRsp = graphExplorationService.timeGraphExploration(KG_NAME, exploreReq);
+        System.out.println(JacksonUtils.writeValueAsString(exploreRsp));
+
+    }
+
+    @Test
+    public void reasoningGraphExplorationTest() {
+        CommonReasoningExploreReq exploreReq = new CommonReasoningExploreReq();
+        CommonFiltersReq common = new CommonFiltersReq();
+        common.setKw("李岩");
+        exploreReq.setCommon(common);
+        CommonBasicGraphExploreRsp exploreRsp = graphExplorationService.reasoningGraphExploration(KG_NAME, exploreReq);
+        System.out.println(JacksonUtils.writeValueAsString(exploreRsp));
+    }
+
 }
