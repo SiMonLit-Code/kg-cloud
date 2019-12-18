@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,9 @@ import java.util.Optional;
 
 /**
  * 图谱业务配置
- * Created by plantdata-1007 on 2019/12/2.
+ *
+ * @author plantdata-1007
+ * @date 2019/12/2
  */
 @Service
 public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
@@ -81,7 +84,8 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
 
     @Override
     public Page<GraphConfKgqlRsp> findByKgNameAndRuleType(String kgName, Integer ruleType, BaseReq baseReq) {
-        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
+        Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
+        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(),sort);
         Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgNameAndRuleType(kgName,ruleType, pageable);
         return all.map(ConvertUtils.convert(GraphConfKgqlRsp.class));
     }
