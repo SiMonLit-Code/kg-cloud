@@ -15,10 +15,6 @@
     <description>kgms</description>
     <packaging>jar</packaging>
 
-    <properties>
-        <skipTests>true</skipTests>
-    </properties>
-
     <dependencies>
         <!--nlp-->
         <dependency>
