@@ -76,7 +76,12 @@ public interface MetaDataInterface {
      * @param additional .
      */
     default void setAdditional(Map<String, Object> additional) {
+    }
 
+    default void setNodeStyle(Map<String, Object> nodeStyle) {
+    }
+
+    default void setLabelStyle(Map<String, Object> labelStyle) {
     }
 
     /**
@@ -85,7 +90,6 @@ public interface MetaDataInterface {
      * @param tagRspList .
      */
     default void setTags(List<TagRsp> tagRspList) {
-
     }
 
     /**
@@ -94,7 +98,6 @@ public interface MetaDataInterface {
      * @param score .
      */
     default void setScore(Double score) {
-
     }
 
     /**
@@ -103,10 +106,8 @@ public interface MetaDataInterface {
      * @param batch .
      */
     default void setBatch(String batch) {
-
     }
 
     default void setReliability(Double reliability) {
-
     }
 }

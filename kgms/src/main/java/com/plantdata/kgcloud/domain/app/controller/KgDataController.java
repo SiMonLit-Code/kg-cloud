@@ -23,6 +23,7 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdR
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -104,8 +105,8 @@ public class KgDataController {
 
     @ApiOperation("查询实体的关系度数")
     @PostMapping("/statistic/{kgName}/entity/degree/")
-    public ApiReturn<List<Map<String, Object>>> statisticCountEdgeByEntity(@PathVariable("kgName") String kgName,
-                                                                           @RequestBody EdgeStatisticByEntityIdReq statisticReq) {
+    public ApiReturn<List<EdgeStatisticByEntityIdRsp>> statisticCountEdgeByEntity(@PathVariable("kgName") String kgName,
+                                                                                  @RequestBody EdgeStatisticByEntityIdReq statisticReq) {
         return ApiReturn.success(kgDataService.statisticCountEdgeByEntity(kgName, statisticReq));
 
     }

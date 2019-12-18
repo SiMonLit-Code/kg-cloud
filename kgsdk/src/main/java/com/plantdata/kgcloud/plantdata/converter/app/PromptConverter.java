@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.app;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.app.PromptParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
@@ -33,7 +34,9 @@ public class PromptConverter extends BasicConverter {
         EntityBean entityBean = new EntityBean();
         entityBean.setName(newEntity.getName());
         entityBean.setMeaningTag(newEntity.getMeaningTag());
+        entityBean.setClassId(newEntity.getConceptId());
         entityBean.setConceptId(newEntity.getConceptId());
+        entityBean.setClassIdList(Lists.newArrayList(newEntity.getConceptId()));
         entityBean.setId(newEntity.getId());
         setIfNoNull(newEntity.getQa(), entityBean::setQa);
         entityBean.setScore(newEntity.getScore());

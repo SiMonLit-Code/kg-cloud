@@ -22,6 +22,7 @@ import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepos
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,19 +51,25 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
     @Override
     public GraphVO rebuildByRuleReason(String kgName, GraphVO graphVO, ReasoningReqInterface reasoningParam) {
         Map<Integer, JsonNode> configMap = reasoningParam.fetchReasonConfig();
+        if (MapUtils.isEmpty(configMap)) {
+            return graphVO;
+        }
         List<GraphConfReasoning> configList = graphConfReasoningRepository.findAllById(configMap.keySet().stream().map(Integer::longValue).collect(Collectors.toList()));
         ReasoningBO reasoning = new ReasoningBO(configList, configMap);
         reasoning.replaceRuleInfo();
+        //一次推理
         List<Long> analysisEntityIds = reasoningParam.fetchEntityIdList();
         ReasoningReq reasoningReq = reasoning.buildReasoningReq(analysisEntityIds);
         reasoningAndFill(kgName, graphVO, reasoningReq);
-        if (reasoningParam.fetchDistance() != 1) {
-            Set<Long> realDomains = reasoning.getReasonRuleList().stream().map(RelationReasonRuleDTO::getDomain).collect(Collectors.toSet());
-            List<Long> realIdList = graphVO.getEntityList().stream().filter(s -> realDomains.contains(s.getConceptId()) && !analysisEntityIds.contains(s.getId())).map(SimpleEntity::getId).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(realIdList)) {
-                reasoningReq = reasoning.buildReasoningReq(realIdList);
-                reasoningAndFill(kgName, graphVO, reasoningReq);
-            }
+        if (reasoningParam.fetchDistance() == 1) {
+            return graphVO;
+        }
+        //二次推理
+        Set<Long> realDomains = reasoning.getReasonRuleList().stream().map(RelationReasonRuleDTO::getDomain).collect(Collectors.toSet());
+        List<Long> realIdList = graphVO.getEntityList().stream().filter(s -> realDomains.contains(s.getConceptId()) && !analysisEntityIds.contains(s.getId())).map(SimpleEntity::getId).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(realIdList)) {
+            reasoningReq = reasoning.buildReasoningReq(realIdList);
+            reasoningAndFill(kgName, graphVO, reasoningReq);
         }
         return graphVO;
     }
@@ -87,20 +94,21 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
             NodeBean start = tripleBean.getStart();
             NodeBean end = tripleBean.getEnd();
             EdgeBean edge = tripleBean.getEdge();
-            if (end.getType() == 0) {
-                if (!entityIdSet.contains(end.getId())) {
-                    idList.add(end.getId());
+            if (end.getType() != 0) {
+               continue;
+            }
+            if (!entityIdSet.contains(end.getId())) {
+                idList.add(end.getId());
+            }
+            if (entityIdSet.contains(end.getId()) || newEntity) {
+                SimpleRelation relationBean = new SimpleRelation();
+                relationBean.setFrom(start.getId());
+                relationBean.setTo(end.getId());
+                if (edge.getId() != null) {
+                    relationBean.setAttrId(-edge.getId());
                 }
-                if (entityIdSet.contains(end.getId()) || newEntity) {
-                    SimpleRelation relationBean = new SimpleRelation();
-                    relationBean.setFrom(start.getId());
-                    relationBean.setTo(end.getId());
-                    if (edge.getId() != null) {
-                        relationBean.setAttrId(-edge.getId());
-                    }
-                    relationBean.setAttrName(edge.getName());
-                    graphBean.getRelationList().add(relationBean);
-                }
+                relationBean.setAttrName(edge.getName());
+                graphBean.getRelationList().add(relationBean);
             }
         }
         if (idList.isEmpty() || !newEntity) {

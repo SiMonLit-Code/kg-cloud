@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.domain.app.bo;
 
 import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.IdsFilterReq;
+import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -31,54 +33,33 @@ public class GraphRelationStatisticBO {
         return degreeFrom;
     }
 
-    public static List<Map<String, Object>> graphDegreeMapToList(Map<Integer, Integer> outDegree, Map<Integer, Integer> inDegree, Map<Integer, Integer> centrality) {
+    public static List<EdgeStatisticByEntityIdRsp> graphDegreeMapToList(Map<Integer, Integer> outDegree, Map<Integer, Integer> inDegree, Map<Integer, Integer> centrality) {
         if (outDegree == null && inDegree == null) {
             return Collections.emptyList();
         }
-        Map<Integer, Map<String, Object>> map = Maps.newHashMap();
+        Map<Integer, EdgeStatisticByEntityIdRsp> map = Maps.newHashMap();
         if (outDegree != null) {
             outDegree.forEach((k, v) -> {
-                Map<String, Object> degree = Maps.newHashMap();
-                degree.put("outDegree", v);
-                map.put(k, degree);
+                EdgeStatisticByEntityIdRsp rsp = new EdgeStatisticByEntityIdRsp(k);
+                rsp.setOutDegree(v);
+                map.put(k, rsp);
             });
         }
         if (inDegree != null) {
             inDegree.forEach((k, v) -> {
-                if (map.containsKey(k)) {
-                    map.get(k).put("inDegree", v);
-                } else {
-                    Map<String, Object> degree = Maps.newHashMap();
-                    degree.put("inDegree", v);
-                    map.put(k, degree);
-                }
+                EdgeStatisticByEntityIdRsp rsp = map.getOrDefault(k, new EdgeStatisticByEntityIdRsp(k));
+                rsp.setInDegree(v);
+                map.put(k, rsp);
             });
         }
         if (centrality != null) {
             centrality.forEach((k, v) -> {
-                if (map.containsKey(k)) {
-                    map.get(k).put("degree", v);
-                } else {
-                    Map<String, Object> degree = Maps.newHashMap();
-                    degree.put("degree", v);
-                    map.put(k, degree);
-                }
+                EdgeStatisticByEntityIdRsp rsp = map.getOrDefault(k, new EdgeStatisticByEntityIdRsp(k));
+                rsp.setDegree(v);
+                map.put(k, rsp);
             });
         }
-        return map.entrySet().stream().map(v -> {
-            Map<String, Object> data = v.getValue();
-            data.put("layer", v.getKey());
-            if (!data.containsKey("outDegree")) {
-                data.put("outDegree", 0);
-            }
-            if (!data.containsKey("inDegree")) {
-                data.put("inDegree", 0);
-            }
-            if (!data.containsKey("degree")) {
-                data.put("degree", 0);
-            }
-            return data;
-        }).collect(Collectors.toList());
+        return Lists.newArrayList(map.values());
     }
 
     private static <T> Map<Integer, List<T>> buildDataFilterMap(List<IdsFilterReq<T>> idsFilterReqs) {

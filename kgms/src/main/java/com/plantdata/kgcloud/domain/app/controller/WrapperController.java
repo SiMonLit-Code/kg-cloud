@@ -4,6 +4,7 @@ import cn.hiboot.mcn.core.model.result.RestResp;
 import com.hiekn.wrapper.bean.FieldConfigBean;
 import com.hiekn.wrapper.service.Sfe4jService;
 import com.hiekn.wrapper.service.StaticFetchKVAct;
+import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,19 +32,18 @@ public class WrapperController {
 
     @PostMapping("preview")
     @ApiOperation("预览")
-    public RestResp<Map<String, Object>> parse(@ApiParam(required = true) @RequestParam String html,
-                                               @ApiParam(value = "字段配置", required = true) @RequestParam String config) {
+    public ApiReturn<Map<String, Object>> parse(@ApiParam(required = true) @RequestParam String html,
+                                                @ApiParam(value = "字段配置", required = true) @RequestParam String config) {
         List<FieldConfigBean> fieldConfig = JsonUtils.readToList(config, FieldConfigBean.class);
-        return new RestResp<>(staticFetchKVAct.execute(html, fieldConfig));
+        return ApiReturn.success(staticFetchKVAct.execute(html, fieldConfig));
     }
 
 
     @GetMapping("formatter/list")
     @ApiOperation("列表")
-    public RestResp<List<Map<String, String>>> formatterList() {
-        return new RestResp<>(sfe4jService.getDefaultFormatter());
+    public ApiReturn<List<Map<String, String>>> formatterList() {
+        return ApiReturn.success(sfe4jService.getDefaultFormatter());
     }
-
 
 
 }

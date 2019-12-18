@@ -34,7 +34,9 @@ public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyR
     private boolean relationMerge;
     @ApiModelProperty("allowTypes字段指定的概念是否继承")
     private boolean isInherit;
+    @ApiModelProperty("在指定属性范围内查询")
     private List<Integer> allowAttrs;
+    @ApiModelProperty("在指定属性范围内查询")
     private List<String> allowAttrsKey;
     @ApiModelProperty("查询指定的概念，格式为json数组，默认为查询全部")
     private List<Long> allowConcepts;

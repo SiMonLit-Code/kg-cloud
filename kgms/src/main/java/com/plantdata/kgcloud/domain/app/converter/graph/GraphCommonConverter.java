@@ -93,14 +93,11 @@ public class GraphCommonConverter {
         if (!CollectionUtils.isEmpty(exploreReq.getEdgeAttrFilters())) {
             commonFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(exploreReq.getEdgeAttrFilters())));
         }
-
-
         graphFrom.setHighLevelFilter(commonFilter);
         graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
         graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
         graphFrom.setInherit(exploreReq.isInherit());
         graphFrom.setDistance(exploreReq.getDistance());
-
         graphFrom.setDisAllowTypes(exploreReq.getDisAllowConcepts());
 
         //读取元数据
