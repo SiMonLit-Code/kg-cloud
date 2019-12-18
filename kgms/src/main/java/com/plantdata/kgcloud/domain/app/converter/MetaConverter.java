@@ -57,7 +57,7 @@ public class MetaConverter {
             metaDataImpl.setAddress((String) metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()));
         }
         if (metaData.containsKey(MetaDataInfo.TAG.getFieldName())) {
-            List<Map<String, Object>> tagMaps = (List<Map<String, Object>>) metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName());
+            List<Map<String, Object>> tagMaps = (List<Map<String, Object>>) metaData.get(MetaDataInfo.TAG.getFieldName());
             List<TagRsp> tagList = Lists.newArrayListWithCapacity(tagMaps.size());
             for (Map<String, Object> map : tagMaps) {
                 try {
@@ -70,8 +70,7 @@ public class MetaConverter {
         }
         if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
             Map<String, Object> objectMap = (Map<String, Object>) metaData.get(MetaDataInfo.ADDITIONAL.getFieldName());
-            StyleRsp styleRsp = new StyleRsp();
-            //metaDataImpl.setStyle(styleRsp);
+            metaDataImpl.setAdditional(objectMap);
         }
     }
 }

@@ -102,7 +102,7 @@ public class GraphReqConverter {
         graphFrom.setQueryPrivate(common.isPrivateAttRead());
         graphFrom.getHighLevelFilter().setDirection(common.getDirection());
         graphFrom.getHighLevelFilter().setLimit(common.getHighLevelSize() == null ? graphFrom.getLimit() : common.getHighLevelSize());
-
+        graphFrom.setHyponymyDistance(common.getHyponymyDistance());
         if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
             graphFrom.getHighLevelFilter().setEdgeSort(ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts()));
         }

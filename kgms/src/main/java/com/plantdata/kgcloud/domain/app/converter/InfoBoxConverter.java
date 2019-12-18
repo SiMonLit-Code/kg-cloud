@@ -189,8 +189,8 @@ public class InfoBoxConverter extends BasicConverter {
         PromptEntityRsp entityRsp = new PromptEntityRsp();
         entityRsp.setConceptId(entityVO.getConceptId());
         entityRsp.setId(entityVO.getId());
-        entityRsp.setMeaningTag(entityRsp.getMeaningTag());
-        entityRsp.setName(entityRsp.getName());
+        entityRsp.setMeaningTag(entityVO.getMeaningTag());
+        entityRsp.setName(entityVO.getName());
         entityRsp.setType(EntityTypeEnum.ENTITY);
         return entityRsp;
     }
