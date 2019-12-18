@@ -159,7 +159,7 @@ public class AttributeController {
     }
 
     @ApiOperation("根据属性模板添加属性定义")
-    @PostMapping("/{kgName}/{attrId}/definition/template")
+    @PostMapping("/{kgName}/definition/template")
     ApiReturn addAttrDefinitionTemplate(@PathVariable("kgName") String kgName,
                                         @Valid @RequestBody List<AttrTemplateReq> attrTemplateReqs) {
         attributeService.addAttrDefinitionTemplate(kgName, attrTemplateReqs);
