@@ -57,7 +57,7 @@ public interface DataSetAnnotationService {
      * @param req
      * @return
      */
-    AnnotationRsp add(String userId,String kgName, AnnotationCreateReq req);
+    AnnotationRsp add(String userId, String kgName, AnnotationCreateReq req);
 
     /**
      * 标引
@@ -66,5 +66,5 @@ public interface DataSetAnnotationService {
      * @param id
      * @param req
      */
-    void annotation(String userId,String kgName, Long id, AnnotationDataReq req);
+    void annotation(String userId, String kgName, Long id, AnnotationDataReq req);
 }

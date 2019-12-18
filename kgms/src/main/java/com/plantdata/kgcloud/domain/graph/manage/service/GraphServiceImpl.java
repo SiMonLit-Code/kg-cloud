@@ -113,7 +113,6 @@ public class GraphServiceImpl implements GraphService {
                 throw BizException.of(KgmsErrorCodeEnum.GRAPH_OUT_LIMIT);
             }
         }
-
         Graph target = new Graph();
         BeanUtils.copyProperties(req, target);
         String kgName = genKgName(userId);

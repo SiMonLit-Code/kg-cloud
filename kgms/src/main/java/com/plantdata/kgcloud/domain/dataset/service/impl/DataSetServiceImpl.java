@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -173,19 +175,46 @@ public class DataSetServiceImpl implements DataSetService {
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
     }
 
+
     @Override
     public DataSetUpdateRsp findById(String userId, Long id) {
         Optional<DataSet> one = dataSetRepository.findByUserIdAndId(userId, id);
-        DataSetUpdateRsp dataSetUpdateRsp = one.map((s) -> {
+        DataSetUpdateRsp rsp = one.map((s) -> {
             DataSetUpdateRsp dataSetRsp = new DataSetUpdateRsp();
             BeanUtils.copyProperties(s, dataSetRsp);
             DataType dataType = s.getDataType();
             dataSetRsp.setDataType(dataType.getDataType());
             return dataSetRsp;
         }).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS));
-
-
-        return dataSetUpdateRsp;
+        Set<String> set = new HashSet<>(rsp.getFields());
+        set.add("_id");
+        set.add(DataConst.CREATE_AT);
+        set.add(DataConst.UPDATE_AT);
+        List<String> newField = new ArrayList<>();
+        List<DataSetSchema> newSchema = new ArrayList<>();
+        DataOptConnect connect = DataOptConnect.of(one.get());
+        try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, one.get().getDataType())) {
+            List<Map<String, Object>> mapList = provider.find(0, 100, null);
+            for (Map<String, Object> map : mapList) {
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    if (!set.contains(entry.getKey())) {
+                        newField.add(entry.getKey());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.error("connect fail...", e);
+        }
+        for (String s : newField) {
+            DataSetSchema dataSetSchema = new DataSetSchema();
+            dataSetSchema.setField(s);
+            dataSetSchema.setType(1);
+            dataSetSchema.setIsIndex(0);
+            newSchema.add(dataSetSchema);
+        }
+        rsp.setNewFields(newField);
+        rsp.setNewSchema(newSchema);
+        return rsp;
     }
 
     @Override

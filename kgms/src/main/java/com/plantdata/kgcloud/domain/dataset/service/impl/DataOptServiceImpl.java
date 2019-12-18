@@ -3,10 +3,9 @@ package com.plantdata.kgcloud.domain.dataset.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -18,7 +17,6 @@ import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
 import com.plantdata.kgcloud.util.DateUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
@@ -59,14 +58,19 @@ public class DataOptServiceImpl implements DataOptService {
 
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, DataOptQueryReq req) {
-
-//        if (Objects.nonNull(req.getCreateAtBegin())) {
-//            Date startTimeOfDate = DateUtils.getStartTimeOfDate(req.getCreateAtBegin());
-//        }
+        Map<String, Object> query = new HashMap<>();
+        if (StringUtils.hasText(req.getField()) && StringUtils.hasText(req.getField())) {
+            Map<String, String> value = new HashMap<>();
+            value.put(req.getField(), req.getKw());
+            query.put("search", value);
+        }
+        if (req.getResultType() != null) {
+            query.put("resultType", req.getResultType());
+        }
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
             PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
-            List<Map<String, Object>> maps = provider.find(req.getOffset(), req.getLimit(), null);
-            long count = provider.count(null);
+            List<Map<String, Object>> maps = provider.find(req.getOffset(), req.getLimit(), query);
+            long count = provider.count(query);
             return new PageImpl<>(maps, pageable, count);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
@@ -86,8 +90,8 @@ public class DataOptServiceImpl implements DataOptService {
     public Map<String, Object> insertData(String userId, Long datasetId, Map<String, Object> data) {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
             data.remove("_id");
-            data.put("_oprTime", DateUtils.formatDatetime());
-            data.put("_persistTime",DateUtils.formatDatetime());
+            data.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
+            data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
             return provider.insert(data);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
@@ -112,8 +116,8 @@ public class DataOptServiceImpl implements DataOptService {
                     map.put(head.get(entry.getKey()), entry.getValue());
                 }
                 map.remove("_id");
-                map.put("_oprTime", DateUtils.formatDatetime());
-                map.put("_persistTime",DateUtils.formatDatetime());
+                map.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
+                map.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
                 mapList.add(map);
                 if (mapList.size() == 10000) {
                     batchInsertData(userId, datasetId, mapList);
@@ -135,7 +139,7 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     public Map<String, Object> updateData(String userId, Long datasetId, String dataId, Map<String, Object> data) {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            data.put("_oprTime", DateUtils.formatDatetime());
+            data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
             return provider.update(dataId, data);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
@@ -211,6 +215,15 @@ public class DataOptServiceImpl implements DataOptService {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
         }
         this.batchInsertData(userId, ids.get(0), addReq.getDataList());
+    }
+
+    @Override
+    public List<Map<String, Long>> statistics(String userId, Long datasetId) {
+        try (DataOptProvider provider = getProvider(userId, datasetId)) {
+            return provider.statistics();
+        } catch (IOException e) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+        }
     }
 
 

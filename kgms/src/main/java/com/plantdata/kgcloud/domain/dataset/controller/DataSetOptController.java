@@ -109,7 +109,11 @@ public class DataSetOptController {
 
     @ApiOperation("数据集-数据-文件-导入")
     @PostMapping("/{datasetId}/upload")
-    public ApiReturn upload(@PathVariable("datasetId") Long datasetId, @RequestParam(value = "file") MultipartFile file, HttpServletResponse response) {
+    public ApiReturn upload(
+
+            @PathVariable("datasetId") Long datasetId,
+
+            @RequestParam(value = "file") MultipartFile file) {
         try {
             String userId = SessionHolder.getUserId();
             dataOptService.upload(userId, datasetId, file);
@@ -149,10 +153,9 @@ public class DataSetOptController {
 
     @ApiOperation("数据集-数据-smoke统计")
     @GetMapping("/{datasetId}/statistics")
-    public ApiReturn statistics(@PathVariable("datasetId") Long datasetId) {
+    public ApiReturn<List<Map<String,Long>>> statistics(@PathVariable("datasetId") Long datasetId) {
         String userId = SessionHolder.getUserId();
-        dataOptService.deleteAll(userId, datasetId);
-        return ApiReturn.success();
+        return ApiReturn.success(dataOptService.statistics(userId, datasetId));
     }
 
 }

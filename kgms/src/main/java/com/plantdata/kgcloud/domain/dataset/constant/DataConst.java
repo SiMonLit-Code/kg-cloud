@@ -10,6 +10,11 @@ import com.plantdata.kgcloud.util.JacksonUtils;
  **/
 public interface DataConst {
 
+    String CREATE_AT = "_persistTime";
+    String UPDATE_AT = "_oprTime";
+    String HAS_SMOKE ="_smoke";
+
+
     String INDEX = "{\"type\": \"text\",\"analyzer\":\"ik_max_word\"}";
     JsonNode JSON_INDEX = JacksonUtils.readValue(INDEX, JsonNode.class);
 
