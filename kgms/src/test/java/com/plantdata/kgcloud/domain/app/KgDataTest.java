@@ -2,17 +2,20 @@ package com.plantdata.kgcloud.domain.app;
 
 import ai.plantdata.kg.api.ql.SparqlApi;
 import ai.plantdata.kg.api.ql.resp.QueryResultVO;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
+import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,9 +91,27 @@ public class KgDataTest {
     @Test
     public void statEdgeGroupByEdgeValueTest() {
         EdgeAttrStatisticByAttrValueReq attrValueReq = new EdgeAttrStatisticByAttrValueReq();
-        attrValueReq.setEntityIds(Sets.newHashSet(1L, 2L, 4L, 3L));
+        attrValueReq.setAttrId(2);
         attrValueReq.setSeqNo(1);
         Object obj = kgDataService.statEdgeGroupByEdgeValue(KG_NAME, attrValueReq);
         System.out.println(JsonUtils.toJson(obj));
+    }
+
+    @Test
+    public void searchMongoDataSetTest() {
+        NameReadReq nameReadReq = new NameReadReq();
+        nameReadReq.setDataName("bj73pb33_dataset_aaabbb");
+        RestData<Map<String, Object>> dataSet = kgDataService.searchDataSet("bj73pb33", nameReadReq);
+        System.out.println(JsonUtils.toJson(dataSet));
+    }
+
+    @Test
+    public void searchEsDataSetTest() {
+        NameReadReq nameReadReq = new NameReadReq();
+        nameReadReq.setDataName("bj73pb33_dataset_shangchuande");
+
+        nameReadReq.setSort("{\"_oprTime\":{\"order\":\"desc\"}}");
+        RestData<Map<String, Object>> dataSet = kgDataService.searchDataSet("bj73pb33", nameReadReq);
+        System.out.println(JsonUtils.toJson(dataSet));
     }
 }

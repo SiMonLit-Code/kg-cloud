@@ -13,6 +13,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.plantdata.kgcloud.config.EsProperties;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
@@ -24,6 +25,7 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -38,6 +40,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +48,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Administrator
@@ -53,64 +57,35 @@ import java.util.Optional;
 public class DataSetSearchServiceImpl implements DataSetSearchService {
 
     @Autowired
-    private MongoClient mongoClient;
-    @Autowired
-    private EsProperties esProperties;
-    @Autowired
     private MongoApi mongoApi;
     @Autowired
     private DataSetService dataSetService;
-    @Autowired
-    private DataOptService dataOptService;
 
     @Override
-    public RestData<Map<String, Object>> readMongoData(String database, String table, int start, int offset, String query, List<String> fieldList, String sort) {
-        Document bson = new Document();
-        if (StringUtils.isNoneBlank(query)) {
-            bson.putAll(JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
-            }));
-        }
-        Document field = new Document();
-        if (fieldList != null) {
-            fieldList.forEach(s -> field.put(s, 1));
-        }
-        Document sortDoc = new Document();
-        if (StringUtils.isNoneBlank(sort)) {
-            sortDoc.putAll(JacksonUtils.readValue(sort, new TypeReference<Map<String, Object>>() {
-            }));
-        }
-        final List<Map<String, Object>> rsList = Lists.newArrayList();
-        long rsCount = 0;
+    public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query, String sort) {
+        DataOptConnect dataOptConnect = new DataOptConnect();
+        dataOptConnect.setDatabase(dataSet.getDbName());
+        dataOptConnect.setTable(dataSet.getTbName());
+        dataOptConnect.setAddresses(dataSet.getAddr());
+        DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, dataSet.getDataType());
+        Map<String, Object> queryMap;
+        Map<String, Object> sortMap;
         try {
-            MongoCollection<Document> collection = mongoClient.getDatabase(database).getCollection(table);
-
-            rsCount = collection.count(bson);
-            FindIterable<Document> find = collection.find(bson);
-            if (field.size() != 0) {
-                find = find.projection(field);
-            }
-            if (sortDoc.size() != 0) {
-                find = find.sort(sortDoc);
-            }
-            for (Document document : find.skip(start).limit(offset)) {
-                Map<String, Object> map = Maps.newHashMap();
-                map.put("_id", document.get("_id").toString());
-                for (Entry<String, Object> m : document.entrySet()) {
-                    if (!"_id".equals(m.getKey())) {
-                        map.put(m.getKey(), m.getValue());
-                    }
-                }
-                rsList.add(map);
-            }
+            queryMap = JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
+            });
+            sortMap = JacksonUtils.readValue(sort, new TypeReference<Map<String, Object>>() {
+            });
         } catch (Exception e) {
             e.printStackTrace();
+            throw new BizException(AppErrorCodeEnum.ERROR_DATA_SET_QUERY);
         }
-
-        return new RestData<>(rsList, rsCount);
+        List<Map<String, Object>> maps = provider.findWithSort(offset, limit, queryMap, sortMap);
+        long count = provider.count(queryMap);
+        return new RestData<>(maps, count);
     }
 
     @Override
-    public RestData<Map<String, Object>> readEsDataSet(List<String> databases, List<String> tables, List<String> fields, String query, String sort, int start, int offset) {
+    public RestData<Map<String, Object>> readEsDataSet(List<String> addressList, List<String> databases, List<String> tables, List<String> fields, String query, String sort, int start, int offset) {
         Map<String, Object> requestData = Maps.newHashMap();
         if (Objects.nonNull(fields) && fields.size() > 0) {
             requestData.put("_source", fields);
@@ -123,7 +98,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         if (StringUtils.isNoneBlank(sort)) {
             requestData.put("sort", JacksonUtils.readValue(sort, Object.class));
         }
-        String rs = EsUtils.sendPost(EsUtils.buildEsQuery(esProperties.getAddrs()), databases, tables, JsonUtils.toJson(requestData));
+        String rs = EsUtils.sendPost(EsUtils.buildEsQuery(addressList), databases, tables, JsonUtils.toJson(requestData));
         List<Map<String, Object>> rsList = new ArrayList<>(offset);
         long rsCount = 0;
         Optional<JsonNode> jsonObjOpt = JsonUtils.parseJsonNode(rs);
