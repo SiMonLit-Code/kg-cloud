@@ -23,16 +23,15 @@ public class PromptConverter extends BasicConverter {
         promptReq.setKw(promptParam.getKw());
         promptReq.setOpenExportDate(promptParam.getOpenExportDate());
         promptReq.setPage(promptParam.getPageNo());
-        promptReq.setPromptType(promptReq.getPromptType());
-        promptReq.setSize(promptReq.getSize());
+        promptReq.setPromptType(promptParam.getPromptType());
+        promptReq.setSize(promptParam.getPageSize());
         setIfNoNull(promptParam.getSort(), a -> promptReq.setSort(a.getValue()));
         return promptReq;
     }
 
     public static EntityBean promptEntityRspToEntityBean(PromptEntityRsp newEntity) {
         EntityBean entityBean = new EntityBean();
-        entityBean.setName(entityBean.getName());
-        entityBean.setConceptName(entityBean.getConceptName());
+        entityBean.setName(newEntity.getName());
         entityBean.setMeaningTag(newEntity.getMeaningTag());
         entityBean.setConceptId(newEntity.getConceptId());
         entityBean.setId(newEntity.getId());
