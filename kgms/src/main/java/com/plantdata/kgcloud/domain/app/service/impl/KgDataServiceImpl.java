@@ -175,7 +175,7 @@ public class KgDataServiceImpl implements KgDataService {
             return RestData.empty();
         }
         DataSet dataSet = dataSetOpt.get();
-        return dataSetSearchService.readDataSetData(dataSet, pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery());
+        return dataSetSearchService.readDataSetData(dataSet, pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getSort());
     }
 
     private Optional<AttributeDefinition> getAttrDefById(String kgName, Integer attrId) {

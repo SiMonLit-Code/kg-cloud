@@ -24,7 +24,7 @@ public interface DataSetSearchService {
      */
     List<DataLinkRsp> getDataLinks(String kgName, String userId, Long entityId) throws IOException;
 
-    RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query);
+    RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query, String sort);
 
     RestData<Map<String, Object>> readEsDataSet(List<String> addressList, List<String> databases, List<String> tables, List<String> fields, String query, String sort, int start, int offset);
 }

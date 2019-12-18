@@ -13,6 +13,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.plantdata.kgcloud.config.EsProperties;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
@@ -24,6 +25,7 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -55,22 +57,29 @@ import java.util.stream.Collectors;
 public class DataSetSearchServiceImpl implements DataSetSearchService {
 
     @Autowired
-    private MongoClient mongoClient;
-    @Autowired
     private MongoApi mongoApi;
     @Autowired
     private DataSetService dataSetService;
 
     @Override
-    public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query) {
+    public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query, String sort) {
         DataOptConnect dataOptConnect = new DataOptConnect();
         dataOptConnect.setDatabase(dataSet.getDbName());
         dataOptConnect.setTable(dataSet.getTbName());
         dataOptConnect.setAddresses(dataSet.getAddr());
         DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, dataSet.getDataType());
-        Map<String, Object> queryMap = JacksonUtils.readValue(query, new TypeReference<Map<String, Objects>>() {
-        });
-        List<Map<String, Object>> maps = provider.find(offset, limit, queryMap);
+        Map<String, Object> queryMap;
+        Map<String, Object> sortMap;
+        try {
+            queryMap = JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
+            });
+            sortMap = JacksonUtils.readValue(sort, new TypeReference<Map<String, Object>>() {
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BizException(AppErrorCodeEnum.ERROR_DATA_SET_QUERY);
+        }
+        List<Map<String, Object>> maps = provider.findWithSort(offset, limit, queryMap, sortMap);
         long count = provider.count(queryMap);
         return new RestData<>(maps, count);
     }

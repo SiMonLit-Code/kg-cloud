@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.ImageConverter;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
  * @date 2019/12/2 16:43
  */
 @Slf4j
-public class GraphCommonConverter {
+public class GraphCommonConverter extends BasicConverter {
 
     /**
      * 图探索填充概念信息
@@ -135,8 +136,14 @@ public class GraphCommonConverter {
             if (!CollectionUtils.isEmpty(relation.getMetaData())) {
                 MetaConverter.fillMetaWithNoNull(relation.getMetaData(), relationRsp);
                 Map<String, Object> additionalMap = (Map<String, Object>) relation.getMetaData().get(MetaDataInfo.ADDITIONAL.getFieldName());
-                relationRsp.setLabelStyle((Map<String, Object>) additionalMap.get("labelStyle"));
-                relationRsp.setLinkStyle((Map<String, Object>) additionalMap.get("linkStyle"));
+                if (!CollectionUtils.isEmpty(additionalMap)) {
+                    if (additionalMap.containsKey("labelStyle")) {
+                        relationRsp.setLabelStyle((Map<String, Object>) additionalMap.get("labelStyle"));
+                    }
+                    if (additionalMap.containsKey("linkStyle")) {
+                        relationRsp.setLinkStyle((Map<String, Object>) additionalMap.get("linkStyle"));
+                    }
+                }
             }
             if (!CollectionUtils.isEmpty(relation.getEdgeNumericAttr())) {
                 relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
