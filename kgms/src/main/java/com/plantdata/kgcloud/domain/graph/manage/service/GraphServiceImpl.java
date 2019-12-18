@@ -14,7 +14,6 @@ import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -27,6 +26,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +47,12 @@ public class GraphServiceImpl implements GraphService {
 
     @Autowired
     private UserClient userClient;
+    private Function<Graph, GraphRsp> graphGraphRspFunction = (v) -> {
+        GraphRsp graphRsp = new GraphRsp();
+        BeanUtils.copyProperties(v, graphRsp);
+        graphRsp.setKgName(v.getDbName());
+        return graphRsp;
+    };
 
     private String genKgName(String userId) {
         return userId + JOIN + GRAPH_PREFIX + JOIN + Long.toHexString(System.currentTimeMillis());
@@ -58,30 +64,31 @@ public class GraphServiceImpl implements GraphService {
                 .userId(userId)
                 .deleted(false)
                 .build();
-        List<Graph> all = graphRepository.findAll(Example.of(probe), Sort.by(Sort.Direction.DESC,"createAt"));
+        List<Graph> all = graphRepository.findAll(Example.of(probe), Sort.by(Sort.Direction.DESC, "createAt"));
+
         return all.stream()
-                .map(ConvertUtils.convert(GraphRsp.class))
+                .map(graphGraphRspFunction)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Page<GraphRsp> findAll(String userId, GraphPageReq req) {
         Page<Graph> all;
-        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(),Sort.by(Sort.Direction.DESC,"createAt"));
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(), Sort.by(Sort.Direction.DESC, "createAt"));
         if (StringUtils.hasText(req.getKw())) {
             all = graphRepository.findByUserIdAndTitleContaining(userId, req.getKw(), pageable);
         } else {
             Graph probe = Graph.builder().userId(userId).deleted(false).build();
             all = graphRepository.findAll(Example.of(probe), pageable);
         }
-        return all.map(ConvertUtils.convert(GraphRsp.class));
+        return all.map(graphGraphRspFunction);
     }
 
     @Override
     public GraphRsp findById(String userId, String kgName) {
         GraphPk graphPk = new GraphPk(userId, kgName);
         Optional<Graph> one = graphRepository.findById(graphPk);
-        return one.map(ConvertUtils.convert(GraphRsp.class))
+        return one.map(graphGraphRspFunction)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_NOT_EXISTS));
     }
 
@@ -122,11 +129,12 @@ public class GraphServiceImpl implements GraphService {
         createGraphFrom.setDisplayName(req.getTitle());
         RestRespConverter.convertVoid(graphApi.create(createGraphFrom));
         target.setKgName(kgName);
+        target.setDbName(kgName);
         target.setDeleted(false);
         target.setPrivately(true);
         target.setEditable(true);
         target = graphRepository.save(target);
-        return ConvertUtils.convert(GraphRsp.class).apply(target);
+        return graphGraphRspFunction.apply(target);
     }
 
     @Override
@@ -135,19 +143,20 @@ public class GraphServiceImpl implements GraphService {
         String kgName = userId + JOIN + GRAPH_PREFIX + JOIN + "default";
         GraphPk graphPk = new GraphPk(userId, kgName);
         Optional<Graph> one = graphRepository.findById(graphPk);
-        return one.map(ConvertUtils.convert(GraphRsp.class)).orElseGet(() -> {
+        return one.map(graphGraphRspFunction).orElseGet(() -> {
                     CopyGraphFrom copyGraphFrom = new CopyGraphFrom();
                     copyGraphFrom.setSourceKgName("default_graph");
                     copyGraphFrom.setTargetKgName(kgName);
                     RestRespConverter.convertVoid(graphApi.copy(copyGraphFrom));
                     Graph target = new Graph();
                     target.setKgName(kgName);
+                    target.setDbName(kgName);
                     target.setTitle("示例图谱");
                     target.setDeleted(false);
                     target.setPrivately(true);
                     target.setEditable(true);
                     target = graphRepository.save(target);
-                    return ConvertUtils.convert(GraphRsp.class).apply(target);
+                    return graphGraphRspFunction.apply(target);
                 }
         );
     }
@@ -160,6 +169,6 @@ public class GraphServiceImpl implements GraphService {
         BeanUtils.copyProperties(req, target);
         RestRespConverter.convertVoid(graphApi.update(kgName, req.getTitle()));
         target = graphRepository.save(target);
-        return ConvertUtils.convert(GraphRsp.class).apply(target);
+        return graphGraphRspFunction.apply(target);
     }
 }
