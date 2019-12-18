@@ -2,6 +2,8 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.bean.ValidableList;
+import com.plantdata.kgcloud.bean.ValidableRequiredList;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictReq;
 import com.plantdata.kgcloud.domain.edit.rsp.DictRsp;
 import com.plantdata.kgcloud.domain.edit.service.DomainDictService;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ public class DomainDictController {
     @ApiOperation("批量添加领域词")
     @PostMapping("/{kgName}/batch/add")
     ApiReturn batchInsert(@PathVariable("kgName") String kgName,
-                          @Size(min = 1) @RequestBody List<DictReq> dictReqs) {
+                          @Valid @RequestBody ValidableRequiredList<DictReq> dictReqs) {
         domainDictService.batchInsert(kgName, dictReqs);
         return ApiReturn.success();
     }

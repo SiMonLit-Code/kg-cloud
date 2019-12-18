@@ -23,6 +23,7 @@ import ai.plantdata.kg.api.pub.req.EntityTagFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
 import com.plantdata.kgcloud.constant.TaskStatus;
@@ -56,6 +57,7 @@ import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
@@ -293,7 +295,15 @@ public class EntityServiceImpl implements EntityService {
         if (Objects.isNull(beforeTags) || beforeTags.isEmpty()) {
             beforeTags = new ArrayList<>();
         }
-        beforeTags.addAll(vos);
+
+        List<String> oldNames = beforeTags.stream().map(EntityTagVO::getName).collect(Collectors.toList());
+        for (EntityTagVO entityTagVO : vos) {
+            if (oldNames.contains(entityTagVO.getName())) {
+                throw BizException.of(KgmsErrorCodeEnum.TAG_HAVE_EXISTED);
+            }
+            beforeTags.add(entityTagVO);
+        }
+
         Map<String, Object> metadata = new HashMap<>();
         metadata.put(MetaDataInfo.TAG.getFieldName(), beforeTags);
         conceptEntityApi.updateMetaData(kgName, entityId, metadata);
@@ -325,8 +335,9 @@ public class EntityServiceImpl implements EntityService {
         if (Objects.isNull(beforeTags) || beforeTags.isEmpty()) {
             return;
         }
+
         Map<String, EntityTagVO> voMap = beforeTags.stream().collect(Collectors.toMap(EntityTagVO::getName,
-                Function.identity()));
+                Function.identity(), (k1, k2) -> k1));
         tagNames.stream().filter(voMap::containsKey).forEach(voMap::remove);
         Map<String, Object> metadata = new HashMap<>();
         metadata.put(MetaDataInfo.TAG.getFieldName(), voMap.values());
