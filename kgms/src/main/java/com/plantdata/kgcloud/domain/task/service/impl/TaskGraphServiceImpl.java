@@ -5,6 +5,7 @@ import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
@@ -163,7 +164,7 @@ public class TaskGraphServiceImpl implements TaskGraphService {
             xxlAdminClient.taskUnschedule(userId, confSearch.getTaskId());
             xxlAdminClient.taskDelete(userId, confSearch.getTaskId());
             searchRepository.deleteById(kgName);
-            List<DataSet> ls = dataSetRepository.findByDataTypeAndCreateWayAndDataNameLike(2, "自动创建(图谱导出)", "pinyin_");
+            List<DataSet> ls = dataSetRepository.findByDataTypeAndCreateWayAndDataNameLike(DataType.ELASTIC, "自动创建(图谱导出)", "pinyin_");
             ls.forEach(s -> {
                 dataSetService.delete(userId, s.getId());
             });
