@@ -49,6 +49,11 @@ public class GisConverter extends BasicConverter {
         gisLocusParam.setFromTime(req.getFromTime());
         gisLocusParam.setToTime(req.getToTime());
         gisLocusParam.setGisFilters(req.getGisFilters());
+        if (page == null) {
+            page = new BaseReq();
+            page.setPage(0);
+            page.setSize(10);
+        }
         gisLocusParam.setPos(page.getPage());
         gisLocusParam.setSize(page.getSize());
         return gisLocusParam;
