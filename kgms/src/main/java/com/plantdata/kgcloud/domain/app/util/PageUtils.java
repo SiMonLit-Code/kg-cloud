@@ -31,7 +31,7 @@ public class PageUtils {
         if (pageUtils.limit > list.size()) {
             pageUtils.limit = list.size();
         }
-        return list.subList(pageUtils.limit, pageUtils.offset);
+        return list.subList( pageUtils.offset,pageUtils.limit);
     }
 
     private PageUtils init(Integer pageNo, Integer pageSize) {
