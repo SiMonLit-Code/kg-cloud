@@ -8,12 +8,14 @@ import com.plantdata.kgcloud.domain.edit.req.upload.RdfReq;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -118,18 +120,19 @@ public class ImportController {
     @ApiOperation("rdf导入 ")
     @PostMapping("/{kgName}/rdf")
     public ApiReturn importRdf(@PathVariable("kgName") String kgName,
-                               @RequestBody RdfReq rdfReq,
+                               @RequestParam("format") String format,
                                MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
-        return ApiReturn.success(importService.importRdf(kgName, file, rdfReq));
+        return ApiReturn.success(importService.importRdf(kgName, file, format));
     }
 
     @ApiOperation("rdf导出 ")
-    @GetMapping("/{kgName}/rdf")
+    @GetMapping("/{kgName}/rdf/{format}/{scope}")
     public ApiReturn exportRdf(@PathVariable("kgName") String kgName,
-                               RdfExportReq rdfExportReq) {
-        return ApiReturn.success(importService.exportRdf(kgName, rdfExportReq));
+                               @PathVariable("format") String format,
+                               @PathVariable("scope") Integer scope) {
+        return ApiReturn.success(importService.exportRdf(kgName, format, scope));
     }
 }
