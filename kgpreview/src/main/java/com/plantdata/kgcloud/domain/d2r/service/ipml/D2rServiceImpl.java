@@ -143,10 +143,10 @@ public class D2rServiceImpl implements D2rService {
 
     private List<D2RMapperConfigBean> parse(String kgName, D2RDataType dataType, String config) {
 
-        List<D2RMapperConfigBean> configBeanList = null;
+        List<D2RMapperConfigBean> configBeanList;
         try {
-            configBeanList = JacksonUtils.getInstance().readValue(config, new TypeReference<List<D2RMapperConfigBean>>(){});
-        } catch (IOException e) {
+            configBeanList = JSONArray.parseArray(config, D2RMapperConfigBean.class);
+        } catch (Exception e) {
             throw BizException.of(CommonErrorCode.BAD_REQUEST);
         }
 

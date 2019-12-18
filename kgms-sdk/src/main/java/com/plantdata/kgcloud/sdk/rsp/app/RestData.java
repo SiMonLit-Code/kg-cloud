@@ -2,7 +2,9 @@ package com.plantdata.kgcloud.sdk.rsp.app;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.math.NumberUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -13,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 public class RestData<T> {
+
     private List<T> rsData;
     private Long rsCount;
 
@@ -20,4 +23,9 @@ public class RestData<T> {
         this.rsData = rsData;
         this.rsCount = rsCount;
     }
+
+    public static <T> RestData<T> empty() {
+        return new RestData<>(Collections.emptyList(), NumberUtils.LONG_ZERO);
+    }
+
 }

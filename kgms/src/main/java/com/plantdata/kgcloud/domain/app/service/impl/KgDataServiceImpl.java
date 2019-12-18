@@ -28,7 +28,8 @@ import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.domain.app.util.TextUtils;
-import com.plantdata.kgcloud.domain.dataset.constant.DataType;
+import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
+import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -41,7 +42,6 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
-import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -79,6 +79,8 @@ public class KgDataServiceImpl implements KgDataService {
     public SparqlApi sparqlApi;
     @Autowired
     private DataSetService dataSetService;
+    @Autowired
+    private DataSetRepository dataSetRepository;
 
     @Override
     public List<EdgeStatisticByEntityIdRsp> statisticCountEdgeByEntity(String kgName, EdgeStatisticByEntityIdReq statisticReq) {
@@ -96,7 +98,7 @@ public class KgDataServiceImpl implements KgDataService {
     public Object statEdgeGroupByEdgeValue(String kgName, EdgeAttrStatisticByAttrValueReq statisticReq) {
 
 
-        Optional<List<AttributeDefinition>> arrDefOpt = RestRespConverter.convert(attributeApi.listByIds(kgName, Lists.newArrayList(statisticReq.getAttrId())));
+        Optional<AttributeDefinition> arrDefOpt = getAttrDefById(kgName, statisticReq.getAttrId());
 
         if (!arrDefOpt.isPresent()) {
             return GraphStatisticConverter.statisticByType(Collections.emptyList(), statisticReq.getReturnType(), StatisticResultTypeEnum.VALUE);
@@ -106,8 +108,9 @@ public class KgDataServiceImpl implements KgDataService {
         if (!dataOpt.isPresent()) {
             return GraphStatisticConverter.statisticByType(Collections.emptyList(), statisticReq.getReturnType(), StatisticResultTypeEnum.VALUE);
         }
-        List<StatisticDTO> dataList = JsonUtils.readToList(JsonUtils.toJson(dataOpt.get()), StatisticDTO.class);
-        AttributeDataTypeEnum dataType = GraphStatisticConverter.edgeAttrDataType(statisticReq.getSeqNo(), arrDefOpt.get().get(0));
+        List<StatisticDTO> dataList = JacksonUtils.readValue(JsonUtils.toJson(dataOpt.get()), new TypeReference<List<StatisticDTO>>() {
+        });
+        AttributeDataTypeEnum dataType = GraphStatisticConverter.edgeAttrDataType(statisticReq.getSeqNo(), arrDefOpt.get());
         return buildStatisticResult(dataType, statisticReq.getMerge(), dataList, statisticReq.getDateType(), statisticReq.getSort(), statisticBean.getSize(), statisticReq.getReturnType());
     }
 
@@ -143,7 +146,7 @@ public class KgDataServiceImpl implements KgDataService {
     @Override
     public Object statisticAttrGroupByConcept(String kgName, EntityStatisticGroupByAttrIdReq attrIdReq) {
 
-        Optional<AttributeDefinition> attrDefOpt = RestRespConverter.convert(attributeApi.get(kgName, attrIdReq.getAttrId()));
+        Optional<AttributeDefinition> attrDefOpt = getAttrDefById(kgName, attrIdReq.getAttrId());
         if (!attrDefOpt.isPresent()) {
             return GraphStatisticConverter.statisticByType(Collections.emptyList(), attrIdReq.getReturnType(), StatisticResultTypeEnum.VALUE);
         }
@@ -167,15 +170,22 @@ public class KgDataServiceImpl implements KgDataService {
     public RestData<Map<String, Object>> searchDataSet(String userId, NameReadReq nameReadReq) {
         PageUtils pageUtils = new PageUtils(nameReadReq.getPage(), nameReadReq.getSize());
         List<Long> dataSetIds = dataSetService.findByDataNames(userId, Lists.newArrayList(nameReadReq.getDataName()));
-
-        DataSetUpdateRsp dataSetRsp = dataSetService.findById(userId, dataSetIds.get(0));
-        if (DataType.MONGO.getDataType() == dataSetRsp.getDataType()) {
-            return dataSetSearchService.readMongoData(dataSetRsp.getDbName(), dataSetRsp.getTbName(),
-                    pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getFields(), nameReadReq.getSort());
+        Optional<DataSet> dataSetOpt = dataSetRepository.findByUserIdAndId(userId, dataSetIds.get(0));
+        if (!dataSetOpt.isPresent()) {
+            return RestData.empty();
         }
-        return dataSetSearchService.readEsDataSet(Lists.newArrayList(dataSetRsp.getDbName()),
-                Lists.newArrayList(dataSetRsp.getTbName()), nameReadReq.getFields(), nameReadReq.getQuery(), nameReadReq.getSort(), pageUtils.getOffset(), pageUtils.getLimit());
+        DataSet dataSet = dataSetOpt.get();
+        return dataSetSearchService.readDataSetData(dataSet, pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getSort());
     }
+
+    private Optional<AttributeDefinition> getAttrDefById(String kgName, Integer attrId) {
+        Optional<List<AttributeDefinition>> opt = RestRespConverter.convert(attributeApi.listByIds(kgName, Lists.newArrayList(attrId)));
+        if (opt.isPresent() && !CollectionUtils.isEmpty(opt.get())) {
+            return Optional.of(opt.get().get(0));
+        }
+        return Optional.empty();
+    }
+
 
     private Object buildStatisticResult(AttributeDataTypeEnum dataType, boolean merge, List<StatisticDTO> dataList, DateTypeReq dateType, int sort, int reSize, int returnType) {
         boolean isNum = AttributeDataTypeEnum.DATA_VALUE_SET.contains(dataType);

@@ -165,7 +165,7 @@ public class EntityServiceImpl implements EntityService {
      */
     private Map<String, Object> parserFilterMetadata(BasicInfoListReq basicInfoListReq, BasicInfoListBodyReq bodyReq) {
         Map<String, Object> filters = new HashMap<>();
-        if (Objects.nonNull(bodyReq.getReliability())) {
+        if (Objects.nonNull(bodyReq.getReliability()) && !bodyReq.getReliability().isEmpty()) {
             filters.put(MetaDataInfo.RELIABILITY.getCode(), bodyReq.getReliability());
         }
         if (StringUtils.hasText(bodyReq.getSource())) {

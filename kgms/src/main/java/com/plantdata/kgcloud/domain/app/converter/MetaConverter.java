@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.StyleRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -74,13 +75,14 @@ public class MetaConverter {
         if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
             Map<String, Object> objectMap = (Map<String, Object>) metaData.get(MetaDataInfo.ADDITIONAL.getFieldName());
             metaDataImpl.setAdditional(objectMap);
-            if (objectMap.containsKey(LABEL_STYLE)) {
-                metaDataImpl.setLabelStyle((Map<String, Object>) objectMap.get(LABEL_STYLE));
+            if (!CollectionUtils.isEmpty(objectMap)) {
+                if (objectMap.containsKey(LABEL_STYLE)) {
+                    metaDataImpl.setLabelStyle((Map<String, Object>) objectMap.get(LABEL_STYLE));
+                }
+                if (objectMap.containsKey(NODE_STYLE)) {
+                    metaDataImpl.setNodeStyle((Map<String, Object>) objectMap.get(NODE_STYLE));
+                }
             }
-            if (objectMap.containsKey(NODE_STYLE)) {
-                metaDataImpl.setNodeStyle((Map<String, Object>) objectMap.get(NODE_STYLE));
-            }
-
         }
     }
 }

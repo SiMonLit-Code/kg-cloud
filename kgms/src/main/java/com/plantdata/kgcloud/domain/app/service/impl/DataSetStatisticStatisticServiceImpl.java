@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.bo.DataSetStatisticBO;
@@ -47,6 +48,8 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
     private DataOptService dataOptService;
     @Autowired
     private DataSetSearchService dataSetSearchService;
+    @Autowired
+    private EsProperties esProperties;
 
     @Override
     public DataSetStatisticRsp dataSetStatistic(String userId, DataSetTwoDimStatisticReq statisticReq, DimensionEnum dimension) {
@@ -64,7 +67,7 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
     @Override
     public DataSetStatisticRsp statisticByDimensionAndTable(String userId, TableStatisticByDimensionalReq dimensionalReq, DimensionEnum dimension) {
         DataSetStatisticBO statistic = new DataSetStatisticBO().init(dimensionalReq.getAggs(), dimensionalReq.getQuery(), dimension, dimensionalReq.getReturnType());
-        RestData<Map<String, Object>> mapRestData = dataSetSearchService.readEsDataSet(dimensionalReq.getDataBaseList(), dimensionalReq.getTableList(), Collections.emptyList(), dimensionalReq.getQuery(), null, 0, 0);
+        RestData<Map<String, Object>> mapRestData = dataSetSearchService.readEsDataSet(esProperties.getAddrs(), dimensionalReq.getDataBaseList(), dimensionalReq.getTableList(), Collections.emptyList(), dimensionalReq.getQuery(), null, 0, 0);
         return statistic.postDealData(mapRestData.getRsData());
     }
 

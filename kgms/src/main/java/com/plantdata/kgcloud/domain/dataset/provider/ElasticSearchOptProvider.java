@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
@@ -20,6 +21,7 @@ import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -90,13 +92,15 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             queryNode.put("size", limit);
         }
         queryNode.put("sort", DataConst.CREATE_AT);
-
+        if (CollectionUtils.isEmpty(query)) {
+            return queryNode;
+        }
 
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "search")) {
                 Map<String, String> value = (Map<String, String>) entry.getValue();
                 for (Map.Entry<String, String> objectEntry : value.entrySet()) {
-                    String s ="{\"multi_match\":{\"fields\":\"" + objectEntry.getKey() + "\",\"query\":\"" + objectEntry.getValue() + "\"}}";
+                    String s = "{\"multi_match\":{\"fields\":\"" + objectEntry.getKey() + "\",\"query\":\"" + objectEntry.getValue() + "\"}}";
                     queryNode.putPOJO("query", JacksonUtils.readValue(s, JsonNode.class));
                 }
             }
@@ -119,6 +123,18 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
+        return findWithSort(offset, limit, query, null);
+    }
+
+    @Override
+    public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
+        if (!CollectionUtils.isEmpty(sort)) {
+            if (query == null) {
+                query = Maps.newHashMap();
+            }
+            query.put("sort", sort);
+        }
+
         List<Map<String, Object>> mapList = new ArrayList<>();
         String endpoint = "/" + database + "/" + type + "/_search";
         if (!StringUtils.hasText(type)) {
@@ -282,7 +298,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         String statusQuery = "{\"aggs\":{\"all_interests\":{\"terms\":{\"field\":\"_smoke\"}}}}";
         request.setEntity(new StringEntity(statusQuery, ContentType.APPLICATION_JSON));
         Optional<String> send = send(request);
-        if(send.isPresent()){
+        if (send.isPresent()) {
             JsonNode node = readTree(send.get());
             JsonNode hits = node.get("hits");
             long total = node.get("total").asLong();

@@ -34,6 +34,7 @@ public class DomainDictServiceImpl implements DomainDictService {
 
     @Override
     public void batchInsert(String kgName, List<DictReq> dictReqs) {
+        //TODO 待优化
         List<DomainFrom> domainFroms =
                 dictReqs.stream().map(ConvertUtils.convert(DomainFrom.class)).collect(Collectors.toList());
         RestRespConverter.convertVoid(domainDicApi.batchSave(kgName, domainFroms));

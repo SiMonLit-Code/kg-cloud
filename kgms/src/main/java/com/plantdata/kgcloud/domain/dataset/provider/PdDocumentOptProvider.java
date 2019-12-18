@@ -25,6 +25,11 @@ public class PdDocumentOptProvider implements DataOptProvider {
     }
 
     @Override
+    public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
+        return null;
+    }
+
+    @Override
     public long count(Map<String, Object> query) {
         return 0;
     }
