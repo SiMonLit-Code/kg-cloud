@@ -1,7 +1,5 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 
 import java.io.IOException;
@@ -47,12 +45,12 @@ public class PdDocumentOptProvider implements DataOptProvider {
     }
 
     @Override
-    public Map<String, Object> insert(Map<String,Object> node) {
+    public Map<String, Object> insert(Map<String, Object> node) {
         return null;
     }
 
     @Override
-    public Map<String, Object> update(String id, Map<String,Object> node) {
+    public Map<String, Object> update(String id, Map<String, Object> node) {
         return null;
     }
 
@@ -67,7 +65,7 @@ public class PdDocumentOptProvider implements DataOptProvider {
     }
 
     @Override
-    public void batchInsert(List<Map<String,Object>> nodes) {
+    public void batchInsert(List<Map<String, Object>> nodes) {
 
     }
 
@@ -75,6 +73,11 @@ public class PdDocumentOptProvider implements DataOptProvider {
     @Override
     public void batchDelete(Collection<String> ids) {
 
+    }
+
+    @Override
+    public List<Map<String, Long>> statistics() {
+        return null;
     }
 
     @Override

@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -79,30 +79,55 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         return fields;
     }
 
+    private ObjectNode buildQuery(Integer offset, Integer limit, Map<String, Object> query) {
+        ObjectNode queryNode = objectMapper.createObjectNode();
+        if (offset != null && offset >= 0) {
+            queryNode.put("from", offset);
+        }
+        int size = 10;
+        if (limit != null && limit > 0) {
+            limit = size;
+            queryNode.put("size", limit);
+        }
+        queryNode.put("sort", DataConst.CREATE_AT);
+
+
+        for (Map.Entry<String, Object> entry : query.entrySet()) {
+            if (Objects.equals(entry.getKey(), "search")) {
+                Map<String, String> value = (Map<String, String>) entry.getValue();
+                for (Map.Entry<String, String> objectEntry : value.entrySet()) {
+                    String s ="{\"multi_match\":{\"fields\":\"" + objectEntry.getKey() + "\",\"query\":\"" + objectEntry.getValue() + "\"}}";
+                    queryNode.putPOJO("query", JacksonUtils.readValue(s, JsonNode.class));
+                }
+            }
+            if (Objects.equals(entry.getKey(), "resultType")) {
+                Integer resultType = (Integer) entry.getValue();
+                if (Objects.equals(resultType, 2)) {
+                    String s = "{\"term\":{\"_smoke\":true}}";
+                    queryNode.putPOJO("query", JacksonUtils.readValue(s, JsonNode.class));
+                } else if (Objects.equals(resultType, 3)) {
+                    String s = "{\"term\":{\"_smoke\":false}}";
+                    queryNode.putPOJO("query", JacksonUtils.readValue(s, JsonNode.class));
+                } else if (Objects.equals(resultType, 4)) {
+                    String s = "{\"bool\":{\"must_not\":{\"exists\":{\"field\":\"_smoke\"}}}}";
+                    queryNode.putPOJO("query", JacksonUtils.readValue(s, JsonNode.class));
+                }
+            }
+        }
+        return queryNode;
+    }
+
     @Override
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
         List<Map<String, Object>> mapList = new ArrayList<>();
-
         String endpoint = "/" + database + "/" + type + "/_search";
         if (!StringUtils.hasText(type)) {
             endpoint = "/" + database + "/_search";
         }
         Request request = new Request(POST, endpoint);
-
-        ObjectNode queryNode = objectMapper.createObjectNode();
-
-        if (offset != null) {
-            queryNode.putPOJO("from", offset);
-        }
-
-        if (limit != null) {
-            queryNode.putPOJO("size", limit);
-        }
-
-        if(query!=null) {
-            NStringEntity entity = new NStringEntity(query.toString(), ContentType.APPLICATION_JSON);
-            request.setEntity(entity);
-        }
+        ObjectNode queryNode = buildQuery(offset, limit, query);
+        NStringEntity entity = new NStringEntity(queryNode.toString(), ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
         JsonNode node = readTree(result);
@@ -188,7 +213,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     }
 
     @Override
-    public Map<String, Object> insert(Map<String,Object>  node) {
+    public Map<String, Object> insert(Map<String, Object> node) {
         String endpoint = "/" + database + "/" + type;
         Request request = new Request(POST, endpoint);
         String string = JacksonUtils.writeValueAsString(node);
@@ -203,7 +228,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     }
 
     @Override
-    public Map<String, Object> update(String id, Map<String,Object> node) {
+    public Map<String, Object> update(String id, Map<String, Object> node) {
         String endpoint = "/" + database + "/" + type + "/" + id + "/_update/";
         Request request = new Request(POST, endpoint);
         String string = JacksonUtils.writeValueAsString(node);
@@ -230,10 +255,10 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     }
 
     @Override
-    public void batchInsert(List<Map<String,Object>> nodes) {
+    public void batchInsert(List<Map<String, Object>> nodes) {
         String endpoint = "/" + database + "/" + type + "/_bulk";
         StringBuilder body = new StringBuilder();
-        for (Map<String,Object> node : nodes) {
+        for (Map<String, Object> node : nodes) {
             body.append("{\"create\" :").append(JacksonUtils.writeValueAsString(node)).append("}\n");
         }
         Request request = new Request(POST, endpoint);
@@ -247,6 +272,24 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         for (String id : ids) {
             sendDelete(index, type, id);
         }
+    }
+
+    @Override
+    public List<Map<String, Long>> statistics() {
+        String endpoint = "/" + database + "/" + type;
+        Request request = new Request(POST, endpoint);
+        //language=JSON
+        String statusQuery = "{\"aggs\":{\"all_interests\":{\"terms\":{\"field\":\"_smoke\"}}}}";
+        request.setEntity(new StringEntity(statusQuery, ContentType.APPLICATION_JSON));
+        Optional<String> send = send(request);
+        if(send.isPresent()){
+            JsonNode node = readTree(send.get());
+            JsonNode hits = node.get("hits");
+            long total = node.get("total").asLong();
+            JsonNode buckets = hits.get("aggregations").get("all_interests").get("buckets");
+        }
+
+        return new ArrayList<>();
     }
 
     @Override
@@ -280,8 +323,8 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             }
         }
         fields.putPOJO("_smokeMsg", FieldType.SMOKE_MSG.getEsProp());
-        fields.putPOJO("_oprTime", FieldType.DATE.getEsProp());
-        fields.putPOJO("_persistTime", FieldType.DATE.getEsProp());
+        fields.putPOJO(DataConst.UPDATE_AT, FieldType.DATE.getEsProp());
+        fields.putPOJO(DataConst.CREATE_AT, FieldType.DATE.getEsProp());
 
         // 构建properties
         ObjectNode properties = objectMapper.createObjectNode();

@@ -49,17 +49,14 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
 
     @Autowired
     private DataSetAnnotationRepository dataSetAnnotationRepository;
-
     @Autowired
     private DataOptService dataOptService;
-
     @Autowired
     private GraphService graphService;
     @Autowired
     private DataSetService dataSetService;
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
-
     @Autowired
     private MongoClient mongoClient;
 
