@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.ValidableList;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
@@ -104,14 +105,14 @@ public class AttributeController {
     @ApiOperation("批量添加属性定义")
     @PostMapping("/{kgName}/definition/batch")
     ApiReturn<List<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                   @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs) {
+                                                                   @Valid @RequestBody ValidableList<AttrDefinitionReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchAddAttrDefinition(kgName, attrDefinitionReqs));
     }
 
     @ApiOperation("批量修改属性定义")
     @PatchMapping("/{kgName}/definition/batch")
     ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModifyAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                                 @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs) {
+                                                                                 @Valid @RequestBody ValidableList<AttrDefinitionModifyReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchUpdate(kgName, attrDefinitionReqs));
     }
 
@@ -134,8 +135,8 @@ public class AttributeController {
     @ApiOperation("添加边属性定义")
     @PostMapping("/{kgName}/{attrId}/edge/definition")
     ApiReturn<Integer> addEdgeAttr(@PathVariable("kgName") String kgName,
-                          @PathVariable("attrId") Integer attrId,
-                          @Valid @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
+                                   @PathVariable("attrId") Integer attrId,
+                                   @Valid @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
         return ApiReturn.success(attributeService.addEdgeAttr(kgName, attrId, edgeAttrDefinitionReq));
     }
 
@@ -171,7 +172,7 @@ public class AttributeController {
     ApiReturn<Page<RelationRsp>> listRelations(@PathVariable("kgName") String kgName,
                                                RelationSearchReq relationSearchReq,
                                                @RequestBody RelationSearchMetaReq metaReq) {
-        return ApiReturn.success(attributeService.listRelations(kgName, relationSearchReq,metaReq));
+        return ApiReturn.success(attributeService.listRelations(kgName, relationSearchReq, metaReq));
     }
 
     @ApiOperation("批量删除关系")
@@ -233,9 +234,11 @@ public class AttributeController {
     @PostMapping("relation/insert/{kgName}")
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
                                                                        @RequestBody List<BatchRelationRsp> relationList) {
-        List<BatchRelationVO> collect = relationList.stream().map(a -> ConvertUtils.convert(BatchRelationVO.class).apply(a)).collect(Collectors.toList());
+        List<BatchRelationVO> collect =
+                relationList.stream().map(a -> ConvertUtils.convert(BatchRelationVO.class).apply(a)).collect(Collectors.toList());
 
-        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, collect), new OpenBatchResult<>());
+        OpenBatchResult<BatchRelationRsp> relationRsp =
+                RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, collect), new OpenBatchResult<>());
         return ApiReturn.success(relationRsp);
     }
 
@@ -253,7 +256,8 @@ public class AttributeController {
 
     @ApiOperation("批量查询关系")
     @PostMapping("relation/search/{kgName}")
-    public ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName, @RequestBody EdgeSearchReq queryReq) {
+    public ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName,
+                                                              @RequestBody EdgeSearchReq queryReq) {
         return ApiReturn.success(attributeService.edgeSearch(kgName, queryReq));
     }
 }

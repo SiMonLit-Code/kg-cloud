@@ -96,7 +96,7 @@ public interface AttributeService {
      * @param attrDefinitionReqs
      * @return
      */
-    OpenBatchResult<AttrDefinitionBatchRsp> batchUpdate(String kgName, List<AttrDefinitionReq> attrDefinitionReqs);
+    OpenBatchResult<AttrDefinitionBatchRsp> batchUpdate(String kgName, List<AttrDefinitionModifyReq> attrDefinitionReqs);
 
     /**
      * 修改属性定义

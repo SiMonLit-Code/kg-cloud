@@ -185,7 +185,7 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Override
     public OpenBatchResult<AttrDefinitionBatchRsp> batchUpdate(String kgName,
-                                                               List<AttrDefinitionReq> attrDefinitionReqs) {
+                                                               List<AttrDefinitionModifyReq> attrDefinitionReqs) {
         List<AttributeDefinitionVO> voList =
                 attrDefinitionReqs.stream().map(
                         AttrConverterUtils::attrDefinitionReqConvert
