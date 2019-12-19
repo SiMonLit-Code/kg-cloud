@@ -1,16 +1,12 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.util.DateUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,12 +64,11 @@ public class ElasticSearchOptProviderTest {
 
     @Test
     public void insert() {
-        Map<String,Object> objectNode = new HashMap<>();
-        objectNode.put("name","111");
-        objectNode.put("age",222);
+        Map<String, Object> objectNode = new HashMap<>();
+        objectNode.put("name", "111");
+        objectNode.put("age", 222);
 
-            provider.insert(objectNode);
-
+        provider.insert(objectNode);
 
 
     }
@@ -88,7 +83,7 @@ public class ElasticSearchOptProviderTest {
 
     @Test
     public void find() {
-        provider.find(null,null,null);
+        provider.find(null, null, null);
     }
 
     @Test
@@ -100,12 +95,16 @@ public class ElasticSearchOptProviderTest {
     @Test
     public void batchInsert() {
 
-        Map<String,Object> objectNode = new HashMap<>();
-        objectNode.put("name","111");
-        objectNode.put("age",222);
+        Map<String, Object> objectNode = new HashMap<>();
+        objectNode.put("name", "111");
+        objectNode.put("age", 222);
 
 
-        provider.batchInsert(Collections.singletonList(objectNode));
+        List<Map<String, Object>> nodes = new ArrayList<>();
+        nodes.add(objectNode);
+        nodes.add(objectNode);
+        nodes.add(objectNode);
+        provider.batchInsert(nodes);
 
     }
 
