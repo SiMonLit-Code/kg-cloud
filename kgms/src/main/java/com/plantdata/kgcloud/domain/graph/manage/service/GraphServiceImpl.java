@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.graph.manage.service;
 import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.req.CopyGraphFrom;
 import ai.plantdata.kg.api.edit.req.CreateGraphFrom;
+import com.plantdata.kgcloud.config.CacheManagerReconfig;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
@@ -16,6 +17,9 @@ import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +40,7 @@ import java.util.stream.Collectors;
  **/
 
 @Service
+@CacheConfig(cacheNames = CacheManagerReconfig.CACHE_GRAPH_KGNAME)
 public class GraphServiceImpl implements GraphService {
 
     private final static String GRAPH_PREFIX = "graph";
@@ -47,12 +52,23 @@ public class GraphServiceImpl implements GraphService {
 
     @Autowired
     private UserClient userClient;
+
     private Function<Graph, GraphRsp> graphGraphRspFunction = (v) -> {
         GraphRsp graphRsp = new GraphRsp();
         BeanUtils.copyProperties(v, graphRsp);
         graphRsp.setKgName(v.getDbName());
         return graphRsp;
     };
+
+    @Cacheable(key = "#kgName")
+    public String getDbName(String kgName) {
+        Graph probe = Graph.builder()
+                .kgName(kgName)
+                .deleted(false)
+                .build();
+        Optional<Graph> one = graphRepository.findOne(Example.of(probe));
+        return one.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_NOT_EXISTS)).getDbName();
+    }
 
     private String genKgName(String userId) {
         return userId + JOIN + GRAPH_PREFIX + JOIN + Long.toHexString(System.currentTimeMillis());
@@ -92,6 +108,7 @@ public class GraphServiceImpl implements GraphService {
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_NOT_EXISTS));
     }
 
+    @CacheEvict(key = "#kgName", beforeInvocation = true)
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(String userId, String kgName) {
@@ -109,7 +126,6 @@ public class GraphServiceImpl implements GraphService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public GraphRsp insert(String userId, GraphReq req) {
-
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
         if (data != null) {
             Graph probe = new Graph();
@@ -160,7 +176,6 @@ public class GraphServiceImpl implements GraphService {
                 }
         );
     }
-
 
     @Override
     public GraphRsp update(String userId, String kgName, GraphReq req) {
