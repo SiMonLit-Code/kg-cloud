@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
+import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
 import com.plantdata.kgcloud.domain.app.converter.SparQlConverter;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
@@ -50,16 +51,13 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("kgdata")
-@Api(tags = "sdk使用")
-public class KgDataController {
+public class KgDataController implements GraphAppInterface {
 
 
     @Autowired
     private ModelService modelService;
     @Autowired
     private KgDataService kgDataService;
-    @Autowired
-    private DataOptService dataOptService;
     @Autowired
     private SparqlApi sparqlApi;
     @Autowired
@@ -103,54 +101,5 @@ public class KgDataController {
         return null;//taggingService.tagging(kgName, dataSetId, fieldsAndWeights, targetConcepts, traceConfig, algorithms);
     }
 
-    @ApiOperation("查询实体的关系度数")
-    @PostMapping("/statistic/{kgName}/entity/degree/")
-    public ApiReturn<List<EdgeStatisticByEntityIdRsp>> statisticCountEdgeByEntity(@PathVariable("kgName") String kgName,
-                                                                                  @RequestBody EdgeStatisticByEntityIdReq statisticReq) {
-        return ApiReturn.success(kgDataService.statisticCountEdgeByEntity(kgName, statisticReq));
 
-    }
-
-    @ApiOperation("统计实体根据概念分组")
-    @PostMapping("statistic/{kgName}/entity/groupByConcept/")
-    public ApiReturn<Object> statisticEntityGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                           @RequestBody EntityStatisticGroupByConceptReq statisticReq) {
-        return ApiReturn.success(kgDataService.statEntityGroupByConcept(kgName, statisticReq));
-    }
-
-    @ApiOperation("实体属性值统计")
-    @PostMapping("statistic/{kgName}/attr/groupByAttrValue")
-    public ApiReturn<Object> statisticAttrGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                         @RequestBody EntityStatisticGroupByAttrIdReq statisticReq) {
-        return ApiReturn.success(kgDataService.statisticAttrGroupByConcept(kgName, statisticReq));
-    }
-
-    @ApiOperation("对象属性统计，统计对象属性的数量，按关系分组")
-    @PostMapping("statistic/{kgName}/edge/groupByAttrName")
-    public ApiReturn<Object> statisticRelation(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                               @RequestBody EdgeStatisticByConceptIdReq statisticReq) {
-        return ApiReturn.success(kgDataService.statisticRelation(kgName, statisticReq));
-    }
-
-    @ApiOperation("边数值属性统计，按数值属性值分组")
-    @PostMapping("statistic/{kgName}/edgeAttr/groupByAttrValue")
-    public ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                      EdgeAttrStatisticByAttrValueReq statisticReq) {
-        return ApiReturn.success(kgDataService.statEdgeGroupByEdgeValue(kgName, statisticReq));
-    }
-
-    @ApiOperation("读取数据集")
-    @PostMapping("dataset/read")
-    public ApiReturn<RestData<Map<String, Object>>> searchDataSet(NameReadReq nameReadReq) {
-        String userId = SessionHolder.getUserId();
-        return ApiReturn.success(kgDataService.searchDataSet(userId, nameReadReq));
-    }
-
-    @ApiOperation("新增数据集")
-    @PostMapping("dataset/name")
-    public ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq) {
-        String userId = SessionHolder.getUserId();
-        dataOptService.batchAddDataForDataSet(userId, addReq);
-        return ApiReturn.success();
-    }
 }

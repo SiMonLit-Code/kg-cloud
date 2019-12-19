@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
@@ -134,8 +135,8 @@ public class AttributeController {
     @ApiOperation("添加边属性定义")
     @PostMapping("/{kgName}/{attrId}/edge/definition")
     ApiReturn<Integer> addEdgeAttr(@PathVariable("kgName") String kgName,
-                          @PathVariable("attrId") Integer attrId,
-                          @Valid @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
+                                   @PathVariable("attrId") Integer attrId,
+                                   @Valid @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
         return ApiReturn.success(attributeService.addEdgeAttr(kgName, attrId, edgeAttrDefinitionReq));
     }
 
@@ -171,7 +172,7 @@ public class AttributeController {
     ApiReturn<Page<RelationRsp>> listRelations(@PathVariable("kgName") String kgName,
                                                RelationSearchReq relationSearchReq,
                                                @RequestBody RelationSearchMetaReq metaReq) {
-        return ApiReturn.success(attributeService.listRelations(kgName, relationSearchReq,metaReq));
+        return ApiReturn.success(attributeService.listRelations(kgName, relationSearchReq, metaReq));
     }
 
     @ApiOperation("批量删除关系")
@@ -233,8 +234,7 @@ public class AttributeController {
     @PostMapping("relation/insert/{kgName}")
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
                                                                        @RequestBody List<BatchRelationRsp> relationList) {
-        List<BatchRelationVO> collect = relationList.stream().map(a -> ConvertUtils.convert(BatchRelationVO.class).apply(a)).collect(Collectors.toList());
-
+        List<BatchRelationVO> collect = BasicConverter.listConvert(relationList, a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
         OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, collect), new OpenBatchResult<>());
         return ApiReturn.success(relationRsp);
     }

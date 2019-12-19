@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import io.swagger.annotations.Api;
+import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,8 +28,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("app/file/")
 @Slf4j
-@Api("sdk-文件操作")
-public class FileOptController {
+public class FileOptController implements SdkOpenApiInterface {
 
     @ApiOperation("图片导出")
     @PostMapping("png/export")

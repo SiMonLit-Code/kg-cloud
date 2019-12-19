@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
-import ai.plantdata.kg.api.edit.resp.RelationAttrValueVO;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -8,12 +7,10 @@ import org.springframework.util.StringUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**

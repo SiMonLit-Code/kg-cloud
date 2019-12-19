@@ -1,12 +1,14 @@
 package com.plantdata.kgcloud.domain.app.util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +33,12 @@ public class JsonUtils {
     }
 
     public static <T> List<T> objToList(Object o, Class<T> clazz) {
-        return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), new TypeReference<List<T>>() {
-        });
+        ObjectMapper instance = JacksonUtils.getInstance();
+        JavaType javaType = getCollectionType(instance, ArrayList.class, clazz);
+        return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), javaType);
+    }
+
+    private static JavaType getCollectionType(ObjectMapper instance, Class<?> collectionClass, Class<?>... elementClasses) {
+        return instance.getTypeFactory().constructParametricType(collectionClass, elementClasses);
     }
 }

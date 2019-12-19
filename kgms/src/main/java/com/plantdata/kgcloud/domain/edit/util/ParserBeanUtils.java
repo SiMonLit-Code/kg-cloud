@@ -11,12 +11,9 @@ import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.edit.vo.ObjectAttrValueVO;
 import com.plantdata.kgcloud.util.JacksonUtils;
-import org.springframework.cglib.beans.BeanMap;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

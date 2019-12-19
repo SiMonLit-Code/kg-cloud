@@ -1,13 +1,13 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.service.DataSetStatisticService;
 import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,9 +25,8 @@ import javax.validation.Valid;
  * @date 2019/12/5 15:28
  */
 @RestController
-@Api(tags = "图谱应用")
 @RequestMapping("app/dataset/statistic")
-public class DataSetStatisticController {
+public class DataSetStatisticController implements SdkOpenApiInterface {
 
     @Resource
     private DataSetStatisticService dataSetStatisticService;

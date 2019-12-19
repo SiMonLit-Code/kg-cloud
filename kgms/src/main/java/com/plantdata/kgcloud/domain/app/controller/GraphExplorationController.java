@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.domain.app.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
@@ -20,7 +20,6 @@ import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +42,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("app/graphExplore")
-@Api(tags = "图谱探索")
-public class GraphExplorationController {
+public class GraphExplorationController implements SdkOpenApiInterface {
 
     @Autowired
     private GraphExplorationService graphExplorationService;

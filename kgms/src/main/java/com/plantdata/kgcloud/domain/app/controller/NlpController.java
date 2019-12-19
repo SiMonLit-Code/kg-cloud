@@ -2,20 +2,21 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityLinkingFrom;
+import ai.plantdata.kg.api.pub.resp.TaggingItemVO;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.app.service.NlpService;
+import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +27,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -34,8 +36,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("app/nlp")
-@Api(tags = "自然语言处理")
-public class NlpController {
+public class NlpController implements SdkOpenApiInterface {
 
     @Autowired
     private NlpService nlpService;
@@ -48,9 +49,9 @@ public class NlpController {
      *
      * @return 词列表
      */
-    @ApiOperation("中文命名实体识别")
+    @ApiOperation("命名实体识别")
     @PostMapping("ner")
-    public ApiReturn<List<NerResultRsp>> namedEntityRecognition(@Valid @RequestBody NerReq nerReq, @ApiIgnore BindingResult bindingResult) {
+    public ApiReturn<List<NerResultRsp>> namedEntityRecognition(@Valid @RequestBody NerReq nerReq) {
         try {
             return ApiReturn.success(nlpService.namedEntityRecognition(nerReq));
         } catch (Exception e) {
@@ -62,7 +63,7 @@ public class NlpController {
     @ApiOperation("图谱分词")
     @PostMapping("segment/graph/{kgName}")
     public ApiReturn<List<GraphSegmentRsp>> graphSegment(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                         @Valid @ApiIgnore SegmentReq segmentReq, @ApiIgnore BindingResult bindingResult) {
+                                                         @Valid @ApiIgnore SegmentReq segmentReq) {
         return ApiReturn.success(nlpService.graphSegment(kgName, segmentReq));
     }
 
@@ -72,7 +73,8 @@ public class NlpController {
         EntityLinkingFrom entityLinkingFrom = new EntityLinkingFrom();
         entityLinkingFrom.setConceptIds(linkingFrom.getConceptIds());
         entityLinkingFrom.setText(linkingFrom.getText());
-        return ApiReturn.success(RestCopyConverter.copyRestRespResult(entityApi.tagging(kgName, entityLinkingFrom), Collections.emptyList()));
+        Optional<List<TaggingItemVO>> opt = RestRespConverter.convert(entityApi.tagging(kgName, entityLinkingFrom));
+        return ApiReturn.success(RestCopyConverter.copyToNewList(opt.orElse(Collections.emptyList()), TaggingItemRsp.class));
     }
 
 

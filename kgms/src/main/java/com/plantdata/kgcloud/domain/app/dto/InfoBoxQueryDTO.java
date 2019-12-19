@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.app.dto;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
@@ -11,7 +10,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author cjw

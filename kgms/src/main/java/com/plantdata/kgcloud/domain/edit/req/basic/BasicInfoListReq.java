@@ -5,9 +5,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * @Author: LinHo
  * @Date: 2019/11/18 10:40
