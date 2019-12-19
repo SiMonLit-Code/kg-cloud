@@ -105,6 +105,9 @@ public class ParserBeanUtils {
                 gisVO.setLng(gis.get(0));
                 gisVO.setLat(gis.get(1));
             }
+            if (entityMetaData.containsKey(MetaDataInfo.OPEN_GIS.getFieldName())) {
+                gisVO.setIsOpenGis((Boolean) entityMetaData.get(MetaDataInfo.OPEN_GIS.getFieldName()));
+            }
             if (entityMetaData.containsKey(MetaDataInfo.GIS_ADDRESS.getFieldName())) {
                 gisVO.setAddress(entityMetaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()).toString());
             }

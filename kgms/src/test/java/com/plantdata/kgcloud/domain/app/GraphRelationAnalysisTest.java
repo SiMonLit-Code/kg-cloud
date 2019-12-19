@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class GraphRelationAnalysisTest {
         RelationReqAnalysisReq analysisReq = new RelationReqAnalysisReq();
         analysisReq.setRelation(commonRelationReq());
         RelationAnalysisRsp analysisRsp = graphRelationAnalysisService.relationAnalysis(KG_NAME, analysisReq);
-        System.out.println(JsonUtils.toJson(analysisRsp));
+        System.out.println(JacksonUtils.writeValueAsString(analysisRsp));
     }
 
     @Test
@@ -50,7 +51,7 @@ public class GraphRelationAnalysisTest {
         RelationTimingAnalysisReq analysisReq = new RelationTimingAnalysisReq();
         analysisReq.setRelation(commonRelationReq());
         RelationTimingAnalysisRsp analysisRsp = graphRelationAnalysisService.relationTimingAnalysis(KG_NAME, analysisReq);
-        System.out.println(JsonUtils.toJson(analysisRsp));
+        System.out.println(JacksonUtils.writeValueAsString(analysisRsp));
     }
 
     @Test
@@ -58,7 +59,7 @@ public class GraphRelationAnalysisTest {
         RelationReasoningAnalysisReq analysisReq = new RelationReasoningAnalysisReq();
         analysisReq.setRelation(commonRelationReq());
         RelationReasoningAnalysisRsp analysisRsp = graphRelationAnalysisService.relationReasoningAnalysis(KG_NAME, analysisReq);
-        System.out.println(JsonUtils.toJson(analysisRsp));
+        System.out.println(JacksonUtils.writeValueAsString(analysisRsp));
     }
 
 }

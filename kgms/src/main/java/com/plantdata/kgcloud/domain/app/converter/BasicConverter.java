@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -30,8 +31,8 @@ public class BasicConverter {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1).stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    public static <T extends Map, R> List<R> executeMapNoNull(T list1, Function<T, List<R>> function) {
-        return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1);
+    public static <T, R> Set<R> executeSetNoNull(List<T> list1, Function<List<T>, Set<R>> function) {
+        return CollectionUtils.isEmpty(list1) ? Collections.emptySet() : function.apply(list1);
     }
 
     protected static <T, R> List<R> listToRsp(Collection<T> list, Function<T, R> function) {

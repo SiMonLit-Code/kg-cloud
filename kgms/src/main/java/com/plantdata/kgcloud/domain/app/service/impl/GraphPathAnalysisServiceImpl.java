@@ -4,6 +4,7 @@ import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.resp.GraphVO;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
+import com.plantdata.kgcloud.domain.app.dto.GraphAfterDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphPathAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
@@ -46,7 +47,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp, analysisReq.isRelationMerge());
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp, analysisReq);
     }
 
     @Override
@@ -62,7 +63,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
         //推理
         GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), reasonReq);
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, reasonReq.getConfigList(), graphVO, analysisRsp, reasonReq.isRelationMerge());
+        return graphHelperService.buildExploreRspWithStatistic(kgName, reasonReq.getConfigList(), graphVO, analysisRsp, reasonReq);
     }
 
     @Override
@@ -76,7 +77,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), new PathTimingAnalysisRsp(), analysisReq.isRelationMerge());
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), new PathTimingAnalysisRsp(), analysisReq);
     }
 
 
