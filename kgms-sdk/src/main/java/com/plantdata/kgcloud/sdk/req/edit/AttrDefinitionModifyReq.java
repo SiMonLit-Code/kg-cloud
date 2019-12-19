@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("属性定义修改模型")
 public class AttrDefinitionModifyReq extends AttrDefinitionReq {
 
-    @ApiModelProperty(value = "属性id")
+    @ApiModelProperty(required = true, value = "属性id")
     @NotNull(message = "属性id不能为空")
     private Integer id;
 
