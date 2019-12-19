@@ -52,7 +52,7 @@ public class ConceptController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("概念树")
+    @ApiOperation("获取概念树")
     @PostMapping("/{kgName}/{conceptId}/tree")
     ApiReturn<List<BasicInfoVO>> getConceptTree(@PathVariable("kgName") String kgName,
                                                 @PathVariable("conceptId") Long conceptId) {
