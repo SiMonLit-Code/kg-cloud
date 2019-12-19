@@ -49,8 +49,9 @@ public class ConceptConverter {
                 if (metaData.containsKey(MetaDataInfo.OPEN_GIS.getFieldName())) {
                     conceptRsp.setOpenGis((Boolean) metaData.get(MetaDataInfo.OPEN_GIS.getFieldName()));
                 }
-                if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
-                    conceptRsp.setAdditionalInfo(JacksonUtils.readValue(metaData.get(MetaDataInfo.ADDITIONAL.getFieldName()).toString(), AdditionalRsp.class));
+                Object additional = metaData.get(MetaDataInfo.ADDITIONAL.getFieldName());
+                if (null != additional) {
+                    conceptRsp.setAdditionalInfo(JacksonUtils.readValue(JacksonUtils.writeValueAsString(additional), AdditionalRsp.class));
                 }
             }
             baseConceptRspList.add(conceptRsp);
