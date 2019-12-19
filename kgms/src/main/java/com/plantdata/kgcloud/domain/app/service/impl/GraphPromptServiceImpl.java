@@ -11,6 +11,7 @@ import ai.plantdata.kg.api.pub.resp.PromptItemVO;
 import ai.plantdata.kg.api.semantic.QuestionAnswersApi;
 import ai.plantdata.kg.api.semantic.req.NerSearchReq;
 import ai.plantdata.kg.support.SegmentWordVO;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.constant.AppConstants;
@@ -40,6 +41,7 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -145,7 +147,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
             maps = provider.find(promptReq.getOffset(), promptReq.getLimit(), PromptConverter.buildEsParam(promptReq));
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("promptReq:{}", JsonUtils.toJson(promptReq));
+            log.error("promptReq:{}", JacksonUtils.writeValueAsString(promptReq));
         }
         if (CollectionUtils.isEmpty(maps)) {
             return Collections.emptyList();
@@ -211,7 +213,9 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         String question = template.getQuestion();
         for (int i = 0; i < template.getCount(); i++) {
             SegmentWordVO nerResult = entities.get(i);
-            if (!checkConcept(JsonUtils.readToList(template.getConceptIds(), Long.class), nerResult.getEntityClassIdList(), kgName)) {
+            List<Long> conceptIds = JacksonUtils.readValue(JacksonUtils.writeValueAsString(template.getConceptIds()), new TypeReference<List<Long>>() {
+            });
+            if (!checkConcept(conceptIds, nerResult.getEntityClassIdList(), kgName)) {
                 question = null;
                 break;
             }

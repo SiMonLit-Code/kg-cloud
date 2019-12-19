@@ -108,8 +108,7 @@ public class KgDataServiceImpl implements KgDataService {
         if (!dataOpt.isPresent()) {
             return GraphStatisticConverter.statisticByType(Collections.emptyList(), statisticReq.getReturnType(), StatisticResultTypeEnum.VALUE);
         }
-        List<StatisticDTO> dataList = JacksonUtils.readValue(JsonUtils.toJson(dataOpt.get()), new TypeReference<List<StatisticDTO>>() {
-        });
+        List<StatisticDTO> dataList = JsonUtils.objToList(dataOpt.get(), StatisticDTO.class);
         AttributeDataTypeEnum dataType = GraphStatisticConverter.edgeAttrDataType(statisticReq.getSeqNo(), arrDefOpt.get());
         return buildStatisticResult(dataType, statisticReq.getMerge(), dataList, statisticReq.getDateType(), statisticReq.getSort(), statisticBean.getSize(), statisticReq.getReturnType());
     }
@@ -124,8 +123,7 @@ public class KgDataServiceImpl implements KgDataService {
         if (!resultOpt.isPresent()) {
             return null;
         }
-        List<StatisticDTO> dataList = JacksonUtils.readValue(JsonUtils.toJson(resultOpt.get()), new TypeReference<List<StatisticDTO>>() {
-        });
+        List<StatisticDTO> dataList = JsonUtils.objToList(resultOpt.get(), StatisticDTO.class);
         return GraphStatisticConverter.statisticByType(dataList, statisticReq.getReturnType(), StatisticResultTypeEnum.NAME);
     }
 
@@ -138,8 +136,7 @@ public class KgDataServiceImpl implements KgDataService {
         }
         Optional<List<Map<String, Object>>> resultOpt = RestRespConverter.convert(statisticsApi.relationStatistics(kgName, statisticsBean));
         List<StatisticDTO> dataList = !resultOpt.isPresent() ? Collections.emptyList()
-                : JacksonUtils.readValue(JsonUtils.toJson(resultOpt.get()), new TypeReference<List<StatisticDTO>>() {
-        });
+                : JsonUtils.objToList(resultOpt.get(), StatisticDTO.class);
         return GraphStatisticConverter.statisticByType(dataList, conceptIdReq.getReturnType(), StatisticResultTypeEnum.NAME);
     }
 
@@ -159,8 +156,7 @@ public class KgDataServiceImpl implements KgDataService {
             AttributeStatisticsBean statisticsBean = GraphStatisticConverter.attrReqToAttributeStatisticsBean(reSize, attrIdReq);
             Optional<List<Map<String, Object>>> mapOpt = RestRespConverter.convert(statisticsApi.attributeStatistics(kgName, statisticsBean));
             if (mapOpt.isPresent()) {
-                dataList = JacksonUtils.readValue(JsonUtils.toJson(mapOpt.get()), new TypeReference<List<StatisticDTO>>() {
-                });
+                dataList = JsonUtils.objToList(mapOpt.get(), StatisticDTO.class);
             }
         }
         return buildStatisticResult(dataType, attrIdReq.getMerge(), dataList, attrIdReq.getDateType(), attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
@@ -218,7 +214,7 @@ public class KgDataServiceImpl implements KgDataService {
 
         if (ExportTypeEnum.TXT.equals(exportType)) {
             //导出txt
-            TextUtils.exportJson(exportName, JsonUtils.toJson(sparQlNodeBeans), response);
+            TextUtils.exportJson(exportName, JacksonUtils.writeValueAsString(sparQlNodeBeans), response);
             return;
         }
         List<List<String>> titleList = Lists.newArrayList();

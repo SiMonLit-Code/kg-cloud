@@ -1,11 +1,13 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.hiekn.wrapper.bean.FieldConfigBean;
 import com.hiekn.wrapper.service.Sfe4jService;
 import com.hiekn.wrapper.service.StaticFetchKVAct;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -34,7 +36,8 @@ public class WrapperController {
     @ApiOperation("预览")
     public ApiReturn<Map<String, Object>> parse(@ApiParam(required = true) @RequestParam String html,
                                                 @ApiParam(value = "字段配置", required = true) @RequestParam String config) {
-        List<FieldConfigBean> fieldConfig = JsonUtils.readToList(config, FieldConfigBean.class);
+        List<FieldConfigBean> fieldConfig = JacksonUtils.readValue(config, new TypeReference<List<FieldConfigBean>>() {
+        });
         return ApiReturn.success(staticFetchKVAct.execute(html, fieldConfig));
     }
 

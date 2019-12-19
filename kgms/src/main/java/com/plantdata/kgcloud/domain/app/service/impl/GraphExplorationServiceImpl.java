@@ -10,6 +10,7 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.domain.app.converter.GisConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
+import com.plantdata.kgcloud.domain.app.dto.GraphAfterDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
@@ -20,6 +21,7 @@ import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
@@ -50,7 +52,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     @Override
     public CommonBasicGraphExploreRsp exploreByKgQl(String kgName, ExploreByKgQlReq kgQlReq) {
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.traversalRule(kgName, kgQlReq.getEntityId(), kgQlReq.getKgQl()));
-        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, kgQlReq.isRelationMerge())).orElse(CommonBasicGraphExploreRsp.EMPTY);
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, kgQlReq)).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
     @Override
@@ -72,14 +74,14 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     public CommonBasicGraphExploreRsp commonGraphExploration(String kgName, CommonExploreReq exploreReq) {
         exploreReq = graphHelperService.keyToId(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
-        return queryAndRebuildRsp(kgName, graphFrom, exploreReq.isRelationMerge());
+        return queryAndRebuildRsp(kgName, graphFrom, exploreReq);
     }
 
     @Override
     public CommonBasicGraphExploreRsp timeGraphExploration(String kgName, CommonTimingExploreReq exploreReq) {
         exploreReq = graphHelperService.keyToId(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
-        return queryAndRebuildRsp(kgName, graphFrom, exploreReq.isRelationMerge());
+        return queryAndRebuildRsp(kgName, graphFrom, exploreReq);
     }
 
     @Override
@@ -92,16 +94,16 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
         }
         //推理
         GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), exploreReq);
-        return this.buildExploreRspWithConcept(kgName, graphVO, exploreReq.isRelationMerge());
+        return this.buildExploreRspWithConcept(kgName, graphVO, exploreReq);
     }
 
-    private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, boolean relationMerge) {
+    private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, GraphReqAfterInterface graphReqAfter) {
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(kgName, graphFrom));
-        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, relationMerge)).orElse(CommonBasicGraphExploreRsp.EMPTY);
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, graphReqAfter)).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
-    private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphVO graph, boolean relationMerge) {
+    private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphVO graph, GraphReqAfterInterface graphAfter) {
         Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
-        return GraphRspConverter.graphVoToCommonRsp(graph, conceptIdMap, relationMerge);
+        return GraphRspConverter.graphVoToCommonRsp(graph, conceptIdMap, graphAfter);
     }
 }
