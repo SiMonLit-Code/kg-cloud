@@ -7,9 +7,7 @@ import com.plantdata.kgcloud.domain.j2r.service.J2rService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -25,14 +23,6 @@ public class J2rController {
     @Autowired
     private J2rService j2rService;
 
-    @GetMapping("/json/get/{dataSetId}/{index}")
-    @ApiOperation("获取单条json")
-    public ApiReturn<String> getJson(@ApiParam( "数据集Id") @PathVariable("dataSetId") Integer dataSetId,
-                                             @ApiParam(value = "序号", defaultValue = "1") @PathVariable("index") Integer index) {
-
-        String jsonStr = j2rService.jsonStr(dataSetId, index);
-        return ApiReturn.success(jsonStr);
-    }
 
     @PostMapping("/config/check")
     @ApiOperation("检测配置格式是否正确")

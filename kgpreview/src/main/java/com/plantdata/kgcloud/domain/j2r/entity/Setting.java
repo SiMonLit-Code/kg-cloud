@@ -13,7 +13,7 @@ import java.util.List;
 @ApiModel("配置参数")
 public class Setting {
 
-    public Integer dataSetId;
+    public Long dataSetId;
     public String userId;
     public String kgName;
     public String name;
