@@ -111,7 +111,11 @@ public class MongodbOptProvider implements DataOptProvider {
                 }
             }
         }
-        return Filters.and(bsonList);
+        if (bsonList.isEmpty()) {
+            return Filters.and();
+        } else {
+            return Filters.and(bsonList);
+        }
     }
 
     private Bson buildSort(Map<String, Object> query) {

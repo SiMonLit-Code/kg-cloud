@@ -275,7 +275,8 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         String endpoint = "/" + database + "/" + type + "/_bulk";
         StringBuilder body = new StringBuilder();
         for (Map<String, Object> node : nodes) {
-            body.append("{\"create\" :").append(JacksonUtils.writeValueAsString(node)).append("}\n");
+            body.append("{ \"index\": {}}\n");
+            body.append(JacksonUtils.writeValueAsString(node)).append("\n");
         }
         Request request = new Request(POST, endpoint);
         request.setEntity(new StringEntity(body.toString(), ContentType.APPLICATION_JSON));
@@ -284,10 +285,14 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public void batchDelete(Collection<String> ids) {
-        String index = getIndexByAlias().orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        String endpoint = "/" + database + "/" + type + "/_bulk";
+        StringBuilder body = new StringBuilder();
         for (String id : ids) {
-            sendDelete(index, type, id);
+            body.append("{ \"delete\": {\"_id\": \"" + id + "\" }}\n");
         }
+        Request request = new Request(POST, endpoint);
+        request.setEntity(new StringEntity(body.toString(), ContentType.APPLICATION_JSON));
+        send(request);
     }
 
     @Override
