@@ -6,9 +6,11 @@ import com.plantdata.kgcloud.domain.menu.service.MenuFavorService;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +39,9 @@ public class MenuFavorController {
 
     @ApiOperation("菜单订阅-订阅")
     @PostMapping("/")
-    public ApiReturn<MenuFavorRsp> favor(List<Integer> menuId) {
+    public ApiReturn<MenuFavorRsp> favor(
+            @ApiParam("菜单Id列表")
+            @RequestBody List<Integer> menuId) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(menuFavorService.favor(userId, menuId));
     }

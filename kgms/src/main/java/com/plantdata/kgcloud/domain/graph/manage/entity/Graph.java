@@ -46,6 +46,10 @@ public class Graph {
     private String kgName;
 
     @Basic
+    @Column(name = "db_name")
+    private String dbName;
+
+    @Basic
     @Column(name = "title")
     private String title;
 

@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.audit.req;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -9,5 +10,8 @@ import lombok.Data;
  **/
 @Data
 public class ApiAuditUrlReq extends ApiAuditReq {
+
+
+    @ApiModelProperty("分组类型 1 按月  2 按天 3 按小时 ， 默认 按天  分组")
     private Integer group;
 }

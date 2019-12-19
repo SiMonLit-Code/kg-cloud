@@ -124,8 +124,8 @@ public class TaskGraphServiceImpl implements TaskGraphService {
 
         // create task
         ObjectNode config = JacksonUtils.getInstance().createObjectNode()
-                .put("title", "拼音检索导出_" + System.currentTimeMillis())
-                .put("dataName", "pinyin_" + System.currentTimeMillis())
+                .put("title", "拼音检索导出_" + kgName)
+                .put("dataName", "pinyin_" + kgName)
                 .put("kgName", kgName)
                 .put("type", 1)
                 .putPOJO("conceptIds", new ArrayList<>());

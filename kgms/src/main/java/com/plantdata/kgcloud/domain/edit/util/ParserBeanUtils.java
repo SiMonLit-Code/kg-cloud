@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.util;
 
 import ai.plantdata.kg.api.edit.resp.EntityVO;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
@@ -9,9 +10,13 @@ import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.edit.vo.ObjectAttrValueVO;
+import com.plantdata.kgcloud.util.JacksonUtils;
+import org.springframework.cglib.beans.BeanMap;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,7 +95,8 @@ public class ParserBeanUtils {
             }
 
             if (entityMetaData.containsKey(MetaDataInfo.TAG.getFieldName())) {
-                basicInfoRsp.setTags((List<EntityTagVO>) entityMetaData.get(MetaDataInfo.TAG.getFieldName()));
+                basicInfoRsp.setTags(JacksonUtils.readValue(JacksonUtils.writeValueAsString(
+                        entityMetaData.get(MetaDataInfo.TAG.getFieldName())),new TypeReference<List<EntityTagVO>>(){}));
             }
             //设置gis
             GisVO gisVO = new GisVO();
@@ -98,6 +104,9 @@ public class ParserBeanUtils {
                 List<Double> gis = (List<Double>) entityMetaData.get(MetaDataInfo.GIS_COORDINATE.getFieldName());
                 gisVO.setLng(gis.get(0));
                 gisVO.setLat(gis.get(1));
+            }
+            if (entityMetaData.containsKey(MetaDataInfo.OPEN_GIS.getFieldName())) {
+                gisVO.setIsOpenGis((Boolean) entityMetaData.get(MetaDataInfo.OPEN_GIS.getFieldName()));
             }
             if (entityMetaData.containsKey(MetaDataInfo.GIS_ADDRESS.getFieldName())) {
                 gisVO.setAddress(entityMetaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()).toString());
@@ -107,7 +116,9 @@ public class ParserBeanUtils {
                 basicInfoRsp.setAdditional((Map<String, Object>) entityMetaData.get(MetaDataInfo.ADDITIONAL.getFieldName()));
             }
             if (entityMetaData.containsKey(MetaDataInfo.ENTITY_LINK.getFieldName())) {
-                basicInfoRsp.setEntityLinks((Set<EntityLinkVO>) entityMetaData.get(MetaDataInfo.ENTITY_LINK.getFieldName()));
+                basicInfoRsp.setEntityLinks(JacksonUtils.readValue(JacksonUtils.writeValueAsString(
+                        entityMetaData.get(MetaDataInfo.ENTITY_LINK.getFieldName())),
+                        new TypeReference<Set<EntityLinkVO>>(){}));
             }
         }
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();

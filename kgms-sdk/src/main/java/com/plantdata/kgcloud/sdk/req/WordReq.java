@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.sdk.req;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -12,13 +14,16 @@ import java.util.List;
  **/
 @Data
 public class WordReq {
-    @NotNull
+    @NotEmpty
+    @ApiModelProperty("词条名称")
     private String name;
 
     @NotNull
+    @ApiModelProperty("词条同义")
     private List<String> syns;
 
-    @NotNull
+    @NotEmpty
+    @ApiModelProperty("词条类型 n 名称 v 动词 a 形容词 d 副词 p 介词 e 叹词 t 时间词")
     private String nature;
 
 }

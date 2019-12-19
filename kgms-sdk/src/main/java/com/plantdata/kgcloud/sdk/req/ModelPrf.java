@@ -9,8 +9,12 @@ import lombok.Data;
  **/
 @Data
 public class ModelPrf {
-    private double p;
-    private double r;
-    private double f;
+
+
+    private Double p;
+
+    private Double r;
+
+    private Double f;
 
 }
