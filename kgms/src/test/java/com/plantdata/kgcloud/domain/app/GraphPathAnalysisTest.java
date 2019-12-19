@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.app;
 
 import com.plantdata.kgcloud.domain.app.service.GraphPathAnalysisService;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
@@ -9,6 +8,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class GraphPathAnalysisTest {
         PathAnalysisReq pathAnalysisReq = new PathAnalysisReq();
         pathAnalysisReq.setPath(commonPathReq());
         PathAnalysisRsp path = graphPathAnalysisService.path(KG_NAME, pathAnalysisReq);
-        System.out.println(JsonUtils.toJson(path));
+        System.out.println(JacksonUtils.writeValueAsString(path));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class GraphPathAnalysisTest {
         PathReasoningAnalysisReq analysisReq = new PathReasoningAnalysisReq();
         analysisReq.setPath(commonPathReq());
         PathAnalysisReasonRsp path = graphPathAnalysisService.pathRuleReason(KG_NAME, analysisReq);
-        System.out.println(JsonUtils.toJson(path));
+        System.out.println(JacksonUtils.writeValueAsString(path));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class GraphPathAnalysisTest {
         PathTimingAnalysisReq pathTimingAnalysisReq = new PathTimingAnalysisReq();
         pathTimingAnalysisReq.setPath(commonPathReq());
         PathTimingAnalysisRsp path = graphPathAnalysisService.pathTimingAnalysis(KG_NAME, pathTimingAnalysisReq);
-        System.out.println(JsonUtils.toJson(path));
+        System.out.println(JacksonUtils.writeValueAsString(path));
     }
 
 }

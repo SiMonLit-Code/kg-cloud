@@ -40,7 +40,7 @@ public class EsDTO {
     }
 
     public Map<String, Object> parseMap() {
-        String s = JsonUtils.toJson(this);
+        String s = JacksonUtils.writeValueAsString(this);
         return JacksonUtils.readValue(s, new TypeReference<Map<String, Object>>() {
         });
     }

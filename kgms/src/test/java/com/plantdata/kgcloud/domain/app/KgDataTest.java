@@ -47,7 +47,7 @@ public class KgDataTest {
     public void sparQlTest() {
         String sparQl = "PREFIXrdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>PREFIXowl:<http://www.w3.org/2002/07/owl#>PREFIXrdfs:<http://www.w3.org/2000/01/rdf-schema#>PREFIXxsd:<http://www.w3.org/TR/2003/PR-owl-guide-20031209/wine#>SELECT?s?p?oWHERE{?s?p?o}";
         Optional<QueryResultVO> convert = RestRespConverter.convert(sparqlApi.query(KG_NAME, sparQl, 10));
-        System.out.println(JsonUtils.toJson(convert.get()));
+        System.out.println(JacksonUtils.writeValueAsString(convert.get()));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class KgDataTest {
         req.setEntityId(3L);
         req.setIsDistinct(true);
         List<EdgeStatisticByEntityIdRsp> maps = kgDataService.statisticCountEdgeByEntity(KG_NAME, req);
-        System.out.println(JsonUtils.toJson(maps));
+        System.out.println(JacksonUtils.writeValueAsString(maps));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class KgDataTest {
         conceptReq.setAllowTypes(Lists.newArrayList(1L, 2L));
         //conceptReq.setReturnType(1);
         Object obj = kgDataService.statEntityGroupByConcept(KG_NAME, conceptReq);
-        System.out.println(JsonUtils.toJson(obj));
+        System.out.println(JacksonUtils.writeValueAsString(obj));
     }
 
     /**
@@ -77,7 +77,7 @@ public class KgDataTest {
         EntityStatisticGroupByAttrIdReq attrIdReq = new EntityStatisticGroupByAttrIdReq();
         attrIdReq.setEntityIds(Lists.newArrayList(1L, 2L, 4L, 3L));
         Object obj = kgDataService.statisticAttrGroupByConcept(KG_NAME, attrIdReq);
-        System.out.println(JsonUtils.toJson(obj));
+        System.out.println(JacksonUtils.writeValueAsString(obj));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class KgDataTest {
         EdgeStatisticByConceptIdReq conceptIdReq = new EdgeStatisticByConceptIdReq();
         conceptIdReq.setConceptId(1L);
         Object obj = kgDataService.statisticRelation(KG_NAME, conceptIdReq);
-        System.out.println(JsonUtils.toJson(obj));
+        System.out.println(JacksonUtils.writeValueAsString(obj));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class KgDataTest {
         attrValueReq.setAttrId(2);
         attrValueReq.setSeqNo(1);
         Object obj = kgDataService.statEdgeGroupByEdgeValue(KG_NAME, attrValueReq);
-        System.out.println(JsonUtils.toJson(obj));
+        System.out.println(JacksonUtils.writeValueAsString(obj));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class KgDataTest {
         NameReadReq nameReadReq = new NameReadReq();
         nameReadReq.setDataName("bj73pb33_dataset_aaabbb");
         RestData<Map<String, Object>> dataSet = kgDataService.searchDataSet("bj73pb33", nameReadReq);
-        System.out.println(JsonUtils.toJson(dataSet));
+        System.out.println(JacksonUtils.writeValueAsString(dataSet));
     }
 
     @Test
@@ -112,6 +112,6 @@ public class KgDataTest {
 
         nameReadReq.setSort("{\"_oprTime\":{\"order\":\"desc\"}}");
         RestData<Map<String, Object>> dataSet = kgDataService.searchDataSet("bj73pb33", nameReadReq);
-        System.out.println(JsonUtils.toJson(dataSet));
+        System.out.println(JacksonUtils.writeValueAsString(dataSet));
     }
 }

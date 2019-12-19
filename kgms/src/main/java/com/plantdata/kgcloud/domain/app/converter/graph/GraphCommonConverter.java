@@ -20,7 +20,6 @@ import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
-import com.plantdata.kgcloud.sdk.rsp.app.MetaDataInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
@@ -180,7 +179,7 @@ public class GraphCommonConverter extends BasicConverter {
      * @param <T>            子类
      * @return 。。。
      */
-    static <T extends GraphEntityRsp> T simpleToGraphEntityRsp(T graphEntityRsp, SimpleEntity simpleEntity, Map<Long, BasicInfo> conceptMap) {
+    static <T extends GraphEntityRsp> T simpleToGraphEntityRsp(T graphEntityRsp, SimpleEntity simpleEntity, Map<Long, BasicInfo> conceptMap, Set<Long> replaceClassIds) {
         graphEntityRsp.setId(simpleEntity.getId());
         graphEntityRsp.setConceptId(simpleEntity.getConceptId());
         graphEntityRsp.setName(simpleEntity.getName());
@@ -188,12 +187,14 @@ public class GraphCommonConverter extends BasicConverter {
         graphEntityRsp.setMeaningTag(simpleEntity.getMeaningTag());
         Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(simpleEntity.getImageUrl());
         imageRsp.ifPresent(graphEntityRsp::setImg);
-        if (EntityTypeEnum.ENTITY.equals(graphEntityRsp.getType())) {
-            GraphCommonConverter.fillConcept(simpleEntity.getConceptId(), graphEntityRsp, conceptMap);
-        }
+        GraphCommonConverter.fillConcept(simpleEntity.getConceptId(), graphEntityRsp, conceptMap);
         Map<String, Object> metaDataMap = simpleEntity.getMetaData();
         if (!CollectionUtils.isEmpty(metaDataMap)) {
             MetaConverter.fillMetaWithNoNull(metaDataMap, graphEntityRsp);
+        }
+        if (!CollectionUtils.isEmpty(replaceClassIds)) {
+            Optional<Long> first = graphEntityRsp.getConceptIdList().stream().filter(replaceClassIds::contains).findFirst();
+            first.ifPresent(graphEntityRsp::setClassId);
         }
         return graphEntityRsp;
     }

@@ -6,15 +6,10 @@ import ai.plantdata.kg.api.pub.req.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.RelationStatisticsBean;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.ExtraInfo;
-import com.alibaba.excel.write.builder.ExcelWriterTableBuilder;
-import com.alibaba.excel.write.metadata.WriteTable;
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
@@ -24,7 +19,7 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatDataRsp;
-import org.apache.commons.lang3.StringUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -46,23 +41,23 @@ public class GraphStatisticConverter {
     public static AttributeStatisticsBean attrReqToAttributeStatisticsBean(int reSize, EntityStatisticGroupByAttrIdReq attrIdReq) {
         Integer appendId = attrIdReq.getEntityIds() == null || attrIdReq.getEntityIds().isEmpty() ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
         AttributeStatisticsBean statisticsBean = new AttributeStatisticsBean();
-        statisticsBean.setEntityIds(JsonUtils.toJson(attrIdReq.getEntityIds()));
+        statisticsBean.setEntityIds(JacksonUtils.writeValueAsString(attrIdReq.getEntityIds()));
         statisticsBean.setPos(NumberUtils.INTEGER_ZERO);
         statisticsBean.setSize(reSize);
         statisticsBean.setDirection(attrIdReq.getDirection());
         statisticsBean.setAppendId(appendId);
         statisticsBean.setAttributeId(attrIdReq.getAttrId());
-        statisticsBean.setAllowValues(JsonUtils.toJson(attrIdReq.getDirection()));
+        statisticsBean.setAllowValues(JacksonUtils.writeValueAsString(attrIdReq.getDirection()));
         return statisticsBean;
     }
 
     public static ConceptStatisticsBean entityReqConceptStatisticsBean(EntityStatisticGroupByConceptReq statisticReq) {
         Integer appendId = statisticReq.getEntityIds() == null || statisticReq.getEntityIds().isEmpty() ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
         ConceptStatisticsBean statisticsBean = new ConceptStatisticsBean();
-        statisticsBean.setAllowTypes(JsonUtils.toJson(statisticReq.getAllowTypes()));
+        statisticsBean.setAllowTypes(JacksonUtils.writeValueAsString(statisticReq.getAllowTypes()));
         statisticsBean.setAppendId(appendId);
         statisticsBean.setDirection(statisticReq.getDirection());
-        statisticsBean.setEntityIds(JsonUtils.toJson(statisticReq.getEntityIds()));
+        statisticsBean.setEntityIds(JacksonUtils.writeValueAsString(statisticReq.getEntityIds()));
         statisticsBean.setPos(NumberUtils.INTEGER_ZERO);
         statisticsBean.setSize(defaultStatisticSize(statisticReq.getSize()));
         return statisticsBean;
@@ -71,7 +66,7 @@ public class GraphStatisticConverter {
     public static RelationStatisticsBean conceptIdReqConceptStatisticsBean(EdgeStatisticByConceptIdReq conceptIdReq) {
         RelationStatisticsBean statisticsBean = new RelationStatisticsBean();
         Integer appendId = CollectionUtils.isEmpty(conceptIdReq.getTripleIds()) ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
-        statisticsBean.setAllowAtts(JsonUtils.toJson(conceptIdReq.getAllowAtts()));
+        statisticsBean.setAllowAtts(JacksonUtils.writeValueAsString(conceptIdReq.getAllowAtts()));
         statisticsBean.setConceptId(conceptIdReq.getConceptId());
         statisticsBean.setAppendId(appendId);
         statisticsBean.setStartTime(conceptIdReq.getFromTime());
@@ -84,11 +79,11 @@ public class GraphStatisticConverter {
     public static RelationExtraInfoStatisticBean edgeAttrReqToRelationExtraInfoStatisticBean(EdgeAttrStatisticByAttrValueReq attrValueReq) {
         RelationExtraInfoStatisticBean statisticBean = new RelationExtraInfoStatisticBean();
         Integer appendId = CollectionUtils.isEmpty(attrValueReq.getTripleIds()) ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
-        statisticBean.setAllowValues(JsonUtils.toJson(attrValueReq.getAllowValues()));
+        statisticBean.setAllowValues(JacksonUtils.writeValueAsString(attrValueReq.getAllowValues()));
         statisticBean.setAttributeId(attrValueReq.getAttrId());
         statisticBean.setAppendId(appendId);
         statisticBean.setSeqNo(attrValueReq.getSeqNo());
-        statisticBean.setTripleIds(JsonUtils.toJson(attrValueReq.getTripleIds()));
+        statisticBean.setTripleIds(JacksonUtils.writeValueAsString(attrValueReq.getTripleIds()));
         statisticBean.setPos(NumberUtils.INTEGER_ZERO);
         statisticBean.setSize(defaultStatisticSize(attrValueReq.getSize()));
         statisticBean.setDirection(attrValueReq.getSort());

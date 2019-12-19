@@ -77,7 +77,7 @@ public class GraphAppTest {
         InfoBoxReq infoBoxReq = new InfoBoxReq();
         infoBoxReq.setId(3L);
         InfoBoxRsp infoBoxRsp = graphApplicationService.infoBox("dh3773_9r96hk5ii5cfkk11", "bj73pcfp", infoBoxReq);
-        System.out.println(JsonUtils.toJson(infoBoxRsp));
+        System.out.println(JacksonUtils.writeValueAsString(infoBoxRsp));
     }
 
     /**
@@ -88,7 +88,7 @@ public class GraphAppTest {
         BatchInfoBoxReq infoBoxReq = new BatchInfoBoxReq();
         infoBoxReq.setEntityIdList(Lists.newArrayList(3L));
         List<InfoBoxRsp> infoBoxRspList = graphApplicationService.infoBox("dh3773_9r96hk5ii5cfkk11", infoBoxReq);
-        System.out.println(JsonUtils.toJson(infoBoxRspList));
+        System.out.println(JacksonUtils.writeValueAsString(infoBoxRspList));
     }
 
     /**
@@ -97,7 +97,7 @@ public class GraphAppTest {
     @Test
     public void visualModelsTest() {
         BasicConceptTreeRsp treeRsp = graphApplicationService.visualModels("dh3773_9r96hk5ii5cfkk11", true, 0L);
-        System.out.println(JsonUtils.toJson(treeRsp));
+        System.out.println(JacksonUtils.writeValueAsString(treeRsp));
     }
 
 }

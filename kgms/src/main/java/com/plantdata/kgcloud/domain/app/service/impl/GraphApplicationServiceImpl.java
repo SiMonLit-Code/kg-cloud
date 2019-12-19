@@ -153,7 +153,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             }));
             graphInitRsp.setCreateTime(initGraphBean.getCreateAt());
             if (initGraphBean.getEntities() != null && initGraphBean.getEntities().fieldNames().hasNext()) {
-                graphInitRsp.setEntities(JsonUtils.readToList(initGraphBean.getEntities(), GraphInitRsp.GraphInitEntityRsp.class));
+                graphInitRsp.setEntities(JacksonUtils.readValue(JacksonUtils.writeValueAsString(initGraphBean.getEntities()), new TypeReference<List<GraphInitRsp.GraphInitEntityRsp>>() {
+                }));
                 return graphInitRsp;
             }
         }
