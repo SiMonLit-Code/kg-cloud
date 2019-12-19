@@ -134,18 +134,4 @@ public class DataSetStatisticBO {
         return (ArrayNode) arrayNode;
     }
 
-
-    public String buildQuery() {
-        Map<String, Object> requestData = Maps.newHashMap();
-        requestData.put("aggs", aggsDTO);
-        requestData.put("size", 0);
-        if (null != esDTO) {
-            requestData.put("query", esDTO);
-        }
-        return JsonUtils.toJson(requestData);
-    }
-
-    public static void main(String[] args) {
-        String str = "{'aggregations':{'by_key1':{'nest':{'buckets'}}}}";
-    }
 }

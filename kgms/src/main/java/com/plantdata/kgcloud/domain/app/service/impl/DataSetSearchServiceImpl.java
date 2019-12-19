@@ -98,7 +98,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         if (StringUtils.isNoneBlank(sort)) {
             requestData.put("sort", JacksonUtils.readValue(sort, Object.class));
         }
-        String rs = EsUtils.sendPost(EsUtils.buildEsQuery(addressList), databases, tables, JsonUtils.toJson(requestData));
+        String rs = EsUtils.sendPost(EsUtils.buildEsQuery(addressList), databases, tables, JacksonUtils.writeValueAsString(requestData));
         List<Map<String, Object>> rsList = new ArrayList<>(offset);
         long rsCount = 0;
         Optional<JsonNode> jsonObjOpt = JsonUtils.parseJsonNode(rs);
