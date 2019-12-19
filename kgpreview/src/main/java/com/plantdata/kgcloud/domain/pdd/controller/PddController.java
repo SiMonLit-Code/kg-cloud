@@ -26,7 +26,7 @@ public class PddController {
 
     @GetMapping("/tag/get/{dmId}")
     @ApiOperation("获取文档标签")
-    public ApiReturn<Map> getTag(@ApiParam("数据集ID") @PathVariable("dmId") Integer dmId) {
+    public ApiReturn<Map> getTag(@ApiParam("数据集ID") @PathVariable("dmId") Long dmId) {
 
         Map m = pddService.getTag(dmId);
         return ApiReturn.success(m);
