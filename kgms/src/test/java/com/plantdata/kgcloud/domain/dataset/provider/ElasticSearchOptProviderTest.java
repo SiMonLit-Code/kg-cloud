@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ public class ElasticSearchOptProviderTest {
         addrs.add("192.168.4.17:9200");
         addrs.add("192.168.4.18:9200");
         datasetInfo.setAddresses(addrs);
-        datasetInfo.setDatabase("0000000000_0004");
+        datasetInfo.setDatabase("bj73pb4s_dataset_");
         datasetInfo.setTable("_doc");
         provider = new ElasticSearchOptProvider(datasetInfo);
     }
@@ -41,7 +42,7 @@ public class ElasticSearchOptProviderTest {
     public void createTable() {
         List<DataSetSchema> colList = new ArrayList<>();
         DataSetSchema schema = new DataSetSchema();
-        schema.setField("a");
+        schema.setField("name");
         schema.setIsIndex(1);
         schema.setType(1);
         colList.add(schema);
@@ -68,9 +69,8 @@ public class ElasticSearchOptProviderTest {
     @Test
     public void insert() {
         Map<String,Object> objectNode = new HashMap<>();
-        objectNode.put("a","111");
-        objectNode.put("b","222");
-        objectNode.put("c", DateUtils.formatDatetime());
+        objectNode.put("name","111");
+        objectNode.put("age",222);
 
             provider.insert(objectNode);
 
@@ -95,5 +95,22 @@ public class ElasticSearchOptProviderTest {
     public void count() {
         long count = provider.count(null);
         System.out.println(count);
+    }
+
+    @Test
+    public void batchInsert() {
+
+        Map<String,Object> objectNode = new HashMap<>();
+        objectNode.put("name","111");
+        objectNode.put("age",222);
+
+
+        provider.batchInsert(Collections.singletonList(objectNode));
+
+    }
+
+    @Test
+    public void batchDelete() {
+        provider.batchDelete(Collections.singletonList("AvbFHG8BAruisY1fWsc1"));
     }
 }
