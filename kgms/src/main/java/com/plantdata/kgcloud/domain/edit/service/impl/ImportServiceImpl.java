@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 import ai.plantdata.kg.api.edit.UploadApi;
 import ai.plantdata.kg.api.rdf.RdfApi;
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.plantdata.kgcloud.constant.AttributeValueType;
@@ -117,7 +118,8 @@ public class ImportServiceImpl implements ImportService {
             response.setHeader("Content-Disposition", "attachment;filename=" + new String((fileName).getBytes(),
                     "iso-8859-1"));
             ServletOutputStream outputStream = response.getOutputStream();
-            EasyExcel.write(outputStream).head(header).sheet("Sheet1").doWrite(new ArrayList());
+            EasyExcel.write(outputStream).head(header).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                    .sheet("Sheet1").doWrite(new ArrayList());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -203,7 +205,8 @@ public class ImportServiceImpl implements ImportService {
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
             response.setHeader("Content-Disposition", "attachment;filename=" + new String((fileName).getBytes(),
                     "iso-8859-1"));
-            EasyExcel.write(response.getOutputStream(), classType).sheet("Sheet1").doWrite(new ArrayList());
+            EasyExcel.write(response.getOutputStream(), classType).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                    .sheet("Sheet1").doWrite(new ArrayList());
         } catch (IOException e) {
             e.printStackTrace();
         }
