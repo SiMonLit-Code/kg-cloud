@@ -1,18 +1,43 @@
 package com.plantdata.kgcloud.sdk;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
-import com.plantdata.kgcloud.sdk.req.*;
+import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
+import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
+import com.plantdata.kgcloud.sdk.req.DictionaryReq;
+import com.plantdata.kgcloud.sdk.req.FolderReq;
+import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
+import com.plantdata.kgcloud.sdk.req.GraphConfFocusReq;
+import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
+import com.plantdata.kgcloud.sdk.req.GraphConfQaReq;
+import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
+import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.req.GraphPageReq;
+import com.plantdata.kgcloud.sdk.req.GraphReq;
+import com.plantdata.kgcloud.sdk.req.KgmsCallReq;
+import com.plantdata.kgcloud.sdk.req.WordReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
-import com.plantdata.kgcloud.sdk.rsp.*;
+import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
+import com.plantdata.kgcloud.sdk.rsp.DictionaryRsp;
+import com.plantdata.kgcloud.sdk.rsp.FolderRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfFocusRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
+import com.plantdata.kgcloud.sdk.rsp.WordRsp;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -71,7 +96,7 @@ public interface KgmsClient {
 
     @ApiOperation("数据集-数据-分页条件查询")
     @GetMapping("/dataset/{datasetId}/data")
-    ApiReturn<BasePage<Map<String, Object>>> dataOptFindAll(@PathVariable("datasetId") Long datasetId, DataOptQueryReq baseReq);
+    ApiReturn<BasePage<Map<String, Object>>> dataOptFindAll(@PathVariable("datasetId") Long datasetId, @RequestParam("page") Integer page, @RequestParam("size") Integer size);
 
     @ApiOperation("数据集-数据-分页查询")
     @GetMapping("/dataset/{datasetId}/data/{dataId}")
@@ -79,11 +104,11 @@ public interface KgmsClient {
 
     @ApiOperation("数据集-数据-插入")
     @PostMapping("/dataset/{datasetId}/data")
-    ApiReturn<Map<String, Object>> dataOptInsert(@PathVariable("datasetId") Long datasetId, @RequestBody JsonNode data);
+    ApiReturn<Map<String, Object>> dataOptInsert(@PathVariable("datasetId") Long datasetId, @RequestBody Map<String, Object> data);
 
     @ApiOperation("数据集-数据-修改")
     @PatchMapping("/dataset/{datasetId}/data/{dataId}")
-    ApiReturn<Map<String, Object>> dataOptUpdate(@PathVariable("datasetId") Long datasetId, @PathVariable("dataId") String dataId, @RequestBody JsonNode data);
+    ApiReturn<Map<String, Object>> dataOptUpdate(@PathVariable("datasetId") Long datasetId, @PathVariable("dataId") String dataId, @RequestBody Map<String, Object> data);
 
     @ApiOperation("数据集-数据-根据Id删除")
     @DeleteMapping("/dataset/{datasetId}/data/{dataId}")
@@ -171,6 +196,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-算法-新建
+     *
      * @param kgName
      * @param req
      * @return
@@ -180,6 +206,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-算法-更新
+     *
      * @param id
      * @param req
      * @return
@@ -189,6 +216,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-算法-删除
+     *
      * @param id
      * @return
      */
@@ -197,6 +225,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-算法-获取
+     *
      * @param kgName
      * @param baseReq
      * @return
@@ -206,6 +235,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-焦点-获取
+     *
      * @param kgName
      * @return
      */
@@ -214,6 +244,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-焦点-保存
+     *
      * @param kgName
      * @param req
      * @return
@@ -223,6 +254,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-KGQL-新建
+     *
      * @param kgName
      * @param req
      * @return
@@ -232,6 +264,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-KGQL-更新
+     *
      * @param id
      * @param req
      * @return
@@ -241,6 +274,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-KGQL-删除
+     *
      * @param id
      * @return
      */
@@ -249,6 +283,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-KGQL-查询
+     *
      * @param kgName
      * @param baseReq
      * @return
@@ -258,14 +293,16 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-KGQL-详情
+     *
      * @param id
      * @return
      */
     @GetMapping("/kgql/{id}")
-     ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id);
+    ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id);
 
     /**
      * 图谱配置-问答-新建
+     *
      * @param kgName
      * @param req
      * @return
@@ -275,6 +312,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-问答-获取
+     *
      * @param kgName
      * @return
      */
@@ -283,6 +321,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-统计-新建
+     *
      * @param kgName
      * @param req
      * @return
@@ -292,14 +331,16 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-统计-批量新建
+     *
      * @param listReq
      * @return
      */
     @PostMapping("/config/statistical/batch/save")
-    ApiReturn<List<GraphConfStatisticalRsp>> saveStatisticalBatch( @RequestBody @Valid List<GraphConfStatisticalReq> listReq);
+    ApiReturn<List<GraphConfStatisticalRsp>> saveStatisticalBatch(@RequestBody @Valid List<GraphConfStatisticalReq> listReq);
 
     /**
      * 图谱配置-统计-更新
+     *
      * @param id
      * @param req
      * @return
@@ -309,14 +350,16 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-统计-批量更新
+     *
      * @param reqs
      * @return
      */
     @PatchMapping("/config/statistical/batch/update")
-    ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch( @RequestBody @Valid List<GraphConfStatisticalReq> reqs);
+    ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@RequestBody @Valid List<GraphConfStatisticalReq> reqs);
 
     /**
      * 图谱配置-统计-删除
+     *
      * @param id
      * @return
      */
@@ -325,6 +368,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-统计-批量删除
+     *
      * @param ids
      * @return
      */
@@ -333,6 +377,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-统计-查询
+     *
      * @param kgName
      * @return
      */
@@ -341,15 +386,17 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-统计-分页
+     *
      * @param kgName
      * @param baseReq
      * @return
      */
     @GetMapping("/config/statistical/{kgName}")
-    ApiReturn<BasePage<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
+    ApiReturn<BasePage<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     /**
      * 图谱配置-推理-新增
+     *
      * @param kgName
      * @param req
      * @return
@@ -359,15 +406,17 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-推理-分页
+     *
      * @param kgName
      * @param baseReq
      * @return
      */
     @GetMapping("/config/reason/{kgName}")
-    ApiReturn<BasePage<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
+    ApiReturn<BasePage<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     /**
      * 图谱配置-推理-详情
+     *
      * @param id
      * @return
      */
@@ -376,6 +425,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-推理-删除
+     *
      * @param id
      * @return
      */
@@ -384,6 +434,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-推理-更新
+     *
      * @param id
      * @param req
      * @return
