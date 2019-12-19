@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
@@ -9,6 +10,7 @@ import com.plantdata.kgcloud.sdk.rsp.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -25,7 +27,7 @@ public interface KgmsClient {
 
     @ApiOperation("数据集分页查找")
     @GetMapping("/dataset/")
-    ApiReturn<Page<DataSetRsp>> dataSetFindAll(DataSetPageReq req);
+    ApiReturn<BasePage<DataSetRsp>> dataSetFindAll(DataSetPageReq req);
 
     @ApiOperation("数据集根据Id查找")
     @GetMapping("/dataset/{id}")
@@ -69,7 +71,7 @@ public interface KgmsClient {
 
     @ApiOperation("数据集-数据-分页条件查询")
     @GetMapping("/dataset/{datasetId}/data")
-    ApiReturn<List<Map<String, Object>>> dataOptFindAll(@PathVariable("datasetId") Long datasetId, DataOptQueryReq baseReq);
+    ApiReturn<BasePage<Map<String, Object>>> dataOptFindAll(@PathVariable("datasetId") Long datasetId, DataOptQueryReq baseReq);
 
     @ApiOperation("数据集-数据-分页查询")
     @GetMapping("/dataset/{datasetId}/data/{dataId}")
@@ -101,7 +103,7 @@ public interface KgmsClient {
 
     @ApiOperation("词典分页查找")
     @GetMapping("/dictionary/")
-    ApiReturn<Page<DictionaryRsp>> dictionaryFindAll(BaseReq baseReq);
+    ApiReturn<BasePage<DictionaryRsp>> dictionaryFindAll(BaseReq baseReq);
 
     @ApiOperation("词典根据Id查找")
     @GetMapping("/dictionary/{id}")
@@ -125,7 +127,7 @@ public interface KgmsClient {
 
     @ApiOperation("词典-词条分页查找")
     @GetMapping("/dictionary/{dictId}/word")
-    ApiReturn<Page<WordRsp>> wordFindAll(@PathVariable("dictId") Long dictId, BaseReq baseReq);
+    ApiReturn<BasePage<WordRsp>> wordFindAll(@PathVariable("dictId") Long dictId, BaseReq baseReq);
 
     @ApiOperation("词典-词条根据Id查找")
     @GetMapping("/dictionary/{dictId}/word/{wordId}")
@@ -149,7 +151,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱分页查找")
     @GetMapping("/graph/")
-    ApiReturn<Page<GraphRsp>> graphFindAll(GraphPageReq req);
+    ApiReturn<BasePage<GraphRsp>> graphFindAll(GraphPageReq req);
 
     @ApiOperation("图谱根据Id查找")
     @GetMapping("/graph/{kgName}")
@@ -183,7 +185,7 @@ public interface KgmsClient {
      * @return
      */
     @PatchMapping("/config/algorithm/{id}")
-    public ApiReturn<GraphConfAlgorithmRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfAlgorithmReq req);
+    ApiReturn<GraphConfAlgorithmRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfAlgorithmReq req);
 
     /**
      * 图谱配置-算法-删除
@@ -200,7 +202,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/config/algorithm/{kgName}")
-    ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq);
+    ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     /**
      * 图谱配置-焦点-获取
@@ -252,7 +254,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/config/kgql/{kgName}")
-    ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, PageReq baseReq);
+    ApiReturn<BasePage<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, PageReq baseReq);
 
     /**
      * 图谱配置-KGQL-详情
@@ -335,7 +337,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/config/statistical/{kgName}")
-    public ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName);
+    ApiReturn<List<GraphConfStatisticalRsp>> selectStatistical(@PathVariable("kgName") String kgName);
 
     /**
      * 图谱配置-统计-分页
@@ -344,7 +346,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/config/statistical/{kgName}")
-    ApiReturn<Page<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
+    ApiReturn<BasePage<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
 
     /**
      * 图谱配置-推理-新增
@@ -362,7 +364,7 @@ public interface KgmsClient {
      * @return
      */
     @GetMapping("/config/reason/{kgName}")
-    ApiReturn<Page<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
+    ApiReturn<BasePage<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName , BaseReq baseReq);
 
     /**
      * 图谱配置-推理-详情
