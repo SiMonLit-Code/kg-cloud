@@ -4,9 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mongodb.client.MongoCursor;
+import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.common.util.JsonPathUtil;
-import com.plantdata.kgcloud.common.util.MongoUtil;
 import com.plantdata.kgcloud.domain.j2r.entity.AttrConfig;
 import com.plantdata.kgcloud.domain.j2r.entity.ConceptConfig;
 import com.plantdata.kgcloud.domain.j2r.entity.EntityBean;
@@ -14,18 +13,11 @@ import com.plantdata.kgcloud.domain.j2r.entity.Setting;
 import com.plantdata.kgcloud.domain.j2r.service.J2rService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.KgmsClient;
-import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,23 +32,6 @@ public class J2rServiceImpl implements J2rService {
 
     @Autowired
     private KgmsClient kgmsClient;
-
-    @Override
-    public String jsonStr(Integer dataSetId, Integer index) {
-
-        DataSetRsp dataSetRsp = kgmsClient.dataSetFindById(Long.valueOf(dataSetId)).getData();
-        MongoUtil mongoUtil = new MongoUtil(dataSetRsp.getAddr());
-        MongoCursor<Document> cursor = mongoUtil.find(dataSetRsp.getDbName(), dataSetRsp.getTbName(), null, null, index, 1);
-        Document doc = cursor.hasNext() ? cursor.next() : new Document();
-        if (!doc.isEmpty()) {
-            doc.append("jsonId", doc.get("_id").toString());
-            doc.remove("_id");
-            doc.remove("_persistTime");
-            doc.remove("_oprTime");
-            doc.remove("oprTime");
-        }
-        return JacksonUtils.writeValueAsString(doc);
-    }
 
     @Override
     public boolean checkSetting(Setting setting) {
@@ -123,12 +98,9 @@ public class J2rServiceImpl implements J2rService {
 
         checkSetting(setting);
         Map<String, Object> rsMap = new HashMap<>(20);
-
-        DataSetRsp dataSetRsp = kgmsClient.dataSetFindById(Long.valueOf(setting.getDataSetId())).getData();
-        MongoUtil mongoUtil = new MongoUtil(dataSetRsp.getAddr());
-        MongoCursor<Document> cursor = mongoUtil.find(dataSetRsp.getDbName(), dataSetRsp.getTbName(), new Document("_id", new ObjectId(jsonId)));
-        String jsonStr = cursor.hasNext() ? JacksonUtils.writeValueAsString(cursor.next()) : "{}";
-
+        ApiReturn<Map<String, Object>> apiReturn = kgmsClient.dataOptFindById(setting.dataSetId, jsonId);
+        Map<String, Object> m = apiReturn.getErrCode() == 200 ? apiReturn.getData() : new HashMap<>();
+        String jsonStr = JacksonUtils.writeValueAsString(m);
         List<String> entityNames = Lists.newArrayList();
         List<Map<String, Object>> attrs = Lists.newArrayList();
 
