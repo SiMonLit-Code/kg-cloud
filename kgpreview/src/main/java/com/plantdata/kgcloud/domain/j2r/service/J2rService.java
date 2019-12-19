@@ -1,8 +1,6 @@
 package com.plantdata.kgcloud.domain.j2r.service;
 
 import com.plantdata.kgcloud.domain.j2r.entity.Setting;
-import org.bson.Document;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Map;
@@ -11,8 +9,6 @@ import java.util.Map;
  * @author xiezhenxiang 2019/12/9
  */
 public interface J2rService {
-
-    String jsonStr(Integer dataSetId, Integer index);
 
     boolean checkSetting(Setting configs);
 

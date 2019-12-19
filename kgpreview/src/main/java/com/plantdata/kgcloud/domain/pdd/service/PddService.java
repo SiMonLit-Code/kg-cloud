@@ -7,5 +7,5 @@ import java.util.Map;
  */
 public interface PddService {
 
-    Map getTag(Integer dmId);
+    Map getTag(Long dmId);
 }

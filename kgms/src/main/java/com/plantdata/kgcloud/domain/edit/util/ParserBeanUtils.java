@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.edit.vo.ObjectAttrValueVO;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.cglib.beans.BeanMap;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -37,10 +38,11 @@ public class ParserBeanUtils {
      * @return
      */
     public static Map<String, Object> parserSortMetadata(List<String> sort) {
+
         Map<String, Object> sortMap = new HashMap<>();
         if (Objects.nonNull(sort) && sort.size() > 0) {
             sort.forEach(s -> {
-                String[] split = s.split(",");
+                String[] split = s.split(":");
                 if (split.length == 2) {
                     sortMap.put(MetaDataInfo.getCodeByName(split[0]), parserSort(split[1]));
                 }
