@@ -6,6 +6,7 @@ import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
+import com.plantdata.kgcloud.bean.ValidableList;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
@@ -105,14 +106,14 @@ public class AttributeController {
     @ApiOperation("批量添加属性定义")
     @PostMapping("/{kgName}/definition/batch")
     ApiReturn<List<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                   @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs) {
+                                                                   @Valid @RequestBody ValidableList<AttrDefinitionReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchAddAttrDefinition(kgName, attrDefinitionReqs));
     }
 
     @ApiOperation("批量修改属性定义")
     @PatchMapping("/{kgName}/definition/batch")
     ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModifyAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                                 @Valid @RequestBody List<AttrDefinitionReq> attrDefinitionReqs) {
+                                                                                 @Valid @RequestBody ValidableList<AttrDefinitionModifyReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchUpdate(kgName, attrDefinitionReqs));
     }
 
@@ -253,7 +254,8 @@ public class AttributeController {
 
     @ApiOperation("批量查询关系")
     @PostMapping("relation/search/{kgName}")
-    public ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName, @RequestBody EdgeSearchReq queryReq) {
+    public ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName,
+                                                              @RequestBody EdgeSearchReq queryReq) {
         return ApiReturn.success(attributeService.edgeSearch(kgName, queryReq));
     }
 }
