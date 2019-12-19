@@ -1,10 +1,12 @@
 package com.plantdata.kgcloud.sdk.req.edit;
 
+import com.plantdata.kgcloud.sdk.validator.KeyCheck;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -19,6 +21,7 @@ public class BasicInfoModifyReq {
 
     @ApiModelProperty(required = true)
     @NotNull
+    @Min(value = 1,message = "不能修改图谱")
     private Long id;
 
     @ApiModelProperty(hidden = true, value = "0:概念,1:实体", allowableValues = "0,1")
@@ -33,5 +36,6 @@ public class BasicInfoModifyReq {
     private String meaningTag;
 
     @ApiModelProperty(value = "唯一标示")
+    @KeyCheck
     private String key;
 }

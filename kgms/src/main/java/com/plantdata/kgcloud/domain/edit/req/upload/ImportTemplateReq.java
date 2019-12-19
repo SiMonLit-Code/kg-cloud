@@ -13,10 +13,10 @@ import lombok.Data;
 @ApiModel("下载导入模板模型")
 public class ImportTemplateReq {
 
-    @ApiModelProperty(value = "概念id")
+    @ApiModelProperty(value = "实体模板需要概念id")
     private Long conceptId;
 
-    @ApiModelProperty(value = "属性id")
+    @ApiModelProperty(value = "特定关系需要属性id")
     private Integer attrId;
 
     @ApiModelProperty(required = true, value = "模板类型,concept|entity|relation|synonymy|number|object|specific|field")
