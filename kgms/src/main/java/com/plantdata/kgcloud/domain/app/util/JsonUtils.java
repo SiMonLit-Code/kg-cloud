@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -36,6 +37,10 @@ public class JsonUtils {
         ObjectMapper instance = JacksonUtils.getInstance();
         JavaType javaType = getCollectionType(instance, ArrayList.class, clazz);
         return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), javaType);
+    }
+
+    public static <T> T objToNewObj(Object o, Class<T> clazz) {
+        return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), clazz);
     }
 
     private static JavaType getCollectionType(ObjectMapper instance, Class<?> collectionClass, Class<?>... elementClasses) {

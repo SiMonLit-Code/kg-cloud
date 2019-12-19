@@ -44,9 +44,10 @@ public class GraphExplorationTest {
     public void commonGraphExplorationTest() {
         CommonExploreReq exploreReq = new CommonExploreReq();
         CommonFiltersReq common = new CommonFiltersReq();
-        common.setKw("李岩");
+        common.setId(1L);
+        common.setHyponymyDistance(6);
         exploreReq.setCommon(common);
-        CommonBasicGraphExploreRsp commonGraphExploreRsp = graphExplorationService.commonGraphExploration(KG_NAME, exploreReq);
+        CommonBasicGraphExploreRsp commonGraphExploreRsp = graphExplorationService.commonGraphExploration("bj73pdud_graph_16f1cc1439e", exploreReq);
         System.out.println(JacksonUtils.writeValueAsString(commonGraphExploreRsp));
     }
 

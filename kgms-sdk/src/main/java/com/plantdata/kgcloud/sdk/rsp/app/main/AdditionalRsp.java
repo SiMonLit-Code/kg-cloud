@@ -18,7 +18,7 @@ public class AdditionalRsp {
     private Map<String, Object> nodeStyle;
     @ApiModelProperty("label样式")
     private Map<String, Object> labelStyle;
-    @ApiModelProperty("")
+    @ApiModelProperty("链接")
     private Map<String, Object> linkStyle;
     @ApiModelProperty("颜色")
     private String color;

@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
+import com.plantdata.kgcloud.exception.BizException;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,10 +38,14 @@ public class FileOptController implements SdkOpenApiInterface {
 
         log.debug(fileName);
 
-        if (!data.substring(0, 5).equals("data:")) {
-            log.debug("The request did not include a valid 'data' parameter which must be a valid data-uri.\n");
-            log.debug("Received input:\n");
-            log.debug(data);
+        try {
+            if (!data.substring(0, 5).equals("data:")) {
+                log.debug("The request did not include a valid 'data' parameter which must be a valid data-uri.\n");
+                log.debug("Received input:\n");
+                log.debug(data);
+            }
+        } catch (Exception e) {
+            throw new BizException(AppErrorCodeEnum.IMAGE_NO_INCLUDE_DATA_ERROR);
         }
 
         // divide data "data:image/png;base64,"
