@@ -13,15 +13,19 @@ import com.plantdata.kgcloud.constant.RdfType;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
+import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
+import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
@@ -46,6 +50,9 @@ public class ImportServiceImpl implements ImportService {
     private BasicInfoService basicInfoService;
 
     @Autowired
+    private AttributeService attributeService;
+
+    @Autowired
     private FastFileStorageClient storageClient;
 
     @Autowired
@@ -65,7 +72,7 @@ public class ImportServiceImpl implements ImportService {
                 break;
             case ENTITY:
                 fileName = type + KgmsConstants.FileType.XLSX;
-                download(fileName, response, kgName, importTemplateReq.getConceptId());
+                download(fileName, response, getHeader(kgName, importTemplateReq.getConceptId()));
                 break;
             case RELATION:
                 fileName = type + KgmsConstants.FileType.XLSX;
@@ -85,7 +92,7 @@ public class ImportServiceImpl implements ImportService {
                 break;
             case SPECIFIC_RELATION:
                 fileName = type + KgmsConstants.FileType.XLSX;
-                download(fileName, response, ImportType.getClassType(type));
+                download(fileName, response, getHeader(kgName, importTemplateReq.getAttrId()));
                 break;
             case FIELD:
                 fileName = type + KgmsConstants.FileType.XLSX;
@@ -97,16 +104,14 @@ public class ImportServiceImpl implements ImportService {
     }
 
     /**
-     * 实体模板下载
+     * 动态模板下载
      *
      * @param fileName
      * @param response
-     * @param kgName
-     * @param conceptId
+     * @param header
      */
-    private void download(String fileName, HttpServletResponse response, String kgName, Long conceptId) {
+    private void download(String fileName, HttpServletResponse response, List<List<String>> header) {
         try {
-            List<List<String>> header = getHeader(kgName, conceptId);
             response.reset();
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
             response.setHeader("Content-Disposition", "attachment;filename=" + new String((fileName).getBytes(),
@@ -127,6 +132,9 @@ public class ImportServiceImpl implements ImportService {
      * @return
      */
     private List<List<String>> getHeader(String kgName, Long conceptId) {
+        if (Objects.isNull(conceptId)) {
+            throw BizException.of(KgmsErrorCodeEnum.ENTITY_TEMPLATE_NEED_CONCEPT_ID);
+        }
         List<List<String>> header = new ArrayList<>();
         header.add(Collections.singletonList("实例名称（必填）"));
         header.add(Collections.singletonList("消歧标识"));
@@ -147,6 +155,40 @@ public class ImportServiceImpl implements ImportService {
                 .forEach(vo -> header.add(Collections.singletonList(vo.getName() + "(" + vo.getId() + ")")));
         return header;
     }
+
+    /**
+     * 特定关系表头
+     *
+     * @param kgName
+     * @param attrId
+     * @return
+     */
+    private List<List<String>> getHeader(String kgName, Integer attrId) {
+        if (Objects.isNull(attrId)) {
+            throw BizException.of(KgmsErrorCodeEnum.SPECIFIC_TEMPLATE_NEED_ATTR_ID);
+        }
+        List<List<String>> header = new ArrayList<>();
+        header.add(Collections.singletonList("实例名称（必填）"));
+        header.add(Collections.singletonList("实例消歧标识"));
+        header.add(Collections.singletonList("关系名称（必填）"));
+        header.add(Collections.singletonList("关系实例名称（必填）"));
+        header.add(Collections.singletonList("关系实例消歧标识"));
+        header.add(Collections.singletonList("关系值域（必填，关系实例的概念类型）"));
+        header.add(Collections.singletonList("关系值域消歧标识"));
+        header.add(Collections.singletonList("数据来源"));
+        header.add(Collections.singletonList("置信度"));
+        header.add(Collections.singletonList("开始时间"));
+        header.add(Collections.singletonList("结束时间"));
+        AttrDefinitionVO attrDetails = attributeService.getAttrDetails(kgName, attrId);
+        List<ExtraInfoVO> extraInfo = attrDetails.getExtraInfo();
+        if (CollectionUtils.isEmpty(extraInfo)) {
+            return header;
+        }
+        extraInfo.stream().filter(vo -> AttributeValueType.isNumeric(vo.getType()))
+                .forEach(vo -> header.add(Collections.singletonList(vo.getName())));
+        return header;
+    }
+
 
     /**
      * 模板下载
@@ -209,7 +251,7 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String exportRdf(String kgName, String format, Integer scope) {
-        ResponseEntity<byte[]> body = rdfApi.exportRdf(kgName, scope,  RdfType.findByType(format).getFormat());
+        ResponseEntity<byte[]> body = rdfApi.exportRdf(kgName, scope, RdfType.findByType(format).getFormat());
         ByteArrayInputStream inputStream = new ByteArrayInputStream(Objects.requireNonNull(body.getBody()));
         StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, format, null);
         return "/" + storePath.getFullPath();
@@ -226,7 +268,7 @@ public class ImportServiceImpl implements ImportService {
             throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
         }
         List<String> hasError = body.getHeaders().get("HAS-ERROR");
-        if (Objects.nonNull(hasError)) {
+        if (!CollectionUtils.isEmpty(hasError)) {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(Objects.requireNonNull(body.getBody()));
             StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, "xlsx", null);
             return "/" + storePath.getFullPath();

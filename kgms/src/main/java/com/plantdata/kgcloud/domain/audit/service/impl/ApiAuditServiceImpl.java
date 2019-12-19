@@ -126,7 +126,7 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         Root<ApiAudit> root = query.from(ApiAudit.class);
         Predicate predicate = cb.conjunction();
         List<Expression<Boolean>> expressions = predicate.getExpressions();
-        setApiQuery(expressions,root,cb,req);
+        setApiQuery(expressions, root, cb, req);
 
         Path<String> page = root.<String>get("kgName");
         Selection<String> name = page.alias("name");
@@ -192,7 +192,7 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         List<Expression<Boolean>> expressions = predicate.getExpressions();
         Path<Date> invokeAt = root.<Date>get("invokeAt");
 
-        setApiQuery(expressions,root,cb,req);
+        setApiQuery(expressions, root, cb, req);
 
         Path<String> urlPath = root.<String>get("url");
         Selection<String> name = urlPath.alias("name");
@@ -301,7 +301,7 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         Root<ApiAudit> root = query.from(ApiAudit.class);
         Predicate predicate = cb.conjunction();
         List<Expression<Boolean>> expressions = predicate.getExpressions();
-        setApiQuery(expressions,root,cb,req);
+        setApiQuery(expressions, root, cb, req);
 
         Path<String> urlPath = root.<String>get("url");
         Expression<Long> count = cb.count(urlPath);
@@ -366,7 +366,7 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         } else if (Objects.equals(order, 3)) {
             rsps.sort(Comparator.comparing(ApiAuditTopRsp::getFail, Comparator.reverseOrder()));
         }
-        return rsps.subList(0, 20);
+        return rsps.subList(0, rsps.size() > 20 ? 20 : rsps.size() - 1);
     }
 
 
@@ -401,7 +401,7 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         Root<ApiAudit> root = query.from(ApiAudit.class);
         Predicate predicate = cb.conjunction();
         List<Expression<Boolean>> expressions = predicate.getExpressions();
-        setApiQuery(expressions,root,cb,req);
+        setApiQuery(expressions, root, cb, req);
 
         Selection<String> name = root.<String>get("page").alias("name");
         Selection<Long> value = cb.count(root.<String>get("page")).alias("value");
@@ -423,7 +423,7 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         return auditRspList;
     }
 
-    private void setApiQuery(List<Expression<Boolean>> expressions,Root<ApiAudit> root, CriteriaBuilder cb, ApiAuditReq req){
+    private void setApiQuery(List<Expression<Boolean>> expressions, Root<ApiAudit> root, CriteriaBuilder cb, ApiAuditReq req) {
         expressions.add(cb.between(root.<Date>get("invokeAt"), req.getBeginTime(), req.getEndTime()));
         if (req.getUrls() != null && !req.getUrls().isEmpty()) {
             expressions.add(cb.in(root.<String>get("url")).in(req.getUrls()));

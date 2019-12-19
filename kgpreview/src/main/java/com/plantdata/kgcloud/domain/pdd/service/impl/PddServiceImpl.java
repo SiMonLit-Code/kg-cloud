@@ -22,9 +22,9 @@ public class PddServiceImpl implements PddService {
     private KgmsClient kgmsClient;
 
     @Override
-    public Map getTag(Integer dmId) {
+    public Map getTag(Long dmId) {
 
-        DataSetRsp dataSetRsp = kgmsClient.dataSetFindById(Long.valueOf(dmId)).getData();
+        DataSetRsp dataSetRsp = kgmsClient.dataSetFindById(dmId).getData();
         // 实体标签
         Set<String> entityTag = Sets.newHashSet();
         // 数值属性标签

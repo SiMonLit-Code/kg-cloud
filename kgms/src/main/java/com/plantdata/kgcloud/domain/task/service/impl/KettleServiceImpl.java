@@ -4,9 +4,11 @@ package com.plantdata.kgcloud.domain.task.service.impl;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.plantdata.kgcloud.config.MongoProperties;
-import com.plantdata.kgcloud.domain.task.util.CreateKettleJob;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.task.req.KettleReq;
 import com.plantdata.kgcloud.domain.task.service.KettleService;
+import com.plantdata.kgcloud.domain.task.util.CreateKettleJob;
+import com.plantdata.kgcloud.exception.BizException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -166,11 +168,11 @@ public class KettleServiceImpl implements KettleService {
         try {
             File kettleXml = CreateKettleJob.getKettleXml(kettleReq, arrayList, file);
             StorePath ktr = storageClient.uploadFile(new FileInputStream(kettleXml), kettleXml.length(), "ktr", null);
-            return ktr.getFullPath();
+            return "/" + ktr.getFullPath();
         } catch (IOException e) {
             log.warn("etl文件保存失败", e);
+            throw BizException.of(KgmsErrorCodeEnum.KTR_SAVE_FAIL);
         }
-        return "";
     }
 }
 

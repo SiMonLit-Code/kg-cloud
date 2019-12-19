@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.menu.rsp;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.List;
 @Data
 public class MenuFavorRsp {
     private String userId;
+    @ApiModelProperty("菜单订阅id")
     private List<Integer> menuId;
     private Date createAt;
     private Date updateAt;
