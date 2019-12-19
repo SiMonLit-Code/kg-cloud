@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.bean.ValidableList;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -234,11 +235,8 @@ public class AttributeController {
     @PostMapping("relation/insert/{kgName}")
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
                                                                        @RequestBody List<BatchRelationRsp> relationList) {
-        List<BatchRelationVO> collect =
-                relationList.stream().map(a -> ConvertUtils.convert(BatchRelationVO.class).apply(a)).collect(Collectors.toList());
-
-        OpenBatchResult<BatchRelationRsp> relationRsp =
-                RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, collect), new OpenBatchResult<>());
+        List<BatchRelationVO> collect = BasicConverter.listConvert(relationList, a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
+        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, collect), new OpenBatchResult<>());
         return ApiReturn.success(relationRsp);
     }
 

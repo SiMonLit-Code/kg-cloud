@@ -7,23 +7,18 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.bo.DataSetStatisticBO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.DataSetStatisticService;
-import com.plantdata.kgcloud.domain.app.util.EsUtils;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
-import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
-import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetTwoDimStatisticReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author cjw

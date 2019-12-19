@@ -2,20 +2,15 @@ package com.plantdata.kgcloud.domain.app.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author cjw

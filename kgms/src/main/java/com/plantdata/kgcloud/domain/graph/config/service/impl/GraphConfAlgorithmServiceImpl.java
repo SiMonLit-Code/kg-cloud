@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfAlgorithm;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfAlgorithmRepository;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;

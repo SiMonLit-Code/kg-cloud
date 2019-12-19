@@ -57,10 +57,13 @@ public class GraphExplorationTest {
     @Test
     public void CommonBasicGraphExploreRspTest() {
         ExploreByKgQlReq exploreByKgQlReq = new ExploreByKgQlReq();
+//        exploreByKgQlReq.setEntityId(13L);
+//        exploreByKgQlReq.setKgQl("concept('人').relation('任职机构')");
+
         exploreByKgQlReq.setEntityId(13L);
-        exploreByKgQlReq.setKgQl("concept('人').relation('任职机构')");
-        exploreByKgQlReq.setRelationMerge(false);
-        CommonBasicGraphExploreRsp exploreRsp = graphExplorationService.exploreByKgQl(KG_NAME, exploreByKgQlReq);
+        exploreByKgQlReq.setKgQl("concept('投资机构').relation('投资')");
+        exploreByKgQlReq.setRelationMerge(true);
+        CommonBasicGraphExploreRsp exploreRsp = graphExplorationService.exploreByKgQl("bj73pb33_graph_default", exploreByKgQlReq);
         System.out.println(JacksonUtils.writeValueAsString(exploreRsp));
     }
 

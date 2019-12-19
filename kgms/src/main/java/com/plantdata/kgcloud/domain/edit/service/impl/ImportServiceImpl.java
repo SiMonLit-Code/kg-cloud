@@ -12,8 +12,6 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.RdfType;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
-import com.plantdata.kgcloud.domain.edit.req.upload.RdfExportReq;
-import com.plantdata.kgcloud.domain.edit.req.upload.RdfReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;

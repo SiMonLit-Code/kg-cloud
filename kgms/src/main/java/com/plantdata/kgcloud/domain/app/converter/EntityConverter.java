@@ -5,34 +5,24 @@ import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.GisEntityVO;
-import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
-import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
