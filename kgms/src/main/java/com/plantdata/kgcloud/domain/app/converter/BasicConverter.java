@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/12/13 16:07
  */
+@Slf4j
 public class BasicConverter {
 
     public static <T, R> R executeNoNull(T param, Function<T, R> function) {
@@ -48,5 +52,16 @@ public class BasicConverter {
         } else if (param != null) {
             function.accept(param);
         }
+    }
+    public static <T, R> R copy(T t, Class<R> clazz) {
+        R r = null;
+        try {
+            r = clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            log.error("clazz:{} 创建实例失败", JacksonUtils.writeValueAsString(clazz));
+            e.printStackTrace();
+        }
+        BeanUtils.copyProperties(t, r);
+        return r;
     }
 }
