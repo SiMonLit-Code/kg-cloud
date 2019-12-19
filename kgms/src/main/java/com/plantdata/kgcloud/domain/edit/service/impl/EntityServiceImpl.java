@@ -31,6 +31,7 @@ import com.plantdata.kgcloud.constant.TaskType;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
@@ -123,12 +124,12 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void addMultipleConcept(String kgName, Long conceptId, Long entityId) {
-        RestRespConverter.convertVoid(conceptEntityApi.addMultipleConcept(kgName, conceptId, entityId));
+        RestRespConverter.convertVoid(conceptEntityApi.addMultipleConcept(KGUtil.dbName(kgName), conceptId, entityId));
     }
 
     @Override
     public void deleteMultipleConcept(String kgName, Long conceptId, Long entityId) {
-        RestRespConverter.convertVoid(conceptEntityApi.deleteMultipleConcept(kgName, conceptId, entityId));
+        RestRespConverter.convertVoid(conceptEntityApi.deleteMultipleConcept(KGUtil.dbName(kgName), conceptId, entityId));
     }
 
     @Override
@@ -141,7 +142,7 @@ public class EntityServiceImpl implements EntityService {
         Integer page = (basicInfoListReq.getPage() - 1) * size;
         basicInfoListFrom.setSkip(page);
         basicInfoListFrom.setLimit(size + 1);
-        Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(kgName, true,
+        Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(KGUtil.dbName(kgName), true,
                 basicInfoListFrom));
         List<BasicInfoRsp> basicInfoRspList =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
@@ -203,7 +204,7 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public List<DeleteResult> deleteByIds(String kgName, List<Long> ids) {
-        Optional<List<BatchDeleteResult>> optional = RestRespConverter.convert(batchApi.deleteEntities(kgName, ids));
+        Optional<List<BatchDeleteResult>> optional = RestRespConverter.convert(batchApi.deleteEntities(KGUtil.dbName(kgName), ids));
         if (!optional.isPresent() || CollectionUtils.isEmpty(optional.get())) {
             return Collections.emptyList();
         }
@@ -237,7 +238,7 @@ public class EntityServiceImpl implements EntityService {
         if (Objects.nonNull(ssrModifyReq.getReliability())) {
             metadata.put(MetaDataInfo.RELIABILITY.getFieldName(), ssrModifyReq.getReliability());
         }
-        conceptEntityApi.updateMetaData(kgName, entityId, metadata);
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }
 
     @Override
@@ -251,7 +252,7 @@ public class EntityServiceImpl implements EntityService {
         if (Objects.nonNull(entityTimeModifyReq.getToTime())) {
             metadata.put(MetaDataInfo.TO_TIME.getFieldName(), entityTimeModifyReq.getToTime());
         }
-        conceptEntityApi.updateMetaData(kgName, entityId, metadata);
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }
 
     @Override
@@ -263,7 +264,7 @@ public class EntityServiceImpl implements EntityService {
         gisCoordinate.add(1, gisInfoModifyReq.getLatitude());
         metadata.put(MetaDataInfo.GIS_COORDINATE.getFieldName(), gisCoordinate);
         metadata.put(MetaDataInfo.GIS_ADDRESS.getFieldName(), gisInfoModifyReq.getAddress());
-        conceptEntityApi.updateMetaData(kgName, entityId, metadata);
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }
 
     @Override
@@ -284,7 +285,7 @@ public class EntityServiceImpl implements EntityService {
         metadataOption.put("filters", filters);
         MetaDataOptionFrom metaDataOptionFrom = new MetaDataOptionFrom();
         metaDataOptionFrom.setFilters(metadataOption);
-        conceptEntityApi.deleteEntityByMetaData(kgName, 1, metaDataOptionFrom);
+        conceptEntityApi.deleteEntityByMetaData(KGUtil.dbName(kgName), 1, metaDataOptionFrom);
     }
 
     @Override
@@ -306,7 +307,7 @@ public class EntityServiceImpl implements EntityService {
 
         Map<String, Object> metadata = new HashMap<>();
         metadata.put(MetaDataInfo.TAG.getFieldName(), beforeTags);
-        conceptEntityApi.updateMetaData(kgName, entityId, metadata);
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
 
     }
 
@@ -324,7 +325,7 @@ public class EntityServiceImpl implements EntityService {
                 .forEach(entityTagVO -> voMap.put(entityTagVO.getName(), entityTagVO));
         Map<String, Object> metadata = new HashMap<>();
         metadata.put(MetaDataInfo.TAG.getFieldName(), voMap.values());
-        conceptEntityApi.updateMetaData(kgName, entityId, metadata);
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }
 
     @Override
@@ -341,7 +342,7 @@ public class EntityServiceImpl implements EntityService {
         tagNames.stream().filter(voMap::containsKey).forEach(voMap::remove);
         Map<String, Object> metadata = new HashMap<>();
         metadata.put(MetaDataInfo.TAG.getFieldName(), voMap.values());
-        conceptEntityApi.updateMetaData(kgName, entityId, metadata);
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }
 
     @Override
@@ -355,7 +356,7 @@ public class EntityServiceImpl implements EntityService {
         entityLinks.addAll(vos);
         Map<String, Object> metadata = new HashMap<>();
         metadata.put(MetaDataInfo.ENTITY_LINK.getFieldName(), entityLinks);
-        conceptEntityApi.updateMetaData(kgName, entityId, metadata);
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }
 
     @Override
@@ -369,7 +370,7 @@ public class EntityServiceImpl implements EntityService {
         entityLinks.removeAll(vos);
         Map<String, Object> metadata = new HashMap<>();
         metadata.put(MetaDataInfo.ENTITY_LINK.getFieldName(), entityLinks);
-        conceptEntityApi.updateMetaData(kgName, entityId, metadata);
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }
 
     @Override
@@ -380,7 +381,7 @@ public class EntityServiceImpl implements EntityService {
         if (Objects.isNull(numericalAttrValueReq.getAttrValue()) && Objects.nonNull(urlAttrValue)) {
             attributeValueFrom.setAttrValue(JacksonUtils.writeValueAsString(urlAttrValue));
         }
-        RestRespConverter.convertVoid(conceptEntityApi.addNumericAttrValue(kgName, attributeValueFrom));
+        RestRespConverter.convertVoid(conceptEntityApi.addNumericAttrValue(KGUtil.dbName(kgName), attributeValueFrom));
     }
 
 
@@ -388,7 +389,7 @@ public class EntityServiceImpl implements EntityService {
     public void addObjectAttrValue(String kgName, ObjectAttrValueReq objectAttrValueReq) {
         ObjectAttributeValueFrom objectAttributeValueFrom =
                 ConvertUtils.convert(ObjectAttributeValueFrom.class).apply(objectAttrValueReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(kgName, objectAttributeValueFrom));
+        RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName), objectAttributeValueFrom));
     }
 
     @Override
@@ -409,32 +410,32 @@ public class EntityServiceImpl implements EntityService {
         updateRelationMetaReq.setMetaData(metaData);
         UpdateRelationFrom updateRelationFrom =
                 ConvertUtils.convert(UpdateRelationFrom.class).apply(updateRelationMetaReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(kgName, updateRelationFrom));
+        RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName), updateRelationFrom));
     }
 
     @Override
     public void deleteObjAttrValue(String kgName, DeleteRelationReq deleteRelationReq) {
         DeleteRelationFrom deleteRelationFrom = ConvertUtils.convert(DeleteRelationFrom.class).apply(deleteRelationReq);
-        RestRespConverter.convertVoid(conceptEntityApi.deleteObjAttrValue(kgName, deleteRelationFrom));
+        RestRespConverter.convertVoid(conceptEntityApi.deleteObjAttrValue(KGUtil.dbName(kgName), deleteRelationFrom));
     }
 
     @Override
     public void addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addPrivateData(kgName, privateDataFrom));
+        RestRespConverter.convertVoid(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom));
     }
 
     @Override
     public void deletePrivateData(String kgName, DeletePrivateDataReq deletePrivateDataReq) {
-        RestRespConverter.convertVoid(conceptEntityApi.deletePrivateData(kgName, deletePrivateDataReq.getType(),
+        RestRespConverter.convertVoid(conceptEntityApi.deletePrivateData(KGUtil.dbName(kgName), deletePrivateDataReq.getType(),
                 deletePrivateDataReq.getEntityId(), deletePrivateDataReq.getTripleIds()));
     }
 
     @Override
     public void addEdgeNumericAttrValue(String kgName, EdgeNumericAttrValueReq edgeNumericAttrValueReq) {
         EdgeValueFrom edgeValueFrom = ConvertUtils.convert(EdgeValueFrom.class).apply(edgeNumericAttrValueReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addEdgeNumericAttrValue(kgName, edgeValueFrom));
+        RestRespConverter.convertVoid(conceptEntityApi.addEdgeNumericAttrValue(KGUtil.dbName(kgName), edgeValueFrom));
     }
 
     @Override
@@ -444,20 +445,20 @@ public class EntityServiceImpl implements EntityService {
         edgeObjectAttrValueReq.setObject(object);
         UpdateRelationFrom updateRelationFrom =
                 ConvertUtils.convert(UpdateRelationFrom.class).apply(edgeObjectAttrValueReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(kgName, updateRelationFrom));
+        RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName), updateRelationFrom));
     }
 
     @Override
     public void deleteEdgeObjectAttrValue(String kgName, DeleteEdgeObjectReq deleteEdgeObjectReq) {
         EdgeObjectValueFrom edgeObjectValueFrom =
                 ConvertUtils.convert(EdgeObjectValueFrom.class).apply(deleteEdgeObjectReq);
-        RestRespConverter.convertVoid(conceptEntityApi.deleteEdgeObjectAttrValue(kgName, edgeObjectValueFrom));
+        RestRespConverter.convertVoid(conceptEntityApi.deleteEdgeObjectAttrValue(KGUtil.dbName(kgName), edgeObjectValueFrom));
     }
 
     @Override
     public List<String> batchAddRelation(String kgName, BatchRelationReq batchRelationReq) {
         EntityRelationFrom entityRelationFrom = ConvertUtils.convert(EntityRelationFrom.class).apply(batchRelationReq);
-        Optional<List<String>> optional = RestRespConverter.convert(conceptEntityApi.batchAddRelation(kgName,
+        Optional<List<String>> optional = RestRespConverter.convert(conceptEntityApi.batchAddRelation(KGUtil.dbName(kgName),
                 entityRelationFrom));
         return optional.orElse(new ArrayList<>());
     }
@@ -466,14 +467,14 @@ public class EntityServiceImpl implements EntityService {
     public List<String> batchAddPrivateRelation(String kgName, BatchPrivateRelationReq batchPrivateRelationReq) {
         EntityPrivateRelationFrom entityPrivateRelationFrom =
                 ConvertUtils.convert(EntityPrivateRelationFrom.class).apply(batchPrivateRelationReq);
-        Optional<List<String>> optional = RestRespConverter.convert(conceptEntityApi.batchAddRelation(kgName,
+        Optional<List<String>> optional = RestRespConverter.convert(conceptEntityApi.batchAddRelation(KGUtil.dbName(kgName),
                 entityPrivateRelationFrom));
         return optional.orElse(new ArrayList<>());
     }
 
     @Override
     public List<String> tagSearch(String kgName, EntityTagSearchReq entityTagSearchReq) {
-        Optional<List<String>> optional = RestRespConverter.convert(entityApi.tagList(kgName,
+        Optional<List<String>> optional = RestRespConverter.convert(entityApi.tagList(KGUtil.dbName(kgName),
                 MapperUtils.map(entityTagSearchReq, EntityTagFrom.class)));
         return optional.orElse(new ArrayList<>());
     }
@@ -487,7 +488,7 @@ public class EntityServiceImpl implements EntityService {
         }
         SearchByAttributeFrom attributeFrom = EntityConverter.entityQueryReqToSearchByAttributeFrom(entityQueryReq);
         Optional<List<ai.plantdata.kg.api.pub.resp.EntityVO>> entityOpt =
-                RestRespConverter.convert(entityApi.searchByAttribute(kgName, attributeFrom));
+                RestRespConverter.convert(entityApi.searchByAttribute(KGUtil.dbName(kgName), attributeFrom));
         return entityOpt.orElse(new ArrayList<>()).stream().map(EntityConverter::voToOpenEntityRsp)
                 .collect(Collectors.toList());
     }
@@ -498,7 +499,7 @@ public class EntityServiceImpl implements EntityService {
         List<BatchEntityVO> entityList = batchEntity.stream()
                 .map(a -> ConvertUtils.convert(BatchEntityVO.class).apply(a))
                 .collect(Collectors.toList());
-        Optional<BatchResult<BatchEntityVO>> entityOpt = RestRespConverter.convert(batchApi.addEntities(kgName,
+        Optional<BatchResult<BatchEntityVO>> entityOpt = RestRespConverter.convert(batchApi.addEntities(KGUtil.dbName(kgName),
                 update, entityList));
         return entityOpt.map(result -> result.getSuccess().stream()
                 .map(a -> ConvertUtils.convert(OpenBatchSaveEntityRsp.class).apply(a))
@@ -511,6 +512,6 @@ public class EntityServiceImpl implements EntityService {
         deleteAttrValueVO.setAttributeIds(deleteReq.getAttributeIds());
         deleteAttrValueVO.setAttrNames(deleteReq.getAttrNames());
         deleteAttrValueVO.setEntityIds(deleteReq.getEntityIds());
-        RestRespConverter.convertVoid(batchApi.deleteEntities(kgName, deleteAttrValueVO));
+        RestRespConverter.convertVoid(batchApi.deleteEntities(KGUtil.dbName(kgName), deleteAttrValueVO));
     }
 }

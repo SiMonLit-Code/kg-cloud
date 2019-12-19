@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -13,10 +14,10 @@ import java.util.List;
 @Data
 public class AnnotationReq {
 
-
+    @ApiModelProperty("任务名称")
     private String name;
-
+    @ApiModelProperty("配置")
     private List<AnnotationConf> config;
-
+    @ApiModelProperty("描述")
     private String description;
 }
