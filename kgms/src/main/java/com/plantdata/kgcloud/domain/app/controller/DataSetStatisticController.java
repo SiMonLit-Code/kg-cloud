@@ -43,19 +43,19 @@ public class DataSetStatisticController implements SdkOpenApiInterface {
     @ApiOperation("统计数据三维(仅支持搜索数据集)")
     @PostMapping("3d/{dataName}")
     public ApiReturn<DataSetStatisticRsp> statistic3d(@ApiParam("数据集唯一标识") @PathVariable("dataName") String dataName,
-                                                      @Valid StatisticByDimensionalReq twoDimensional) {
+                                                      @Valid @RequestBody StatisticByDimensionalReq twoDimensional) {
         return ApiReturn.success(dataSetStatisticService.statisticByDimension(SessionHolder.getUserId(), twoDimensional, dataName, DimensionEnum.THIRD));
     }
 
     @ApiOperation("统计数据二维/按表统计")
     @PostMapping("2dByTable")
-    public ApiReturn<DataSetStatisticRsp> statistic2dByTable(@Valid TableStatisticByDimensionalReq twoDimensional) {
+    public ApiReturn<DataSetStatisticRsp> statistic2dByTable(@Valid @RequestBody TableStatisticByDimensionalReq twoDimensional) {
         return ApiReturn.success(dataSetStatisticService.statisticByDimensionAndTable(SessionHolder.getUserId(), twoDimensional, DimensionEnum.TWO));
     }
 
     @ApiOperation("统计数据三维/按表统计")
     @PostMapping("3dByTable")
-    public ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid TableStatisticByDimensionalReq thirdDimensional) {
+    public ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid @RequestBody TableStatisticByDimensionalReq thirdDimensional) {
         return ApiReturn.success(dataSetStatisticService.statisticByDimensionAndTable(SessionHolder.getUserId(), thirdDimensional, DimensionEnum.THIRD));
     }
 }
