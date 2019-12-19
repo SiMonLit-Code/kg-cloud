@@ -112,7 +112,7 @@ public class MongodbOptProvider implements DataOptProvider {
             }
         }
         if (bsonList.isEmpty()) {
-            return Filters.and();
+            return new Document();
         } else {
             return Filters.and(bsonList);
         }
