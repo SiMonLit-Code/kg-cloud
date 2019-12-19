@@ -15,8 +15,11 @@ import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.DataSetSmokeReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
 import com.plantdata.kgcloud.util.DateUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.smoke.core.Check;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -224,6 +227,11 @@ public class DataOptServiceImpl implements DataOptService {
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
+    }
+
+    @Override
+    public Map<String, Object> smoke(String userId, DataSetSmokeReq req) {
+        return Check.checkJson(JacksonUtils.writeValueAsString(req.getData()), JacksonUtils.writeValueAsString(req.getRules()));
     }
 
 
