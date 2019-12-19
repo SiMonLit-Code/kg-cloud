@@ -3,13 +3,13 @@ package com.plantdata.kgcloud.domain.d2r.service.ipml;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.domain.d2r.entity.*;
 import com.plantdata.kgcloud.domain.d2r.service.D2rService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.KgmsClient;
-import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +48,7 @@ public class D2rServiceImpl implements D2rService {
             int pageNo = 1;
             int pageSize = req.getEntSize() > 0 ? req.getEntSize() : 10;
             JSONArray datas = this.loadData(configBean.getDataSetId(), pageNo, pageSize);
+            System.out.println("data: " + datas.toJSONString());
             int dataLength = datas.size();
             for (int i = 0; i < dataLength; i++) {
                 JSONObject data = datas.getJSONObject(i);
@@ -165,21 +166,11 @@ public class D2rServiceImpl implements D2rService {
         return configBeanList;
     }
 
-    public static void main(String[] args) {
-        String str = "[{\\\"dataSetId\\\":100000000265,\\\"conceptId\\\":1,\\\"isMnum\\\":false,\\\"field\\\":null,\\\"updateOpt\\\":1,\\\"entId\\\":[\\\"first\\\"],\\\"ent\\\":[{\\\"property\\\":\\\"name\\\",\\\"mapField\\\":[\\\"first\\\"]}],\\\"synonyms\\\":null,\\\"attrs\\\":[],\\\"rels\\\":[],\\\"attrTimeFrom\\\":\\\"\\\",\\\"attrTimeTo\\\":\\\"\\\",\\\"trace\\\":[{\\\"target\\\":\\\"置信度\\\",\\\"property\\\":\\\"reliability\\\",\\\"type\\\":\\\"0\\\",\\\"source\\\":null},{\\\"target\\\":\\\"来源\\\",\\\"property\\\":\\\"source\\\",\\\"type\\\":\\\"0\\\",\\\"source\\\":null}],\\\"privateAttrs\\\":[]}]";
-        List<D2RMapperConfigBean> configBeanList = JSONArray.parseArray(str, D2RMapperConfigBean.class);
-        System.out.println(configBeanList.size());
-    }
-
     private JSONArray loadData(String dataSetId, int page, int size) {
 
-        DataOptQueryReq req = new DataOptQueryReq();
-        req.setPage(page);
-        req.setSize(size);
-        BasePage<Map<String, Object>> pageLs = kgmsClient.dataOptFindAll(Long.parseLong(dataSetId), req).getData();
-
+        ApiReturn<BasePage<Map<String, Object>>> apiReturn = kgmsClient.dataOptFindAll(Long.parseLong(dataSetId), page, size);
         JSONArray ls = new JSONArray();
-        for (Map<String, Object> data : pageLs.getContent()) {
+        for (Map<String, Object> data : apiReturn.getData().getContent()) {
             for (Map.Entry<String, Object> entry : data.entrySet()) {
                 if (entry.getValue() != null && entry.getValue() instanceof Date) {
                     String dateValue = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(entry.getValue());
