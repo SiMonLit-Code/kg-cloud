@@ -3,12 +3,14 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.req.UpdateBasicInfoFrom;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ConceptReplaceReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.GisModifyReq;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +62,9 @@ public class ConceptServiceImpl implements ConceptService {
 
     @Override
     public void replaceConceptId(String kgName, ConceptReplaceReq conceptReplaceReq) {
+        if (conceptReplaceReq.getId().equals(conceptReplaceReq.getConceptId())){
+            throw BizException.of(KgmsErrorCodeEnum.YOURSELF_NOT_AS_PARENT);
+        }
         UpdateBasicInfoFrom updateBasicInfoFrom =
                 ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(conceptReplaceReq);
         RestRespConverter.convertVoid(conceptEntityApi.update(kgName, updateBasicInfoFrom));
