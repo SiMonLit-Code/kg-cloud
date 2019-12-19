@@ -73,4 +73,6 @@ public interface GraphService {
     GraphRsp update(String userId, String id, GraphReq r);
 
 
+    String getDbName(String kgName);
+
 }

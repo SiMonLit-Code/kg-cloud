@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.edit.req.DomainFrom;
 import ai.plantdata.kg.api.edit.resp.DomainDicVO;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictReq;
 import com.plantdata.kgcloud.domain.edit.rsp.DictRsp;
@@ -37,18 +38,18 @@ public class DomainDictServiceImpl implements DomainDictService {
         //TODO 待优化
         List<DomainFrom> domainFroms =
                 dictReqs.stream().map(ConvertUtils.convert(DomainFrom.class)).collect(Collectors.toList());
-        RestRespConverter.convertVoid(domainDicApi.batchSave(kgName, domainFroms));
+        RestRespConverter.convertVoid(domainDicApi.batchSave(KGUtil.dbName(kgName), domainFroms));
     }
 
     @Override
     public void update(String kgName, String id, DictReq dictReq) {
         DomainFrom domainFrom = ConvertUtils.convert(DomainFrom.class).apply(dictReq);
-        RestRespConverter.convertVoid(domainDicApi.update(kgName, id, domainFrom));
+        RestRespConverter.convertVoid(domainDicApi.update(KGUtil.dbName(kgName), id, domainFrom));
     }
 
     @Override
     public void batchDelete(String kgName, List<String> ids) {
-        RestRespConverter.convertVoid(domainDicApi.delete(kgName, ids));
+        RestRespConverter.convertVoid(domainDicApi.delete(KGUtil.dbName(kgName), ids));
     }
 
     @Override
@@ -56,7 +57,7 @@ public class DomainDictServiceImpl implements DomainDictService {
         Integer page = baseReq.getPage();
         Integer size = baseReq.getSize();
         Integer skip = (page - 1) * size;
-        RestResp<List<DomainDicVO>> restResp = domainDicApi.list(kgName, skip, size);
+        RestResp<List<DomainDicVO>> restResp = domainDicApi.list(KGUtil.dbName(kgName), skip, size);
         Optional<List<DomainDicVO>> optional = RestRespConverter.convert(restResp);
         List<DictRsp> dictRsps =
                 optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(DictRsp.class)).collect(Collectors.toList());
