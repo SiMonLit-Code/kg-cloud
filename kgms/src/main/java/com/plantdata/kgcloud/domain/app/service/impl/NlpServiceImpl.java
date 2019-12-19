@@ -16,6 +16,7 @@ import com.plantdata.kgcloud.domain.app.converter.SegmentConverter;
 import com.plantdata.kgcloud.domain.app.dto.SegmentEntityDTO;
 import com.plantdata.kgcloud.domain.app.service.NlpService;
 import com.plantdata.kgcloud.domain.app.util.HanLPUtil;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.nlp.ModelConfig;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
@@ -177,7 +178,7 @@ public class NlpServiceImpl implements NlpService {
     private List<SegmentEntityDTO> segment(String kgName, SegmentReq segmentReq) {
         SemanticSegFrom semanticSegFrom = SegmentConverter.segmentReqToSemanticSegFrom(segmentReq);
 
-        Optional<List<SemanticSegWordVO>> segWordOpt = RestRespConverter.convert(semanticApi.seg(kgName, semanticSegFrom));
+        Optional<List<SemanticSegWordVO>> segWordOpt = RestRespConverter.convert(semanticApi.seg(KGUtil.dbName(kgName), semanticSegFrom));
 
         if (!segWordOpt.isPresent() || CollectionUtils.isEmpty(segWordOpt.get())) {
             return Collections.emptyList();
@@ -200,7 +201,7 @@ public class NlpServiceImpl implements NlpService {
                 }
             }
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, EntityConverter.buildIdsQuery(entityIdList)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList)));
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return Collections.emptyList();
         }

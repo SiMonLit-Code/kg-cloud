@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
+import ch.qos.logback.core.db.dialect.DBUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
@@ -12,6 +13,7 @@ import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -165,7 +167,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
 
     private static MongoQueryFrom buildMongoQuery(String kgName, long entityId) {
         MongoQueryFrom mongoQueryFrom = new MongoQueryFrom();
-        mongoQueryFrom.setKgName(kgName);
+        mongoQueryFrom.setKgName(KGUtil.dbName(kgName));
         mongoQueryFrom.setCollection("entity_annotation");
         Map<String, Object> map = Maps.newHashMap();
         map.put("_id", "$data_set_id");

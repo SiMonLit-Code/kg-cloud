@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphPathAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
@@ -40,7 +41,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
         analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
         //路径探索
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(kgName, pathFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(KGUtil.dbName(kgName), pathFrom));
         PathAnalysisRsp analysisRsp = new PathAnalysisRsp();
         if (!graphOpt.isPresent()) {
             return analysisRsp;
@@ -55,7 +56,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
         reasonReq = graphHelperService.keyToId(kgName, reasonReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(reasonReq);
         //路径探索
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(kgName, pathFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(KGUtil.dbName(kgName), pathFrom));
         if (!graphOpt.isPresent()) {
             return analysisRsp;
         }
@@ -71,7 +72,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
         analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
         //路径探索
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(kgName, pathFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(KGUtil.dbName(kgName), pathFrom));
         if (!graphOpt.isPresent()) {
             return analysisRsp;
         }
