@@ -164,7 +164,8 @@ public class TaskGraphServiceImpl implements TaskGraphService {
             xxlAdminClient.taskUnschedule(userId, confSearch.getTaskId());
             xxlAdminClient.taskDelete(userId, confSearch.getTaskId());
             searchRepository.deleteById(kgName);
-            List<DataSet> ls = dataSetRepository.findByDataTypeAndCreateWayAndDataNameLike(DataType.ELASTIC, "自动创建(图谱导出)", "pinyin_");
+            String dataName = "pinyin_" + kgName;
+            List<DataSet> ls = dataSetRepository.findByDataTypeAndDataName(DataType.ELASTIC, dataName);
             ls.forEach(s -> {
                 dataSetService.delete(userId, s.getId());
             });
