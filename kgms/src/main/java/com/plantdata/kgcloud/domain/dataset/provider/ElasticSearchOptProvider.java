@@ -91,12 +91,14 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             limit = size;
             queryNode.put("size", limit);
         }
-        queryNode.put("sort", DataConst.CREATE_AT);
+
         if (CollectionUtils.isEmpty(query)) {
             return queryNode;
         }
-
         for (Map.Entry<String, Object> entry : query.entrySet()) {
+            if(Objects.equals(entry.getKey(),"sort")){
+                queryNode.put("sort", DataConst.CREATE_AT);
+            }
             if (Objects.equals(entry.getKey(), "search")) {
                 Map<String, String> value = (Map<String, String>) entry.getValue();
                 for (Map.Entry<String, String> objectEntry : value.entrySet()) {
@@ -140,7 +142,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         if (!StringUtils.hasText(type)) {
             endpoint = "/" + database + "/_search";
         }
-        Request request = new Request(POST, endpoint);
+        Request request = new Request(GET, endpoint);
         ObjectNode queryNode = buildQuery(offset, limit, query);
         NStringEntity entity = new NStringEntity(queryNode.toString(), ContentType.APPLICATION_JSON);
         request.setEntity(entity);
@@ -434,6 +436,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             HttpEntity entity = response.getEntity();
             return Optional.of(EntityUtils.toString(entity));
         } catch (Exception e) {
+            e.printStackTrace();
             return Optional.empty();
         }
     }
