@@ -74,7 +74,6 @@ public class GraphServiceImpl implements GraphService {
                 .deleted(false)
                 .build();
         List<Graph> all = graphRepository.findAll(Example.of(probe), Sort.by(Sort.Direction.DESC, "createAt"));
-
         return all.stream()
                 .map(ConvertUtils.convert(GraphRsp.class))
                 .collect(Collectors.toList());
@@ -109,7 +108,8 @@ public class GraphServiceImpl implements GraphService {
         Optional<Graph> one = graphRepository.findById(graphPk);
         if (one.isPresent()) {
             Graph entity = one.get();
-            RestRespConverter.convertVoid(graphApi.delete(kgName));
+            String dbName = entity.getDbName();
+            RestRespConverter.convertVoid(graphApi.delete(dbName));
             entity.setDeleted(true);
             graphRepository.save(entity);
 
@@ -132,13 +132,13 @@ public class GraphServiceImpl implements GraphService {
         Graph target = new Graph();
         BeanUtils.copyProperties(req, target);
         String kgName = genKgName(userId);
-
+        String dbName = kgName;
         CreateGraphFrom createGraphFrom = new CreateGraphFrom();
-        createGraphFrom.setKgName(kgName);
+        createGraphFrom.setKgName(dbName);
         createGraphFrom.setDisplayName(req.getTitle());
         RestRespConverter.convertVoid(graphApi.create(createGraphFrom));
         target.setKgName(kgName);
-        target.setDbName(kgName);
+        target.setDbName(dbName);
         target.setDeleted(false);
         target.setPrivately(true);
         target.setEditable(true);
@@ -150,16 +150,17 @@ public class GraphServiceImpl implements GraphService {
     @Transactional(rollbackFor = Exception.class)
     public GraphRsp createDefault(String userId) {
         String kgName = userId + JOIN + GRAPH_PREFIX + JOIN + "default";
+        String dbName = kgName;
         GraphPk graphPk = new GraphPk(userId, kgName);
         Optional<Graph> one = graphRepository.findById(graphPk);
         return one.map(ConvertUtils.convert(GraphRsp.class)).orElseGet(() -> {
                     CopyGraphFrom copyGraphFrom = new CopyGraphFrom();
                     copyGraphFrom.setSourceKgName("default_graph");
-                    copyGraphFrom.setTargetKgName(kgName);
+                    copyGraphFrom.setTargetKgName(dbName);
                     RestRespConverter.convertVoid(graphApi.copy(copyGraphFrom));
                     Graph target = new Graph();
                     target.setKgName(kgName);
-                    target.setDbName(kgName);
+                    target.setDbName(dbName);
                     target.setTitle("示例图谱");
                     target.setDeleted(false);
                     target.setPrivately(true);
@@ -175,7 +176,8 @@ public class GraphServiceImpl implements GraphService {
         GraphPk graphPk = new GraphPk(userId, kgName);
         Graph target = graphRepository.findById(graphPk).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_NOT_EXISTS));
         BeanUtils.copyProperties(req, target);
-        RestRespConverter.convertVoid(graphApi.update(kgName, req.getTitle()));
+        String dbName = target.getDbName();
+        RestRespConverter.convertVoid(graphApi.update(dbName, req.getTitle()));
         target = graphRepository.save(target);
         return ConvertUtils.convert(GraphRsp.class).apply(target);
     }
