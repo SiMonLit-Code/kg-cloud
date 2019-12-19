@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
 import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
@@ -47,9 +48,8 @@ import java.util.List;
  * @date 2019/11/21 13:50
  */
 @RestController
-@Api(tags = "图谱应用")
 @RequestMapping("app")
-public class GraphApplicationController {
+public class GraphApplicationController implements GraphAppInterface {
 
     @Autowired
     private GraphApplicationService graphApplicationService;

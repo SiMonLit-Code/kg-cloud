@@ -4,9 +4,6 @@ import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionGroupRsp;
 import lombok.NonNull;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * @author cjw
  * @version 1.0

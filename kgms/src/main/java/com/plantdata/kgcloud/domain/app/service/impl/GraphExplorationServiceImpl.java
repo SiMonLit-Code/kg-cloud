@@ -10,7 +10,6 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.domain.app.converter.GisConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
-import com.plantdata.kgcloud.domain.app.dto.GraphAfterDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;

@@ -1,15 +1,12 @@
 package com.plantdata.kgcloud.domain.app.dto;
 
-import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author cjw

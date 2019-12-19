@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.app.MetaDataInterface;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.StyleRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -13,7 +12,6 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author cjw

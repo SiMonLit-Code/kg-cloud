@@ -1,8 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
-import com.plantdata.kgcloud.domain.edit.req.upload.RdfExportReq;
-import com.plantdata.kgcloud.domain.edit.req.upload.RdfReq;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;

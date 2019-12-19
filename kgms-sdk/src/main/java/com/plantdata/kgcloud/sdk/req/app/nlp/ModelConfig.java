@@ -11,7 +11,7 @@ import java.util.Set;
  */
 @Getter
 @Setter
-@ApiModel("边属性搜索参数")
+@ApiModel("模型配置")
 public class ModelConfig {
     private Integer id;
     private String name;

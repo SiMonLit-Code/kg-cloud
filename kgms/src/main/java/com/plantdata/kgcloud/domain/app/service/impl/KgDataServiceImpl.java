@@ -14,7 +14,6 @@ import ai.plantdata.kg.api.ql.resp.QueryResultVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
