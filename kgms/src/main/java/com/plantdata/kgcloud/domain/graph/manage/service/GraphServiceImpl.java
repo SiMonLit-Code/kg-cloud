@@ -15,6 +15,7 @@ import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -30,7 +31,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -52,13 +52,6 @@ public class GraphServiceImpl implements GraphService {
 
     @Autowired
     private UserClient userClient;
-
-    private Function<Graph, GraphRsp> graphGraphRspFunction = (v) -> {
-        GraphRsp graphRsp = new GraphRsp();
-        BeanUtils.copyProperties(v, graphRsp);
-        graphRsp.setKgName(v.getDbName());
-        return graphRsp;
-    };
 
     @Cacheable(key = "#kgName")
     public String getDbName(String kgName) {
@@ -83,7 +76,7 @@ public class GraphServiceImpl implements GraphService {
         List<Graph> all = graphRepository.findAll(Example.of(probe), Sort.by(Sort.Direction.DESC, "createAt"));
 
         return all.stream()
-                .map(graphGraphRspFunction)
+                .map(ConvertUtils.convert(GraphRsp.class))
                 .collect(Collectors.toList());
     }
 
@@ -97,14 +90,14 @@ public class GraphServiceImpl implements GraphService {
             Graph probe = Graph.builder().userId(userId).deleted(false).build();
             all = graphRepository.findAll(Example.of(probe), pageable);
         }
-        return all.map(graphGraphRspFunction);
+        return all.map(ConvertUtils.convert(GraphRsp.class));
     }
 
     @Override
     public GraphRsp findById(String userId, String kgName) {
         GraphPk graphPk = new GraphPk(userId, kgName);
         Optional<Graph> one = graphRepository.findById(graphPk);
-        return one.map(graphGraphRspFunction)
+        return one.map(ConvertUtils.convert(GraphRsp.class))
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_NOT_EXISTS));
     }
 
@@ -150,7 +143,7 @@ public class GraphServiceImpl implements GraphService {
         target.setPrivately(true);
         target.setEditable(true);
         target = graphRepository.save(target);
-        return graphGraphRspFunction.apply(target);
+        return ConvertUtils.convert(GraphRsp.class).apply(target);
     }
 
     @Override
@@ -159,7 +152,7 @@ public class GraphServiceImpl implements GraphService {
         String kgName = userId + JOIN + GRAPH_PREFIX + JOIN + "default";
         GraphPk graphPk = new GraphPk(userId, kgName);
         Optional<Graph> one = graphRepository.findById(graphPk);
-        return one.map(graphGraphRspFunction).orElseGet(() -> {
+        return one.map(ConvertUtils.convert(GraphRsp.class)).orElseGet(() -> {
                     CopyGraphFrom copyGraphFrom = new CopyGraphFrom();
                     copyGraphFrom.setSourceKgName("default_graph");
                     copyGraphFrom.setTargetKgName(kgName);
@@ -172,7 +165,7 @@ public class GraphServiceImpl implements GraphService {
                     target.setPrivately(true);
                     target.setEditable(true);
                     target = graphRepository.save(target);
-                    return graphGraphRspFunction.apply(target);
+                    return ConvertUtils.convert(GraphRsp.class).apply(target);
                 }
         );
     }
@@ -184,6 +177,6 @@ public class GraphServiceImpl implements GraphService {
         BeanUtils.copyProperties(req, target);
         RestRespConverter.convertVoid(graphApi.update(kgName, req.getTitle()));
         target = graphRepository.save(target);
-        return graphGraphRspFunction.apply(target);
+        return ConvertUtils.convert(GraphRsp.class).apply(target);
     }
 }
