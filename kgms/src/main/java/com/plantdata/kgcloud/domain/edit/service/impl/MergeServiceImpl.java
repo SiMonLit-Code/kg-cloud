@@ -9,6 +9,7 @@ import ai.plantdata.kg.api.edit.merge.WaitMergeVO;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.service.MergeService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -39,50 +40,50 @@ public class MergeServiceImpl implements MergeService {
 
     @Override
     public Set<String> allSource(String kgName) {
-        return RestRespConverter.convert(mergeApi.allSource(kgName)).orElse(Collections.emptySet());
+        return RestRespConverter.convert(mergeApi.allSource(KGUtil.dbName(kgName))).orElse(Collections.emptySet());
     }
 
     @Override
     public List<EntityMergeSourceVO> getSourceSort(String kgName) {
-        return RestRespConverter.convert(mergeApi.getSourceSort(kgName))
+        return RestRespConverter.convert(mergeApi.getSourceSort(KGUtil.dbName(kgName)))
                 .orElse(Collections.emptyList());
     }
 
     @Override
     public void saveSourceSort(String kgName, Map<Integer, String> sourceList) {
-        RestRespConverter.convertVoid(mergeApi.saveSourceSort(kgName, sourceList));
+        RestRespConverter.convertVoid(mergeApi.saveSourceSort(KGUtil.dbName(kgName), sourceList));
     }
 
     @Override
     public void mergeByObjIds(String kgName, Integer mode, List<String> objIds) {
-        RestRespConverter.convertVoid(mergeApi.mergeByObjIds(kgName, mode, objIds));
+        RestRespConverter.convertVoid(mergeApi.mergeByObjIds(KGUtil.dbName(kgName), mode, objIds));
     }
 
     @Override
     public void doMergeEntity(String kgName, String objId, MergeFinalEntityFrom save) {
-        RestRespConverter.convertVoid(mergeApi.doMergeEntity(kgName, objId, save));
+        RestRespConverter.convertVoid(mergeApi.doMergeEntity(KGUtil.dbName(kgName), objId, save));
     }
 
 
     @Override
     public String createMergeEntity(String kgName, Set<Long> ids) {
-        return RestRespConverter.convert(mergeApi.createMergeEntity(kgName, new ArrayList<>(ids)))
+        return RestRespConverter.convert(mergeApi.createMergeEntity(KGUtil.dbName(kgName), new ArrayList<>(ids)))
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.ATTRIBUTE_DEFINITION_NOT_EXISTS));
     }
 
     @Override
     public void insertMergeEntity(String kgName, String objId, List<Long> ids) {
-        RestRespConverter.convertVoid(mergeApi.insertMergeEntity(kgName, objId, ids));
+        RestRespConverter.convertVoid(mergeApi.insertMergeEntity(KGUtil.dbName(kgName), objId, ids));
     }
 
     @Override
     public void deleteMergeEntity(String kgName, String objId, Collection<Long> ids) {
-        RestRespConverter.convertVoid(mergeApi.deleteMergeEntity(kgName, objId, new ArrayList<>(ids)));
+        RestRespConverter.convertVoid(mergeApi.deleteMergeEntity(KGUtil.dbName(kgName), objId, new ArrayList<>(ids)));
     }
 
     @Override
     public Page<WaitMergeVO> waitList(String kgName, BaseReq req) {
-        RestResp<List<WaitMergeVO>> listRestResp = mergeApi.waitList(kgName, req.getOffset(), req.getLimit());
+        RestResp<List<WaitMergeVO>> listRestResp = mergeApi.waitList(KGUtil.dbName(kgName), req.getOffset(), req.getLimit());
         List<WaitMergeVO> list = RestRespConverter.convert(listRestResp).orElse(Collections.emptyList());
         Integer integer = RestRespConverter.convertCount(listRestResp).orElse(0);
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
@@ -91,18 +92,18 @@ public class MergeServiceImpl implements MergeService {
 
     @Override
     public void deleteWaitList(String kgName, List<String> ids) {
-        RestRespConverter.convertVoid(mergeApi.deleteWaitList(kgName, ids));
+        RestRespConverter.convertVoid(mergeApi.deleteWaitList(KGUtil.dbName(kgName), ids));
     }
 
     @Override
     public List<MergeEntityDetail> showEntityList(String kgName, String objId) {
-        RestResp<List<MergeEntityDetail>> listRestResp = mergeApi.showEntityList(kgName, objId);
+        RestResp<List<MergeEntityDetail>> listRestResp = mergeApi.showEntityList(KGUtil.dbName(kgName), objId);
         return RestRespConverter.convert(listRestResp).orElse(Collections.emptyList());
     }
 
     @Override
     public MergeEntity4Edit showDifferent(String kgName, String objId, Integer mode) {
-        return RestRespConverter.convert(mergeApi.showDifferent(kgName, objId, mode))
+        return RestRespConverter.convert(mergeApi.showDifferent(KGUtil.dbName(kgName), objId, mode))
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.ATTRIBUTE_DEFINITION_NOT_EXISTS));
     }
 }

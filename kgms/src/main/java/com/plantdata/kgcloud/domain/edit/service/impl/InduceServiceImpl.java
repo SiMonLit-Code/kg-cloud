@@ -8,6 +8,7 @@ import ai.plantdata.kg.api.edit.resp.InduceConceptVO;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.constant.BasicInfoType;
 import com.plantdata.kgcloud.constant.InduceType;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.domain.edit.req.induce.AttrInduceReq;
@@ -52,7 +53,7 @@ public class InduceServiceImpl implements InduceService {
 
     @Override
     public Page<AttrDefinitionVO> induceAttributeList(String kgName, AttrSearchReq attrSearchReq) {
-        RestResp<List<AutoRecommendVO>> restResp = induceApi.privateAttributeList(kgName,
+        RestResp<List<AutoRecommendVO>> restResp = induceApi.privateAttributeList(KGUtil.dbName(kgName),
                 attrSearchReq.getConceptId(), attrSearchReq.getAttrName(),
                 attrSearchReq.getType(), attrSearchReq.getPage() - 1, attrSearchReq.getSize());
         Optional<List<AutoRecommendVO>> optional = RestRespConverter.convert(restResp);
@@ -70,7 +71,7 @@ public class InduceServiceImpl implements InduceService {
 
     @Override
     public List<AttrInduceFindRsp> induceAttributeFind(String kgName, AttrInduceReq attrInduceReq) {
-        RestResp<List<AutoRecommendVO>> restResp = induceApi.findAttributeToInduce(kgName,
+        RestResp<List<AutoRecommendVO>> restResp = induceApi.findAttributeToInduce(KGUtil.dbName(kgName),
                 attrInduceReq.getConceptId(), attrInduceReq.getType(), 0D);
         Optional<List<AutoRecommendVO>> optional = RestRespConverter.convert(restResp);
         List<AttrInduceFindRsp> induceFindRsps =
@@ -88,24 +89,24 @@ public class InduceServiceImpl implements InduceService {
     public void inducePublic(String kgName, InducePublicReq inducePublicReq) {
         InduceAttributeFrom induceAttributeFrom =
                 ConvertUtils.convert(InduceAttributeFrom.class).apply(inducePublicReq);
-        RestRespConverter.convertVoid(induceApi.induceAttribute(kgName, induceAttributeFrom));
+        RestRespConverter.convertVoid(induceApi.induceAttribute(KGUtil.dbName(kgName), induceAttributeFrom));
     }
 
     @Override
     public void induceObject(String kgName, InduceObjectReq induceObjectReq) {
-        RestRespConverter.convertVoid(induceApi.instantiateAttribute(kgName, induceObjectReq.getAttributeId(),
+        RestRespConverter.convertVoid(induceApi.instantiateAttribute(KGUtil.dbName(kgName), induceObjectReq.getAttributeId(),
                 induceObjectReq.getAttributeName(), induceObjectReq.getRangeId()));
     }
 
     @Override
     public void induceMerge(String kgName, InduceMergeReq induceMergeReq) {
-        RestRespConverter.convertVoid(induceApi.mergeAttribute(kgName, induceMergeReq.getAttributeId(),
+        RestRespConverter.convertVoid(induceApi.mergeAttribute(KGUtil.dbName(kgName), induceMergeReq.getAttributeId(),
                 induceMergeReq.getSrcAttrIds(), induceMergeReq.getType()));
     }
 
     @Override
     public List<InduceConceptRsp> listInduceConcept(String kgName, Long conceptId) {
-        Optional<List<InduceConceptVO>> optional = RestRespConverter.convert(induceApi.conceptToInduce(kgName,
+        Optional<List<InduceConceptVO>> optional = RestRespConverter.convert(induceApi.conceptToInduce(KGUtil.dbName(kgName),
                 conceptId));
         //TODO 是否兼容url
         return optional.orElse(new ArrayList<>()).stream()
@@ -117,12 +118,12 @@ public class InduceServiceImpl implements InduceService {
     public void induceConcept(String kgName, InduceConceptReq induceConceptReq) {
         Long conceptId = induceConceptReq.getConceptId();
         if (Objects.isNull(conceptId)) {
-            conceptId = basicInfoService.createBasicInfo(kgName, BasicInfoReq.builder()
+            conceptId = basicInfoService.createBasicInfo(KGUtil.dbName(kgName), BasicInfoReq.builder()
                     .name(induceConceptReq.getConceptName())
                     .type(BasicInfoType.CONCEPT.getType()).build());
         }
         ExecuteInduceConceptFrom executeInduceConceptFrom =
                 ConvertUtils.convert(ExecuteInduceConceptFrom.class).apply(induceConceptReq);
-        RestRespConverter.convertVoid(induceApi.induceConcept(kgName, executeInduceConceptFrom));
+        RestRespConverter.convertVoid(induceApi.induceConcept(KGUtil.dbName(kgName), executeInduceConceptFrom));
     }
 }
