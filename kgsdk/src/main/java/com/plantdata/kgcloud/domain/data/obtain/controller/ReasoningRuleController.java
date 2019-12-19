@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.data.obtain.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.KgmsClient;
@@ -9,7 +10,6 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,8 +32,8 @@ public class ReasoningRuleController implements GraphDataObtainInterface {
 
     @GetMapping("{kgName}")
     @ApiOperation("推理规则列表")
-    public ApiReturn<Page<GraphConfReasonRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                          BaseReq baseReq) {
+    public ApiReturn<BasePage<GraphConfReasonRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                              BaseReq baseReq) {
         return kgmsClient.selectReasoningPage(kgName, baseReq);
     }
 

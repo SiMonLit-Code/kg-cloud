@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.data.obtain.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
@@ -10,7 +11,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,10 +37,10 @@ public class GraphRuleController implements GraphDataObtainInterface {
 
     @GetMapping("{kgName}/{type}")
     @ApiOperation("业务规则列表")
-    public ApiReturn<Page<GraphConfKgqlRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                        @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
-                                                        PageReq pageReq) {
-        return kgmsClient.selectKgql(kgName,pageReq);
+    public ApiReturn<BasePage<GraphConfKgqlRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                            @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
+                                                            PageReq pageReq) {
+        return kgmsClient.selectKgql(kgName, pageReq);
     }
 
     @ApiOperation("业务规则详情")
@@ -53,7 +53,7 @@ public class GraphRuleController implements GraphDataObtainInterface {
     @ApiOperation("业务规则或者gis规则新增")
     @PostMapping("/kgql/{kgName}")
     public ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req) {
-        return kgmsClient.saveKgql(kgName,req);
+        return kgmsClient.saveKgql(kgName, req);
     }
 
     @ApiOperation("业务规则删除")
