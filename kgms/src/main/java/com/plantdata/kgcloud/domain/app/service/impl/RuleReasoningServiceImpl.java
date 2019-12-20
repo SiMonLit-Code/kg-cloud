@@ -16,6 +16,7 @@ import com.plantdata.kgcloud.domain.app.bo.ReasoningBO;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.dto.RelationReasonRuleDTO;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepository;
@@ -75,7 +76,7 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
     }
 
     private void reasoningAndFill(String kgName, GraphVO graphVO, ReasoningReq reasoningReq) {
-        Optional<ReasoningResultRsp> resultOpt = RestRespConverter.convert(reasoningApi.reasoning(kgName, reasoningReq));
+        Optional<ReasoningResultRsp> resultOpt = RestRespConverter.convert(reasoningApi.reasoning(KGUtil.dbName(kgName), reasoningReq));
         resultOpt.ifPresent(reasoningResultRsp -> this.fillReasonEntityAndRelation(kgName, graphVO, reasoningResultRsp, false));
     }
 
@@ -114,7 +115,7 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
         if (idList.isEmpty() || !newEntity) {
             return;
         }
-        Optional<List<EntityVO>> entityBeans = RestRespConverter.convert(entityApi.serviceEntity(kgName, EntityConverter.buildIdsQuery(idList)));
+        Optional<List<EntityVO>> entityBeans = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(idList)));
         if (!entityBeans.isPresent() || CollectionUtils.isEmpty(entityBeans.get())) {
             return;
         }

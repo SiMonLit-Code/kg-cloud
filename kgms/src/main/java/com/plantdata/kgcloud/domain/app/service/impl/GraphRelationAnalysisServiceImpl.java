@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphRelationAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
@@ -43,7 +44,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationAnalysisRsp analysisRsp = new RelationAnalysisRsp();
         //执行分析
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(kgName, relationFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(KGUtil.dbName(kgName), relationFrom));
         if (!graphOpt.isPresent()) {
             return analysisRsp;
         }
@@ -57,7 +58,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationTimingAnalysisRsp analysisRsp = new RelationTimingAnalysisRsp();
         //执行分析
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(kgName, relationFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(KGUtil.dbName(kgName), relationFrom));
         if (!graphOpt.isPresent()) {
             return analysisRsp;
         }
@@ -71,7 +72,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationReasoningAnalysisRsp analysisRsp = new RelationReasoningAnalysisRsp();
         //执行分析
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(kgName, relationFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(KGUtil.dbName(kgName), relationFrom));
         if (!graphOpt.isPresent()) {
             return analysisRsp;
         }

@@ -32,7 +32,7 @@ public class DataSetController implements SdkOpenApiInterface {
 
     @ApiOperation("读取数据集")
     @PostMapping("read")
-    public ApiReturn<RestData<Map<String, Object>>> searchDataSet(NameReadReq nameReadReq) {
+    public ApiReturn<RestData<Map<String, Object>>> searchDataSet(@RequestBody NameReadReq nameReadReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(kgDataService.searchDataSet(userId, nameReadReq));
     }
