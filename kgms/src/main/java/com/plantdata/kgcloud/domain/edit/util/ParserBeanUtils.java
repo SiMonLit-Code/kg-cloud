@@ -6,13 +6,11 @@ import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
-import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.edit.vo.ObjectAttrValueVO;
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.util.JacksonUtils;
-import org.springframework.cglib.beans.BeanMap;
-import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
@@ -104,7 +102,8 @@ public class ParserBeanUtils {
 
             if (entityMetaData.containsKey(MetaDataInfo.TAG.getFieldName())) {
                 basicInfoRsp.setTags(JacksonUtils.readValue(JacksonUtils.writeValueAsString(
-                        entityMetaData.get(MetaDataInfo.TAG.getFieldName())),new TypeReference<List<EntityTagVO>>(){}));
+                        entityMetaData.get(MetaDataInfo.TAG.getFieldName())), new TypeReference<List<EntityTagVO>>() {
+                }));
             }
             //设置gis
             GisVO gisVO = new GisVO();
@@ -126,7 +125,8 @@ public class ParserBeanUtils {
             if (entityMetaData.containsKey(MetaDataInfo.ENTITY_LINK.getFieldName())) {
                 basicInfoRsp.setEntityLinks(JacksonUtils.readValue(JacksonUtils.writeValueAsString(
                         entityMetaData.get(MetaDataInfo.ENTITY_LINK.getFieldName())),
-                        new TypeReference<Set<EntityLinkVO>>(){}));
+                        new TypeReference<Set<EntityLinkVO>>() {
+                        }));
             }
         }
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
@@ -138,6 +138,10 @@ public class ParserBeanUtils {
                     List<ObjectAttrValueVO> relationAttrValues = objectValues.stream()
                             .map(ParserBeanUtils::parserRelationValue).collect(Collectors.toList());
                     entityAttrValueVO.setObjectValues(relationAttrValues);
+                    entityAttrValueVO.setType(1);
+                }
+                if (Objects.isNull(entityAttrValueVO.getId())) {
+                    entityAttrValueVO.setType(0);
                 }
             }).collect(Collectors.toList());
             basicInfoRsp.setAttrValue(entityAttrValues);
