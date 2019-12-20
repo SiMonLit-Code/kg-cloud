@@ -54,7 +54,7 @@ public class GraphConfReasonController {
     }
 
     @ApiOperation("图谱配置-推理-更新")
-    @PatchMapping("/reason/{id}")
+    @PutMapping("/reason/{id}")
     public ApiReturn<GraphConfReasonRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasonReq req) {
         return ApiReturn.success(graphConfReasoningService.updateReasoning(id, req));
     }
