@@ -52,7 +52,7 @@ public class AttributeController implements GraphDataObtainInterface {
     @ApiOperation("属性定义-查询")
     @GetMapping("{kgName}")
     public ApiReturn<List<AttrDefinitionRsp>> attribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        AttrDefinitionConceptsReq queryReq) {
+                                                         AttrDefinitionConceptsReq queryReq) {
         return editClient.getAttrDefinitionByConceptIds(kgName, queryReq);
     }
 
