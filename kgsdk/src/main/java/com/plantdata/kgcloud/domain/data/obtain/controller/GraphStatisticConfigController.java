@@ -32,7 +32,7 @@ public class GraphStatisticConfigController implements GraphDataObtainInterface 
     @Autowired
     private KgmsClient kgmsClient;
 
-    @ApiOperation("获取统计配置列表")
+    @ApiOperation("统计配置-获取列表")
     @GetMapping("{kgName}")
     public ApiReturn<List<GraphConfStatisticalRsp>> configList(@ApiParam("图谱名称") @PathVariable("kgName") String kgName) {
 
@@ -40,42 +40,42 @@ public class GraphStatisticConfigController implements GraphDataObtainInterface 
     }
 
 
-    @ApiOperation("批量新增统计配置")
+    @ApiOperation("统计配置-批量新增")
     @PostMapping("batch")
     public ApiReturn<List<GraphConfStatisticalRsp>> batchAdd(@RequestBody List<GraphConfStatisticalReq> listReq) {
 
         return kgmsClient.saveStatisticalBatch(listReq);
     }
 
-    @ApiOperation("批量修改统计配置")
+    @ApiOperation("统计配置-批量修改")
     @PatchMapping("batch")
     public ApiReturn<List<GraphConfStatisticalRsp>> batchModify(@RequestBody List<GraphConfStatisticalReq> reqList) {
 
         return kgmsClient.updateStatisticalBatch(reqList);
     }
 
-    @ApiOperation("批量删除统计配置")
+    @ApiOperation("统计配置-批量删除")
     @DeleteMapping("batch")
     public ApiReturn batchRemove(@RequestParam("ids") List<Long> ids) {
 
         return kgmsClient.deleteStatisticalBatch(ids);
     }
 
-    @ApiOperation("新增统计配置")
+    @ApiOperation("统计配置-新增")
     @PostMapping("{kgName}")
     public ApiReturn<GraphConfStatisticalRsp> add(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                   @RequestBody GraphConfStatisticalReq config) {
         return kgmsClient.saveStatistical(kgName, config);
     }
 
-    @ApiOperation("修改统计配置")
+    @ApiOperation("统计配置-修改")
     @PatchMapping("{id}")
     public ApiReturn<GraphConfStatisticalRsp> modify(@ApiParam("配置id") @PathVariable("id") Long id,
                                                      @RequestBody GraphConfStatisticalReq config) {
         return kgmsClient.updateStatistical(id, config);
     }
 
-    @ApiOperation("删除统计配置")
+    @ApiOperation("统计配置-删除")
     @DeleteMapping("{id}")
     public ApiReturn remove(@ApiParam("配置id") @PathVariable("id") Long id) {
         return kgmsClient.deleteStatistical(id);

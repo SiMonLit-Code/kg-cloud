@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -284,6 +285,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-KGQL-查询
+     *
      * @param kgName
      * @param ruleType
      * @param baseReq
@@ -291,7 +293,7 @@ public interface KgmsClient {
      */
     @GetMapping("config/kgql/{kgName}/{ruleType}")
     ApiReturn<BasePage<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, @PathVariable("ruleType") Integer ruleType,
-                                                 BaseReq baseReq);
+                                                     BaseReq baseReq);
 
     /**
      * 图谱配置-KGQL-详情
@@ -374,7 +376,7 @@ public interface KgmsClient {
      * @param ids
      * @return
      */
-    @PatchMapping("/config/statistical/batch")
+    @PutMapping("/config/statistical/batch")
     ApiReturn deleteStatisticalBatch(@RequestBody List<Long> ids);
 
     /**

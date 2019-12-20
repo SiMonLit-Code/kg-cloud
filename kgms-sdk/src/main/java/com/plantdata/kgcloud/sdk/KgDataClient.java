@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
@@ -10,6 +11,7 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdR
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
+import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -124,4 +126,14 @@ public interface KgDataClient {
     @PostMapping("concept/{kgName}")
     ApiReturn<Long> createConcept(@PathVariable("kgName") String kgName,
                                   @Valid @RequestBody ConceptAddReq conceptAddReq);
+
+    /**
+     * 根据概念查询属性定义
+     *
+     * @param kgName   。
+     * @param queryReq 。
+     * @return 。
+     */
+    @PostMapping("/{kgName}/attribute/search")
+    ApiReturn<List<AttrDefinitionRsp>> searchAttrDefByConcept(@PathVariable("kgName") String kgName, @RequestBody AttrDefQueryReq queryReq);
 }
