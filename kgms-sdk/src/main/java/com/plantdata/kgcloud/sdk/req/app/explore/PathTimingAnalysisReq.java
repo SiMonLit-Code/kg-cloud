@@ -25,7 +25,7 @@ import java.util.List;
 public class PathTimingAnalysisReq extends BasicGraphExploreReq implements GraphPathReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
-    @ApiModelProperty("路径")
+    @ApiModelProperty(value = "路径", required = true)
     private CommonPathReq path;
     @ApiModelProperty("时间参数过滤")
     private TimeFilterExploreReq timeFilters;

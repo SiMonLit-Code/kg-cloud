@@ -23,7 +23,7 @@ import java.util.List;
 public class RelationReqAnalysisReq extends BasicGraphExploreReq implements GraphRelationReqInterface {
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
-    @ApiModelProperty("关联搜索参数")
+    @ApiModelProperty(value = "关联搜索参数", required = true)
     private CommonRelationReq relation;
 
     @Override

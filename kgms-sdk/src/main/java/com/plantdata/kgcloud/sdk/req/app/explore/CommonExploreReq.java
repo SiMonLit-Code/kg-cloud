@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphCommonReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +24,7 @@ import java.util.Set;
 @Setter
 public class CommonExploreReq extends BasicGraphExploreReq implements GraphCommonReqInterface, SecondaryScreeningInterface {
 
+    @ApiModelProperty(value = "通用参数", required = true)
     @NotNull
     private CommonFiltersReq common;
 

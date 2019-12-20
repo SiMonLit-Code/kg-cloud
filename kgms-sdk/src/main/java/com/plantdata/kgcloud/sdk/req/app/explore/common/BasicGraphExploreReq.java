@@ -33,7 +33,7 @@ public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyR
     private int distance = 1;
     @ApiModelProperty("是否关系合并")
     private boolean relationMerge;
-    @ApiModelProperty("allowTypes字段指定的概念是否继承")
+    @ApiModelProperty(value = "allowTypes字段指定的概念是否继承",required = true)
     private boolean isInherit;
     @ApiModelProperty("在指定属性范围内查询")
     private List<Integer> allowAttrs;

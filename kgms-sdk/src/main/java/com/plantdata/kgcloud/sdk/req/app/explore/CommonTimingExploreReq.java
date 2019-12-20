@@ -28,7 +28,7 @@ import java.util.Set;
 @Setter
 public class CommonTimingExploreReq extends BasicGraphExploreReq implements GraphCommonReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
     @NotNull
-    @ApiModelProperty("普通参数")
+    @ApiModelProperty(value = "普通参数", required = true)
     private CommonFiltersReq common;
     @ApiModelProperty("时间参数过滤")
     private TimeFilterExploreReq timeFilters;

@@ -24,7 +24,7 @@ import java.util.Map;
 @ApiModel("关联推理分析视图")
 public class RelationReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphRelationReqInterface {
 
-    @ApiModelProperty("关联搜索参数")
+    @ApiModelProperty(value = "关联搜索参数", required = true)
     private CommonRelationReq relation;
     @ApiModelProperty("推理规则")
     private Map<Integer, JsonNode> reasoningRuleConfigs;

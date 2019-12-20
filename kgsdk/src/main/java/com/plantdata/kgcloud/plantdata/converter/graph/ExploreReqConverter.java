@@ -161,7 +161,7 @@ public class ExploreReqConverter extends BasicConverter {
         entityRsp.setNodeStyle(entityBean.getNodeStyle());
         entityRsp.setLabelStyle(entityBean.getLabelStyle());
         entityRsp.setScore(entityBean.getScore());
-        entityRsp.setType(executeIfNoNull(entityBean.getType(), EntityTypeEnum::parseById));
+        entityRsp.setType(entityBean.getType());
         entityRsp.setTags(listToRsp(entityBean.getTags(), ExploreReqConverter::tagToTagRsp));
         if (entityBean.getAdditionalInfo() != null) {
             entityRsp.setOpenGis(entityBean.getAdditionalInfo().getIsOpenGis());

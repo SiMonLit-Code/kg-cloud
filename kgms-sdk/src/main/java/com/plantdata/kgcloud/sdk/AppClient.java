@@ -39,6 +39,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -120,9 +121,9 @@ public interface AppClient {
      * @return List
      */
     @GetMapping("concept/{kgName}")
-    ApiReturn<List<BasicConceptRsp>> conceptTree(@PathVariable("kgName") String kgName,
-                                                 @RequestParam("conceptId") Long conceptId,
-                                                 @RequestParam("conceptKey") String conceptKey);
+    ApiReturn<List<BasicInfoVO>> conceptTree(@PathVariable("kgName") String kgName,
+                                             @RequestParam("conceptId") Long conceptId,
+                                             @RequestParam("conceptKey") String conceptKey);
 
     /**
      * 获取所有图谱名称

@@ -37,7 +37,7 @@ public class DataSetController implements SdkOpenApiInterface {
         return ApiReturn.success(kgDataService.searchDataSet(userId, nameReadReq));
     }
 
-    @ApiOperation("新增数据集")
+    @ApiOperation("向数据集中新增数据")
     @PostMapping("name")
     public ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq) {
         String userId = SessionHolder.getUserId();

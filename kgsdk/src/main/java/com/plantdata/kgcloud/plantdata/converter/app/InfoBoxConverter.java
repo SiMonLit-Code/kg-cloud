@@ -51,7 +51,7 @@ public class InfoBoxConverter extends BasicConverter {
         setIfNoNull(entityLinksRsp.getImg(), a -> oldBean.setImg(a.getHref()));
         oldBean.setMeaningTag(entityLinksRsp.getMeaningTag());
         oldBean.setName(entityLinksRsp.getName());
-        setIfNoNull(entityLinksRsp.getType(), a -> oldBean.setType(a.getValue()));
+        setIfNoNull(entityLinksRsp.getType(), oldBean::setType);
         oldBean.setTags(listToRsp(entityLinksRsp.getTags(), a -> copy(a, Tag.class)));
         oldBean.setDataLinks(listToRsp(entityLinksRsp.getDataLinks(), InfoBoxConverter::dataLinkRspToDataLinks));
         List<EntityLink> entityLinks = listToRsp(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));

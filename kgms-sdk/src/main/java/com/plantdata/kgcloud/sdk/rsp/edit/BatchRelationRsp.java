@@ -12,7 +12,7 @@ import java.util.Map;
  * @Description:
  */
 @Data
-@ApiModel("批量关系新建结果.")
+@ApiModel("批量关系新建结果模型")
 public class BatchRelationRsp {
     @ApiModelProperty("属性定义id")
     private Integer attrId;
