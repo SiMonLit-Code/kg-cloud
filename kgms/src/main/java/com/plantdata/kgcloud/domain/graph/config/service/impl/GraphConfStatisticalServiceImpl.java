@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -118,8 +117,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
 
     @Override
     public Page<GraphConfStatisticalRsp> getByKgName(String kgName, BaseReq baseReq) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
-        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(),sort);
+        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
         Page<GraphConfStatistical> all = graphConfStatisticalRepository.getByKgName(kgName, pageable);
         return all.map(ConvertUtils.convert(GraphConfStatisticalRsp.class));
     }
