@@ -437,6 +437,7 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public void addEdgeNumericAttrValue(String kgName, EdgeNumericAttrValueReq edgeNumericAttrValueReq) {
         EdgeValueFrom edgeValueFrom = ConvertUtils.convert(EdgeValueFrom.class).apply(edgeNumericAttrValueReq);
+        edgeValueFrom.setObjId(edgeNumericAttrValueReq.getTripleId());
         RestRespConverter.convertVoid(conceptEntityApi.addEdgeNumericAttrValue(KGUtil.dbName(kgName), edgeValueFrom));
     }
 
