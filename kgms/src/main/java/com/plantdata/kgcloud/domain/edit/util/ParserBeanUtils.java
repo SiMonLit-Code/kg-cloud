@@ -85,6 +85,14 @@ public class ParserBeanUtils {
                 basicInfoRsp.setBatch((String) entityMetaData.get(MetaDataInfo.BATCH_NO.getFieldName()));
             }
 
+            if (entityMetaData.containsKey(MetaDataInfo.FROM_TIME.getFieldName())) {
+                basicInfoRsp.setFromTime((String) entityMetaData.get(MetaDataInfo.FROM_TIME.getFieldName()));
+            }
+
+            if (entityMetaData.containsKey(MetaDataInfo.TO_TIME.getFieldName())) {
+                basicInfoRsp.setToTime((String) entityMetaData.get(MetaDataInfo.TO_TIME.getFieldName()));
+            }
+
             if (entityMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
                 basicInfoRsp.setReliability((Double) entityMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()));
             }
