@@ -80,7 +80,7 @@ public class ModelServiceImpl implements ModelService {
 
         pageNo = (pageNo - 1) * pageSize;
         pageSize = Math.min(pageNo + pageSize, ls.size());
-        return new BasePage<>(ls.size(), ls.subList(pageNo, pageSize));
+        return new BasePage<>(ls.size(), ls.isEmpty() ? new ArrayList<>() : ls.subList(pageNo, pageSize));
     }
 
     @Override
