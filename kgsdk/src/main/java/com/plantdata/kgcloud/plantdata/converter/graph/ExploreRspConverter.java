@@ -54,7 +54,7 @@ public class ExploreRspConverter extends BasicConverter {
         oldEntity.setNodeStyle(newEntity.getNodeStyle());
         oldEntity.setLabelStyle(newEntity.getLabelStyle());
         oldEntity.setScore(newEntity.getScore());
-        oldEntity.setType(newEntity.getType().getValue());
+        oldEntity.setType(newEntity.getType());
         oldEntity.setTags(listToRsp(newEntity.getTags(), a -> copy(a, Tag.class)));
         Additional additional = new Additional();
         //暂时不管

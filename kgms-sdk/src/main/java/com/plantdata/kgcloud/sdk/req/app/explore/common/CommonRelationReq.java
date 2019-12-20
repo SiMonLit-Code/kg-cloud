@@ -19,7 +19,7 @@ import java.util.List;
 @Setter
 @ApiModel("关联分析通用参数")
 public class CommonRelationReq {
-    @ApiModelProperty("分析实例列表，json数组格式")
+    @ApiModelProperty(value = "分析实例列表，json数组格式",required = true)
     @NotNull
     @Max.List(@Max(2))
     private List<Long> ids;

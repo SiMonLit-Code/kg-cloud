@@ -28,7 +28,7 @@ import java.util.Set;
 @Setter
 public class CommonReasoningExploreReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphCommonReqInterface, SecondaryScreeningInterface {
 
-    @ApiModelProperty("通用参数")
+    @ApiModelProperty(value = "通用参数", required = true)
     private CommonFiltersReq common;
     @ApiModelProperty("推理规则")
     private Map<Integer, JsonNode> reasoningRuleConfigs;

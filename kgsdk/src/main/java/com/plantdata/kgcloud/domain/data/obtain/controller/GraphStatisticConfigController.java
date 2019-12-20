@@ -26,7 +26,7 @@ import java.util.List;
  * @date 2019/11/15 16:01
  */
 @RestController
-@RequestMapping("v3/kgData/statisticConfig")
+@RequestMapping("v3/kgdata/statisticConfig")
 public class GraphStatisticConfigController implements GraphDataObtainInterface {
 
     @Autowired

@@ -25,7 +25,7 @@ public class PathAnalysisReq extends BasicGraphExploreReq implements GraphPathRe
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
     @NotNull
-    @ApiModelProperty("路径")
+    @ApiModelProperty(value = "路径", required = true)
     private CommonPathReq path;
 
     @Override

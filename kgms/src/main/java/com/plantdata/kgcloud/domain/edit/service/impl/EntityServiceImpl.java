@@ -31,6 +31,7 @@ import com.plantdata.kgcloud.constant.TaskType;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
+import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
@@ -68,6 +69,7 @@ import com.plantdata.kgcloud.producer.KafkaMessageProducer;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -420,10 +422,10 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public void addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
+    public String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom));
+        return RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom)).get();
     }
 
     @Override
@@ -435,6 +437,7 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public void addEdgeNumericAttrValue(String kgName, EdgeNumericAttrValueReq edgeNumericAttrValueReq) {
         EdgeValueFrom edgeValueFrom = ConvertUtils.convert(EdgeValueFrom.class).apply(edgeNumericAttrValueReq);
+        edgeValueFrom.setObjId(edgeNumericAttrValueReq.getTripleId());
         RestRespConverter.convertVoid(conceptEntityApi.addEdgeNumericAttrValue(KGUtil.dbName(kgName), edgeValueFrom));
     }
 
@@ -494,16 +497,16 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public List<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update,
-                                                     List<OpenBatchSaveEntityRsp> batchEntity) {
+    public OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean add,
+                                                                List<OpenBatchSaveEntityRsp> batchEntity) {
         List<BatchEntityVO> entityList = batchEntity.stream()
                 .map(a -> ConvertUtils.convert(BatchEntityVO.class).apply(a))
                 .collect(Collectors.toList());
-        Optional<BatchResult<BatchEntityVO>> entityOpt = RestRespConverter.convert(batchApi.addEntities(KGUtil.dbName(kgName),
-                update, entityList));
-        return entityOpt.map(result -> result.getSuccess().stream()
-                .map(a -> ConvertUtils.convert(OpenBatchSaveEntityRsp.class).apply(a))
-                .collect(Collectors.toList())).orElse(Collections.emptyList());
+
+        Optional<BatchResult<BatchEntityVO>> editOpt = RestRespConverter.convert(batchApi.addEntities(KGUtil.dbName(kgName),
+                add, entityList));
+        return editOpt.map(result -> RestCopyConverter.copyToBatchResult(result, OpenBatchSaveEntityRsp.class))
+                .orElseGet(OpenBatchResult::empty);
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import org.springframework.data.domain.Page;
@@ -195,7 +196,7 @@ public interface EntityService {
      * @param kgName
      * @param privateAttrDataReq
      */
-    void addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq);
+    String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq);
 
     /**
      * 批量删除私有数值或对象属性值
@@ -258,7 +259,7 @@ public interface EntityService {
 
     List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq);
 
-    List<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity);
+    OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity);
 
     void batchDeleteEntityAttr(String kgName, BatchEntityAttrDeleteReq deleteReq);
 }

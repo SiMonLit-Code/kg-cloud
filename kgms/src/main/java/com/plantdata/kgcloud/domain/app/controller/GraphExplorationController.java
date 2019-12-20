@@ -54,7 +54,8 @@ public class GraphExplorationController implements SdkOpenApiInterface {
     @ApiOperation("初始化图探索数据")
     @PostMapping("init/{kgName}")
     public ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @ApiParam(value = "图类型", required = true) @RequestParam("type") String type) throws JsonProcessingException {
+                                                        @ApiParam(value = "图类型 graph,path,relation,timing,pathtiming,relationtiming,explore", required = true)
+                                                        @RequestParam("type") String type) throws JsonProcessingException {
         Optional<GraphInitBaseEnum> enumObject = EnumUtils.getEnumObject(GraphInitBaseEnum.class, type);
         if (!enumObject.isPresent()) {
             throw BizException.of(AppErrorCodeEnum.GRAPH_TYPE_ERROR);
@@ -87,7 +88,7 @@ public class GraphExplorationController implements SdkOpenApiInterface {
     @ApiOperation("普通图探索")
     @PostMapping("common/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                        @RequestBody  @Valid CommonExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
+                                                                        @RequestBody @Valid CommonExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
         Optional<CommonBasicGraphExploreRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, exploreParam, new CommonBasicGraphExploreRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphExplorationService.commonGraphExploration(kgName, exploreParam)));
     }

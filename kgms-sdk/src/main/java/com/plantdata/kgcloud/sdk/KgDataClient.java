@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
+import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +26,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/7 14:02
  */
-@FeignClient(value = "kgms", path = "kgData", contextId = "kgDataClient")
+@FeignClient(value = "kgms", path = "kgdata", contextId = "kgDataClient")
 public interface KgDataClient {
 
     /**
@@ -111,4 +113,15 @@ public interface KgDataClient {
      */
     @PostMapping("dataset/dataname")
     ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq);
+
+    /**
+     * 查询概念
+     *
+     * @param kgName        图谱名称
+     * @param conceptAddReq req
+     * @return 。
+     */
+    @PostMapping("concept/{kgName}")
+    ApiReturn<Long> createConcept(@PathVariable("kgName") String kgName,
+                                  @Valid @RequestBody ConceptAddReq conceptAddReq);
 }
