@@ -12,6 +12,10 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
+import com.plantdata.kgcloud.sdk.rsp.edit.EntityModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
@@ -303,10 +307,8 @@ public class EntityController {
 
     @ApiOperation("实体编辑-批量新增或更新实体")
     @PostMapping("/{kgName}")
-    public ApiReturn<List<OpenBatchSaveEntityRsp>> saveOrUpdate(
-            @PathVariable("kgName") String kgName,
-            @ApiParam("是否只是更新，默认不是") boolean add,
-            @RequestBody List<OpenBatchSaveEntityRsp> batchEntity) {
+    public ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName, @ApiParam(
+            "是否只是更新，默认不是") boolean add, @RequestBody List<OpenBatchSaveEntityRsp> batchEntity) {
         return ApiReturn.success(entityService.saveOrUpdate(kgName, add, batchEntity));
     }
 

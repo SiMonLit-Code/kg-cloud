@@ -26,7 +26,6 @@ import javax.validation.Valid;
  * @version 1.0
  * @date 2019/11/12 11:37
  */
-@Api(tags = "关联分析")
 @RestController
 @RequestMapping("app/graphExplore/relation")
 public class GraphRelationAnalysisController {

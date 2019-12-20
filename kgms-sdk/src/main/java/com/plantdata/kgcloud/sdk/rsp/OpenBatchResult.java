@@ -1,8 +1,12 @@
 package com.plantdata.kgcloud.sdk.rsp;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,8 +16,17 @@ import java.util.List;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class OpenBatchResult<T> {
 
     private List<T> success;
     private List<T> error;
+
+    public static <T> OpenBatchResult<T> empty() {
+        OpenBatchResult<T> openBatchResult = new OpenBatchResult<T>();
+        openBatchResult.setError(Collections.emptyList());
+        openBatchResult.setSuccess(Collections.emptyList());
+        return openBatchResult;
+    }
 }

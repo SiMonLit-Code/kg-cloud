@@ -18,11 +18,11 @@ import javax.validation.constraints.NotNull;
 @ApiModel("边属性搜索参数")
 public class EdgeAttrPromptReq extends BaseReq {
     @NotNull
-    @ApiModelProperty("属性定义id")
+    @ApiModelProperty(value = "属性定义id", required = true)
     private Integer attrId;
     @ApiModelProperty("属性定义唯一标识")
     private String attrKey;
-    @ApiModelProperty("属性值id")
+    @ApiModelProperty(value = "边属性id")
     private Integer seqNo;
     @ApiModelProperty("是否为保留字段：1是，0不是")
     @Min(0)

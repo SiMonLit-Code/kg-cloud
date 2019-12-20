@@ -31,6 +31,7 @@ import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.WordRsp;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -259,7 +260,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PostMapping("/kgql/{kgName}")
+    @PostMapping("config/kgql/{kgName}")
     ApiReturn<GraphConfKgqlRsp> saveKgql(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req);
 
     /**
@@ -283,13 +284,14 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-KGQL-查询
-     *
      * @param kgName
+     * @param ruleType
      * @param baseReq
      * @return
      */
-    @GetMapping("/config/kgql/{kgName}")
-    ApiReturn<BasePage<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, PageReq baseReq);
+    @GetMapping("config/kgql/{kgName}/{ruleType}")
+    ApiReturn<BasePage<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, @PathVariable("ruleType") Integer ruleType,
+                                                 BaseReq baseReq);
 
     /**
      * 图谱配置-KGQL-详情
@@ -297,7 +299,7 @@ public interface KgmsClient {
      * @param id
      * @return
      */
-    @GetMapping("/kgql/{id}")
+    @GetMapping("config/kgql/detail/{id}")
     ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id);
 
     /**
@@ -411,7 +413,7 @@ public interface KgmsClient {
      * @param baseReq
      * @return
      */
-    @GetMapping("/config/reason/{kgName}")
+    @GetMapping("/config/reason/page/{kgName}")
     ApiReturn<BasePage<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     /**

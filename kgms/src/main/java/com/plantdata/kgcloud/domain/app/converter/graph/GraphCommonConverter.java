@@ -183,7 +183,7 @@ public class GraphCommonConverter extends BasicConverter {
         graphEntityRsp.setId(simpleEntity.getId());
         graphEntityRsp.setConceptId(simpleEntity.getConceptId());
         graphEntityRsp.setName(simpleEntity.getName());
-        graphEntityRsp.setType(EntityTypeEnum.parseById(simpleEntity.getType()));
+        graphEntityRsp.setType(simpleEntity.getType());
         graphEntityRsp.setMeaningTag(simpleEntity.getMeaningTag());
         Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(simpleEntity.getImageUrl());
         imageRsp.ifPresent(graphEntityRsp::setImg);

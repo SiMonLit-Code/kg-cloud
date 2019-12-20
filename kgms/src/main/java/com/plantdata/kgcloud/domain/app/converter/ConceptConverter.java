@@ -1,10 +1,13 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.kg.api.edit.req.BasicInfoFrom;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
+import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
+import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
@@ -29,6 +32,16 @@ public class ConceptConverter {
 
     public static String getKgTittle(@NonNull List<BasicInfo> conceptList) {
         return conceptList.stream().filter(a -> a.getConceptId() == null || a.getId() == 0).findFirst().orElse(new BasicInfo()).getName();
+    }
+
+    public static BasicInfoFrom conceptAddReqToBasicInfoFrom(@NonNull ConceptAddReq addReq) {
+        BasicInfoFrom basicInfoFrom = new BasicInfoFrom();
+        basicInfoFrom.setName(addReq.getName());
+        basicInfoFrom.setConceptId(addReq.getParentId());
+        basicInfoFrom.setKey(addReq.getKey());
+        basicInfoFrom.setMeaningTag(addReq.getMeaningTag());
+        basicInfoFrom.setType(EntityTypeEnum.CONCEPT.getValue());
+        return basicInfoFrom;
     }
 
     public static List<BaseConceptRsp> voToRsp(@NonNull List<BasicInfo> conceptList) {

@@ -82,8 +82,8 @@ public class GraphApplicationController implements GraphAppInterface {
     @ApiOperation("获取概念树")
     @GetMapping("concept/{kgName}")
     public ApiReturn<List<BasicInfoVO>> conceptTree(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                    @ApiParam("概念id 0或不传查询全部") @RequestParam("conceptId") Long conceptId,
-                                                    @ApiParam("概念唯一标识概念id为null时有效") @RequestParam("conceptKey") String conceptKey) {
+                                                    @ApiParam("概念id 0或不传查询全部") @RequestParam(value = "conceptId", required = false) Long conceptId,
+                                                    @ApiParam("概念唯一标识概念id为null时有效") @RequestParam(value = "conceptKey", required = false) String conceptKey) {
         return ApiReturn.success(graphApplicationService.conceptTree(kgName, conceptId, conceptKey));
     }
 

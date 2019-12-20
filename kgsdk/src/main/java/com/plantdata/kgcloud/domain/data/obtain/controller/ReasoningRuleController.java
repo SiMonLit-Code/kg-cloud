@@ -25,12 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2019/11/14 12:02
  */
 @RestController
-@RequestMapping("v3/kgData/reasoningRule")
+@RequestMapping("v3/kgdata/reasoningRule")
 public class ReasoningRuleController implements GraphDataObtainInterface {
     @Autowired
     private KgmsClient kgmsClient;
 
-    @GetMapping("{kgName}")
+    @GetMapping("page/{kgName}")
     @ApiOperation("推理规则列表")
     public ApiReturn<BasePage<GraphConfReasonRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                               BaseReq baseReq) {
@@ -38,7 +38,7 @@ public class ReasoningRuleController implements GraphDataObtainInterface {
     }
 
     @ApiOperation("推理规则详情")
-    @GetMapping("{id}")
+    @GetMapping("detail/{id}")
     public ApiReturn<GraphConfReasonRsp> detail(@ApiParam("规则id") @PathVariable("id") Long id) {
         return kgmsClient.detailReasoning(id);
     }

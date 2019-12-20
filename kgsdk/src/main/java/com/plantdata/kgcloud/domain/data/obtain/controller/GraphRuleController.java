@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.data.obtain.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
+import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
@@ -29,7 +30,7 @@ import javax.validation.Valid;
  */
 @Slf4j
 @RestController
-@RequestMapping("v3/kgData/graphRule")
+@RequestMapping("v3/kgdata/graphRule")
 public class GraphRuleController implements GraphDataObtainInterface {
 
     @Autowired
@@ -39,8 +40,8 @@ public class GraphRuleController implements GraphDataObtainInterface {
     @ApiOperation("业务规则列表")
     public ApiReturn<BasePage<GraphConfKgqlRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                             @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
-                                                            PageReq pageReq) {
-        return kgmsClient.selectKgql(kgName, pageReq);
+                                                            BaseReq baseReq) {
+        return kgmsClient.selectKgql(kgName, type, baseReq);
     }
 
     @ApiOperation("业务规则详情")
@@ -59,7 +60,7 @@ public class GraphRuleController implements GraphDataObtainInterface {
     @ApiOperation("业务规则删除")
     @DeleteMapping("{id}")
     public ApiReturn delete(@ApiParam("规则id") @PathVariable("id") Long id) {
-        kgmsClient.delete(id);
+        kgmsClient.deleteKgql(id);
         return ApiReturn.success();
     }
 
