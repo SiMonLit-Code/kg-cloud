@@ -18,7 +18,7 @@ public class EdgeNumericAttrValueReq {
 
     @NotEmpty
     @ApiModelProperty(value = "关系id")
-    private String objId;
+    private String tripleId;
 
     @NotNull
     @ApiModelProperty(value = "边id")
