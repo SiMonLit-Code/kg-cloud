@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.model.service.ModelService;
 import com.plantdata.kgcloud.sdk.req.KgmsCallReq;
 import com.plantdata.kgcloud.sdk.req.KgmsModelReq;
+import com.plantdata.kgcloud.sdk.req.ModelPageReq;
 import com.plantdata.kgcloud.sdk.rsp.ModelRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
@@ -47,7 +48,7 @@ public class ModelController {
 
     @ApiOperation("模型分页查找")
     @GetMapping("/")
-    public ApiReturn<Page<ModelRsp>> findAll(BaseReq baseReq) {
+    public ApiReturn<Page<ModelRsp>> findAll(ModelPageReq baseReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(modelService.findAll(userId, baseReq));
     }
