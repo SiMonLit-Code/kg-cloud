@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.graph.attr.service.impl;
 
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
-import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
 import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroup;
@@ -14,6 +13,7 @@ import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupSearchReq;
 import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author cjw
@@ -141,12 +142,15 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
         }
         GraphAttrGroupRsp graphAttrGroupRsp = groupRsps.get(0);
         List<Integer> oldAttrIds = graphAttrGroupRsp.getAttrIds();
-        attrIds.stream().filter(attrId -> !oldAttrIds.contains(attrId))
-                .forEach(attrId -> {
-                    GraphAttrGroupDetails attrGroupDetails =
-                            GraphAttrGroupDetails.builder().groupId(id).attrId(attrId).build();
-                    graphAttrGroupDetailsRepository.save(attrGroupDetails);
-                });
+        Stream<Integer> stream = attrIds.stream();
+        if (oldAttrIds != null) {
+            stream = stream.filter(attrId -> !oldAttrIds.contains(attrId));
+        }
+        stream.forEach(attrId -> {
+            GraphAttrGroupDetails attrGroupDetails =
+                    GraphAttrGroupDetails.builder().groupId(id).attrId(attrId).build();
+            graphAttrGroupDetailsRepository.save(attrGroupDetails);
+        });
     }
 
     @Override
