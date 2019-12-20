@@ -40,53 +40,53 @@ public class InduceController {
 
     @ApiOperation("读取私有属性列表，按数量排序")
     @GetMapping("/{kgName}")
-    ApiReturn<Page<AttrDefinitionVO>> induceAttributeList(@PathVariable("kgName") String kgName,
-                                                          AttrSearchReq attrSearchReq) {
+    public ApiReturn<Page<AttrDefinitionVO>> induceAttributeList(@PathVariable("kgName") String kgName,
+                                                                 AttrSearchReq attrSearchReq) {
         return ApiReturn.success(induceService.induceAttributeList(kgName, attrSearchReq));
     }
 
     @ApiOperation("寻找待规约的属性")
     @GetMapping("/{kgName}/find")
-    ApiReturn<List<AttrInduceFindRsp>> induceAttributeFind(@PathVariable("kgName") String kgName,
-                                                           AttrInduceReq attrInduceReq) {
+    public ApiReturn<List<AttrInduceFindRsp>> induceAttributeFind(@PathVariable("kgName") String kgName,
+                                                                  AttrInduceReq attrInduceReq) {
         return ApiReturn.success(induceService.induceAttributeFind(kgName, attrInduceReq));
     }
 
     @ApiOperation("执行属性公有化")
     @PostMapping("/{kgName}/public")
-    ApiReturn inducePublic(@PathVariable("kgName") String kgName,
-                           @Valid @RequestBody InducePublicReq inducePublicReq) {
+    public ApiReturn inducePublic(@PathVariable("kgName") String kgName,
+                                  @Valid @RequestBody InducePublicReq inducePublicReq) {
         induceService.inducePublic(kgName, inducePublicReq);
         return ApiReturn.success();
     }
 
     @ApiOperation("执行属性对象化")
     @PostMapping("/{kgName}/object")
-    ApiReturn induceObject(@PathVariable("kgName") String kgName,
-                           @Valid @RequestBody InduceObjectReq induceObjectReq) {
+    public ApiReturn induceObject(@PathVariable("kgName") String kgName,
+                                  @Valid @RequestBody InduceObjectReq induceObjectReq) {
         induceService.induceObject(kgName, induceObjectReq);
         return ApiReturn.success();
     }
 
     @ApiOperation("执行属性合并")
     @PostMapping("/{kgName}/merge")
-    ApiReturn induceMerge(@PathVariable("kgName") String kgName,
-                          @Valid @RequestBody InduceMergeReq induceMergeReq) {
+    public ApiReturn induceMerge(@PathVariable("kgName") String kgName,
+                                 @Valid @RequestBody InduceMergeReq induceMergeReq) {
         induceService.induceMerge(kgName, induceMergeReq);
         return ApiReturn.success();
     }
 
     @ApiOperation("计算概念待规约列表")
     @GetMapping("/{kgName}/{conceptId}")
-    ApiReturn<List<InduceConceptRsp>> listInduceConcept(@PathVariable("kgName") String kgName,
-                                                        @PathVariable("conceptId") Long conceptId) {
+    public ApiReturn<List<InduceConceptRsp>> listInduceConcept(@PathVariable("kgName") String kgName,
+                                                               @PathVariable("conceptId") Long conceptId) {
         return ApiReturn.success(induceService.listInduceConcept(kgName, conceptId));
     }
 
     @ApiOperation("执行概念规约")
     @PostMapping("/{kgName}/concept")
-    ApiReturn induceConcept(@PathVariable("kgName") String kgName,
-                            @Valid @RequestBody InduceConceptReq induceConceptReq) {
+    public ApiReturn induceConcept(@PathVariable("kgName") String kgName,
+                                   @Valid @RequestBody InduceConceptReq induceConceptReq) {
         induceService.induceConcept(kgName, induceConceptReq);
         return ApiReturn.success();
     }
