@@ -33,7 +33,7 @@ public class GraphConfAlgorithmController {
     }
 
     @ApiOperation("图谱配置-算法-更新")
-    @PatchMapping("/algorithm/{id}")
+    @PutMapping("/algorithm/{id}")
     public ApiReturn<GraphConfAlgorithmRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfAlgorithmReq req) {
         return ApiReturn.success(graphConfAlgorithmService.updateAlgorithm(id, req));
     }

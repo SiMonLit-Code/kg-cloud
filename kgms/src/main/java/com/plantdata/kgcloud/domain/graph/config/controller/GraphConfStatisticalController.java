@@ -39,7 +39,7 @@ public class GraphConfStatisticalController {
     }
 
     @ApiOperation("图谱配置-统计-更新")
-    @PatchMapping("/statistical/{id}")
+    @PutMapping("/statistical/{id}")
     public ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req) {
         return ApiReturn.success(graphConfStatisticalService.updateStatistical(id, req));
     }
@@ -58,7 +58,7 @@ public class GraphConfStatisticalController {
          }
 
     @ApiOperation("图谱配置-统计-批量删除")
-    @PatchMapping("/statistical/batch/delete")
+    @PutMapping("/statistical/batch/delete")
     public ApiReturn deleteStatisticalBatch(@RequestBody List<Long> ids) {
         graphConfStatisticalService.deleteInBatch(ids);
         return ApiReturn.success();
