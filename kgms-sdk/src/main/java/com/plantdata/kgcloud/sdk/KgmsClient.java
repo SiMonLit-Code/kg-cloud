@@ -213,7 +213,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/algorithm/{id}")
+    @PutMapping("/config/algorithm/{id}")
     ApiReturn<GraphConfAlgorithmRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfAlgorithmReq req);
 
     /**
@@ -251,7 +251,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/focus/{kgName}")
+    @PutMapping("/config/focus/{kgName}")
     ApiReturn<List<GraphConfFocusRsp>> saveFocus(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfFocusReq> req);
 
     /**
@@ -271,7 +271,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/kgql/{id}")
+    @PutMapping("/config/kgql/{id}")
     ApiReturn<GraphConfKgqlRsp> updateKgql(@PathVariable("id") Long id, @RequestBody @Valid GraphConfKgqlReq req);
 
     /**
@@ -349,7 +349,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/statistical/{id}")
+    @PutMapping("/config/statistical/{id}")
     ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req);
 
     /**
@@ -358,7 +358,7 @@ public interface KgmsClient {
      * @param reqs
      * @return
      */
-    @PatchMapping("/config/statistical/batch/update")
+    @PutMapping("/config/statistical/batch/update")
     ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@RequestBody @Valid List<GraphConfStatisticalReq> reqs);
 
     /**
@@ -443,7 +443,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/reason/{kgName}/{id}")
+    @PutMapping("/config/reason/{id}")
     ApiReturn<GraphConfReasonRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasonReq req);
 
 
