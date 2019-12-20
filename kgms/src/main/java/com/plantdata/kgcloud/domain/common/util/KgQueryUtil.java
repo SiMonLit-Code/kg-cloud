@@ -9,17 +9,6 @@ import org.bson.Document;
  */
 public class KgQueryUtil {
 
-    public static String getKgDbName(MongoClient client, String kgName) {
-
-        String kgDbName = null;
-        MongoCursor<Document> cursor = client.getDatabase("kg_attribute_definition").getCollection("kg_db_name")
-                .find(new Document("kg_name", kgName)).iterator();
-        if (cursor.hasNext()) {
-            kgDbName = cursor.next().getString("db_name");
-        }
-        return kgDbName;
-    }
-
     public static String getEntityNameById(MongoClient client, String kgDbName, Long id) {
 
         String name = "";

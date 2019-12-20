@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 public class KgmsCallReq {
 
-    @ApiModelProperty(value = "模型名称", required = true)
+    @ApiModelProperty(value = "待校验数据", required = true)
     @NotNull
     @Size(min = 1)
     private List<String> input;

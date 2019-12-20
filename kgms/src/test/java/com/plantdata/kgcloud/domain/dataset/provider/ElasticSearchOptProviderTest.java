@@ -1,15 +1,12 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.util.DateUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +28,7 @@ public class ElasticSearchOptProviderTest {
         addrs.add("192.168.4.17:9200");
         addrs.add("192.168.4.18:9200");
         datasetInfo.setAddresses(addrs);
-        datasetInfo.setDatabase("0000000000_0004");
+        datasetInfo.setDatabase("bj73pb4s_dataset_");
         datasetInfo.setTable("_doc");
         provider = new ElasticSearchOptProvider(datasetInfo);
     }
@@ -41,7 +38,7 @@ public class ElasticSearchOptProviderTest {
     public void createTable() {
         List<DataSetSchema> colList = new ArrayList<>();
         DataSetSchema schema = new DataSetSchema();
-        schema.setField("a");
+        schema.setField("name");
         schema.setIsIndex(1);
         schema.setType(1);
         colList.add(schema);
@@ -67,13 +64,11 @@ public class ElasticSearchOptProviderTest {
 
     @Test
     public void insert() {
-        Map<String,Object> objectNode = new HashMap<>();
-        objectNode.put("a","111");
-        objectNode.put("b","222");
-        objectNode.put("c", DateUtils.formatDatetime());
+        Map<String, Object> objectNode = new HashMap<>();
+        objectNode.put("name", "111");
+        objectNode.put("age", 222);
 
-            provider.insert(objectNode);
-
+        provider.insert(objectNode);
 
 
     }
@@ -88,12 +83,33 @@ public class ElasticSearchOptProviderTest {
 
     @Test
     public void find() {
-        provider.find(null,null,null);
+        provider.find(null, null, null);
     }
 
     @Test
     public void count() {
         long count = provider.count(null);
         System.out.println(count);
+    }
+
+    @Test
+    public void batchInsert() {
+
+        Map<String, Object> objectNode = new HashMap<>();
+        objectNode.put("name", "111");
+        objectNode.put("age", 222);
+
+
+        List<Map<String, Object>> nodes = new ArrayList<>();
+        nodes.add(objectNode);
+        nodes.add(objectNode);
+        nodes.add(objectNode);
+        provider.batchInsert(nodes);
+
+    }
+
+    @Test
+    public void batchDelete() {
+        provider.batchDelete(Collections.singletonList("AvbFHG8BAruisY1fWsc1"));
     }
 }

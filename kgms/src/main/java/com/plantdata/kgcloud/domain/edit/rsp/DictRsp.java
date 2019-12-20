@@ -27,8 +27,14 @@ public class DictRsp {
     @ApiModelProperty(value = "概念id")
     private Long conceptId;
 
+    @ApiModelProperty(value = "概念名称")
+    private String conceptName;
+
     @ApiModelProperty(value = "实体id")
     private Long entityId;
+
+    @ApiModelProperty(value = "实体名称")
+    private String entityName;
 
     @ApiModelProperty(value = "词频")
     private Double frequency;

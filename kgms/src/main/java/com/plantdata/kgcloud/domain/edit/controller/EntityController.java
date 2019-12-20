@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.converter.PageConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
@@ -92,8 +93,8 @@ public class EntityController {
     }
 
     @ApiOperation("批量实体详情")
-    @GetMapping("/{kgName}/entities")
-    ApiReturn<List<BasicInfoRsp>> batchEntityDetails(@PathVariable("kgName") String kgName, List<Long> ids) {
+    @PostMapping("/{kgName}/entities")
+    ApiReturn<List<BasicInfoRsp>> batchEntityDetails(@PathVariable("kgName") String kgName, @RequestBody List<Long> ids) {
         return ApiReturn.success(basicInfoService.listByIds(kgName, ids));
     }
 
@@ -132,6 +133,7 @@ public class EntityController {
     ApiReturn updateScoreSourceReliability(@PathVariable("kgName") String kgName,
                                            @PathVariable("entityId") Long entityId,
                                            @Valid @RequestBody SsrModifyReq ssrModifyReq) {
+
         entityService.updateScoreSourceReliability(kgName, entityId, ssrModifyReq);
         return ApiReturn.success();
     }

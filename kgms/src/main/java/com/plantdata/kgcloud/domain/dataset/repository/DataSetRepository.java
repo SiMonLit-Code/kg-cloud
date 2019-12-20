@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.repository;
 
+import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -64,5 +65,5 @@ public interface DataSetRepository extends JpaRepository<DataSet, Long>, JpaSpec
      */
     List<DataSet> findByFolderId(Long folderId);
 
-    List<DataSet> findByDataTypeAndCreateWayAndDataNameLike(Integer dataType, String createWay, String dataName);
+    List<DataSet> findByDataTypeAndDataName(DataType dataType, String dataName);
 }

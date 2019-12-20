@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.graph.clash.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.bson.types.ObjectId;
 
 /**
  * @author xiezhenxiang 2019/12/12

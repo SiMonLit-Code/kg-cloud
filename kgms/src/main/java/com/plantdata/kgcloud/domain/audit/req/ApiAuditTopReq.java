@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.audit.req;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -10,5 +11,6 @@ import lombok.Data;
 @Data
 public class ApiAuditTopReq extends ApiAuditReq {
 
+    @ApiModelProperty("排序类型 1 调用次数 2 成功率 3 失败率 ， 默认 按  调用次数  排序")
     private Integer order;
 }

@@ -11,7 +11,6 @@ import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.AttrDefGroupConverter;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
@@ -20,15 +19,13 @@ import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
 import com.plantdata.kgcloud.domain.app.dto.InfoBoxQueryDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
-import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfFocusRepository;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
@@ -49,7 +46,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.validation.annotation.Validated;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -153,7 +149,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             }));
             graphInitRsp.setCreateTime(initGraphBean.getCreateAt());
             if (initGraphBean.getEntities() != null && initGraphBean.getEntities().fieldNames().hasNext()) {
-                graphInitRsp.setEntities(JsonUtils.readToList(initGraphBean.getEntities(), GraphInitRsp.GraphInitEntityRsp.class));
+                graphInitRsp.setEntities(JacksonUtils.readValue(JacksonUtils.writeValueAsString(initGraphBean.getEntities()), new TypeReference<List<GraphInitRsp.GraphInitEntityRsp>>() {
+                }));
                 return graphInitRsp;
             }
         }
@@ -194,7 +191,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             return null;
         }
         InfoBoxRsp infoBoxRsp = list.get(0);
-        List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(kgName, userId, infoBoxRsp.getSelf().getId());
+        List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(KGUtil.dbName(kgName), userId, infoBoxRsp.getSelf().getId());
         infoBoxRsp.getSelf().setDataLinks(dataLinks);
         return infoBoxRsp;
     }
@@ -204,14 +201,14 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         graphHelperService.replaceByAttrKey(kgName, req);
         KgServiceEntityFrom entityFrom = InfoBoxConverter.batchInfoBoxReqToKgServiceEntityFrom(req);
 
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, entityFrom));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), entityFrom));
         if (!entityOpt.isPresent()) {
             return Collections.emptyList();
         }
         InfoBoxQueryDTO query = InfoBoxQueryDTO.build(entityOpt.get());
 
         List<ai.plantdata.kg.api.edit.resp.EntityVO> relationEntityList = RestRespConverter
-                .convert(conceptEntityApi.listByIds(kgName, true, query.getRelationEntityIdSet()))
+                .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), true, query.getRelationEntityIdSet()))
                 .orElse(Collections.emptyList());
         return InfoBoxConverter.voToInfoBox(query.getSourceEntityIds(), relationEntityList);
     }

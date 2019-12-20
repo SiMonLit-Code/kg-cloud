@@ -4,9 +4,11 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
+import com.plantdata.kgcloud.sdk.req.DataSetSmokeReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +150,13 @@ public class DataSetOptController {
                 e1.printStackTrace();
             }
         }
+    }
+
+    @ApiOperation("数据集-数据-校验")
+    @PostMapping("/{datasetId}/smoke")
+    public ApiReturn<Map<String, Object>> smoke(@PathVariable("datasetId") Long datasetId, @Valid @RequestBody DataSetSmokeReq req) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataOptService.smoke(userId, req));
     }
 
     @ApiOperation("数据集-数据-smoke统计")

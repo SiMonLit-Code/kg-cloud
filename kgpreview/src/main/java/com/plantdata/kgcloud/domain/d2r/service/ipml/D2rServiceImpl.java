@@ -3,23 +3,18 @@ package com.plantdata.kgcloud.domain.d2r.service.ipml;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.mongodb.client.MongoCursor;
-import com.plantdata.kgcloud.common.util.MongoUtil;
+import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.domain.d2r.entity.*;
 import com.plantdata.kgcloud.domain.d2r.service.D2rService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.KgmsClient;
-import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -53,6 +48,7 @@ public class D2rServiceImpl implements D2rService {
             int pageNo = 1;
             int pageSize = req.getEntSize() > 0 ? req.getEntSize() : 10;
             JSONArray datas = this.loadData(configBean.getDataSetId(), pageNo, pageSize);
+            System.out.println("data: " + datas.toJSONString());
             int dataLength = datas.size();
             for (int i = 0; i < dataLength; i++) {
                 JSONObject data = datas.getJSONObject(i);
@@ -143,10 +139,11 @@ public class D2rServiceImpl implements D2rService {
 
     private List<D2RMapperConfigBean> parse(String kgName, D2RDataType dataType, String config) {
 
-        List<D2RMapperConfigBean> configBeanList = null;
+        List<D2RMapperConfigBean> configBeanList;
         try {
-            configBeanList = JacksonUtils.getInstance().readValue(config, new TypeReference<List<D2RMapperConfigBean>>(){});
-        } catch (IOException e) {
+            configBeanList = JSONArray.parseArray(config, D2RMapperConfigBean.class);
+        } catch (Exception e) {
+            e.printStackTrace();
             throw BizException.of(CommonErrorCode.BAD_REQUEST);
         }
 
@@ -171,21 +168,17 @@ public class D2rServiceImpl implements D2rService {
 
     private JSONArray loadData(String dataSetId, int page, int size) {
 
-        DataSetRsp  dataSetRsp = kgmsClient.dataSetFindById(Long.parseLong(dataSetId)).getData();
-        MongoUtil mongoUtil = new MongoUtil(dataSetRsp.getAddr());
-        MongoCursor<Document> cursor = mongoUtil.find(dataSetRsp.getDbName(), dataSetRsp.getTbName(), null, null, page, size);
-
+        ApiReturn<BasePage<Map<String, Object>>> apiReturn = kgmsClient.dataOptFindAll(Long.parseLong(dataSetId), page, size);
         JSONArray ls = new JSONArray();
-        cursor.forEachRemaining(s -> {
-            s.remove("_id");
-            for (Map.Entry<String, Object> entry : s.entrySet()) {
+        for (Map<String, Object> data : apiReturn.getData().getContent()) {
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
                 if (entry.getValue() != null && entry.getValue() instanceof Date) {
                     String dateValue = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(entry.getValue());
-                    s.append(entry.getKey(), dateValue);
+                    data.put(entry.getKey(), dateValue);
                 }
             }
-            ls.add(JSONObject.parseObject(JSON.toJSONString(s)));
-        });
+            ls.add(JSONObject.parseObject(JSON.toJSONString(data)));
+        }
         return ls;
     }
 }

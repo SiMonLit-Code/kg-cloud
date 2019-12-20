@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.edit.req.AttrQueryFrom;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import lombok.NonNull;

@@ -44,6 +44,7 @@ public class ExploreRspConverter extends BasicConverter {
         oldEntity.setName(newEntity.getName());
         oldEntity.setMeaningTag(newEntity.getMeaningTag());
         oldEntity.setClassId(newEntity.getClassId());
+        oldEntity.setClassIdList(newEntity.getConceptIdList());
         oldEntity.setConceptId(newEntity.getConceptId());
         oldEntity.setConceptIdList(newEntity.getConceptIdList());
         oldEntity.setConceptName(newEntity.getConceptName());
@@ -66,6 +67,8 @@ public class ExploreRspConverter extends BasicConverter {
     private static RelationBean relationBeanToGraphRelationRsp(GraphRelationRsp newBean) {
         RelationBean oldBean = new RelationBean();
         BeanUtils.copyProperties(newBean, oldBean);
+        oldBean.setFrom(newBean.getFrom());
+        oldBean.setTo(newBean.getTo());
         oldBean.addEndTime(newBean.getEndTime());
         oldBean.addStartTime(newBean.getStartTime());
         oldBean.setBatch(newBean.getBatch());

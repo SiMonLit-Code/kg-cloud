@@ -18,15 +18,16 @@ import java.util.Map;
 public class DataSetSchema {
 
     @NotBlank
-    @ApiModelProperty
+    @ApiModelProperty("列")
     private String field;
 
     @NotNull
-    @ApiModelProperty
+    @ApiModelProperty("类型 1 mongo 2 es 3 pd_document")
     private Integer type;
 
-    @ApiModelProperty
+    @ApiModelProperty("是否可索引 0否  1是 ")
     private int isIndex;
-    @ApiModelProperty
+
+    @ApiModelProperty("配置")
     private Map settings;
 }

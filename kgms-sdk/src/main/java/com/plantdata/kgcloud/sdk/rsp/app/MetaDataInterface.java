@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk.rsp.app;
 
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 
 import java.util.Date;
 import java.util.List;
@@ -75,7 +76,7 @@ public interface MetaDataInterface {
      *
      * @param additional .
      */
-    default void setAdditional(Map<String, Object> additional) {
+    default void setAdditional(AdditionalRsp additional) {
     }
 
     default void setNodeStyle(Map<String, Object> nodeStyle) {

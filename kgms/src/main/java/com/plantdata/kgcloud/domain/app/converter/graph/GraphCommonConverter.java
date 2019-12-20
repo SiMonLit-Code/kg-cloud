@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.ImageConverter;
@@ -19,7 +20,6 @@ import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
-import com.plantdata.kgcloud.sdk.rsp.app.MetaDataInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * @date 2019/12/2 16:43
  */
 @Slf4j
-public class GraphCommonConverter {
+public class GraphCommonConverter extends BasicConverter {
 
     /**
      * 图探索填充概念信息
@@ -135,8 +135,14 @@ public class GraphCommonConverter {
             if (!CollectionUtils.isEmpty(relation.getMetaData())) {
                 MetaConverter.fillMetaWithNoNull(relation.getMetaData(), relationRsp);
                 Map<String, Object> additionalMap = (Map<String, Object>) relation.getMetaData().get(MetaDataInfo.ADDITIONAL.getFieldName());
-                relationRsp.setLabelStyle((Map<String, Object>) additionalMap.get("labelStyle"));
-                relationRsp.setLinkStyle((Map<String, Object>) additionalMap.get("linkStyle"));
+                if (!CollectionUtils.isEmpty(additionalMap)) {
+                    if (additionalMap.containsKey("labelStyle")) {
+                        relationRsp.setLabelStyle((Map<String, Object>) additionalMap.get("labelStyle"));
+                    }
+                    if (additionalMap.containsKey("linkStyle")) {
+                        relationRsp.setLinkStyle((Map<String, Object>) additionalMap.get("linkStyle"));
+                    }
+                }
             }
             if (!CollectionUtils.isEmpty(relation.getEdgeNumericAttr())) {
                 relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
@@ -173,7 +179,7 @@ public class GraphCommonConverter {
      * @param <T>            子类
      * @return 。。。
      */
-    static <T extends GraphEntityRsp> T simpleToGraphEntityRsp(T graphEntityRsp, SimpleEntity simpleEntity, Map<Long, BasicInfo> conceptMap) {
+    static <T extends GraphEntityRsp> T simpleToGraphEntityRsp(T graphEntityRsp, SimpleEntity simpleEntity, Map<Long, BasicInfo> conceptMap, Set<Long> replaceClassIds) {
         graphEntityRsp.setId(simpleEntity.getId());
         graphEntityRsp.setConceptId(simpleEntity.getConceptId());
         graphEntityRsp.setName(simpleEntity.getName());
@@ -181,12 +187,14 @@ public class GraphCommonConverter {
         graphEntityRsp.setMeaningTag(simpleEntity.getMeaningTag());
         Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(simpleEntity.getImageUrl());
         imageRsp.ifPresent(graphEntityRsp::setImg);
-        if (EntityTypeEnum.ENTITY.equals(graphEntityRsp.getType())) {
-            GraphCommonConverter.fillConcept(simpleEntity.getConceptId(), graphEntityRsp, conceptMap);
-        }
+        GraphCommonConverter.fillConcept(simpleEntity.getConceptId(), graphEntityRsp, conceptMap);
         Map<String, Object> metaDataMap = simpleEntity.getMetaData();
         if (!CollectionUtils.isEmpty(metaDataMap)) {
             MetaConverter.fillMetaWithNoNull(metaDataMap, graphEntityRsp);
+        }
+        if (!CollectionUtils.isEmpty(replaceClassIds)) {
+            Optional<Long> first = graphEntityRsp.getConceptIdList().stream().filter(replaceClassIds::contains).findFirst();
+            first.ifPresent(graphEntityRsp::setClassId);
         }
         return graphEntityRsp;
     }

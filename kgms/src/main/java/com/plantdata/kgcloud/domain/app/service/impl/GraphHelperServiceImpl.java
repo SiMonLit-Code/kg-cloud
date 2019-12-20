@@ -15,6 +15,7 @@ import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
@@ -22,6 +23,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
@@ -33,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -65,17 +66,17 @@ public class GraphHelperServiceImpl implements GraphHelperService {
 
     @Override
     public Map<Long, BasicInfo> getConceptIdMap(String kgName) {
-        Optional<List<BasicInfo>> treeOpt = RestRespConverter.convert(conceptEntityApi.tree(kgName, NumberUtils.LONG_ZERO));
+        Optional<List<BasicInfo>> treeOpt = RestRespConverter.convert(conceptEntityApi.tree(KGUtil.dbName(kgName), NumberUtils.LONG_ZERO));
         return treeOpt.map(basicInfos -> basicInfos.stream().collect(Collectors.toMap(BasicInfo::getId, Function.identity()))).orElse(Collections.emptyMap());
     }
 
     @Override
-    public <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, boolean relationMerge) {
+    public <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, GraphReqAfterInterface graphAfter) {
         //统计
         List<GraphStatisticRsp> statisticRspList = CollectionUtils.isEmpty(configList) ? Collections.emptyList() : GraphRspConverter.buildStatisticResult(graphVO, configList);
         //组装结果
-        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
-        return GraphRspConverter.graphVoToStatisticRsp(graphVO, statisticRspList, conceptIdMap, pathAnalysisRsp, relationMerge);
+        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(KGUtil.dbName(kgName));
+        return GraphRspConverter.graphVoToStatisticRsp(graphVO, statisticRspList, conceptIdMap, pathAnalysisRsp, graphAfter);
     }
 
     @Override
@@ -124,7 +125,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
         //关系筛选
         List<GraphRelationRsp> relationList = rsp.getRelationList();
         if (!relationFrom.getRelationAttrFilters().isEmpty() || !relationFrom.getMetaFilters().isEmpty()) {
-            Optional<List<String>> relationOpt = RestRespConverter.convert(relationApi.filterRelation(kgName, relationFrom));
+            Optional<List<String>> relationOpt = RestRespConverter.convert(relationApi.filterRelation(KGUtil.dbName(kgName), relationFrom));
             Set<String> relationIds = !relationOpt.isPresent() ? Collections.emptySet() : Sets.newHashSet(relationOpt.get());
             rsp.setRelationList(relationList.stream().filter(a -> relationIds.contains(a.getId())).collect(Collectors.toList()));
         }
@@ -133,7 +134,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
         Map<String, Object> queryMaps = ConditionConverter.entityListToMap(req.getEntityFilters());
         if (!queryMaps.isEmpty()) {
             List<Long> entityIds = entity.stream().map(CommonEntityRsp::getId).collect(Collectors.toList());
-            Optional<List<Long>> entityIdOpt = RestRespConverter.convert(entityApi.filterIds(kgName, EntityConverter.buildEntityFilterFrom(entityIds, queryMaps)));
+            Optional<List<Long>> entityIdOpt = RestRespConverter.convert(entityApi.filterIds(KGUtil.dbName(kgName), EntityConverter.buildEntityFilterFrom(entityIds, queryMaps)));
             Set<Long> entityIdSet = !entityIdOpt.isPresent() ? Collections.emptySet() : Sets.newHashSet(entityIdOpt.get());
             rsp.setEntityList(entity.stream().filter(a -> entityIdSet.contains(a.getId())).collect(Collectors.toList()));
         }
@@ -152,7 +153,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
 
     @Override
     public List<Long> queryConceptByKey(String kgName, List<String> keyList) {
-        Optional<Map<String, Long>> keyConvertOpt = RestRespConverter.convert(schemaApi.getConceptIdByKey(kgName, keyList));
+        Optional<Map<String, Long>> keyConvertOpt = RestRespConverter.convert(schemaApi.getConceptIdByKey(KGUtil.dbName(kgName), keyList));
         if (!keyConvertOpt.isPresent() || CollectionUtils.isEmpty(keyConvertOpt.get())) {
             return Collections.emptyList();
         }
@@ -164,7 +165,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
         if (!CollectionUtils.isEmpty(attrDefKeyReq.getAllowAttrs()) || CollectionUtils.isEmpty(attrDefKeyReq.getAllowAttrsKey())) {
             return;
         }
-        Optional<Map<String, Integer>> keyConvertOpt = RestRespConverter.convert(schemaApi.getAttrIdByKey(kgName, attrDefKeyReq.getAllowAttrsKey()));
+        Optional<Map<String, Integer>> keyConvertOpt = RestRespConverter.convert(schemaApi.getAttrIdByKey(KGUtil.dbName(kgName), attrDefKeyReq.getAllowAttrsKey()));
         if (!keyConvertOpt.isPresent()) {
             return;
         }

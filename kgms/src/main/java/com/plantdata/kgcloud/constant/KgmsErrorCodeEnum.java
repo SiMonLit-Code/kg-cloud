@@ -25,6 +25,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DATASET_IMPORT_FAIL(120108, "数据集导出失败"),
     QUERYSETTING_NOT_EXISTS(120110, "规则配置不存在"),
 
+    KTR_SAVE_FAIL(120113,"kettle文件生成失败"),
+
     ANNOTATION_NOT_EXISTS(120109, "标引不存在"),
     DATASET_ES_REQUEST_ERROR(120110, "es请求失败"),
     DATASET_ES_KEY_EXISTS(120111, "es唯一标识已存在"),
@@ -44,6 +46,10 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     MY_DATA_NULL_ES(120607, "数据集不为搜索数据集"),
     DATE_PARSE_ERROR(120608, "数据时间格式转换失败"),
     EDGE_ATTR_DEF_NULL(120609,"边属性定义不存在"),
+    TAG_HAVE_EXISTED(120610,"实体标签已存在"),
+    ENTITY_TEMPLATE_NEED_CONCEPT_ID(120611,"实体模板下载需要概念id"),
+    SPECIFIC_TEMPLATE_NEED_ATTR_ID(120612,"特定关系模板下载需要属性id"),
+    YOURSELF_NOT_AS_PARENT(120613,"自身不能作为父概念"),
 
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
 

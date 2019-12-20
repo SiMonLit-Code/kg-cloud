@@ -11,6 +11,7 @@ import ai.plantdata.kg.api.semantic.rsp.ReasoningResultRsp;
 import ai.plantdata.kg.common.bean.SemanticDistance;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.converter.DistanceConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -18,12 +19,10 @@ import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -44,8 +42,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("app/semantic")
-@Api(tags = "问答")
-public class SemanticController {
+public class SemanticController implements SdkOpenApiInterface {
 
     @Autowired
     private ReasoningApi reasoningApi;
@@ -87,11 +84,11 @@ public class SemanticController {
 
     @ApiOperation("实体语义相关实体查询")
     @PostMapping("distance/list/{kgName}")
-    public RestResp<List<DistanceEntityRsp>> semanticDistanceRelevance(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                       @Valid @RequestBody DistanceListReq listReq, @ApiIgnore BindingResult bindingResult) {
+    public ApiReturn<List<DistanceEntityRsp>> semanticDistanceRelevance(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                                        @Valid @RequestBody DistanceListReq listReq) {
 
         SemanticDistanceFrom distanceFrom = DistanceConverter.distanceListReqToSemanticDistanceFrom(listReq);
         Optional<List<SemanticDistance>> distanceOpt = RestRespConverter.convert(semanticApi.distance(kgName, distanceFrom));
-        return new RestResp<>();
+        return ApiReturn.success();
     }
 }

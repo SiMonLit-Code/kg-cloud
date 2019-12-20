@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dataset.service;
 
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
+import com.plantdata.kgcloud.sdk.req.DataSetSmokeReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -141,4 +142,6 @@ public interface DataOptService {
      * @return
      */
     List<Map<String, Long>> statistics(String userId, Long datasetId);
+
+    Map<String, Object> smoke(String userId, DataSetSmokeReq req);
 }

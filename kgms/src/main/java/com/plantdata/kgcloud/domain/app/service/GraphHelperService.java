@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
@@ -75,10 +76,10 @@ public interface GraphHelperService {
      * @param configList
      * @param graphVO
      * @param pathAnalysisRsp
-     * @param relationMerge
+     * @param graphAfter
      * @param <T>
      * @return
      */
-    <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, boolean relationMerge);
+    <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, GraphReqAfterInterface graphAfter);
 
 }

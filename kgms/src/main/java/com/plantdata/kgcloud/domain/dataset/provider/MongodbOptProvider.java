@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -110,16 +111,41 @@ public class MongodbOptProvider implements DataOptProvider {
                 }
             }
         }
-        return Filters.and(bsonList);
+        if (bsonList.isEmpty()) {
+            return new Document();
+        } else {
+            return Filters.and(bsonList);
+        }
+    }
+
+    private Bson buildSort(Map<String, Object> query) {
+        List<Bson> bsonList = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : query.entrySet()) {
+            Integer sort = (Integer) entry.getValue();
+            if (sort == -1) {
+                bsonList.add(Sorts.descending(entry.getKey()));
+            } else {
+                bsonList.add(Sorts.ascending(entry.getKey()));
+            }
+        }
+        return Sorts.orderBy(bsonList);
     }
 
     @Override
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
+        return findWithSort(offset, limit, query, null);
+    }
+
+    @Override
+    public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
         FindIterable<Document> findIterable;
         if (query != null && !query.isEmpty()) {
             findIterable = getCollection().find(buildQuery(query));
         } else {
             findIterable = getCollection().find();
+        }
+        if (!CollectionUtils.isEmpty(sort)) {
+            findIterable.sort(buildSort(sort));
         }
         if (offset != null && offset >= 0) {
             findIterable = findIterable.skip(offset);

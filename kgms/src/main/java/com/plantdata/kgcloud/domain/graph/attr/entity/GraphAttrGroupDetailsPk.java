@@ -15,10 +15,10 @@ import java.io.Serializable;
 public class GraphAttrGroupDetailsPk implements Serializable {
     @Column(name = "attr_id")
     @Id
-    private long attrId;
+    private Integer attrId;
     @Column(name = "group_id")
     @Id
-    private long groupId;
+    private Long groupId;
 
 
 }

@@ -1,15 +1,16 @@
 package com.plantdata.kgcloud.domain.app.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -19,35 +20,6 @@ import java.util.Optional;
  */
 @Slf4j
 public class JsonUtils {
-
-    public static <T> List<T> readToList(ArrayNode arrayNode, Class<T> clazz) {
-        try {
-            return JacksonUtils.getInstance().treeToValue(arrayNode, List.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return Collections.emptyList();
-    }
-
-
-
-    public static <T> List<T> readToList(String str, Class<T> clazz) {
-        try {
-            return (List<T>) JacksonUtils.getInstance().readValue(str, clazz);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Collections.emptyList();
-    }
-
-    public static String toJson(Object o) {
-        try {
-            return JacksonUtils.getInstance().writeValueAsString(o);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return StringUtils.EMPTY;
-    }
 
     public static Optional<JsonNode> parseJsonNode(String json) {
         try {
@@ -59,5 +31,19 @@ public class JsonUtils {
             e.printStackTrace();
         }
         return Optional.empty();
+    }
+
+    public static <T> List<T> objToList(Object o, Class<T> clazz) {
+        ObjectMapper instance = JacksonUtils.getInstance();
+        JavaType javaType = getCollectionType(instance, ArrayList.class, clazz);
+        return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), javaType);
+    }
+
+    public static <T> T objToNewObj(Object o, Class<T> clazz) {
+        return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), clazz);
+    }
+
+    private static JavaType getCollectionType(ObjectMapper instance, Class<?> collectionClass, Class<?>... elementClasses) {
+        return instance.getTypeFactory().constructParametricType(collectionClass, elementClasses);
     }
 }

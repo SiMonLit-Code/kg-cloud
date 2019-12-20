@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -21,7 +22,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyReqInterface {
+public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyReqInterface, GraphReqAfterInterface {
 
 
     @ApiModelProperty("要替换的概念id")

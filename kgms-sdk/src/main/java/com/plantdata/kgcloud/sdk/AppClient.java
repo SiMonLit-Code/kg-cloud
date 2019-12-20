@@ -370,5 +370,5 @@ public interface AppClient {
      * @return .
      */
     @PostMapping("dataset/statistic/3dByTable")
-    ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid TableStatisticByDimensionalReq thirdDimensional);
+    ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid @RequestBody TableStatisticByDimensionalReq thirdDimensional);
 }

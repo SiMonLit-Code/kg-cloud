@@ -19,6 +19,8 @@ public interface DataOptProvider extends Closeable {
 
     List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query);
 
+    List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort);
+
     long count(Map<String, Object> query);
 
     Map<String, Object> findOne(String id);

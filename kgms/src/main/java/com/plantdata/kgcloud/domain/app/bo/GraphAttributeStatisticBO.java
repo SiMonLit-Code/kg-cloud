@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.app.bo;
 
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDateDTO;
 import com.plantdata.kgcloud.domain.common.util.RemindDateUtils;

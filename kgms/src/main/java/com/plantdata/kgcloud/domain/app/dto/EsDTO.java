@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,7 +39,7 @@ public class EsDTO {
     }
 
     public Map<String, Object> parseMap() {
-        String s = JsonUtils.toJson(this);
+        String s = JacksonUtils.writeValueAsString(this);
         return JacksonUtils.readValue(s, new TypeReference<Map<String, Object>>() {
         });
     }

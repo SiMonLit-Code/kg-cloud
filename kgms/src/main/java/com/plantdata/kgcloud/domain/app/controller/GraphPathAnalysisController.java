@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphPathAnalysisService;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
@@ -9,7 +10,6 @@ import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +27,9 @@ import java.util.Optional;
  * @version 1.0
  * @date 2019/11/13 16:53
  */
-@Api(tags = "路径分析")
 @RestController
 @RequestMapping("app/graphExplore/path")
-public class GraphPathAnalysisController {
+public class GraphPathAnalysisController implements SdkOpenApiInterface {
 
     @Autowired
     private GraphPathAnalysisService graphPathAnalysisService;
