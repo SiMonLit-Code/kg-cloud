@@ -23,7 +23,7 @@ import java.util.Set;
  * @version 1.0
  * @date 2019/12/4 15:50
  */
-@ApiModel("普通图探索推理参数")
+@ApiModel("普通图探索推理-参数")
 @Getter
 @Setter
 public class CommonReasoningExploreReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphCommonReqInterface, SecondaryScreeningInterface {
@@ -31,7 +31,8 @@ public class CommonReasoningExploreReq extends BasicGraphExploreReq implements R
     @ApiModelProperty(value = "通用参数", required = true)
     private CommonFiltersReq common;
     @ApiModelProperty("推理规则")
-    private Map<Integer, JsonNode> reasoningRuleConfigs;
+    private Map<Integer, Object> reasoningRuleConfigs;
+
 
     @Override
     public List<Long> fetchEntityIdList() {
@@ -44,7 +45,7 @@ public class CommonReasoningExploreReq extends BasicGraphExploreReq implements R
     }
 
     @Override
-    public Map<Integer, JsonNode> fetchReasonConfig() {
+    public Map<Integer, Object> fetchReasonConfig() {
         return reasoningRuleConfigs;
     }
 
@@ -54,7 +55,7 @@ public class CommonReasoningExploreReq extends BasicGraphExploreReq implements R
     }
 
     @Override
-    public Set<Long> getNeedSaveEntityIds() {
+    public Set<Long> fetchNeedSaveEntityIds() {
         return common.getId() == null ? Collections.emptySet() : Sets.newHashSet(common.getId());
     }
 }

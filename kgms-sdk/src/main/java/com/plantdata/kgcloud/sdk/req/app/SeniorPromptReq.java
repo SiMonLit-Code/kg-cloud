@@ -31,13 +31,16 @@ public class SeniorPromptReq extends BaseReq implements PromptSearchInterface {
     /**
      * ?一直是开启的
      */
+    @ApiModelProperty("？")
     private Boolean openExportDate = true;
 
+    @ApiModelProperty(hidden = true)
     @Override
     public List<Long> getConceptIds() {
         return Lists.newArrayList(conceptId);
     }
 
+    @ApiModelProperty(hidden = true)
     @Override
     public Boolean getInherit() {
         return true;

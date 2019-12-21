@@ -17,16 +17,8 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class EntityQueryFiltersReq {
+public class EntityQueryFiltersReq extends CompareFilterReq{
 
     private Integer attrId;
-    private String eq;
-    private Object gt;
-    private Object lt;
-    private Object gte;
-    private Object lte;
-    private List<Object> in;
-    private List<Object> nin;
-    private Object ne;
     private Integer relation;
 }

@@ -38,7 +38,7 @@ public class RelationConverter extends BasicConverter {
         queryRelationFrom.setAttrValueIds(searchReq.getAttrValueIds());
         queryRelationFrom.setLimit(searchReq.getLimit());
         queryRelationFrom.setSkip(searchReq.getOffset());
-        setIfNoNull(searchReq.getEdgeAttrQuery(), a -> queryRelationFrom.setAttrExtInfoFilters(ConditionConverter.buildEdgeAttrSearchMap(a)));
+        consumerIfNoNull(searchReq.getEdgeAttrQuery(), a -> queryRelationFrom.setAttrExtInfoFilters(ConditionConverter.buildEdgeAttrSearchMap(a)));
         queryRelationFrom.setDirection(searchReq.getDirection());
         //时间筛选
         Map<String, Object> attrTimeFilters = Maps.newHashMap();
@@ -73,7 +73,7 @@ public class RelationConverter extends BasicConverter {
 
     public static AggRelationFrom edgeAttrPromptReqToAggRelationFrom(EdgeAttrPromptReq req) {
         AggRelationFrom from = new AggRelationFrom();
-        from.setSkip(req.getOffset());
+        from.setSkip( req.getOffset());
         from.setLimit(req.getLimit());
         from.setSeqNo(req.getSeqNo());
         from.setAttrId(req.getAttrId());

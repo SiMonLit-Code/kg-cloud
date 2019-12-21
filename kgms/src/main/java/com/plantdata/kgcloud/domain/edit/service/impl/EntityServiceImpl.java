@@ -487,7 +487,7 @@ public class EntityServiceImpl implements EntityService {
         if (entityQueryReq.getConceptId() == null && !StringUtils.isEmpty(entityQueryReq.getConceptKey())) {
             List<Long> longList = graphHelperService.queryConceptByKey(kgName,
                     Lists.newArrayList(entityQueryReq.getConceptKey()));
-            BasicConverter.setIfNoNull(longList, a -> entityQueryReq.setConceptId(a.get(0)));
+            BasicConverter.consumerIfNoNull(longList, a -> entityQueryReq.setConceptId(a.get(0)));
         }
         SearchByAttributeFrom attributeFrom = EntityConverter.entityQueryReqToSearchByAttributeFrom(entityQueryReq);
         Optional<List<ai.plantdata.kg.api.pub.resp.EntityVO>> entityOpt =

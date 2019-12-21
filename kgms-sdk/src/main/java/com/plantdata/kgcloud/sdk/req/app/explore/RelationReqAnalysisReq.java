@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel("关联分析参数")
+@ApiModel("关联分析-参数")
 public class RelationReqAnalysisReq extends BasicGraphExploreReq implements GraphRelationReqInterface {
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;

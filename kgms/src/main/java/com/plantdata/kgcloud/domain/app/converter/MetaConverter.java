@@ -62,8 +62,8 @@ public class MetaConverter extends BasicConverter {
             AdditionalRsp additionalRsp = JsonUtils.objToNewObj(metaData.get(MetaDataInfo.ADDITIONAL.getFieldName()), AdditionalRsp.class);
             metaDataImpl.setAdditional(additionalRsp);
             if (null != additionalRsp) {
-                setIfNoNull(additionalRsp.getLabelStyle(), metaDataImpl::setLabelStyle);
-                setIfNoNull(additionalRsp.getNodeStyle(), metaDataImpl::setNodeStyle);
+                consumerIfNoNull(additionalRsp.getLabelStyle(), metaDataImpl::setLabelStyle);
+                consumerIfNoNull(additionalRsp.getNodeStyle(), metaDataImpl::setNodeStyle);
             }
         }
     }

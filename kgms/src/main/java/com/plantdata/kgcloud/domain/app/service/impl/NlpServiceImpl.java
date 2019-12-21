@@ -11,6 +11,7 @@ import com.hiekn.ierule.service.RuleModelService;
 import com.hiekn.ierule.service.RuleModelServiceImpl;
 import com.hiekn.pddocument.bean.PdDocument;
 import com.hiekn.pddocument.bean.element.PdEntity;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.SegmentConverter;
 import com.plantdata.kgcloud.domain.app.dto.SegmentEntityDTO;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author cjw
@@ -65,15 +67,9 @@ public class NlpServiceImpl implements NlpService {
             return Collections.emptyList();
         }
         List<NerResultRsp> resultList = new ArrayList<>();
-        Map<Integer, ModelConfig> modelConfigMap = new HashMap<>();
-        for (NerReq.TagConfigReq tagConfig : tagConfigList) {
-            List<ModelConfig> modelConfigList = tagConfig.getModelConfigList();
-            if (modelConfigList != null) {
-                for (ModelConfig modelConfig : modelConfigList) {
-                    modelConfigMap.put(modelConfig.getId(), modelConfig);
-                }
-            }
-        }
+        Map<Integer, ModelConfig> modelConfigMap = Maps.newHashMap();
+
+        tagConfigList.forEach(a -> BasicConverter.listConsumerIfNoNull(a.getModelConfigList(), b -> modelConfigMap.put(b.getId(), b)));
 
         Map<Integer, List<NamedEntityRsp>> modelResultList = Maps.newHashMap();
         for (Integer modelId : modelConfigMap.keySet()) {
@@ -93,14 +89,11 @@ public class NlpServiceImpl implements NlpService {
             for (int i = 0; i < input.length(); i++) {
                 flagList.add(true);
             }
+
             for (ModelConfig modelConfig : modelConfigList) {
                 List<NamedEntityRsp> entityList = modelResultList.get(modelConfig.getId());
                 List<NamedEntityRsp> filteredEntityList = getFilteredEntityList(entityList, name, modelConfig.getLabels());
-                for (NamedEntityRsp entity : filteredEntityList) {
-                    if (qualified(entity, flagList)) {
-                        finalEntityList.add(entity);
-                    }
-                }
+                BasicConverter.consumerIfNoNull(filteredEntityList.stream().filter(a -> qualified(a, flagList)).collect(Collectors.toList()), finalEntityList::addAll);
             }
             if (finalEntityList.size() > 0) {
                 NerResultRsp nerResultBean = new NerResultRsp();
@@ -143,36 +136,31 @@ public class NlpServiceImpl implements NlpService {
 
     private List<NamedEntityRsp> getFilteredEntityList(List<NamedEntityRsp> entityList, String name, Set<String> labels) {
         List<NamedEntityRsp> resultList = new ArrayList<>();
-        for (NamedEntityRsp entity : entityList) {
-            if (labels.contains(entity.getTag())) {
+        BasicConverter.listConsumerIfNoNull(entityList, a -> {
+            if (labels.contains(a.getTag())) {
                 NamedEntityRsp entity1 = new NamedEntityRsp();
                 entity1.setTag(name);
-                entity1.setPos(entity.getPos());
-                entity1.setName(entity.getName());
+                entity1.setPos(a.getPos());
+                entity1.setName(a.getName());
                 resultList.add(entity1);
             }
-        }
+        });
         return resultList;
     }
 
     private List<NamedEntityRsp> run(String input, ModelConfig modelConfig) throws Exception {
-        List<NamedEntityRsp> resultList = new ArrayList<>();
+
         String ruleConfig = modelConfig.getConfig();
-        Set<String> labels = modelConfig.getLabels();
         List<PdDocument> pdDocuments = ruleModelService.extractByConfigWithoutSplit(input, ruleConfig);
-        if (pdDocuments != null && pdDocuments.size() == 1) {
-            List<PdEntity> pdEntityList = pdDocuments.get(0).getPdEntity();
-            for (PdEntity entity : pdEntityList) {
-                if (labels == null || labels.contains(entity.getTag())) {
-                    NamedEntityRsp namedEntity = new NamedEntityRsp();
-                    namedEntity.setName(entity.getName());
-                    namedEntity.setTag(entity.getTag());
-                    namedEntity.setPos(entity.getIndex());
-                    resultList.add(namedEntity);
-                }
-            }
+        if (pdDocuments == null || pdDocuments.size() != 1) {
+            return Collections.emptyList();
         }
-        return resultList;
+
+        List<PdEntity> pdEntityList = pdDocuments.get(0).getPdEntity();
+        Set<String> labels = modelConfig.getLabels();
+        return pdEntityList.stream()
+                .filter(a -> labels == null || labels.contains(a.getTag()))
+                .map(EntityConverter::pdEntityToNamedEntityRsp).collect(Collectors.toList());
     }
 
     private List<SegmentEntityDTO> segment(String kgName, SegmentReq segmentReq) {
@@ -188,17 +176,16 @@ public class NlpServiceImpl implements NlpService {
         Map<Long, String> wordMap = new HashMap<>();
         for (SemanticSegWordVO seg : segWordOpt.get()) {
             String word = seg.getWord();
-            if (segmentReq.getUseConcept() && org.apache.commons.collections.CollectionUtils.isNotEmpty(seg.getConceptIdList())) {
-                entityIdList.addAll(seg.getConceptIdList());
+            if (!CollectionUtils.isEmpty(seg.getConceptIdList())) {
+                BasicConverter.applyIfTrue(segmentReq.getUseConcept(), seg.getConceptIdList(), entityIdList::addAll);
             }
-            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(seg.getEntityIdList())) {
-                if (segmentReq.getUseEntity()) {
-                    entityIdList.addAll(seg.getEntityIdList());
-                }
-                for (int i = 0; i < seg.getEntityIdList().size(); i++) {
+            if (!CollectionUtils.isEmpty(seg.getEntityIdList())) {
+                BasicConverter.applyIfTrue(segmentReq.getUseEntity(), seg.getEntityIdList(), entityIdList::addAll);
+                int bound = seg.getEntityIdList().size();
+                IntStream.range(0, bound).forEach(i -> {
                     scoreMap.put(seg.getEntityIdList().get(i), seg.getEntityScoreList().get(i));
                     wordMap.put(seg.getEntityIdList().get(i), word);
-                }
+                });
             }
         }
         Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList)));

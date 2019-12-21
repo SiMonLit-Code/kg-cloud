@@ -34,14 +34,14 @@ public interface KgDataClient {
     /**
      * 第三方模型抽取
      *
-     * @param modelId    模型id
-     * @param input      。
-     * @param configList 配置
+     * @param modelId 模型id
+     * @param input   。
+     * @param config  配置
      * @return 。
      */
     @PostMapping("extract/thirdModel/{modelId}")
     ApiReturn<Object> extractThirdModel(@PathVariable("modelId") Long modelId,
-                                        @RequestParam("input") String input, @RequestBody List<Map<String, String>> configList);
+                                        @RequestParam("input") String input, @RequestParam("config") String config);
 
     /**
      * 查询实体的关系度数
@@ -105,7 +105,7 @@ public interface KgDataClient {
      * @return 。
      */
     @PostMapping("dataset/read")
-    ApiReturn<RestData<Map<String, Object>>> searchDataSet(NameReadReq nameReadReq);
+    ApiReturn<RestData<Map<String, Object>>> searchDataSet(@RequestBody NameReadReq nameReadReq);
 
     /**
      * 批量新增数据集
@@ -113,7 +113,7 @@ public interface KgDataClient {
      * @param addReq
      * @return
      */
-    @PostMapping("dataset/dataname")
+    @PostMapping("dataset/name")
     ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq);
 
     /**
@@ -125,7 +125,7 @@ public interface KgDataClient {
      */
     @PostMapping("concept/{kgName}")
     ApiReturn<Long> createConcept(@PathVariable("kgName") String kgName,
-                                  @Valid @RequestBody ConceptAddReq conceptAddReq);
+                                  @RequestBody ConceptAddReq conceptAddReq);
 
     /**
      * 根据概念查询属性定义

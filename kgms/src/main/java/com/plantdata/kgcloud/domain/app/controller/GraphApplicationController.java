@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -112,21 +111,21 @@ public class GraphApplicationController implements GraphAppInterface {
     @ApiOperation("综合搜索")
     @PostMapping("prompt/{kgName}")
     public ApiReturn<List<PromptEntityRsp>> prompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                   @RequestBody @Valid PromptReq promptReq, @ApiIgnore BindingResult bindingResult) {
+                                                   @RequestBody @Valid PromptReq promptReq) {
         return ApiReturn.success(graphPromptService.prompt(kgName, promptReq));
     }
 
     @ApiOperation("高级搜索查实体")
-    @GetMapping("prompt/senior/{kgName}")
+    @PostMapping("prompt/senior/{kgName}")
     public ApiReturn<List<SeniorPromptRsp>> seniorPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                         @RequestBody @Valid SeniorPromptReq seniorPromptReq, @ApiIgnore BindingResult bindingResult) {
+                                                         @RequestBody @Valid SeniorPromptReq seniorPromptReq) {
         return ApiReturn.success(graphPromptService.seniorPrompt(kgName, seniorPromptReq));
     }
 
     @ApiOperation("边属性搜索")
     @PostMapping("attributes/{kgName}")
     public ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @Valid @RequestBody EdgeAttrPromptReq edgeAttrPromptReq, @ApiIgnore BindingResult bindingResult) {
+                                                        @Valid @RequestBody EdgeAttrPromptReq edgeAttrPromptReq) {
         return ApiReturn.success(graphPromptService.edgeAttributeSearch(kgName, edgeAttrPromptReq));
     }
 

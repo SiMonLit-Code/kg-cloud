@@ -15,7 +15,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019/12/4 16:00
  */
-@ApiModel("普通图探索common参数")
+@ApiModel("普通图探索-参数(通用/必填)")
 @Getter
 @Setter
 public class CommonFiltersReq {

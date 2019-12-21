@@ -61,7 +61,8 @@ public class KgDataController implements GraphAppInterface {
     @ApiOperation("第三方模型抽取")
     @PostMapping("extract/thirdModel/{modelId}")
     public ApiReturn<Object> extractThirdModel(@PathVariable("modelId") Long modelId,
-                                               @RequestParam("input") String input, @RequestBody List<Map<String, String>> configList) {
+                                               @RequestParam("input") String input,
+                                               @RequestParam("config") String config) {
         return ApiReturn.success(modelService.call(modelId, Lists.newArrayList(input)));
     }
 

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,7 +65,7 @@ public class GraphRuleController implements GraphDataObtainInterface {
     }
 
     @ApiOperation("业务规则/gis规则-修改")
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ApiReturn<GraphConfKgqlRsp> modify(@ApiParam("规则id") @PathVariable("id") Long id,
                                               @RequestBody GraphConfKgqlReq graphRuleReq) {
         return kgmsClient.updateKgql(id, graphRuleReq);

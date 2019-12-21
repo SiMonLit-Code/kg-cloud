@@ -1,10 +1,12 @@
 package com.plantdata.kgcloud.sdk.req.app.nlp;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * @author cjw
@@ -15,12 +17,13 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @ApiModel("分词参数")
 public class SegmentReq {
-    @NotBlank
+    @ApiModelProperty(value = "关键字", required = true)
+    @NotEmpty
     private String kw;
-
+    @ApiModelProperty("使用概念 默认true")
     private Boolean useConcept = true;
-
+    @ApiModelProperty("使用概念 默认true")
     private Boolean useEntity = true;
-
+    @ApiModelProperty("使用概念 默认true")
     private Boolean useAttr = true;
 }

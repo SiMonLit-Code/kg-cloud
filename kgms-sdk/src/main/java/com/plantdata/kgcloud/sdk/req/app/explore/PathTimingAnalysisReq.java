@@ -21,7 +21,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel("时序路径分析参数")
+@ApiModel("时序路径分析-参数")
 public class PathTimingAnalysisReq extends BasicGraphExploreReq implements GraphPathReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
