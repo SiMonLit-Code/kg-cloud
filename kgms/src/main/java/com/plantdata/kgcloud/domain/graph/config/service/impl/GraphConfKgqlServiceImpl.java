@@ -55,7 +55,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
                 throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
             }
             if (null == convert.get().getDomain()) {
-                BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
+               throw  BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
             }
                 String s = JacksonUtils.writeValueAsString(convert.get());
                 targe.setRuleSettings(s);
