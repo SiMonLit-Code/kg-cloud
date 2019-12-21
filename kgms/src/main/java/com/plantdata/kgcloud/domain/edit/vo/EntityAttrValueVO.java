@@ -19,6 +19,9 @@ public class EntityAttrValueVO extends AttrDefinitionVO {
     @ApiModelProperty(value = "数值属性值")
     private Object dataValue;
 
+    @ApiModelProperty(value = "数值属性TripleId")
+    private String dataValueTripleId;
+
     @ApiModelProperty(value = "对象属性值")
     private List<ObjectAttrValueVO> objectValues;
 }
