@@ -69,7 +69,7 @@ public class EntityController {
     @Autowired
     private BasicInfoService basicInfoService;
 
-    @ApiOperation("实体编辑-添加概念")
+    @ApiOperation("实体-概念-添加")
     @PostMapping("/{kgName}/{conceptId}/{entityId}/add")
     public ApiReturn addMultipleConcept(@PathVariable("kgName") String kgName,
                                         @PathVariable("conceptId") Long conceptId,
@@ -78,7 +78,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-删除概念")
+    @ApiOperation("实体-概念-删除")
     @PostMapping("/{kgName}/{conceptId}/{entityId}/delete")
     public ApiReturn deleteMultipleConcept(@PathVariable("kgName") String kgName,
                                            @PathVariable("conceptId") Long conceptId,
@@ -87,7 +87,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-修改实体名称,消歧")
+    @ApiOperation("实体-修改-实体名称,消歧")
     @PostMapping("/{kgName}/update")
     public ApiReturn updateEntity(@PathVariable("kgName") String kgName,
                                   @Valid @RequestBody EntityModifyReq entityModifyReq) {
@@ -95,27 +95,27 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体详情-批量查询-根据实体Ids")
+    @ApiOperation("实体-查询-根据实体Ids批量查询")
     @PostMapping("/{kgName}/entities")
     public ApiReturn<List<BasicInfoRsp>> batchEntityDetails(@PathVariable("kgName") String kgName, @RequestBody List<Long> ids) {
         return ApiReturn.success(basicInfoService.listByIds(kgName, ids));
     }
 
-    @ApiOperation("实体编辑-批量删除实体")
+    @ApiOperation("实体-删除-根据实体ids批量删除")
     @PostMapping("/{kgName}/batch/delete")
     public ApiReturn<List<DeleteResult>> batchDeleteEntities(@PathVariable("kgName") String kgName,
                                                              @RequestBody List<Long> ids) {
         return ApiReturn.success(entityService.deleteByIds(kgName, ids));
     }
 
-    @ApiOperation("实体编辑-根据概念id删除实体")
+    @ApiOperation("实体-删除-根据概念id删除实体")
     @PostMapping("/{kgName}/concept/delete")
     public ApiReturn<Long> deleteByConceptId(@PathVariable("kgName") String kgName,
                                              @Valid @RequestBody EntityDeleteReq entityDeleteReq) {
         return ApiReturn.success(entityService.deleteByConceptId(kgName, entityDeleteReq));
     }
 
-    @ApiOperation("实体编辑-根据来源 ,批次号删除实体")
+    @ApiOperation("实体-删除-根据来源 ,批次号删除实体")
     @PostMapping("/{kgName}/delete/meta")
     public ApiReturn deleteByMeta(@PathVariable("kgName") String kgName,
                                   @Valid @RequestBody EntityMetaDeleteReq entityMetaDeleteReq) {
@@ -123,7 +123,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体详情-实体列表")
+    @ApiOperation("实体-查询-实体列表")
     @PostMapping("/{kgName}/list")
     public ApiReturn<Page<BasicInfoRsp>> listEntities(@PathVariable("kgName") String kgName,
                                                       BasicInfoListReq basicInfoListReq,
@@ -131,7 +131,7 @@ public class EntityController {
         return ApiReturn.success(entityService.listEntities(kgName, basicInfoListReq, bodyReq));
     }
 
-    @ApiOperation("实体编辑-更新权重,来源,可信度")
+    @ApiOperation("实体-修改-更新权重,来源,可信度")
     @PostMapping("/{kgName}/{entityId}/ssr")
     public ApiReturn updateScoreSourceReliability(@PathVariable("kgName") String kgName,
                                                   @PathVariable("entityId") Long entityId,
@@ -141,7 +141,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-更新实体开始截止时间")
+    @ApiOperation("实体-修改-更新实体开始截止时间")
     @PostMapping("/{kgName}/{entityId}/time")
     public ApiReturn updateEntityTime(@PathVariable("kgName") String kgName,
                                       @PathVariable("entityId") Long entityId,
@@ -150,7 +150,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-更新实体gis详情")
+    @ApiOperation("实体-修改-更新实体gis详情")
     @PostMapping("/{kgName}/{entityId}/gis")
     public ApiReturn updateGisInfo(@PathVariable("kgName") String kgName,
                                    @PathVariable("entityId") Long entityId,
@@ -159,7 +159,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-标签-添加")
+    @ApiOperation("实体-标签-添加")
     @PostMapping("/{kgName}/{entityId}/tag/add")
     public ApiReturn addEntityTag(@PathVariable("kgName") String kgName,
                                   @PathVariable("entityId") Long entityId,
@@ -168,7 +168,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-标签-修改")
+    @ApiOperation("实体-标签-修改")
     @PostMapping("/{kgName}/{entityId}/tag/update")
     public ApiReturn updateEntityTag(@PathVariable("kgName") String kgName,
                                      @PathVariable("entityId") Long entityId,
@@ -177,7 +177,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-标签-删除")
+    @ApiOperation("实体-标签-删除")
     @PostMapping("/{kgName}/{entityId}/tag/delete")
     public ApiReturn deleteEntityTag(@PathVariable("kgName") String kgName,
                                      @PathVariable("entityId") Long entityId,
@@ -186,7 +186,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-添加实体关联")
+    @ApiOperation("实体-实体关联-添加")
     @PostMapping("/{kgName}/{entityId}/link/add")
     public ApiReturn addEntityLink(@PathVariable("kgName") String kgName,
                                    @PathVariable("entityId") Long entityId,
@@ -195,7 +195,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-删除实体关联")
+    @ApiOperation("实体-实体关联-删除")
     @PostMapping("/{kgName}/{entityId}/link/delete")
     public ApiReturn deleteEntityLink(@PathVariable("kgName") String kgName,
                                       @PathVariable("entityId") Long entityId,
@@ -204,7 +204,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-属性-数值属性值更新")
+    @ApiOperation("实体-属性-更新")
     @PostMapping("/{kgName}/number/update")
     public ApiReturn upsertNumericalAttrValue(@PathVariable("kgName") String kgName,
                                               @Valid @RequestBody NumericalAttrValueReq numericalAttrValueReq) {
@@ -212,15 +212,14 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-属性-添加对象属性值")
+    @ApiOperation("实体-关系-添加")
     @PostMapping("/{kgName}/relation")
     public ApiReturn addObjectAttrValue(@PathVariable("kgName") String kgName,
                                         @Valid @RequestBody ObjectAttrValueReq objectAttrValueReq) {
-        entityService.addObjectAttrValue(kgName, objectAttrValueReq);
-        return ApiReturn.success();
+        return ApiReturn.success(entityService.addObjectAttrValue(kgName, objectAttrValueReq));
     }
 
-    @ApiOperation("实体编辑-属性-修改关系的metadata和时间")
+    @ApiOperation("实体-关系-修改关系的metadata和时间")
     @PostMapping("/{kgName}/relation/update/meta")
     public ApiReturn updateRelationMeta(@PathVariable("kgName") String kgName,
                                         @Valid @RequestBody UpdateRelationMetaReq updateRelationMetaReq) {
@@ -228,7 +227,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-属性-删除对象属性值")
+    @ApiOperation("实体-关系-删除")
     @PostMapping("/{kgName}/relation/delete")
     public ApiReturn deleteObjAttrValue(@PathVariable("kgName") String kgName,
                                         @Valid @RequestBody DeleteRelationReq deleteRelationReq) {
@@ -236,14 +235,14 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-属性-添加私有数值或对象属性值")
+    @ApiOperation("实体-私有属性-添加私有数值或对象属性值")
     @PostMapping("/{kgName}/private/data")
     public ApiReturn addPrivateData(@PathVariable("kgName") String kgName,
                                     @Valid @RequestBody PrivateAttrDataReq privateAttrDataReq) {
         return ApiReturn.success(entityService.addPrivateData(kgName, privateAttrDataReq));
     }
 
-    @ApiOperation("实体编辑-属性-批量删除私有数值或对象属性值")
+    @ApiOperation("实体-私有关系-批量删除私有关系")
     @PostMapping("/{kgName}/batch/private/data/delete")
     public ApiReturn deletePrivateData(@PathVariable("kgName") String kgName,
                                        @Valid @RequestBody DeletePrivateDataReq deletePrivateDataReq) {
@@ -251,7 +250,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-属性-添加或更新边数值属性值")
+    @ApiOperation("实体-边属性-添加或更新边数值属性值")
     @PostMapping("/{kgName}/edge/number")
     public ApiReturn addEdgeNumericAttrValue(@PathVariable("kgName") String kgName,
                                              @Valid @RequestBody EdgeNumericAttrValueReq edgeNumericAttrValueReq) {
@@ -259,7 +258,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-属性-添加边对象属性值")
+    @ApiOperation("实体-边关系-添加边对象属性值")
     @PostMapping("/{kgName}/edge/object")
     public ApiReturn addEdgeObjectAttrValue(@PathVariable("kgName") String kgName,
                                             @Valid @RequestBody EdgeObjectAttrValueReq edgeObjectAttrValueReq) {
@@ -267,7 +266,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-属性-删除边对象属性值")
+    @ApiOperation("实体-边关系-删除边对象属性值")
     @PostMapping("/{kgName}/edge/object/delete")
     public ApiReturn deleteEdgeObjectAttrValue(@PathVariable("kgName") String kgName,
                                                @Valid @RequestBody DeleteEdgeObjectReq deleteEdgeObjectReq) {
@@ -275,28 +274,28 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体编辑-属性-批量添加对象属性值")
+    @ApiOperation("实体-关系-批量添加对象属性值")
     @PostMapping("/{kgName}/batch/object/add")
     public ApiReturn<List<String>> batchAddRelation(@PathVariable("kgName") String kgName,
                                                     @Valid @RequestBody BatchRelationReq batchRelationReq) {
         return ApiReturn.success(entityService.batchAddRelation(kgName, batchRelationReq));
     }
 
-    @ApiOperation("实体编辑-属性-批量添加私有对象属性值")
+    @ApiOperation("实体-私有关系-批量添加私有对象属性值")
     @PostMapping("/{kgName}/batch/object/add/private")
     public ApiReturn<List<String>> batchAddPrivateRelation(@PathVariable("kgName") String kgName,
                                                            @Valid @RequestBody BatchPrivateRelationReq batchPrivateRelationReq) {
         return ApiReturn.success(entityService.batchAddPrivateRelation(kgName, batchPrivateRelationReq));
     }
 
-    @ApiOperation("标签列表-实体标签搜索")
+    @ApiOperation("实体-标签-实体标签搜索")
     @GetMapping("/{kgName}/entity/tag/prompt")
     public ApiReturn<List<String>> tagSearch(@PathVariable("kgName") String kgName, EntityTagSearchReq entityTagSearchReq) {
         return ApiReturn.success(entityService.tagSearch(kgName, entityTagSearchReq));
     }
 
 
-    @ApiOperation("实体详情-实体查询")
+    @ApiOperation("实体-查询-实体查询")
     @GetMapping("/{kgName}/list/search")
     public ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
                                                           EntityQueryReq entityQueryReq) {
@@ -304,14 +303,14 @@ public class EntityController {
     }
 
 
-    @ApiOperation("实体编辑-批量新增或更新实体")
+    @ApiOperation("实体-实体-批量新增或更新实体")
     @PostMapping("/{kgName}")
     public ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName, @ApiParam(
             "是否只是更新，默认不是") boolean add, @RequestBody List<OpenBatchSaveEntityRsp> batchEntity) {
         return ApiReturn.success(entityService.saveOrUpdate(kgName, add, batchEntity));
     }
 
-    @ApiOperation("实体编辑-属性-批量实体数值属性删除")
+    @ApiOperation("实体-属性-批量删除")
     @DeleteMapping("/attr/{kgName}")
     public ApiReturn batchDeleteEntityAttr(
             @PathVariable("kgName") String kgName,

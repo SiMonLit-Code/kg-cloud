@@ -388,10 +388,11 @@ public class EntityServiceImpl implements EntityService {
 
 
     @Override
-    public void addObjectAttrValue(String kgName, ObjectAttrValueReq objectAttrValueReq) {
+    public String addObjectAttrValue(String kgName, ObjectAttrValueReq objectAttrValueReq) {
         ObjectAttributeValueFrom objectAttributeValueFrom =
                 ConvertUtils.convert(ObjectAttributeValueFrom.class).apply(objectAttrValueReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName), objectAttributeValueFrom));
+        return   RestRespConverter.convert(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName), objectAttributeValueFrom)).orElseGet(()-> null);
+
     }
 
     @Override
