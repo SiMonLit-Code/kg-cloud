@@ -69,12 +69,12 @@ public class ClashServiceImpl implements ClashService {
             s.put("_id", s.get("_id").toString());
             Integer attrId = s.getInteger("attr_id");
             // 补充数值属性约束
-            String clashInfo = "";
+            String clashInfo = "{}";
             MongoCursor<Document> cursor1 = mongoClient.getDatabase(kgDbName).getCollection("attribute_definition")
                     .find(new Document("id", attrId)).iterator();
 
             int attrType = 0;
-            String attrName = "{}";
+            String attrName = "";
             if (cursor1.hasNext()) {
                 Document define = cursor1.next();
                 attrType = define.getInteger("type");
