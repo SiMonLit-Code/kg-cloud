@@ -133,15 +133,15 @@ public class ParserBeanUtils {
         if (!CollectionUtils.isEmpty(attrValue)) {
             //填充关系的metadata
             List<EntityAttrValueVO> entityAttrValues = attrValue.stream().peek(entityAttrValueVO -> {
+                if (Objects.isNull(entityAttrValueVO.getId())) {
+                    entityAttrValueVO.setType(0);
+                }
                 List<ObjectAttrValueVO> objectValues = entityAttrValueVO.getObjectValues();
                 if (Objects.nonNull(objectValues) && !objectValues.isEmpty()) {
                     List<ObjectAttrValueVO> relationAttrValues = objectValues.stream()
                             .map(ParserBeanUtils::parserRelationValue).collect(Collectors.toList());
                     entityAttrValueVO.setObjectValues(relationAttrValues);
                     entityAttrValueVO.setType(1);
-                }
-                if (Objects.isNull(entityAttrValueVO.getId())) {
-                    entityAttrValueVO.setType(0);
                 }
             }).collect(Collectors.toList());
             basicInfoRsp.setAttrValue(entityAttrValues);
