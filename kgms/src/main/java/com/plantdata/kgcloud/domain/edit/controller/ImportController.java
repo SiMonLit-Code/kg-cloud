@@ -96,6 +96,7 @@ public class ImportController {
     @ApiOperation("关系导入")
     @PostMapping("/{kgName}/{mode}/relation")
     public ApiReturn importRelation(@PathVariable("kgName") String kgName,
+                                    @ApiParam(value = "0:忽略不存在的实例,1:实体不存在则新增", required = true)
                                     @PathVariable("mode") Integer mode,
                                     @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {

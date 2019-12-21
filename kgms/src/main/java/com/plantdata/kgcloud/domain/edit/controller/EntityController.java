@@ -216,8 +216,7 @@ public class EntityController {
     @PostMapping("/{kgName}/relation")
     public ApiReturn addObjectAttrValue(@PathVariable("kgName") String kgName,
                                         @Valid @RequestBody ObjectAttrValueReq objectAttrValueReq) {
-        entityService.addObjectAttrValue(kgName, objectAttrValueReq);
-        return ApiReturn.success();
+        return ApiReturn.success(entityService.addObjectAttrValue(kgName, objectAttrValueReq));
     }
 
     @ApiOperation("实体-关系-修改关系的metadata和时间")

@@ -172,7 +172,7 @@ public interface EntityService {
      * @param kgName
      * @param objectAttrValueReq
      */
-    void addObjectAttrValue(String kgName, ObjectAttrValueReq objectAttrValueReq);
+    String addObjectAttrValue(String kgName, ObjectAttrValueReq objectAttrValueReq);
 
     /**
      * 修改关系的metadata(权重,来源,置信度,来源理由,关系时间)
