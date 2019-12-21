@@ -9,7 +9,6 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;

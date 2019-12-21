@@ -5,6 +5,7 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
@@ -29,6 +30,15 @@ public interface GraphHelperService {
      * @return
      */
     List<Long> queryConceptByKey(String kgName, List<String> keyList);
+
+    /**
+     * 替换conceptKey
+     *
+     * @param kgName        图谱名称
+     * @param conceptKeyReq req
+     */
+    void replaceByConceptKey(String kgName, ConceptKeyListReqInterface conceptKeyReq);
+
 
     /**
      * 替换conceptKey

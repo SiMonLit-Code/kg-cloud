@@ -17,7 +17,6 @@ import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.ImageConverter;
 import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
-import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;

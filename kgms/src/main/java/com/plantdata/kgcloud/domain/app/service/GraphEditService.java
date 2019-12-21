@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
 
 /**
  * @author cjw

@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.sdk.rsp.app.sparql;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

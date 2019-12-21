@@ -2,9 +2,6 @@ package com.plantdata.kgcloud.plantdata.req.explore;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.req.common.AttrSortBean;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
-import com.plantdata.kgcloud.sdk.req.app.function.GraphCommonReqInterface;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;

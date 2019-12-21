@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
-import ch.qos.logback.core.db.dialect.DBUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;

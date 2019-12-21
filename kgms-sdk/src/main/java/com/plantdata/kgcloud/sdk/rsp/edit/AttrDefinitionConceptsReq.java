@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.sdk.rsp.edit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class AttrDefinitionConceptsReq {
 
     @ApiModelProperty(value = "是否继承")
     private Boolean inherit = false;
-
+    @NonNull
     @ApiModelProperty(value = "概念ids")
     private List<Long> ids;
 

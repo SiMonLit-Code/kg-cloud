@@ -2,9 +2,12 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.edit.req.AttrQueryFrom;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
+import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
+import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import lombok.NonNull;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -40,6 +43,14 @@ public class AttrDefConverter {
             attrDefReq.setExtraInfos(extraInfoItemList);
         }
         return attrDefReq;
+    }
+
+    public static AttrDefinitionSearchReq attrDefQueryReqToAttrDefinitionSearchReq(AttrDefQueryReq queryReq) {
+        AttrDefinitionSearchReq searchReq = new AttrDefinitionSearchReq();
+        searchReq.setConceptId(queryReq.getConceptId());
+        searchReq.setInherit(queryReq.isInherit());
+        searchReq.setType(NumberUtils.INTEGER_ZERO);
+        return searchReq;
     }
 
     public static AttrQueryFrom convertToQuery(List<Long> conceptIdList, boolean inherit, int type) {
