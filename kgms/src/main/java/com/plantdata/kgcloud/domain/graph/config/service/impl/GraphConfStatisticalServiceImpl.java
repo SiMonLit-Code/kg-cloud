@@ -18,12 +18,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author jiangdeming
  * @date 2019/12/3
  */
@@ -80,16 +83,20 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
             Long id = req.getId();
             list.add(id);
         }
-        List<GraphConfStatistical> list1 = graphConfStatisticalRepository.findAllById(list);
-        List<GraphConfStatistical> list3 = new ArrayList<>();
-        for (GraphConfStatistical graphConfStatistical : list1) {
-            for (GraphConfStatisticalReq req : reqs) {
-                BeanUtils.copyProperties(req, graphConfStatistical);
-                list3.add(graphConfStatistical);
-            }
+        List<GraphConfStatistical> confStatisticalList = graphConfStatisticalRepository.findAllById(list);
+        if (confStatisticalList.isEmpty()) {
+            throw BizException.of(AppErrorCodeEnum.CONF_STATISTICALID_NOT_EXISTS);
         }
-        graphConfStatisticalRepository.deleteInBatch(list1);
-        List<GraphConfStatistical> list2 = graphConfStatisticalRepository.saveAll(list3);
+        List<GraphConfStatistical> statisticalArrayList = new ArrayList<>();
+        Map<Long, GraphConfStatistical> confStatisticalMap = confStatisticalList.stream().collect(Collectors.toMap(GraphConfStatistical::getId, Function.identity()));
+        for (GraphConfStatisticalReq req : reqs) {
+            if (null == confStatisticalMap.get(req.getId())) {
+                throw BizException.of(AppErrorCodeEnum.CONF_STATISTICALID_NOT_EXISTS);
+            }
+            BeanUtils.copyProperties(req, confStatisticalMap.get(req.getId()));
+            statisticalArrayList.add(confStatisticalMap.get(req.getId()));
+        }
+        List<GraphConfStatistical> list2 = graphConfStatisticalRepository.saveAll(statisticalArrayList);
         return list2.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
     }
 
