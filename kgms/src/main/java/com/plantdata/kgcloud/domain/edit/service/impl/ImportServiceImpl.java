@@ -145,7 +145,7 @@ public class ImportServiceImpl implements ImportService {
         BasicInfoRsp details = basicInfoService.getDetails(kgName,
                 BasicReq.builder().id(conceptId).isEntity(false).build());
         GisVO gis = details.getGis();
-        if (Objects.nonNull(gis) && gis.getIsOpenGis()) {
+        if (gis != null && gis.getIsOpenGis() != null && gis.getIsOpenGis()) {
             header.add(Collections.singletonList("GIS名称"));
             header.add(Collections.singletonList("经度"));
             header.add(Collections.singletonList("纬度"));
