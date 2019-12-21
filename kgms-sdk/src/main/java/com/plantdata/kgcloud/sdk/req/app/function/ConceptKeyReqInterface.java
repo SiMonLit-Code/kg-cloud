@@ -1,24 +1,24 @@
 package com.plantdata.kgcloud.sdk.req.app.function;
 
-import java.util.List;
-
 /**
  * @author cjw
  * @version 1.0
- * @date 2019/12/17 17:27
+ * @date 2019/12/20 18:26
  */
 public interface ConceptKeyReqInterface {
 
-
-    default List<Long> getAllowConcepts() {
+    default Long getConceptId() {
         return null;
     }
 
-    default void setAllowConcepts(List<Long> disAllowConcepts) {
-
+    default void setConceptId(Long conceptId) {
     }
 
-    default List<String> getAllowConceptsKey() {
+    default String getConceptKey() {
         return null;
     }
+
+    default void setConceptKey(String conceptKey) {
+    }
+
 }

@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/11/25 17:15
  */
-public class RelationConverter  extends BasicConverter{
+public class RelationConverter extends BasicConverter {
 
     public static BatchQueryRelationFrom edgeAttrSearch(EdgeSearchReq searchReq) {
         BatchQueryRelationFrom queryRelationFrom = new BatchQueryRelationFrom();
@@ -38,7 +38,7 @@ public class RelationConverter  extends BasicConverter{
         queryRelationFrom.setAttrValueIds(searchReq.getAttrValueIds());
         queryRelationFrom.setLimit(searchReq.getLimit());
         queryRelationFrom.setSkip(searchReq.getOffset());
-        queryRelationFrom.setAttrExtInfoFilters(ConditionConverter.buildEdgeAttrSearchMap(searchReq.getEdgeAttrQuery()));
+        setIfNoNull(searchReq.getEdgeAttrQuery(), a -> queryRelationFrom.setAttrExtInfoFilters(ConditionConverter.buildEdgeAttrSearchMap(a)));
         queryRelationFrom.setDirection(searchReq.getDirection());
         //时间筛选
         Map<String, Object> attrTimeFilters = Maps.newHashMap();
