@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
 
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import io.swagger.annotations.ApiModel;
