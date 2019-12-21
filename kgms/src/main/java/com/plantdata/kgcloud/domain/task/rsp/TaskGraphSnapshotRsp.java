@@ -27,4 +27,6 @@ public class TaskGraphSnapshotRsp {
 
     private Date createAt;
 
+    private Date updateAt;
+
 }
