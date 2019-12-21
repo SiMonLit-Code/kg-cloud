@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel("路径分析参数")
+@ApiModel("路径分析-参数")
 public class PathAnalysisReq extends BasicGraphExploreReq implements GraphPathReqInterface, SecondaryScreeningInterface {
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;

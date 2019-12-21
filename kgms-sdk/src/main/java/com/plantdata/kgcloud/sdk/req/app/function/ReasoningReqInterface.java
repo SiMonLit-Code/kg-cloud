@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app.function;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 import java.util.Map;
@@ -32,5 +33,5 @@ public interface ReasoningReqInterface {
      *
      * @return 。
      */
-    Map<Integer, JsonNode> fetchReasonConfig();
+    Map<Integer, Object> fetchReasonConfig();
 }

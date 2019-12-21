@@ -23,7 +23,7 @@ import java.util.Map;
  * @date 2019/12/19 13:37
  */
 @RestController("openDataSetController")
-@RequestMapping("app/dataset")
+@RequestMapping("kgdata/dataset")
 public class DataSetController implements SdkOpenApiInterface {
     @Autowired
     private KgDataService kgDataService;

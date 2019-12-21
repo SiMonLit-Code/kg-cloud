@@ -13,16 +13,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
-
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -41,21 +37,21 @@ public class GraphPromptController implements GraphApplicationInterface {
     @ApiOperation("综合搜索")
     @PostMapping("{kgName}")
     public ApiReturn<List<PromptEntityRsp>> prompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                   @RequestBody @Valid PromptReq promptReq,@ApiIgnore BindingResult bindingResult) {
+                                                   @RequestBody  PromptReq promptReq) {
         return appClient.prompt(kgName,promptReq);
     }
 
     @ApiOperation("高级搜索查实体")
-    @GetMapping("senior/{kgName}")
+    @PostMapping("senior/{kgName}")
     public ApiReturn<List<SeniorPromptRsp>> seniorPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                         @Valid SeniorPromptReq seniorPromptReq) {
+                                                         @RequestBody SeniorPromptReq seniorPromptReq) {
         return appClient.seniorPrompt(kgName, seniorPromptReq);
     }
 
     @ApiOperation("边属性搜索")
     @PostMapping("attributes/{kgName}")
     public ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @Valid EdgeAttrPromptReq edgeAttrPromptReq) {
+                                                       @RequestBody EdgeAttrPromptReq edgeAttrPromptReq) {
         return appClient.attrPrompt(kgName, edgeAttrPromptReq);
     }
 

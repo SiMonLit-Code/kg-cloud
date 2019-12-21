@@ -4,6 +4,8 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
+import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
@@ -21,7 +23,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019/12/4 18:03
  */
-@FeignClient(value = "kgms", path = "nlp", contextId = "nlpClient")
+@FeignClient(value = "kgms", path = "app/nlp", contextId = "nlpClient")
 public interface NlpClient {
     /**
      * 中文命名实体识别
@@ -50,6 +52,7 @@ public interface NlpClient {
      * @param linkingReq .
      * @return .
      */
-    @PostMapping("annotation")
-    ApiReturn<List<TaggingItemRsp>> tagging(@RequestParam("kgName") String kgName, @RequestBody EntityLinkingReq linkingReq);
+    @PostMapping("annotation/{kgName}")
+    ApiReturn<List<TaggingItemRsp>> tagging(@PathVariable("kgName") String kgName, @RequestBody EntityLinkingReq linkingReq);
+
 }

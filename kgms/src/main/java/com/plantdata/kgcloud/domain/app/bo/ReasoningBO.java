@@ -4,7 +4,9 @@ import ai.plantdata.kg.api.semantic.req.ReasoningReq;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.domain.app.dto.RelationReasonRuleDTO;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.Getter;
@@ -16,6 +18,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,9 +36,14 @@ public class ReasoningBO {
     @Getter
     private List<RelationReasonRuleDTO> reasonRuleList;
 
-    public ReasoningBO(List<GraphConfReasoning> reasoningList, Map<Integer, JsonNode> configMap) {
+    public ReasoningBO(List<GraphConfReasoning> reasoningList, Map<Integer, Object> configMap) {
         this.dbConfigMap = CollectionUtils.isEmpty(reasoningList) ? Collections.emptyMap() : reasoningList.stream().collect(Collectors.toMap(GraphConfReasoning::getId, Function.identity()));
-        this.configMap = configMap;
+        this.configMap = Maps.newHashMap();
+        configMap.forEach((key, value) -> {
+            Optional<JsonNode> jsonNodeOpt = JsonUtils.parseJsonNode(JacksonUtils.writeValueAsString(value));
+            jsonNodeOpt.ifPresent(v -> configMap.put(key, v));
+        });
+
     }
 
     public void replaceRuleInfo() {

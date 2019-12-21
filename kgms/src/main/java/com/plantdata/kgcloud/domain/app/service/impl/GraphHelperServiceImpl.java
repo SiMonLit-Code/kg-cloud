@@ -140,7 +140,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             Set<Long> entityIdSet = !entityIdOpt.isPresent() ? Collections.emptySet() : Sets.newHashSet(entityIdOpt.get());
             rsp.setEntityList(entity.stream().filter(a -> entityIdSet.contains(a.getId())).collect(Collectors.toList()));
         }
-        GraphCommonBO.rebuildGraphRelationAndEntity(rsp, req.getNeedSaveEntityIds());
+        GraphCommonBO.rebuildGraphRelationAndEntity(rsp, req.fetchNeedSaveEntityIds());
         return Optional.of(rsp);
 
     }
@@ -159,7 +159,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             return;
         }
         List<Long> ids = queryConceptByKey(kgName, Lists.newArrayList(conceptKeyReq.getConceptKey()));
-        BasicConverter.setIfNoNull(ids, a -> conceptKeyReq.setConceptId(a.get(NumberUtils.INTEGER_ZERO)));
+        BasicConverter.consumerIfNoNull(ids, a -> conceptKeyReq.setConceptId(a.get(NumberUtils.INTEGER_ZERO)));
     }
 
     @Override

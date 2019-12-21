@@ -51,7 +51,7 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
 
     @Override
     public GraphVO rebuildByRuleReason(String kgName, GraphVO graphVO, ReasoningReqInterface reasoningParam) {
-        Map<Integer, JsonNode> configMap = reasoningParam.fetchReasonConfig();
+        Map<Integer, Object> configMap = reasoningParam.fetchReasonConfig();
         if (MapUtils.isEmpty(configMap)) {
             return graphVO;
         }

@@ -30,7 +30,7 @@ public class DataSetObtainController implements DataSetDataObtainInterface {
 
     @ApiOperation("读数普通数据集的数据")
     @PostMapping("common")
-    public ApiReturn<RestData<Map<String, Object>>> searchDataSet(NameReadReq nameReadReq) {
+    public ApiReturn<RestData<Map<String, Object>>> searchDataSet(@RequestBody NameReadReq nameReadReq) {
         return kgDataClient.searchDataSet(nameReadReq);
     }
 
@@ -43,7 +43,7 @@ public class DataSetObtainController implements DataSetDataObtainInterface {
 
     @PostMapping("add")
     @ApiOperation("数据集导入数据")
-    public ApiReturn interfaceUpload(@Valid DataSetAddReq addReq) {
+    public ApiReturn interfaceUpload(@RequestBody DataSetAddReq addReq) {
         return kgDataClient.batchSaveDataSetByName(addReq);
     }
 

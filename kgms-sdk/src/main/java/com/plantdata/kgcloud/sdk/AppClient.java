@@ -153,7 +153,7 @@ public interface AppClient {
      */
     @GetMapping("prompt/senior/{kgName}")
     ApiReturn<List<SeniorPromptRsp>> seniorPrompt(@PathVariable("kgName") String kgName,
-                                                  SeniorPromptReq seniorPromptReq);
+                                                  @RequestBody SeniorPromptReq seniorPromptReq);
 
     /**
      * 边属性搜索
@@ -164,7 +164,7 @@ public interface AppClient {
      */
     @PostMapping("attributes/{kgName}")
     ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@PathVariable("kgName") String kgName,
-                                                 EdgeAttrPromptReq edgeAttrPromptReq);
+                                                 @RequestBody EdgeAttrPromptReq edgeAttrPromptReq);
 
     /**
      * 初始化图探索焦点

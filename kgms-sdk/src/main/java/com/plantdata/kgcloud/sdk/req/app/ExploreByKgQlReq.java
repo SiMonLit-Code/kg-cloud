@@ -29,6 +29,7 @@ public class ExploreByKgQlReq implements GraphReqAfterInterface {
     @ApiModelProperty("关系是否合并")
     private boolean relationMerge;
 
+    @ApiModelProperty(hidden = true)
     @Override
     public List<Long> getReplaceClassIds() {
         return Collections.emptyList();

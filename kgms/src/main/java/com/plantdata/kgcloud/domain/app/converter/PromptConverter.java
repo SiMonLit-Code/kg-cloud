@@ -138,7 +138,7 @@ public class PromptConverter extends BasicConverter {
                 typeOpt.ifPresent(sortTypeEnum -> from.setSortDirection(sortTypeEnum.getValue()));
             }
         }
-        setIfNoNull(from.getSortDirection(), a -> SortTypeEnum.parseByValue(a).orElse(SortTypeEnum.DESC).getValue());
+        consumerIfNoNull(from.getSortDirection(), a -> SortTypeEnum.parseByValue(a).orElse(SortTypeEnum.DESC).getValue());
         return from;
     }
 }

@@ -17,6 +17,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBean;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,21 +45,22 @@ public class NlpController implements NaturalLanguageProcessingInterface {
     private HanLPService hanLPService = new HanLPService();
 
     @ApiOperation("语义标注")
-    @PostMapping("annotation")
-    public ApiReturn<List<TaggingItemRsp>> tagging(@RequestParam("kgName") String kgName, @RequestBody EntityLinkingReq linkingFrom) {
+    @PostMapping("annotation/{kgName}")
+    public ApiReturn<List<TaggingItemRsp>> tagging(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                   @RequestBody EntityLinkingReq linkingFrom) {
         return nlpClient.tagging(kgName, linkingFrom);
     }
 
-    @ApiOperation("中文命名实体识别")
+    @ApiOperation("命名实体识别")
     @PostMapping("ner")
     public ApiReturn<List<NerResultRsp>> namedEntityRecognition(@RequestBody NerReq nerReq) {
         return nlpClient.namedEntityRecognition(nerReq);
     }
 
     @ApiOperation("图谱分词")
-    @PostMapping("segment/graph/{kgName}")
+    @GetMapping("segment/graph/{kgName}")
     public ApiReturn<List<GraphSegmentRsp>> graphSegment(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                         @RequestBody SegmentReq segmentReq) {
+                                                         SegmentReq segmentReq) {
         return nlpClient.graphSegment(kgName, segmentReq);
     }
 
@@ -137,14 +139,14 @@ public class NlpController implements NaturalLanguageProcessingInterface {
     }
 
     @ApiOperation("两个实体间语义距离查询")
-    @PostMapping("distance/score")
+    @PostMapping("{kgName}/distance/score")
     public ApiReturn<Double> semanticDistanceScore(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                    @RequestParam("entityIdOne") Long entityIdOne, @RequestParam("entityIdTwo") Long entityIdTwo) {
         return semanticClient.semanticDistanceScore(kgName, entityIdOne, entityIdTwo);
     }
 
     @ApiOperation("实体语义相关实体查询")
-    @PostMapping("distance/list/{kgName}")
+    @PostMapping("{kgName}/distance/list")
     public ApiReturn<List<DistanceEntityRsp>> semanticDistanceRelevance(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                                         @RequestBody DistanceListReq listReq) {
         return ApiReturn.success(null);

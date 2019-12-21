@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk.rsp.app.semantic;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -10,7 +11,8 @@ import java.util.List;
  */
 @Setter
 @Getter
-public class SemanticSegWordVO {
+@ToString
+public class SemanticSegWordRsp {
 
     /**
      * 词内容
@@ -44,7 +46,6 @@ public class SemanticSegWordVO {
      * 属性名，如果词对应属性时才有
      */
     private String attributeName;
-///	private String attributeMetaName;	//属性名，如果词对应属性元数据时才有
     /**
      * 属性ID列表，如果词对应属性时才有
      */

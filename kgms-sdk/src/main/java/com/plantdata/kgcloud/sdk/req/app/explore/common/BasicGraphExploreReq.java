@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -30,10 +32,12 @@ public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyL
     @ApiModelProperty("实例id")
     private List<String> replaceClassKeys;
     @ApiModelProperty("读取层数")
-    private int distance = 1;
+    @Max(value = 30, message = "层数最多可查询30层")
+    @Min(value = 1, message = "层数最小为1")
+    private Integer distance = 1;
     @ApiModelProperty("是否关系合并")
     private boolean relationMerge;
-    @ApiModelProperty(value = "allowTypes字段指定的概念是否继承",required = true)
+    @ApiModelProperty(value = "allowTypes字段指定的概念是否继承", required = true)
     private boolean isInherit;
     @ApiModelProperty("在指定属性范围内查询")
     private List<Integer> allowAttrs;

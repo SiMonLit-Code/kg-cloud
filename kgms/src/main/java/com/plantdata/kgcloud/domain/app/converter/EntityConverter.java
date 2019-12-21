@@ -8,6 +8,7 @@ import ai.plantdata.kg.api.pub.resp.GisEntityVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.hiekn.pddocument.bean.element.PdEntity;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -17,6 +18,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.NamedEntityRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -142,6 +144,14 @@ public class EntityConverter {
         attributeFrom.setSkip(entityQueryReq.getOffset());
         attributeFrom.setConceptIds(Lists.newArrayList(entityQueryReq.getConceptId()));
         return attributeFrom;
+    }
+
+    public static NamedEntityRsp pdEntityToNamedEntityRsp(@NonNull PdEntity pdEntity) {
+        NamedEntityRsp namedEntity = new NamedEntityRsp();
+        namedEntity.setName(pdEntity.getName());
+        namedEntity.setTag(pdEntity.getTag());
+        namedEntity.setPos(pdEntity.getIndex());
+        return namedEntity;
     }
 
 

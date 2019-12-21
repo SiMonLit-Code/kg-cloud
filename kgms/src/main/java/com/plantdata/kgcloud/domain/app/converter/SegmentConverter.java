@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/12/5 10:40
  */
-public class SegmentConverter {
+public class SegmentConverter extends BasicConverter {
 
     public static SemanticSegFrom segmentReqToSemanticSegFrom(SegmentReq segmentReq) {
         SemanticSegFrom segFrom = new SemanticSegFrom();
-        segFrom.setEntity(segmentReq.getUseEntity());
+        consumerIfNoNull(segmentReq.getUseEntity(), segFrom::setEntity);
+        consumerIfNoNull(segmentReq.getUseAttr(), segFrom::setAttr);
+        consumerIfNoNull(segmentReq.getUseConcept(), segFrom::setConcept);
         segFrom.setInput(segmentReq.getKw());
-        segFrom.setAttr(segmentReq.getUseAttr());
-        segFrom.setConcept(segmentReq.getUseConcept());
         return segFrom;
     }
 

@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app.sematic;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@ApiModel("层数-参数")
 public class DistanceListReq {
 
     @NotNull

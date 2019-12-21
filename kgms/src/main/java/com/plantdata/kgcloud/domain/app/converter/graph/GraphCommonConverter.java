@@ -83,6 +83,7 @@ public class GraphCommonConverter extends BasicConverter {
         commonFilter.setDistance(exploreReq.getDistance());
         graphFrom.setSkip(page.getPage());
         graphFrom.setLimit(page.getSize());
+        graphFrom.setDistance(exploreReq.getDistance());
         if (!CollectionUtils.isEmpty(exploreReq.getEntityFilters())) {
             EntityFilter entityFilter = new EntityFilter();
             entityFilter.setAttr(ConditionConverter.entityListToIntegerKeyMap(exploreReq.getEntityFilters()));
@@ -118,51 +119,49 @@ public class GraphCommonConverter extends BasicConverter {
      * @return 。。。
      */
     static List<GraphRelationRsp> simpleRelationToGraphRelationRsp(@NonNull List<SimpleRelation> simpleRelationList, boolean relationMerge) {
-        List<GraphRelationRsp> relationRspList = Lists.newArrayList();
-        GraphRelationRsp relationRsp;
         Map<Long, Set<Long>> relationMap = Maps.newHashMap();
-        for (SimpleRelation relation : simpleRelationList) {
-            relationRsp = new GraphRelationRsp();
-            relationRsp.setFrom(relation.getFrom());
-            relationRsp.setTo(relation.getTo());
-            relationRsp.setAttId(relation.getAttrId());
-            relationRsp.setAttName(relation.getAttrName());
-            relationRsp.setDirection(relation.getDirection());
-            relationRsp.setStartTime(relation.getAttrTimeFrom());
-            relationRsp.setEndTime(relation.getAttrTimeFrom());
-            relationRsp.setId(relation.getId());
-            if (!CollectionUtils.isEmpty(relation.getMetaData())) {
-                MetaConverter.fillMetaWithNoNull(relation.getMetaData(), relationRsp);
-                Map<String, Object> additionalMap = (Map<String, Object>) relation.getMetaData().get(MetaDataInfo.ADDITIONAL.getFieldName());
-                if (!CollectionUtils.isEmpty(additionalMap)) {
-                    if (additionalMap.containsKey("labelStyle")) {
-                        relationRsp.setLabelStyle((Map<String, Object>) additionalMap.get("labelStyle"));
-                    }
-                    if (additionalMap.containsKey("linkStyle")) {
-                        relationRsp.setLinkStyle((Map<String, Object>) additionalMap.get("linkStyle"));
-                    }
+        return listConvert(simpleRelationList, a -> simpleRelationToGraphRelationRsp(a, relationMap, relationMerge));
+    }
+
+
+    private static GraphRelationRsp simpleRelationToGraphRelationRsp(@NonNull SimpleRelation relation, Map<Long, Set<Long>> relationMap, boolean relationMerge) {
+        GraphRelationRsp relationRsp = new GraphRelationRsp();
+        relationRsp.setFrom(relation.getFrom());
+        relationRsp.setTo(relation.getTo());
+        relationRsp.setAttId(relation.getAttrId());
+        relationRsp.setAttName(relation.getAttrName());
+        relationRsp.setDirection(relation.getDirection());
+        relationRsp.setStartTime(relation.getAttrTimeFrom());
+        relationRsp.setEndTime(relation.getAttrTimeFrom());
+        relationRsp.setId(relation.getId());
+        if (!CollectionUtils.isEmpty(relation.getMetaData())) {
+            MetaConverter.fillMetaWithNoNull(relation.getMetaData(), relationRsp);
+            Map<String, Object> additionalMap = (Map<String, Object>) relation.getMetaData().get(MetaDataInfo.ADDITIONAL.getFieldName());
+            if (!CollectionUtils.isEmpty(additionalMap)) {
+                if (additionalMap.containsKey("labelStyle")) {
+                    relationRsp.setLabelStyle((Map<String, Object>) additionalMap.get("labelStyle"));
+                }
+                if (additionalMap.containsKey("linkStyle")) {
+                    relationRsp.setLinkStyle((Map<String, Object>) additionalMap.get("linkStyle"));
                 }
             }
-            if (!CollectionUtils.isEmpty(relation.getEdgeNumericAttr())) {
-                relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
-            }
-            if (!CollectionUtils.isEmpty(relation.getEdgeObjAttr())) {
-                relationRsp.setObjAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
-            }
-            if (!relationMerge) {
-                relationRspList.add(relationRsp);
-                continue;
-            }
-            //关系合并
-            Set<Long> toSet = relationMap.computeIfAbsent(relation.getFrom(), Sets::newHashSet);
-            if (toSet.contains(relation.getTo())) {
-                relationRsp.getSourceRelationList().add(relationRsp);
-            } else {
-                relationRspList.add(relationRsp);
-                toSet.add(relation.getTo());
-            }
         }
-        return relationRspList;
+        if (!CollectionUtils.isEmpty(relation.getEdgeNumericAttr())) {
+            relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
+        }
+        if (!CollectionUtils.isEmpty(relation.getEdgeObjAttr())) {
+            relationRsp.setObjAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
+        }
+        if (relationMerge) {
+            return relationRsp;
+        }
+        //关系合并
+        Set<Long> toSet = relationMap.computeIfAbsent(relation.getFrom(), Sets::newHashSet);
+        if (toSet.contains(relation.getTo())) {
+            relationRsp.getSourceRelationList().add(relationRsp);
+        }
+        toSet.add(relation.getTo());
+        return relationRsp;
     }
 
     private static List<BasicRelationRsp.EdgeInfo> edgeVoListToEdgeInfo(@NonNull List<EdgeVO> edgeList) {
@@ -188,9 +187,7 @@ public class GraphCommonConverter extends BasicConverter {
         imageRsp.ifPresent(graphEntityRsp::setImg);
         GraphCommonConverter.fillConcept(simpleEntity.getConceptId(), graphEntityRsp, conceptMap);
         Map<String, Object> metaDataMap = simpleEntity.getMetaData();
-        if (!CollectionUtils.isEmpty(metaDataMap)) {
-            MetaConverter.fillMetaWithNoNull(metaDataMap, graphEntityRsp);
-        }
+        consumerIfNoNull(metaDataMap, a -> MetaConverter.fillMetaWithNoNull(a, graphEntityRsp));
         if (!CollectionUtils.isEmpty(replaceClassIds)) {
             Optional<Long> first = graphEntityRsp.getConceptIdList().stream().filter(replaceClassIds::contains).findFirst();
             first.ifPresent(graphEntityRsp::setClassId);
