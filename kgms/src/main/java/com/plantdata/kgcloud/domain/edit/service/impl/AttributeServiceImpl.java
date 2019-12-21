@@ -58,7 +58,6 @@ import com.plantdata.kgcloud.domain.edit.rsp.AttrConstraintsRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
-import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.domain.edit.vo.IdNameVO;
@@ -105,9 +104,6 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Autowired
     private GraphApi graphApi;
-
-    @Autowired
-    private ConceptService conceptService;
 
     @Autowired
     private BasicInfoService basicInfoService;

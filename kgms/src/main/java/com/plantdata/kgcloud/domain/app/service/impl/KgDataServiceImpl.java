@@ -3,11 +3,11 @@ package com.plantdata.kgcloud.domain.app.service.impl;
 import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
-import ai.plantdata.kg.api.pub.req.AttributeStatisticsBean;
-import ai.plantdata.kg.api.pub.req.ConceptStatisticsBean;
 import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
-import ai.plantdata.kg.api.pub.req.RelationExtraInfoStatisticBean;
-import ai.plantdata.kg.api.pub.req.RelationStatisticsBean;
+import ai.plantdata.kg.api.pub.req.statistics.AttributeStatisticsBean;
+import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
+import ai.plantdata.kg.api.pub.req.statistics.RelationExtraInfoStatisticBean;
+import ai.plantdata.kg.api.pub.req.statistics.RelationStatisticsBean;
 import ai.plantdata.kg.api.ql.SparqlApi;
 import ai.plantdata.kg.api.ql.resp.NodeBean;
 import ai.plantdata.kg.api.ql.resp.QueryResultVO;
@@ -114,7 +114,7 @@ public class KgDataServiceImpl implements KgDataService {
         }
         List<StatisticDTO> dataList = JsonUtils.objToList(dataOpt.get(), StatisticDTO.class);
         AttributeDataTypeEnum dataType = GraphStatisticConverter.edgeAttrDataType(statisticReq.getSeqNo(), arrDefOpt.get());
-        return buildStatisticResult(dataType, statisticReq.getMerge(), dataList, statisticReq.getDateType(), statisticReq.getSort(), statisticBean.getSize(), statisticReq.getReturnType());
+        return buildStatisticResult(dataType, statisticReq.getMerge(), dataList, statisticReq.getDateType(), statisticReq.getSort(), statisticBean.getLimit(), statisticReq.getReturnType());
     }
 
     @Override
