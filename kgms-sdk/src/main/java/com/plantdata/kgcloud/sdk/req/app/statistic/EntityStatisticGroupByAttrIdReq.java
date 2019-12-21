@@ -24,7 +24,7 @@ public class EntityStatisticGroupByAttrIdReq {
     //    @ChooseCheck(value = "[-1,1]", name = "sort")
     private Integer direction = -1;
     private Integer sort = -1;
-    private String allowValues;
+    private List<Object> allowValues;
     // @ChooseCheck(value = "[0,1]", name = "returnType")
     private Integer returnType = 0;
     @Min(-1)
