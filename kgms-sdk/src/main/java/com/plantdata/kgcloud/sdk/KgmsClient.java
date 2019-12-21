@@ -374,7 +374,7 @@ public interface KgmsClient {
      * @param ids
      * @return
      */
-    @PutMapping("/config/statistical/batch")
+    @PutMapping("/config/statistical/batch/delete")
     ApiReturn deleteStatisticalBatch(@RequestBody List<Long> ids);
 
     /**

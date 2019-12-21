@@ -36,34 +36,34 @@ public class GraphRuleController implements GraphDataObtainInterface {
     private KgmsClient kgmsClient;
 
     @GetMapping("{kgName}/{type}")
-    @ApiOperation("业务规则列表")
+    @ApiOperation("业务规则/gis规则-列表")
     public ApiReturn<BasePage<GraphConfKgqlRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                             @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
                                                             BaseReq baseReq) {
         return kgmsClient.selectKgql(kgName, type, baseReq);
     }
 
-    @ApiOperation("业务规则详情")
+    @ApiOperation("业务规则/gis规则-详情")
     @GetMapping("{id}")
     public ApiReturn<GraphConfKgqlRsp> detail(@ApiParam("规则id") @PathVariable("id") Long id) {
 
         return kgmsClient.detailKgql(id);
     }
 
-    @ApiOperation("业务规则或者gis规则新增")
+    @ApiOperation("业务规则/gis规则-新增")
     @PostMapping("/kgql/{kgName}")
     public ApiReturn<GraphConfKgqlRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req) {
         return kgmsClient.saveKgql(kgName, req);
     }
 
-    @ApiOperation("业务规则删除")
+    @ApiOperation("业务规则/gis规则-删除")
     @DeleteMapping("{id}")
     public ApiReturn delete(@ApiParam("规则id") @PathVariable("id") Long id) {
         kgmsClient.deleteKgql(id);
         return ApiReturn.success();
     }
 
-    @ApiOperation("业务规则修改")
+    @ApiOperation("业务规则/gis规则-修改")
     @PatchMapping("/{id}")
     public ApiReturn<GraphConfKgqlRsp> modify(@ApiParam("规则id") @PathVariable("id") Long id,
                                               @RequestBody GraphConfKgqlReq graphRuleReq) {

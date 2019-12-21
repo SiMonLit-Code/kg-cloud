@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author cjw
@@ -48,7 +50,7 @@ public class GraphStatisticConfigController implements GraphDataObtainInterface 
     }
 
     @ApiOperation("统计配置-批量修改")
-    @PatchMapping("batch")
+    @PutMapping("batch")
     public ApiReturn<List<GraphConfStatisticalRsp>> batchModify(@RequestBody List<GraphConfStatisticalReq> reqList) {
 
         return kgmsClient.updateStatisticalBatch(reqList);
@@ -57,7 +59,7 @@ public class GraphStatisticConfigController implements GraphDataObtainInterface 
     @ApiOperation("统计配置-批量删除")
     @DeleteMapping("batch")
     public ApiReturn batchRemove(@RequestParam("ids") List<Long> ids) {
-
+        ids.removeIf(Objects::isNull);
         return kgmsClient.deleteStatisticalBatch(ids);
     }
 
@@ -69,7 +71,7 @@ public class GraphStatisticConfigController implements GraphDataObtainInterface 
     }
 
     @ApiOperation("统计配置-修改")
-    @PatchMapping("{id}")
+    @PutMapping("{id}")
     public ApiReturn<GraphConfStatisticalRsp> modify(@ApiParam("配置id") @PathVariable("id") Long id,
                                                      @RequestBody GraphConfStatisticalReq config) {
         return kgmsClient.updateStatistical(id, config);

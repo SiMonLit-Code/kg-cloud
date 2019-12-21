@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,7 +40,7 @@ public class AttributeController implements GraphDataObtainInterface {
     private KgDataClient kgDataClient;
 
     @ApiOperation("属性定义批量-修改")
-    @PatchMapping("batchModify/{kgName}")
+    @PutMapping("batchModify/{kgName}")
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModify(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                           @RequestBody List<AttrDefinitionReq> attributeList) {
         return editClient.batchModifyAttrDefinition(kgName, attributeList);
