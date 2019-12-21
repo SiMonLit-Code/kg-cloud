@@ -5,8 +5,6 @@ import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;

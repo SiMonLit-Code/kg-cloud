@@ -6,7 +6,6 @@ import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

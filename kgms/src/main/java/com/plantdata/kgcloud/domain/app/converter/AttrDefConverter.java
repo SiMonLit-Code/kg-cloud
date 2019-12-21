@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.app.converter;
 import ai.plantdata.kg.api.edit.req.AttrQueryFrom;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
-import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;

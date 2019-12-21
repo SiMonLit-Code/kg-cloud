@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.rsp.app.explore;
 
-import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.rsp.app.MetaDataInterface;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

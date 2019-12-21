@@ -14,7 +14,6 @@ import com.plantdata.kgcloud.plantdata.req.explore.AbstrackGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.AttrScreeningBean;
 import com.plantdata.kgcloud.plantdata.req.explore.GeneralGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.GraphBean;
-import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
