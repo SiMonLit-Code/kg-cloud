@@ -240,8 +240,7 @@ public class EntityController {
     @PostMapping("/{kgName}/private/data")
     public ApiReturn addPrivateData(@PathVariable("kgName") String kgName,
                                     @Valid @RequestBody PrivateAttrDataReq privateAttrDataReq) {
-        entityService.addPrivateData(kgName, privateAttrDataReq);
-        return ApiReturn.success();
+        return ApiReturn.success(entityService.addPrivateData(kgName, privateAttrDataReq));
     }
 
     @ApiOperation("实体编辑-属性-批量删除私有数值或对象属性值")

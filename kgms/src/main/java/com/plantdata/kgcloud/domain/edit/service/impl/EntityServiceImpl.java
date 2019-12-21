@@ -422,10 +422,10 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public void addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
+    public String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom));
+        return RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom)).get();
     }
 
     @Override
@@ -437,6 +437,7 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public void addEdgeNumericAttrValue(String kgName, EdgeNumericAttrValueReq edgeNumericAttrValueReq) {
         EdgeValueFrom edgeValueFrom = ConvertUtils.convert(EdgeValueFrom.class).apply(edgeNumericAttrValueReq);
+        edgeValueFrom.setObjId(edgeNumericAttrValueReq.getTripleId());
         RestRespConverter.convertVoid(conceptEntityApi.addEdgeNumericAttrValue(KGUtil.dbName(kgName), edgeValueFrom));
     }
 

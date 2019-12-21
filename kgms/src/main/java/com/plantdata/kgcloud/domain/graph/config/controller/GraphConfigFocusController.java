@@ -32,7 +32,7 @@ public class GraphConfigFocusController {
     }
 
     @ApiOperation("图谱配置-焦点-保存")
-    @PatchMapping("/focus/{kgName}")
+    @PutMapping("/focus/{kgName}")
     public ApiReturn<List<GraphConfFocusRsp>> saveFocus(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfFocusReq> req) {
         return ApiReturn.success(graphConfFocusService.save(kgName, req));
     }

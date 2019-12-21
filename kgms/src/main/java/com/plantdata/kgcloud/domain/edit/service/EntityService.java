@@ -196,7 +196,7 @@ public interface EntityService {
      * @param kgName
      * @param privateAttrDataReq
      */
-    void addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq);
+    String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq);
 
     /**
      * 批量删除私有数值或对象属性值
