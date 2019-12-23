@@ -59,16 +59,16 @@ import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
-import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.producer.KafkaMessageProducer;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
@@ -444,12 +444,9 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void addEdgeObjectAttrValue(String kgName, EdgeObjectAttrValueReq edgeObjectAttrValueReq) {
-        Map<Integer, List<Long>> object = new HashMap<>(10);
-        object.put(edgeObjectAttrValueReq.getSeqNo(), edgeObjectAttrValueReq.getRanges());
-        edgeObjectAttrValueReq.setObject(object);
-        UpdateRelationFrom updateRelationFrom =
-                ConvertUtils.convert(UpdateRelationFrom.class).apply(edgeObjectAttrValueReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName), updateRelationFrom));
+        EdgeObjectValueFrom edgeObjectValueFrom = ConvertUtils.convert(EdgeObjectValueFrom.class).apply(edgeObjectAttrValueReq);
+        edgeObjectValueFrom.setObjId(edgeObjectAttrValueReq.getTripleId());
+        RestRespConverter.convertVoid(conceptEntityApi.addEdgeObjectAttrValue(KGUtil.dbName(kgName), edgeObjectValueFrom));
     }
 
     @Override

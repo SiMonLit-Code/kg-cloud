@@ -92,8 +92,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     }
 
     @Override
-    public void deleteBasicInfo(String kgName, Long id) {
-        RestRespConverter.convertVoid(conceptEntityApi.delete(KGUtil.dbName(kgName), id));
+    public void deleteBasicInfo(String kgName, Long id, Boolean force) {
+        RestRespConverter.convertVoid(conceptEntityApi.delete(KGUtil.dbName(kgName), id, force));
     }
 
     @Override
@@ -105,7 +105,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public BasicInfoRsp getDetails(String kgName, BasicReq basicReq) {
-        RestResp<EntityVO> restResp = conceptEntityApi.get(KGUtil.dbName(kgName), basicReq.getIsEntity(), basicReq.getId());
+        RestResp<EntityVO> restResp = conceptEntityApi.get(KGUtil.dbName(kgName), basicReq.getIsEntity(),
+                basicReq.getId());
         Optional<EntityVO> optional = RestRespConverter.convert(restResp);
         if (!optional.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
@@ -126,7 +127,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
                             .map(EntityAttrValueVO::getId).collect(Collectors.toList());
             List<GraphAttrGroupRsp> attrGroupRsps = groupRsps.stream().filter(graphAttrGroupRsp -> {
                 List<Integer> rspAttrIds = graphAttrGroupRsp.getAttrIds();
-                if (CollectionUtils.isEmpty(rspAttrIds)){
+                if (CollectionUtils.isEmpty(rspAttrIds)) {
                     return false;
                 }
                 rspAttrIds.retainAll(attrIds);
@@ -175,7 +176,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         //第一页
         promptFrom.setSkip(0);
         promptFrom.setLimit(promptReq.getSize());
-        Optional<List<PromptVO>> optional = RestRespConverter.convert(graphApi.prompt(KGUtil.dbName(kgName), promptFrom));
+        Optional<List<PromptVO>> optional = RestRespConverter.convert(graphApi.prompt(KGUtil.dbName(kgName),
+                promptFrom));
         return optional.orElse(new ArrayList<>()).stream().map(promptVO -> {
             PromptRsp promptRsp = new PromptRsp();
             BeanUtils.copyProperties(promptVO, promptRsp);
@@ -188,9 +190,11 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     public GraphStatisRsp graphStatis(String kgName) {
         long defaultValue = 0L;
         StatisticVO.StatisticVOBuilder builder = StatisticVO.builder();
-        Optional<Long> concept = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName), CountType.CONCEPT.getCode()));
+        Optional<Long> concept = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
+                CountType.CONCEPT.getCode()));
         Long conceptCount = concept.orElse(defaultValue);
-        Optional<Long> entity = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName), CountType.ENTITY.getCode()));
+        Optional<Long> entity = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
+                CountType.ENTITY.getCode()));
         Long entityCount = entity.orElse(defaultValue);
         Optional<Long> number = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
                 CountType.NUMERICAL_ATTR.getCode()));

@@ -44,4 +44,10 @@ public class AttrDefinitionSearchReq {
     @JsonIgnore
     @ApiModelProperty(hidden = true)
     private List<Long> ids = new ArrayList<>(1);
+
+    public AttrDefinitionSearchReq(Boolean inherit, Long conceptId, Integer type) {
+        this.inherit = inherit;
+        this.conceptId = conceptId;
+        this.type = type;
+    }
 }

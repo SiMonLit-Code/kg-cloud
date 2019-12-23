@@ -12,10 +12,6 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
-import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
-import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
-import com.plantdata.kgcloud.sdk.rsp.edit.EntityModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
@@ -33,6 +29,7 @@ import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EntityModifyReq;
@@ -242,7 +239,7 @@ public class EntityController {
         return ApiReturn.success(entityService.addPrivateData(kgName, privateAttrDataReq));
     }
 
-    @ApiOperation("实体-私有关系-批量删除私有关系")
+    @ApiOperation("实体-私有属性值数值或对象-批量删除")
     @PostMapping("/{kgName}/batch/private/data/delete")
     public ApiReturn deletePrivateData(@PathVariable("kgName") String kgName,
                                        @Valid @RequestBody DeletePrivateDataReq deletePrivateDataReq) {
