@@ -18,9 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -80,13 +78,11 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     public List<GraphConfStatisticalRsp> updateAll(List<GraphConfStatisticalReq> reqs) {
         List<Long> list = new ArrayList<>();
         for (GraphConfStatisticalReq req : reqs) {
-            Long id = req.getId();
-            list.add(id);
+            GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(req.getId())
+                    .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_IDORIDS_NOT_EXISTS));
+            list.add(req.getId());
         }
         List<GraphConfStatistical> confStatisticalList = graphConfStatisticalRepository.findAllById(list);
-        if (confStatisticalList.isEmpty()) {
-            throw BizException.of(AppErrorCodeEnum.CONF_STATISTICALID_NOT_EXISTS);
-        }
         List<GraphConfStatistical> statisticalArrayList = new ArrayList<>();
         Map<Long, GraphConfStatistical> confStatisticalMap = confStatisticalList.stream().collect(Collectors.toMap(GraphConfStatistical::getId, Function.identity()));
         for (GraphConfStatisticalReq req : reqs) {
@@ -112,6 +108,10 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     @Transactional(rollbackFor = Exception.class)
     public void deleteInBatch(List<Long> ids) {
         List<GraphConfStatistical> allById = graphConfStatisticalRepository.findAllById(ids);
+        for (Long id : ids) {
+            GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(id)
+                    .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_IDORIDS_NOT_EXISTS));
+        }
         graphConfStatisticalRepository.deleteInBatch(allById);
     }
 
