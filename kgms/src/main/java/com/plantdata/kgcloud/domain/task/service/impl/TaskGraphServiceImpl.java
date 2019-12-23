@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -60,7 +61,9 @@ public class TaskGraphServiceImpl implements TaskGraphService {
 
     @Override
     public Page<TaskGraphSnapshotRsp> snapshotList(TaskGraphSnapshotReq req) {
-        PageRequest of = PageRequest.of(req.getPage() - 1, req.getSize());
+
+        Sort sort = new Sort(Sort.Direction.DESC, "updateAt");
+        PageRequest of = PageRequest.of(req.getPage() - 1, req.getSize(), sort);
         Page<TaskGraphSnapshot> page;
         if (StringUtils.hasText(req.getKgName())) {
             TaskGraphSnapshot snapshot = TaskGraphSnapshot
