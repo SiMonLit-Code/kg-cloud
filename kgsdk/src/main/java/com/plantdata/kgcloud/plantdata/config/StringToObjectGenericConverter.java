@@ -1,9 +1,12 @@
-package com.plantdata.kgcloud.config;
+package com.plantdata.kgcloud.plantdata.config;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.google.common.collect.Sets;
+import com.plantdata.kgcloud.config.MarkObject;
 import com.plantdata.kgcloud.sdk.constant.BaseEnum;
 import com.plantdata.kgcloud.util.EnumUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
@@ -36,7 +39,10 @@ public class StringToObjectGenericConverter implements GenericConverter {
             return EnumUtils.getEnumObject((Class) targetType.getType(), source.toString()).get();
         }
         ResolvableType resolvableType = targetType.getResolvableType();
-        Class<?> aClass = resolvableType.hasGenerics() ? targetType.getType() : resolvableType.resolve();
-        return JacksonUtils.readValue(source.toString(), aClass);
+        if (resolvableType.hasGenerics()) {
+
+            return JacksonUtils.readValue(StringEscapeUtils.unescapeHtml(source.toString()), JacksonUtils.getInstance().constructType(resolvableType.getType()));
+        }
+        return JacksonUtils.readValue(source.toString(), resolvableType.resolve());
     }
 }

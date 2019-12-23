@@ -2,7 +2,9 @@ package com.plantdata.kgcloud.sdk.rsp.app.explore;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -15,9 +17,11 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @ApiModel("坐标信息")
+@NoArgsConstructor
+@AllArgsConstructor
 public class CoordinateReq {
     @ApiModelProperty("x轴")
-    private BigDecimal x;
+    private Double x;
     @ApiModelProperty("y轴")
-    private BigDecimal y;
+    private Double y;
 }

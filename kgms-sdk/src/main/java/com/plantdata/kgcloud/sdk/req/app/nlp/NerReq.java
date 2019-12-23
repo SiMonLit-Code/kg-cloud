@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @Setter
 @ApiModel("中文命名实体识别-参数")
 public class NerReq {
-    @NotEmpty
+    @NotBlank
     @ApiModelProperty(value = "输入文本", required = true)
     private String input;
     @ApiModelProperty("中文命名实体识别配置-参数")

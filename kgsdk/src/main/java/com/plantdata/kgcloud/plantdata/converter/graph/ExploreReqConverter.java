@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.plantdata.converter.graph;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
+import com.plantdata.kgcloud.plantdata.converter.common.MongoQueryConverter;
 import com.plantdata.kgcloud.plantdata.link.LinkUtil;
 import com.plantdata.kgcloud.plantdata.req.common.AttrSortBean;
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
@@ -67,22 +68,23 @@ public class ExploreReqConverter extends BasicConverter {
         commonFiltersReq.setId(graphParameter.getId());
         commonFiltersReq.setKw(graphParameter.getKw());
         commonFiltersReq.setHighLevelSize(graphParameter.getHighLevelSize());
-        commonFiltersReq.setPrivateAttRead(graphParameter.getPrivateAttRead());
-        commonFiltersReq.setDirection(graphParameter.getDirection());
-        setIfNoNull(graphParameter.getAttSorts(), a -> commonFiltersReq.setEdgeAttrSorts(listToRsp(a, ExploreReqConverter::attrSortBeanToAttrSortReq)));
+        consumerIfNoNull(graphParameter.getPrivateAttRead(), commonFiltersReq::setPrivateAttRead);
+        consumerIfNoNull(graphParameter.getDirection(), commonFiltersReq::setDirection);
+        consumerIfNoNull(graphParameter.getAttSorts(), a -> commonFiltersReq.setEdgeAttrSorts(listToRsp(a, ExploreReqConverter::attrSortBeanToAttrSortReq)));
         return commonFiltersReq;
     }
 
     private static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReq> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {
         rs.setDistance(to.getDistance());
-        setIfNoNull(to.getAllowTypesKey(), rs::setAllowConceptsKey);
-        setIfNoNull(to.getReplaceClassIds(), rs::setReplaceClassIds);
-        setIfNoNull(to.getReplaceClassIdsKey(), rs::setReplaceClassKeys);
-        setIfNoNull(to.getAllowAttsKey(), rs::setAllowAttrsKey);
-        setIfNoNull(to.getAllowTypes(), rs::setAllowConcepts);
-        setIfNoNull(to.getAllowAttrGroups(), a -> rs.setAllowAttrGroups(listToRsp(a, Long::valueOf)));
-        setIfNoNull(to.getAllowAtts(), rs::setAllowAttrs);
-        setIfNoNull(to.getAttAttFilters(), a -> listToRsp(a, ExploreReqConverter::attrScreeningBeanToRelationAttrReq));
+        consumerIfNoNull(to.getAllowTypesKey(), rs::setAllowConceptsKey);
+        consumerIfNoNull(to.getReplaceClassIds(), rs::setReplaceClassIds);
+        consumerIfNoNull(to.getReplaceClassIdsKey(), rs::setReplaceClassKeys);
+        consumerIfNoNull(to.getAllowAttsKey(), rs::setAllowAttrsKey);
+        consumerIfNoNull(to.getAllowTypes(), rs::setAllowConcepts);
+        consumerIfNoNull(to.getAllowAttrGroups(), a -> rs.setAllowAttrGroups(listToRsp(a, Long::valueOf)));
+        consumerIfNoNull(to.getAllowAtts(), rs::setAllowAttrs);
+        consumerIfNoNull(to.getEntityQuery(), a -> rs.setEntityFilters(listToRsp(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
+        consumerIfNoNull(to.getAttAttFilters(), a -> listToRsp(a, ExploreReqConverter::attrScreeningBeanToRelationAttrReq));
         return rs;
     }
 

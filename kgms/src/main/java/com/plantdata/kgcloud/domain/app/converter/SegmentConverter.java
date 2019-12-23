@@ -30,7 +30,7 @@ public class SegmentConverter extends BasicConverter {
                                                                     Map<Long, String> wordMap) {
 
         return entityList.stream().map(a -> {
-            SegmentEntityDTO entityDto = EntityConverter.voToBasicEntityRsp(a, new SegmentEntityDTO());
+            SegmentEntityDTO entityDto = EntityConverter.entityVoToBasicEntityRsp(a, new SegmentEntityDTO());
             entityDto.setWord(wordMap.get(a.getId()));
             entityDto.setScore(scoreMap.get(a.getId()));
             entityDto.setSynonym(a.getSynonyms());

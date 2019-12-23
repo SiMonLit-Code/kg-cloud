@@ -6,22 +6,28 @@ import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.EntityApi;
+import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
+import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.converter.AttrDefGroupConverter;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
+import com.plantdata.kgcloud.domain.app.converter.ComplexGraphAnalysisConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
 import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
+import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
 import com.plantdata.kgcloud.domain.app.dto.InfoBoxQueryDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
+import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
@@ -48,12 +54,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -68,6 +77,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private ai.plantdata.kg.api.pub.GraphApi editGraphApi;
     @Autowired
     private GraphApi graphApi;
+    @Autowired
+    private MongoApi mongoApi;
     @Autowired
     private GraphAttrGroupService graphAttrGroupService;
     @Autowired
@@ -154,11 +165,11 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 return graphInitRsp;
             }
         }
-        Optional<List<Long>> entityIdOpt = RestRespConverter.convert(editGraphApi.getRelationEntity(kgName));
+        Optional<List<Long>> entityIdOpt = RestRespConverter.convert(editGraphApi.getRelationEntity(KGUtil.dbName(kgName)));
         if (!entityIdOpt.isPresent()) {
             return graphInitRsp;
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, EntityConverter.buildIdsQuery(entityIdOpt.get())));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdOpt.get())));
         if (!entityOpt.isPresent()) {
             return graphInitRsp;
         }
@@ -211,5 +222,26 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), true, query.getRelationEntityIdSet()))
                 .orElse(Collections.emptyList());
         return InfoBoxConverter.voToInfoBox(query.getSourceEntityIds(), relationEntityList);
+    }
+
+    @Override
+    public ComplexGraphVisualRsp complexGraphVisual(String kgName, ComplexGraphVisualReq analysisReq) {
+        ComplexGraphVisualRsp visualRsp = new ComplexGraphVisualRsp();
+        MongoQueryFrom queryFrom = ComplexGraphAnalysisConverter.complexGraphVisualReqReqToMongoQueryFrom(kgName, analysisReq);
+        Optional<List<Map<String, Object>>> mapOpt = RestRespConverter.convert(mongoApi.postJson(queryFrom));
+        if (!mapOpt.isPresent() || CollectionUtils.isEmpty(mapOpt.get())) {
+            return visualRsp;
+        }
+        Map<Long, CoordinatesDTO> dataMap = mapOpt.get().stream()
+                .map(ComplexGraphAnalysisConverter::mapToCoordinatesDTO)
+                .collect(Collectors.toMap(CoordinatesDTO::getId, Function.identity()));
+
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(Lists.newArrayList(dataMap.keySet()))));
+        if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
+            return visualRsp;
+        }
+        List<ComplexGraphVisualRsp.CoordinatesEntityRsp> entityRspList = BasicConverter.listConvert(entityOpt.get(), a -> ComplexGraphAnalysisConverter.entityVoToCoordinatesEntityRsp(a, dataMap.get(a.getId())));
+        visualRsp.setEntityList(entityRspList);
+        return visualRsp;
     }
 }

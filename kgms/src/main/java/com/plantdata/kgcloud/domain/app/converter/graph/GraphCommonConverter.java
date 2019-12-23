@@ -80,24 +80,23 @@ public class GraphCommonConverter extends BasicConverter {
             page.setSize(10);
         }
         commonFilter.setSkip(page.getOffset());
-        commonFilter.setDistance(exploreReq.getDistance());
+        consumerIfNoNull(exploreReq.getDistance(), a -> {
+            commonFilter.setDistance(a);
+            graphFrom.setDistance(a);
+        });
+        consumerIfNoNull(exploreReq.getEntityFilters(), a -> {
+            EntityFilter entityFilter = new EntityFilter();
+            entityFilter.setAttr(ConditionConverter.entityListToIntegerKeyMap(a));
+            commonFilter.setEntityFilter(entityFilter);
+        });
+        //设置边属性筛选
+        consumerIfNoNull(exploreReq.getEdgeAttrFilters(), a -> commonFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
         graphFrom.setSkip(page.getPage());
         graphFrom.setLimit(page.getSize());
-        graphFrom.setDistance(exploreReq.getDistance());
-        if (!CollectionUtils.isEmpty(exploreReq.getEntityFilters())) {
-            EntityFilter entityFilter = new EntityFilter();
-            entityFilter.setAttr(ConditionConverter.entityListToIntegerKeyMap(exploreReq.getEntityFilters()));
-            commonFilter.setEntityFilter(entityFilter);
-        }
-        //设置边属性筛选
-        if (!CollectionUtils.isEmpty(exploreReq.getEdgeAttrFilters())) {
-            commonFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(exploreReq.getEdgeAttrFilters())));
-        }
         graphFrom.setHighLevelFilter(commonFilter);
         graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
         graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
         graphFrom.setInherit(exploreReq.isInherit());
-        graphFrom.setDistance(exploreReq.getDistance());
         graphFrom.setDisAllowTypes(exploreReq.getDisAllowConcepts());
 
         //读取元数据

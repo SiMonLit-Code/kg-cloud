@@ -17,22 +17,11 @@ public class GraphStatBean {
     private List<Integer> atts;
     private List<GraphStatDetailBean> rs;
 
-
-    public void addRs(Long id, Integer count) {
-        if (this.rs == null) {
-            rs = new ArrayList<>();
-        }
-        rs.add(new GraphStatDetailBean(id, count));
-    }
-
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    class GraphStatDetailBean {
-
+    static class GraphStatDetailBean {
         Long id;
         Integer count;
-
-
     }
 }

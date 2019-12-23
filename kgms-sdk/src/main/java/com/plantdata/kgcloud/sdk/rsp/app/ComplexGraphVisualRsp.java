@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk.rsp.app;
 
 
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CoordinateReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -17,15 +18,18 @@ import java.util.List;
 @ApiModel("复杂图可视化视图")
 @Getter
 @Setter
-public class CoordinatesRsp {
+public class ComplexGraphVisualRsp {
 
     @ApiModelProperty("实例列表")
     private List<CoordinatesEntityRsp> entityList;
 
     @Getter
     @Setter
-    private static class CoordinatesEntityRsp extends BasicEntityRsp {
+    public static class CoordinatesEntityRsp extends BasicEntityRsp {
         private Long cluster;
+        @ApiModelProperty("层数")
         private Double distance;
+        @ApiModelProperty("坐标信息")
+        private CoordinateReq coordinates;
     }
 }

@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
@@ -38,7 +40,7 @@ public interface GraphApplicationService {
      * @param knowledgeRecommendReq 过滤参数
      * @return result
      */
-    List<ObjectAttributeRsp> knowledgeRecommend(String kgName,@Valid KnowledgeRecommendReq knowledgeRecommendReq);
+    List<ObjectAttributeRsp> knowledgeRecommend(String kgName, @Valid KnowledgeRecommendReq knowledgeRecommendReq);
 
     /**
      * 获取可视化模型数据
@@ -72,10 +74,10 @@ public interface GraphApplicationService {
     /**
      * 单个查询知识卡片 包含标引数据集
      *
-     * @param kgName
-     * @param userId
-     * @param infoBoxReq
-     * @return
+     * @param kgName     图谱名称
+     * @param userId     id
+     * @param infoBoxReq req
+     * @return obj
      */
     InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq) throws IOException;
 
@@ -84,7 +86,16 @@ public interface GraphApplicationService {
      *
      * @param kgName 图谱名称
      * @param req    参数
-     * @return obj
+     * @return list
      */
     List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReq req);
+
+    /**
+     * 复杂图算法 可视化展示
+     *
+     * @param kgName      图谱名称
+     * @param analysisReq req
+     * @return .
+     */
+    ComplexGraphVisualRsp complexGraphVisual(String kgName, ComplexGraphVisualReq analysisReq);
 }

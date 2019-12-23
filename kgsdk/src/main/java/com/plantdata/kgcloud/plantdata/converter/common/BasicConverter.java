@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.util.DateUtils;
@@ -14,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -42,12 +44,17 @@ public class BasicConverter {
         return data == null ? null : function.apply(data);
     }
 
+    public static <T> Map<String, T> keyIntToStr(Map<Integer, T> oldMap) {
+        Map<String, T> newMap = Maps.newHashMapWithExpectedSize(oldMap.size());
+        oldMap.forEach((k, v) -> newMap.put(String.valueOf(k), v));
+        return newMap;
+    }
+
     public static <T, R> List<R> convertList(ApiReturn<List<T>> apiReturn, Function<T, R> function) {
         Optional<List<T>> ts = apiReturnData(apiReturn);
         List<T> data = ts.orElse(null);
         return CollectionUtils.isEmpty(data) ? Collections.emptyList() : listConvert(data, function);
     }
-
 
     private static <T> Optional<T> apiReturnData(ApiReturn<T> apiReturn) {
         if (SUCCESS != (apiReturn.getErrCode())) {
@@ -63,7 +70,7 @@ public class BasicConverter {
     }
 
 
-    protected static <T> void setIfNoNull(T param, Consumer<T> function) {
+    protected static <T> void consumerIfNoNull(T param, Consumer<T> function) {
         if (param == null) {
             return;
         }
@@ -111,4 +118,6 @@ public class BasicConverter {
         BeanUtils.copyProperties(t, r);
         return r;
     }
+
+
 }

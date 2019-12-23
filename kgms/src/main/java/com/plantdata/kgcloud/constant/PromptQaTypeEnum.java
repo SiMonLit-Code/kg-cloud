@@ -21,6 +21,7 @@ public enum  PromptQaTypeEnum {
     int id;
 
     public  static PromptQaTypeEnum parseWitDefault(int id){
+
         for (PromptQaTypeEnum typeEnum:PromptQaTypeEnum.values()){
             if(typeEnum.id==id){
                 return typeEnum;
