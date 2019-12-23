@@ -21,7 +21,7 @@ public class BasicEntityRsp implements MetaDataInterface {
     @ApiModelProperty("实例或概念名称")
     private String name;
     @ApiModelProperty("0概念 1实例 ")
-    private int type ;
+    private Integer type;
     @ApiModelProperty("直接父概念名称id ")
     private Long conceptId;
     @ApiModelProperty("消歧标识")

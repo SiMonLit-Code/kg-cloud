@@ -130,13 +130,13 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (CollectionUtils.isEmpty(entityIdList)) {
             return Collections.emptyList();
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, EntityConverter.buildIdsQuery(entityIdList)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList)));
         return KnowledgeRecommendConverter.voToRsp(entityAttrOpt.get(), entityOpt.orElse(Collections.emptyList()));
     }
 
     @Override
     public BasicConceptTreeRsp visualModels(String kgName, boolean display, Long conceptId) {
-        Optional<List<BasicInfo>> conceptOpt = RestRespConverter.convert(conceptEntityApi.tree(kgName, conceptId));
+        Optional<List<BasicInfo>> conceptOpt = RestRespConverter.convert(conceptEntityApi.tree(KGUtil.dbName(kgName), conceptId));
         BasicConceptTreeRsp conceptTreeRsp = new BasicConceptTreeRsp(NumberUtils.LONG_ZERO, kgName);
         if (!conceptOpt.isPresent()) {
             return conceptTreeRsp;
@@ -144,7 +144,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (!display) {
             return ConceptConverter.voToConceptTree(conceptOpt.get(), conceptTreeRsp);
         }
-        Optional<List<AttrDefVO>> attrDefOpt = RestRespConverter.convert(attributeApi.getByConceptIds(kgName, AttrDefConverter.convertToQuery(Lists.newArrayList(conceptId), true, 0)));
+        Optional<List<AttrDefVO>> attrDefOpt = RestRespConverter.convert(attributeApi.getByConceptIds(KGUtil.dbName(kgName), AttrDefConverter.convertToQuery(Lists.newArrayList(conceptId), true, 0)));
         return ConceptConverter.voToConceptTree(conceptOpt.get(), attrDefOpt.orElse(Collections.emptyList()), conceptTreeRsp);
     }
 
