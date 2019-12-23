@@ -18,7 +18,7 @@ import javax.validation.constraints.NotEmpty;
 @ApiModel("分词参数")
 public class SegmentReq {
     @ApiModelProperty(value = "关键字", required = true)
-    @NotEmpty
+    @NotBlank
     private String kw;
     @ApiModelProperty("使用概念 默认true")
     private Boolean useConcept = true;

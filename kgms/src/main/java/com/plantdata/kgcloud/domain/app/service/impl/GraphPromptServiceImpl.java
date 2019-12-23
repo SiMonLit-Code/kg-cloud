@@ -240,6 +240,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
         attributeFrom.setKvMap(queryMapList.isEmpty() ? null : queryMapList.get(0));
         attributeFrom.setEntityName(seniorPromptReq.getKw());
+        
         attributeFrom.setConceptIds(Lists.newArrayList(seniorPromptReq.getConceptId()));
         List<EntityVO> queryList;
         if (queryMapList.size() < AppConstants.NER_ENTITY_NUMBER) {

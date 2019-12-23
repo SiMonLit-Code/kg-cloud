@@ -23,6 +23,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
@@ -39,6 +40,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
+import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -89,6 +91,21 @@ public interface AppClient {
     @PostMapping("infoBox/{kgName}")
     ApiReturn<InfoBoxRsp> infoBox(@PathVariable("kgName") String kgName,
                                   @RequestBody InfoBoxReq infoBoxReq);
+
+    /**
+     * 复杂算法分析 可视化
+     *
+     * @param kgName kgName
+     * @param azkId  脚本执行返回的azkId
+     * @param type   算法类型
+     * @param size   显示数量
+     * @return obj
+     */
+    @GetMapping("complex/graph/visual/{kgName}")
+    ApiReturn<ComplexGraphVisualRsp> complexGraphVisual(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                        @RequestParam("azkId") Long azkId,
+                                                        @RequestParam(value = "type", defaultValue = "louvain") String type,
+                                                        @RequestParam(value = "size", defaultValue = "100") int size);
 
     /**
      * 知识推荐

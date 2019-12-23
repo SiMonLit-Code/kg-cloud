@@ -35,7 +35,7 @@ public class PromptEntityRsp {
     @ApiModelProperty("分数")
     private Double score;
     @ApiModelProperty("是否问答")
-    private Boolean qa;
+    private boolean qa;
 
     public PromptEntityRsp(Long id, String name, String meaningTag, Long conceptId, EntityTypeEnum type) {
         this.id = id;

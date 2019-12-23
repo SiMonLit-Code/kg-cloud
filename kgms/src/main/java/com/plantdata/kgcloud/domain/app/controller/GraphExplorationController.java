@@ -66,14 +66,14 @@ public class GraphExplorationController implements SdkOpenApiInterface {
     @ApiOperation("根据业务规则kgQl语句图探索")
     @PostMapping("byKgQl/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> exploreByKgQl(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                               @RequestBody @Valid ExploreByKgQlReq kgQlReq, @ApiIgnore BindingResult bindingResult) {
+                                                               @RequestBody @Valid ExploreByKgQlReq kgQlReq) {
         return ApiReturn.success(graphExplorationService.exploreByKgQl(kgName, kgQlReq));
     }
 
     @ApiOperation("gis图探索")
     @PostMapping("gis/{kgName}")
     public ApiReturn<GisGraphExploreRsp> gisGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                             @RequestBody @Valid GisGraphExploreReq exploreParam, @ApiIgnore BindingResult bindingResult) {
+                                                             @RequestBody @Valid GisGraphExploreReq exploreParam) {
 
         return ApiReturn.success(graphExplorationService.gisGraphExploration(kgName, exploreParam));
     }

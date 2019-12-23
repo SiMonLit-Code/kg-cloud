@@ -54,7 +54,7 @@ public class EntityConverter {
     }
 
 
-    public static <T extends BasicEntityRsp> T voToBasicEntityRsp(EntityVO entityVO, T entity) {
+    public static <T extends BasicEntityRsp> T entityVoToBasicEntityRsp(EntityVO entityVO, T entity) {
         entity.setId(entityVO.getId());
         Optional<ImageRsp> imgOpt = ImageConverter.stringT0Image(entityVO.getImageUrl());
         imgOpt.ifPresent(entity::setImg);
@@ -67,7 +67,7 @@ public class EntityConverter {
     }
 
     public static OpenEntityRsp voToOpenEntityRsp(EntityVO entityVO) {
-        OpenEntityRsp openEntityRsp = voToBasicEntityRsp(entityVO, new OpenEntityRsp());
+        OpenEntityRsp openEntityRsp = entityVoToBasicEntityRsp(entityVO, new OpenEntityRsp());
         openEntityRsp.setConceptIdList(Lists.newArrayList(entityVO.getConceptId()));
         openEntityRsp.setAttributes(entityVO.getDataAttributes());
         openEntityRsp.setSynonyms(entityVO.getSynonyms());

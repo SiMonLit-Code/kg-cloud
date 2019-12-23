@@ -49,8 +49,8 @@ public class ExploreRspConverter extends BasicConverter {
         oldEntity.setConceptIdList(newEntity.getConceptIdList());
         oldEntity.setConceptName(newEntity.getConceptName());
         oldEntity.setCreationTime(newEntity.getCreationTime());
-        setIfNoNull(newEntity.getStartTime(), a -> oldEntity.setFromTime(dateToString(a)));
-        setIfNoNull(newEntity.getEndTime(), a -> oldEntity.setToTime(dateToString(a)));
+        consumerIfNoNull(newEntity.getStartTime(), a -> oldEntity.setFromTime(dateToString(a)));
+        consumerIfNoNull(newEntity.getEndTime(), a -> oldEntity.setToTime(dateToString(a)));
         oldEntity.setNodeStyle(newEntity.getNodeStyle());
         oldEntity.setLabelStyle(newEntity.getLabelStyle());
         oldEntity.setScore(newEntity.getScore());
@@ -77,17 +77,17 @@ public class ExploreRspConverter extends BasicConverter {
         //时间
         if (!CollectionUtils.isEmpty(newBean.getSourceRelationList())) {
             newBean.getSourceRelationList().forEach(relationRsp -> {
-                setIfNoNull(relationRsp.getEndTime(), oldBean::addEndTime);
-                setIfNoNull(relationRsp.getStartTime(), oldBean::addStartTime);
+                consumerIfNoNull(relationRsp.getEndTime(), oldBean::addEndTime);
+                consumerIfNoNull(relationRsp.getStartTime(), oldBean::addStartTime);
             });
         }
         //边属性
         List<GraphRelationRsp> allRelation = Lists.newArrayList();
-        setIfNoNull(newBean.getSourceRelationList(), allRelation::addAll);
+        consumerIfNoNull(newBean.getSourceRelationList(), allRelation::addAll);
         List<RelationInfoBean> numEdgeAttrInfoList = listToRsp(allRelation, ExploreRspConverter::edgeInfoToRelationInfoBean);
         List<RelationInfoBean> objEdgeAttrInfoList = listToRsp(allRelation, ExploreRspConverter::edgeInfoToRelationInfoBean);
-        setIfNoNull(numEdgeAttrInfoList, oldBean::setnRInfo);
-        setIfNoNull(objEdgeAttrInfoList, oldBean::setoRInfo);
+        consumerIfNoNull(numEdgeAttrInfoList, oldBean::setnRInfo);
+        consumerIfNoNull(objEdgeAttrInfoList, oldBean::setoRInfo);
 
         return oldBean;
     }

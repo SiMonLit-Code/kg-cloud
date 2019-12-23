@@ -4,30 +4,31 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
 import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
-import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
-import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
-import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
-import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.PromptReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
-import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
+import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
+import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
+import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
+import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
+import com.plantdata.kgcloud.sdk.req.app.PromptReq;
+import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -99,12 +100,18 @@ public class GraphApplicationController implements GraphAppInterface {
         return ApiReturn.success(graphApplicationService.infoBox(kgName, SessionHolder.getUserId(), infoBoxReq));
     }
 
+    @ApiOperation("复杂图分析-可视化展示")
+    @GetMapping("complex/graph/visual/{kgName}")
+    public ApiReturn<ComplexGraphVisualRsp> complexGraphVisual(@ApiParam("图谱名称") @PathVariable("kgName") String kgName, @Valid ComplexGraphVisualReq visualReq) {
+        return ApiReturn.success(graphApplicationService.complexGraphVisual(kgName, visualReq));
+    }
+
     @ApiOperation("获取所有图谱名称")
     @GetMapping("kgName/all/{apk}")
     public ApiReturn<List<ApkRsp>> getKgName(@PathVariable("apk") String apk) {
         String userId = SessionHolder.getUserId();
         List<GraphRsp> all = graphService.findAll(userId);
-        return ApiReturn.success(BasicConverter.listConvert(all, a -> ApkConverter.graphRspToApkRsp(a, apk)));
+        return ApiReturn.success(BasicConverter.listToRsp(all, a -> ApkConverter.graphRspToApkRsp(a, apk)));
     }
 
 
@@ -128,6 +135,7 @@ public class GraphApplicationController implements GraphAppInterface {
                                                         @Valid @RequestBody EdgeAttrPromptReq edgeAttrPromptReq) {
         return ApiReturn.success(graphPromptService.edgeAttributeSearch(kgName, edgeAttrPromptReq));
     }
+
 
 }
 

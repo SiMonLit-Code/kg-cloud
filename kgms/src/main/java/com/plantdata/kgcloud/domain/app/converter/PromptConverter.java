@@ -37,7 +37,7 @@ public class PromptConverter extends BasicConverter {
     public static PromptListFrom promptReqReqToPromptListFrom(PromptReq req) {
         PromptListFrom from = new PromptListFrom();
         from.setConceptIds(req.getConceptIds());
-        from.setIsCaseInsensitive(req.getCaseInsensitive());
+        from.setIsCaseInsensitive(req.getCaseInsensitive() == null ? false : req.getCaseInsensitive());
         from.setIsFuzzy(req.getFuzzy());
         from.setSkip(req.getOffset());
         from.setLimit(req.getLimit());
@@ -119,8 +119,10 @@ public class PromptConverter extends BasicConverter {
         entityRsp.setAbs(item.getAbs());
         ImageConverter.stringT0Image(item.getImageUrl()).ifPresent(entityRsp::setImg);
         entityRsp.setSynonyms(item.getSynonyms());
+        consumerIfNoNull(item.getDataAttributes(), a -> entityRsp.setAttrMap(keyStrToInt(a)));
         return entityRsp;
     }
+
 
     public static AggAttrValueFrom edgeAttrPromptReqToAggAttrValueFrom(EdgeAttrPromptReq req) {
         AggAttrValueFrom from = new AggAttrValueFrom();
