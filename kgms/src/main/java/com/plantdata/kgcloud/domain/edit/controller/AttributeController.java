@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -111,7 +112,7 @@ public class AttributeController {
     }
 
     @ApiOperation("属性定义-批量修改")
-    @PatchMapping("/{kgName}/definition/batch")
+    @PutMapping("/{kgName}/definition/batch")
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModifyAttrDefinition(@PathVariable("kgName") String kgName,
                                                                                         @Valid @RequestBody ValidableList<AttrDefinitionModifyReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchUpdate(kgName, attrDefinitionReqs));

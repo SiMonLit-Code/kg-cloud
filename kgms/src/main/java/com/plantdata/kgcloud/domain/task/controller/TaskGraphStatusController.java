@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,8 +26,14 @@ public class TaskGraphStatusController {
     private TaskGraphStatusService taskGraphStatusService;
 
     @ApiOperation("查询异步任务状态详情")
-    @PostMapping("/task/{id}")
-    public ApiReturn<TaskGraphStatusRsp> getDetails(@PathVariable("id")Long id) {
-        return ApiReturn.success(taskGraphStatusService.getDetails(id));
+    @PostMapping("/task/{kgName}")
+    public ApiReturn<TaskGraphStatusRsp> getDetails(@PathVariable("kgName") String kgName) {
+        return ApiReturn.success(taskGraphStatusService.getDetailsByKgName(kgName));
+    }
+
+    @ApiOperation("校验是否可以创建异步任务")
+    @GetMapping("/task/{kgName}/check")
+    public ApiReturn<Boolean> checkTask(@PathVariable("kgName") String kgName) {
+        return ApiReturn.success(taskGraphStatusService.checkTask(kgName));
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -48,8 +49,9 @@ public class BasicInfoController {
 
     @ApiOperation("删除概念或实体")
     @DeleteMapping("/{kgName}/{id}")
-    public ApiReturn deleteConcept(@PathVariable("kgName") String kgName, @PathVariable("id") Long id) {
-        basicInfoService.deleteBasicInfo(kgName, id);
+    public ApiReturn deleteConcept(@PathVariable("kgName") String kgName, @PathVariable("id") Long id,
+                                   @RequestParam(defaultValue = "false", required = false) Boolean force) {
+        basicInfoService.deleteBasicInfo(kgName, id, force);
         return ApiReturn.success();
     }
 

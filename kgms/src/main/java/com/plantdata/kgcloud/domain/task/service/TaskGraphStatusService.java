@@ -20,12 +20,20 @@ public interface TaskGraphStatusService {
     TaskGraphStatus create(TaskGraphStatusReq taskGraphStatusReq);
 
     /**
-     * 任务详情
+     * 根据kgName 任务详情
      *
-     * @param id
+     * @param kgName
      * @return
      */
-    TaskGraphStatusRsp getDetails(Long id);
+    TaskGraphStatusRsp getDetailsByKgName(String kgName);
+
+    /**
+     * 校验是否可以新建异步任务
+     *
+     * @param kgName
+     * @return
+     */
+    Boolean checkTask(String kgName);
 
     /**
      * 修改任务状态

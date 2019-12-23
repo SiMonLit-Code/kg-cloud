@@ -21,8 +21,8 @@ public class TaskGraphStatusRsp {
     private String kgName;
 
     @ApiModelProperty(value = "任务类型")
-    private String taskType;
+    private String type;
 
     @ApiModelProperty(value = "任务状态")
-    private String taskStatus;
+    private String status;
 }

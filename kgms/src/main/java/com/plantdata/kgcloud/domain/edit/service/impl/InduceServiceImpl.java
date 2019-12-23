@@ -10,7 +10,7 @@ import com.plantdata.kgcloud.constant.BasicInfoType;
 import com.plantdata.kgcloud.constant.InduceType;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.induce.AttrInduceReq;
 import com.plantdata.kgcloud.domain.edit.req.induce.AttrSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.induce.InduceConceptReq;
@@ -18,23 +18,32 @@ import com.plantdata.kgcloud.domain.edit.req.induce.InduceMergeReq;
 import com.plantdata.kgcloud.domain.edit.req.induce.InduceObjectReq;
 import com.plantdata.kgcloud.domain.edit.req.induce.InducePublicReq;
 import com.plantdata.kgcloud.domain.edit.rsp.AttrInduceFindRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.InduceConceptRsp;
+import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.service.InduceService;
 import com.plantdata.kgcloud.domain.edit.util.InduceParserUtils;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +59,12 @@ public class InduceServiceImpl implements InduceService {
 
     @Autowired
     private BasicInfoService basicInfoService;
+
+    @Autowired
+    private AttributeService attributeService;
+
+    @Autowired
+    private EntityService entityService;
 
     @Override
     public Page<AttrDefinitionVO> induceAttributeList(String kgName, AttrSearchReq attrSearchReq) {
@@ -94,7 +109,8 @@ public class InduceServiceImpl implements InduceService {
 
     @Override
     public void induceObject(String kgName, InduceObjectReq induceObjectReq) {
-        RestRespConverter.convertVoid(induceApi.instantiateAttribute(KGUtil.dbName(kgName), induceObjectReq.getAttributeId(),
+        RestRespConverter.convertVoid(induceApi.instantiateAttribute(KGUtil.dbName(kgName),
+                induceObjectReq.getAttributeId(),
                 induceObjectReq.getAttributeName(), induceObjectReq.getRangeId()));
     }
 
@@ -106,11 +122,57 @@ public class InduceServiceImpl implements InduceService {
 
     @Override
     public List<InduceConceptRsp> listInduceConcept(String kgName, Long conceptId) {
-        Optional<List<InduceConceptVO>> optional = RestRespConverter.convert(induceApi.conceptToInduce(KGUtil.dbName(kgName),
-                conceptId));
+        Optional<List<InduceConceptVO>> optional =
+                RestRespConverter.convert(induceApi.conceptToInduce(KGUtil.dbName(kgName),
+                        conceptId));
         //TODO 是否兼容url
+        List<AttrDefinitionRsp> attrDefinitionRsps = attributeService.getAttrDefinitionByConceptId(kgName,
+                new AttrDefinitionSearchReq(true, conceptId, 0));
+        Map<Integer, AttrDefinitionRsp> attrDefinitionRspMap = attrDefinitionRsps.stream()
+                .collect(Collectors.toMap(AttrDefinitionRsp::getId, Function.identity(), (k1, k2) -> k1));
         return optional.orElse(new ArrayList<>()).stream()
-                .map(vo -> MapperUtils.map(vo, InduceConceptRsp.class)).collect(Collectors.toList());
+                .map(vo -> {
+                    InduceConceptRsp induceConceptRsp = new InduceConceptRsp();
+                    induceConceptRsp.setParentId(vo.getParentId());
+                    induceConceptRsp.setConceptName(vo.getConceptName());
+                    List<Map<Integer, List<String>>> dataAttributeValueList = vo.getDataAttributeValueList();
+                    if (!CollectionUtils.isEmpty(dataAttributeValueList)) {
+                        induceConceptRsp.setDataAttributeValueList(dataAttributeValueList.stream().map(f -> {
+                            Map<String, Object> data = new HashMap<>();
+                            Map.Entry<Integer, List<String>> kv = f.entrySet().iterator().next();
+                            data.put("id", kv.getKey());
+                            data.put("value", kv.getValue());
+                            data.put("name", attrDefinitionRspMap.get(kv.getKey()).getName());
+                            return data;
+                        }).collect(Collectors.toList()));
+                    }
+                    List<Map<Integer, List<Long>>> objectAttributeValueList = vo.getObjectAttributeValueList();
+                    if (objectAttributeValueList != null) {
+                        List<Long> ids = new ArrayList<>();
+                        objectAttributeValueList.forEach(x -> {
+                            x.forEach((k, v) -> ids.addAll(v));
+                        });
+                        if (!ids.isEmpty()) {
+                            Map<Long, String> nameMap = basicInfoService.listByIds(kgName, ids)
+                                    .stream().collect(Collectors.toMap(BasicInfoRsp::getId, BasicInfoRsp::getName, (k1, k2) -> k1));
+                            induceConceptRsp.setObjectAttributeValueList(objectAttributeValueList.stream().map(f -> {
+                                Map<String, Object> data = new HashMap<>();
+                                Map.Entry<Integer, List<Long>> kv = f.entrySet().iterator().next();
+                                data.put("id", kv.getKey());
+                                data.put("value", kv.getValue().stream().map(x -> {
+                                    Map<String, Object> map = new HashMap<>();
+                                    map.put("id", x);
+                                    map.put("name", nameMap.get(x));
+                                    return map;
+                                }).collect(Collectors.toList()));
+                                data.put("name", attrDefinitionRspMap.get(kv.getKey()).getName());
+                                data.put("range", attrDefinitionRspMap.get(kv.getKey()).getRangeValue());
+                                return data;
+                            }).collect(Collectors.toList()));
+                        }
+                    }
+                    return induceConceptRsp;
+                }).collect(Collectors.toList());
 
     }
 
