@@ -29,8 +29,8 @@ public class PromptReq extends PageReq implements PromptSearchInterface {
     private List<Long> conceptIds = new ArrayList<>();
     @ApiModelProperty("conceptIds为空时此参数生效")
     private List<String> conceptKeys = new ArrayList<>();
-    @ApiModelProperty("提示类型")
-    private Integer promptType = 0;
+    @ApiModelProperty("提示类型 默认0")
+    private int promptType;
     @ApiModelProperty("allowTypes字段指定的概念是否继承")
     private Boolean inherit = false;
     @ApiModelProperty("是否大小写敏感（默认区分大小写")

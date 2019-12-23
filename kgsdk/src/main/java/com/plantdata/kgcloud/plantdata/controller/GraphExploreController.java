@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.plantdata;
+package com.plantdata.kgcloud.plantdata.controller;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
@@ -26,7 +26,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("sdk/app")
-public class GraphExploreController {
+public class GraphExploreController implements SdkOldApiInterface {
     @Autowired
     private AppClient appClient;
 
@@ -59,7 +59,6 @@ public class GraphExploreController {
             @ApiImplicitParam(name = "pageNo", dataType = "int", paramType = "query", value = "当前页，默认1"),
             @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "query", value = "每页数，默认10"),
     })
-
     public RestResp<GraphBean> graph(@Valid @ApiIgnore GeneralGraphParameter generalGraphParameter) {
         CommonExploreReq commonExploreReq = ExploreReqConverter.generalGraphParameterToCommonExploreReq(generalGraphParameter);
         GraphBean graphBean = BasicConverter.convert(appClient.commonGraphExploration(generalGraphParameter.getKgName(), commonExploreReq), ExploreRspConverter::commonBasicGraphExploreRspToGraphBean);

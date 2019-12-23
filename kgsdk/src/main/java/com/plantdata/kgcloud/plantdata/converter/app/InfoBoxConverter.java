@@ -48,14 +48,14 @@ public class InfoBoxConverter extends BasicConverter {
         EntityLinksBean oldBean = new EntityLinksBean();
         oldBean.setClassId(entityLinksRsp.getConceptId());
         oldBean.setId(entityLinksRsp.getId());
-        setIfNoNull(entityLinksRsp.getImg(), a -> oldBean.setImg(a.getHref()));
+        consumerIfNoNull(entityLinksRsp.getImg(), a -> oldBean.setImg(a.getHref()));
         oldBean.setMeaningTag(entityLinksRsp.getMeaningTag());
         oldBean.setName(entityLinksRsp.getName());
-        setIfNoNull(entityLinksRsp.getType(), oldBean::setType);
+        consumerIfNoNull(entityLinksRsp.getType(), oldBean::setType);
         oldBean.setTags(listToRsp(entityLinksRsp.getTags(), a -> copy(a, Tag.class)));
         oldBean.setDataLinks(listToRsp(entityLinksRsp.getDataLinks(), InfoBoxConverter::dataLinkRspToDataLinks));
         List<EntityLink> entityLinks = listToRsp(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
-        setIfNoNull(entityLinks, a -> oldBean.setEntityLinks(Sets.newHashSet(a)));
+        consumerIfNoNull(entityLinks, a -> oldBean.setEntityLinks(Sets.newHashSet(a)));
         oldBean.setExtra(listToRsp(entityLinksRsp.getExtraList(), InfoBoxConverter::extraRspToExtraKVBean));
         return oldBean;
     }
@@ -74,7 +74,7 @@ public class InfoBoxConverter extends BasicConverter {
 
     private static DataLinks dataLinkRspToDataLinks(DataLinkRsp dataLink) {
         DataLinks dataLinks = new DataLinks();
-        setIfNoNull(dataLink.getDataSetId(), a -> dataLinks.setDataSetId(a.intValue()));
+        consumerIfNoNull(dataLink.getDataSetId(), a -> dataLinks.setDataSetId(a.intValue()));
         dataLinks.setDataSetTitle(dataLink.getDataSetTitle());
         dataLinks.setLinks(listToRsp(dataLink.getLinks(), InfoBoxConverter::linkRspToLinks));
         return dataLinks;

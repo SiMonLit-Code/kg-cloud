@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -24,7 +25,7 @@ public class ExploreByKgQlReq implements GraphReqAfterInterface {
     @NotNull
     private Long entityId;
     @ApiModelProperty("kgQl语句")
-    @NotEmpty
+    @NotBlank
     private String kgQl;
     @ApiModelProperty("关系是否合并")
     private boolean relationMerge;

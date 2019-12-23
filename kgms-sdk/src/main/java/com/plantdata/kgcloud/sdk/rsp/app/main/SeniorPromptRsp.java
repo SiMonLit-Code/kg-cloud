@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -22,4 +23,6 @@ public class SeniorPromptRsp extends PromptEntityRsp {
     private ImageRsp img;
     private String abs;
     private List<String> synonyms;
+    @ApiModelProperty("k->属性定义id,v->属性值")
+    private Map<Integer, Object> attrMap;
 }

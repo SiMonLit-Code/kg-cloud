@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class ImageConverter {
     private static final String HREF = "href";
     private static final String NAME = "name";
 
-    public static Optional<ImageRsp> stringT0Image(String imageUrl) {
+    public static Optional<ImageRsp> stringT0Image(@NonNull String imageUrl) {
         if (StringUtils.isEmpty(imageUrl)) {
             return Optional.empty();
         }

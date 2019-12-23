@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -60,8 +61,9 @@ public class BasicConverter {
     }
 
     public static <T, R> List<R> listConvert(@NonNull Collection<T> list, Function<T, R> function) {
-        return list.stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
+        return CollectionUtils.isEmpty(list) ? Collections.emptyList() : list.stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
     }
+
 
     public static <T, R> R copy(T t, Class<R> clazz) {
         R r = null;
@@ -76,12 +78,22 @@ public class BasicConverter {
         return r;
     }
 
+    static <T> Map<Integer, T> keyStrToInt(Map<String, T> oldMap) {
+        Map<Integer, T> newMap = Maps.newHashMapWithExpectedSize(oldMap.size());
+        oldMap.forEach((k, v) -> newMap.put(Integer.valueOf(k), v));
+        return newMap;
+    }
+
     static <T, R> R executeNoNull(T param, Function<T, R> function) {
         return param == null ? null : function.apply(param);
     }
 
-    static <T, R> List<R> listToRsp(Collection<T> list, Function<T, R> function) {
+    public static <T, R> List<R> listToRsp(Collection<T> list, Function<T, R> function) {
         return toListNoNull(list, a -> listConvert(a, function));
+    }
+
+    private static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, List<R>> function) {
+        return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1).stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     protected static <T, R> Set<R> listToSetNoNull(List<T> list1, Function<List<T>, Set<R>> function) {
@@ -92,7 +104,5 @@ public class BasicConverter {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyMap() : function.apply(list1);
     }
 
-    private static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, List<R>> function) {
-        return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1).stream().filter(Objects::nonNull).collect(Collectors.toList());
-    }
+
 }

@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.plantdata.req.app;
 
 import ai.plantdata.kg.validator.group.Insert;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.plantdata.kgcloud.plantdata.constant.SortEnum;
 import com.plantdata.kgcloud.plantdata.req.common.PageModel;
 import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
@@ -20,14 +22,17 @@ public class PromptParameter extends PageModel {
     private String kw;
     @ChooseCheck(value = "[10,01,11,100,010,110,101,011,111]", name = "type", groups = Insert.class)
     private Integer type = 11;
-    private List<Long> allowTypes = new ArrayList<>();
+    /**
+     * 兼容obj Integer
+     */
+    private List<String> allowTypes = new ArrayList<>();
     private List<String> allowTypesKey = new ArrayList<>();
     private Integer promptType = 0;
     private Boolean isInherit = false;
     private Boolean isCaseInsensitive = false;
     private Boolean isFuzzy = false;
     private Boolean openExportDate = true;
-    private SortEnum sort = SortEnum.DESC;
+    private String sort;
 
 
 }

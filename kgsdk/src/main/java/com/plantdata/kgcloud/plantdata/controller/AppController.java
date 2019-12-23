@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.plantdata;
+package com.plantdata.kgcloud.plantdata.controller;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
@@ -9,16 +9,20 @@ import com.plantdata.kgcloud.plantdata.converter.common.SchemaBasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameter;
 import com.plantdata.kgcloud.plantdata.req.app.PromptParameter;
+import com.plantdata.kgcloud.plantdata.req.app.SeniorPromptParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
+import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import com.plantdata.kgcloud.plantdata.rsp.app.InitGraphBean;
 import com.plantdata.kgcloud.plantdata.rsp.schema.SchemaBean;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
+import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -41,7 +45,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("sdk/app")
-public class AppController {
+public class AppController implements SdkOldApiInterface {
 
     @Autowired
     private AppClient appClient;
@@ -105,5 +109,25 @@ public class AppController {
         //convert
         List<EntityBean> entityBeans = BasicConverter.convertList(prompt, PromptConverter::promptEntityRspToEntityBean);
         return new RestResp<>(entityBeans);
+    }
+
+    @ApiOperation("高级搜索查实体,")
+    @PostMapping("senior/prompt")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "conceptId", dataType = "long", paramType = "form", value = "实体所属概念ID"),
+            @ApiImplicitParam(name = "conceptKey", dataType = "string", paramType = "form", value = "conceptId为空时生效"),
+            @ApiImplicitParam(name = "kw", dataType = "string", paramType = "form", value = "前缀搜索"),
+            @ApiImplicitParam(name = "query", dataType = "string", paramType = "form", value = "筛选条件[{\"attrId\":\"数值属性id\",\"$eq\":\"字段全匹配\"},{\"attrId\":\"数值属性id\",\"$gt\":\"大于\",\"$lt\":\"小于\"}]"),
+            @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
+            @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页最小为1"),
+    })
+    public RestResp<List<ImportEntityBean>> seniorPrompt(@Valid @ApiIgnore SeniorPromptParameter seniorPromptParameter) {
+        SeniorPromptReq promptReq = PromptConverter.seniorPromptParameterToSeniorPromptReq(seniorPromptParameter);
+        //remote
+        ApiReturn<List<SeniorPromptRsp>> listApiReturn = appClient.seniorPrompt(seniorPromptParameter.getKgName(), promptReq);
+        //convert
+        List<ImportEntityBean> importEntityBeans = BasicConverter.convertList(listApiReturn, PromptConverter::seniorPromptRspToSeniorPromptRsp);
+        return new RestResp<>(importEntityBeans);
     }
 }
