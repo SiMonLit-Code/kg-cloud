@@ -64,7 +64,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     @Override
     public GraphConfReasonRsp findById(Long id) {
         GraphConfReasoning confReasoning = graphConfReasoningRepository.findById(id)
-                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
         return ConvertUtils.convert(GraphConfReasonRsp.class).apply(confReasoning);
     }
 
@@ -72,7 +72,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     @Transactional(rollbackFor = Exception.class)
     public GraphConfReasonRsp updateReasoning(Long id, GraphConfReasonReq req) {
         GraphConfReasoning graphConfReasoning = graphConfReasoningRepository.findById(id)
-                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfReasoning);
         GraphConfReasoning result = graphConfReasoningRepository.save(graphConfReasoning);
         return ConvertUtils.convert(GraphConfReasonRsp.class).apply(result);
