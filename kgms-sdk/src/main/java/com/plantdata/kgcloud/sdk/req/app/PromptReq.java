@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
 
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import io.swagger.annotations.ApiModel;
@@ -43,6 +42,8 @@ public class PromptReq extends PageReq implements PromptSearchInterface {
     @ApiModelProperty("排序")
     private Integer sort;
 
+
+    @ApiModelProperty(hidden = true)
     @Override
     public Boolean getInherit() {
         return inherit;

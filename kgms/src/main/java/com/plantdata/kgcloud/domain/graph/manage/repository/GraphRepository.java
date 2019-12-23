@@ -2,9 +2,13 @@ package com.plantdata.kgcloud.domain.graph.manage.repository;
 
 import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
 import com.plantdata.kgcloud.domain.graph.manage.entity.GraphPk;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 
 /**
@@ -23,4 +27,6 @@ public interface GraphRepository extends JpaRepository<Graph, GraphPk> {
      * @return
      */
     Page<Graph> findByUserIdAndTitleContaining(String userId, String kw, Pageable pageable);
+
+    Graph findByKgNameAndUserId(String kgName, String userId);
 }

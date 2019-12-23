@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +28,7 @@ import java.util.Optional;
 
 /**
  * 图谱业务配置
- *
- * @author plantdata-1007
- * @date 2019/12/2
+ * Created by plantdata-1007 on 2019/12/2.
  */
 @Service
 public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
@@ -57,12 +54,17 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
             if (!convert.isPresent()) {
                 throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
             }
-            String s = JacksonUtils.writeValueAsString(convert.get());
-            targe.setRuleSettings(s);
+            if (null == convert.get().getDomain()) {
+               throw  BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
+            }
+                String s = JacksonUtils.writeValueAsString(convert.get());
+                targe.setRuleSettings(s);
+
         }
         GraphConfKgql result = graphConfKgqlRepository.save(targe);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);
     }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -84,8 +86,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
 
     @Override
     public Page<GraphConfKgqlRsp> findByKgNameAndRuleType(String kgName, Integer ruleType, BaseReq baseReq) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
-        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(),sort);
+        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
         Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgNameAndRuleType(kgName,ruleType, pageable);
         return all.map(ConvertUtils.convert(GraphConfKgqlRsp.class));
     }

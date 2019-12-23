@@ -5,7 +5,7 @@ import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -22,7 +24,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyReqInterface, GraphReqAfterInterface {
+public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyListReqInterface, GraphReqAfterInterface {
 
 
     @ApiModelProperty("要替换的概念id")
@@ -30,10 +32,12 @@ public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyR
     @ApiModelProperty("实例id")
     private List<String> replaceClassKeys;
     @ApiModelProperty("读取层数")
-    private int distance = 1;
+    @Max(value = 30, message = "层数最多可查询30层")
+    @Min(value = 1, message = "层数最小为1")
+    private Integer distance = 1;
     @ApiModelProperty("是否关系合并")
     private boolean relationMerge;
-    @ApiModelProperty("allowTypes字段指定的概念是否继承")
+    @ApiModelProperty(value = "allowTypes字段指定的概念是否继承", required = true)
     private boolean isInherit;
     @ApiModelProperty("在指定属性范围内查询")
     private List<Integer> allowAttrs;

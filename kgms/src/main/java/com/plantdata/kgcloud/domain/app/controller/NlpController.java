@@ -63,7 +63,7 @@ public class NlpController implements SdkOpenApiInterface {
     @ApiOperation("图谱分词")
     @PostMapping("segment/graph/{kgName}")
     public ApiReturn<List<GraphSegmentRsp>> graphSegment(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                         @Valid @ApiIgnore SegmentReq segmentReq) {
+                                                         @Valid @RequestBody SegmentReq segmentReq) {
         return ApiReturn.success(nlpService.graphSegment(kgName, segmentReq));
     }
 

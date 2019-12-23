@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.entity;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.plantdata.kgcloud.domain.common.converter.ArrayNodeConverter;
+import com.plantdata.kgcloud.domain.common.converter.IntegerListConverter;
+import com.plantdata.kgcloud.domain.common.converter.LongListConverter;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description:
@@ -44,8 +45,8 @@ public class GraphConfQa {
 
     @Basic
     @Column(name = "concept_ids")
-    @Convert(converter = ArrayNodeConverter.class)
-    private ArrayNode conceptIds;
+    @Convert(converter = LongListConverter.class)
+    private List<Long> conceptIds;
 
     @Basic
     @Column(name = "priority")

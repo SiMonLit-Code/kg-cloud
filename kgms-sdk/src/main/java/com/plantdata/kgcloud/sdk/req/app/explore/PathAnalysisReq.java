@@ -20,12 +20,12 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel("路径分析参数")
+@ApiModel("路径分析-参数")
 public class PathAnalysisReq extends BasicGraphExploreReq implements GraphPathReqInterface, SecondaryScreeningInterface {
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
     @NotNull
-    @ApiModelProperty("路径")
+    @ApiModelProperty(value = "路径", required = true)
     private CommonPathReq path;
 
     @Override

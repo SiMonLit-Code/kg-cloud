@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
@@ -50,13 +51,13 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
 
     @Override
     public CommonBasicGraphExploreRsp exploreByKgQl(String kgName, ExploreByKgQlReq kgQlReq) {
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.traversalRule(kgName, kgQlReq.getEntityId(), kgQlReq.getKgQl()));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.traversalRule(KGUtil.dbName(kgName), kgQlReq.getEntityId(), kgQlReq.getKgQl()));
         return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, kgQlReq)).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
     @Override
     public GisGraphExploreRsp gisGraphExploration(String kgName, GisGraphExploreReq exploreParam) {
-        Optional<List<BasicInfo>> basicInfoOpt = RestRespConverter.convert(gisApi.GisGeneralGraph(kgName, GisConverter.reqToGisFrom(exploreParam)));
+        Optional<List<BasicInfo>> basicInfoOpt = RestRespConverter.convert(gisApi.GisGeneralGraph(KGUtil.dbName(kgName), GisConverter.reqToGisFrom(exploreParam)));
         Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
         return basicInfoOpt.map(a -> GisConverter.voToGisAnalysisRsp(a, conceptIdMap)).orElseGet(GisGraphExploreRsp::new);
     }
@@ -65,7 +66,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     public GisLocusAnalysisRsp gisLocusAnalysis(String kgName, GisLocusReq locusReq) {
         GisConverter.check(locusReq);
         GisLocusParam gisLocusParam = GisConverter.reqToParam(locusReq);
-        Optional<GisLocusVO> locusOpt = RestRespConverter.convert(gisApi.gisLocus(kgName, gisLocusParam));
+        Optional<GisLocusVO> locusOpt = RestRespConverter.convert(gisApi.gisLocus(KGUtil.dbName(kgName), gisLocusParam));
         return locusOpt.map(GisConverter::voToGisLocusRsp).orElseGet(GisLocusAnalysisRsp::new);
     }
 
@@ -87,7 +88,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     public CommonBasicGraphExploreRsp reasoningGraphExploration(String kgName, CommonReasoningExploreReq exploreReq) {
         exploreReq = graphHelperService.keyToId(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(kgName, graphFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
         if (!graphOpt.isPresent()) {
             return CommonBasicGraphExploreRsp.EMPTY;
         }
@@ -97,7 +98,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     }
 
     private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, GraphReqAfterInterface graphReqAfter) {
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(kgName, graphFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
         return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, graphReqAfter)).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 

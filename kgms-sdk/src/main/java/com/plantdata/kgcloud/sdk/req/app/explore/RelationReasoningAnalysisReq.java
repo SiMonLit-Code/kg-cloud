@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.req.app.explore;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
@@ -21,13 +20,13 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@ApiModel("关联推理分析视图")
+@ApiModel("关联推理分析-参数")
 public class RelationReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphRelationReqInterface {
 
-    @ApiModelProperty("关联搜索参数")
+    @ApiModelProperty(value = "关联搜索参数", required = true)
     private CommonRelationReq relation;
     @ApiModelProperty("推理规则")
-    private Map<Integer, JsonNode> reasoningRuleConfigs;
+    private Map<Integer, Object> reasoningRuleConfigs;
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
 
@@ -38,11 +37,11 @@ public class RelationReasoningAnalysisReq extends BasicGraphExploreReq implement
 
     @Override
     public Integer fetchDistance() {
-        return relation.getDistance();
+        return getDistance();
     }
 
     @Override
-    public Map<Integer, JsonNode> fetchReasonConfig() {
+    public Map<Integer, Object> fetchReasonConfig() {
         return reasoningRuleConfigs;
     }
 

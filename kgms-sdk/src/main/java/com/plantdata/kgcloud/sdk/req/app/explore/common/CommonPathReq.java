@@ -16,18 +16,14 @@ import javax.validation.constraints.NotNull;
  */
 @Getter
 @Setter
-@ApiModel("路径分析参数")
+@ApiModel("路径分析-参数(通用/必填)")
 public class CommonPathReq {
     @NotNull
-    @ApiModelProperty("起点")
+    @ApiModelProperty(value = "起点", required = true)
     private Long start;
     @NotNull
-    @ApiModelProperty("终点")
+    @ApiModelProperty(value = "终点", required = true)
     private Long end;
-    @ApiModelProperty("步长（步长不可超过30步，步长最小为1）")
-    @Max(value = 30, message = "步长不可超过30步")
-    @Min(value = 1, message = "步长最小为1")
-    private Integer distance = 1;
     @ApiModelProperty("是否是最短路径")
     private boolean shortest;
 

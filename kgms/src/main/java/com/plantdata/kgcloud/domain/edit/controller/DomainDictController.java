@@ -35,32 +35,32 @@ public class DomainDictController {
 
     @ApiOperation("批量添加领域词")
     @PostMapping("/{kgName}/batch/add")
-    ApiReturn batchInsert(@PathVariable("kgName") String kgName,
-                          @Valid @RequestBody ValidableRequiredList<DictReq> dictReqs) {
+    public ApiReturn batchInsert(@PathVariable("kgName") String kgName,
+                                 @Valid @RequestBody ValidableRequiredList<DictReq> dictReqs) {
         domainDictService.batchInsert(kgName, dictReqs);
         return ApiReturn.success();
     }
 
     @ApiOperation("修改领域词")
     @PostMapping("/{kgName}/{id}/update")
-    ApiReturn update(@PathVariable("kgName") String kgName,
-                     @PathVariable("id") String id,
-                     @Valid @RequestBody DictReq dictReq) {
+    public ApiReturn update(@PathVariable("kgName") String kgName,
+                            @PathVariable("id") String id,
+                            @Valid @RequestBody DictReq dictReq) {
         domainDictService.update(kgName, id, dictReq);
         return ApiReturn.success();
     }
 
     @ApiOperation("批量删除")
     @PostMapping("/{kgName}/batch/delete")
-    ApiReturn batchDelete(@PathVariable("kgName") String kgName,
-                          @RequestBody List<String> ids) {
+    public ApiReturn batchDelete(@PathVariable("kgName") String kgName,
+                                 @RequestBody List<String> ids) {
         domainDictService.batchDelete(kgName, ids);
         return ApiReturn.success();
     }
 
     @ApiOperation("领域词列表")
     @GetMapping("/{kgName}/list")
-    ApiReturn<Page<DictRsp>> listDict(@PathVariable("kgName") String kgName, BaseReq baseReq) {
+    public ApiReturn<Page<DictRsp>> listDict(@PathVariable("kgName") String kgName, BaseReq baseReq) {
         return ApiReturn.success(domainDictService.listDict(kgName, baseReq));
     }
 }

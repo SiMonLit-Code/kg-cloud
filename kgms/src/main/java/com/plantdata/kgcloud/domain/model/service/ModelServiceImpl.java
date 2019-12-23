@@ -1,11 +1,11 @@
 package com.plantdata.kgcloud.domain.model.service;
 
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.model.entity.Model;
 import com.plantdata.kgcloud.domain.model.repository.ModelRepository;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.KgmsModelReq;
+import com.plantdata.kgcloud.sdk.req.ModelPageReq;
 import com.plantdata.kgcloud.sdk.rsp.ModelRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
@@ -45,8 +45,16 @@ public class ModelServiceImpl implements ModelService {
     }
 
     @Override
-    public Page<ModelRsp> findAll(String userId, BaseReq baseReq) {
-        Model probe = Model.builder()
+    public Page<ModelRsp> findAll(String userId, ModelPageReq baseReq) {
+        Model.ModelBuilder builder = Model.builder();
+        if (baseReq.getModelType() != null) {
+            builder.modelType(baseReq.getModelType());
+        }
+        if (baseReq.getKw() != null) {
+
+        }
+
+        Model probe = builder
                 .userId(userId)
                 .build();
         Page<Model> all = modelRepository.findAll(Example.of(probe), PageRequest.of(baseReq.getPage() - 1,

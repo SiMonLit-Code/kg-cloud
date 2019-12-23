@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.model.service;
 
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.KgmsModelReq;
+import com.plantdata.kgcloud.sdk.req.ModelPageReq;
 import com.plantdata.kgcloud.sdk.rsp.ModelRsp;
 import org.springframework.data.domain.Page;
 
@@ -39,7 +40,7 @@ public interface ModelService {
      * @param baseReq
      * @return
      */
-    Page<ModelRsp> findAll(String userId, BaseReq baseReq);
+    Page<ModelRsp> findAll(String userId, ModelPageReq baseReq);
 
     /**
      * 根据id查询接口

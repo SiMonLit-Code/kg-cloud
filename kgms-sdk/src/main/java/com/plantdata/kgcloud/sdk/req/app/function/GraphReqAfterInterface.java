@@ -9,8 +9,17 @@ import java.util.List;
  */
 public interface GraphReqAfterInterface {
 
-
+    /**
+     * 要替换的classId
+     *
+     * @return 。
+     */
     List<Long> getReplaceClassIds();
 
+    /**
+     * 是否进行关系合并
+     *
+     * @return 。
+     */
     boolean isRelationMerge();
 }

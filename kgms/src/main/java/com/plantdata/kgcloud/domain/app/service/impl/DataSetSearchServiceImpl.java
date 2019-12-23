@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -33,6 +34,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -98,11 +100,17 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
                 rsCount = hits.get("total").longValue();
                 if (rsCount > 0) {
                     for (int i = 0; i < arr.size(); i++) {
-                        Map<String, Object> map = (Map<String, Object>) arr.get(i).get("_source");
-                        map.put("_id", arr.get(i).get("_id"));
-                        map.put("_type", arr.get(i).get("_type"));
-                        map.put("_index", arr.get(i).get("_index"));
-                        rsList.add(map);
+                        JsonNode sourceNode = arr.get(i).get("_source");
+                        Map<String, Object> objectMap = Maps.newHashMap();
+                        Iterator<String> stringIterator = sourceNode.fieldNames();
+                        while (stringIterator.hasNext()) {
+                            String name = stringIterator.next();
+                            objectMap.put(name, sourceNode.get(name));
+                        }
+                        objectMap.put("_id", arr.get(i).get("_id"));
+                        objectMap.put("_type", arr.get(i).get("_type"));
+                        objectMap.put("_index", arr.get(i).get("_index"));
+                        rsList.add(objectMap);
                     }
                 }
             }
@@ -158,7 +166,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
 
     private static MongoQueryFrom buildMongoQuery(String kgName, long entityId) {
         MongoQueryFrom mongoQueryFrom = new MongoQueryFrom();
-        mongoQueryFrom.setKgName(kgName);
+        mongoQueryFrom.setKgName(KGUtil.dbName(kgName));
         mongoQueryFrom.setCollection("entity_annotation");
         Map<String, Object> map = Maps.newHashMap();
         map.put("_id", "$data_set_id");

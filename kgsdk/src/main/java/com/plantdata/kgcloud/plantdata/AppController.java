@@ -11,8 +11,6 @@ import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameter;
 import com.plantdata.kgcloud.plantdata.req.app.PromptParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
-import com.plantdata.kgcloud.plantdata.req.explore.GeneralGraphParameter;
-import com.plantdata.kgcloud.plantdata.req.explore.GraphBean;
 import com.plantdata.kgcloud.plantdata.rsp.app.InitGraphBean;
 import com.plantdata.kgcloud.plantdata.rsp.schema.SchemaBean;
 import com.plantdata.kgcloud.sdk.AppClient;
@@ -33,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 

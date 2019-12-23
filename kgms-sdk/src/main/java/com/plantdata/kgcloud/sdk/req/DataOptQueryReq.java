@@ -21,10 +21,10 @@ public class DataOptQueryReq extends BaseReq {
     @ApiModelProperty("校验结果")
     private Integer resultType;
 
-    @ApiModelProperty("创建时间范围")
-    private DateTimeScope create;
-
-    @ApiModelProperty("更新时间范围")
-    private DateTimeScope update;
+//    @ApiModelProperty("创建时间范围")
+//    private DateTimeScope create;
+//
+//    @ApiModelProperty("更新时间范围")
+//    private DateTimeScope update;
 
 }

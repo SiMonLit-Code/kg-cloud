@@ -38,6 +38,10 @@ public class JsonUtils {
         return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), javaType);
     }
 
+    public static <T> T objToNewObj(Object o, Class<T> clazz) {
+        return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), clazz);
+    }
+
     private static JavaType getCollectionType(ObjectMapper instance, Class<?> collectionClass, Class<?>... elementClasses) {
         return instance.getTypeFactory().constructParametricType(collectionClass, elementClasses);
     }

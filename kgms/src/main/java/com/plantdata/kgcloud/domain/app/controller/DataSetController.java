@@ -23,7 +23,7 @@ import java.util.Map;
  * @date 2019/12/19 13:37
  */
 @RestController("openDataSetController")
-@RequestMapping("app/dataset")
+@RequestMapping("kgdata/dataset")
 public class DataSetController implements SdkOpenApiInterface {
     @Autowired
     private KgDataService kgDataService;
@@ -32,12 +32,12 @@ public class DataSetController implements SdkOpenApiInterface {
 
     @ApiOperation("读取数据集")
     @PostMapping("read")
-    public ApiReturn<RestData<Map<String, Object>>> searchDataSet(NameReadReq nameReadReq) {
+    public ApiReturn<RestData<Map<String, Object>>> searchDataSet(@RequestBody NameReadReq nameReadReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(kgDataService.searchDataSet(userId, nameReadReq));
     }
 
-    @ApiOperation("新增数据集")
+    @ApiOperation("向数据集中新增数据")
     @PostMapping("name")
     public ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq) {
         String userId = SessionHolder.getUserId();

@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.constant.ImportType;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.RdfType;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
@@ -146,7 +147,7 @@ public class ImportServiceImpl implements ImportService {
         BasicInfoRsp details = basicInfoService.getDetails(kgName,
                 BasicReq.builder().id(conceptId).isEntity(false).build());
         GisVO gis = details.getGis();
-        if (Objects.nonNull(gis) && gis.getIsOpenGis()) {
+        if (gis != null && gis.getIsOpenGis() != null && gis.getIsOpenGis()) {
             header.add(Collections.singletonList("GIS名称"));
             header.add(Collections.singletonList("经度"));
             header.add(Collections.singletonList("纬度"));
@@ -214,47 +215,47 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String importConcepts(String kgName, MultipartFile file) {
-        return handleUploadError(uploadApi.concept(kgName, file));
+        return handleUploadError(uploadApi.concept(KGUtil.dbName(kgName), file));
     }
 
     @Override
     public String importEntities(String kgName, Long conceptId, MultipartFile file) {
-        return handleUploadError(uploadApi.entity(kgName, conceptId, file));
+        return handleUploadError(uploadApi.entity(KGUtil.dbName(kgName), conceptId, file));
     }
 
     @Override
     public String importSynonyms(String kgName, MultipartFile file) {
-        return handleUploadError(uploadApi.synonym(kgName, file));
+        return handleUploadError(uploadApi.synonym(KGUtil.dbName(kgName), file));
     }
 
     @Override
     public String importAttrDefinition(String kgName, Integer type, MultipartFile file) {
-        return handleUploadError(uploadApi.attribute(kgName, type, file));
+        return handleUploadError(uploadApi.attribute(KGUtil.dbName(kgName), type, file));
     }
 
     @Override
     public String importDomain(String kgName, Long conceptId, MultipartFile file) {
-        return handleUploadError(uploadApi.domain(kgName, conceptId, file));
+        return handleUploadError(uploadApi.domain(KGUtil.dbName(kgName), conceptId, file));
     }
 
     @Override
     public String importRelation(String kgName, Integer mode, MultipartFile file) {
-        return handleUploadError(uploadApi.relation(kgName, mode, file));
+        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), mode, file));
     }
 
     @Override
     public String importRelation(String kgName, Integer attrId, Integer mode, MultipartFile file) {
-        return handleUploadError(uploadApi.relation(kgName, attrId, mode, file));
+        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), attrId, mode, file));
     }
 
     @Override
     public String importRdf(String kgName, MultipartFile file, String format) {
-        return handleUploadError(rdfApi.importRdf(kgName, format, file));
+        return handleUploadError(rdfApi.importRdf(KGUtil.dbName(kgName), format, file));
     }
 
     @Override
     public String exportRdf(String kgName, String format, Integer scope) {
-        ResponseEntity<byte[]> body = rdfApi.exportRdf(kgName, scope, RdfType.findByType(format).getFormat());
+        ResponseEntity<byte[]> body = rdfApi.exportRdf(KGUtil.dbName(kgName), scope, RdfType.findByType(format).getFormat());
         ByteArrayInputStream inputStream = new ByteArrayInputStream(Objects.requireNonNull(body.getBody()));
         StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, format, null);
         return "/" + storePath.getFullPath();

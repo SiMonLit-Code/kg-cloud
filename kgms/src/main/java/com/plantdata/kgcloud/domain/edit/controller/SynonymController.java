@@ -29,16 +29,16 @@ public class SynonymController {
 
     @ApiOperation("添加概念或实体同义词")
     @PostMapping("/{kgName}/synonym/add")
-    ApiReturn addSynonym(@PathVariable("kgName") String kgName,
-                         @Valid @RequestBody SynonymReq synonymReq) {
+    public ApiReturn addSynonym(@PathVariable("kgName") String kgName,
+                                @Valid @RequestBody SynonymReq synonymReq) {
         basicInfoService.addSynonym(kgName, synonymReq);
         return ApiReturn.success();
     }
 
     @ApiOperation("删除概念或实体同义词")
     @PostMapping("/{kgName}/synonym/delete")
-    ApiReturn deleteSynonym(@PathVariable("kgName") String kgName,
-                            @Valid @RequestBody SynonymReq synonymReq) {
+    public ApiReturn deleteSynonym(@PathVariable("kgName") String kgName,
+                                   @Valid @RequestBody SynonymReq synonymReq) {
         basicInfoService.deleteSynonym(kgName, synonymReq);
         return ApiReturn.success();
     }

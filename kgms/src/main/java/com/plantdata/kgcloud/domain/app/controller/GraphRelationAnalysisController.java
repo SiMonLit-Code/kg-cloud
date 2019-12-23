@@ -8,7 +8,6 @@ import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -26,7 +25,6 @@ import javax.validation.Valid;
  * @version 1.0
  * @date 2019/11/12 11:37
  */
-@Api(tags = "关联分析")
 @RestController
 @RequestMapping("app/graphExplore/relation")
 public class GraphRelationAnalysisController {

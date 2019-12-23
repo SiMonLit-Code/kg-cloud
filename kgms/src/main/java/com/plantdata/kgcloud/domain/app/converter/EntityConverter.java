@@ -6,7 +6,9 @@ import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.GisEntityVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.hiekn.pddocument.bean.element.PdEntity;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -16,7 +18,10 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.NamedEntityRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
@@ -41,7 +46,7 @@ public class EntityConverter {
         return entityFrom;
     }
 
-    public static EntityFilterFrom buildEntityFilterFrom(List<Long> entityIdSet,Map<String,Object> kvMap){
+    public static EntityFilterFrom buildEntityFilterFrom(List<Long> entityIdSet, Map<String, Object> kvMap) {
         EntityFilterFrom entityFilterFrom = new EntityFilterFrom();
         entityFilterFrom.setKvMap(kvMap);
         entityFilterFrom.setIds(entityIdSet);
@@ -56,7 +61,7 @@ public class EntityConverter {
         entity.setConceptId(entityVO.getConceptId());
         entity.setMeaningTag(entityVO.getMeaningTag());
         entity.setName(entityVO.getName());
-        entity.setType(EntityTypeEnum.ENTITY);
+        entity.setType(EntityTypeEnum.ENTITY.getValue());
         MetaConverter.fillMetaWithNoNull(entityVO.getMetaData(), entity);
         return entity;
     }
@@ -128,23 +133,26 @@ public class EntityConverter {
     }
 
 
-
     public static SearchByAttributeFrom entityQueryReqToSearchByAttributeFrom(EntityQueryReq entityQueryReq) {
         SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
+        if (StringUtils.isNoneBlank(entityQueryReq.getQuery())) {
+            attributeFrom.setKvMap(JacksonUtils.readValue(entityQueryReq.getQuery(), new TypeReference<Map<String, Object>>() {
+            }));
+        }
 
-        attributeFrom.setKvMap(entityQueryReq.getQuery().isEmpty() ? null : entityQueryReq.getQuery());
         attributeFrom.setLimit(entityQueryReq.getLimit());
         attributeFrom.setSkip(entityQueryReq.getOffset());
         attributeFrom.setConceptIds(Lists.newArrayList(entityQueryReq.getConceptId()));
         return attributeFrom;
     }
 
-
-
-
-
-
-
+    public static NamedEntityRsp pdEntityToNamedEntityRsp(@NonNull PdEntity pdEntity) {
+        NamedEntityRsp namedEntity = new NamedEntityRsp();
+        namedEntity.setName(pdEntity.getName());
+        namedEntity.setTag(pdEntity.getTag());
+        namedEntity.setPos(pdEntity.getIndex());
+        return namedEntity;
+    }
 
 
 }

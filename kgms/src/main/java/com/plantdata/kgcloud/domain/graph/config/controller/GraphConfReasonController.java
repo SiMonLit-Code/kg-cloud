@@ -47,14 +47,14 @@ public class GraphConfReasonController {
     }
 
     @ApiOperation("图谱配置-推理-删除")
-    @DeleteMapping("/reason/{kgName}/{id}")
+    @DeleteMapping("/reason/{id}")
     public ApiReturn deleteReasoning(@PathVariable("id") Long id) {
         graphConfReasoningService.deleteReasoning(id);
         return ApiReturn.success();
     }
 
     @ApiOperation("图谱配置-推理-更新")
-    @PatchMapping("/reason/{kgName}/{id}")
+    @PutMapping("/reason/{id}")
     public ApiReturn<GraphConfReasonRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasonReq req) {
         return ApiReturn.success(graphConfReasoningService.updateReasoning(id, req));
     }

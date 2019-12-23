@@ -19,6 +19,7 @@ import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
 import com.plantdata.kgcloud.domain.app.dto.InfoBoxQueryDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
@@ -190,7 +191,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             return null;
         }
         InfoBoxRsp infoBoxRsp = list.get(0);
-        List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(kgName, userId, infoBoxRsp.getSelf().getId());
+        List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(KGUtil.dbName(kgName), userId, infoBoxRsp.getSelf().getId());
         infoBoxRsp.getSelf().setDataLinks(dataLinks);
         return infoBoxRsp;
     }
@@ -200,14 +201,14 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         graphHelperService.replaceByAttrKey(kgName, req);
         KgServiceEntityFrom entityFrom = InfoBoxConverter.batchInfoBoxReqToKgServiceEntityFrom(req);
 
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, entityFrom));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), entityFrom));
         if (!entityOpt.isPresent()) {
             return Collections.emptyList();
         }
         InfoBoxQueryDTO query = InfoBoxQueryDTO.build(entityOpt.get());
 
         List<ai.plantdata.kg.api.edit.resp.EntityVO> relationEntityList = RestRespConverter
-                .convert(conceptEntityApi.listByIds(kgName, true, query.getRelationEntityIdSet()))
+                .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), true, query.getRelationEntityIdSet()))
                 .orElse(Collections.emptyList());
         return InfoBoxConverter.voToInfoBox(query.getSourceEntityIds(), relationEntityList);
     }

@@ -34,7 +34,7 @@ public class GraphConfKgqlController {
     }
 
     @ApiOperation("图谱配置-KGQL-更新")
-    @PatchMapping("/kgql/{id}")
+    @PutMapping("/kgql/{id}")
     public ApiReturn<GraphConfKgqlRsp> updateKgql(@PathVariable("id") Long id, @RequestBody @Valid GraphConfKgqlReq req) {
         return ApiReturn.success(graphConfKgqlService.updateKgql(id, req));
     }

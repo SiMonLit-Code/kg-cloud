@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
@@ -24,9 +25,11 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -97,7 +100,6 @@ public class GraphReqConverter extends BasicConverter {
 
     private static void fillRelation(@NonNull CommonRelationReq relation, RelationFrom graphFrom) {
         graphFrom.setIds(relation.getIds());
-        graphFrom.setDistance(relation.getDistance());
     }
 
     private static void fillCommon(@NonNull CommonFiltersReq common, GraphFrom graphFrom) {
@@ -109,7 +111,7 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.setQueryPrivate(common.isPrivateAttRead());
         graphFrom.getHighLevelFilter().setDirection(common.getDirection());
         graphFrom.getHighLevelFilter().setLimit(common.getHighLevelSize() == null ? graphFrom.getLimit() : common.getHighLevelSize());
-        setIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
+        consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
         if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
             Map<String, Integer> edgeAttrQuery = ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts());
             graphFrom.getHighLevelFilter().setEdgeSort(edgeAttrQuery);
@@ -119,7 +121,6 @@ public class GraphReqConverter extends BasicConverter {
     private static void fillPath(@NonNull CommonPathReq pathReq, PathFrom pathFrom) {
         pathFrom.setStart(pathReq.getStart());
         pathFrom.setEnd(pathReq.getEnd());
-        pathFrom.setDistance(pathReq.getDistance());
         pathFrom.setShortest(pathReq.isShortest());
     }
 
@@ -143,7 +144,11 @@ public class GraphReqConverter extends BasicConverter {
         entityFromTimeMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), timeRangeMap);
 
         Map<Integer, Integer> entityFromTimeSortMap = new HashMap<>(1);
-        entityFromTimeSortMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), timeFilter.getSort().getValue());
+        if (!StringUtils.isEmpty(timeFilter.getSort())) {
+            Optional<SortTypeEnum> sortTypeEnum = SortTypeEnum.parseByName(timeFilter.getSort());
+            entityFromTimeSortMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), sortTypeEnum.orElse(SortTypeEnum.DESC).getValue());
+        }
+
         MetaData entityMetaData = commonFilter.getEntityMeta();
         MetaData relationMetaData = commonFilter.getRelationMeta();
         switch (timeFilter.getTimeFilterType()) {

@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
-import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
@@ -171,13 +170,21 @@ public interface EditClient {
     /**
      * 实体查询
      *
-     * @param kgName         kgName
-     * @param entityQueryReq req
-     * @return 。
+     * @param kgName
+     * @param conceptId
+     * @param conceptKey
+     * @param query
+     * @param page
+     * @param size
+     * @return
      */
     @GetMapping("entity/{kgName}/list/search")
     ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
-                                                   EntityQueryReq entityQueryReq);
+                                                   @RequestParam(value = "conceptId", required = false) Long conceptId,
+                                                   @RequestParam(value = "conceptKey", required = false) String conceptKey,
+                                                   @RequestParam(value = "query", required = false) String query,
+                                                   @RequestParam(value = "page", required = false) Integer page,
+                                                   @RequestParam(value = "size", required = false) Integer size);
 
     /**
      * 批量新增实体
@@ -188,8 +195,8 @@ public interface EditClient {
      * @return 。
      */
     @PostMapping("entity/{kgName}")
-    ApiReturn saveOrUpdate(@PathVariable("kgName") String kgName, @RequestParam(value = "add", required = false) boolean add,
-                           @RequestBody List<OpenBatchSaveEntityRsp> batchEntity);
+    ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName, @RequestParam(value = "add", required = false) boolean add,
+                                                                    @RequestBody List<OpenBatchSaveEntityRsp> batchEntity);
 
     /**
      * 批量查询关系

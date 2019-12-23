@@ -114,7 +114,7 @@ public class InfoBoxConverter extends BasicConverter {
         EntityLinksRsp self = new EntityLinksRsp();
         self.setId(entity.getId());
         self.setName(entity.getName());
-        self.setType(EntityTypeEnum.ENTITY);
+        self.setType(EntityTypeEnum.ENTITY.getValue());
         self.setMeaningTag(entity.getMeaningTag());
         if (StringUtils.isNotEmpty(entity.getImageUrl())) {
             self.setImg(JacksonUtils.readValue(entity.getImageUrl(), ImageRsp.class));

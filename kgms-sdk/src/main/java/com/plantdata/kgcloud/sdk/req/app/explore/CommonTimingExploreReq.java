@@ -23,12 +23,12 @@ import java.util.Set;
  * @version 1.0
  * @date 2019/11/1 11:02
  */
-@ApiModel("时序图探索")
+@ApiModel("时序图探索-参数")
 @Getter
 @Setter
 public class CommonTimingExploreReq extends BasicGraphExploreReq implements GraphCommonReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
     @NotNull
-    @ApiModelProperty("普通参数")
+    @ApiModelProperty(value = "普通参数", required = true)
     private CommonFiltersReq common;
     @ApiModelProperty("时间参数过滤")
     private TimeFilterExploreReq timeFilters;
@@ -44,7 +44,7 @@ public class CommonTimingExploreReq extends BasicGraphExploreReq implements Grap
     }
 
     @Override
-    public Set<Long> getNeedSaveEntityIds() {
+    public Set<Long> fetchNeedSaveEntityIds() {
         return common.getId() == null ? Collections.emptySet() : Sets.newHashSet(common.getId());
     }
 

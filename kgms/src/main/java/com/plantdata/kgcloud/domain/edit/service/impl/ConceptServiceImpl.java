@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.edit.req.UpdateBasicInfoFrom;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ConceptReplaceReq;
@@ -37,7 +38,7 @@ public class ConceptServiceImpl implements ConceptService {
 
     @Override
     public List<BasicInfoVO> getConceptTree(String kgName, Long conceptId) {
-        Optional<List<BasicInfo>> optional = RestRespConverter.convert(conceptEntityApi.tree(kgName, conceptId));
+        Optional<List<BasicInfo>> optional = RestRespConverter.convert(conceptEntityApi.tree(KGUtil.dbName(kgName), conceptId));
         return optional.orElse(new ArrayList<>())
                 .stream()
                 .map(ConvertUtils.convert(BasicInfoVO.class))
@@ -48,7 +49,7 @@ public class ConceptServiceImpl implements ConceptService {
     public void updateGis(String kgName, GisModifyReq gisModifyReq) {
         Map<String, Object> metadata = new HashMap<>(1);
         metadata.put(MetaDataInfo.OPEN_GIS.getFieldName(), gisModifyReq.getOpenGised());
-        RestRespConverter.convertVoid(conceptEntityApi.updateMetaData(kgName, gisModifyReq.getId(),
+        RestRespConverter.convertVoid(conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), gisModifyReq.getId(),
                 metadata));
     }
 
@@ -56,7 +57,7 @@ public class ConceptServiceImpl implements ConceptService {
     public void updateAdditional(String kgName, AdditionalModifyReq additionalModifyReq) {
         Map<String, Object> metadata = new HashMap<>(1);
         metadata.put(MetaDataInfo.ADDITIONAL.getFieldName(), additionalModifyReq.getAdditional());
-        RestRespConverter.convertVoid(conceptEntityApi.updateMetaData(kgName, additionalModifyReq.getId(),
+        RestRespConverter.convertVoid(conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), additionalModifyReq.getId(),
                 metadata));
     }
 
@@ -67,6 +68,6 @@ public class ConceptServiceImpl implements ConceptService {
         }
         UpdateBasicInfoFrom updateBasicInfoFrom =
                 ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(conceptReplaceReq);
-        RestRespConverter.convertVoid(conceptEntityApi.update(kgName, updateBasicInfoFrom));
+        RestRespConverter.convertVoid(conceptEntityApi.update(KGUtil.dbName(kgName), updateBasicInfoFrom));
     }
 }

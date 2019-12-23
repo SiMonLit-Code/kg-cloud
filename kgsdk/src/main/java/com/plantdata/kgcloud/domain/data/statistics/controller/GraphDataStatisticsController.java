@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,18 +30,18 @@ public class GraphDataStatisticsController implements GraphDataStatisticsInterfa
     private KgDataClient kgDataClient;
 
     @ApiOperation("对象属性统计，统计对象属性的数量，按关系分组")
-    @GetMapping("/byAttrValue/{kgName}")
+    @PostMapping("/byAttrValue/{kgName}")
     public ApiReturn<Object> relationCountByAttrValue(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                              @RequestBody EdgeStatisticByConceptIdReq conceptIdReq) {
-        return kgDataClient.statisticRelation(kgName,conceptIdReq);
+                                                      @RequestBody EdgeStatisticByConceptIdReq conceptIdReq) {
+        return kgDataClient.statisticRelation(kgName, conceptIdReq);
     }
 
     @ApiOperation("边数值属性统计，按数值属性值分组")
-    @GetMapping("byEdgeAttrValue/{kgName}")
-    public ApiReturn<Object>  statEdgeGroupByEdgeValue(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                              @RequestBody EdgeAttrStatisticByAttrValueReq conceptIdReq) {
+    @PostMapping("byEdgeAttrValue/{kgName}")
+    public ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                      @RequestBody EdgeAttrStatisticByAttrValueReq conceptIdReq) {
 
-        return kgDataClient.statEdgeGroupByEdgeValue(kgName,conceptIdReq);
+        return kgDataClient.statEdgeGroupByEdgeValue(kgName, conceptIdReq);
     }
 
 }

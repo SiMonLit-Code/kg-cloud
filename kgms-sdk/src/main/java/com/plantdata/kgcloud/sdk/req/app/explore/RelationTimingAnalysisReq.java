@@ -20,10 +20,10 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel("时序关联分析视图")
+@ApiModel("时序关联分析-参数")
 public class RelationTimingAnalysisReq extends BasicGraphExploreReq implements GraphRelationReqInterface, GraphTimingReqInterface {
 
-    @ApiModelProperty("关联搜索参数")
+    @ApiModelProperty(value = "关联搜索参数", required = true)
     private CommonRelationReq relation;
     @ApiModelProperty("时间参数过滤")
     private TimeFilterExploreReq timeFilters;

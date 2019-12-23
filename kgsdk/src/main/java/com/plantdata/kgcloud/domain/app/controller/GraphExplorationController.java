@@ -45,7 +45,7 @@ public class GraphExplorationController implements GraphApplicationInterface {
     @ApiOperation("根据业务规则kgQl语句图探索")
     @PostMapping("byKgQl/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> exploreByKgQl(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                               @RequestBody @Valid ExploreByKgQlReq kgQlReq) {
+                                                               @RequestBody ExploreByKgQlReq kgQlReq) {
         return appClient.exploreByKgQl(kgName, kgQlReq);
     }
 

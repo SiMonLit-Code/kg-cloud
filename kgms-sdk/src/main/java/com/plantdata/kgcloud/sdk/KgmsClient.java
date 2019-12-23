@@ -17,7 +17,6 @@ import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.req.KgmsCallReq;
 import com.plantdata.kgcloud.sdk.req.WordReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DictionaryRsp;
 import com.plantdata.kgcloud.sdk.rsp.FolderRsp;
@@ -36,6 +35,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -211,7 +211,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/algorithm/{id}")
+    @PutMapping("/config/algorithm/{id}")
     ApiReturn<GraphConfAlgorithmRsp> update(@PathVariable("id") Long id, @RequestBody @Valid GraphConfAlgorithmReq req);
 
     /**
@@ -249,7 +249,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/focus/{kgName}")
+    @PutMapping("/config/focus/{kgName}")
     ApiReturn<List<GraphConfFocusRsp>> saveFocus(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfFocusReq> req);
 
     /**
@@ -259,7 +259,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PostMapping("/kgql/{kgName}")
+    @PostMapping("config/kgql/{kgName}")
     ApiReturn<GraphConfKgqlRsp> saveKgql(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfKgqlReq req);
 
     /**
@@ -269,7 +269,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/kgql/{id}")
+    @PutMapping("/config/kgql/{id}")
     ApiReturn<GraphConfKgqlRsp> updateKgql(@PathVariable("id") Long id, @RequestBody @Valid GraphConfKgqlReq req);
 
     /**
@@ -285,11 +285,13 @@ public interface KgmsClient {
      * 图谱配置-KGQL-查询
      *
      * @param kgName
+     * @param ruleType
      * @param baseReq
      * @return
      */
-    @GetMapping("/config/kgql/{kgName}")
-    ApiReturn<BasePage<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, PageReq baseReq);
+    @GetMapping("config/kgql/{kgName}/{ruleType}")
+    ApiReturn<BasePage<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, @PathVariable("ruleType") Integer ruleType,
+                                                     BaseReq baseReq);
 
     /**
      * 图谱配置-KGQL-详情
@@ -297,7 +299,7 @@ public interface KgmsClient {
      * @param id
      * @return
      */
-    @GetMapping("/kgql/{id}")
+    @GetMapping("config/kgql/detail/{id}")
     ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id);
 
     /**
@@ -345,7 +347,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/statistical/{id}")
+    @PutMapping("/config/statistical/{id}")
     ApiReturn<GraphConfStatisticalRsp> updateStatistical(@PathVariable("id") Long id, @RequestBody @Valid GraphConfStatisticalReq req);
 
     /**
@@ -354,7 +356,7 @@ public interface KgmsClient {
      * @param reqs
      * @return
      */
-    @PatchMapping("/config/statistical/batch/update")
+    @PutMapping("/config/statistical/batch/update")
     ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@RequestBody @Valid List<GraphConfStatisticalReq> reqs);
 
     /**
@@ -372,7 +374,7 @@ public interface KgmsClient {
      * @param ids
      * @return
      */
-    @PatchMapping("/config/statistical/batch")
+    @PutMapping("/config/statistical/batch/delete")
     ApiReturn deleteStatisticalBatch(@RequestBody List<Long> ids);
 
     /**
@@ -411,7 +413,7 @@ public interface KgmsClient {
      * @param baseReq
      * @return
      */
-    @GetMapping("/config/reason/{kgName}")
+    @GetMapping("/config/reason/page/{kgName}")
     ApiReturn<BasePage<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     /**
@@ -439,7 +441,7 @@ public interface KgmsClient {
      * @param req
      * @return
      */
-    @PatchMapping("/config/reason/{kgName}/{id}")
+    @PutMapping("/config/reason/{id}")
     ApiReturn<GraphConfReasonRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasonReq req);
 
 

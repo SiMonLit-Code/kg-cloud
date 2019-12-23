@@ -22,7 +22,7 @@ public class GraphAfterDTO implements GraphReqAfterInterface {
     private Boolean relationMerge;
 
     public GraphAfterDTO(List<Long> replaceClassIds, boolean relationMerge) {
-        BasicConverter.setIfNoNull(replaceClassIds, a -> this.replaceClassIds = replaceClassIds);
+        BasicConverter.consumerIfNoNull(replaceClassIds, a -> this.replaceClassIds = replaceClassIds);
         this.relationMerge = relationMerge;
     }
 

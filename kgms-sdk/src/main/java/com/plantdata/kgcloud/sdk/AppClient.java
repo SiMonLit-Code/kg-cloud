@@ -30,7 +30,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
@@ -39,6 +38,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -120,9 +120,9 @@ public interface AppClient {
      * @return List
      */
     @GetMapping("concept/{kgName}")
-    ApiReturn<List<BasicConceptRsp>> conceptTree(@PathVariable("kgName") String kgName,
-                                                 @RequestParam("conceptId") Long conceptId,
-                                                 @RequestParam("conceptKey") String conceptKey);
+    ApiReturn<List<BasicInfoVO>> conceptTree(@PathVariable("kgName") String kgName,
+                                             @RequestParam("conceptId") Long conceptId,
+                                             @RequestParam("conceptKey") String conceptKey);
 
     /**
      * 获取所有图谱名称
@@ -153,7 +153,7 @@ public interface AppClient {
      */
     @GetMapping("prompt/senior/{kgName}")
     ApiReturn<List<SeniorPromptRsp>> seniorPrompt(@PathVariable("kgName") String kgName,
-                                                  SeniorPromptReq seniorPromptReq);
+                                                  @RequestBody SeniorPromptReq seniorPromptReq);
 
     /**
      * 边属性搜索
@@ -164,7 +164,7 @@ public interface AppClient {
      */
     @PostMapping("attributes/{kgName}")
     ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@PathVariable("kgName") String kgName,
-                                                 EdgeAttrPromptReq edgeAttrPromptReq);
+                                                 @RequestBody EdgeAttrPromptReq edgeAttrPromptReq);
 
     /**
      * 初始化图探索焦点

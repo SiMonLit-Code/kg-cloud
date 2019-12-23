@@ -32,7 +32,6 @@ public class GraphRelationAnalysisTest {
 
     CommonRelationReq commonRelationReq() {
         CommonRelationReq commonRelationReq = new CommonRelationReq();
-        commonRelationReq.setDistance(1);
         commonRelationReq.setIds(Lists.newArrayList(3L, 4L));
         return commonRelationReq;
     }

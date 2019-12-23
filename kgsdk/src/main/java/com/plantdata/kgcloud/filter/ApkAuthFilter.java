@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.filter;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.sdk.SsoClient;
@@ -19,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -27,6 +29,10 @@ public class ApkAuthFilter extends OncePerRequestFilter {
     private SsoClient ssoClient;
 
     private AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    private static final List<String> ROBOT_ALLOW_PATHS = Lists.newArrayList("graphExplore/common/**",
+            "infoBox/list/**", "graphExplore/path/**", "knowledgeRecommend/**", "graphExplore/relation/**", "graphExplore/timing/**"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
@@ -37,6 +43,10 @@ public class ApkAuthFilter extends OncePerRequestFilter {
                 isAllowed = true;
                 break;
             }
+        }
+        boolean robotAllow = ROBOT_ALLOW_PATHS.stream().anyMatch(a -> antPathMatcher.match(a, requestUri));
+        if (robotAllow) {
+            isAllowed = true;
         }
         if (isAllowed) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);

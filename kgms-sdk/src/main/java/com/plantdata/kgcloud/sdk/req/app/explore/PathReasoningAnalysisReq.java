@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@ApiModel("路径分析推理参数")
+@ApiModel("路径分析推理-参数")
 public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphPathReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
 
     @NotNull
@@ -35,7 +35,7 @@ public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements Re
     @ApiModelProperty("时间过滤参数")
     private TimeFilterExploreReq timeFilters;
     @ApiModelProperty("推理规则")
-    private Map<Integer, JsonNode> reasoningRuleConfigs;
+    private Map<Integer, Object> reasoningRuleConfigs;
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
 
@@ -46,11 +46,11 @@ public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements Re
 
     @Override
     public Integer fetchDistance() {
-        return path.getDistance();
+        return getDistance();
     }
 
     @Override
-    public Map<Integer, JsonNode> fetchReasonConfig() {
+    public Map<Integer, Object> fetchReasonConfig() {
         return reasoningRuleConfigs;
     }
 

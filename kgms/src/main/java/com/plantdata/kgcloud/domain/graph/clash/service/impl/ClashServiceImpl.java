@@ -12,7 +12,8 @@ import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.graph.clash.entity.ClashListReq;
 import com.plantdata.kgcloud.domain.graph.clash.entity.ClashToGraphReq;
 import com.plantdata.kgcloud.domain.graph.clash.service.ClashService;
-import com.plantdata.kgcloud.sdk.EditClient;
+import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
+import com.plantdata.kgcloud.security.SessionHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -36,15 +37,15 @@ public class ClashServiceImpl implements ClashService {
     private MongoClient mongoClient;
     private static final String CLASH_DB_NAME = "clash_check";
     @Autowired
-    private EditClient editClient;
-    @Autowired
     private EntityService entityService;
+    @Autowired
+    private GraphRepository graphRepository;
 
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, Object> list(String kgName, ClashListReq req) {
 
-        String kgDbName = KgQueryUtil.getKgDbName(mongoClient, kgName);
+        String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
         int pageNo = (req.getPage() - 1) * req.getSize();
         List<Bson> aggLs = new ArrayList<>();
         aggLs.add(Aggregates.lookup("basic_info", "entity_id", "id", "basic"));
@@ -69,11 +70,11 @@ public class ClashServiceImpl implements ClashService {
             Integer attrId = s.getInteger("attr_id");
             // 补充数值属性约束
             String clashInfo = "";
-            MongoCursor<Document> cursor1 = mongoClient.getDatabase("kg_attribute_definition").getCollection(kgDbName + "_attribute_definition")
+            MongoCursor<Document> cursor1 = mongoClient.getDatabase(kgDbName).getCollection("attribute_definition")
                     .find(new Document("id", attrId)).iterator();
 
             int attrType = 0;
-            String attrName = "";
+            String attrName = "{}";
             if (cursor1.hasNext()) {
                 Document define = cursor1.next();
                 attrType = define.getInteger("type");
@@ -144,7 +145,7 @@ public class ClashServiceImpl implements ClashService {
     @Override
     public void delete(String kgName, List<String> ls) {
 
-        String kgDbName = KgQueryUtil.getKgDbName(mongoClient, kgName);
+        String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
         if (ls != null && !ls.isEmpty()) {
             List<ObjectId> objectIds = ls.stream().map(ObjectId::new).collect(Collectors.toList());
             mongoClient.getDatabase(kgDbName).getCollection(CLASH_DB_NAME).deleteMany(Filters.in("_id", objectIds));

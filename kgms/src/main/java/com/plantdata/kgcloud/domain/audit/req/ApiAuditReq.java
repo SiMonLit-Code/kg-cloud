@@ -22,11 +22,11 @@ public class ApiAuditReq {
     @ApiModelProperty("结束时间  格式 yyyy-MM-dd HH:mm:ss")
     private String to;
 
-    @ApiModelProperty("结束时间  格式 yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty("根据图谱名称统计")
     private String kgName;
 
 
-    @ApiModelProperty("结束时间  格式 yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty("根据调用方式统计")
     private String page;
 
     @ApiModelProperty("接口数组")
