@@ -22,7 +22,7 @@ public class TimeFilterExploreReq {
     @ApiModelProperty("结束时间")
     private Date toTime;
     @ApiModelProperty("排序方式")
-    private SortTypeEnum sort = SortTypeEnum.DESC;
+    private String sort = SortTypeEnum.DESC.getName();
     @ApiModelProperty("时间筛选类型，0 不按时间不筛选, 1以节点的时间筛选,  2 以关系的时间筛选, 3 以关系与节点的时间筛选")
     private Integer timeFilterType = 0;
 }

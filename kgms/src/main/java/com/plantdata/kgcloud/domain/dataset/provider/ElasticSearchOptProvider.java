@@ -86,17 +86,14 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         if (offset != null && offset >= 0) {
             queryNode.put("from", offset);
         }
-        int size = 10;
-        if (limit != null && limit > 0) {
-            limit = size;
-            queryNode.put("size", limit);
-        }
+        int size = limit != null && limit > 0 ? limit : 10;
+        queryNode.put("size", size);
 
         if (CollectionUtils.isEmpty(query)) {
             return queryNode;
         }
         for (Map.Entry<String, Object> entry : query.entrySet()) {
-            if(Objects.equals(entry.getKey(),"sort")){
+            if (Objects.equals(entry.getKey(), "sort")) {
                 queryNode.put("sort", DataConst.CREATE_AT);
             }
             if (Objects.equals(entry.getKey(), "search")) {

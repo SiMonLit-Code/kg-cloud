@@ -7,12 +7,15 @@ import com.hiekn.pddocument.bean.PdDocument;
 import com.hiekn.pddocument.bean.element.PdEntity;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.ExtractTypeEnum;
+import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.util.JsonUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -71,13 +74,17 @@ public class ExtractController implements GraphApplicationInterface {
     @ApiOperation("第三方模型抽取")
     @PostMapping("extract/thirdModel/{modelId}")
     public ApiReturn<Object> extractThirdModel(@PathVariable("modelId") Long modelId,
-                                               String input, @RequestBody List<Map<String, String>> configList) {
-        return kgDataClient.extractThirdModel(modelId, input, configList);
+                                               @ApiParam(required = true) @RequestParam("input") String input,
+                                               @ApiParam(required = true) @RequestParam("config") String config) {
+        return kgDataClient.extractThirdModel(modelId, input, config);
     }
 
     private ApiReturn<List<PdDocument>> extractByType(ExtractTypeEnum extractType, String input, String entities, String config) {
         List<PdEntity> entityList = JsonUtils.isEmpty(entities) ? Collections.emptyList() : JsonUtils.jsonToList(entities, PdEntity.class);
         List<ExtractConfigVO> configList = JsonUtils.isEmpty(entities) ? Collections.emptyList() : JsonUtils.jsonToList(config, ExtractConfigVO.class);
+        if (CollectionUtils.isEmpty(configList)) {
+            throw BizException.of(SdkErrorCodeEnum.CONFIG_PARAM_ERROR);
+        }
         List<PdDocument> result;
         switch (extractType) {
             case ENTITY:

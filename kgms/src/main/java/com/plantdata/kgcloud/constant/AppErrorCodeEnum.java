@@ -38,7 +38,9 @@ public enum AppErrorCodeEnum implements ErrorCode {
     ALGORITHM_PARAM_ERROR(120613, "算法参数错误"),
     NULL_KW_AND_ID(120614, "实体名称和id不能同时为空"),
     ERROR_DATA_SET_QUERY(120615, "数据集查询或排序语法错误"),
-    IMAGE_NO_INCLUDE_DATA_ERROR(120616,"data参数不含data：");
+    IMAGE_NO_INCLUDE_DATA_ERROR(120616, "data参数不含data："),
+    GRAMMAR_ERROR(120617, "语法错误");
+
     private final int errorCode;
 
     private final String message;

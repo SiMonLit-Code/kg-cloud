@@ -3,20 +3,23 @@ package com.plantdata.kgcloud.domain.app.service.impl;
 import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
-import ai.plantdata.kg.api.pub.req.AttributeStatisticsBean;
-import ai.plantdata.kg.api.pub.req.ConceptStatisticsBean;
 import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
-import ai.plantdata.kg.api.pub.req.RelationExtraInfoStatisticBean;
-import ai.plantdata.kg.api.pub.req.RelationStatisticsBean;
+import ai.plantdata.kg.api.pub.req.statistics.AttributeStatisticsBean;
+import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
+import ai.plantdata.kg.api.pub.req.statistics.RelationExtraInfoStatisticBean;
+import ai.plantdata.kg.api.pub.req.statistics.RelationStatisticsBean;
 import ai.plantdata.kg.api.ql.SparqlApi;
 import ai.plantdata.kg.api.ql.resp.NodeBean;
 import ai.plantdata.kg.api.ql.resp.QueryResultVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
+import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppConstants;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.bo.GraphAttributeStatisticBO;
 import com.plantdata.kgcloud.domain.app.bo.GraphRelationStatisticBO;
@@ -33,6 +36,7 @@ import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
@@ -110,7 +114,7 @@ public class KgDataServiceImpl implements KgDataService {
         }
         List<StatisticDTO> dataList = JsonUtils.objToList(dataOpt.get(), StatisticDTO.class);
         AttributeDataTypeEnum dataType = GraphStatisticConverter.edgeAttrDataType(statisticReq.getSeqNo(), arrDefOpt.get());
-        return buildStatisticResult(dataType, statisticReq.getMerge(), dataList, statisticReq.getDateType(), statisticReq.getSort(), statisticBean.getSize(), statisticReq.getReturnType());
+        return buildStatisticResult(dataType, statisticReq.getMerge(), dataList, statisticReq.getDateType(), statisticReq.getSort(), statisticBean.getLimit(), statisticReq.getReturnType());
     }
 
     @Override
@@ -166,6 +170,9 @@ public class KgDataServiceImpl implements KgDataService {
     public RestData<Map<String, Object>> searchDataSet(String userId, NameReadReq nameReadReq) {
         PageUtils pageUtils = new PageUtils(nameReadReq.getPage(), nameReadReq.getSize());
         List<Long> dataSetIds = dataSetService.findByDataNames(userId, Lists.newArrayList(nameReadReq.getDataName()));
+        if (CollectionUtils.isEmpty(dataSetIds)) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
+        }
         Optional<DataSet> dataSetOpt = dataSetRepository.findByUserIdAndId(userId, dataSetIds.get(0));
         if (!dataSetOpt.isPresent()) {
             return RestData.empty();

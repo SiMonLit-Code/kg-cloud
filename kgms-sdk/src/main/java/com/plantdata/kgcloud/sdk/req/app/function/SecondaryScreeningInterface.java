@@ -50,7 +50,7 @@ public interface SecondaryScreeningInterface {
      *
      * @return .
      */
-    default Set<Long> getNeedSaveEntityIds() {
+    default Set<Long> fetchNeedSaveEntityIds() {
         return Collections.emptySet();
     }
 }

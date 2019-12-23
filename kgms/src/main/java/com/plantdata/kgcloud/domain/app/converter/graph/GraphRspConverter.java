@@ -52,8 +52,8 @@ public class GraphRspConverter extends BasicConverter {
      * 路径分析 业务逻辑需要抽离
      */
     public static List<GraphStatisticRsp> buildStatisticResult(GraphVO statisticRsp, @NonNull List<BasicStatisticReq> configList) {
-        Map<Long, List<SimpleEntity>> conceptIdKeyMap = statisticRsp.getEntityList().stream().collect(Collectors.groupingBy(SimpleEntity::getConceptId));
-        Map<Integer, List<SimpleRelation>> attrIdKeyMap = statisticRsp.getRelationList().stream().collect(Collectors.groupingBy(SimpleRelation::getAttrId));
+        Map<Long, List<SimpleEntity>> conceptIdKeyMap = listToMapNoNull(statisticRsp.getEntityList(), a -> a.stream().collect(Collectors.groupingBy(SimpleEntity::getConceptId)));
+        Map<Integer, List<SimpleRelation>> attrIdKeyMap = listToMapNoNull(statisticRsp.getRelationList(), a -> a.stream().collect(Collectors.groupingBy(SimpleRelation::getAttrId)));
         List<GraphStatisticRsp> statisticRspList = Lists.newArrayList();
         for (BasicStatisticReq config : configList) {
             //拿要计算的type, 构建待计算的entityList
@@ -87,7 +87,7 @@ public class GraphRspConverter extends BasicConverter {
     }
 
     private static List<CommonEntityRsp> buildCommonEntityList(@NonNull List<SimpleEntity> simpleEntityList, Map<Long, BasicInfo> conceptMap, List<Long> replaceClassIds) {
-        Set<Long> replaceClassIdsSet = executeSetNoNull(replaceClassIds, Sets::newHashSet);
+        Set<Long> replaceClassIdsSet = listToSetNoNull(replaceClassIds, Sets::newHashSet);
         return simpleEntityList.stream().map(a -> GraphCommonConverter.simpleToGraphEntityRsp(new CommonEntityRsp(), a, conceptMap, replaceClassIdsSet)).collect(Collectors.toList());
     }
 

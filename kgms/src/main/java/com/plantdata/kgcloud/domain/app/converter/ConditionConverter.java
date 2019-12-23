@@ -18,48 +18,17 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/11/29 15:37
  */
-public class ConditionConverter {
+public class ConditionConverter extends BasicConverter {
 
     public static Map<String, Map<String, Object>> relationAttrReqToMap(List<RelationAttrReq> attrReqList) {
-        return attrReqList.stream().collect(Collectors.toMap(a -> String.valueOf(a.getAttrId()), ConditionConverter::relationAttrReqToStringMap));
-    }
-
-    public static Map<Integer, Map<Integer, Object>> buildEdgeAttrSearchMap(List<RelationAttrReq> attrReqList) {
-        return attrReqList.stream().collect(Collectors.toMap(RelationAttrReq::getAttrId, ConditionConverter::relationAttrReqToIntMap));
+        return attrReqList.stream().collect(Collectors.toMap(a -> String.valueOf(a.getAttrId()),
+                ConditionConverter::relationAttrReqToStringMap));
     }
 
     public static Map<String, Integer> relationAttrSortToMap(List<AttrSortReq> sortReqList) {
-
-        return sortReqList.stream().collect(Collectors.toMap(a -> "attr_ext" + a.getAttrId() + "_" + a.getSeqNo(), AttrSortReq::getSort));
+        return sortReqList.stream().collect(Collectors.toMap(a -> "attr_ext" + a.getAttrId() + "_" + a.getSeqNo(),
+                AttrSortReq::getSort));
     }
-
-
-    private static Map<String, Object> relationAttrReqToStringMap(RelationAttrReq attrReq) {
-        Map<String, Object> seqMap = Maps.newHashMap();
-        seqMap.put(String.valueOf(attrReq.getSeqNo()), buildMongoQueryMap(attrReq));
-        return seqMap;
-    }
-
-    private static Map<Integer, Object> relationAttrReqToIntMap(RelationAttrReq attrReq) {
-        Map<Integer, Object> seqMap = Maps.newHashMap();
-        seqMap.put(attrReq.getSeqNo(), buildMongoQueryMap(attrReq));
-        return seqMap;
-    }
-
-    private static <T extends CompareFilterReq> Map<String, Object> buildMongoQueryMap(T attrReq) {
-        Map<String, Object> map = Maps.newHashMap();
-        if (attrReq.get$gt() != null) {
-            map.put("$gt", attrReq.get$gt());
-        }
-        if (attrReq.get$lt() != null) {
-            map.put("$lt", attrReq.get$lt());
-        }
-        if (attrReq.get$eq() != null) {
-            map.put("$eq", attrReq.get$eq());
-        }
-        return map;
-    }
-
 
     public static List<Map<String, Object>> entityScreeningListToMap(List<EntityQueryFiltersReq> entityScreeningList) {
         if (CollectionUtils.isEmpty(entityScreeningList)) {
@@ -86,39 +55,44 @@ public class ConditionConverter {
         if (entityScreeningList == null) {
             return Collections.emptyMap();
         }
-        return entityScreeningList.stream().collect(Collectors.toMap(EntityQueryFiltersReq::getAttrId, s -> s.getEq() != null ? s.getEq() : buildRangeMap(s)));
+        return entityScreeningList.stream().collect(Collectors.toMap(EntityQueryFiltersReq::getAttrId,
+                s -> s.get$eq() != null ? s.get$eq() : buildMongoQueryMap(s)));
     }
 
     public static Map<String, Object> entityListToMap(List<EntityQueryFiltersReq> entityScreeningList) {
         if (entityScreeningList == null) {
             return Collections.emptyMap();
         }
-        return entityScreeningList.stream().collect(Collectors.toMap(s -> String.valueOf(s.getAttrId()), s -> s.getEq() != null ? s.getEq() : buildRangeMap(s)));
+        return entityScreeningList.stream().collect(Collectors.toMap(s -> String.valueOf(s.getAttrId()),
+                s -> s.get$eq() != null ? s.get$eq() : buildMongoQueryMap(s)));
     }
 
-    private static Map<String, Object> buildRangeMap(EntityQueryFiltersReq filtersReq) {
+    static Map<Integer, Map<Integer, Object>> buildEdgeAttrSearchMap(List<RelationAttrReq> attrReqList) {
+        return attrReqList.stream().collect(Collectors.toMap(RelationAttrReq::getAttrId,
+                ConditionConverter::relationAttrReqToIntMap));
+    }
+
+    private static Map<String, Object> relationAttrReqToStringMap(RelationAttrReq attrReq) {
+        Map<String, Object> seqMap = Maps.newHashMap();
+        seqMap.put(String.valueOf(attrReq.getSeqNo()), buildMongoQueryMap(attrReq));
+        return seqMap;
+    }
+
+    private static Map<Integer, Object> relationAttrReqToIntMap(RelationAttrReq attrReq) {
+        Map<Integer, Object> seqMap = Maps.newHashMap();
+        seqMap.put(attrReq.getSeqNo(), buildMongoQueryMap(attrReq));
+        return seqMap;
+    }
+
+    private static <T extends CompareFilterReq> Map<String, Object> buildMongoQueryMap(T filtersReq) {
         Map<String, Object> map = Maps.newHashMap();
-        if (filtersReq.getNe() != null) {
-            map.put("$ne", filtersReq.getNe());
-        }
-        if (filtersReq.getGt() != null) {
-            map.put("$gt", filtersReq.getGt());
-        }
-        if (filtersReq.getLt() != null) {
-            map.put("$lt", filtersReq.getLt());
-        }
-        if (filtersReq.getGte() != null) {
-            map.put("$gte", filtersReq.getGte());
-        }
-        if (filtersReq.getLte() != null) {
-            map.put("$lte", filtersReq.getLte());
-        }
-        if (filtersReq.getIn() != null) {
-            map.put("$in", filtersReq.getIn());
-        }
-        if (filtersReq.getNin() != null) {
-            map.put("$nin", filtersReq.getNin());
-        }
+        consumerIfNoNull(filtersReq.get$neq(), a -> map.put("$neq", a));
+        consumerIfNoNull(filtersReq.get$gt(), a -> map.put("$gt", a));
+        consumerIfNoNull(filtersReq.get$gte(), a -> map.put("$gte", a));
+        consumerIfNoNull(filtersReq.get$lte(), a -> map.put("$lte", a));
+        consumerIfNoNull(filtersReq.get$in(), a -> map.put("$in", a));
+        consumerIfNoNull(filtersReq.get$nin(), a -> map.put("$nin", a));
         return map;
     }
+
 }

@@ -13,7 +13,7 @@ import ai.plantdata.kg.api.edit.resp.PromptVO;
 import ai.plantdata.kg.api.pub.CountApi;
 import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
-import ai.plantdata.kg.api.pub.req.ConceptStatisticsBean;
+import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.BasicInfoType;

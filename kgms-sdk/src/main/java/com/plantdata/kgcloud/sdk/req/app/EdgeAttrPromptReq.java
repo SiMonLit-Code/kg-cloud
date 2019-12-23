@@ -27,7 +27,7 @@ public class EdgeAttrPromptReq extends BaseReq {
     @ApiModelProperty("是否为保留字段：1是，0不是")
     @Min(0)
     @Max(1)
-    private Integer reserved = 0;
+    private int reserved = 0;
     @ApiModelProperty("2 对象属性 1数值属性")
     @Min(1)
     @Max(2)

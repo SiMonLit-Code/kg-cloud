@@ -13,7 +13,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019/11/4 10:10
  */
-@ApiModel("知识卡片参数")
+@ApiModel("知识卡片-参数(批量)")
 @Getter
 @Setter
 public class BatchInfoBoxReq implements AttrDefKeyReqInterface {

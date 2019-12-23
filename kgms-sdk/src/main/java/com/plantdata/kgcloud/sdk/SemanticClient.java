@@ -11,7 +11,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBean;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.semantic.SemanticSegWordVO;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.SemanticSegWordRsp;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,10 +24,7 @@ import java.util.List;
 /**
  * @author Administrator
  */
-@FeignClient(
-        value = "${kg.semantic.path:kg-services-semantic}",
-        contextId = "semanticClient"
-)
+@FeignClient(value = "kgms", path = "app/semantic", contextId = "semanticClient")
 public interface SemanticClient {
     /**
      * 问答
@@ -55,7 +52,7 @@ public interface SemanticClient {
      * @return
      */
     @PostMapping({"qa/ner"})
-    ApiReturn<List<SemanticSegWordVO>> ner(NerSearchReq var1);
+    ApiReturn<List<SemanticSegWordRsp>> ner(NerSearchReq var1);
 
     /**
      * 语义识别
@@ -77,6 +74,7 @@ public interface SemanticClient {
      */
     @PostMapping({"reasoning/execute/{kgName}"})
     ApiReturn<GraphReasoningResultRsp> reasoning(@ApiParam("图谱名称") @PathVariable("kgName") String kgName, @RequestBody ReasoningReq var2);
+
 
     /**
      * 实体语义相关实体查询
@@ -100,4 +98,5 @@ public interface SemanticClient {
     @PostMapping("distance/score/{kgName}")
     ApiReturn<Double> semanticDistanceScore(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                             @RequestParam("entityIdOne") Long entityIdOne, @RequestParam("entityIdTwo") Long entityIdTwo);
+
 }

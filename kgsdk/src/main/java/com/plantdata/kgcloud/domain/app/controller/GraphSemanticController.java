@@ -37,7 +37,7 @@ public class GraphSemanticController implements GraphSemanticApplicationInterfac
     }
 
     @ApiOperation("知识图谱问答")
-    @GetMapping("{kgName}")
+    @PostMapping("{kgName}")
     public ApiReturn<QaAnswerDataRsp> qaKbQa(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                              @RequestBody QueryReq queryReq) {
 
