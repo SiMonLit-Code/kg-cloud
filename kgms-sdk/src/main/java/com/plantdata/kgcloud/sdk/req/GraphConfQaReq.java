@@ -16,12 +16,12 @@ public class GraphConfQaReq {
     @ApiModelProperty("优先级")
     private int priority;
 
-    @ApiModelProperty("类型")
+    @ApiModelProperty(value = "类型",required = true)
     private int type;
 
-    @ApiModelProperty("问题")
+    @ApiModelProperty(value = "问题",required = true)
     private String question;
 
-    @ApiModelProperty("选择概念")
+    @ApiModelProperty(value = "选择概念",required = true)
     private List<Long> conceptIds;
 }
