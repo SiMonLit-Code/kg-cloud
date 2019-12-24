@@ -24,7 +24,7 @@ public class TripleRsp {
     private Target object;
 
     @Data
-    public class Subject {
+    public static class Subject {
 
         @ApiModelProperty(value = "实体id")
         private Long id;
@@ -34,7 +34,7 @@ public class TripleRsp {
     }
 
     @Data
-    public class Predicate {
+    public static class Predicate {
 
         @ApiModelProperty(value = "属性id")
         private Integer id;
@@ -47,7 +47,7 @@ public class TripleRsp {
     }
 
     @Data
-    public class Target {
+    public static class Target {
 
         @ApiModelProperty(value = "客体实体id")
         private Long id;
