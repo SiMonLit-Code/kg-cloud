@@ -9,7 +9,7 @@ import com.plantdata.kgcloud.plantdata.req.common.ExtraKVBean;
 import com.plantdata.kgcloud.plantdata.req.common.Links;
 import com.plantdata.kgcloud.plantdata.req.common.Tag;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
-import com.plantdata.kgcloud.plantdata.req.explore.EntityLinksBean;
+import com.plantdata.kgcloud.plantdata.req.explore.common.EntityLinksBean;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;

@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.plantdata.req.entity;
 
 
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
-import com.plantdata.kgcloud.plantdata.req.explore.EntityLinksBean;
+import com.plantdata.kgcloud.plantdata.req.explore.common.EntityLinksBean;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,10 +1,9 @@
-package com.plantdata.kgcloud.plantdata.req.explore;
+package com.plantdata.kgcloud.plantdata.req.explore.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,7 +19,7 @@ public class GraphStatBean {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    static class GraphStatDetailBean {
+    public static class GraphStatDetailBean {
         Long id;
         Integer count;
     }

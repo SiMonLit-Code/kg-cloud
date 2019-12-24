@@ -32,6 +32,12 @@ public class BasicConverter {
         }
     }
 
+    public static <T> void consumerWithDefault(@NonNull T def, T a, Consumer<T> consumer) {
+        consumer.accept(a == null ? def : a);
+    }
+
+
+
     /**
      * 非空 消费 批量
      */

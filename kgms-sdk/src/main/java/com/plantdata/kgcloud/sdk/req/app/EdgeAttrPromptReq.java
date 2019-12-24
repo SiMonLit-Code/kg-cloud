@@ -1,10 +1,11 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
 
-import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -16,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ApiModel("边属性搜索参数")
-public class EdgeAttrPromptReq extends BaseReq {
+public class EdgeAttrPromptReq extends PageReq {
     @NotNull
     @ApiModelProperty(value = "属性定义id", required = true)
     private Integer attrId;

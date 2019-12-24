@@ -19,12 +19,10 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -101,7 +99,8 @@ public class PromptConverter extends BasicConverter {
 
     public static PromptEntityRsp promptItemVoToPromptEntityRsp(@NonNull PromptItemVO item) {
         PromptEntityRsp entityRsp = new PromptEntityRsp();
-        entityRsp.setType(EntityTypeEnum.ENTITY);
+        EntityTypeEnum typeEnum = EntityTypeEnum.parseById(item.getType());
+        consumerWithDefault(EntityTypeEnum.ENTITY, typeEnum, entityRsp::setType);
         entityRsp.setName(item.getName());
         entityRsp.setMeaningTag(item.getMeaningTag());
         entityRsp.setId(item.getId());
@@ -132,14 +131,14 @@ public class PromptConverter extends BasicConverter {
         from.setIsPrivate(NumberUtils.INTEGER_ZERO);
         from.setSearchOption(req.getSearchOption());
         from.setSortDirection(SortTypeEnum.DESC.getValue());
-        if (!CollectionUtils.isEmpty(req.getSorts()) && req.getSorts().size() > 0) {
-            String sort = req.getSorts().get(0);
-            String[] split = sort.split(":");
-            if (split.length == 2) {
-                Optional<SortTypeEnum> typeOpt = SortTypeEnum.parseByName(split[1]);
-                typeOpt.ifPresent(sortTypeEnum -> from.setSortDirection(sortTypeEnum.getValue()));
-            }
-        }
+//        if (!CollectionUtils.isEmpty(req.getSorts()) && req.getSorts().size() > 0) {
+//            String sort = req.getSorts().get(0);
+//            String[] split = sort.split(":");
+//            if (split.length == 2) {
+//                Optional<SortTypeEnum> typeOpt = SortTypeEnum.parseByName(split[1]);
+//                typeOpt.ifPresent(sortTypeEnum -> from.setSortDirection(sortTypeEnum.getValue()));
+//            }
+//        }
         consumerIfNoNull(from.getSortDirection(), a -> SortTypeEnum.parseByValue(a).orElse(SortTypeEnum.DESC).getValue());
         return from;
     }

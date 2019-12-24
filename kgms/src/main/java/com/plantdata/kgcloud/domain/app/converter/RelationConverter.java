@@ -79,11 +79,11 @@ public class RelationConverter extends BasicConverter {
         from.setAttrId(req.getAttrId());
         from.setIsReserved(req.getReserved());
         from.setSearchOption(StringUtils.isEmpty(req.getSearchOption()) ? req.getKw() : req.getSearchOption());
-        if (!CollectionUtils.isEmpty(req.getSorts())) {
-            String sort = req.getSorts().get(1);
-            Optional<SortTypeEnum> typeOpt = SortTypeEnum.parseByName(sort);
-            typeOpt.ifPresent(sortTypeEnum -> from.setSortDirection(sortTypeEnum.getValue()));
-        }
+//        if (!CollectionUtils.isEmpty(req.getSorts())) {
+//            String sort = req.getSorts().get(1);
+//            Optional<SortTypeEnum> typeOpt = SortTypeEnum.parseByName(sort);
+//            typeOpt.ifPresent(sortTypeEnum -> from.setSortDirection(sortTypeEnum.getValue()));
+//        }
         if (from.getSortDirection() == null) {
             from.setSortDirection(SortTypeEnum.ASC.getValue());
         }

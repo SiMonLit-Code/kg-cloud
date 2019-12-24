@@ -1,25 +1,18 @@
-package com.plantdata.kgcloud.plantdata.req.explore;
-
-
-import com.plantdata.kgcloud.plantdata.link.LinkModel;
-import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
+package com.plantdata.kgcloud.plantdata.req.explore.common;
 
 import java.util.List;
-/**
- * @author Administrator
- */
-@LinkModel(clazz = RelationAttrReq.class)
-public class AttrScreeningBean{
+
+public class EntityScreeningBean {
     private Integer attrId;
-    private Integer seqNo;
-    private String $eq;
-    private String $neq;
+    private Object $eq;
     private Object $gt;
     private Object $lt;
-    private Object $lte;
     private Object $gte;
+    private Object $lte;
     private List<Object> $in;
     private List<Object> $nin;
+    private Object $ne;
+    private Integer relation;
 
     public Integer getAttrId() {
         return attrId;
@@ -29,28 +22,12 @@ public class AttrScreeningBean{
         this.attrId = attrId;
     }
 
-    public Integer getSeqNo() {
-        return seqNo;
-    }
-
-    public void setSeqNo(Integer seqNo) {
-        this.seqNo = seqNo;
-    }
-
-    public String get$eq() {
+    public Object get$eq() {
         return $eq;
     }
 
-    public void set$eq(String $eq) {
+    public void set$eq(Object $eq) {
         this.$eq = $eq;
-    }
-
-    public String get$neq() {
-        return $neq;
-    }
-
-    public void set$neq(String $neq) {
-        this.$neq = $neq;
     }
 
     public Object get$gt() {
@@ -69,20 +46,20 @@ public class AttrScreeningBean{
         this.$lt = $lt;
     }
 
-    public Object get$lte() {
-        return $lte;
-    }
-
-    public void set$lte(Object $lte) {
-        this.$lte = $lte;
-    }
-
     public Object get$gte() {
         return $gte;
     }
 
     public void set$gte(Object $gte) {
         this.$gte = $gte;
+    }
+
+    public Object get$lte() {
+        return $lte;
+    }
+
+    public void set$lte(Object $lte) {
+        this.$lte = $lte;
     }
 
     public List<Object> get$in() {
@@ -99,5 +76,21 @@ public class AttrScreeningBean{
 
     public void set$nin(List<Object> $nin) {
         this.$nin = $nin;
+    }
+
+    public Object get$ne() {
+        return $ne;
+    }
+
+    public void set$ne(Object $ne) {
+        this.$ne = $ne;
+    }
+
+    public Integer getRelation() {
+        return relation;
+    }
+
+    public void setRelation(Integer relation) {
+        this.relation = relation;
     }
 }
