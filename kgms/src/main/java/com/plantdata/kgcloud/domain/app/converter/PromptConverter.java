@@ -37,11 +37,11 @@ public class PromptConverter extends BasicConverter {
     public static PromptListFrom promptReqReqToPromptListFrom(PromptReq req) {
         PromptListFrom from = new PromptListFrom();
         from.setConceptIds(req.getConceptIds());
-        from.setIsCaseInsensitive(req.getCaseInsensitive() == null ? false : req.getCaseInsensitive());
-        from.setIsFuzzy(req.getFuzzy());
+        from.setCaseInsensitive(req.getCaseInsensitive() == null ? false : req.getCaseInsensitive());
+        from.setFuzzy(req.getFuzzy());
         from.setSkip(req.getOffset());
         from.setLimit(req.getLimit());
-        from.setIsInherit(req.getInherit());
+        from.setInherit(req.getInherit());
         from.setText(req.getKw());
         PromptResultTypeEnum resultType = req.getType() == null ? PromptResultTypeEnum.CONCEPT_ENTITY : PromptResultTypeEnum.parseWithDefault(req.getType());
         from.setType(resultType.getId());

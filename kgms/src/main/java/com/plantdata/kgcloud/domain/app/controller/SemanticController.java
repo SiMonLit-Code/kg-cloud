@@ -59,7 +59,7 @@ public class SemanticController implements SdkOpenApiInterface {
     }
 
     @ApiOperation("知识图谱问答")
-    @GetMapping("qa/{kgName}")
+    @PostMapping("qa/{kgName}")
     public ApiReturn<QaAnswerDataRsp> qaKbQa(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                              @RequestBody QueryReq queryReq) {
         RestResp<AnswerDataRsp> query = questionAnswersApi.query(kgName, queryReq);

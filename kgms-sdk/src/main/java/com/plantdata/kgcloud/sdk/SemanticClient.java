@@ -33,7 +33,7 @@ public interface SemanticClient {
      * @param query
      * @return
      */
-    @PostMapping({"qa/kbqa"})
+    @PostMapping("qa/kbqa")
     ApiReturn<QaAnswerDataRsp> query(@RequestParam("kgName") String kgName, @RequestBody QueryReq query);
 
     /**
@@ -42,8 +42,8 @@ public interface SemanticClient {
      * @param kgName
      * @return
      */
-    @PostMapping({"qa/graph/create"})
-    ApiReturn create(@RequestParam("kgName") String kgName);
+    @PostMapping("qa/init/{kgName}")
+    ApiReturn create(@PathVariable("kgName") String kgName);
 
     /**
      * 实体识别
