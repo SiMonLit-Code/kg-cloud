@@ -135,15 +135,17 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     @Override
     public BasicConceptTreeRsp visualModels(String kgName, boolean display, Long conceptId) {
         Optional<List<BasicInfo>> conceptOpt = RestRespConverter.convert(conceptEntityApi.tree(KGUtil.dbName(kgName), conceptId));
-        BasicConceptTreeRsp conceptTreeRsp = new BasicConceptTreeRsp(NumberUtils.LONG_ZERO, kgName);
+        BasicConceptTreeRsp treeRsp = new BasicConceptTreeRsp();
         if (!conceptOpt.isPresent()) {
-            return conceptTreeRsp;
+            return treeRsp;
         }
         if (!display) {
-            return ConceptConverter.voToConceptTree(conceptOpt.get(), conceptTreeRsp);
+            return ConceptConverter.voToConceptTree(conceptOpt.get(), treeRsp);
         }
+        String kgTittle = ConceptConverter.getKgTittle(conceptOpt.get());
+        treeRsp = new BasicConceptTreeRsp(NumberUtils.LONG_ZERO, kgTittle);
         Optional<List<AttrDefVO>> attrDefOpt = RestRespConverter.convert(attributeApi.getAll(KGUtil.dbName(kgName)));
-        return ConceptConverter.voToConceptTree(conceptOpt.get(), attrDefOpt.orElse(Collections.emptyList()), conceptTreeRsp);
+        return ConceptConverter.voToConceptTree(conceptOpt.get(), attrDefOpt.orElse(Collections.emptyList()), treeRsp);
     }
 
     @Override

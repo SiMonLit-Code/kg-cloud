@@ -43,7 +43,7 @@ public class ConceptConverter extends BasicConverter {
 
     private static EditAttDefBeanMole objAttrToEditAttDefBeanMole(BasicConceptTreeRsp.ObjectAttr objAttr, String conceptName, Long conceptId) {
         EditAttDefBeanMole defBeanMole = new EditAttDefBeanMole();
-        defBeanMole.setDataType(objAttr.getDataType());
+        consumerIfNoNull(objAttr.getDataType(), defBeanMole::setDataType);
         defBeanMole.setId(objAttr.getId());
         defBeanMole.setName(objAttr.getName());
         defBeanMole.setDomain(String.valueOf(conceptId));
