@@ -93,8 +93,8 @@ public class InduceServiceImpl implements InduceService {
                 optional.orElse(new ArrayList<>()).stream().map(autoRecommendVO -> MapperUtils.map(autoRecommendVO,
                         AttrInduceFindRsp.class)).collect(Collectors.toList());
         Integer number = attrInduceReq.getNumber();
-        if (Objects.nonNull(attrInduceReq.getType()) && InduceType.isObject(attrInduceReq.getType()) &&
-                InduceType.isPublic(attrInduceReq.getType())) {
+        if (Objects.nonNull(attrInduceReq.getType()) && !InduceType.isObject(attrInduceReq.getType()) &&
+                !InduceType.isPublic(attrInduceReq.getType())) {
             number = null;
         }
         return InduceParserUtils.attrFindItemAddMsg(induceFindRsps, number);
@@ -154,7 +154,8 @@ public class InduceServiceImpl implements InduceService {
                         });
                         if (!ids.isEmpty()) {
                             Map<Long, String> nameMap = basicInfoService.listByIds(kgName, ids)
-                                    .stream().collect(Collectors.toMap(BasicInfoRsp::getId, BasicInfoRsp::getName, (k1, k2) -> k1));
+                                    .stream().collect(Collectors.toMap(BasicInfoRsp::getId, BasicInfoRsp::getName,
+                                            (k1, k2) -> k1));
                             induceConceptRsp.setObjectAttributeValueList(objectAttributeValueList.stream().map(f -> {
                                 Map<String, Object> data = new HashMap<>();
                                 Map.Entry<Integer, List<Long>> kv = f.entrySet().iterator().next();
@@ -181,7 +182,7 @@ public class InduceServiceImpl implements InduceService {
         Long conceptId = induceConceptReq.getConceptId();
         if (Objects.isNull(conceptId)) {
             conceptId = basicInfoService.createBasicInfo(KGUtil.dbName(kgName), BasicInfoReq.builder()
-                    .name(induceConceptReq.getConceptName())
+                    .name(induceConceptReq.getConceptName()).conceptId(induceConceptReq.getParentId())
                     .type(BasicInfoType.CONCEPT.getType()).build());
         }
         ExecuteInduceConceptFrom executeInduceConceptFrom =
