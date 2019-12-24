@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.common;
 
+import com.plantdata.kgcloud.plantdata.bean.EntityLink;
 import lombok.Data;
 import java.util.List;
 import java.util.Map;
