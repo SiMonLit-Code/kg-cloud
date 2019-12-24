@@ -77,8 +77,8 @@ public class InduceServiceImpl implements InduceService {
                 optional.orElse(new ArrayList<>()).stream().map(autoRecommendVO -> MapperUtils.map(autoRecommendVO,
                         AttrInduceFindRsp.class)).collect(Collectors.toList());
         List<AttrDefinitionVO> attrDefinitionList = induceFindRsps.stream()
-                .filter(attrInduceFindRsp -> Objects.nonNull(attrInduceFindRsp.getAttrDefinitionList()) && !attrInduceFindRsp
-                        .getAttrDefinitionList().isEmpty()).map(attrInduceFindRsp -> attrInduceFindRsp.getAttrDefinitionList().get(0))
+                .filter(attrInduceFindRsp -> Objects.nonNull(attrInduceFindRsp.getAttrList()) && !attrInduceFindRsp
+                        .getAttrList().isEmpty()).map(attrInduceFindRsp -> attrInduceFindRsp.getAttrList().get(0))
                 .collect(Collectors.toList());
         return new PageImpl<>(attrDefinitionList, PageRequest.of(attrSearchReq.getPage() - 1,
                 attrSearchReq.getSize()), count.orElse(0));

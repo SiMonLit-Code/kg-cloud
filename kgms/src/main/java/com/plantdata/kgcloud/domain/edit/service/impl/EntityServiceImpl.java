@@ -271,9 +271,7 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void deleteByMeta(String kgName, EntityMetaDeleteReq entityMetaDeleteReq) {
-        Map<String, Object> metadataOption = new HashMap<>();
         Map<String, Object> filters = new HashMap<>();
-
         if (StringUtils.hasText(entityMetaDeleteReq.getSource())) {
             Map<String, Object> option = new HashMap<>();
             option.put(MongoOperation.EQUAL.getType(), entityMetaDeleteReq.getSource());
@@ -284,9 +282,8 @@ public class EntityServiceImpl implements EntityService {
             option.put(MongoOperation.EQUAL.getType(), entityMetaDeleteReq.getBatchNo());
             filters.put(MetaDataInfo.BATCH_NO.getCode(), option);
         }
-        metadataOption.put("filters", filters);
         MetaDataOptionFrom metaDataOptionFrom = new MetaDataOptionFrom();
-        metaDataOptionFrom.setFilters(metadataOption);
+        metaDataOptionFrom.setFilters(filters);
         conceptEntityApi.deleteEntityByMetaData(KGUtil.dbName(kgName), 1, metaDataOptionFrom);
     }
 
