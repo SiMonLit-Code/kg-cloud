@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
-import com.plantdata.kgcloud.plantdata.req.explore.EntityScreeningBean;
+import com.plantdata.kgcloud.plantdata.req.explore.common.EntityScreeningBean;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
 import lombok.NonNull;
 import org.springframework.beans.BeanUtils;

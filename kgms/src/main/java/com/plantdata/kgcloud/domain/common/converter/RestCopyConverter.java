@@ -5,7 +5,6 @@ import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
-import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 
@@ -20,6 +19,15 @@ import java.util.stream.Collectors;
  */
 public class RestCopyConverter {
 
+    /**
+     * 要求 t和 e copy没问题
+     *
+     * @param rest
+     * @param result
+     * @param <T>
+     * @param <E>
+     * @return
+     */
     public static <T, E> E copyRestRespResult(RestResp<T> rest, E result) {
         Optional<T> opt = RestRespConverter.convert(rest);
         opt.ifPresent(a -> BeanUtils.copyProperties(a, result));
@@ -27,7 +35,7 @@ public class RestCopyConverter {
     }
 
 
-    public static  <T, R> OpenBatchResult<R> copyToBatchResult(BatchResult<T> batchResult, Class<R> clazz) {
+    public static <T, R> OpenBatchResult<R> copyToBatchResult(BatchResult<T> batchResult, Class<R> clazz) {
         List<R> success = BasicConverter.listConvert(batchResult.getSuccess(), a -> BasicConverter.copy(a, clazz));
         List<R> error = BasicConverter.listConvert(batchResult.getError(), a -> BasicConverter.copy(a, clazz));
         return new OpenBatchResult<>(success, error);

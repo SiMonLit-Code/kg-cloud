@@ -4,9 +4,9 @@ import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.converter.app.InfoBoxConverter;
 import com.plantdata.kgcloud.plantdata.converter.app.PromptConverter;
-import com.plantdata.kgcloud.plantdata.converter.graph.GraphInitBasicConverter;
-import com.plantdata.kgcloud.plantdata.converter.common.SchemaBasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
+import com.plantdata.kgcloud.plantdata.converter.common.SchemaBasicConverter;
+import com.plantdata.kgcloud.plantdata.converter.graph.GraphInitBasicConverter;
 import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameter;
 import com.plantdata.kgcloud.plantdata.req.app.PromptParameter;
 import com.plantdata.kgcloud.plantdata.req.app.SeniorPromptParameter;
@@ -22,6 +22,7 @@ import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -37,6 +38,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author cjw
@@ -53,7 +55,10 @@ public class AppController implements SdkOldApiInterface {
     @ApiOperation("获取当前图实体类型及属性类型的schema")
     @GetMapping("schema")
     public RestResp<SchemaBean> schema(@RequestParam("kgName") String kgName) {
-        SchemaBean schemaBean = BasicConverter.convert(appClient.querySchema(kgName), SchemaBasicConverter::schemaRspToSchemaBean);
+        Function<String, ApiReturn<SchemaRsp>> returnFunction = appClient::querySchema;
+        SchemaBean schemaBean = returnFunction
+                .andThen(a -> BasicConverter.convert(a, SchemaBasicConverter::schemaRspToSchemaBean))
+                .apply(kgName);
         return new RestResp<>(schemaBean);
     }
 
@@ -61,10 +66,10 @@ public class AppController implements SdkOldApiInterface {
     @PostMapping("graph/default")
     @ApiParam(name = "kgName", required = true, type = "String", value = "图谱名称")
     public RestResp<InitGraphBean> graphInit(@RequestParam("kgName") String kgName, @RequestParam("type") String type) {
-        //remote
-        ApiReturn<GraphInitRsp> rspApiReturn = appClient.initGraphExploration(kgName, type);
-        //convert
-        InitGraphBean initGraphBean = BasicConverter.convert(rspApiReturn, GraphInitBasicConverter::graphInitRspToInitGraphBean);
+        Function<String, ApiReturn<GraphInitRsp>> returnFunction = a -> appClient.initGraphExploration(kgName, a);
+        InitGraphBean initGraphBean = returnFunction
+                .andThen(a -> BasicConverter.convert(a, GraphInitBasicConverter::graphInitRspToInitGraphBean))
+                .apply(type);
         return new RestResp<>(initGraphBean);
     }
 
@@ -78,12 +83,14 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts为空时生效"),
     })
     public RestResp<EntityProfileBean> infoBox(@Valid @ApiIgnore InfoBoxParameter infoBoxParameter) {
-        InfoBoxReq infoBoxReq = InfoBoxConverter.infoBoxParameterToInfoBoxReq(infoBoxParameter);
-        //remote
-        ApiReturn<InfoBoxRsp> infoBoxRspApiReturn = appClient.infoBox(infoBoxParameter.getKgName(), infoBoxReq);
-        //convert
-        EntityProfileBean res = BasicConverter.convert(infoBoxRspApiReturn, InfoBoxConverter::infoBoxRspToEntityProfileBean);
-        return new RestResp<>(res);
+
+        Function<InfoBoxReq, ApiReturn<InfoBoxRsp>> returnFunction = a -> appClient.infoBox(infoBoxParameter.getKgName(), a);
+
+        EntityProfileBean profileBean = returnFunction
+                .compose(InfoBoxConverter::infoBoxParameterToInfoBoxReq)
+                .andThen(a -> BasicConverter.convert(a, InfoBoxConverter::infoBoxRspToEntityProfileBean))
+                .apply(infoBoxParameter);
+        return new RestResp<>(profileBean);
     }
 
     @ApiOperation("综合搜索")
@@ -103,11 +110,14 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "promptType", defaultValue = "0", dataType = "int", paramType = "query", value = "提示类型，0:prompt,1:qa,2:all"),
     })
     public RestResp<List<EntityBean>> prompt(@Valid @ApiIgnore PromptParameter promptParameter) {
-        PromptReq promptReq = PromptConverter.promptParameterToPromptReq(promptParameter);
-        //remote
-        ApiReturn<List<PromptEntityRsp>> prompt = appClient.prompt(promptParameter.getKgName(), promptReq);
-        //convert
-        List<EntityBean> entityBeans = BasicConverter.convertList(prompt, PromptConverter::promptEntityRspToEntityBean);
+
+        Function<PromptReq, ApiReturn<List<PromptEntityRsp>>> returnFunction = a -> appClient.prompt(promptParameter.getKgName(), a);
+
+        List<EntityBean> entityBeans = returnFunction
+                .compose(PromptConverter::promptParameterToPromptReq)
+                .andThen(a -> BasicConverter.convertList(a, PromptConverter::promptEntityRspToEntityBean))
+                .apply(promptParameter);
+
         return new RestResp<>(entityBeans);
     }
 
@@ -123,11 +133,14 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页最小为1"),
     })
     public RestResp<List<ImportEntityBean>> seniorPrompt(@Valid @ApiIgnore SeniorPromptParameter seniorPromptParameter) {
-        SeniorPromptReq promptReq = PromptConverter.seniorPromptParameterToSeniorPromptReq(seniorPromptParameter);
-        //remote
-        ApiReturn<List<SeniorPromptRsp>> listApiReturn = appClient.seniorPrompt(seniorPromptParameter.getKgName(), promptReq);
-        //convert
-        List<ImportEntityBean> importEntityBeans = BasicConverter.convertList(listApiReturn, PromptConverter::seniorPromptRspToSeniorPromptRsp);
-        return new RestResp<>(importEntityBeans);
+
+        Function<SeniorPromptReq, ApiReturn<List<SeniorPromptRsp>>> returnFunction = a -> appClient.seniorPrompt(seniorPromptParameter.getKgName(), a);
+
+        List<ImportEntityBean> entityBeans = returnFunction
+                .compose(PromptConverter::seniorPromptParameterToSeniorPromptReq)
+                .andThen(a -> BasicConverter.convertList(a, PromptConverter::seniorPromptRspToSeniorPromptRsp))
+                .apply(seniorPromptParameter);
+
+        return new RestResp<>(entityBeans);
     }
 }
