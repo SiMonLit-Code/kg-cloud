@@ -54,7 +54,7 @@ public class ParserBeanUtils {
      * @return
      */
     private static int parserSort(String sortWay) {
-        if (!(MongoOperation.DESC.getType()).equals(sortWay.toLowerCase())) {
+        if (!(MongoOperation.DESC.getType()).equals(sortWay.toUpperCase())) {
             return 1;
         }
         return -1;
