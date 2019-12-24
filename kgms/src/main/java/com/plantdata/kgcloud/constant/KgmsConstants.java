@@ -10,6 +10,7 @@ public class KgmsConstants {
     public interface FileType {
         String XLS = ".xls";
         String XLSX = ".xlsx";
+        String JSON = ".json";
     }
 
 }
