@@ -2,12 +2,15 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
+import com.plantdata.kgcloud.exception.BizException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,6 +50,7 @@ public class ImportController {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
+        checkFileType(file);
         return ApiReturn.success(importService.importConcepts(kgName, file));
     }
 
@@ -58,6 +62,7 @@ public class ImportController {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
+        checkFileType(file);
         return ApiReturn.success(importService.importEntities(kgName, conceptId, file));
     }
 
@@ -68,6 +73,7 @@ public class ImportController {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
+        checkFileType(file);
         return ApiReturn.success(importService.importSynonyms(kgName, file));
     }
 
@@ -79,6 +85,7 @@ public class ImportController {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
+        checkFileType(file);
         return ApiReturn.success(importService.importAttrDefinition(kgName, type, file));
     }
 
@@ -90,6 +97,7 @@ public class ImportController {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
+        checkFileType(file);
         return ApiReturn.success(importService.importDomain(kgName, conceptId, file));
     }
 
@@ -102,6 +110,7 @@ public class ImportController {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
+        checkFileType(file);
         return ApiReturn.success(importService.importRelation(kgName, mode, file));
     }
 
@@ -114,6 +123,7 @@ public class ImportController {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
+        checkFileType(file);
         return ApiReturn.success(importService.importRelation(kgName, attrId, mode, file));
     }
 
@@ -134,5 +144,21 @@ public class ImportController {
                                @PathVariable("format") String format,
                                @PathVariable("scope") Integer scope) {
         return ApiReturn.success(importService.exportRdf(kgName, format, scope));
+    }
+
+    /**
+     * 校验文件类型
+     *
+     * @param file
+     */
+    private void checkFileType(MultipartFile file) {
+        String filename = file.getOriginalFilename();
+        if (!StringUtils.hasText(filename)) {
+            throw BizException.of(CommonErrorCode.BAD_REQUEST);
+        }
+        String suffix = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+        if (suffix.equals("xlsx") || suffix.equals("xls")) {
+            throw BizException.of(KgmsErrorCodeEnum.FILE_TYPE_ERROR);
+        }
     }
 }
