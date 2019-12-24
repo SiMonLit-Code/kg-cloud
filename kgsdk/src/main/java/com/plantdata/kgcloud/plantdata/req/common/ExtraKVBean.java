@@ -3,6 +3,9 @@ package com.plantdata.kgcloud.plantdata.req.common;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @author Administrator
+ */
 @Getter
 @Setter
 public class ExtraKVBean {

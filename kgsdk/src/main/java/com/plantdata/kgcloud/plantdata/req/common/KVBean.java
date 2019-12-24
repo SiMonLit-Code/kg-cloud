@@ -1,7 +1,13 @@
 package com.plantdata.kgcloud.plantdata.req.common;
 
-import java.util.Objects;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.Objects;
+@Getter
+@Setter
+@NoArgsConstructor
 public class KVBean<W, T> {
 
     private W k;
@@ -9,46 +15,7 @@ public class KVBean<W, T> {
     private Integer attDefid;
     private Integer type;
     private Long domain;
-    public W getK() {
-        return k;
-    }
 
-    public T getV() {
-        return v;
-    }
-
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
-    }
-
-    public void setK(W k) {
-        this.k = k;
-    }
-
-    public void setV(T v) {
-        this.v = v;
-    }
-
-
-    public Integer getAttDefid() {
-        return attDefid;
-    }
-
-    public void setAttDefid(Integer attDefid) {
-        this.attDefid = attDefid;
-    }
-
-    public Long getDomain() {
-        return domain;
-    }
-
-    public void setDomain(Long domain) {
-        this.domain = domain;
-    }
 
     public KVBean(W k, T v, Integer attDefid) {
         this.k = k;

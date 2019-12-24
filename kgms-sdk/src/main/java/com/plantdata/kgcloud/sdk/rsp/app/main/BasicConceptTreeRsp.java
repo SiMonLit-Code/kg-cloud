@@ -23,9 +23,10 @@ public class BasicConceptTreeRsp extends BasicConceptRsp {
 
     @ApiModelProperty("子概念")
     private List<BasicConceptTreeRsp> children;
-    @ApiModelProperty("子概念")
+    @ApiModelProperty("数值属性")
     private List<NumberAttr> numAttrs;
-
+    @ApiModelProperty("数值属性")
+    private List<ObjectAttr> objAttrs;
 
     public BasicConceptTreeRsp(Long id, String name) {
         this.children = Lists.newArrayList();
@@ -43,5 +44,18 @@ public class BasicConceptTreeRsp extends BasicConceptRsp {
         private String name;
         private Long conceptId;
         private Integer dataType;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ObjectAttr {
+        private Integer id;
+        private String name;
+        private Long conceptId;
+        private Integer dataType;
+        private int direction;
+        private List<Long> rangeValue;
     }
 }

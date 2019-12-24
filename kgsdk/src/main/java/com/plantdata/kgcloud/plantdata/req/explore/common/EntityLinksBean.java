@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.plantdata.req.explore.common;
 
 
 import com.plantdata.kgcloud.plantdata.req.common.DataLinks;
-import com.plantdata.kgcloud.plantdata.req.common.EntityLink;
+import com.plantdata.kgcloud.plantdata.bean.EntityLink;
 import com.plantdata.kgcloud.plantdata.req.common.ExtraKVBean;
 import com.plantdata.kgcloud.plantdata.req.common.Tag;
 import lombok.Getter;

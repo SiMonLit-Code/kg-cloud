@@ -23,11 +23,12 @@ public class DefaultUtils {
         return CollectionUtils.isEmpty(list) ? Collections.emptyList() : list;
     }
 
-    public static <T> void listAdd(List<T> list, T obj) {
-        if (CollectionUtils.isEmpty(list)) {
-            list = Lists.newArrayList();
+    public static <T> List<T> listAdd(List<T> list, T obj) {
+        if (list == null) {
+            return Lists.newArrayList(obj);
         }
         list.add(obj);
+        return list;
     }
 
 
