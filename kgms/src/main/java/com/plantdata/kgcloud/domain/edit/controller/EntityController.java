@@ -201,7 +201,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体-属性-更新")
+    @ApiOperation("实体-数值属性-更新")
     @PostMapping("/{kgName}/number/update")
     public ApiReturn upsertNumericalAttrValue(@PathVariable("kgName") String kgName,
                                               @Valid @RequestBody NumericalAttrValueReq numericalAttrValueReq) {

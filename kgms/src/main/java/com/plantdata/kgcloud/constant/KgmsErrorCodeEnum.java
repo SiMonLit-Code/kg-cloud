@@ -52,6 +52,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     SPECIFIC_TEMPLATE_NEED_ATTR_ID(120612, "特定关系模板下载需要属性id"),
     YOURSELF_NOT_AS_PARENT(120613, "自身不能作为父概念"),
     SYNC_TASK_ONLY_ONE(120614, "一个图谱只能有一个异步任务"),
+    SAME_ATTRIBUTE_ONLY_EXIST_ONE(120615, "同一个属性只能在属性分组里面存在一次"),
+    TIME_FORM_MORE_THAN_TO(120616, "开始时间不能大于截止时间"),
 
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
 

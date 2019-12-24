@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author cjw
@@ -136,17 +135,19 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
     @Override
     public void addAttrToAttrGroup(String kgName, Long id, List<Integer> attrIds) {
         List<GraphAttrGroupRsp> groupRsps = this.listAttrGroups(kgName,
-                AttrGroupSearchReq.builder().id(id).readDetail(false).build());
+                AttrGroupSearchReq.builder().readDetail(false).build());
         if (CollectionUtils.isEmpty(groupRsps)) {
             return;
         }
-        GraphAttrGroupRsp graphAttrGroupRsp = groupRsps.get(0);
-        List<Integer> oldAttrIds = graphAttrGroupRsp.getAttrIds();
-        Stream<Integer> stream = attrIds.stream();
-        if (oldAttrIds != null) {
-            stream = stream.filter(attrId -> !oldAttrIds.contains(attrId));
-        }
-        stream.forEach(attrId -> {
+        List<Integer> allIds = new ArrayList<>();
+        groupRsps.forEach(graphAttrGroupRsp -> allIds.addAll(graphAttrGroupRsp.getAttrIds()));
+        attrIds.forEach(attrId ->{
+            if (allIds.contains(attrId)){
+                throw BizException.of(KgmsErrorCodeEnum.SAME_ATTRIBUTE_ONLY_EXIST_ONE);
+            }
+        });
+
+        attrIds.forEach(attrId -> {
             GraphAttrGroupDetails attrGroupDetails =
                     GraphAttrGroupDetails.builder().groupId(id).attrId(attrId).build();
             graphAttrGroupDetailsRepository.save(attrGroupDetails);
