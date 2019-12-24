@@ -20,6 +20,6 @@ public class GraphConfKgqlReq {
     @ApiModelProperty("规则语言")
     private String kgql;
 
-    @ApiModelProperty("规则类型")
+    @ApiModelProperty(value = "规则类型",required = true)
     private int ruleType;
 }

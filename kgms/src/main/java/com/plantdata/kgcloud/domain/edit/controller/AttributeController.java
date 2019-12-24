@@ -11,7 +11,6 @@ import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
-import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrTemplateReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
@@ -26,6 +25,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
@@ -106,7 +106,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-批量添加")
     @PostMapping("/{kgName}/definition/batch")
-    public ApiReturn<List<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
+    public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
                                                                           @Valid @RequestBody ValidableList<AttrDefinitionReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchAddAttrDefinition(kgName, attrDefinitionReqs));
     }
@@ -194,9 +194,9 @@ public class AttributeController {
     }
 
     @ApiOperation("属性约束-查询不满足属性约束列表")
-    @GetMapping("/{kgName}/constraints")
+    @PostMapping("/{kgName}/constraints")
     public ApiReturn<List<AttrConstraintsRsp>> listAttrConstraints(@PathVariable("kgName") String kgName,
-                                                                   AttrConstraintsReq attrConstraintsReq) {
+                                                                   @RequestBody AttrConstraintsReq attrConstraintsReq) {
         return ApiReturn.success(attributeService.listAttrConstraints(kgName, attrConstraintsReq));
     }
 

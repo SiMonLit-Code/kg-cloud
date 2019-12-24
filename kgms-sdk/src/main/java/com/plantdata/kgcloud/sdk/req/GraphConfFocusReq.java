@@ -16,7 +16,7 @@ public class GraphConfFocusReq {
 
 
     @NotBlank
-    @ApiModelProperty("类型")
+    @ApiModelProperty(value = "类型",required = true)
     private String type;
 
     @ApiModelProperty("entities")

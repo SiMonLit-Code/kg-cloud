@@ -4,10 +4,13 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.config.MongoProperties;
+import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.DataType;
@@ -21,6 +24,7 @@ import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetFolderService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
@@ -28,6 +32,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
+import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
@@ -51,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +96,8 @@ public class DataSetServiceImpl implements DataSetService {
     private DataSetFolderService dataSetFolderService;
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
+    @Autowired
+    private UserClient userClient;
 
     private String genDataName(String userId, String key) {
         return userId + JOIN + DATA_PREFIX + JOIN + key;
@@ -241,6 +249,16 @@ public class DataSetServiceImpl implements DataSetService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public DataSetRsp insert(String userId, DataSetCreateReq req) {
+        UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
+        if (data != null) {
+            DataSet probe = new DataSet();
+            probe.setUserId(userId);
+            long count = dataSetRepository.count(Example.of(probe));
+            Integer datasetCount = data.getDatasetCount();
+            if (datasetCount != null && count >= datasetCount) {
+                throw BizException.of(KgmsErrorCodeEnum.GRAPH_OUT_LIMIT);
+            }
+        }
         DataSet target = new DataSet();
         BeanUtils.copyProperties(req, target);
         Set<Long> folderIds = dataSetFolderService.getFolderIds(userId);
@@ -304,37 +322,71 @@ public class DataSetServiceImpl implements DataSetService {
     @Override
     public List<DataSetSchema> schemaResolve(Integer dataType, MultipartFile file) {
         List<DataSetSchema> setSchemas = new ArrayList<>();
-        try {
-            EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
-                @Override
-                public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
-                    for (Map.Entry<Integer, String> entry : headMap.entrySet()) {
-                        DataSetSchema dataSetSchema = new DataSetSchema();
-                        dataSetSchema.setField(entry.getValue());
-                        dataSetSchema.setType(1);
-                        setSchemas.add(dataSetSchema);
-                    }
-                }
 
-                @Override
-                public void invoke(Map<Integer, Object> data, AnalysisContext context) {
-                    Integer rowIndex = context.readRowHolder().getRowIndex();
-                    if (rowIndex < 10) {
-                        for (Map.Entry<Integer, Object> entry : data.entrySet()) {
-                            Object val = entry.getValue();
-                            FieldType type = readType(val);
-                            setSchemas.get(entry.getKey()).setType(type.getCode());
+        String filename = file.getOriginalFilename();
+
+        if (filename != null) {
+            int i = filename.lastIndexOf(".");
+            String extName = filename.substring(i);
+            System.out.println(extName);
+
+            if (KgmsConstants.FileType.XLSX.equalsIgnoreCase(extName) || KgmsConstants.FileType.XLS.equalsIgnoreCase(extName)) {
+                try {
+                    EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
+                        @Override
+                        public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
+                            for (Map.Entry<Integer, String> entry : headMap.entrySet()) {
+                                DataSetSchema dataSetSchema = new DataSetSchema();
+                                dataSetSchema.setField(entry.getValue());
+                                dataSetSchema.setType(1);
+                                setSchemas.add(dataSetSchema);
+                            }
                         }
-                    }
-                }
 
-                @Override
-                public void doAfterAllAnalysed(AnalysisContext context) {
+                        @Override
+                        public void invoke(Map<Integer, Object> data, AnalysisContext context) {
+                            Integer rowIndex = context.readRowHolder().getRowIndex();
+                            if (rowIndex < 10) {
+                                for (Map.Entry<Integer, Object> entry : data.entrySet()) {
+                                    Object val = entry.getValue();
+                                    FieldType type = readType(val);
+                                    setSchemas.get(entry.getKey()).setType(type.getCode());
+                                }
+                            }
+                        }
 
+                        @Override
+                        public void doAfterAllAnalysed(AnalysisContext context) {
+
+                        }
+                    }).sheet().doRead();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }).sheet().doRead();
-        } catch (IOException e) {
-            e.printStackTrace();
+            } else if (KgmsConstants.FileType.JSON.equalsIgnoreCase(extName)) {
+                Object json;
+                try {
+                    json = JacksonUtils.readValue(file.getInputStream(), new TypeReference<Object>() {
+                    });
+                } catch (IOException e) {
+                    return setSchemas;
+                }
+                Map<String, Object> map = new HashMap<>();
+                if (json instanceof List) {
+                    List l = (List) json;
+                    map = (Map<String, Object>) l.get(0);
+                } else if (json instanceof Map) {
+                    map = (Map<String, Object>) json;
+                }
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    String o = entry.getKey();
+                    FieldType type = readType(entry.getValue());
+                    DataSetSchema dataSetSchema = new DataSetSchema();
+                    dataSetSchema.setField(o);
+                    dataSetSchema.setType(type.getCode());
+                    setSchemas.add(dataSetSchema);
+                }
+            }
         }
         return setSchemas;
     }

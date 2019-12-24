@@ -35,7 +35,6 @@ import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
-import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrTemplateReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
@@ -56,6 +55,7 @@ import com.plantdata.kgcloud.domain.edit.vo.IdNameVO;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
@@ -170,17 +170,23 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public List<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName,
-                                                               List<AttrDefinitionReq> attrDefinitionReqs) {
+    public OpenBatchResult<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName,
+                                                                          List<AttrDefinitionReq> attrDefinitionReqs) {
         List<AttributeDefinitionVO> voList =
                 attrDefinitionReqs.stream().map(
                         AttrConverterUtils::attrDefinitionReqConvert
                 ).collect(Collectors.toList());
         Optional<BatchResult<AttributeDefinitionVO>> optional =
                 RestRespConverter.convert(batchApi.addAttributes(KGUtil.dbName(kgName), voList));
-        return optional.map(result -> result.getError().stream()
-                .map(vo -> MapperUtils.map(vo, AttrDefinitionBatchRsp.class))
-                .collect(Collectors.toList())).orElse(null);
+        if (optional.isPresent()) {
+            List<AttrDefinitionBatchRsp> success = MapperUtils.map(optional.get().getSuccess(),
+                    AttrDefinitionBatchRsp.class);
+            List<AttrDefinitionBatchRsp> error = MapperUtils.map(optional.get().getError(),
+                    AttrDefinitionBatchRsp.class);
+            return new OpenBatchResult<>(success, error);
+        } else {
+            return OpenBatchResult.empty();
+        }
     }
 
     @Override
