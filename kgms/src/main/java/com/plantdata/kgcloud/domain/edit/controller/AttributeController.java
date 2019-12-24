@@ -106,7 +106,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-批量添加")
     @PostMapping("/{kgName}/definition/batch")
-    public ApiReturn<List<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
+    public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
                                                                           @Valid @RequestBody ValidableList<AttrDefinitionReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchAddAttrDefinition(kgName, attrDefinitionReqs));
     }
