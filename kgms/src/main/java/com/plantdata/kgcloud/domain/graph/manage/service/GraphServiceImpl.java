@@ -122,6 +122,7 @@ public class GraphServiceImpl implements GraphService {
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
         if (data != null) {
             Graph probe = new Graph();
+            probe.setUserId(userId);
             probe.setDeleted(false);
             long count = graphRepository.count(Example.of(probe));
             Integer graphCount = data.getGraphCount();
