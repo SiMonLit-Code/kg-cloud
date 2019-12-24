@@ -34,6 +34,7 @@ public class ConceptConverter extends BasicConverter {
         return conceptList.stream().filter(a -> a.getConceptId() == null || a.getId() == 0).findFirst().orElse(new BasicInfo()).getName();
     }
 
+
     public static BasicInfoFrom conceptAddReqToBasicInfoFrom(@NonNull ConceptAddReq addReq) {
         BasicInfoFrom basicInfoFrom = new BasicInfoFrom();
         basicInfoFrom.setName(addReq.getName());
