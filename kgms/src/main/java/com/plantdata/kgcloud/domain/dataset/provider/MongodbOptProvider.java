@@ -215,7 +215,7 @@ public class MongodbOptProvider implements DataOptProvider {
         MongoCollection<Document> collection = getCollection();
         Document map = Document.parse(JacksonUtils.writeValueAsString(node));
         collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(id)), new Document("$set", map));
-        map.put(MONGO_ID, map.getObjectId(MONGO_ID).toHexString());
+        map.put(MONGO_ID, id);
         return map;
     }
 

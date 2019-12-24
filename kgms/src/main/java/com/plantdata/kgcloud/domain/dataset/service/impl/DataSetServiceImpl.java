@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetFolderService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
@@ -28,6 +29,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
+import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
@@ -90,6 +92,8 @@ public class DataSetServiceImpl implements DataSetService {
     private DataSetFolderService dataSetFolderService;
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
+    @Autowired
+    private UserClient userClient;
 
     private String genDataName(String userId, String key) {
         return userId + JOIN + DATA_PREFIX + JOIN + key;
@@ -241,6 +245,16 @@ public class DataSetServiceImpl implements DataSetService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public DataSetRsp insert(String userId, DataSetCreateReq req) {
+        UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
+        if (data != null) {
+            DataSet probe = new DataSet();
+            probe.setUserId(userId);
+            long count = dataSetRepository.count(Example.of(probe));
+            Integer datasetCount = data.getDatasetCount();
+            if (datasetCount != null && count >= datasetCount) {
+                throw BizException.of(KgmsErrorCodeEnum.GRAPH_OUT_LIMIT);
+            }
+        }
         DataSet target = new DataSet();
         BeanUtils.copyProperties(req, target);
         Set<Long> folderIds = dataSetFolderService.getFolderIds(userId);
