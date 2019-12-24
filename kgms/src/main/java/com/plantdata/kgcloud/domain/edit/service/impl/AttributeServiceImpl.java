@@ -170,17 +170,23 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public List<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName,
-                                                               List<AttrDefinitionReq> attrDefinitionReqs) {
+    public OpenBatchResult<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName,
+                                                                          List<AttrDefinitionReq> attrDefinitionReqs) {
         List<AttributeDefinitionVO> voList =
                 attrDefinitionReqs.stream().map(
                         AttrConverterUtils::attrDefinitionReqConvert
                 ).collect(Collectors.toList());
         Optional<BatchResult<AttributeDefinitionVO>> optional =
                 RestRespConverter.convert(batchApi.addAttributes(KGUtil.dbName(kgName), voList));
-        return optional.map(result -> result.getError().stream()
-                .map(vo -> MapperUtils.map(vo, AttrDefinitionBatchRsp.class))
-                .collect(Collectors.toList())).orElse(null);
+        if (optional.isPresent()) {
+            List<AttrDefinitionBatchRsp> success = MapperUtils.map(optional.get().getSuccess(),
+                    AttrDefinitionBatchRsp.class);
+            List<AttrDefinitionBatchRsp> error = MapperUtils.map(optional.get().getError(),
+                    AttrDefinitionBatchRsp.class);
+            return new OpenBatchResult<>(success, error);
+        } else {
+            return OpenBatchResult.empty();
+        }
     }
 
     @Override
