@@ -4,13 +4,14 @@ import ai.plantdata.kg.api.edit.req.BasicInfoFrom;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
@@ -19,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/11/21 15:16
  */
-public class ConceptConverter {
+public class ConceptConverter extends BasicConverter {
 
 
     public static String getKgTittle(@NonNull List<BasicInfo> conceptList) {
@@ -120,24 +120,23 @@ public class ConceptConverter {
     }
 
     private static void fillAttrDef(@NonNull List<BasicConceptTreeRsp> allConceptList, @NonNull List<AttrDefVO> attrDefList) {
-        Map<Long, BasicConceptTreeRsp> conceptTreeRspMap = allConceptList.stream().collect(Collectors.toMap(BasicConceptTreeRsp::getId, Function.identity()));
         Map<Long, List<AttrDefVO>> groupBuConceptMap = attrDefList.stream().collect(Collectors.groupingBy(AttrDefVO::getDomainValue));
         allConceptList.forEach(a -> {
             List<AttrDefVO> attrDefByConceptList = groupBuConceptMap.get(a.getId());
             if (!CollectionUtils.isEmpty(attrDefByConceptList)) {
                 attrDefByConceptList.forEach(attrDef -> {
-                    BasicConceptTreeRsp.NumberAttr numberAttr = new BasicConceptTreeRsp.NumberAttr(attrDef.getId(), attrDef.getName(), attrDef.getDomainValue(), attrDef.getDataType());
+
                     if (CollectionUtils.isEmpty(attrDef.getRangeValue())) {
                         return;
                     }
-                    attrDef.getRangeValue().forEach(range -> {
-                        BasicConceptTreeRsp conceptTreeRsp = conceptTreeRspMap.get(range);
-                        if (null != conceptTreeRsp) {
-                            DefaultUtils.listAdd(conceptTreeRsp.getNumAttrs(), numberAttr);
-                            DefaultUtils.listAdd(a.getChildren(), conceptTreeRsp);
-                        }
-                    });
-
+                    if (AttributeValueType.OBJECT.getType().equals(attrDef.getType())) {
+                        BasicConceptTreeRsp.ObjectAttr numberAttr = new BasicConceptTreeRsp.ObjectAttr(attrDef.getId(), attrDef.getName(), attrDef.getDomainValue(), attrDef.getDirection(), attrDef.getDataType(), attrDef.getRangeValue());
+                        a.setObjAttrs(DefaultUtils.listAdd(a.getObjAttrs(), numberAttr));
+                    }
+                    if (AttributeValueType.NUMERIC.getType().equals(attrDef.getType())) {
+                        BasicConceptTreeRsp.NumberAttr numberAttr = new BasicConceptTreeRsp.NumberAttr(attrDef.getId(), attrDef.getName(), attrDef.getDomainValue(), attrDef.getDataType());
+                        a.setNumAttrs(DefaultUtils.listAdd(a.getNumAttrs(), numberAttr));
+                    }
                 });
             }
         });

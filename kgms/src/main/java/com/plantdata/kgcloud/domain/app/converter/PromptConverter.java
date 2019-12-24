@@ -99,8 +99,10 @@ public class PromptConverter extends BasicConverter {
 
     public static PromptEntityRsp promptItemVoToPromptEntityRsp(@NonNull PromptItemVO item) {
         PromptEntityRsp entityRsp = new PromptEntityRsp();
-        EntityTypeEnum typeEnum = EntityTypeEnum.parseById(item.getType());
-        consumerWithDefault(EntityTypeEnum.ENTITY, typeEnum, entityRsp::setType);
+        if (item.getType() != null) {
+            EntityTypeEnum typeEnum = EntityTypeEnum.parseById(item.getType());
+            consumerWithDefault(EntityTypeEnum.ENTITY, typeEnum, entityRsp::setType);
+        }
         entityRsp.setName(item.getName());
         entityRsp.setMeaningTag(item.getMeaningTag());
         entityRsp.setId(item.getId());

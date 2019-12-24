@@ -1,9 +1,12 @@
-package com.plantdata.kgcloud.plantdata.req.common;
+package com.plantdata.kgcloud.plantdata.bean;
 
 import lombok.Data;
 
 import java.util.Objects;
 
+/**
+ * @author Administrator
+ */
 @Data
 public class EntityLink {
     private String kgTitle;
@@ -13,8 +16,12 @@ public class EntityLink {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         EntityLink that = (EntityLink) o;
         return kgName.equals(that.kgName) &&
                 entityId.equals(that.entityId);

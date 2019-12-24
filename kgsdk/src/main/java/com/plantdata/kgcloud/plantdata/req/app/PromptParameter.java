@@ -1,9 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.app;
 
 import ai.plantdata.kg.validator.group.Insert;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.plantdata.kgcloud.plantdata.constant.SortEnum;
 import com.plantdata.kgcloud.plantdata.req.common.PageModel;
 import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
 import lombok.Data;
