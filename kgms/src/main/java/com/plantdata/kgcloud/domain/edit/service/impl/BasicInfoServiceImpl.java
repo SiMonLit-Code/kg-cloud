@@ -114,7 +114,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         BasicInfoRsp basicInfoRsp = ParserBeanUtils.parserEntityVO(optional.get());
 
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
-        if (CollectionUtils.isEmpty(attrValue) || BasicInfoType.isEntity(basicInfoRsp.getType())) {
+        if (CollectionUtils.isEmpty(attrValue) || BasicInfoType.isConcept(basicInfoRsp.getType())) {
             return basicInfoRsp;
         } else {
             List<GraphAttrGroupRsp> groupRsps = graphAttrGroupService.listAttrGroups(KGUtil.dbName(kgName),
