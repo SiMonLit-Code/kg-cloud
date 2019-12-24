@@ -139,11 +139,11 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (!conceptOpt.isPresent()) {
             return treeRsp;
         }
+        String kgTittle = ConceptConverter.getKgTittle(conceptOpt.get());
+        treeRsp = new BasicConceptTreeRsp(NumberUtils.LONG_ZERO, kgTittle);
         if (!display) {
             return ConceptConverter.voToConceptTree(conceptOpt.get(), treeRsp);
         }
-        String kgTittle = ConceptConverter.getKgTittle(conceptOpt.get());
-        treeRsp = new BasicConceptTreeRsp(NumberUtils.LONG_ZERO, kgTittle);
         Optional<List<AttrDefVO>> attrDefOpt = RestRespConverter.convert(attributeApi.getAll(KGUtil.dbName(kgName)));
         return ConceptConverter.voToConceptTree(conceptOpt.get(), attrDefOpt.orElse(Collections.emptyList()), treeRsp);
     }
