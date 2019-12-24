@@ -33,6 +33,23 @@ public class BasicConverter {
     private static final int SUCCESS = 200;
     private static final String DATE_REG = "yyyy-MM-ddd hh:mm:ss";
 
+    /**
+     * @param param          旧参数
+     * @param paramFunction  旧参数->新参数
+     * @param returnFunction 新参数->新返回值
+     * @param rspFunction    新返回值->旧返回值
+     * @param <OT>           旧参数-类型
+     * @param <OR>           旧参数-类型
+     * @param <NT>           新参数-类型
+     * @param <NR>           新返回值-类型
+     * @return
+     */
+    public static <NT, NR, OT, OR> OR execute(OT param, Function<OT, NT> paramFunction, Function<NT, ApiReturn<NR>> returnFunction, Function<NR, OR> rspFunction) {
+        return returnFunction
+                .compose(paramFunction)
+                .andThen(a -> convert(a, rspFunction))
+                .apply(param);
+    }
 
     public static <T, R> List<R> listToRsp(List<T> list, Function<T, R> function) {
         return executeIfNoNull(list, a -> listConvert(a, function));

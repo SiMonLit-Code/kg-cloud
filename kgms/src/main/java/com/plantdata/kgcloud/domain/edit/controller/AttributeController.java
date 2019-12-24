@@ -237,7 +237,11 @@ public class AttributeController {
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
                                                                        @RequestBody List<BatchRelationRsp> relationList) {
         List<BatchRelationVO> collect = BasicConverter.listConvert(relationList, a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
-        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyRestRespResult(batchApi.addRelations(kgName, collect), new OpenBatchResult<>());
+        Optional<BatchResult<BatchRelationVO>> resultRestResp = RestRespConverter.convert(batchApi.addRelations(kgName, collect));
+        if (!resultRestResp.isPresent()) {
+            return ApiReturn.success(OpenBatchResult.empty());
+        }
+        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyToBatchResult(resultRestResp.get(), BatchRelationRsp.class);
         return ApiReturn.success(relationRsp);
     }
 

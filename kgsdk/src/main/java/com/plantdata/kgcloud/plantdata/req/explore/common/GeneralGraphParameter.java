@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.plantdata.req.explore;
+package com.plantdata.kgcloud.plantdata.req.explore.common;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.req.common.AttrSortBean;

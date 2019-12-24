@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.plantdata.req.explore;
+package com.plantdata.kgcloud.plantdata.req.explore.common;
 
 
 import com.plantdata.kgcloud.plantdata.req.common.DataLinks;

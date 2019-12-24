@@ -14,9 +14,10 @@ public enum SortEnum implements BaseEnum {
     /**
      *
      */
-    DESC(-1),
+    DESC(-1, "desc"),
 
-    ASC(1);
+    ASC(1, "asc");
 
     private Integer value;
+    private String desc;
 }
