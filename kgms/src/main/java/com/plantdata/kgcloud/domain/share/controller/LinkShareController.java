@@ -31,6 +31,13 @@ public class LinkShareController {
         return ApiReturn.success(linkShareService.shareStatus(userId, kgName));
     }
 
+    @GetMapping("/status/{kgName}/{spaId}")
+    @ApiOperation("SPA分享状态")
+    public ApiReturn shareStatus(@PathVariable("kgName") String kgName,@PathVariable("spaId") String spaId) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(linkShareService.shareStatus(userId, kgName,spaId));
+    }
+
     @GetMapping("/link/{kgName}")
     @ApiOperation("分享链接")
     public ApiReturn shareLink(@PathVariable("kgName") String kgName, @RequestParam("spaId") String spaId) {

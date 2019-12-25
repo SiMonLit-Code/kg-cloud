@@ -4,7 +4,6 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
-import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
 import com.plantdata.kgcloud.sdk.req.DictionaryReq;
 import com.plantdata.kgcloud.sdk.req.FolderReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
@@ -52,7 +51,7 @@ public interface KgmsClient {
 
     @ApiOperation("数据集分页查找")
     @GetMapping("/dataset/")
-    ApiReturn<BasePage<DataSetRsp>> dataSetFindAll(DataSetPageReq req);
+    ApiReturn<BasePage<DataSetRsp>> dataSetFindAll(@RequestParam("kw") String kw, @RequestParam("page") Integer page, @RequestParam("size") Integer size);
 
     @ApiOperation("数据集根据Id查找")
     @GetMapping("/dataset/{id}")

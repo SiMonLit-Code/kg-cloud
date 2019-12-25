@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,6 +35,22 @@ public class LinkShareServiceImpl implements LinkShareService {
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
 
+
+    @Override
+    public LinkShareRsp shareStatus(String userId, String kgName, String spaId) {
+        ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
+        UserLimitRsp data = detail.getData();
+        LinkShareRsp linkShareRsp = new LinkShareRsp();
+        if (data.getShareable()) {
+            linkShareRsp.setHasRole(1);
+        } else {
+            linkShareRsp.setHasRole(0);
+        }
+        Optional<LinkShare> linkShare = linkShareRepository.findByKgNameAndSpaId(kgName, spaId);
+        ShareRsp shareRsp = linkShare.map(ConvertUtils.convert(ShareRsp.class)).orElse(new ShareRsp());
+        linkShareRsp.setShareList(Collections.singletonList(shareRsp));
+        return linkShareRsp;
+    }
 
     @Override
     public LinkShareRsp shareStatus(String userId, String kgName) {
