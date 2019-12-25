@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfReasonService;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
@@ -36,7 +37,7 @@ public class GraphConfReasonController {
 
     @ApiOperation("图谱配置-推理-分页")
     @GetMapping("/reason/page/{kgName}")
-    public ApiReturn<Page<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
+    public ApiReturn<BasePage<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
         return ApiReturn.success(graphConfReasoningService.getByKgName(kgName,baseReq));
     }
 

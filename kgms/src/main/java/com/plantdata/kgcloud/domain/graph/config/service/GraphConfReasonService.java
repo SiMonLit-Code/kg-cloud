@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
@@ -32,7 +33,7 @@ public interface GraphConfReasonService {
      * @param baseReq
      * @return
      */
-    Page<GraphConfReasonRsp> getByKgName(String kgName , BaseReq baseReq);
+    BasePage<GraphConfReasonRsp> getByKgName(String kgName , BaseReq baseReq);
 
     /**
      * 根据id查询详情
