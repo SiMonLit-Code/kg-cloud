@@ -1,7 +1,11 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepository;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfReasonService;
@@ -9,6 +13,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import springfox.documentation.spring.web.json.Json;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  *
@@ -39,6 +48,9 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     public GraphConfReasonRsp createReasoning(String kgName, GraphConfReasonReq req) {
         GraphConfReasoning targe = new GraphConfReasoning();
         BeanUtils.copyProperties(req, targe);
+        String strRuleConfig =JacksonUtils.writeValueAsString(req.getRuleConfig());
+        Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strRuleConfig);
+        targe.setRuleConfig(jsonNode.get());
         targe.setKgName(kgName);
         targe.setId(kgKeyGenerator.getNextId());
         GraphConfReasoning result = graphConfReasoningRepository.save(targe);

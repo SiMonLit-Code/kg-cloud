@@ -29,7 +29,7 @@ import java.util.function.Function;
  * @version 1.0
  * @date 2019/12/16 10:20
  */
-@RestController
+@RestController("graphExploreController-v2")
 @RequestMapping("sdk/app")
 public class GraphExploreController implements SdkOldApiInterface {
     @Autowired

@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.sdk.rsp;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @description:
@@ -24,7 +26,13 @@ public class GraphConfStatisticalRsp {
     private String statisType;
 
     @ApiModelProperty(value = "统计规则")
-    private JsonNode statisRule;
+    private Map<String,Object> statisRule;
+
+    @ApiModelProperty(value = "创建时间")
+    private Date createAt;
+
+    @ApiModelProperty(value = "更新时间")
+    private Date updateAt;
 
 
 }

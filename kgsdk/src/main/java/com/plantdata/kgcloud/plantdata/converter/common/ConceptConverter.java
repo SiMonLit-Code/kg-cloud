@@ -51,6 +51,7 @@ public class ConceptConverter extends BasicConverter {
         defBeanMole.setConceptName(conceptName);
         defBeanMole.setDirection(objAttr.getDirection());
         defBeanMole.setType(String.valueOf(NumberUtils.INTEGER_ONE));
+        consumerIfNoNull(objAttr.getRangeConcept(), a -> defBeanMole.setChildren(listToRsp(a, ConceptConverter::basicConceptTreeRspToTreeItemVo)));
         return defBeanMole;
     }
 

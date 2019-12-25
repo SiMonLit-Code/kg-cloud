@@ -21,6 +21,7 @@ import java.util.Optional;
 public class JsonUtils {
 
     public static Optional<JsonNode> parseJsonNode(String json) {
+
         try {
             if (StringUtils.isNoneEmpty(json)) {
                 return Optional.of(JacksonUtils.getInstance().readTree(json));

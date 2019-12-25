@@ -2,7 +2,9 @@ package com.plantdata.kgcloud.plantdata.converter.common;
 
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
@@ -49,6 +51,17 @@ public class BasicConverter {
                 .compose(paramFunction)
                 .andThen(a -> convert(a, rspFunction))
                 .apply(param);
+    }
+
+    protected static <T> void applyIfTrue(Boolean bool, T param, Consumer<T> consumer) {
+        if (bool != null && bool) {
+            consumer.accept(param);
+        }
+    }
+
+    public static <T, R> RestData<R> basePageToRestData(BasePage<T> pageData, Function<T, R> function) {
+        List<R> rs = listToRsp(pageData.getContent(), function);
+        return new RestData<>(rs, pageData.getTotalElements());
     }
 
     public static <T, R> List<R> listToRsp(List<T> list, Function<T, R> function) {
