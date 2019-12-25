@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.task.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusCheckRsp;
 import com.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusRsp;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
 import io.swagger.annotations.Api;
@@ -33,7 +34,7 @@ public class TaskGraphStatusController {
 
     @ApiOperation("校验是否可以创建异步任务")
     @GetMapping("/task/{kgName}/check")
-    public ApiReturn<Boolean> checkTask(@PathVariable("kgName") String kgName) {
+    public ApiReturn<TaskGraphStatusCheckRsp> checkTask(@PathVariable("kgName") String kgName) {
         return ApiReturn.success(taskGraphStatusService.checkTask(kgName));
     }
 }
