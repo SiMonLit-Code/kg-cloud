@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
@@ -73,7 +74,7 @@ public class GraphConfStatisticalController {
 
     @ApiOperation("图谱配置-统计-分页")
     @GetMapping("/config/statistical/page/{kgName}")
-    public ApiReturn<Page<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
+    public ApiReturn<BasePage<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
         return ApiReturn.success(graphConfStatisticalService.getByKgName(kgName,baseReq));
     }
 }
