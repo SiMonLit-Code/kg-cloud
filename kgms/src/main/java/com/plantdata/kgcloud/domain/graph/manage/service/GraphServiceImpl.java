@@ -56,7 +56,7 @@ public class GraphServiceImpl implements GraphService {
     @Autowired
     private UserClient userClient;
 
-    @Cacheable(key = "#kgName")
+    //@Cacheable(key = "#kgName")
     public String getDbName(String kgName) {
         Graph probe = Graph.builder()
                 .kgName(kgName)
@@ -107,7 +107,7 @@ public class GraphServiceImpl implements GraphService {
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_NOT_EXISTS));
     }
 
-    @CacheEvict(key = "#kgName", beforeInvocation = true)
+    //@CacheEvict(key = "#kgName", beforeInvocation = true)
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(String userId, String kgName) {
