@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -121,20 +122,22 @@ public class ConceptConverter extends BasicConverter {
     }
 
     private static void fillAttrDef(@NonNull List<BasicConceptTreeRsp> allConceptList, @NonNull List<AttrDefVO> attrDefList) {
+        Map<Long, BasicConceptTreeRsp> conceptTreeRspMap = allConceptList.stream().collect(Collectors.toMap(BasicConceptTreeRsp::getId, Function.identity()));
         Map<Long, List<AttrDefVO>> groupBuConceptMap = attrDefList.stream().collect(Collectors.groupingBy(AttrDefVO::getDomainValue));
         allConceptList.forEach(a -> {
             List<AttrDefVO> attrDefByConceptList = groupBuConceptMap.get(a.getId());
             if (!CollectionUtils.isEmpty(attrDefByConceptList)) {
                 attrDefByConceptList.forEach(attrDef -> {
-
-                    if (CollectionUtils.isEmpty(attrDef.getRangeValue())) {
+                    if (attrDef.getType() == null) {
                         return;
                     }
                     if (AttributeValueType.OBJECT.getType().equals(attrDef.getType())) {
-                        BasicConceptTreeRsp.ObjectAttr numberAttr = new BasicConceptTreeRsp.ObjectAttr(attrDef.getId(), attrDef.getName(), attrDef.getDomainValue(), attrDef.getDirection(), attrDef.getDataType(), attrDef.getRangeValue());
+                        List<BasicConceptTreeRsp> rangeConceptList = toListNoNull(attrDef.getRangeValue(), b -> b.stream().filter(conceptTreeRspMap::containsKey).map(conceptTreeRspMap::get).collect(Collectors.toList()));
+                        BasicConceptTreeRsp.ObjectAttr numberAttr = new BasicConceptTreeRsp.ObjectAttr(attrDef.getId(), attrDef.getName(),
+                                attrDef.getDomainValue(), attrDef.getDirection(),
+                                attrDef.getDataType(), attrDef.getRangeValue(), rangeConceptList);
                         a.setObjAttrs(DefaultUtils.listAdd(a.getObjAttrs(), numberAttr));
-                    }
-                    if (AttributeValueType.NUMERIC.getType().equals(attrDef.getType())) {
+                    } else if (AttributeValueType.NUMERIC.getType().equals(attrDef.getType())) {
                         BasicConceptTreeRsp.NumberAttr numberAttr = new BasicConceptTreeRsp.NumberAttr(attrDef.getId(), attrDef.getName(), attrDef.getDomainValue(), attrDef.getDataType());
                         a.setNumAttrs(DefaultUtils.listAdd(a.getNumAttrs(), numberAttr));
                     }

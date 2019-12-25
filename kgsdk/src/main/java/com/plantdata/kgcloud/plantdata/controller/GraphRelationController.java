@@ -27,7 +27,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("sdk/network")
-public class GraphRelationController {
+public class GraphRelationController implements SdkOldApiInterface{
 
     @Autowired
     private AppClient appClient;

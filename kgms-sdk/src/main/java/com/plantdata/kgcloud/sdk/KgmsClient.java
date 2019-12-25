@@ -226,12 +226,15 @@ public interface KgmsClient {
     /**
      * 图谱配置-算法-获取
      *
-     * @param kgName
-     * @param baseReq
-     * @return
+     * @param kgName 图谱名称
+     * @param page   页 默认1
+     * @param size   每页显示数量 默认10
+     * @return ApiReturn<BasePage < GraphConfAlgorithmRsp>>
      */
     @GetMapping("/config/algorithm/{kgName}")
-    ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq);
+    ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName,
+                                                      @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                                      @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
 
     /**
      * 图谱配置-焦点-获取
@@ -284,14 +287,16 @@ public interface KgmsClient {
     /**
      * 图谱配置-KGQL-查询
      *
-     * @param kgName
-     * @param ruleType
-     * @param baseReq
+     * @param kgName   图谱名称
+     * @param ruleType 规则类型
+     * @param page     分页
+     * @param size     数量
      * @return
      */
     @GetMapping("config/kgql/{kgName}/{ruleType}")
     ApiReturn<BasePage<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, @PathVariable("ruleType") Integer ruleType,
-                                                     BaseReq baseReq);
+                                                     @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                                     @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
 
     /**
      * 图谱配置-KGQL-详情

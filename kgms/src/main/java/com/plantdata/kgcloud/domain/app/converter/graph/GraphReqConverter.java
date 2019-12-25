@@ -54,7 +54,7 @@ public class GraphReqConverter extends BasicConverter {
         if (exploreReq instanceof GraphTimingReqInterface) {
             fillTimeFilters(((GraphTimingReqInterface) exploreReq).fetchTimeFilter(), graphFrom);
         }
-        log.info("commonReqProxy:{}", JacksonUtils.writeValueAsString(exploreReq));
+        log.info("graphFrom:{}", JacksonUtils.writeValueAsString(graphFrom));
         return graphFrom;
     }
 
@@ -73,7 +73,7 @@ public class GraphReqConverter extends BasicConverter {
         if (exploreReq instanceof GraphTimingReqInterface) {
             fillTimeFilters(((GraphTimingReqInterface) exploreReq).fetchTimeFilter(), pathFrom);
         }
-        log.info("pathReqProxy:{}", JacksonUtils.writeValueAsString(exploreReq));
+        log.info("pathFrom:{}", JacksonUtils.writeValueAsString(pathFrom));
         return pathFrom;
     }
 
@@ -93,7 +93,7 @@ public class GraphReqConverter extends BasicConverter {
         if (exploreReq instanceof GraphTimingReqInterface) {
             fillTimeFilters(((GraphTimingReqInterface) exploreReq).fetchTimeFilter(), relationFrom);
         }
-        log.info("relationReqProxy:{}", JacksonUtils.writeValueAsString(exploreReq));
+        log.info("relationFrom:{}", JacksonUtils.writeValueAsString(relationFrom));
         return relationFrom;
     }
 
@@ -103,7 +103,7 @@ public class GraphReqConverter extends BasicConverter {
     }
 
     private static void fillCommon(@NonNull CommonFiltersReq common, GraphFrom graphFrom) {
-        if (common.getId() == null && common.getKw() == null) {
+        if (common.getId() == null && StringUtils.isEmpty(common.getKw())) {
             throw BizException.of(AppErrorCodeEnum.NULL_KW_AND_ID);
         }
         graphFrom.setId(common.getId());

@@ -1,6 +1,7 @@
-package com.plantdata.kgcloud.plantdata.req.explore.common;
+package com.plantdata.kgcloud.plantdata.bean.rule;
 
 import com.plantdata.kgcloud.config.MarkObject;
+import com.plantdata.kgcloud.plantdata.req.explore.common.PathRule;
 import lombok.Getter;
 import lombok.Setter;
 
