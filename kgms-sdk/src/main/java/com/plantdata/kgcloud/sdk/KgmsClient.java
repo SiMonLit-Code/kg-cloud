@@ -234,6 +234,14 @@ public interface KgmsClient {
     ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     /**
+     * 图谱配置-算法-详情
+     * @param id
+     * @return
+     */
+    @GetMapping("/config/algorithm/{id}")
+    ApiReturn<GraphConfAlgorithmRsp> detailAlgorithm(@PathVariable("id") Long id);
+
+    /**
      * 图谱配置-焦点-获取
      *
      * @param kgName
