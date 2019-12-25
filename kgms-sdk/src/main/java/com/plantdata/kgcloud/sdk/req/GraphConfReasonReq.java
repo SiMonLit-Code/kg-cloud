@@ -1,9 +1,10 @@
 package com.plantdata.kgcloud.sdk.req;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.Map;
 
 /**
  * Created by jdm on 2019/12/9 15:38.
@@ -16,5 +17,5 @@ public class GraphConfReasonReq {
     private String ruleName;
 
     @ApiModelProperty(value = "关系配置")
-    private JsonNode ruleConfig;
+    private Map<String,Object> ruleConfig;
 }

@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.graph.config.service;
 
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import org.springframework.data.domain.Page;
 
@@ -47,7 +48,7 @@ public interface GraphConfStatisticalService {
      * @param reqs
      * @return
      */
-    List<GraphConfStatisticalRsp> updateAll( List<GraphConfStatisticalReq> reqs);
+    List<GraphConfStatisticalRsp> updateAll( List<UpdateGraphConfStatisticalReq> reqs);
 
 
 

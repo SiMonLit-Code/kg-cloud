@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.sdk.rsp;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @description:
@@ -24,5 +26,11 @@ public class GraphConfReasonRsp {
     private String ruleName;
 
     @ApiModelProperty(value = "关系配置")
-    private JsonNode ruleConfig;
+    private Map<String,Object> ruleConfig;
+
+    @ApiModelProperty(value = "创建时间")
+    private Date createAt;
+
+    @ApiModelProperty(value = "更新时间")
+    private Date updateAt;
 }

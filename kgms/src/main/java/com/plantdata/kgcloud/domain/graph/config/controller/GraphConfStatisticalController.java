@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,7 +47,7 @@ public class GraphConfStatisticalController {
 
     @ApiOperation("图谱配置-统计-批量更新")
     @PutMapping("/statistical/batch/update")
-    public ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch( @RequestBody @Valid List<GraphConfStatisticalReq> reqs) {
+    public ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch( @RequestBody @Valid List<UpdateGraphConfStatisticalReq> reqs) {
         return ApiReturn.success(graphConfStatisticalService.updateAll(reqs));
     }
 
@@ -71,7 +72,7 @@ public class GraphConfStatisticalController {
     }
 
     @ApiOperation("图谱配置-统计-分页")
-    @GetMapping("/statistical/page/{kgName}")
+    @GetMapping("/config/statistical/page/{kgName}")
     public ApiReturn<Page<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
         return ApiReturn.success(graphConfStatisticalService.getByKgName(kgName,baseReq));
     }

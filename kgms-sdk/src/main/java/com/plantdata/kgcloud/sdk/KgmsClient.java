@@ -242,10 +242,11 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-算法-详情
+     * todo->cjw
      * @param id
      * @return
      */
-    @GetMapping("/config/algorithm/{id}")
+    @GetMapping("/config/algorithm/detail/{id}")
     ApiReturn<GraphConfAlgorithmRsp> detailAlgorithm(@PathVariable("id") Long id);
 
     /**
@@ -405,12 +406,12 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-统计-分页
-     *
+     *todo->cjw
      * @param kgName
      * @param baseReq
      * @return
      */
-    @GetMapping("/config/statistical/{kgName}")
+    @GetMapping("/config/statistical/page/{kgName}")
     ApiReturn<BasePage<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName, BaseReq baseReq);
 
     /**
