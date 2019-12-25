@@ -5,7 +5,7 @@ import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.dataset.constant.DataType;
+import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;

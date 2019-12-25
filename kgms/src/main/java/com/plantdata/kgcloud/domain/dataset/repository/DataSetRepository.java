@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.repository;
 
-import com.plantdata.kgcloud.domain.dataset.constant.DataType;
+import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
