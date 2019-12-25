@@ -140,7 +140,8 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
             return;
         }
         List<Integer> allIds = new ArrayList<>();
-        groupRsps.forEach(graphAttrGroupRsp -> allIds.addAll(graphAttrGroupRsp.getAttrIds()));
+        groupRsps.stream().filter(graphAttrGroupRsp -> !CollectionUtils.isEmpty(graphAttrGroupRsp.getAttrIds()))
+                .forEach(graphAttrGroupRsp -> allIds.addAll(graphAttrGroupRsp.getAttrIds()));
         attrIds.forEach(attrId ->{
             if (allIds.contains(attrId)){
                 throw BizException.of(KgmsErrorCodeEnum.SAME_ATTRIBUTE_ONLY_EXIST_ONE);
