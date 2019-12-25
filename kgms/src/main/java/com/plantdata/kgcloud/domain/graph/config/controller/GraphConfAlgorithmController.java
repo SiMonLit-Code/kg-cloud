@@ -2,9 +2,9 @@ package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.graph.config.service.GraphConfAlgorithmService;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
-import com.plantdata.kgcloud.domain.graph.config.service.GraphConfAlgorithmService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,5 +49,11 @@ public class GraphConfAlgorithmController {
     @GetMapping("/algorithm/{kgName}")
     public ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName , BaseReq baseReq) {
         return ApiReturn.success(graphConfAlgorithmService.findByKgName(kgName ,baseReq));
+    }
+
+    @ApiOperation("图谱配置-算法-详情")
+    @GetMapping("/algorithm/{id}")
+    public ApiReturn<GraphConfAlgorithmRsp> detailAlgorithm(@PathVariable("id") Long id) {
+        return ApiReturn.success(graphConfAlgorithmService.findById(id));
     }
 }

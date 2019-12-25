@@ -47,5 +47,10 @@ public interface GraphConfAlgorithmService {
      */
     Page<GraphConfAlgorithmRsp> findByKgName(String kgName , BaseReq baseReq);
 
-
+    /**
+     * 详情
+     * @param id
+     * @return
+     */
+    GraphConfAlgorithmRsp findById(Long id);
 }
