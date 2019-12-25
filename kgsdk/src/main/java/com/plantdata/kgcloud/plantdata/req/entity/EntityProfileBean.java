@@ -32,7 +32,7 @@ public class EntityProfileBean {
             this.atts = new HashSet<>();
         }
 
-        this.atts.add(new KVBean<String, List<EntityBean>>(k, v));
+        this.atts.add(new KVBean<>(k, v));
     }
 
     public void addAtts(String k, List<EntityBean> v, Integer attrDefId) {
@@ -41,7 +41,7 @@ public class EntityProfileBean {
             this.atts = new HashSet<>();
         }
 
-        this.atts.add(new KVBean<String, List<EntityBean>>(k, v, attrDefId));
+        this.atts.add(new KVBean<>(k, v, attrDefId));
     }
 
     public void addReAtts(String k, List<EntityBean> v) {
@@ -50,7 +50,7 @@ public class EntityProfileBean {
             this.reAtts = new HashSet<>();
         }
 
-        this.reAtts.add(new KVBean<String, List<EntityBean>>(k, v));
+        this.reAtts.add(new KVBean<>(k, v));
     }
 
     public void addReAtts(String k, List<EntityBean> v, Integer attrDefId) {
@@ -59,6 +59,6 @@ public class EntityProfileBean {
             this.reAtts = new HashSet<>();
         }
 
-        this.reAtts.add(new KVBean<String, List<EntityBean>>(k, v, attrDefId));
+        this.reAtts.add(new KVBean<>(k, v, attrDefId));
     }
 }

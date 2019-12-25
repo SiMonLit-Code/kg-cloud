@@ -49,7 +49,7 @@ import java.util.function.Function;
  * @version 1.0
  * @date 2019/12/12 11:29
  */
-@RestController
+@RestController("appController-v2")
 @RequestMapping("sdk/app")
 public class AppController implements SdkOldApiInterface {
 

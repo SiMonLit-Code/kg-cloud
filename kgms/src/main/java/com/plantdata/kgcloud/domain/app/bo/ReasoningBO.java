@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.app.bo;
 
 import ai.plantdata.kg.api.semantic.req.ReasoningReq;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.domain.app.dto.RelationReasonRuleDTO;
@@ -13,7 +12,6 @@ import lombok.Getter;
 import lombok.ToString;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +46,6 @@ public class ReasoningBO {
 
     public void replaceRuleInfo() {
         this.reasonRuleList = Lists.newArrayListWithCapacity(configMap.size());
-        ObjectMapper instance = JacksonUtils.getInstance();
         for (Integer ruleId : configMap.keySet()) {
             JsonNode ruleConfigObject = configMap.get(ruleId);
             GraphConfReasoning ruleBean = dbConfigMap.get(Long.valueOf(ruleId));
@@ -65,12 +62,7 @@ public class ReasoningBO {
                     ruleConfig = ruleConfig.replace(pattern, ruleConfigObject.get(key).toString());
                 }
             }
-            RelationReasonRuleDTO ruleObject = null;
-            try {
-                ruleObject = instance.readValue(ruleConfig, RelationReasonRuleDTO.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            RelationReasonRuleDTO ruleObject = JacksonUtils.readValue(ruleConfig, RelationReasonRuleDTO.class);
             if (ruleObject == null) {
                 continue;
             }

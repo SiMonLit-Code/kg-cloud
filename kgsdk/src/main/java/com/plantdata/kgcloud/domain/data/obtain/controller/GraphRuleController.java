@@ -28,7 +28,6 @@ import javax.validation.Valid;
  * @date 2019/11/14 10:58
  */
 @Slf4j
-@RestController
 @RequestMapping("v3/kgdata/graphRule")
 public class GraphRuleController implements GraphDataObtainInterface {
 
@@ -40,7 +39,7 @@ public class GraphRuleController implements GraphDataObtainInterface {
     public ApiReturn<BasePage<GraphConfKgqlRsp>> listByPage(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                             @ApiParam("规则类型 1gis规则 0或不传是图探索规则") @PathVariable("type") int type,
                                                             BaseReq baseReq) {
-        return kgmsClient.selectKgql(kgName, type, baseReq);
+        return kgmsClient.selectKgql(kgName, type, baseReq.getPage(), baseReq.getSize());
     }
 
     @ApiOperation("业务规则/gis规则-详情")
