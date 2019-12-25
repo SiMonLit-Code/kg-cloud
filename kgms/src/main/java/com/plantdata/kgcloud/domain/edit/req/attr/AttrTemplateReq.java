@@ -38,7 +38,6 @@ public class AttrTemplateReq {
     @ApiModelProperty(value = "属性值域")
     private List<IdNameVO> range;
 
-    @NotNull
     @ApiModelProperty(value = "属性类型")
     private Integer dataType;
 
