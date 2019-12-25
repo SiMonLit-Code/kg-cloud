@@ -61,6 +61,7 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
 
     @Override
     public Long createAttrGroup(String kgName, AttrGroupReq attrGroupReq) {
+        this.checkGroupName(kgName, attrGroupReq.getGroupName());
         GraphAttrGroup graphAttrGroup = GraphAttrGroup.builder()
                 .id(kgKeyGenerator.getNextId())
                 .kgName(kgName)
@@ -68,6 +69,20 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
                 .build();
         GraphAttrGroup group = graphAttrGroupRepository.save(graphAttrGroup);
         return group.getId();
+    }
+
+    /**
+     * 校验属性分组名称不能相同
+     *
+     * @param kgName
+     * @param groupName
+     */
+    private void checkGroupName(String kgName, String groupName) {
+        List<GraphAttrGroup> attrGroups =
+                graphAttrGroupRepository.findAll(Example.of(GraphAttrGroup.builder().kgName(kgName).groupName(groupName).build()));
+        if (!CollectionUtils.isEmpty(attrGroups)) {
+            throw BizException.of(KgmsErrorCodeEnum.ATTR_GROUP_NOT_EXISTS_SAME_NAME);
+        }
     }
 
     @Override
@@ -82,6 +97,7 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
 
     @Override
     public Long updateAttrGroup(String kgName, Long id, AttrGroupReq attrGroupReq) {
+        this.checkGroupName(kgName, attrGroupReq.getGroupName());
         Optional<GraphAttrGroup> optional = graphAttrGroupRepository.findById(id);
         GraphAttrGroup graphAttrGroup =
                 optional.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.ATTR_GROUP_NOT_EXISTS));
@@ -142,8 +158,8 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
         List<Integer> allIds = new ArrayList<>();
         groupRsps.stream().filter(graphAttrGroupRsp -> !CollectionUtils.isEmpty(graphAttrGroupRsp.getAttrIds()))
                 .forEach(graphAttrGroupRsp -> allIds.addAll(graphAttrGroupRsp.getAttrIds()));
-        attrIds.forEach(attrId ->{
-            if (allIds.contains(attrId)){
+        attrIds.forEach(attrId -> {
+            if (allIds.contains(attrId)) {
                 throw BizException.of(KgmsErrorCodeEnum.SAME_ATTRIBUTE_ONLY_EXIST_ONE);
             }
         });

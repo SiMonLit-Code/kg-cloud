@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.attr.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.edit.aop.EditPermissionUnwanted;
 import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrTemplateRsp;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrTemplateService;
 import io.swagger.annotations.Api;
@@ -28,13 +29,14 @@ public class GraphTemplateController {
 
     @ApiOperation("所有属性模板")
     @GetMapping("/all")
-    ApiReturn<List<GraphAttrTemplateRsp>> listAttrTemplate() {
+    @EditPermissionUnwanted
+    public ApiReturn<List<GraphAttrTemplateRsp>> listAttrTemplate() {
         return ApiReturn.success(graphAttrTemplateService.listAttrTemplate());
     }
 
     @ApiOperation("属性模板详情")
     @GetMapping("/{kgName}/{id}")
-    ApiReturn<GraphAttrTemplateRsp> listAttrTemplate(@PathVariable("kgName") String kgName,
+    public ApiReturn<GraphAttrTemplateRsp> listAttrTemplate(@PathVariable("kgName") String kgName,
                                                      @PathVariable("id") Long id) {
         return ApiReturn.success(graphAttrTemplateService.getDetails(kgName, id));
     }

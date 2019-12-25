@@ -78,9 +78,13 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     ATTR_GROUP_NOT_EXISTS(120506, "属性分组不存在"),
 
+    ATTR_GROUP_NOT_EXISTS_SAME_NAME(120507, "属性分组不能存在同名分组"),
+
     ATTR_TEMPLATE_ERROR(120507, "属性模板配置不正确"),
 
     ATTR_TEMPLATE_NOT_EXISTS(120508, "属性模板不存在"),
+
+    PERMISSION_NOT_ENOUGH_ERROR(120509, "没有该图谱的编辑权限"),
     ;
 
     private final int errorCode;

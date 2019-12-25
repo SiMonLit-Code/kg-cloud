@@ -391,10 +391,15 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public String addObjectAttrValue(String kgName, ObjectAttrValueReq objectAttrValueReq) {
+
+        if (StringUtils.hasText(objectAttrValueReq.getAttrTimeFrom()) && StringUtils.hasText(objectAttrValueReq.getAttrTimeTo())
+                && objectAttrValueReq.getAttrTimeFrom().compareTo(objectAttrValueReq.getAttrTimeTo()) > 0) {
+            throw BizException.of(KgmsErrorCodeEnum.TIME_FORM_MORE_THAN_TO);
+        }
         ObjectAttributeValueFrom objectAttributeValueFrom =
                 ConvertUtils.convert(ObjectAttributeValueFrom.class).apply(objectAttrValueReq);
         return RestRespConverter.convert(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName),
-                objectAttributeValueFrom)).orElseGet(() -> null);
+                objectAttributeValueFrom)).orElse(null);
 
     }
 
