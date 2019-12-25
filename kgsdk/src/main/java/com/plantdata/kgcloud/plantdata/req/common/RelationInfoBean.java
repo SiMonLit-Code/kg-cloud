@@ -29,13 +29,13 @@ public class RelationInfoBean {
 		if(this.kvs==null){
 			this.kvs = new ArrayList<>();
 		}
-		this.kvs.add(new KVBean<String,String>(k,v));
+		this.kvs.add(new KVBean<>(k, v));
 	}
 	public void addKv(String k, String v,Integer attrDefId) {
 		if(this.kvs==null){
 			this.kvs = new ArrayList<>();
 		}
-		this.kvs.add(new KVBean<String,String>(k,v,attrDefId));
+		this.kvs.add(new KVBean<>(k, v, attrDefId));
 	}
 
 

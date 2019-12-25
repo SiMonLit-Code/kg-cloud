@@ -11,7 +11,6 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import com.plantdata.kgcloud.util.JsonUtils;
 
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author cjw

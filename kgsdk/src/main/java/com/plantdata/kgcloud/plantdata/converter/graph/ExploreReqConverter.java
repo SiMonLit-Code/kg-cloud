@@ -57,14 +57,13 @@ public class ExploreReqConverter extends BasicConverter {
      * @return CommonExploreReq
      */
     public static CommonExploreReq generalGraphParameterToCommonExploreReq(GeneralGraphParameter param) {
-        CommonExploreReq exploreRsp = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonExploreReq());
-        CommonFiltersReq commonFiltersReq = generalGraphParameterToCommonFiltersReq(param);
+        CommonExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonExploreReq());
         PageReq pageReq = new PageReq(param.getPageNo(), param.getPageSize());
-        exploreRsp.setCommon(commonFiltersReq);
-        exploreRsp.setPage(pageReq);
+        exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
+        exploreReq.setPage(pageReq);
         ///300新增exploreRsp.setDisAllowConcepts(Collections.emptyList());
-        consumerIfNoNull(param.getGraphBean(), a -> exploreRsp.setGraphReq(ExploreReqConverter.graphBeanToBasicGraphExploreRsp(a)));
-        return exploreRsp;
+        consumerIfNoNull(param.getGraphBean(), a -> exploreReq.setGraphReq(ExploreReqConverter.graphBeanToBasicGraphExploreRsp(a)));
+        return exploreReq;
     }
 
     /**
@@ -76,6 +75,7 @@ public class ExploreReqConverter extends BasicConverter {
     public static CommonTimingExploreReq timeGeneralGraphParameterToCommonTimingExploreReq(TimeGeneralGraphParameter param) {
         CommonTimingExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonTimingExploreReq());
         exploreReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(param));
+        exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
         return exploreReq;
     }
 
@@ -106,6 +106,7 @@ public class ExploreReqConverter extends BasicConverter {
         return pathAnalysisReq;
     }
 
+
     /**
      * 路径发现
      *
@@ -128,6 +129,8 @@ public class ExploreReqConverter extends BasicConverter {
     public static PathTimingAnalysisReq timePathGraphParameterToPathTimingAnalysisReq(TimePathGraphParameter graphParam) {
         PathTimingAnalysisReq pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(graphParam, new PathTimingAnalysisReq());
         pathAnalysisReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(graphParam));
+        pathAnalysisReq.setPath(ExploreCommonConverter.buildPathReq(graphParam));
+        pathAnalysisReq.setConfigList(listToRsp(graphParam.getStatsConfig(), ExploreCommonConverter::graphStatBeanToBasicStatisticReq));
         return pathAnalysisReq;
     }
 

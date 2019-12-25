@@ -30,7 +30,7 @@ import java.util.function.Function;
  * @version 1.0
  * @date 2019/12/24 10:43
  */
-@RestController
+@RestController("graphPathController-v2")
 @RequestMapping("sdk/network")
 public class GraphPathController implements SdkOldApiInterface {
 

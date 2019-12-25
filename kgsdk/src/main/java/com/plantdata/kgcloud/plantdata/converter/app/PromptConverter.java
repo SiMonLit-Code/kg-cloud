@@ -72,7 +72,7 @@ public class PromptConverter extends BasicConverter {
         rsp.setMeaningTag(newRsp.getMeaningTag());
         consumerIfNoNull(newRsp.getSynonyms(), rsp::setSynonyms);
         consumerIfNoNull(newRsp.getImg(), a -> rsp.setImageUrl(a.getHref()));
-        consumerIfNoNull(newRsp.getAttrMap(), BasicConverter::keyIntToStr);
+        consumerIfNoNull(newRsp.getAttrMap(), a -> rsp.setAttributes(BasicConverter.keyIntToStr(a)));
         return rsp;
     }
 }

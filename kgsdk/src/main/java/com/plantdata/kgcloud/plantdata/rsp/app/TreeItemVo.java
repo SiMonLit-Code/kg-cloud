@@ -14,6 +14,6 @@ import java.util.List;
 @Setter
 public class TreeItemVo extends TreeItem {
 
-    private List<Object> children = new ArrayList<Object>();
-    private List<Object> numAtts = new ArrayList<Object>();
+    private List<Object> children = new ArrayList<>();
+    private List<Object> numAtts = new ArrayList<>();
 }

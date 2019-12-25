@@ -25,7 +25,7 @@ import javax.validation.Valid;
  * @version 1.0
  * @date 2019/12/24 14:06
  */
-@RestController
+@RestController("graphRelationController-v2")
 @RequestMapping("sdk/network")
 public class GraphRelationController implements SdkOldApiInterface{
 

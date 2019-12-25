@@ -35,7 +35,7 @@ import javax.validation.constraints.NotNull;
 /**
  * @author Administrator
  */
-@RestController
+@RestController("graphBusinessAlgorithmController-v2")
 @RequestMapping("sdk/graph/business/algorithm")
 public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
     @Autowired

@@ -33,7 +33,7 @@ import java.util.function.Function;
  * @version 1.0
  * @date 2019/12/25 10:08
  */
-@RestController
+@RestController("graphRuleController-v2")
 @RequestMapping("sdk/graph/rule")
 public class GraphRuleController implements SdkOldApiInterface {
 

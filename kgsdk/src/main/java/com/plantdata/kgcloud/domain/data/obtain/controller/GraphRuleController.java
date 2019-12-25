@@ -28,7 +28,6 @@ import javax.validation.Valid;
  * @date 2019/11/14 10:58
  */
 @Slf4j
-@RestController
 @RequestMapping("v3/kgdata/graphRule")
 public class GraphRuleController implements GraphDataObtainInterface {
 
