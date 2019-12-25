@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.task.service;
 
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
+import com.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusCheckRsp;
 import com.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusRsp;
 
 /**
@@ -33,7 +34,7 @@ public interface TaskGraphStatusService {
      * @param kgName
      * @return
      */
-    Boolean checkTask(String kgName);
+    TaskGraphStatusCheckRsp checkTask(String kgName);
 
     /**
      * 修改任务状态
