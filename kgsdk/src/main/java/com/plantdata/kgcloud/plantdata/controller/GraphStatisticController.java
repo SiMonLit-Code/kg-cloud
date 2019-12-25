@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.plantdata.req.rule.InitStatisticalBeanUpdate;
 import com.plantdata.kgcloud.plantdata.req.rule.InitStatisticalDeleteBatch;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -32,7 +33,7 @@ import java.util.function.Function;
  */
 @RestController("graphStatisticController-v2")
 @RequestMapping("sdk/graph/stat/settings")
-public class GraphStatisticController implements SdkOldApiInterface{
+public class GraphStatisticController implements SdkOldApiInterface {
 
     @Autowired
     private KgmsClient kgmsClient;
@@ -55,10 +56,9 @@ public class GraphStatisticController implements SdkOldApiInterface{
             @ApiImplicitParam(name = "rules", required = true, dataType = "string", paramType = "form", value = "保存的数据,json数组格式"),
     })
     public RestResp<List<InitStatisticalBean>> setBatch(@Valid @ApiIgnore InitStatisticalAddBatch addBatch) {
-
         Function<List<GraphConfStatisticalReq>, ApiReturn<List<GraphConfStatisticalRsp>>> returnFunction = a -> kgmsClient.saveStatisticalBatch(a);
         List<InitStatisticalBean> statisticalBeans = returnFunction
-                .compose(StatisticConverter.beanToReq)
+                .compose(StatisticConverter.addBeanToReq)
                 .andThen(StatisticConverter.rspToBean)
                 .apply(addBatch.getRules());
         return new RestResp<>(statisticalBeans);
@@ -71,10 +71,9 @@ public class GraphStatisticController implements SdkOldApiInterface{
             @ApiImplicitParam(name = "rules", required = true, dataType = "string", paramType = "form", value = "保存的数据,json数组格式"),
     })
     public RestResp<List<InitStatisticalBean>> updateBatch(@Valid @ApiIgnore InitStatisticalAddBatch updateBatch) {
-
-        Function<List<GraphConfStatisticalReq>, ApiReturn<List<GraphConfStatisticalRsp>>> returnFunction = a -> kgmsClient.updateStatisticalBatch(a);
+        Function<List<UpdateGraphConfStatisticalReq>, ApiReturn<List<GraphConfStatisticalRsp>>> returnFunction = a -> kgmsClient.updateStatisticalBatch(a);
         List<InitStatisticalBean> statisticalBeans = returnFunction
-                .compose(StatisticConverter.beanToReq)
+                .compose(StatisticConverter.updateBeanToReq)
                 .andThen(StatisticConverter.rspToBean)
                 .apply(updateBatch.getRules());
         return new RestResp<>(statisticalBeans);
@@ -118,13 +117,11 @@ public class GraphStatisticController implements SdkOldApiInterface{
     })
     public RestResp<InitStatisticalBean> update(@Valid @ApiIgnore InitStatisticalBeanUpdate beanUpdate) {
         Function<GraphConfStatisticalReq, ApiReturn<GraphConfStatisticalRsp>> returnRsp = a -> kgmsClient.updateStatistical(beanUpdate.getId().longValue(), a);
-        ///todo
-        //InitStatisticalBean statisticalBean=   returnRsp
-        //        .compose()
-        //        .andThen()
-        //        .apply();
-        return new RestResp<>();
-
+        InitStatisticalBean statisticalBean = returnRsp
+                .compose(StatisticConverter::initStatisticalBeanAddToGraphConfStatisticalReq)
+                .andThen(a -> BasicConverter.convert(a, StatisticConverter::graphConfStatisticalRspToInitStatisticalBean))
+                .apply(beanUpdate);
+        return new RestResp<>(statisticalBean);
     }
 
     @PostMapping("delete")

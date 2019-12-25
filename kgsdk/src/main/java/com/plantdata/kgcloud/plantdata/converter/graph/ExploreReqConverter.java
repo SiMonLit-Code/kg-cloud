@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
@@ -10,6 +11,7 @@ import com.plantdata.kgcloud.plantdata.req.common.RelationBean;
 import com.plantdata.kgcloud.plantdata.req.common.RelationInfoBean;
 import com.plantdata.kgcloud.plantdata.req.common.Tag;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
+import com.plantdata.kgcloud.plantdata.req.explore.RuleGeneralGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.TimeGeneralGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GeneralGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphBean;
@@ -20,6 +22,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.relation.TimeRelationGraphPar
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
@@ -32,6 +35,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CoordinateReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -76,6 +80,24 @@ public class ExploreReqConverter extends BasicConverter {
         CommonTimingExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonTimingExploreReq());
         exploreReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(param));
         exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
+        return exploreReq;
+    }
+
+    /**
+     * 推理图探索
+     *
+     * @param param RuleGeneralGraphParameter
+     * @return CommonReasoningExploreReq
+     */
+    public static CommonReasoningExploreReq ruleGeneralGraphParameterToCommonReasoningExploreReq(RuleGeneralGraphParameter param) {
+        CommonReasoningExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonReasoningExploreReq());
+        exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
+        consumerIfNoNull(param.getReasoningRuleConfigs(), a -> {
+            String configJson = JacksonUtils.writeValueAsString(param.getReasoningRuleConfigs());
+            Map<Integer, Object> configMap = JacksonUtils.readValue(configJson, new TypeReference<Map<Integer, Object>>() {
+            });
+            exploreReq.setReasoningRuleConfigs(configMap);
+        });
         return exploreReq;
     }
 
@@ -221,6 +243,8 @@ public class ExploreReqConverter extends BasicConverter {
         }
         return entityRsp;
     }
+
+
 
     private static TagRsp tagToTagRsp(Tag tag) {
         return LinkUtil.link(tag);

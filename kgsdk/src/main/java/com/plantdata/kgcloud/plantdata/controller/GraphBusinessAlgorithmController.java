@@ -7,13 +7,13 @@ import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.rule.GraphAlgorithmConverter;
 import com.plantdata.kgcloud.plantdata.req.rule.BusinessGraphBean;
+import com.plantdata.kgcloud.plantdata.req.rule.GraphBusinessAlgorithmAdd;
 import com.plantdata.kgcloud.plantdata.req.rule.GraphBusinessAlgorithmBean;
-import com.plantdata.kgcloud.plantdata.req.rule.GraphBusinessAlgorithmDelete;
-import com.plantdata.kgcloud.plantdata.req.rule.GraphBusinessAlgorithmRequestAdd;
 import com.plantdata.kgcloud.plantdata.req.rule.GraphBusinessAlgorithmRequestTest;
-import com.plantdata.kgcloud.plantdata.req.rule.GraphBusinessAlgorithmRequestUpdate;
+import com.plantdata.kgcloud.plantdata.req.rule.GraphBusinessAlgorithmUpdate;
 import com.plantdata.kgcloud.plantdata.req.rule.ListByPageParameter;
 import com.plantdata.kgcloud.sdk.KgmsClient;
+import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.util.HttpUtils;
@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.function.Function;
 
 /**
  * @author Administrator
@@ -62,10 +62,11 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "query"),
     })
-    public RestResp<GraphBusinessAlgorithmBean> get(@RequestParam(value = "kgName", required = false) @NotBlank String kgName,
+    public RestResp<GraphBusinessAlgorithmBean> get(@RequestParam(value = "kgName", required = false) String kgName,
                                                     @RequestParam @NotNull Integer id) {
-        //todo
-        return new RestResp<>();
+        ApiReturn<GraphConfAlgorithmRsp> apiReturn = kgmsClient.detailAlgorithm(id.longValue());
+        GraphBusinessAlgorithmBean algorithmBean = BasicConverter.convert(apiReturn, GraphAlgorithmConverter::graphConfAlgorithmRspToGraphBusinessAlgorithmBean);
+        return new RestResp<>(algorithmBean);
     }
 
     @PostMapping("add")
@@ -74,9 +75,13 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "bean", required = true, dataType = "string", paramType = "form", value = "保存的数据"),
     })
-    public RestResp<GraphBusinessAlgorithmBean> add(@Valid @ApiIgnore GraphBusinessAlgorithmRequestAdd graphBusinessAlgorithmRequestAdd) {
-        //todo
-        return new RestResp<>();
+    public RestResp<GraphBusinessAlgorithmBean> add(@Valid @ApiIgnore GraphBusinessAlgorithmAdd requestAdd) {
+        Function<GraphConfAlgorithmReq, ApiReturn<GraphConfAlgorithmRsp>> returnFunction = a -> kgmsClient.save(requestAdd.getKgName(), a);
+        GraphBusinessAlgorithmBean algorithmBean = returnFunction
+                .compose(GraphAlgorithmConverter::graphBusinessAlgorithmAddToGraphConfAlgorithmReq)
+                .andThen(a -> BasicConverter.convert(a, GraphAlgorithmConverter::graphConfAlgorithmRspToGraphBusinessAlgorithmBean))
+                .apply(requestAdd.getBean());
+        return new RestResp<>(algorithmBean);
     }
 
     @PostMapping("delete")
@@ -85,8 +90,8 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
     })
-    public RestResp delete(@Valid @ApiIgnore GraphBusinessAlgorithmDelete graphBusinessAlgorithmDelete) {
-        //todo
+    public RestResp delete(@RequestParam(value = "kgName", required = false) String kgName, @RequestParam("id") Integer id) {
+        kgmsClient.delete(id.longValue());
         return new RestResp<>();
     }
 
@@ -97,9 +102,12 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
             @ApiImplicitParam(name = "bean", required = true, dataType = "string", paramType = "form", value = "需要修改的数据"),
     })
-    public RestResp<GraphBusinessAlgorithmBean> update(@Valid @ApiIgnore GraphBusinessAlgorithmRequestUpdate graphBusinessAlgorithmRequestUpdate) {
-        HttpUtils.isHttp(graphBusinessAlgorithmRequestUpdate.getBean().getUrl());
-        //todo
+    public RestResp<GraphBusinessAlgorithmBean> update(@Valid @ApiIgnore GraphBusinessAlgorithmUpdate algorithmUpdate) {
+        HttpUtils.isHttp(algorithmUpdate.getBean().getUrl());
+        Function<GraphConfAlgorithmReq, ApiReturn<GraphConfAlgorithmRsp>> returnFunction = a -> kgmsClient.update(algorithmUpdate.getId().longValue(), a);
+        returnFunction.compose(GraphAlgorithmConverter::graphBusinessAlgorithmAddToGraphConfAlgorithmReq)
+                .andThen(a -> BasicConverter.convert(a, GraphAlgorithmConverter::graphConfAlgorithmRspToGraphBusinessAlgorithmBean))
+                .apply(algorithmUpdate.getBean());
         return new RestResp<>();
     }
 

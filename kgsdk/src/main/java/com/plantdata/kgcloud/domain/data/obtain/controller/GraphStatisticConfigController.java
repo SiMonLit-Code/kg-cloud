@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -50,8 +51,7 @@ public class GraphStatisticConfigController implements GraphDataObtainInterface 
 
     @ApiOperation("统计配置-批量修改")
     @PutMapping("batch")
-    public ApiReturn<List<GraphConfStatisticalRsp>> batchModify(@RequestBody List<GraphConfStatisticalReq> reqList) {
-
+    public ApiReturn<List<GraphConfStatisticalRsp>> batchModify(@RequestBody List<UpdateGraphConfStatisticalReq> reqList) {
         return kgmsClient.updateStatisticalBatch(reqList);
     }
 
