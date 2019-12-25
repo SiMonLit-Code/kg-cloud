@@ -16,6 +16,7 @@ public enum SdkErrorCodeEnum implements ErrorCode {
      *
      */
     CONFIG_PARAM_ERROR(125001, "配置参数错误"),
+    APK_NOT_IS_ADMIN(125002, "非万能apk"),
     ;
 
     private final int errorCode;

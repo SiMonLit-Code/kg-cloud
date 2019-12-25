@@ -1,13 +1,17 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
+import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
+import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.filter.ApkAuthFilter;
+import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
-import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import io.swagger.annotations.ApiOperation;
@@ -54,8 +58,12 @@ public class GraphApplicationController implements GraphApplicationInterface {
 
     @ApiOperation("获取所有图谱名称")
     @GetMapping("kgName/all")
-    public ApiReturn<List<ApkRsp>> getKgName() {
-        return appClient.getKgName(request.getHeader("APK"));
+    public ApiReturn<List<ApkRsp>> getKgName(PageReq pageReq) {
+        String apk = request.getHeader("APK");
+        if (!ApkAuthFilter.ADMIN_APK.equalsIgnoreCase(apk)) {
+            throw BizException.of(SdkErrorCodeEnum.APK_NOT_IS_ADMIN);
+        }
+        return appClient.getKgName(pageReq.getPage(), pageReq.getSize());
     }
 
     @ApiOperation("获取模型可视化数据")

@@ -1,20 +1,26 @@
 package com.plantdata.kgcloud.plantdata.converter.app;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.plantdata.kgcloud.plantdata.bean.EntityLink;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameter;
 import com.plantdata.kgcloud.plantdata.req.common.DataLinks;
-import com.plantdata.kgcloud.plantdata.bean.EntityLink;
 import com.plantdata.kgcloud.plantdata.req.common.ExtraKVBean;
+import com.plantdata.kgcloud.plantdata.req.common.KVBean;
 import com.plantdata.kgcloud.plantdata.req.common.Links;
 import com.plantdata.kgcloud.plantdata.req.common.Tag;
+import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.EntityLinksBean;
+import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.LinksRsp;
+import lombok.NonNull;
 
 import java.util.List;
 
@@ -37,11 +43,31 @@ public class InfoBoxConverter extends BasicConverter {
     public static EntityProfileBean infoBoxRspToEntityProfileBean(InfoBoxRsp infoBoxRsp) {
         EntityProfileBean entityProfileBean = new EntityProfileBean();
         entityProfileBean.setSelf(entityLinksRspToEntityLinksBean(infoBoxRsp.getSelf()));
-//        entityProfileBean.setAtts();
-//        entityProfileBean.setReAtts();
-//        entityProfileBean.setPars();
-//        entityProfileBean.setSons();
+        entityProfileBean.setAtts(Sets.newHashSet(listToRsp(infoBoxRsp.getAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
+        entityProfileBean.setReAtts(Sets.newHashSet(listToRsp(infoBoxRsp.getReAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
+        entityProfileBean.setPars(listToRsp(infoBoxRsp.getParents(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
+        entityProfileBean.setSons(listToRsp(infoBoxRsp.getSons(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
         return entityProfileBean;
+    }
+
+
+    private static EntityBean infoBoxConceptRspToEntityBean(@NonNull InfoBoxConceptRsp conceptRsp) {
+        EntityBean entityBean = new EntityBean();
+        entityBean.setId(conceptRsp.getId());
+        entityBean.setName(conceptRsp.getName());
+        entityBean.setClassId(conceptRsp.getId());
+        entityBean.setClassIdList(Lists.newArrayList(conceptRsp.getId()));
+        entityBean.setConceptIdList(Lists.newArrayList(conceptRsp.getId()));
+        entityBean.setConceptId(conceptRsp.getId());
+        entityBean.setImg(conceptRsp.getImageUrl());
+        entityBean.setMeaningTag(conceptRsp.getMeaningTag());
+        entityBean.setType(EntityTypeEnum.CONCEPT.getValue());
+        return entityBean;
+    }
+
+    private static KVBean<String, List<EntityBean>> infoBoxAttrRspToKVBean(@NonNull InfoBoxRsp.InfoBoxAttrRsp attrRsp) {
+        List<EntityBean> entityBeans = listToRsp(attrRsp.getEntityList(), PromptConverter::promptEntityRspToEntityBean);
+        return new KVBean<>(attrRsp.getAttrDefName(), entityBeans, attrRsp.getAttrDefId());
     }
 
     private static EntityLinksBean entityLinksRspToEntityLinksBean(EntityLinksRsp entityLinksRsp) {

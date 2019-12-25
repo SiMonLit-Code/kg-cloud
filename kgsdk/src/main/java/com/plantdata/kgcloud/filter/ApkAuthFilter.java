@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -29,6 +30,9 @@ public class ApkAuthFilter extends OncePerRequestFilter {
     private SsoClient ssoClient;
 
     private AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    public static final String ADMIN_APK = "03c7a9376254ebb8a6b27706194";
+
 
     private static final List<String> ROBOT_ALLOW_PATHS = Lists.newArrayList("graphExplore/common/**",
             "infoBox/list/**", "graphExplore/path/**", "knowledgeRecommend/**", "graphExplore/relation/**", "graphExplore/timing/**"
@@ -58,22 +62,33 @@ public class ApkAuthFilter extends OncePerRequestFilter {
             WebUtils.sendResponse(httpServletResponse, ApiReturn.fail(CommonErrorCode.BAD_REQUEST));
             return;
         }
-        ApiReturn<LoginRsp> loginRspApiReturn = null;
+        //非管理员需要登录(兼容旧接口)
+        if (!ADMIN_APK.equals(apk)) {
+            Optional<LoginRsp> loginOpt = login(apk, httpServletResponse);
+            if (!loginOpt.isPresent()) {
+                return;
+            }
+            SessionHolder.setUserId(loginOpt.get().getToken());
+        }
+        filterChain.doFilter(httpServletRequest, httpServletResponse);
+    }
+
+    private Optional<LoginRsp> login(String apk, HttpServletResponse httpServletResponse) throws IOException {
+        ApiReturn<LoginRsp> loginRspApiReturn;
         try {
             loginRspApiReturn = this.ssoClient.loginByApk(apk);
         } catch (Exception e) {
             WebUtils.sendResponse(httpServletResponse, ApiReturn.fail(CommonErrorCode.INTERNAL_SERVER_ERROR));
-            return;
+            return Optional.empty();
         }
         if (loginRspApiReturn == null) {
             WebUtils.sendResponse(httpServletResponse, ApiReturn.fail(CommonErrorCode.INTERNAL_SERVER_ERROR));
-            return;
+            return Optional.empty();
         }
         if (CommonErrorCode.SUCCESS.getErrorCode() != loginRspApiReturn.getErrCode()) {
             WebUtils.sendResponse(httpServletResponse, loginRspApiReturn);
-            return;
+            return Optional.empty();
         }
-        SessionHolder.setUserId(loginRspApiReturn.getData().getToken());
-        filterChain.doFilter(httpServletRequest, httpServletResponse);
+        return Optional.of(loginRspApiReturn.getData());
     }
 }

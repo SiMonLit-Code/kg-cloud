@@ -146,11 +146,13 @@ public interface AppClient {
     /**
      * 获取所有图谱名称
      *
-     * @param apk apk
-     * @return ..
+     * @param page 页码
+     * @param size 数量
+     * @return ApkRsp
      */
-    @GetMapping("kgName/all/{apk}")
-    ApiReturn<List<ApkRsp>> getKgName(@PathVariable("apk") String apk);
+    @GetMapping("kgName/all")
+    ApiReturn<List<ApkRsp>> getKgName(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                      @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
 
     /**
      * 实体下拉提示
