@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
+import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.sdk.rsp.WordRsp;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -192,6 +193,10 @@ public interface KgmsClient {
     @ApiOperation("图谱删除")
     @DeleteMapping("/graph/{kgName}")
     ApiReturn graphDelete(@PathVariable("kgName") String kgName);
+
+    @GetMapping("/status/{kgName}/{spaId}")
+    @ApiOperation("SPA分享状态")
+    ApiReturn<LinkShareSpaRsp> shareStatus(@PathVariable("kgName") String kgName, @PathVariable("spaId") String spaId);
 
     /**
      * 图谱配置-算法-新建

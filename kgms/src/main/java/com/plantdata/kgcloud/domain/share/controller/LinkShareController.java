@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.share.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
+import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,16 +28,16 @@ public class LinkShareController {
 
     @GetMapping("/status/{kgName}")
     @ApiOperation("分享状态列表")
-    public ApiReturn shareStatus(@PathVariable("kgName") String kgName) {
+    public ApiReturn<LinkShareRsp> shareStatus(@PathVariable("kgName") String kgName) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(linkShareService.shareStatus(userId, kgName));
     }
 
     @GetMapping("/status/{kgName}/{spaId}")
     @ApiOperation("SPA分享状态")
-    public ApiReturn shareStatus(@PathVariable("kgName") String kgName,@PathVariable("spaId") String spaId) {
+    public ApiReturn<LinkShareSpaRsp> shareStatus(@PathVariable("kgName") String kgName, @PathVariable("spaId") String spaId) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(linkShareService.shareStatus(userId, kgName,spaId));
+        return ApiReturn.success(linkShareService.shareStatus(userId, kgName, spaId));
     }
 
     @GetMapping("/link/{kgName}")
