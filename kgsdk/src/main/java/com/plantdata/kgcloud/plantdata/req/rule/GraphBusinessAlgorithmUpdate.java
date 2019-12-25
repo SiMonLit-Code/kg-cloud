@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class GraphBusinessAlgorithmRequestUpdate {
+public class GraphBusinessAlgorithmUpdate {
     @NotBlank
     private String kgName;
     @NotNull

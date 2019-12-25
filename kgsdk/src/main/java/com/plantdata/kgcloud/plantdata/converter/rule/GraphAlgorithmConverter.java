@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.plantdata.converter.rule;
 
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.rule.GraphBusinessAlgorithmBean;
+import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
 
 /**
@@ -21,5 +22,13 @@ public class GraphAlgorithmConverter extends BasicConverter {
         algorithmBean.setUpdateTime(algorithmRsp.getUpdateAt());
         algorithmBean.setUrl(algorithmRsp.getAlgorithmUrl());
         return algorithmBean;
+    }
+
+    public static GraphConfAlgorithmReq graphBusinessAlgorithmAddToGraphConfAlgorithmReq(GraphBusinessAlgorithmBean algorithmBean) {
+        GraphConfAlgorithmReq algorithmReq = new GraphConfAlgorithmReq();
+        algorithmReq.setAlgorithmName(algorithmBean.getName());
+        algorithmReq.setAlgorithmUrl(algorithmBean.getUrl());
+        algorithmReq.setRemark(algorithmBean.getUrl());
+        return algorithmReq;
     }
 }

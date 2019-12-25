@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import lombok.NonNull;
@@ -40,6 +41,29 @@ import java.util.List;
  * @date 2019/12/24 10:59
  */
 public class ExploreCommonConverter extends BasicConverter {
+
+    static <T extends GraphEntityRsp> EntityBean entityBeanToCommonEntityRsp(T newEntity) {
+        EntityBean oldEntity = new EntityBean();
+        oldEntity.setId(newEntity.getId());
+        oldEntity.setName(newEntity.getName());
+        oldEntity.setMeaningTag(newEntity.getMeaningTag());
+        oldEntity.setClassId(newEntity.getClassId());
+        oldEntity.setClassIdList(newEntity.getConceptIdList());
+        oldEntity.setConceptId(newEntity.getConceptId());
+        oldEntity.setConceptIdList(newEntity.getConceptIdList());
+        oldEntity.setConceptName(newEntity.getConceptName());
+        oldEntity.setCreationTime(newEntity.getCreationTime());
+        consumerIfNoNull(newEntity.getStartTime(), a -> oldEntity.setFromTime(dateToString(a)));
+        consumerIfNoNull(newEntity.getEndTime(), a -> oldEntity.setToTime(dateToString(a)));
+        oldEntity.setNodeStyle(newEntity.getNodeStyle());
+        oldEntity.setLabelStyle(newEntity.getLabelStyle());
+        oldEntity.setScore(newEntity.getScore());
+        oldEntity.setType(newEntity.getType());
+        Additional additional = new Additional();
+        oldEntity.setAdditionalInfo(additional);
+        return oldEntity;
+    }
+
 
     static <T extends PathGraphParameter> CommonPathReq buildPathReq(T pathGraphParam) {
         CommonPathReq commonPathReq = new CommonPathReq();
@@ -117,26 +141,11 @@ public class ExploreCommonConverter extends BasicConverter {
     }
 
     private static EntityBean entityBeanToCommonEntityRsp(CommonEntityRsp newEntity) {
-        EntityBean oldEntity = new EntityBean();
-        oldEntity.setId(newEntity.getId());
-        oldEntity.setName(newEntity.getName());
-        oldEntity.setMeaningTag(newEntity.getMeaningTag());
-        oldEntity.setClassId(newEntity.getClassId());
-        oldEntity.setClassIdList(newEntity.getConceptIdList());
-        oldEntity.setConceptId(newEntity.getConceptId());
-        oldEntity.setConceptIdList(newEntity.getConceptIdList());
-        oldEntity.setConceptName(newEntity.getConceptName());
-        oldEntity.setCreationTime(newEntity.getCreationTime());
-        consumerIfNoNull(newEntity.getStartTime(), a -> oldEntity.setFromTime(dateToString(a)));
-        consumerIfNoNull(newEntity.getEndTime(), a -> oldEntity.setToTime(dateToString(a)));
-        oldEntity.setNodeStyle(newEntity.getNodeStyle());
-        oldEntity.setLabelStyle(newEntity.getLabelStyle());
-        oldEntity.setScore(newEntity.getScore());
-        oldEntity.setType(newEntity.getType());
+        EntityBean oldEntity = entityBeanToCommonEntityRsp(newEntity);
         oldEntity.setTags(listToRsp(newEntity.getTags(), a -> copy(a, Tag.class)));
         Additional additional = new Additional();
         //暂时不管
-        ///additional.setColor();
+        //additional.setColor(newEntity);
         ///additional.setIsOpenGis();
         oldEntity.setAdditionalInfo(additional);
         return oldEntity;

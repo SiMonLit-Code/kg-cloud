@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.config.InitStatisticalBean;
 import com.plantdata.kgcloud.plantdata.req.rule.InitStatisticalBeanAdd;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 
 import java.util.List;
@@ -17,7 +18,9 @@ import java.util.function.Function;
  */
 public class StatisticConverter extends BasicConverter {
 
-    public static Function<List<InitStatisticalBean>, List<GraphConfStatisticalReq>> beanToReq =
+    public static Function<List<InitStatisticalBean>, List<UpdateGraphConfStatisticalReq>> updateBeanToReq =
+            a -> BasicConverter.listToRsp(a, StatisticConverter::initStatisticalAddBatchToUpdateGraphConfStatisticalReq);
+    public static Function<List<InitStatisticalBean>, List<GraphConfStatisticalReq>> addBeanToReq =
             a -> BasicConverter.listToRsp(a, StatisticConverter::initStatisticalAddBatchToGraphConfStatisticalReq);
     public static Function<ApiReturn<List<GraphConfStatisticalRsp>>, List<InitStatisticalBean>> rspToBean =
             a -> BasicConverter.convert(a, b -> BasicConverter.listToRsp(b, StatisticConverter::graphConfStatisticalRspToInitStatisticalBean));
@@ -27,30 +30,36 @@ public class StatisticConverter extends BasicConverter {
         statisticalBean.setId(rsp.getId().intValue());
         statisticalBean.setKgName(rsp.getKgName());
         statisticalBean.setType(rsp.getStatisType());
-        ///todo
-        //statisticalBean.setRule(rsp.getStatisRule());
-        //statisticalBean.setUpdateTime();
-        //statisticalBean.setCreateTime(rsp.get);
+        statisticalBean.setRule(rsp.getStatisRule());
+        statisticalBean.setUpdateTime(rsp.getUpdateAt());
+        statisticalBean.setCreateTime(rsp.getCreateAt());
         return statisticalBean;
     }
 
-    private static GraphConfStatisticalReq initStatisticalAddBatchToGraphConfStatisticalReq(InitStatisticalBean statisticalBean) {
-        GraphConfStatisticalReq statisticalReq = new GraphConfStatisticalReq();
+    private static UpdateGraphConfStatisticalReq initStatisticalAddBatchToUpdateGraphConfStatisticalReq(InitStatisticalBean statisticalBean) {
+        UpdateGraphConfStatisticalReq statisticalReq = initStatisticalReq(statisticalBean, new UpdateGraphConfStatisticalReq());
         statisticalReq.setId(statisticalBean.getId().longValue());
-        statisticalReq.setKgName(statisticalBean.getKgName());
-        ///todo
-        //statisticalReq.setStatisRule(statisticalBean.getRule());
-        statisticalReq.setStatisType(statisticalBean.getType());
         return statisticalReq;
     }
+
+    private static GraphConfStatisticalReq initStatisticalAddBatchToGraphConfStatisticalReq(InitStatisticalBean statisticalBean) {
+        return initStatisticalReq(statisticalBean, new GraphConfStatisticalReq());
+    }
+
+
+    private static <R extends GraphConfStatisticalReq> R initStatisticalReq(InitStatisticalBean statisticalBean, R req) {
+        req.setKgName(statisticalBean.getKgName());
+        req.setStatisRule(statisticalBean.getRule());
+        req.setStatisType(statisticalBean.getType());
+        return req;
+    }
+
 
     public static GraphConfStatisticalReq initStatisticalBeanAddToGraphConfStatisticalReq(InitStatisticalBeanAdd beanAdd) {
         GraphConfStatisticalReq statisticalReq = new GraphConfStatisticalReq();
         statisticalReq.setKgName(beanAdd.getKgName());
         statisticalReq.setStatisType(beanAdd.getType());
-        ///todo
-        //statisticalReq.setId();
-        //statisticalReq.setStatisRule();
+        statisticalReq.setStatisRule(beanAdd.getRule());
         return statisticalReq;
     }
 
