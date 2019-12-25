@@ -25,10 +25,13 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -81,14 +84,18 @@ public class GraphServiceImpl implements GraphService {
 
     @Override
     public Page<GraphRsp> findAll(String userId, GraphPageReq req) {
-        Page<Graph> all;
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(), Sort.by(Sort.Direction.DESC, "createAt"));
-        if (StringUtils.hasText(req.getKw())) {
-            all = graphRepository.findByUserIdAndTitleContaining(userId, req.getKw(), pageable);
-        } else {
-            Graph probe = Graph.builder().userId(userId).deleted(false).build();
-            all = graphRepository.findAll(Example.of(probe), pageable);
-        }
+        Specification<Graph> specification = (Specification<Graph>) (root, query, cb) -> {
+            Predicate predicate = cb.conjunction();
+            List<Expression<Boolean>> expressions = predicate.getExpressions();
+            expressions.add(cb.equal(root.<String>get("userId"), userId));
+            expressions.add(cb.equal(root.<Boolean>get("deleted"), false));
+            if (StringUtils.hasText(req.getKw())) {
+                expressions.add(cb.like(root.get("title"), "%" + req.getKw() + "%"));
+            }
+            return predicate;
+        };
+        Page<Graph> all = graphRepository.findAll(specification, pageable);
         return all.map(ConvertUtils.convert(GraphRsp.class));
     }
 

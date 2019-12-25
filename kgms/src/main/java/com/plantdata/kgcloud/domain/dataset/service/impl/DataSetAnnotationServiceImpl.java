@@ -90,6 +90,7 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
                 .findById(id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.ANNOTATION_NOT_EXISTS));
         BeanUtils.copyProperties(req, dataSetAnnotation);
+        dataSetAnnotationRepository.save(dataSetAnnotation);
         return ConvertUtils.convert(AnnotationRsp.class).apply(dataSetAnnotation);
     }
 
