@@ -173,7 +173,6 @@ public class ImportServiceImpl implements ImportService {
         List<List<String>> header = new ArrayList<>();
         header.add(Collections.singletonList("实例名称（必填）"));
         header.add(Collections.singletonList("实例消歧标识"));
-        header.add(Collections.singletonList("关系名称（必填）"));
         header.add(Collections.singletonList("关系实例名称（必填）"));
         header.add(Collections.singletonList("关系实例消歧标识"));
         header.add(Collections.singletonList("关系值域（必填，关系实例的概念类型）"));

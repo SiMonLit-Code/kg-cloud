@@ -187,6 +187,7 @@ public class InduceServiceImpl implements InduceService {
         }
         ExecuteInduceConceptFrom executeInduceConceptFrom =
                 ConvertUtils.convert(ExecuteInduceConceptFrom.class).apply(induceConceptReq);
+        executeInduceConceptFrom.setConceptId(conceptId);
         RestRespConverter.convertVoid(induceApi.induceConcept(KGUtil.dbName(kgName), executeInduceConceptFrom));
     }
 }
