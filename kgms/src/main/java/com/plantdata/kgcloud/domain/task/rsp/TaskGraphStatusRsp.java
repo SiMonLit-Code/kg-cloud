@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
+
 /**
  * @Author: LinHo
  * @Date: 2019/12/16 19:27
@@ -25,4 +27,7 @@ public class TaskGraphStatusRsp {
 
     @ApiModelProperty(value = "任务状态")
     private String status;
+
+    @ApiModelProperty(value = "任务参数")
+    private Map<String, Object> params;
 }
