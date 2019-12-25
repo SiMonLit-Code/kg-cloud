@@ -83,6 +83,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     ATTR_TEMPLATE_ERROR(120507, "属性模板配置不正确"),
 
     ATTR_TEMPLATE_NOT_EXISTS(120508, "属性模板不存在"),
+
+    PERMISSION_NOT_ENOUGH_ERROR(120509, "没有该图谱的编辑权限"),
     ;
 
     private final int errorCode;
