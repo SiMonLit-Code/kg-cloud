@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.share.service;
 
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
+import com.plantdata.kgcloud.domain.share.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.domain.share.rsp.ShareRsp;
 
 /**
@@ -8,7 +9,7 @@ import com.plantdata.kgcloud.domain.share.rsp.ShareRsp;
  */
 public interface LinkShareService {
 
-    LinkShareRsp shareStatus(String userId, String kgName,String spaId);
+    LinkShareSpaRsp shareStatus(String userId, String kgName, String spaId);
 
     LinkShareRsp shareStatus(String userId, String kgName);
 

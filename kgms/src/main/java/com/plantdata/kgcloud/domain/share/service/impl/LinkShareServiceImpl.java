@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.share.entity.LinkShare;
 import com.plantdata.kgcloud.domain.share.repository.LinkShareRepository;
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
+import com.plantdata.kgcloud.domain.share.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.domain.share.rsp.ShareRsp;
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
 import com.plantdata.kgcloud.sdk.UserClient;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,18 +37,24 @@ public class LinkShareServiceImpl implements LinkShareService {
 
 
     @Override
-    public LinkShareRsp shareStatus(String userId, String kgName, String spaId) {
+    public LinkShareSpaRsp shareStatus(String userId, String kgName, String spaId) {
         ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
         UserLimitRsp data = detail.getData();
-        LinkShareRsp linkShareRsp = new LinkShareRsp();
+        LinkShareSpaRsp linkShareRsp = new LinkShareSpaRsp();
+        linkShareRsp.setKgName(kgName);
+        linkShareRsp.setSpaId(spaId);
         if (data.getShareable()) {
-            linkShareRsp.setHasRole(1);
+            Optional<LinkShare> linkShare = linkShareRepository.findByKgNameAndSpaId(kgName, spaId);
+            if (linkShare.isPresent()) {
+                LinkShare linkShare1 = linkShare.get();
+                Boolean shared = linkShare1.getShared();
+                linkShareRsp.setShareable(shared);
+            } else {
+                linkShareRsp.setShareable(false);
+            }
         } else {
-            linkShareRsp.setHasRole(0);
+            linkShareRsp.setShareable(false);
         }
-        Optional<LinkShare> linkShare = linkShareRepository.findByKgNameAndSpaId(kgName, spaId);
-        ShareRsp shareRsp = linkShare.map(ConvertUtils.convert(ShareRsp.class)).orElse(new ShareRsp());
-        linkShareRsp.setShareList(Collections.singletonList(shareRsp));
         return linkShareRsp;
     }
 
