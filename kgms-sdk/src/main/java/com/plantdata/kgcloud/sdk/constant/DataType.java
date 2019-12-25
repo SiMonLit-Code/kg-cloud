@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.dataset.constant;
+package com.plantdata.kgcloud.sdk.constant;
 
 /**
  * @description:

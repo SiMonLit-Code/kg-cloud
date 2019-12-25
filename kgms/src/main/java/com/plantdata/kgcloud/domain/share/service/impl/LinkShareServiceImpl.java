@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.share.entity.LinkShare;
 import com.plantdata.kgcloud.domain.share.repository.LinkShareRepository;
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
+import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.domain.share.rsp.ShareRsp;
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
 import com.plantdata.kgcloud.sdk.UserClient;
@@ -34,6 +35,28 @@ public class LinkShareServiceImpl implements LinkShareService {
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
 
+
+    @Override
+    public LinkShareSpaRsp shareStatus(String userId, String kgName, String spaId) {
+        ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
+        UserLimitRsp data = detail.getData();
+        LinkShareSpaRsp linkShareRsp = new LinkShareSpaRsp();
+        linkShareRsp.setKgName(kgName);
+        linkShareRsp.setSpaId(spaId);
+        if (data.getShareable()) {
+            Optional<LinkShare> linkShare = linkShareRepository.findByKgNameAndSpaId(kgName, spaId);
+            if (linkShare.isPresent()) {
+                LinkShare linkShare1 = linkShare.get();
+                Boolean shared = linkShare1.getShared();
+                linkShareRsp.setShareable(shared);
+            } else {
+                linkShareRsp.setShareable(false);
+            }
+        } else {
+            linkShareRsp.setShareable(false);
+        }
+        return linkShareRsp;
+    }
 
     @Override
     public LinkShareRsp shareStatus(String userId, String kgName) {

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.converter;
 
-import com.plantdata.kgcloud.domain.dataset.constant.DataType;
+import com.plantdata.kgcloud.sdk.constant.DataType;
 
 import javax.persistence.AttributeConverter;
 

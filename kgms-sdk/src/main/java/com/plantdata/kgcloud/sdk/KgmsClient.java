@@ -4,7 +4,6 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
-import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
 import com.plantdata.kgcloud.sdk.req.DictionaryReq;
 import com.plantdata.kgcloud.sdk.req.FolderReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
@@ -27,6 +26,7 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
+import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.sdk.rsp.WordRsp;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -52,7 +52,7 @@ public interface KgmsClient {
 
     @ApiOperation("数据集分页查找")
     @GetMapping("/dataset/")
-    ApiReturn<BasePage<DataSetRsp>> dataSetFindAll(DataSetPageReq req);
+    ApiReturn<BasePage<DataSetRsp>> dataSetFindAll(@RequestParam("kw") String kw, @RequestParam("page") Integer page, @RequestParam("size") Integer size);
 
     @ApiOperation("数据集根据Id查找")
     @GetMapping("/dataset/{id}")
@@ -193,6 +193,10 @@ public interface KgmsClient {
     @ApiOperation("图谱删除")
     @DeleteMapping("/graph/{kgName}")
     ApiReturn graphDelete(@PathVariable("kgName") String kgName);
+
+    @GetMapping("/status/{kgName}/{spaId}")
+    @ApiOperation("SPA分享状态")
+    ApiReturn<LinkShareSpaRsp> shareStatus(@PathVariable("kgName") String kgName, @PathVariable("spaId") String spaId);
 
     /**
      * 图谱配置-算法-新建
