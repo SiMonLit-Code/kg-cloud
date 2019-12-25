@@ -1,10 +1,10 @@
 package com.plantdata.kgcloud.sdk.req;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiParam;
 import lombok.Data;
+
+import java.util.Map;
 
 /**
  * Created by plantdata-1007 on 2019/12/3.
@@ -13,9 +13,7 @@ import lombok.Data;
 @Data
 public class GraphConfStatisticalReq {
 
-    @ApiModelProperty(value = "id",required = true)
-    @ApiParam(name = "id",required = true)
-    private Long id;
+
 
     @ApiModelProperty(value = "kgName" ,required = true)
     private String kgName;
@@ -24,5 +22,5 @@ public class GraphConfStatisticalReq {
     private String statisType;
 
     @ApiModelProperty(value = "统计规则")
-    private JsonNode statisRule;
+    private Map<String,Object> statisRule;
 }
