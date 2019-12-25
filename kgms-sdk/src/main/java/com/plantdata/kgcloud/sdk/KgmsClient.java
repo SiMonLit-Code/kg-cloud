@@ -176,7 +176,7 @@ public interface KgmsClient {
 
     @ApiOperation("图谱分页查找")
     @GetMapping("/graph/")
-    ApiReturn<BasePage<GraphRsp>> graphFindAll(GraphPageReq req);
+    ApiReturn<BasePage<GraphRsp>> graphFindAll(@RequestParam("kw") String kw, @RequestParam("page") Integer page, @RequestParam("size") Integer size);
 
     @ApiOperation("图谱根据Id查找")
     @GetMapping("/graph/{kgName}")
@@ -239,6 +239,14 @@ public interface KgmsClient {
     ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName,
                                                       @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                                                       @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
+
+    /**
+     * 图谱配置-算法-详情
+     * @param id
+     * @return
+     */
+    @GetMapping("/config/algorithm/{id}")
+    ApiReturn<GraphConfAlgorithmRsp> detailAlgorithm(@PathVariable("id") Long id);
 
     /**
      * 图谱配置-焦点-获取

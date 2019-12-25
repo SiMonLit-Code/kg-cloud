@@ -31,4 +31,13 @@ public enum  RdfType {
         }
         return RdfType.RDF_XML;
     }
+
+    public static RdfType findByFormat(String format){
+        for (RdfType rdfType : values()){
+            if (rdfType.getFormat().equals(format)){
+                return rdfType;
+            }
+        }
+        return RdfType.RDF_XML;
+    }
 }

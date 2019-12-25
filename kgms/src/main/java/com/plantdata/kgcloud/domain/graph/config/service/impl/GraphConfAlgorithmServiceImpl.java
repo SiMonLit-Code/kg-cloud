@@ -4,10 +4,10 @@ import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfAlgorithm;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfAlgorithmRepository;
-import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfAlgorithmService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
@@ -68,5 +68,12 @@ public class GraphConfAlgorithmServiceImpl implements GraphConfAlgorithmService 
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(),sort);
         Page<GraphConfAlgorithm> all = graphConfAlgorithmRepository.findByKgName(kgName, pageable);
         return all.map(ConvertUtils.convert(GraphConfAlgorithmRsp.class));
+    }
+
+    @Override
+    public GraphConfAlgorithmRsp findById(Long id) {
+        GraphConfAlgorithm confAlgorithm = graphConfAlgorithmRepository.findById(id)
+                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_ALGORITHM_NOT_EXISTS));
+        return ConvertUtils.convert(GraphConfAlgorithmRsp.class).apply(confAlgorithm);
     }
 }
