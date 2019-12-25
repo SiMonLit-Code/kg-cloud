@@ -31,7 +31,8 @@ public class EditPermission {
     public void pointCutPermission() {
     }
 
-    @Pointcut("execution(* com.plantdata.kgcloud.domain.graph.attr.controller.*.*(..))")
+    @Pointcut("execution(* com.plantdata.kgcloud.domain.graph.attr.controller.*.*(..)) && !@annotation" +
+            "(EditPermissionUnwanted)")
     public void pointCutAttrGroup() {
 
     }
