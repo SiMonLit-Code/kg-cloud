@@ -15,7 +15,7 @@ import java.util.List;
  * @create: 2019-11-06 10:37
  **/
 @Data
-@JsonIgnoreProperties({"dbName","tbName","username","password","addr"})
+@JsonIgnoreProperties({"username","password","addr"})
 public class DataSetUpdateRsp {
     private Long id;
     @ApiModelProperty(value = "文件夹Id")
