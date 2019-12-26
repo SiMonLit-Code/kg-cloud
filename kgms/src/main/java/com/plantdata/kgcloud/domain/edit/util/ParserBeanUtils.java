@@ -72,32 +72,32 @@ public class ParserBeanUtils {
         Map<String, Object> entityMetaData = vo.getMetaData();
         if (Objects.nonNull(entityMetaData)) {
             if (entityMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-                basicInfoRsp.setScore((Double) entityMetaData.get(MetaDataInfo.SCORE.getFieldName()));
+                basicInfoRsp.setScore(Double.valueOf(entityMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString()));
             }
 
             if (entityMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
-                basicInfoRsp.setSource((String) entityMetaData.get(MetaDataInfo.SOURCE.getFieldName()));
+                basicInfoRsp.setSource(entityMetaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
             }
 
             if (entityMetaData.containsKey(MetaDataInfo.BATCH_NO.getFieldName())) {
-                basicInfoRsp.setBatch((String) entityMetaData.get(MetaDataInfo.BATCH_NO.getFieldName()));
+                basicInfoRsp.setBatch(entityMetaData.get(MetaDataInfo.BATCH_NO.getFieldName()).toString());
             }
 
             if (entityMetaData.containsKey(MetaDataInfo.FROM_TIME.getFieldName())) {
-                basicInfoRsp.setFromTime((String) entityMetaData.get(MetaDataInfo.FROM_TIME.getFieldName()));
+                basicInfoRsp.setFromTime(entityMetaData.get(MetaDataInfo.FROM_TIME.getFieldName()).toString());
             }
 
             if (entityMetaData.containsKey(MetaDataInfo.TO_TIME.getFieldName())) {
-                basicInfoRsp.setToTime((String) entityMetaData.get(MetaDataInfo.TO_TIME.getFieldName()));
+                basicInfoRsp.setToTime(entityMetaData.get(MetaDataInfo.TO_TIME.getFieldName()).toString());
             }
 
             if (entityMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-                basicInfoRsp.setReliability((Double) entityMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()));
+                basicInfoRsp.setReliability(Double.valueOf(entityMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString()));
             }
 
             if (entityMetaData.containsKey(MetaDataInfo.UPDATE_TIME.getFieldName())) {
                 basicInfoRsp.setUpdateTime(VeDateUtils.dateToStrLong(VeDateUtils.strToDateLong(
-                        (String) entityMetaData.get(MetaDataInfo.UPDATE_TIME.getFieldName()))));
+                        entityMetaData.get(MetaDataInfo.UPDATE_TIME.getFieldName()).toString())));
             }
 
             if (entityMetaData.containsKey(MetaDataInfo.TAG.getFieldName())) {
