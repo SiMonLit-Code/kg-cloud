@@ -204,7 +204,7 @@ public class AttributeController {
     @PostMapping("/{kgName}/constraints/delete/{attrId}")
     public ApiReturn attrConstraintsDelete(@PathVariable("kgName") String kgName,
                                            @PathVariable("attrId") Integer attrId,
-                                           List<String> tripleIds) {
+                                           @RequestBody List<String> tripleIds) {
         attributeService.attrConstraintsDelete(kgName, attrId, tripleIds);
         return ApiReturn.success();
     }
