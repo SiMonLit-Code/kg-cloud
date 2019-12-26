@@ -1,16 +1,21 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
+import com.plantdata.kgcloud.domain.graph.config.converter.GraphConfReasoningConverter;
+import com.plantdata.kgcloud.domain.graph.config.converter.GraphConfStatisticalConverter;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfStatistical;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfStatisticalRepository;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfStatisticalService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -54,8 +59,10 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         targe.setStatisRule(jsonNode.get());
         targe.setId(kgKeyGenerator.getNextId());
         targe.setKgName(kgName);
-        GraphConfStatistical result = graphConfStatisticalRepository.save(targe);
-        return ConvertUtils.convert(GraphConfStatisticalRsp.class).apply(result);
+        GraphConfStatistical statistical=graphConfStatisticalRepository.save(targe);
+        GraphConfStatisticalRsp graphConfStatisticalRsp = GraphConfStatisticalConverter.JsonNodeToMapConverter(statistical);
+
+        return graphConfStatisticalRsp;
     }
 
     @Override
@@ -66,10 +73,15 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
             GraphConfStatistical targe = new GraphConfStatistical();
             BeanUtils.copyProperties(req, targe);
             targe.setId(kgKeyGenerator.getNextId());
+            String strStatisRule = JacksonUtils.writeValueAsString(req.getStatisRule());
+            Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strStatisRule);
+            targe.setStatisRule(jsonNode.get());
             list.add(targe);
         }
         List<GraphConfStatistical> list1 = graphConfStatisticalRepository.saveAll(list);
-        return list1.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
+        List<GraphConfStatisticalRsp> graphConfReasonRsps = BasicConverter.listConvert(
+                list1, a -> GraphConfStatisticalConverter.JsonNodeToMapConverter(a));
+        return graphConfReasonRsps;
 
     }
 
@@ -79,8 +91,12 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(id)
                 .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfStatistical);
-        GraphConfStatistical result = graphConfStatisticalRepository.save(graphConfStatistical);
-        return ConvertUtils.convert(GraphConfStatisticalRsp.class).apply(result);
+        String strStatisRule = JacksonUtils.writeValueAsString(req.getStatisRule());
+        Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strStatisRule);
+        graphConfStatistical.setStatisRule(jsonNode.get());
+        GraphConfStatistical save = graphConfStatisticalRepository.save(graphConfStatistical);
+        GraphConfStatisticalRsp graphConfStatisticalRsp = GraphConfStatisticalConverter.JsonNodeToMapConverter(save);
+        return graphConfStatisticalRsp;
     }
 
     @Override
@@ -100,10 +116,17 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
                 throw BizException.of(AppErrorCodeEnum.CONF_STATISTICALID_NOT_EXISTS);
             }
             BeanUtils.copyProperties(req, confStatisticalMap.get(req.getId()));
-            statisticalArrayList.add(confStatisticalMap.get(req.getId()));
+            String strStatisRule = JacksonUtils.writeValueAsString(req.getStatisRule());
+            Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strStatisRule);
+            if (jsonNode.isPresent()){
+                confStatisticalMap.get(req.getId()).setStatisRule(jsonNode.get());
+                statisticalArrayList.add(confStatisticalMap.get(req.getId()));
+            }
         }
-        List<GraphConfStatistical> list2 = graphConfStatisticalRepository.saveAll(statisticalArrayList);
-        return list2.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
+        List<GraphConfStatistical> statisticalList = graphConfStatisticalRepository.saveAll(statisticalArrayList);
+        List<GraphConfStatisticalRsp> graphConfReasonRsps = BasicConverter.listConvert(
+                statisticalList, a -> GraphConfStatisticalConverter.JsonNodeToMapConverter(a));
+        return graphConfReasonRsps;
     }
 
 
@@ -125,13 +148,20 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     @Override
     public List<GraphConfStatisticalRsp> findByKgName(String kgName) {
         List<GraphConfStatistical> all = graphConfStatisticalRepository.findByKgName(kgName);
-        return all.stream().map(ConvertUtils.convert(GraphConfStatisticalRsp.class)).collect(Collectors.toList());
+        List<GraphConfStatisticalRsp> graphConfReasonRsps = BasicConverter.listConvert(
+                all, a -> GraphConfStatisticalConverter.JsonNodeToMapConverter(a));
+        return graphConfReasonRsps;
     }
 
     @Override
-    public Page<GraphConfStatisticalRsp> getByKgName(String kgName, BaseReq baseReq) {
+    public BasePage<GraphConfStatisticalRsp> getByKgName(String kgName, BaseReq baseReq) {
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
         Page<GraphConfStatistical> all = graphConfStatisticalRepository.getByKgName(kgName, pageable);
-        return all.map(ConvertUtils.convert(GraphConfStatisticalRsp.class));
+        List<GraphConfStatisticalRsp> graphConfStatisticalRsps = BasicConverter.listConvert(
+                all.getContent(), a -> GraphConfStatisticalConverter.JsonNodeToMapConverter(a));
+        BasePage<GraphConfStatisticalRsp> basePage= new BasePage<>();
+        basePage.setContent(graphConfStatisticalRsps);
+        basePage.setTotalElements(all.getTotalElements());
+        return basePage;
     }
 }

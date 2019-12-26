@@ -24,6 +24,8 @@ import ai.plantdata.kg.api.pub.resp.TripleVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.ExtraInfo;
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -71,6 +73,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -80,6 +83,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -237,16 +241,26 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Override
     public void addAttrDefinitionTemplate(String kgName, List<AttrTemplateReq> attrTemplateReqs) {
+        Set<String> rangeNames = Sets.newHashSet();
+        attrTemplateReqs.stream().filter(attrTemplateReq -> AttributeValueType.isObject(attrTemplateReq.getType()))
+                .forEach(attrTemplateReq -> {
+                    List<IdNameVO> ranges = attrTemplateReq.getRange();
+                    if (!CollectionUtils.isEmpty(ranges)) {
+                        ranges.stream().filter(idNameVO -> Objects.isNull(idNameVO.getId()))
+                                .forEach(idNameVO -> rangeNames.add(idNameVO.getName()));
+                    }
+                });
+        Map<String, Long> idNameMap = Maps.newHashMap();
+        rangeNames.forEach(name -> {
+            Long conceptId = basicInfoService.createBasicInfo(KGUtil.dbName(kgName),
+                    BasicInfoReq.builder().conceptId(0L).type(0).name(name).build());
+            idNameMap.put(name, conceptId);
+        });
         attrTemplateReqs.stream().filter(attrTemplateReq -> AttributeValueType.isObject(attrTemplateReq.getType()))
                 .forEach(attrTemplateReq -> {
                     List<IdNameVO> ranges = attrTemplateReq.getRange();
                     ranges.stream().filter(idNameVO -> Objects.isNull(idNameVO.getId()))
-                            .forEach(idNameVO -> {
-                                Long conceptId = basicInfoService.createBasicInfo(KGUtil.dbName(kgName),
-                                        BasicInfoReq.builder().conceptId(0L)
-                                                .type(0).name(idNameVO.getName()).build());
-                                idNameVO.setId(conceptId);
-                            });
+                            .forEach(idNameVO -> idNameVO.setId(idNameMap.get(idNameVO.getName())));
                     attrTemplateReq.setDataType(0);
                     attrTemplateReq.setRange(ranges);
                 });

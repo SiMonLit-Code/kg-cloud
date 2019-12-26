@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
@@ -81,5 +82,5 @@ public interface GraphConfStatisticalService {
      * @param baseReq
      * @return
      */
-    Page<GraphConfStatisticalRsp> getByKgName(String kgName , BaseReq baseReq);
+    BasePage<GraphConfStatisticalRsp> getByKgName(String kgName , BaseReq baseReq);
 }

@@ -15,7 +15,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ApiModel("异步任务结果模型")
-public class TaskGraphStatusRsp {
+public class TaskGraphStatusCheckRsp {
     @ApiModelProperty(value = "任务id")
     private Long id;
 
@@ -30,4 +30,24 @@ public class TaskGraphStatusRsp {
 
     @ApiModelProperty(value = "任务参数")
     private Map<String, Object> params;
+
+    @ApiModelProperty(value = "是否可以运行下一个异步任务")
+    private Boolean executed;
+
+    public TaskGraphStatusCheckRsp() {
+    }
+
+    public TaskGraphStatusCheckRsp(Boolean executed) {
+        this.executed = executed;
+    }
+
+    public TaskGraphStatusCheckRsp(Long id, String kgName, String type, String status, Map<String, Object> params,
+                                   Boolean executed) {
+        this.id = id;
+        this.kgName = kgName;
+        this.type = type;
+        this.status = status;
+        this.params = params;
+        this.executed = executed;
+    }
 }
