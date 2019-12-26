@@ -15,6 +15,7 @@ import java.util.List;
 public interface GraphConfAlgorithmRepository extends JpaRepository<GraphConfAlgorithm, Long> {
     /**
      * 根据kgName查询
+     *
      * @param kgName
      * @return
      */
@@ -23,6 +24,7 @@ public interface GraphConfAlgorithmRepository extends JpaRepository<GraphConfAlg
 
     /**
      * 分页
+     *
      * @param kgName
      * @param pageable
      * @return

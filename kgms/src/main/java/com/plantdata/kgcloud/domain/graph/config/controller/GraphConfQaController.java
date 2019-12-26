@@ -13,7 +13,6 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- *
  * @author jiangdeming
  * @date 2019/12/2
  */
@@ -26,9 +25,9 @@ public class GraphConfQaController {
 
     @ApiOperation("图谱配置-问答-新建")
     @PostMapping("/qa/{kgName}")
-    public ApiReturn<List<GraphConfQaRsp>> save(@PathVariable("kgName") String kgName , @RequestBody @Valid List<GraphConfQaReq> req) {
+    public ApiReturn<List<GraphConfQaRsp>> save(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfQaReq> req) {
 
-        return ApiReturn.success(graphConfQaService.saveQa(kgName,req));
+        return ApiReturn.success(graphConfQaService.saveQa(kgName, req));
     }
 
 

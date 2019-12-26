@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.config.constant;
 
 /**
- *
  * @author jiangdeming
  * @date 2019/11/29
  */
@@ -20,7 +19,7 @@ public enum FocusType {
     private String code;
 
     FocusType(String code) {
-        this.code=code;
+        this.code = code;
     }
 
     public static FocusType findType(String dataType) {

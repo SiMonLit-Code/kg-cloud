@@ -17,7 +17,6 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- *
  * @author jiangdeming
  * @date 2019/12/3
  */
@@ -30,13 +29,13 @@ public class GraphConfStatisticalController {
 
     @ApiOperation("图谱配置-统计-新建")
     @PostMapping("/statistical/{kgName}")
-    public ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfStatisticalReq req) {
-        return ApiReturn.success(graphConfStatisticalService.createStatistical(kgName,req));
+    public ApiReturn<GraphConfStatisticalRsp> saveStatistical(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfStatisticalReq req) {
+        return ApiReturn.success(graphConfStatisticalService.createStatistical(kgName, req));
     }
 
     @ApiOperation("图谱配置-统计-批量新建")
     @PostMapping("/statistical/batch/save")
-    public ApiReturn<List<GraphConfStatisticalRsp>> saveStatisticalBatch( @RequestBody @Valid List<GraphConfStatisticalReq> listReq) {
+    public ApiReturn<List<GraphConfStatisticalRsp>> saveStatisticalBatch(@RequestBody @Valid List<GraphConfStatisticalReq> listReq) {
         return ApiReturn.success(graphConfStatisticalService.saveAll(listReq));
     }
 
@@ -48,7 +47,7 @@ public class GraphConfStatisticalController {
 
     @ApiOperation("图谱配置-统计-批量更新")
     @PutMapping("/statistical/batch/update")
-    public ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch( @RequestBody @Valid List<UpdateGraphConfStatisticalReq> reqs) {
+    public ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@RequestBody @Valid List<UpdateGraphConfStatisticalReq> reqs) {
         return ApiReturn.success(graphConfStatisticalService.updateAll(reqs));
     }
 
@@ -57,7 +56,7 @@ public class GraphConfStatisticalController {
     public ApiReturn deleteStatistical(@PathVariable("id") Long id) {
         graphConfStatisticalService.deleteStatistical(id);
         return ApiReturn.success();
-         }
+    }
 
     @ApiOperation("图谱配置-统计-批量删除")
     @PutMapping("/statistical/batch/delete")
@@ -74,7 +73,7 @@ public class GraphConfStatisticalController {
 
     @ApiOperation("图谱配置-统计-分页")
     @GetMapping("/config/statistical/page/{kgName}")
-    public ApiReturn<BasePage<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
-        return ApiReturn.success(graphConfStatisticalService.getByKgName(kgName,baseReq));
+    public ApiReturn<BasePage<GraphConfStatisticalRsp>> selectStatisticalPage(@PathVariable("kgName") String kgName, BaseReq baseReq) {
+        return ApiReturn.success(graphConfStatisticalService.getByKgName(kgName, baseReq));
     }
 }
