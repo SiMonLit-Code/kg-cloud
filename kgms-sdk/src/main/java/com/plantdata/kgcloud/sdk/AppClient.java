@@ -5,40 +5,42 @@ import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
-import com.plantdata.kgcloud.sdk.req.app.PromptReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
+import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
+import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
+import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -228,6 +230,16 @@ public interface AppClient {
                                                                  @RequestBody CommonTimingExploreReq exploreParam);
 
     /**
+     * 推理图探索
+     *
+     * @param kgName       kgName
+     * @param exploreParam param
+     * @return CommonBasicGraphExploreRsp
+     */
+    @PostMapping("reasoning/{kgName}")
+    ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@PathVariable("kgName") String kgName, @RequestBody CommonReasoningExploreReq exploreParam);
+
+    /**
      * gis图探索
      *
      * @param kgName       图谱名称
@@ -246,8 +258,8 @@ public interface AppClient {
      * @return 。。。
      */
     @PostMapping("graphExplore/gisLocus/{kgName}")
-    ApiReturn<GisGraphExploreRsp> graphLocusGis(@PathVariable("kgName") String kgName,
-                                                @RequestBody GisLocusReq locusGisParam);
+    ApiReturn<GisLocusAnalysisRsp> graphLocusGis(@PathVariable("kgName") String kgName,
+                                                 @RequestBody GisLocusReq locusGisParam);
 
     /**
      * 路径发现

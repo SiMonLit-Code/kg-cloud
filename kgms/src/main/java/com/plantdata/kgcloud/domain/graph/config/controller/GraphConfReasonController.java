@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfReasonService;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 /**
- *
  * @author jdm
  * @date 2019/12/9 16:10
  */
@@ -29,15 +29,15 @@ public class GraphConfReasonController {
 
     @ApiOperation("图谱配置-推理-新增")
     @PostMapping("/reason/{kgName}")
-    public ApiReturn<GraphConfReasonRsp> saveReasoning(@PathVariable("kgName") String kgName , @RequestBody @Valid GraphConfReasonReq req) {
-        return ApiReturn.success(graphConfReasoningService.createReasoning(kgName,req));
+    public ApiReturn<GraphConfReasonRsp> saveReasoning(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfReasonReq req) {
+        return ApiReturn.success(graphConfReasoningService.createReasoning(kgName, req));
     }
 
 
     @ApiOperation("图谱配置-推理-分页")
     @GetMapping("/reason/page/{kgName}")
-    public ApiReturn<Page<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName , BaseReq baseReq) {
-        return ApiReturn.success(graphConfReasoningService.getByKgName(kgName,baseReq));
+    public ApiReturn<BasePage<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName, BaseReq baseReq) {
+        return ApiReturn.success(graphConfReasoningService.getByKgName(kgName, baseReq));
     }
 
     @ApiOperation("图谱配置-推理-详情")

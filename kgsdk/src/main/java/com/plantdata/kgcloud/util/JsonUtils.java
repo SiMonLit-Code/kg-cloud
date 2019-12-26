@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -23,6 +24,12 @@ public class JsonUtils {
             }
         }
         return null;
+    }
+
+
+    public static Map<String, Object> stringToMap(String json) {
+        return JsonUtils.jsonToObj(json, new TypeReference<Map<String, Object>>() {
+        });
     }
 
     public static <T> List<T> jsonToList(String jsonString, Class<T> clazz) {

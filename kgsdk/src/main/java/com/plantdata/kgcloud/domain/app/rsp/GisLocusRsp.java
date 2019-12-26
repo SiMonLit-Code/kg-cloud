@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.rsp;
 
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GisEntityRsp;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 public class GisLocusRsp {
     private List<GisLocusRelationVO> relationList;
-    private List<GisLocusRsp> entityList;
+    private List<GisEntityRsp> entityList;
     private Integer level1HasNextPage;
 
     @Getter

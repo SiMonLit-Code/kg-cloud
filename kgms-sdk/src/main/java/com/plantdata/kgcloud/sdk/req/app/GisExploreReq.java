@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
-import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,5 +30,5 @@ public class GisExploreReq {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String toTime;
     @ApiModelProperty("分页")
-    private BaseReq page;
+    private PageReq page;
 }

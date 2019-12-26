@@ -15,6 +15,7 @@ import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.req.KgmsCallReq;
+import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.req.WordReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DictionaryRsp;
@@ -242,7 +243,6 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-算法-详情
-     * todo->cjw
      * @param id
      * @return
      */
@@ -375,7 +375,7 @@ public interface KgmsClient {
      * @return
      */
     @PutMapping("/config/statistical/batch/update")
-    ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@RequestBody @Valid List<GraphConfStatisticalReq> reqs);
+    ApiReturn<List<GraphConfStatisticalRsp>> updateStatisticalBatch(@RequestBody @Valid List<UpdateGraphConfStatisticalReq> reqs);
 
     /**
      * 图谱配置-统计-删除
@@ -406,7 +406,6 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-统计-分页
-     *todo->cjw
      * @param kgName
      * @param baseReq
      * @return

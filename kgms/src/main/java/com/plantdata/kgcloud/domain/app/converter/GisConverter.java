@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
@@ -35,7 +36,7 @@ public class GisConverter extends BasicConverter {
         gisFrom.setGisConceptIds(exploreReq.getConceptIds());
         gisFrom.setGisFilter(exploreReq.getGisFilters());
         gisFrom.setInherit(exploreReq.getIsInherit());
-        BaseReq page = exploreReq.getPage();
+        PageReq page = exploreReq.getPage();
         if (null != page) {
             gisFrom.setSkip(page.getOffset());
             gisFrom.setLimit(page.getLimit());
@@ -44,13 +45,13 @@ public class GisConverter extends BasicConverter {
     }
 
     public static GisLocusParam reqToParam(GisLocusReq req) {
-        BaseReq page = req.getPage();
+        PageReq page = req.getPage();
         GisLocusParam gisLocusParam = new GisLocusParam();
         gisLocusParam.setFromTime(req.getFromTime());
         gisLocusParam.setToTime(req.getToTime());
         gisLocusParam.setGisFilters(req.getGisFilters());
         if (page == null) {
-            page = new BaseReq();
+            page = new PageReq();
             page.setPage(0);
             page.setSize(10);
         }

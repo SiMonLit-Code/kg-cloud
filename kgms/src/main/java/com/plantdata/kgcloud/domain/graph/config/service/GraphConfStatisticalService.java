@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
@@ -9,7 +10,6 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 /**
- *
  * @author jiangdeming
  * @date 2019/12/3
  */
@@ -26,16 +26,16 @@ public interface GraphConfStatisticalService {
 
     /**
      * 批量创建
+     *
      * @param listReq
      * @return
      */
     List<GraphConfStatisticalRsp> saveAll(List<GraphConfStatisticalReq> listReq);
 
 
-
-
     /**
      * 修改统计
+     *
      * @param id
      * @param req
      * @return
@@ -44,12 +44,12 @@ public interface GraphConfStatisticalService {
 
     /**
      * 批量修改
+     *
      * @param
      * @param reqs
      * @return
      */
-    List<GraphConfStatisticalRsp> updateAll( List<UpdateGraphConfStatisticalReq> reqs);
-
+    List<GraphConfStatisticalRsp> updateAll(List<UpdateGraphConfStatisticalReq> reqs);
 
 
     /**
@@ -77,9 +77,10 @@ public interface GraphConfStatisticalService {
 
     /**
      * 分页
+     *
      * @param kgName
      * @param baseReq
      * @return
      */
-    Page<GraphConfStatisticalRsp> getByKgName(String kgName , BaseReq baseReq);
+    BasePage<GraphConfStatisticalRsp> getByKgName(String kgName, BaseReq baseReq);
 }

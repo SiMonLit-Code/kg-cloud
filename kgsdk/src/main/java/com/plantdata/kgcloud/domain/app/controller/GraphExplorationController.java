@@ -1,16 +1,19 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
-import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
+import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.rsp.GisLocusRsp;
 import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
+import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
+import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
-import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +64,12 @@ public class GraphExplorationController implements GraphApplicationInterface {
         return appClient.timingGraphExploration(kgName, exploreParam);
     }
 
+    @ApiOperation("推理图探索")
+    @PostMapping("reasoning/{kgName}")
+    public ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@PathVariable("kgName") String kgName, @RequestBody CommonReasoningExploreReq exploreParam) {
+        return appClient.reasoningGraphExploration(kgName, exploreParam);
+    }
+
     @ApiOperation("gis图探索")
     @PostMapping("gis/{kgName}")
     public ApiReturn<GisGraphExploreRsp> gisGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
@@ -70,8 +79,8 @@ public class GraphExplorationController implements GraphApplicationInterface {
 
     @ApiOperation("轨迹分析")
     @PostMapping("gisLocus/{kgName}")
-    public ApiReturn<GisGraphExploreRsp> graphLocusGis(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                       @RequestBody GisLocusReq locusGisParam) {
+    public ApiReturn<GisLocusAnalysisRsp> graphLocusGis(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                        @RequestBody GisLocusReq locusGisParam) {
         return appClient.graphLocusGis(kgName, locusGisParam);
     }
 }

@@ -20,10 +20,11 @@ public interface GraphConfKgqlService {
      * @param kgName
      * @return
      */
-    GraphConfKgqlRsp createKgql(String kgName,GraphConfKgqlReq req);
+    GraphConfKgqlRsp createKgql(String kgName, GraphConfKgqlReq req);
 
     /**
      * 修改kgql业务
+     *
      * @param id
      * @param req
      * @return
@@ -40,16 +41,18 @@ public interface GraphConfKgqlService {
 
     /**
      * 分页
+     *
      * @param kgName
      * @param ruleType
      * @param baseReq
      * @return
      */
-    Page<GraphConfKgqlRsp> findByKgNameAndRuleType(String kgName ,Integer ruleType, BaseReq baseReq );
+    Page<GraphConfKgqlRsp> findByKgNameAndRuleType(String kgName, Integer ruleType, BaseReq baseReq);
 
 
     /**
      * 根据id查询详情
+     *
      * @param id
      * @return
      */

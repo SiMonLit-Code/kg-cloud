@@ -17,6 +17,7 @@ public interface GraphConfStatisticalRepository extends JpaRepository<GraphConfS
 
     /**
      * 查询
+     *
      * @param kgName
      * @return
      */
@@ -24,12 +25,12 @@ public interface GraphConfStatisticalRepository extends JpaRepository<GraphConfS
 
     /**
      * 分页
+     *
      * @param kgName
      * @param pageable
      * @return
      */
     Page<GraphConfStatistical> getByKgName(String kgName, Pageable pageable);
-
 
 
 }
