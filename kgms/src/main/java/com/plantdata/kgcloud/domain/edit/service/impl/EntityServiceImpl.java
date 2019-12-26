@@ -249,14 +249,16 @@ public class EntityServiceImpl implements EntityService {
     public void updateEntityTime(String kgName, Long entityId, EntityTimeModifyReq entityTimeModifyReq) {
 
         Map<String, Object> metadata = new HashMap<>();
-        if (Objects.nonNull(entityTimeModifyReq.getFromTime())) {
-            metadata.put(MetaDataInfo.FROM_TIME.getFieldName(), entityTimeModifyReq.getFromTime());
+        String fromTime = entityTimeModifyReq.getFromTime();
+        if (StringUtils.hasText(fromTime)) {
+            metadata.put(MetaDataInfo.FROM_TIME.getFieldName(), fromTime);
         }
 
-        if (Objects.nonNull(entityTimeModifyReq.getToTime())) {
-            metadata.put(MetaDataInfo.TO_TIME.getFieldName(), entityTimeModifyReq.getToTime());
+        String toTime = entityTimeModifyReq.getToTime();
+        if (StringUtils.hasText(toTime)) {
+            metadata.put(MetaDataInfo.TO_TIME.getFieldName(), toTime);
         }
-        if (entityTimeModifyReq.getFromTime().compareTo(entityTimeModifyReq.getToTime()) > 0) {
+        if (StringUtils.hasText(fromTime) && StringUtils.hasText(toTime) && fromTime.compareTo(toTime) > 0) {
             throw BizException.of(KgmsErrorCodeEnum.TIME_FORM_MORE_THAN_TO);
         }
         conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
