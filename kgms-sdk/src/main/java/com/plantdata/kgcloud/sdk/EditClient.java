@@ -8,6 +8,8 @@ import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.sdk.req.edit.BatchPrivateRelationReq;
+import com.plantdata.kgcloud.sdk.req.edit.PrivateAttrDataReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
@@ -165,7 +167,8 @@ public interface EditClient {
      * @return .
      */
     @PatchMapping("attribute/relation/update/{kgName}")
-    ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName, @RequestBody List<RelationUpdateReq> list);
+    ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
+                                                       @RequestBody List<RelationUpdateReq> list);
 
 
     /**
@@ -196,7 +199,8 @@ public interface EditClient {
      * @return 。
      */
     @PostMapping("entity/{kgName}")
-    ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName, @RequestParam(value = "add", required = false) boolean add,
+    ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName,
+                                                                    @RequestParam(value = "add", required = false) boolean add,
                                                                     @RequestBody List<OpenBatchSaveEntityRsp> batchEntity);
 
     /**
@@ -207,6 +211,27 @@ public interface EditClient {
      * @return ..
      */
     @PostMapping("attribute/relation/search/{kgName}")
-    ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName, @RequestBody EdgeSearchReq queryReq);
+    ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName,
+                                                       @RequestBody EdgeSearchReq queryReq);
 
+    /**
+     * 实体-私有属性-添加私有数值或对象属性值
+     *
+     * @param kgName
+     * @param privateAttrDataReq
+     * @return
+     */
+    @PostMapping("entity/{kgName}/private/data")
+    ApiReturn addPrivateData(@PathVariable("kgName") String kgName, @RequestBody PrivateAttrDataReq privateAttrDataReq);
+
+    /**
+     * 实体-私有关系-批量添加私有对象属性值
+     *
+     * @param kgName
+     * @param batchPrivateRelationReq
+     * @return
+     */
+    @PostMapping("entity/{kgName}/batch/object/add")
+    ApiReturn<List<String>> batchAddPrivateRelation(@PathVariable("kgName") String kgName,
+                                                    @RequestBody BatchPrivateRelationReq batchPrivateRelationReq);
 }

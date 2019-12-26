@@ -1,10 +1,11 @@
-package com.plantdata.kgcloud.domain.edit.req.entity;
+package com.plantdata.kgcloud.sdk.req.edit;
 
-import ai.plantdata.kg.api.edit.validator.TypeRange;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -23,7 +24,8 @@ public class PrivateAttrDataReq {
 
     @ApiModelProperty(value = "0：数值，1：对象", allowableValues = "0,1")
     @NotNull
-    @TypeRange
+    @Min(value = 0, message = "数值属性类型")
+    @Max(value = 1, message = "对象属性类型")
     private Integer type;
 
     @NotEmpty
