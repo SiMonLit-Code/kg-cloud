@@ -39,9 +39,4 @@ public class GeneralGraphParameter extends AbstrackGraphParameter {
     private Integer pageSize = 10;
 
 
-    @Override
-    public List<Long> getIdList() {
-        return Lists.newArrayList(getId());
-    }
-
 }

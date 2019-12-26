@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.Min;
+
 /**
  * @author cjw
  * @version 1.0
@@ -18,8 +20,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PageReq {
     @ApiParam("查询第几页,默认从1开始")
+    @Min(1)
     protected Integer page;
-    @ApiParam("每页记录数，默认10条")
+    @ApiParam("每页记录数，默认10条 page=1 size=-1 查询全部")
     protected Integer size;
 
     @JsonIgnore
@@ -39,6 +42,12 @@ public class PageReq {
     }
 
     public Integer getSize() {
-        return this.size != null && this.size > 0 ? this.size : 10;
+        if (this.size != null && this.size > 0) {
+            return this.size;
+        }
+        if (this.size != null && this.size == -1) {
+            return Integer.MAX_VALUE - 1;
+        }
+        return 10;
     }
 }

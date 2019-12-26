@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBean;
 import io.swagger.annotations.ApiOperation;
@@ -51,10 +52,23 @@ public class NlpController implements NaturalLanguageProcessingInterface {
         return nlpClient.tagging(kgName, linkingFrom);
     }
 
+    @ApiOperation("图谱实体识别")
+    @PostMapping("ner/graph/{kgName}")
+    public ApiReturn<List<SegmentEntityRsp>> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                      @RequestBody SegmentReq segmentReq) {
+        return nlpClient.nerGraph(kgName, segmentReq);
+    }
+
     @ApiOperation("命名实体识别")
     @PostMapping("ner")
     public ApiReturn<List<NerResultRsp>> namedEntityRecognition(@RequestBody NerReq nerReq) {
         return nlpClient.namedEntityRecognition(nerReq);
+    }
+
+    @ApiOperation("中文命名实体识别")
+    @PostMapping("ner/chinese")
+    public ApiReturn<Map<String, List<String>>> ner(@ApiParam(required = true) @RequestParam("input") String input) {
+        return ApiReturn.success(hanLPService.ner(input));
     }
 
     @ApiOperation("图谱分词")
@@ -111,11 +125,6 @@ public class NlpController implements NaturalLanguageProcessingInterface {
         return ApiReturn.success(hanLPService.pos(input));
     }
 
-    @ApiOperation("中文命名实体识别")
-    @PostMapping("ner/chinese")
-    public ApiReturn<Map<String, List<String>>> ner(@ApiParam(required = true) @RequestParam("input") String input) {
-        return ApiReturn.success(hanLPService.ner(input));
-    }
 
     @ApiOperation("短语提取")
     @PostMapping("extract/phrase")

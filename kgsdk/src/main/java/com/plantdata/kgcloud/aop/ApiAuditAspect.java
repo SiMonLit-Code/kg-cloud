@@ -63,7 +63,7 @@ public class ApiAuditAspect {
             status = ApiAuditStatusEnum.INVOKE_FAILURE;
             throw throwable;
         } finally {
-           kafkaMessageProducer.sendMessage(topicApiAudit, new ApiAuditMessage(kgName, page, uri, status));
+            kafkaMessageProducer.sendMessage(topicApiAudit, new ApiAuditMessage(kgName, page, uri, status));
         }
     }
 }

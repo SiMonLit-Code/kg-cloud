@@ -18,6 +18,5 @@ public class TaggingItemRsp {
     private String name;
     private Double score;
     private Long classId;
-    private Set<String> refs;
 
 }

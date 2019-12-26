@@ -5,6 +5,8 @@ import ai.plantdata.kg.api.pub.SemanticApi;
 import ai.plantdata.kg.api.pub.req.SemanticSegFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.SemanticSegWordVO;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hiekn.ierule.service.RuleModelService;
@@ -14,7 +16,7 @@ import com.hiekn.pddocument.bean.element.PdEntity;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.SegmentConverter;
-import com.plantdata.kgcloud.domain.app.dto.SegmentEntityDTO;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.domain.app.service.NlpService;
 import com.plantdata.kgcloud.domain.app.util.HanLPUtil;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
@@ -28,8 +30,11 @@ import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -105,10 +110,9 @@ public class NlpServiceImpl implements NlpService {
         }
         return resultList;
     }
-
     @Override
     public List<GraphSegmentRsp> graphSegment(String kgName, SegmentReq segmentReq) {
-        List<SegmentEntityDTO> list = segment(kgName, segmentReq);
+        List<SegmentEntityRsp> list = segment(kgName, segmentReq);
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
@@ -163,7 +167,8 @@ public class NlpServiceImpl implements NlpService {
                 .map(EntityConverter::pdEntityToNamedEntityRsp).collect(Collectors.toList());
     }
 
-    private List<SegmentEntityDTO> segment(String kgName, SegmentReq segmentReq) {
+    @Override
+    public List<SegmentEntityRsp> segment(String kgName, SegmentReq segmentReq) {
         SemanticSegFrom semanticSegFrom = SegmentConverter.segmentReqToSemanticSegFrom(segmentReq);
 
         Optional<List<SemanticSegWordVO>> segWordOpt = RestRespConverter.convert(semanticApi.seg(KGUtil.dbName(kgName), semanticSegFrom));
@@ -192,9 +197,100 @@ public class NlpServiceImpl implements NlpService {
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return Collections.emptyList();
         }
-        List<SegmentEntityDTO> segmentEntityList = SegmentConverter.entityVoToSegmentEntityDto(entityOpt.get(), scoreMap, wordMap);
-        segmentEntityList.sort(Comparator.comparing(SegmentEntityDTO::getScore));
+        List<SegmentEntityRsp> segmentEntityList = SegmentConverter.entityVoToSegmentEntityDto(entityOpt.get(), scoreMap, wordMap);
+        segmentEntityList.sort(Comparator.comparing(SegmentEntityRsp::getScore));
         return segmentEntityList;
 
     }
+
+//    @Override
+//    public List<Map<String, Object>> segmentIK(SegmentIkParameter segmentIkParameter) {
+//        Integer mode = segmentIkParameter.getMode();
+//        Boolean abandonRepeat = segmentIkParameter.getAbandonRepeat();
+//        Boolean abandonSingle = segmentIkParameter.getAbandonSingle();
+//        String kw = segmentIkParameter.getKw();
+//        String ik_mode = mode == 0 ? "ik_max_word" : "ik_smart";
+//
+//        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+//        paramMap.add("text", kw);
+//        paramMap.add("analyzer", ik_mode);
+//
+//        //  String url = "http://" + constants.cloudEsIp + ":" + constants.cloudEsRestPort + "/_analyze";
+//        String url = null;
+//        String rs = HttpUtils.getForObject(url, paramMap, String.class);
+//
+//        JSONObject rsJsonObject = JSONObject.parseObject(rs);
+//
+//        JSONArray tokens = rsJsonObject.getJSONArray("tokens");
+//
+//        if (tokens.size() == 0) {
+//            return new ArrayList<>();
+//        }
+//
+//
+//        /**
+//         * 开始处理单字
+//         */
+//
+//        if (abandonSingle) {
+//
+//            boolean tokensMoreThanSingleWord = false;
+//
+//            for (int i = 0; i < tokens.size(); i++) {
+//                if (tokens.getJSONObject(i).size() > 1) {
+//                    tokensMoreThanSingleWord = true;
+//                    break;
+//                }
+//            }
+//
+//            //干掉单字
+//            if (tokensMoreThanSingleWord) {
+//                for (int i = 0; i < tokens.size(); i++) {
+//                    if (tokens.getJSONObject(i).getString("token").length() <= 1) {
+//                        tokens.remove(i);
+//                        i--;
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//        //处理重复
+//        if (abandonRepeat) {
+//
+//            for (int i = 0; i < tokens.size(); i++) {
+//
+//                String firstToken = tokens.getJSONObject(i).getString("token");
+//
+//                for (int j = 0; i != j && j < tokens.size(); j++) {
+//
+//                    String secondToken = tokens.getJSONObject(j).getString("token");
+//
+//                    if (secondToken.contains(firstToken)) {
+//                        tokens.remove(i);
+//                        i--;
+//                    }
+//                }
+//            }
+//        }
+//
+//        //处理用户输入相关性
+//        List<String> userInputWords = Arrays.asList(kw.split(" "));
+//        List<Map<String, Object>> rsList = Lists.newArrayList();
+//
+//        for (int i = 0; i < tokens.size(); i++) {
+//            JSONObject token = tokens.getJSONObject(i);
+//            String name = token.getString("token");
+//            String type = token.getString("type");
+//            Boolean userinput = userInputWords.contains(name);
+//
+//            Map<String, Object> map = Maps.newHashMap();
+//            map.put("name", name);
+//            map.put("type", type);
+//            map.put("userinput", userinput);
+//            rsList.add(map);
+//        }
+//
+//        return rsList;
+//    }
 }

@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
  * 普通图探索类
+ * @author Administrator
  */
 @Data
 @Builder
@@ -30,13 +31,7 @@ public class RelationGraphParameter extends AbstrackGraphParameter implements St
     @NotNull
     @ListLengthCheck(min = 2)
     private List<Long> ids;
-
     private List<GraphStatBean> statsConfig;
-
-    @Override
-    public List<Long> getIdList() {
-        return getIds();
-    }
 
 
 }

@@ -221,6 +221,7 @@ public class InfoBoxConverter extends BasicConverter {
         entityRsp.setId(basicInfo.getId());
         entityRsp.setName(basicInfo.getName());
         entityRsp.setMeaningTag(basicInfo.getMeaningTag());
+        entityRsp.setImageUrl(basicInfo.getImageUrl());
         return entityRsp;
     }
 }

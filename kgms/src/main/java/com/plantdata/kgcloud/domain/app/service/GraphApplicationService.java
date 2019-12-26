@@ -1,18 +1,21 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
-import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
+import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -51,6 +54,14 @@ public interface GraphApplicationService {
      * @return result
      */
     BasicConceptTreeRsp visualModels(String kgName, boolean display, Long conceptId);
+
+    /**
+     * 分页查询所有图谱
+     *
+     * @param pageReq 分页参数
+     * @return 。
+     */
+    PageRsp<ApkRsp> listAllGraph(PageReq pageReq);
 
     /**
      * 初始化图探索

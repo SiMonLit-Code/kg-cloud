@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.MongoQueryConverter;
@@ -29,11 +31,13 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -42,7 +46,7 @@ import java.util.List;
  */
 public class ExploreCommonConverter extends BasicConverter {
 
-    static <T extends GraphEntityRsp> EntityBean entityBeanToCommonEntityRsp(T newEntity) {
+    static <T extends GraphEntityRsp> EntityBean entityBeanToGraphEntityRsp(T newEntity) {
         EntityBean oldEntity = new EntityBean();
         oldEntity.setId(newEntity.getId());
         oldEntity.setName(newEntity.getName());
@@ -86,6 +90,12 @@ public class ExploreCommonConverter extends BasicConverter {
         exploreReq.setToTime(stringToDate(timeFilter.getToTime()));
         consumerIfNoNull(timeFilter.getSort(), a -> exploreReq.setSort(a.getDesc()));
         return exploreReq;
+    }
+
+    static Map<Integer, Object> buildReasonConfig(Map<Integer, JSONObject> config) {
+        String configJson = JacksonUtils.writeValueAsString(config);
+        return JacksonUtils.readValue(configJson, new TypeReference<Map<Integer, Object>>() {
+        });
     }
 
     static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReq> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {
@@ -141,12 +151,12 @@ public class ExploreCommonConverter extends BasicConverter {
     }
 
     private static EntityBean entityBeanToCommonEntityRsp(CommonEntityRsp newEntity) {
-        EntityBean oldEntity = entityBeanToCommonEntityRsp(newEntity);
+        EntityBean oldEntity = entityBeanToGraphEntityRsp(newEntity);
         oldEntity.setTags(listToRsp(newEntity.getTags(), a -> copy(a, Tag.class)));
         Additional additional = new Additional();
-        //暂时不管
+        ///暂时不管
         //additional.setColor(newEntity);
-        ///additional.setIsOpenGis();
+        //additional.setIsOpenGis();
         oldEntity.setAdditionalInfo(additional);
         return oldEntity;
     }
