@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.bean.EntityLink;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameter;
+import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameterMore;
 import com.plantdata.kgcloud.plantdata.req.common.DataLinks;
 import com.plantdata.kgcloud.plantdata.req.common.ExtraKVBean;
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
@@ -14,6 +15,7 @@ import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.EntityLinksBean;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
@@ -37,6 +39,15 @@ public class InfoBoxConverter extends BasicConverter {
         infoBoxReq.setId(infoBoxParam.getId());
         infoBoxReq.setRelationAttrs(infoBoxParam.getIsRelationAtts());
         infoBoxReq.setAllowAttrsKey(infoBoxParam.getAllowAttsKey());
+        return infoBoxReq;
+    }
+
+    public static BatchInfoBoxReq infoBoxParameterMoreToBatchInfoBoxReq(@NonNull InfoBoxParameterMore parameterMore) {
+        BatchInfoBoxReq infoBoxReq = new BatchInfoBoxReq();
+        infoBoxReq.setAllowAttrs(parameterMore.getAllowAtts());
+        infoBoxReq.setAllowAttrsKey(parameterMore.getAllowAttsKey());
+        infoBoxReq.setRelationAttrs(parameterMore.getIsRelationAtts());
+        infoBoxReq.setEntityIdList(parameterMore.getIds());
         return infoBoxReq;
     }
 

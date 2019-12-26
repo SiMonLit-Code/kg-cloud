@@ -86,7 +86,7 @@ public class BasicConverter {
         return CollectionUtils.isEmpty(data) ? Collections.emptyList() : listConvert(data, function);
     }
 
-    private static <T> Optional<T> apiReturnData(ApiReturn<T> apiReturn) {
+    public static <T> Optional<T> apiReturnData(ApiReturn<T> apiReturn) {
         if (SUCCESS != (apiReturn.getErrCode())) {
             //todo
             throw new BizException(apiReturn.getErrCode(), apiReturn.getMessage());

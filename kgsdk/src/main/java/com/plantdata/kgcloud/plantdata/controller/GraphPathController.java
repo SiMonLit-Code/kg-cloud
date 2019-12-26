@@ -110,4 +110,33 @@ public class GraphPathController implements SdkOldApiInterface {
                 .apply(generalGraphParameter);
         return new RestResp<>(graphBean);
     }
+
+    @ApiOperation("最短路径发现")
+    @PostMapping("path/shortest")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "start", required = true, dataType = "long", paramType = "form", value = "开始实体id"),
+            @ApiImplicitParam(name = "end", required = true, dataType = "long", paramType = "form", value = "结束实体id"),
+            @ApiImplicitParam(name = "distance", dataType = "int", paramType = "form", value = "查询层数"),
+            @ApiImplicitParam(name = "replaceClassIds", dataType = "strng", paramType = "form", value = "需要被替换后的classId列表，格式为json数组。"),
+            @ApiImplicitParam(name = "isRelationMerge", dataType = "boolean", paramType = "form", value = "同节点的关系是否进行合并"),
+            @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "查询指定的属性，格式为json数组，默认为查询全部"),
+            @ApiImplicitParam(name = "allowTypes", dataType = "string", paramType = "form", value = "查询指定的概念，格式为json数组，默认为查询全部"),
+            @ApiImplicitParam(name = "replaceClassIdsKey", dataType = "strng", paramType = "form", value = "replaceClassIds为空时生效"),
+            @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts为空时生效"),
+            @ApiImplicitParam(name = "allowTypesKey", dataType = "string", paramType = "form", value = "allowTypes为空时生效"),
+            @ApiImplicitParam(name = "privateAttRead", dataType = "boolean", paramType = "form", value = "是否读取私有属性，默认读取"),
+            @ApiImplicitParam(name = "allowAttrGroups", dataType = "string", paramType = "form", value = "查询指定的属性分组，格式为json数组"),
+            @ApiImplicitParam(name = "entityQuery", dataType = "string", paramType = "form", value = "实体节点过滤"),
+            @ApiImplicitParam(name = "graphBean", dataType = "string", paramType = "form", value = "后置筛选"),
+            @ApiImplicitParam(name = "attAttFilters", dataType = "string", paramType = "form", value = "边附加属性过滤条件，格式 [{\"attrId\":\"数值属性id\",\"seqNo\":\"边数值属性id\",\"$eq\":\"字段全匹配\"},{\"attrId\":\"数值属性id\",\"SeqNo\":\"边数值属性id\",\"$gt\":\"大于\",\"$lt\":\"小于\"}]"),
+            @ApiImplicitParam(name = "reservedAttFilters", dataType = "string", paramType = "form", value = "保留属性过滤条件，seqNo说明：3.权重，11.来源，12.置信度，13.批次号，15，自定义名称。格式 [{\"seqNo\":\"边数值属性id\",\"$eq\":\"字段全匹配\"},{\"seqNo\":\"边数值属性id\",\"$gt\":\"大于\",\"$lt\":\"小于\"}]"),
+            @ApiImplicitParam(name = "isInherit", dataType = "boolean", paramType = "form", value = "allowTypes字段指定的概念是否继承"),
+            @ApiImplicitParam(name = "statsConfig", dataType = "string", paramType = "form", value = "统计，统计节点的关系数量，默认为不进行图统计。"),
+    })
+    public RestResp<GraphBean> pathShortest(@Valid @ApiIgnore PathGraphParameter param) {
+        param.setIsShortest(true);
+        return path(param);
+    }
+
 }

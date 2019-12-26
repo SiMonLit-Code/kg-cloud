@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
@@ -18,6 +17,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.common.GraphBean;
 import com.plantdata.kgcloud.plantdata.req.explore.path.PathGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.path.TimePathGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.relation.RelationGraphParameter;
+import com.plantdata.kgcloud.plantdata.req.explore.relation.RuleRelationGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.relation.TimeRelationGraphParameter;
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
@@ -35,7 +36,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CoordinateReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -92,12 +92,7 @@ public class ExploreReqConverter extends BasicConverter {
     public static CommonReasoningExploreReq ruleGeneralGraphParameterToCommonReasoningExploreReq(RuleGeneralGraphParameter param) {
         CommonReasoningExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonReasoningExploreReq());
         exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
-        consumerIfNoNull(param.getReasoningRuleConfigs(), a -> {
-            String configJson = JacksonUtils.writeValueAsString(param.getReasoningRuleConfigs());
-            Map<Integer, Object> configMap = JacksonUtils.readValue(configJson, new TypeReference<Map<Integer, Object>>() {
-            });
-            exploreReq.setReasoningRuleConfigs(configMap);
-        });
+        consumerIfNoNull(param.getReasoningRuleConfigs(), a -> exploreReq.setReasoningRuleConfigs(ExploreCommonConverter.buildReasonConfig(a)));
         return exploreReq;
     }
 
@@ -110,7 +105,7 @@ public class ExploreReqConverter extends BasicConverter {
     public static RelationReqAnalysisReq generalGraphParameterToRelationReqAnalysisReq(RelationGraphParameter param) {
         RelationReqAnalysisReq pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationReqAnalysisReq());
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
-        pathAnalysisReq.setConfigList(listToRsp(param.getStatsConfig(), ExploreCommonConverter::graphStatBeanToBasicStatisticReq));
+        consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(listToRsp(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
         return pathAnalysisReq;
     }
 
@@ -123,11 +118,24 @@ public class ExploreReqConverter extends BasicConverter {
     public static RelationTimingAnalysisReq timeRelationGraphParameterToRelationTimingAnalysisReq(TimeRelationGraphParameter param) {
         RelationTimingAnalysisReq pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationTimingAnalysisReq());
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
-        pathAnalysisReq.setConfigList(listToRsp(param.getStatsConfig(), ExploreCommonConverter::graphStatBeanToBasicStatisticReq));
-        pathAnalysisReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(param));
+        consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(listToRsp(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
+        consumerIfNoNull(param, a -> pathAnalysisReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(a)));
         return pathAnalysisReq;
     }
 
+    /**
+     * 关联推理转换
+     *
+     * @param param RuleRelationGraphParameter
+     * @return RelationReasoningAnalysisReq
+     */
+    public static RelationReasoningAnalysisReq ruleRelationGraphParameterToRelationReasoningAnalysisReq(RuleRelationGraphParameter param) {
+        RelationReasoningAnalysisReq pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationReasoningAnalysisReq());
+        pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
+        consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(listToRsp(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
+        consumerIfNoNull(param.getReasoningRuleConfigs(), a -> pathAnalysisReq.setReasoningRuleConfigs(ExploreCommonConverter.buildReasonConfig(a)));
+        return pathAnalysisReq;
+    }
 
     /**
      * 路径发现
@@ -243,7 +251,6 @@ public class ExploreReqConverter extends BasicConverter {
         }
         return entityRsp;
     }
-
 
 
     private static TagRsp tagToTagRsp(Tag tag) {

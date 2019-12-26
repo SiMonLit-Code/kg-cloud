@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
@@ -151,8 +152,8 @@ public interface AppClient {
      * @return ApkRsp
      */
     @GetMapping("kgName/all")
-    ApiReturn<List<ApkRsp>> getKgName(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-                                      @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
+    ApiReturn<PageRsp<ApkRsp>> getKgName(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                         @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
 
     /**
      * 实体下拉提示

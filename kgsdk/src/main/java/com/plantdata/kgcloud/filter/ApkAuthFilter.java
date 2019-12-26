@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.filter;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.config.CurrentUser;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.sdk.SsoClient;
 import com.plantdata.kgcloud.sdk.rsp.LoginRsp;
@@ -31,7 +32,6 @@ public class ApkAuthFilter extends OncePerRequestFilter {
 
     private AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    public static final String ADMIN_APK = "03c7a9376254ebb8a6b27706194";
 
 
     private static final List<String> ROBOT_ALLOW_PATHS = Lists.newArrayList("graphExplore/common/**",
@@ -63,13 +63,12 @@ public class ApkAuthFilter extends OncePerRequestFilter {
             return;
         }
         //非管理员需要登录(兼容旧接口)
-        if (!ADMIN_APK.equals(apk)) {
-            Optional<LoginRsp> loginOpt = login(apk, httpServletResponse);
-            if (!loginOpt.isPresent()) {
-                return;
-            }
-            SessionHolder.setUserId(loginOpt.get().getToken());
+        Optional<LoginRsp> loginOpt = login(apk, httpServletResponse);
+        if (!loginOpt.isPresent()) {
+            return;
         }
+        CurrentUser.setAdmin(loginOpt.get().isAdmin());
+        SessionHolder.setUserId(loginOpt.get().getToken());
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 

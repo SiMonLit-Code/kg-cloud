@@ -2,12 +2,8 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
-import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
-import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
-import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
-import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
@@ -19,6 +15,7 @@ import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
@@ -55,8 +52,7 @@ public class GraphApplicationController implements GraphAppInterface {
     private GraphApplicationService graphApplicationService;
     @Autowired
     private GraphPromptService graphPromptService;
-    @Autowired
-    private GraphRepository graphRepository;
+
 
     @ApiOperation("获取当前图实体类型及属性类型的schema")
     @GetMapping("schema/{kgName}")
@@ -109,10 +105,9 @@ public class GraphApplicationController implements GraphAppInterface {
 
     @ApiOperation("获取所有图谱名称")
     @GetMapping("kgName/all")
-    public ApiReturn<List<ApkRsp>> getKgName(PageReq pageReq) {
-        List<Graph> all = graphRepository.findAll();
-        //todo 根据userId查询所有apk
-        return ApiReturn.success(BasicConverter.listToRsp(all, a -> ApkConverter.graphRspToApkRsp(a, null)));
+    public ApiReturn<PageRsp<ApkRsp>> getKgName(PageReq pageReq) {
+        PageRsp<ApkRsp> pageRsp = graphApplicationService.listAllGraph(pageReq);
+        return ApiReturn.success(pageRsp);
     }
 
 

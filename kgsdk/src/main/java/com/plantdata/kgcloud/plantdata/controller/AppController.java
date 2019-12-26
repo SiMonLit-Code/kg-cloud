@@ -2,9 +2,9 @@ package com.plantdata.kgcloud.plantdata.controller;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.config.CurrentUser;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.filter.ApkAuthFilter;
 import com.plantdata.kgcloud.plantdata.converter.app.AppConverter;
 import com.plantdata.kgcloud.plantdata.converter.app.InfoBoxConverter;
 import com.plantdata.kgcloud.plantdata.converter.app.PromptConverter;
@@ -35,6 +35,7 @@ import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
@@ -122,13 +123,11 @@ public class AppController implements SdkOldApiInterface {
     })
     public RestResp<List<EntityProfileBean>> infoBoxMore(@Valid @ApiIgnore InfoBoxParameterMore param) {
         Function<BatchInfoBoxReq, ApiReturn<List<InfoBoxRsp>>> returnFunction = a -> appClient.listInfoBox(param.getKgName(), a);
-        ///todo 12-25
-        List<EntityProfileBean> profileBeanList = null;
-//        returnFunction
-//                .compose()
-//                .andThen()
-//                .apply(param);
-        return new RestResp<>(profileBeanList);
+        List<EntityProfileBean> beanList = returnFunction
+                .compose(InfoBoxConverter::infoBoxParameterMoreToBatchInfoBoxReq)
+                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.listToRsp(b, InfoBoxConverter::infoBoxRspToEntityProfileBean)))
+                .apply(param);
+        return new RestResp<>(beanList);
     }
 
     @ApiOperation("综合搜索")
@@ -222,12 +221,11 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "size", defaultValue = "10", dataType = "int", paramType = "query", value = "大小,默认10,最大50"),
     })
     public RestResp<List<ApkBean>> getKgNameByApk(@Valid @ApiIgnore KgNameByApkParameter apkParam) {
-        String apk = request.getHeader("APK");
-        if (!ApkAuthFilter.ADMIN_APK.equalsIgnoreCase(apk)) {
+        if (!CurrentUser.isAdmin()) {
             throw BizException.of(SdkErrorCodeEnum.APK_NOT_IS_ADMIN);
         }
-        ApiReturn<List<ApkRsp>> statDetail = appClient.getKgName(apkParam.getPage(), apkParam.getSize());
-        List<ApkBean> apkBeanList = BasicConverter.convert(statDetail, a -> BasicConverter.listToRsp(a, AppConverter::apkRspToApkBean));
+        ApiReturn<PageRsp<ApkRsp>> statDetail = appClient.getKgName(apkParam.getPage(), apkParam.getSize());
+        List<ApkBean> apkBeanList = BasicConverter.convert(statDetail, a -> BasicConverter.listToRsp(a.getData(), AppConverter::apkRspToApkBean));
         return new RestResp<>(apkBeanList);
     }
 }
