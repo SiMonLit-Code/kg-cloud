@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.app.dto;
+package com.plantdata.kgcloud.sdk.rsp.app.nlp;
 
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class SegmentEntityDTO extends BasicEntityRsp {
+public class SegmentEntityRsp extends BasicEntityRsp {
     private String word;
     private Double score;
     private List<String> synonym;

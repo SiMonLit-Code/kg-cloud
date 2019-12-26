@@ -5,8 +5,9 @@ import ai.plantdata.kg.api.pub.req.EntityLinkingFrom;
 import ai.plantdata.kg.api.pub.resp.TaggingItemVO;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
-import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.domain.app.service.NlpService;
+import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.Collections;
@@ -43,12 +43,6 @@ public class NlpController implements SdkOpenApiInterface {
     @Autowired
     private EntityApi entityApi;
 
-
-    /**
-     * 命名实体识别
-     *
-     * @return 词列表
-     */
     @ApiOperation("命名实体识别")
     @PostMapping("ner")
     public ApiReturn<List<NerResultRsp>> namedEntityRecognition(@Valid @RequestBody NerReq nerReq) {
@@ -58,6 +52,13 @@ public class NlpController implements SdkOpenApiInterface {
             e.printStackTrace();
         }
         return ApiReturn.success(Collections.emptyList());
+    }
+
+    @ApiOperation("图谱实体识别")
+    @PostMapping("ner/graph/{kgName}")
+    public ApiReturn<List<SegmentEntityRsp>> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                      @Valid @RequestBody SegmentReq segmentReq) {
+        return ApiReturn.success(nlpService.segment(kgName, segmentReq));
     }
 
     @ApiOperation("图谱分词")

@@ -42,7 +42,7 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
     private KgmsClient kgmsClient;
 
     @GetMapping("get/list")
-    @ApiOperation("分页")
+    @ApiOperation("算法配置-分页")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
@@ -57,7 +57,7 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
 
 
     @GetMapping("get")
-    @ApiOperation("详情")
+    @ApiOperation("算法配置-详情")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "query"),
@@ -70,7 +70,7 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
     }
 
     @PostMapping("add")
-    @ApiOperation("新增")
+    @ApiOperation("算法配置-新增")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "bean", required = true, dataType = "string", paramType = "form", value = "保存的数据"),
@@ -85,7 +85,7 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
     }
 
     @PostMapping("delete")
-    @ApiOperation("删除")
+    @ApiOperation("算法配置-删除")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
@@ -96,7 +96,7 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
     }
 
     @PostMapping("update")
-    @ApiOperation("修改")
+    @ApiOperation("算法配置-修改")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
@@ -113,7 +113,7 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
 
 
     @PostMapping("test")
-    @ApiOperation("业务算法测试")
+    @ApiOperation("业务算法-测试")
     public RestResp<BusinessGraphBean> test(@Valid @ApiIgnore GraphBusinessAlgorithmRequestTest graphBusinessAlgorithmRequestTest) {
         BusinessGraphBean beans = JsonUtils.fromJson(graphBusinessAlgorithmRequestTest.getGraphBean(), BusinessGraphBean.class);
         beans.getEntityList().forEach(s -> s.setName("test"));

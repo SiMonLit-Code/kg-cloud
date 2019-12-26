@@ -4,18 +4,17 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
-import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
-import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -54,5 +53,16 @@ public interface NlpClient {
      */
     @PostMapping("annotation/{kgName}")
     ApiReturn<List<TaggingItemRsp>> tagging(@PathVariable("kgName") String kgName, @RequestBody EntityLinkingReq linkingReq);
+
+    /**
+     * 图谱实体识别
+     *
+     * @param kgName
+     * @param segmentReq
+     * @return
+     */
+    @PostMapping("ner/graph/{kgName}")
+    ApiReturn<List<SegmentEntityRsp>> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                               @Valid @RequestBody SegmentReq segmentReq);
 
 }

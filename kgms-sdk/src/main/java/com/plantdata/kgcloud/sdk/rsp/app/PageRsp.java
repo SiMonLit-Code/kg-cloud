@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.common.rsp;
+package com.plantdata.kgcloud.sdk.rsp.app;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,15 +22,15 @@ import java.util.List;
 @ApiModel("分页结果")
 public class PageRsp<T> {
     @ApiModelProperty("总数")
-    private int total;
+    private long total;
     @ApiModelProperty("数据")
     private List<T> data;
 
-    public static <T> PageRsp success(List<T> data, int total) {
+    public static <T> PageRsp<T> success(List<T> data, long total) {
         return new PageRsp<>(total, data);
     }
 
-    public static <T> PageRsp empty() {
-        return new PageRsp<>(NumberUtils.INTEGER_ZERO, Collections.emptyList());
+    public static <T> PageRsp<T> empty() {
+        return new PageRsp<>(NumberUtils.LONG_ZERO, Collections.emptyList());
     }
 }

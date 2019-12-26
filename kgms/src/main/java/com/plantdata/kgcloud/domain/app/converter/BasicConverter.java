@@ -37,7 +37,6 @@ public class BasicConverter {
     }
 
 
-
     /**
      * 非空 消费 批量
      */
@@ -98,7 +97,7 @@ public class BasicConverter {
         return toListNoNull(list, a -> listConvert(a, function));
     }
 
-     static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, List<R>> function) {
+    public static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, List<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1).stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
@@ -106,7 +105,7 @@ public class BasicConverter {
         return CollectionUtils.isEmpty(list1) ? Collections.emptySet() : function.apply(list1);
     }
 
-    protected static <T, K, V> Map<K, V> listToMapNoNull(List<T> list1, Function<List<T>, Map<K, V>> function) {
+    public static <T, K, V> Map<K, V> listToMapNoNull(List<T> list1, Function<List<T>, Map<K, V>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyMap() : function.apply(list1);
     }
 

@@ -31,7 +31,6 @@ public class JsonUtils {
         return JsonUtils.jsonToObj(json, new TypeReference<Map<String, Object>>() {
         });
     }
-
     public static <T> List<T> jsonToList(String jsonString, Class<T> clazz) {
         return jsonToObj(jsonString, new TypeReference<List<T>>() {
         });

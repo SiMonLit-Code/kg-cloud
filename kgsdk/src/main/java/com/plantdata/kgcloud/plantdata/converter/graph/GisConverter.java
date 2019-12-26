@@ -36,7 +36,7 @@ public class GisConverter extends BasicConverter {
     }
 
     public static GraphBean gisGraphExploreRspToGraphBean(@NonNull GisGraphExploreRsp exploreRsp) {
-        List<EntityBean> entityBeans = listToRsp(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToCommonEntityRsp);
+        List<EntityBean> entityBeans = listToRsp(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToGraphEntityRsp);
         GraphBean graphBean = new GraphBean();
         graphBean.setEntityList(entityBeans);
         graphBean.setLevel1HasNextPage(exploreRsp.getHasNextPage());
@@ -46,7 +46,7 @@ public class GisConverter extends BasicConverter {
 
     public static GisLocusOldRsp gisGraphExploreRspToGisLocusRsp(@NonNull GisLocusAnalysisRsp exploreRsp) {
         GisLocusOldRsp locusRsp = new GisLocusOldRsp();
-        List<EntityBean> entityBeans = listToRsp(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToCommonEntityRsp);
+        List<EntityBean> entityBeans = listToRsp(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToGraphEntityRsp);
         locusRsp.setRelationList(listToRsp(exploreRsp.getRelationList(), GisConverter::gisLocusRelationVOToGisLocusRelationRsp));
         locusRsp.setEntityList(entityBeans);
         locusRsp.setLevel1HasNextPage(exploreRsp.getHasNextPage());

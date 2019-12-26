@@ -17,4 +17,5 @@ public class InfoBoxConceptRsp {
     private Long id;
     private String name;
     private String meaningTag;
+    private String imageUrl;
 }

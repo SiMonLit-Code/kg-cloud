@@ -34,6 +34,4 @@ public abstract class AbstrackGraphParameter {
     private List<AttrScreeningBean> reservedAttFilters;
     private Boolean isInherit = false;
 
-    public abstract List<Long> getIdList();
-
 }

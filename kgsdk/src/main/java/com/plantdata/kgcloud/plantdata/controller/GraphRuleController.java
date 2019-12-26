@@ -41,7 +41,7 @@ public class GraphRuleController implements SdkOldApiInterface {
     private KgmsClient kgmsClient;
 
     @GetMapping("get/list")
-    @ApiOperation("分页")
+    @ApiOperation("业务规则/gis规则-分页")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "ruleType", defaultValue = "0", dataType = "int", paramType = "query", value = "规则类型 1gis规则 0或不传是图探索规则"),
@@ -55,7 +55,7 @@ public class GraphRuleController implements SdkOldApiInterface {
         return new RestResp<>(restData);
     }
 
-    @ApiOperation("详情")
+    @ApiOperation("业务规则/gis规则-详情")
     @GetMapping("get")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
@@ -71,7 +71,7 @@ public class GraphRuleController implements SdkOldApiInterface {
 
 
     @PostMapping("add")
-    @ApiOperation("新增")
+    @ApiOperation("业务规则/gis规则-新增")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "bean", required = true, dataType = "string", paramType = "form", value = "保存的数据"),
@@ -87,7 +87,7 @@ public class GraphRuleController implements SdkOldApiInterface {
 
 
     @PostMapping("delete")
-    @ApiOperation("删除")
+    @ApiOperation("业务规则/gis规则-删除")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
@@ -98,7 +98,7 @@ public class GraphRuleController implements SdkOldApiInterface {
     }
 
     @PostMapping("update")
-    @ApiOperation("修改")
+    @ApiOperation("业务规则/gis规则-修改")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
