@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- *
  * @author jiangdeming
  * @date 2019/11/29
  */
@@ -35,7 +34,7 @@ public class GraphConfAlgorithmServiceImpl implements GraphConfAlgorithmService 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public GraphConfAlgorithmRsp createAlgorithm(String kgName,GraphConfAlgorithmReq req) {
+    public GraphConfAlgorithmRsp createAlgorithm(String kgName, GraphConfAlgorithmReq req) {
         GraphConfAlgorithm targe = new GraphConfAlgorithm();
         BeanUtils.copyProperties(req, targe);
         targe.setId(kgKeyGenerator.getNextId());
@@ -63,9 +62,9 @@ public class GraphConfAlgorithmServiceImpl implements GraphConfAlgorithmService 
     }
 
     @Override
-    public Page<GraphConfAlgorithmRsp> findByKgName(String kgName , BaseReq baseReq) {
+    public Page<GraphConfAlgorithmRsp> findByKgName(String kgName, BaseReq baseReq) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
-        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(),sort);
+        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), sort);
         Page<GraphConfAlgorithm> all = graphConfAlgorithmRepository.findByKgName(kgName, pageable);
         return all.map(ConvertUtils.convert(GraphConfAlgorithmRsp.class));
     }

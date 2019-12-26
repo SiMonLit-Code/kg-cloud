@@ -28,8 +28,8 @@ public class GraphConfAlgorithmController {
 
     @ApiOperation("图谱配置-算法-新建")
     @PostMapping("/algorithm/{kgName}")
-    public ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName ,@RequestBody @Valid GraphConfAlgorithmReq req) {
-        return ApiReturn.success(graphConfAlgorithmService.createAlgorithm(kgName,req));
+    public ApiReturn<GraphConfAlgorithmRsp> save(@PathVariable("kgName") String kgName, @RequestBody @Valid GraphConfAlgorithmReq req) {
+        return ApiReturn.success(graphConfAlgorithmService.createAlgorithm(kgName, req));
     }
 
     @ApiOperation("图谱配置-算法-更新")
@@ -47,8 +47,8 @@ public class GraphConfAlgorithmController {
 
     @ApiOperation("图谱配置-算法-获取")
     @GetMapping("/algorithm/{kgName}")
-    public ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName , BaseReq baseReq) {
-        return ApiReturn.success(graphConfAlgorithmService.findByKgName(kgName ,baseReq));
+    public ApiReturn<Page<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq) {
+        return ApiReturn.success(graphConfAlgorithmService.findByKgName(kgName, baseReq));
     }
 
     @ApiOperation("图谱配置-算法-详情")

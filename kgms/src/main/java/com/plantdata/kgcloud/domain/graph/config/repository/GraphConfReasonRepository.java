@@ -14,6 +14,7 @@ public interface GraphConfReasonRepository extends JpaRepository<GraphConfReason
 
     /**
      * 分页
+     *
      * @param kgName
      * @param pageable
      * @return

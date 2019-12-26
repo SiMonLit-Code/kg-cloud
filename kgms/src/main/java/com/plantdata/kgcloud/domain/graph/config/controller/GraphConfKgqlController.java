@@ -48,13 +48,13 @@ public class GraphConfKgqlController {
 
     @ApiOperation("图谱配置-KGQL-查询")
     @GetMapping("/kgql/{kgName}/{ruleType}")
-    public ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName ,@PathVariable("ruleType") Integer ruleType, BaseReq baseReq) {
-        return ApiReturn.success(graphConfKgqlService.findByKgNameAndRuleType(kgName,ruleType, baseReq));
+    public ApiReturn<Page<GraphConfKgqlRsp>> selectKgql(@PathVariable("kgName") String kgName, @PathVariable("ruleType") Integer ruleType, BaseReq baseReq) {
+        return ApiReturn.success(graphConfKgqlService.findByKgNameAndRuleType(kgName, ruleType, baseReq));
     }
 
     @ApiOperation("图谱配置-KGQL-详情")
     @GetMapping("/kgql/detail/{id}")
-    public ApiReturn<GraphConfKgqlRsp> detailKgql( @PathVariable("id") Long id) {
+    public ApiReturn<GraphConfKgqlRsp> detailKgql(@PathVariable("id") Long id) {
         return ApiReturn.success(graphConfKgqlService.findById(id));
     }
 }
