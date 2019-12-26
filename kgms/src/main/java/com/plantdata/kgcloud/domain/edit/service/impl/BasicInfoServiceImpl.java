@@ -198,16 +198,16 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         Long entityCount = entity.orElse(defaultValue);
         Optional<Long> number = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
                 CountType.NUMERICAL_ATTR.getCode()));
-        Long numberCount = entity.orElse(defaultValue);
+        Long numberCount = number.orElse(defaultValue);
         Optional<Long> privateNumber = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
                 CountType.PRIVATE_NUMERICAL_ATTR.getCode()));
-        Long privateNumberCount = entity.orElse(defaultValue);
+        Long privateNumberCount = privateNumber.orElse(defaultValue);
         Optional<Long> object = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
                 CountType.OBJECT_ATTR.getCode()));
-        Long objectCount = entity.orElse(defaultValue);
+        Long objectCount = object.orElse(defaultValue);
         Optional<Long> privateObject = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
                 CountType.PRIVATE_OBJECT_ATTR.getCode()));
-        Long privateObjectCount = entity.orElse(defaultValue);
+        Long privateObjectCount = privateObject.orElse(defaultValue);
         int baseValue = 10000;
         if (conceptCount >= baseValue) {
             double n = (double) (conceptCount) / baseValue;
@@ -222,7 +222,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
             String result = String.format("%.2f", n) + "万";
             builder.entityTotal(result);
         } else {
-            builder.conceptTotal(entityCount);
+            builder.entityTotal(entityCount);
         }
 
         if (numberCount >= baseValue) {
