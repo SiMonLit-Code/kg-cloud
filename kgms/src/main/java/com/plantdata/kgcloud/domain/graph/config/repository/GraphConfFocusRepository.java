@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface GraphConfFocusRepository extends JpaRepository<GraphConfFocus, GraphConfFocusPk> {
     /**
      * 根据kgName查询
+     *
      * @param kgName
      * @return
      */
@@ -22,6 +23,7 @@ public interface GraphConfFocusRepository extends JpaRepository<GraphConfFocus, 
 
     /**
      * 根据kgName 和 type查询
+     *
      * @param kgName
      * @param type
      * @return

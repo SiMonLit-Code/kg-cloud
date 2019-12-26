@@ -7,7 +7,6 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import org.springframework.data.domain.Page;
 
 /**
- *
  * @author jdm
  * @date 2019/12/9 15:45
  */
@@ -19,24 +18,27 @@ public interface GraphConfReasonService {
      * @param req
      * @return
      */
-    GraphConfReasonRsp createReasoning(String kgName , GraphConfReasonReq req);
+    GraphConfReasonRsp createReasoning(String kgName, GraphConfReasonReq req);
 
     /**
      * 根据id删除图谱推理
+     *
      * @param id
      */
-    void deleteReasoning(Long id );
+    void deleteReasoning(Long id);
 
     /**
      * 分页
+     *
      * @param kgName
      * @param baseReq
      * @return
      */
-    BasePage<GraphConfReasonRsp> getByKgName(String kgName , BaseReq baseReq);
+    BasePage<GraphConfReasonRsp> getByKgName(String kgName, BaseReq baseReq);
 
     /**
      * 根据id查询详情
+     *
      * @param id
      * @return
      */
@@ -44,6 +46,7 @@ public interface GraphConfReasonService {
 
     /**
      * 修改
+     *
      * @param id
      * @param req
      * @return

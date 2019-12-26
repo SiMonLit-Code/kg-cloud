@@ -6,7 +6,6 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 
-import java.util.List;
 import java.util.Map;
 
 /**

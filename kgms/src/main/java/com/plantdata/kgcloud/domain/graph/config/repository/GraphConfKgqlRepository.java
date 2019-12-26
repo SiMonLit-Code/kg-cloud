@@ -15,6 +15,7 @@ import java.util.List;
 public interface GraphConfKgqlRepository extends JpaRepository<GraphConfKgql, Long> {
     /**
      * 查询
+     *
      * @param kgName
      * @return
      */
@@ -22,10 +23,11 @@ public interface GraphConfKgqlRepository extends JpaRepository<GraphConfKgql, Lo
 
     /**
      * 分页
+     *
      * @param kgName
      * @param ruleType
      * @param pageable
      * @return
      */
-    Page<GraphConfKgql> findByKgNameAndRuleType(String kgName,Integer ruleType, Pageable pageable);
+    Page<GraphConfKgql> findByKgNameAndRuleType(String kgName, Integer ruleType, Pageable pageable);
 }

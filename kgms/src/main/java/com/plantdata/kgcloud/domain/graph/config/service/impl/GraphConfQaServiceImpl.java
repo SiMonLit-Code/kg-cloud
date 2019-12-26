@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author jiangdeming
  * @date 2019/12/2
  */
@@ -42,7 +41,7 @@ public class GraphConfQaServiceImpl implements GraphConfQaService {
             int count = 0;
             int index = s.indexOf("$entity");
             while (index > -1) {
-                count ++;
+                count++;
                 s = s.substring(index + 1);
                 index = s.indexOf("$entity");
             }
