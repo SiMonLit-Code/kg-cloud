@@ -6,8 +6,6 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfFocusRsp;
 import java.util.List;
 
 /**
- *
- *
  * @author jiangdeming
  * @date 2019/11/29
  */

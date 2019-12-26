@@ -25,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -44,7 +45,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public GraphConfKgqlRsp createKgql(String kgName,GraphConfKgqlReq req ) {
+    public GraphConfKgqlRsp createKgql(String kgName, GraphConfKgqlReq req) {
         GraphConfKgql targe = new GraphConfKgql();
         BeanUtils.copyProperties(req, targe);
         targe.setId(kgKeyGenerator.getNextId());
@@ -55,11 +56,11 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
             if (!convert.isPresent()) {
                 throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
             }
-            if (null == convert.get().getDomain()) {
-               throw  BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
+            if (Objects.isNull(convert.get().getDomain())){
+                throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
             }
-                String s = JacksonUtils.writeValueAsString(convert.get());
-                targe.setRuleSettings(s);
+            String s = JacksonUtils.writeValueAsString(convert.get());
+            targe.setRuleSettings(s);
 
         }
         GraphConfKgql result = graphConfKgqlRepository.save(targe);
@@ -88,8 +89,8 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     @Override
     public Page<GraphConfKgqlRsp> findByKgNameAndRuleType(String kgName, Integer ruleType, BaseReq baseReq) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
-        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(),sort);
-        Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgNameAndRuleType(kgName,ruleType, pageable);
+        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), sort);
+        Page<GraphConfKgql> all = graphConfKgqlRepository.findByKgNameAndRuleType(kgName, ruleType, pageable);
         return all.map(ConvertUtils.convert(GraphConfKgqlRsp.class));
     }
 

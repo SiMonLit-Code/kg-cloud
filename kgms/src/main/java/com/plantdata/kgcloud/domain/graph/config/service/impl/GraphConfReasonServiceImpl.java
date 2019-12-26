@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- *
  * @author jdm
  * @date 2019/12/9 15:54
  */
@@ -47,7 +46,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     public GraphConfReasonRsp createReasoning(String kgName, GraphConfReasonReq req) {
         GraphConfReasoning targe = new GraphConfReasoning();
         BeanUtils.copyProperties(req, targe);
-        String strRuleConfig =JacksonUtils.writeValueAsString(req.getRuleConfig());
+        String strRuleConfig = JacksonUtils.writeValueAsString(req.getRuleConfig());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strRuleConfig);
         targe.setRuleConfig(jsonNode.get());
         targe.setKgName(kgName);
@@ -66,13 +65,13 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     }
 
     @Override
-    public BasePage<GraphConfReasonRsp> getByKgName(String kgName , BaseReq baseReq) {
+    public BasePage<GraphConfReasonRsp> getByKgName(String kgName, BaseReq baseReq) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
-        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(),sort);
+        Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), sort);
         Page<GraphConfReasoning> all = graphConfReasoningRepository.getByKgName(kgName, pageable);
         List<GraphConfReasonRsp> graphConfReasonRsps = BasicConverter.listConvert(
                 all.getContent(), a -> GraphConfReasoningConverter.JsonNodeToMapConverter(a));
-        BasePage<GraphConfReasonRsp> basePage= new BasePage<>();
+        BasePage<GraphConfReasonRsp> basePage = new BasePage<>();
         basePage.setContent(graphConfReasonRsps);
         basePage.setTotalElements(all.getTotalElements());
         return basePage;
@@ -92,7 +91,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
         GraphConfReasoning graphConfReasoning = graphConfReasoningRepository.findById(id)
                 .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfReasoning);
-        String strRuleConfig =JacksonUtils.writeValueAsString(req.getRuleConfig());
+        String strRuleConfig = JacksonUtils.writeValueAsString(req.getRuleConfig());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strRuleConfig);
         graphConfReasoning.setRuleConfig(jsonNode.get());
         GraphConfReasoning save = graphConfReasoningRepository.save(graphConfReasoning);

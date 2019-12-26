@@ -6,7 +6,6 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
 import java.util.List;
 
 /**
- *
  * @author jiangdeming
  * @date 2019/12/2
  */
@@ -19,7 +18,6 @@ public interface GraphConfQaService {
      * @return
      */
     List<GraphConfQaRsp> saveQa(String kgName, List<GraphConfQaReq> reqs);
-
 
 
     /**
