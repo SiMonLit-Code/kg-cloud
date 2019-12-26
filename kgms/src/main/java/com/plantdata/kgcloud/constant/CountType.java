@@ -22,13 +22,13 @@ public enum CountType {
      */
     NUMERICAL_ATTR("number", 2),
     /**
-     * 私有数值属性
-     */
-    PRIVATE_NUMERICAL_ATTR("privateNumber", 3),
-    /**
      * 对象属性
      */
-    OBJECT_ATTR("object", 4),
+    OBJECT_ATTR("object", 3),
+    /**
+     * 私有数值属性
+     */
+    PRIVATE_NUMERICAL_ATTR("privateNumber", 4),
     /**
      * 私有对象属性
      */
