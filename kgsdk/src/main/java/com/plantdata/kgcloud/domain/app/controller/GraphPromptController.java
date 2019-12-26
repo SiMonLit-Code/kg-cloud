@@ -40,7 +40,7 @@ public class GraphPromptController implements GraphApplicationInterface {
         return appClient.prompt(kgName,promptReq);
     }
 
-    @ApiOperation("高级搜索查实体")
+    @ApiOperation("高级搜索(仅实体)")
     @PostMapping("senior/{kgName}")
     public ApiReturn<List<SeniorPromptRsp>> seniorPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                          @RequestBody SeniorPromptReq seniorPromptReq) {

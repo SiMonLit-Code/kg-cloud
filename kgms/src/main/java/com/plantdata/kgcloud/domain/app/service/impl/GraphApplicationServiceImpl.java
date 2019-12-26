@@ -13,6 +13,8 @@ import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
 import com.plantdata.kgcloud.domain.app.converter.AttrDefConverter;
 import com.plantdata.kgcloud.domain.app.converter.AttrDefGroupConverter;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
@@ -26,6 +28,7 @@ import com.plantdata.kgcloud.domain.app.dto.InfoBoxQueryDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
+import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
@@ -33,14 +36,21 @@ import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfFocusRepository;
+import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
+import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
@@ -50,6 +60,8 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -85,6 +97,10 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private ConceptEntityApi conceptEntityApi;
     @Autowired
     private AttributeApi attributeApi;
+    @Autowired
+    private GraphRepository graphRepository;
+    @Autowired
+    private UserClient userClient;
     @Autowired
     private GraphConfFocusRepository graphConfFocusRepository;
     @Autowired
@@ -146,6 +162,20 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         }
         Optional<List<AttrDefVO>> attrDefOpt = RestRespConverter.convert(attributeApi.getAll(KGUtil.dbName(kgName)));
         return ConceptConverter.voToConceptTree(conceptOpt.get(), attrDefOpt.orElse(Collections.emptyList()), treeRsp);
+    }
+
+    @Override
+    public PageRsp<ApkRsp> listAllGraph(PageReq pageReq) {
+        PageRequest page = PageRequest.of(pageReq.getPage() - 1, pageReq.getSize());
+        Page<Graph> all = graphRepository.findAll(page);
+        if (CollectionUtils.isEmpty(all.getContent())) {
+            return PageRsp.empty();
+        }
+        List<String> userIds = all.getContent().stream().map(Graph::getUserId).distinct().collect(Collectors.toList());
+        ApiReturn<List<UserApkRelationRsp>> apkRelationList = userClient.listUserApkRelation(userIds);
+        Map<String, String> userApkMap = BasicConverter.listToMapNoNull(ApiReturnConverter.convert(apkRelationList), a -> a.stream().collect(Collectors.toMap(UserApkRelationRsp::getUserId, UserApkRelationRsp::getApk, (b, c) -> b)));
+        List<ApkRsp> apkRspList = BasicConverter.listToRsp(all.getContent(), a -> ApkConverter.graphRspToApkRsp(a, userApkMap.get(a.getUserId())));
+        return PageRsp.success(apkRspList, all.getTotalElements());
     }
 
     @Override

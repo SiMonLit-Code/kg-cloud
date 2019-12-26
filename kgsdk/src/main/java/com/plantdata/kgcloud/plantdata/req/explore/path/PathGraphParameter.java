@@ -33,10 +33,5 @@ public class PathGraphParameter extends AbstrackGraphParameter implements StatsG
     private Boolean isShortest = false;
     private List<GraphStatBean> statsConfig;
 
-    @Override
-    public List<Long> getIdList() {
-        return Lists.newArrayList(getStart(), getEnd());
-    }
-
 
 }

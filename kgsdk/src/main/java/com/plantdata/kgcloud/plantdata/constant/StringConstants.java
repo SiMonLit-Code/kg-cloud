@@ -7,4 +7,5 @@ package com.plantdata.kgcloud.plantdata.constant;
  */
 public class StringConstants {
     public static final String DOMAIN = "domain";
+
 }

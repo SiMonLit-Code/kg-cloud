@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
@@ -146,11 +147,13 @@ public interface AppClient {
     /**
      * 获取所有图谱名称
      *
-     * @param apk apk
-     * @return ..
+     * @param page 页码
+     * @param size 数量
+     * @return ApkRsp
      */
-    @GetMapping("kgName/all/{apk}")
-    ApiReturn<List<ApkRsp>> getKgName(@PathVariable("apk") String apk);
+    @GetMapping("kgName/all")
+    ApiReturn<PageRsp<ApkRsp>> getKgName(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                         @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
 
     /**
      * 实体下拉提示

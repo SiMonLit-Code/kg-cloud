@@ -30,8 +30,12 @@ public class KVBean<W, T> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         KVBean<?, ?> kvBean = (KVBean<?, ?>) o;
         return Objects.equals(k, kvBean.k);
     }

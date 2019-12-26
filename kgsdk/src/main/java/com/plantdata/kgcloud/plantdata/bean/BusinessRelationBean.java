@@ -2,11 +2,11 @@ package com.plantdata.kgcloud.plantdata.bean;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.plantdata.kgcloud.plantdata.req.common.RelationInfoBean;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,8 @@ import java.util.Map;
 /**
  * @author Administrator
  */
+@Getter
+@Setter
 public class BusinessRelationBean {
 
     private String id;
@@ -32,6 +34,7 @@ public class BusinessRelationBean {
     private String creationTime;
     private Map<String, Object> origin;
     private Map<String, Object> style;
+
     public Map<String, Object> getOrigin() {
         return origin;
     }
@@ -45,16 +48,12 @@ public class BusinessRelationBean {
     }
 
 
-
-
     public void addEndTime(String endTime) {
         if (this.endTime == null) {
             this.endTime = new ArrayList<>();
         }
         this.endTime.add(endTime);
     }
-
-
 
 
     public void addrNumInfo(RelationInfoBean one) {
@@ -79,109 +78,9 @@ public class BusinessRelationBean {
         this.attId = attId;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Long getFrom() {
-        return from;
-    }
-
-    public void setFrom(Long from) {
-        this.from = from;
-    }
-
-    public Long getTo() {
-        return to;
-    }
-
-    public void setTo(Long to) {
-        this.to = to;
-    }
-
-    public Integer getAttId() {
-        return attId;
-    }
-
-    public void setAttId(Integer attId) {
-        this.attId = attId;
-    }
-
-    public String getAttName() {
-        return attName;
-    }
-
-    public void setAttName(String attName) {
-        this.attName = attName;
-    }
-
-    public List<String> getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(List<String> startTime) {
-        this.startTime = startTime;
-    }
-
-    public List<String> getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(List<String> endTime) {
-        this.endTime = endTime;
-    }
-    @JsonIgnore
-    public List<RelationInfoBean> getnRInfo() {
-        return nRInfo;
-    }
-
-    public void setnRInfo(List<RelationInfoBean> nRInfo) {
-        this.nRInfo = nRInfo;
-    }
-    @JsonIgnore
-    public List<RelationInfoBean> getoRInfo() {
-        return oRInfo;
-    }
-
-    public void setoRInfo(List<RelationInfoBean> oRInfo) {
-        this.oRInfo = oRInfo;
-    }
-
-    public Integer getDirection() {
-        return direction;
-    }
-
-    public void setDirection(Integer direction) {
-        this.direction = direction;
-    }
-
-    public String getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(String creationTime) {
-        this.creationTime = creationTime;
-    }
-
-    public void setOrigin(Map<String, Object> origin) {
-        this.origin = origin;
-    }
-
-    public Map<String, Object> getStyle() {
-        return style;
-    }
-
-    public void setStyle(Map<String, Object> style) {
-        this.style = style;
-    }
-
-    class ModelValueSerializer implements ObjectSerializer {
+    static class ModelValueSerializer implements ObjectSerializer {
         @Override
-        public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+        public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) {
             if (object != null && !"".equals(object.toString())) {
                 serializer.write(object);
             }

@@ -39,7 +39,7 @@ public class GraphStatisticController implements SdkOldApiInterface {
     private KgmsClient kgmsClient;
 
     @GetMapping("get/list")
-    @ApiOperation("获取统计配置")
+    @ApiOperation("统计配置-获取")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
     })
@@ -50,7 +50,7 @@ public class GraphStatisticController implements SdkOldApiInterface {
     }
 
     @PostMapping("add/batch")
-    @ApiOperation("批量添加配置")
+    @ApiOperation("统计配置-批量添加")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "rules", required = true, dataType = "string", paramType = "form", value = "保存的数据,json数组格式"),
@@ -65,7 +65,7 @@ public class GraphStatisticController implements SdkOldApiInterface {
     }
 
     @PostMapping("update/batch")
-    @ApiOperation("批量修改配置")
+    @ApiOperation("统计配置-批量修改")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "rules", required = true, dataType = "string", paramType = "form", value = "保存的数据,json数组格式"),
@@ -80,7 +80,7 @@ public class GraphStatisticController implements SdkOldApiInterface {
     }
 
     @PostMapping("delete/batch")
-    @ApiOperation("批量删除配置")
+    @ApiOperation("统计配置-批量删除")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "需要删除的id列表,json数组格式"),
@@ -91,7 +91,7 @@ public class GraphStatisticController implements SdkOldApiInterface {
     }
 
     @PostMapping("add")
-    @ApiOperation("添加配置")
+    @ApiOperation("统计配置-添加")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "type", required = true, dataType = "string", paramType = "form", value = "type"),
@@ -108,7 +108,7 @@ public class GraphStatisticController implements SdkOldApiInterface {
     }
 
     @PostMapping("update")
-    @ApiOperation("修改配置")
+    @ApiOperation("统计配置-修改")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
@@ -125,7 +125,7 @@ public class GraphStatisticController implements SdkOldApiInterface {
     }
 
     @PostMapping("delete")
-    @ApiOperation("删除配置")
+    @ApiOperation("统计配置-删除")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "string", paramType = "form", value = "需要删除的id"),

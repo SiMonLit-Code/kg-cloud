@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.SemanticSegFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
-import com.plantdata.kgcloud.domain.app.dto.SegmentEntityDTO;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
 
 import javax.validation.constraints.NotNull;
@@ -26,11 +26,11 @@ public class SegmentConverter extends BasicConverter {
         return segFrom;
     }
 
-    public static List<SegmentEntityDTO> entityVoToSegmentEntityDto(@NotNull List<EntityVO> entityList, Map<Long, Double> scoreMap,
+    public static List<SegmentEntityRsp> entityVoToSegmentEntityDto(@NotNull List<EntityVO> entityList, Map<Long, Double> scoreMap,
                                                                     Map<Long, String> wordMap) {
 
         return entityList.stream().map(a -> {
-            SegmentEntityDTO entityDto = EntityConverter.entityVoToBasicEntityRsp(a, new SegmentEntityDTO());
+            SegmentEntityRsp entityDto = EntityConverter.entityVoToBasicEntityRsp(a, new SegmentEntityRsp());
             entityDto.setWord(wordMap.get(a.getId()));
             entityDto.setScore(scoreMap.get(a.getId()));
             entityDto.setSynonym(a.getSynonyms());

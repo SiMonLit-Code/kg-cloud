@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.edit.aop.EditPermissionUnwanted;
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
@@ -107,6 +108,7 @@ public class BasicInfoController {
 
     @ApiOperation("kgql")
     @PostMapping("/execute/kgql")
+    @EditPermissionUnwanted
     public ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq) {
         basicInfoService.executeQl(kgqlReq);
         return ApiReturn.success();

@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.rsp.GisLocusRsp;
 import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
@@ -43,7 +42,7 @@ public class GraphExplorationController implements GraphApplicationInterface {
         return appClient.initGraphExploration(kgName, type);
     }
 
-    @ApiOperation("根据业务规则kgQl语句图探索")
+    @ApiOperation("业务规则/kgQl语句图探索")
     @PostMapping("byKgQl/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> exploreByKgQl(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                @RequestBody ExploreByKgQlReq kgQlReq) {
