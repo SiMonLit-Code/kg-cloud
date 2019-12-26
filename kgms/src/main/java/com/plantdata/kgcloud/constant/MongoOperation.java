@@ -18,6 +18,14 @@ public enum MongoOperation {
      */
     IN("$in"),
     /**
+     * 大于
+     */
+    GTE("$gte"),
+    /**
+     * 小于
+     */
+    LTE("$lte"),
+    /**
      * 排序逆序
      */
     DESC("DESC"),
