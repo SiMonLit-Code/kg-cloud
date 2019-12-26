@@ -110,7 +110,6 @@ public class BasicInfoController {
     @PostMapping("/execute/kgql")
     @EditPermissionUnwanted
     public ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq) {
-        basicInfoService.executeQl(kgqlReq);
-        return ApiReturn.success();
+        return ApiReturn.success(basicInfoService.executeQl(kgqlReq));
     }
 }
