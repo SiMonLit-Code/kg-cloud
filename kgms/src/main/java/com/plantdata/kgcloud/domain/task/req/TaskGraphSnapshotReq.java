@@ -11,4 +11,5 @@ import lombok.Data;
 @Data
 public class TaskGraphSnapshotReq extends BaseReq {
     private String kgName;
+    private String userId;
 }

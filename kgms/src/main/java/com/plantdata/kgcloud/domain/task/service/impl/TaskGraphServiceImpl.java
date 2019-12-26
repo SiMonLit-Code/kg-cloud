@@ -64,16 +64,13 @@ public class TaskGraphServiceImpl implements TaskGraphService {
 
         Sort sort = new Sort(Sort.Direction.DESC, "updateAt");
         PageRequest of = PageRequest.of(req.getPage() - 1, req.getSize(), sort);
-        Page<TaskGraphSnapshot> page;
+        TaskGraphSnapshot query = new TaskGraphSnapshot();
         if (StringUtils.hasText(req.getKgName())) {
-            TaskGraphSnapshot snapshot = TaskGraphSnapshot
-                    .builder()
-                    .kgName(req.getKgName())
-                    .build();
-            page = taskGraphSnapshotRepository.findAll(Example.of(snapshot), of);
-        } else {
-            page = taskGraphSnapshotRepository.findAll(of);
+            query.setKgName(req.getKgName());
+        } else if (StringUtils.hasText(req.getUserId())) {
+            query.setUserId(req.getUserId());
         }
+        Page<TaskGraphSnapshot> page = taskGraphSnapshotRepository.findAll(Example.of(query), of);
         return page.map(ConvertUtils.convert(TaskGraphSnapshotRsp.class));
     }
 
