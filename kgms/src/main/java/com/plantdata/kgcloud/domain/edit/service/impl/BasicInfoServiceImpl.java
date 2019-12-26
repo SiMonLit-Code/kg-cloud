@@ -280,6 +280,6 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public Object executeQl(KgqlReq kgqlReq) {
-        return qlApi.executeQl(kgqlReq.getQuery());
+        return RestRespConverter.convert(qlApi.executeQl(kgqlReq.getQuery()));
     }
 }

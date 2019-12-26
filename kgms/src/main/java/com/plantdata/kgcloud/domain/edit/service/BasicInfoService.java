@@ -140,5 +140,6 @@ public interface BasicInfoService {
      * @return
      */
     Object executeQl(KgqlReq kgqlReq);
+//    Object executeQl(String query);
 
 }
