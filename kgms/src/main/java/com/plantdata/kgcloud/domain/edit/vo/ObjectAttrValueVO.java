@@ -68,4 +68,10 @@ public class ObjectAttrValueVO {
 
     @ApiModelProperty(value = "关系的来源理由 ")
     private String sourceReason;
+
+    /**
+     * 批次号
+     */
+    @ApiModelProperty(value = "实体批次")
+    private String batch;
 }
