@@ -84,18 +84,22 @@ public class ExploreCommonConverter extends BasicConverter {
     }
 
     static TimeFilterExploreReq buildTimeFilter(TimeGraphParameter timeFilter) {
+        if (timeFilter == null || timeFilter.getTimeFilterType() == null) {
+            return null;
+        }
         TimeFilterExploreReq exploreReq = new TimeFilterExploreReq();
         exploreReq.setTimeFilterType(timeFilter.getTimeFilterType());
-        exploreReq.setFromTime(stringToDate(timeFilter.getFromTime()));
-        exploreReq.setToTime(stringToDate(timeFilter.getToTime()));
+        consumerIfNoNull(timeFilter.getFromTime(), b -> exploreReq.setFromTime(stringToDate(b)));
+        consumerIfNoNull(timeFilter.getToTime(), b -> exploreReq.setToTime(stringToDate(b)));
         consumerIfNoNull(timeFilter.getSort(), a -> exploreReq.setSort(a.getDesc()));
         return exploreReq;
     }
 
-    static Map<Integer, Object> buildReasonConfig(Map<Integer, JSONObject> config) {
+    static Map<Long, Object> buildReasonConfig(Map<Integer, JSONObject> config) {
         String configJson = JacksonUtils.writeValueAsString(config);
-        return JacksonUtils.readValue(configJson, new TypeReference<Map<Integer, Object>>() {
+        Map<Integer, Object> tempMap = JacksonUtils.readValue(configJson, new TypeReference<Map<Integer, Object>>() {
         });
+        return keyIntToLong(tempMap);
     }
 
     static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReq> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {

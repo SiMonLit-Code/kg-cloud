@@ -4,9 +4,9 @@ import ai.plantdata.kg.api.edit.req.BasicInfoFrom;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
-import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
@@ -16,7 +16,6 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -81,18 +80,14 @@ public class ConceptConverter extends BasicConverter {
 
     public static BasicConceptTreeRsp voToConceptTree(@NonNull List<BasicInfo> conceptList, List<AttrDefVO> attrDefList, BasicConceptTreeRsp treeRsp) {
 
-
         List<BasicConceptTreeRsp> allConceptList = conceptList.stream().map(ConceptConverter::basicInfoToConcept).collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(allConceptList)) {
             return treeRsp;
         }
+        consumerIfNoNull(attrDefList, a -> fillAttrDef(allConceptList, a));
 
-        if (!CollectionUtils.isEmpty(attrDefList)) {
-            fillAttrDef(allConceptList, attrDefList);
-        }
         Map<Long, List<BasicConceptTreeRsp>> parentTreeItemMap = allConceptList.stream().filter(a -> a.getParentId() != null).collect(Collectors.groupingBy(BasicConceptTreeRsp::getParentId));
-
         fillTree(Lists.newArrayList(treeRsp), parentTreeItemMap);
         return treeRsp;
     }
@@ -123,26 +118,29 @@ public class ConceptConverter extends BasicConverter {
 
     private static void fillAttrDef(@NonNull List<BasicConceptTreeRsp> allConceptList, @NonNull List<AttrDefVO> attrDefList) {
         Map<Long, BasicConceptTreeRsp> conceptTreeRspMap = allConceptList.stream().collect(Collectors.toMap(BasicConceptTreeRsp::getId, Function.identity()));
-        Map<Long, List<AttrDefVO>> groupBuConceptMap = attrDefList.stream().collect(Collectors.groupingBy(AttrDefVO::getDomainValue));
+        Map<Long, List<BasicConceptTreeRsp.ObjectAttr>> objMap = Maps.newHashMap();
+        Map<Long, List<BasicConceptTreeRsp.NumberAttr>> numMap = Maps.newHashMap();
+        attrDefList.stream().collect(Collectors.groupingBy(AttrDefVO::getDomainValue)).forEach((k, v) -> {
+            List<BasicConceptTreeRsp.ObjectAttr> objAttrs = Lists.newArrayList();
+            List<BasicConceptTreeRsp.NumberAttr> numAttrs = Lists.newArrayList();
+            v.forEach(attrDef -> {
+                if (AttributeValueType.OBJECT.getType().equals(attrDef.getType())) {
+                    List<BasicConceptTreeRsp> rangeConceptList = toListNoNull(attrDef.getRangeValue(), b -> b.stream().filter(conceptTreeRspMap::containsKey).map(conceptTreeRspMap::get).collect(Collectors.toList()));
+                    BasicConceptTreeRsp.ObjectAttr objectAttr = new BasicConceptTreeRsp.ObjectAttr(attrDef.getId(), attrDef.getName(),
+                            attrDef.getDomainValue(), attrDef.getDirection(),
+                            attrDef.getDataType(), attrDef.getRangeValue(), rangeConceptList);
+                    objAttrs.add(objectAttr);
+                } else if (AttributeValueType.NUMERIC.getType().equals(attrDef.getType())) {
+                    BasicConceptTreeRsp.NumberAttr numberAttr = new BasicConceptTreeRsp.NumberAttr(attrDef.getId(), attrDef.getName(), attrDef.getDomainValue(), attrDef.getDataType());
+                    numAttrs.add(numberAttr);
+                }
+            });
+            consumerIfNoNull(objAttrs, a -> objMap.put(k, a));
+            consumerIfNoNull(numAttrs, a -> numMap.put(k, a));
+        });
         allConceptList.forEach(a -> {
-            List<AttrDefVO> attrDefByConceptList = groupBuConceptMap.get(a.getId());
-            if (!CollectionUtils.isEmpty(attrDefByConceptList)) {
-                attrDefByConceptList.forEach(attrDef -> {
-                    if (attrDef.getType() == null) {
-                        return;
-                    }
-                    if (AttributeValueType.OBJECT.getType().equals(attrDef.getType())) {
-                        List<BasicConceptTreeRsp> rangeConceptList = toListNoNull(attrDef.getRangeValue(), b -> b.stream().filter(conceptTreeRspMap::containsKey).map(conceptTreeRspMap::get).collect(Collectors.toList()));
-                        BasicConceptTreeRsp.ObjectAttr numberAttr = new BasicConceptTreeRsp.ObjectAttr(attrDef.getId(), attrDef.getName(),
-                                attrDef.getDomainValue(), attrDef.getDirection(),
-                                attrDef.getDataType(), attrDef.getRangeValue(), rangeConceptList);
-                        a.setObjAttrs(DefaultUtils.listAdd(a.getObjAttrs(), numberAttr));
-                    } else if (AttributeValueType.NUMERIC.getType().equals(attrDef.getType())) {
-                        BasicConceptTreeRsp.NumberAttr numberAttr = new BasicConceptTreeRsp.NumberAttr(attrDef.getId(), attrDef.getName(), attrDef.getDomainValue(), attrDef.getDataType());
-                        a.setNumAttrs(DefaultUtils.listAdd(a.getNumAttrs(), numberAttr));
-                    }
-                });
-            }
+            consumerIfNoNull(objMap.get(a.getId()), a::setObjAttrs);
+            consumerIfNoNull(numMap.get(a.getId()), a::setNumAttrs);
         });
     }
 
@@ -166,7 +164,7 @@ public class ConceptConverter extends BasicConverter {
             return;
         }
         for (BasicConceptTreeRsp treeItemVo : treeItemVoList) {
-            List<BasicConceptTreeRsp> child = treeMap.getOrDefault(treeItemVo.getId(), new ArrayList<>());
+            List<BasicConceptTreeRsp> child = treeMap.getOrDefault(treeItemVo.getId(), Collections.emptyList());
             if (!CollectionUtils.isEmpty(child)) {
                 treeItemVo.setChildren(child);
                 fillTree(child, treeMap);

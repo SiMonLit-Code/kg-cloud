@@ -35,7 +35,7 @@ public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements Re
     @ApiModelProperty("时间过滤参数")
     private TimeFilterExploreReq timeFilters;
     @ApiModelProperty("推理规则")
-    private Map<Integer, Object> reasoningRuleConfigs;
+    private Map<Long, Object> reasoningRuleConfigs;
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
 
@@ -50,7 +50,7 @@ public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements Re
     }
 
     @Override
-    public Map<Integer, Object> fetchReasonConfig() {
+    public Map<Long, Object> fetchReasonConfig() {
         return reasoningRuleConfigs;
     }
 

@@ -26,7 +26,7 @@ public class RelationReasoningAnalysisReq extends BasicGraphExploreReq implement
     @ApiModelProperty(value = "关联搜索参数", required = true)
     private CommonRelationReq relation;
     @ApiModelProperty("推理规则")
-    private Map<Integer, Object> reasoningRuleConfigs;
+    private Map<Long, Object> reasoningRuleConfigs;
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
 
@@ -41,7 +41,7 @@ public class RelationReasoningAnalysisReq extends BasicGraphExploreReq implement
     }
 
     @Override
-    public Map<Integer, Object> fetchReasonConfig() {
+    public Map<Long, Object> fetchReasonConfig() {
         return reasoningRuleConfigs;
     }
 

@@ -66,14 +66,6 @@ public class SemanticController implements SdkOpenApiInterface {
         return ApiReturn.success(RestCopyConverter.copyRestRespResult(query, new QaAnswerDataRsp()));
     }
 
-    @ApiOperation("隐含关系推理")
-    @PostMapping("reasoning/execute/{kgName}")
-    public ApiReturn<GraphReasoningResultRsp> reasoning(@ApiParam(value = "图谱名称") @PathVariable("kgName") String kgName,
-                                                        @RequestBody ReasoningReq reasoningReq) {
-        RestResp<ReasoningResultRsp> reasoning = reasoningApi.reasoning(kgName, reasoningReq);
-        return ApiReturn.success(RestCopyConverter.copyRestRespResult(reasoning, new GraphReasoningResultRsp()));
-    }
-
     @ApiOperation("两个实体间语义距离查询")
     @PostMapping("distance/score/{kgName}")
     public ApiReturn<Double> semanticDistanceScore(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
