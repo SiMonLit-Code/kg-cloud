@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,7 +102,13 @@ public class DataOptServiceImpl implements DataOptService {
                 if (scm != null) {
                     if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
                             Objects.equals(scm.getType(), FieldType.FLOAT.getCode())) {
-                        result.put(entry.getKey(), new BigDecimal(entry.getValue().toString()));
+                        BigDecimal value = new BigDecimal(entry.getValue().toString());
+                        if (value.compareTo(new BigDecimal(value.intValue())) == 0) {
+                            DecimalFormat f = new DecimalFormat("##.0");
+                            result.put(entry.getKey(), f.format(value));
+                        } else {
+                            result.put(entry.getKey(), value);
+                        }
                     } else {
                         result.put(entry.getKey(), entry.getValue());
                     }
@@ -109,7 +116,7 @@ public class DataOptServiceImpl implements DataOptService {
                     result.put(entry.getKey(), entry.getValue());
                 }
             }
-            return one;
+            return result;
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
@@ -279,6 +286,7 @@ public class DataOptServiceImpl implements DataOptService {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
             List<Map<String, Object>> mapList = provider.find(0, 10000, null);
             List<List<Object>> resultList = new ArrayList<>();
+            List<String> fields = one.getFields();
             List<DataSetSchema> schema = one.getSchema();
             for (Map<String, Object> objectMap : mapList) {
                 List<Object> objects = new ArrayList<>(schema.size());
@@ -293,7 +301,7 @@ public class DataOptServiceImpl implements DataOptService {
             String fileName = URLEncoder.encode(dataName, "UTF-8");
             response.setHeader("Content-disposition", "attachment;filename=" + fileName);
             ServletOutputStream outputStream = response.getOutputStream();
-            EasyExcel.write(outputStream).head(head(schema)).sheet().doWrite(resultList);
+            EasyExcel.write(outputStream).head(head(fields)).sheet().doWrite(resultList);
         }
     }
 
@@ -321,10 +329,10 @@ public class DataOptServiceImpl implements DataOptService {
         return Check.checkJson(JacksonUtils.writeValueAsString(req.getData()), JacksonUtils.writeValueAsString(req.getRules()));
     }
 
-    private List<List<String>> head(List<DataSetSchema> fields) {
+    private List<List<String>> head(List<String> fields) {
         List<List<String>> list = new ArrayList<>();
-        for (DataSetSchema field : fields) {
-            list.add(Collections.singletonList(field.getField()));
+        for (String field : fields) {
+            list.add(Collections.singletonList(field));
         }
         return list;
     }
