@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,7 +102,13 @@ public class DataOptServiceImpl implements DataOptService {
                 if (scm != null) {
                     if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
                             Objects.equals(scm.getType(), FieldType.FLOAT.getCode())) {
-                        result.put(entry.getKey(), new BigDecimal(entry.getValue().toString()));
+                        BigDecimal value = new BigDecimal(entry.getValue().toString());
+                        if (value.compareTo(new BigDecimal(value.intValue())) == 0) {
+                            DecimalFormat f = new DecimalFormat("##.0");
+                            result.put(entry.getKey(), f.format(value));
+                        } else {
+                            result.put(entry.getKey(), value);
+                        }
                     } else {
                         result.put(entry.getKey(), entry.getValue());
                     }
@@ -109,7 +116,7 @@ public class DataOptServiceImpl implements DataOptService {
                     result.put(entry.getKey(), entry.getValue());
                 }
             }
-            return one;
+            return result;
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
