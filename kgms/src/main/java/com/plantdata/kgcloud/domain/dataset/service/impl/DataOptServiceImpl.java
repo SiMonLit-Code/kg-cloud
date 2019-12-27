@@ -94,11 +94,14 @@ public class DataOptServiceImpl implements DataOptService {
 
     @Override
     public Map<String, Object> insertData(String userId, Long datasetId, Map<String, Object> data) {
+        data.remove("_id");
+        DataSet one = dataSetService.findOne(userId, datasetId);
+        List<DataSetSchema> schema = one.getSchema();
+        Map<String, Object> result = validate(schema, data);
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            data.remove("_id");
-            data.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
-            data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
-            return provider.insert(data);
+            result.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
+            result.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
+            return provider.insert(result);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
@@ -166,34 +169,9 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     public Map<String, Object> updateData(String userId, Long datasetId, String dataId, Map<String, Object> data) {
         if (data != null && !data.isEmpty()) {
-            Map<String, Object> result = new HashMap<>();
             DataSet one = dataSetService.findOne(userId, datasetId);
             List<DataSetSchema> schema = one.getSchema();
-            Map<String, DataSetSchema> schemaMap = new HashMap<>();
-            for (DataSetSchema o : schema) {
-                schemaMap.put(o.getField(), o);
-            }
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                DataSetSchema dataSetSchema = schemaMap.get(key);
-                if (dataSetSchema != null) {
-                    FieldType code = FieldType.findCode(dataSetSchema.getType());
-
-                    try {
-
-                        Object format = fieldFormat(value, code);
-                        if (format != null) {
-                            result.put(key, format);
-                        }
-                    } catch (Exception e) {
-                        throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
-                    }
-
-                } else {
-                    result.put(key, value);
-                }
-            }
+            Map<String, Object> result = validate(schema, data);
             try (DataOptProvider provider = getProvider(userId, datasetId)) {
                 result.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
                 return provider.update(dataId, result);
@@ -205,7 +183,34 @@ public class DataOptServiceImpl implements DataOptService {
         }
     }
 
-    private Object fieldFormat(Object o, FieldType field) throws Exception{
+    private Map<String, Object> validate(List<DataSetSchema> schema, Map<String, Object> data) {
+        Map<String, DataSetSchema> schemaMap = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
+        for (DataSetSchema o : schema) {
+            schemaMap.put(o.getField(), o);
+        }
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            DataSetSchema dataSetSchema = schemaMap.get(key);
+            if (dataSetSchema != null) {
+                FieldType code = FieldType.findCode(dataSetSchema.getType());
+                try {
+                    Object format = fieldFormat(value, code);
+                    if (format != null) {
+                        result.put(key, format);
+                    }
+                } catch (Exception e) {
+                    throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+                }
+            } else {
+                result.put(key, value);
+            }
+        }
+        return result;
+    }
+
+    private Object fieldFormat(Object o, FieldType field) throws Exception {
         return field.deserialize(o);
     }
 
@@ -292,7 +297,6 @@ public class DataOptServiceImpl implements DataOptService {
     public Map<String, Object> smoke(String userId, DataSetSmokeReq req) {
         return Check.checkJson(JacksonUtils.writeValueAsString(req.getData()), JacksonUtils.writeValueAsString(req.getRules()));
     }
-
 
     private List<List<String>> head(List<DataSetSchema> fields) {
         List<List<String>> list = new ArrayList<>();
