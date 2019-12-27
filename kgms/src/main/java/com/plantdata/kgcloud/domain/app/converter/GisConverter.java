@@ -34,7 +34,12 @@ public class GisConverter extends BasicConverter {
         gisFrom.setAttrId(exploreReq.getAttrId());
         gisFrom.setDirection(exploreReq.getDirection());
         gisFrom.setGisConceptIds(exploreReq.getConceptIds());
-        gisFrom.setGisFilter(exploreReq.getGisFilters());
+        if(StringUtils.isEmpty(exploreReq.getGisFilters())){
+            exploreReq.setFilterType("$box");
+            exploreReq.setGisFilters("[[-180,90],[180,-90]]");
+        }
+        //todo 何林
+        //gisFrom.setGisFilter(exploreReq.getGisFilters());
         gisFrom.setInherit(exploreReq.getIsInherit());
         PageReq page = exploreReq.getPage();
         if (null != page) {

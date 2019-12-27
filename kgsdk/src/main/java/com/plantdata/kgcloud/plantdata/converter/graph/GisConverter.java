@@ -30,7 +30,7 @@ public class GisConverter extends BasicConverter {
         exploreReq.setFilterType(param.getFilterType());
         exploreReq.setFromTime(param.getFromTime());
         exploreReq.setToTime(param.getToTime());
-        exploreReq.setGisFilters(JsonUtils.stringToMap(param.getGisFilters()));
+        consumerIfNoNull(param.getGisFilters(),exploreReq::setGisFilters);
         exploreReq.setPage(new PageReq(param.getPageNo(), param.getPageSize()));
         return exploreReq;
     }
@@ -72,7 +72,7 @@ public class GisConverter extends BasicConverter {
         locusReq.setTimeFilterType(param.getTimeFilterType());
         locusReq.setFromTime(param.getFromTime());
         locusReq.setToTime(param.getToTime());
-        consumerIfNoNull(param.getGisFilters(), a -> locusReq.setGisFilters(JsonUtils.stringToMap(param.getGisFilters())));
+        consumerIfNoNull(param.getGisFilters(), a -> locusReq.setGisFilters(param.getGisFilters()));
         return locusReq;
     }
 
