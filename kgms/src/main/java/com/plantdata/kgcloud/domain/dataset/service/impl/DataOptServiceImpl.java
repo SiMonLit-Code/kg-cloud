@@ -241,7 +241,10 @@ public class DataOptServiceImpl implements DataOptService {
     }
 
     private Object fieldFormat(Object o, FieldType field) throws Exception {
-        return field.deserialize(o);
+        if (o != null && StringUtils.hasText(o.toString())) {
+            return field.deserialize(o);
+        }
+        return o;
     }
 
     @Override
