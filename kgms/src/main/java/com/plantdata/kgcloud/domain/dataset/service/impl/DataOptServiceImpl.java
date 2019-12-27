@@ -172,7 +172,6 @@ public class DataOptServiceImpl implements DataOptService {
         }
     }
 
-
     @Override
     public void batchInsertData(String userId, Long datasetId, List<Map<String, Object>> dataList) {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {

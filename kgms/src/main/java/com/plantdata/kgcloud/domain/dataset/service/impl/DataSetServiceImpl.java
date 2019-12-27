@@ -11,7 +11,6 @@ import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
-import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSetFolder;
@@ -23,6 +22,7 @@ import com.plantdata.kgcloud.domain.dataset.service.DataSetFolderService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
+import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
@@ -319,72 +319,78 @@ public class DataSetServiceImpl implements DataSetService {
 
     @Override
     public List<DataSetSchema> schemaResolve(Integer dataType, MultipartFile file) {
-        List<DataSetSchema> setSchemas = new ArrayList<>();
-
+        List<DataSetSchema> schemaList = new ArrayList<>();
         String filename = file.getOriginalFilename();
-
         if (filename != null) {
             int i = filename.lastIndexOf(".");
             String extName = filename.substring(i);
             if (KgmsConstants.FileType.XLSX.equalsIgnoreCase(extName) || KgmsConstants.FileType.XLS.equalsIgnoreCase(extName)) {
-                try {
-                    EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
-                        @Override
-                        public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
-                            for (Map.Entry<Integer, String> entry : headMap.entrySet()) {
-                                DataSetSchema dataSetSchema = new DataSetSchema();
-                                dataSetSchema.setField(entry.getValue());
-                                dataSetSchema.setType(1);
-                                setSchemas.add(dataSetSchema);
-                            }
-                        }
-
-                        @Override
-                        public void invoke(Map<Integer, Object> data, AnalysisContext context) {
-                            Integer rowIndex = context.readRowHolder().getRowIndex();
-                            if (rowIndex < 10) {
-                                for (Map.Entry<Integer, Object> entry : data.entrySet()) {
-                                    Object val = entry.getValue();
-                                    FieldType type = readType(val);
-                                    setSchemas.get(entry.getKey()).setType(type.getCode());
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void doAfterAllAnalysed(AnalysisContext context) {
-
-                        }
-                    }).sheet().doRead();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                excelFileSchema(schemaList, file);
             } else if (KgmsConstants.FileType.JSON.equalsIgnoreCase(extName)) {
-                Object json;
-                try {
-                    json = JacksonUtils.readValue(file.getInputStream(), new TypeReference<Object>() {
-                    });
-                } catch (IOException e) {
-                    return setSchemas;
-                }
-                Map<String, Object> map = new HashMap<>();
-                if (json instanceof List) {
-                    List l = (List) json;
-                    map = (Map<String, Object>) l.get(0);
-                } else if (json instanceof Map) {
-                    map = (Map<String, Object>) json;
-                }
-                for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    String o = entry.getKey();
-                    FieldType type = readType(entry.getValue());
-                    DataSetSchema dataSetSchema = new DataSetSchema();
-                    dataSetSchema.setField(o);
-                    dataSetSchema.setType(type.getCode());
-                    setSchemas.add(dataSetSchema);
-                }
+                jsonFileSchema(schemaList, file);
             }
         }
-        return setSchemas;
+        return schemaList;
+    }
+
+    private void excelFileSchema(List<DataSetSchema> setSchemas, MultipartFile file) {
+        try {
+            EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
+                @Override
+                public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
+                    for (Map.Entry<Integer, String> entry : headMap.entrySet()) {
+                        DataSetSchema dataSetSchema = new DataSetSchema();
+                        dataSetSchema.setField(entry.getValue());
+                        dataSetSchema.setType(1);
+                        setSchemas.add(dataSetSchema);
+                    }
+                }
+
+                @Override
+                public void invoke(Map<Integer, Object> data, AnalysisContext context) {
+                    Integer rowIndex = context.readRowHolder().getRowIndex();
+                    if (rowIndex < 10) {
+                        for (Map.Entry<Integer, Object> entry : data.entrySet()) {
+                            Object val = entry.getValue();
+                            FieldType type = readType(val);
+                            setSchemas.get(entry.getKey()).setType(type.getCode());
+                        }
+                    }
+                }
+
+                @Override
+                public void doAfterAllAnalysed(AnalysisContext context) {
+
+                }
+            }).sheet().doRead();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void jsonFileSchema(List<DataSetSchema> setSchemas, MultipartFile file) {
+        Object json;
+        try {
+            json = JacksonUtils.readValue(file.getInputStream(), new TypeReference<Object>() {
+            });
+        } catch (IOException e) {
+            return;
+        }
+        Map<String, Object> map = new HashMap<>();
+        if (json instanceof List) {
+            List l = (List) json;
+            map = (Map<String, Object>) l.get(0);
+        } else if (json instanceof Map) {
+            map = (Map<String, Object>) json;
+        }
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String o = entry.getKey();
+            FieldType type = readType(entry.getValue());
+            DataSetSchema dataSetSchema = new DataSetSchema();
+            dataSetSchema.setField(o);
+            dataSetSchema.setType(type.getCode());
+            setSchemas.add(dataSetSchema);
+        }
     }
 
     private FieldType readType(Object val) {
