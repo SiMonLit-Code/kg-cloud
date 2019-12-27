@@ -220,6 +220,6 @@ public class ParserBeanUtils {
             log.error("解析关系metadata数据异常: ", e);
             throw BizException.of(KgmsErrorCodeEnum.METADATA_TYPE_ERROR);
         }
-        return null;
+        return relationRsp;
     }
 }
