@@ -34,14 +34,14 @@ import java.util.function.Function;
  * @date 2019/12/24 14:06
  */
 @RestController("graphRelationController-v2")
-@RequestMapping("sdk/network")
+@RequestMapping
 public class GraphRelationController implements SdkOldApiInterface {
 
     @Autowired
     private AppClient appClient;
 
     @ApiOperation("关联分析")
-    @PostMapping("relation")
+    @PostMapping("sdk/network/relation")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "分析实例列表，json数组格式"),
@@ -73,7 +73,7 @@ public class GraphRelationController implements SdkOldApiInterface {
     }
 
     @ApiOperation("时序关联分析")
-    @PostMapping("relation/timing")
+    @PostMapping("sdk/network/relation/timing")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "分析实例列表，json数组格式"),
@@ -108,7 +108,7 @@ public class GraphRelationController implements SdkOldApiInterface {
     }
 
     @ApiOperation("关联分析推理")
-    @PostMapping("relation/rule")
+    @PostMapping("sdk/rule/relation/rule")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "分析实例列表，json数组格式"),

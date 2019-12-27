@@ -1,5 +1,8 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
@@ -109,5 +112,13 @@ public class BasicConverter {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyMap() : function.apply(list1);
     }
 
-
+    protected static void infoLog(Object obj) {
+        ObjectMapper instance = JacksonUtils.getInstance();
+        instance.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        try {
+            log.info(instance.writeValueAsString(obj));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
 }

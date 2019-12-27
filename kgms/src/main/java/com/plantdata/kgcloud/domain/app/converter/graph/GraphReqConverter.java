@@ -129,6 +129,9 @@ public class GraphReqConverter extends BasicConverter {
         if (timeFilter == null) {
             return;
         }
+        if (null == timeFilter.getFromTime() && null == timeFilter.getToTime()) {
+            return;
+        }
         String fromTime = null;
         String toTime = null;
         Map<String, String> timeRangeMap = new HashMap<>(2);
@@ -141,36 +144,38 @@ public class GraphReqConverter extends BasicConverter {
             timeRangeMap.put("$lte", toTime);
         }
         Map<Integer, Object> entityFromTimeMap = new HashMap<>(2);
-        entityFromTimeMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), timeRangeMap);
-
+        consumerIfNoNull(timeRangeMap, a -> {
+            entityFromTimeMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), a);
+        });
         Map<Integer, Integer> entityFromTimeSortMap = new HashMap<>(1);
-        if (!StringUtils.isEmpty(timeFilter.getSort())) {
+        consumerIfNoNull(timeFilter.getSort(), a -> {
             Optional<SortTypeEnum> sortTypeEnum = SortTypeEnum.parseByName(timeFilter.getSort());
             entityFromTimeSortMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), sortTypeEnum.orElse(SortTypeEnum.DESC).getValue());
-        }
-
+        });
         MetaData entityMetaData = commonFilter.getEntityMeta();
         MetaData relationMetaData = commonFilter.getRelationMeta();
         switch (timeFilter.getTimeFilterType()) {
             case 0:
                 break;
             case 1:
-                entityMetaData.setSort(entityFromTimeSortMap);
-                entityMetaData.setFilter(entityFromTimeMap);
+                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, entityMetaData);
                 break;
             case 2:
-                relationMetaData.setSort(entityFromTimeSortMap);
-                relationMetaData.setFilter(entityFromTimeMap);
+                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, relationMetaData);
                 break;
             case 3:
-                commonFilter.setAttrTimeFrom(fromTime);
-                commonFilter.setAttrTimeTo(toTime);
-                entityMetaData.setSort(entityFromTimeSortMap);
-                entityMetaData.setFilter(entityFromTimeMap);
-                relationMetaData.setSort(entityFromTimeSortMap);
-                relationMetaData.setFilter(entityFromTimeMap);
+                consumerIfNoNull(fromTime, commonFilter::setAttrTimeFrom);
+                consumerIfNoNull(toTime, commonFilter::setAttrTimeTo);
+                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, entityMetaData);
+                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, relationMetaData);
                 break;
             default:
         }
     }
+
+    private static void fillMetaFilter(Map<Integer, Integer> fromTimeSortMap, Map<Integer, Object> fromTimeMap, MetaData metaData) {
+        consumerIfNoNull(fromTimeSortMap, metaData::setSort);
+        consumerIfNoNull(fromTimeMap, metaData::setFilter);
+    }
+
 }
