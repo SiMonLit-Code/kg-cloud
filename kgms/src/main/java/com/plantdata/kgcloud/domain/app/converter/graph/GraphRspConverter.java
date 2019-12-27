@@ -20,7 +20,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -47,9 +46,10 @@ public class GraphRspConverter extends BasicConverter {
         List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap, graphAfter.getReplaceClassIds()));
         List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, graphAfter.isRelationMerge()));
         analysisRsp.setEntityList(commonEntityRspList);
-        analysisRsp.setHasNextPage(NumberUtils.INTEGER_ONE);
+        analysisRsp.setHasNextPage(graph.getLevel1HasNext());
         analysisRsp.setRelationList(relationRspList);
         analysisRsp.setStatisticResult(statisticRspList);
+        infoLog(graph);
         return analysisRsp;
     }
 
