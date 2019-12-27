@@ -23,6 +23,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DATASET_KEY_EXISTS(120106, "唯一标识已存在"),
     DATASET_EXPORT_FAIL(120107, "数据集导出失败"),
     DATASET_IMPORT_FAIL(120108, "数据集导出失败"),
+    DATASET_FIELD_ERROR(120109,"数据字段类型校验错误"),
     QUERYSETTING_NOT_EXISTS(120110, "规则配置不存在"),
 
     KTR_SAVE_FAIL(120113, "kettle文件生成失败"),
@@ -55,7 +56,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     SAME_ATTRIBUTE_ONLY_EXIST_ONE(120615, "同一个属性只能在属性分组里面存在一次"),
     TIME_FORM_MORE_THAN_TO(120616, "开始时间不能大于截止时间"),
     FILE_TYPE_ERROR(120617, "文件导入类型不正确"),
-
+    FILE_OUT_LIMIT(120619, "文件大小超出限制"),
+    METADATA_TYPE_ERROR(120618, "metadata数据类型不正确"),
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
 
     WORD_NOT_EXISTS(120302, "词条不存在"),

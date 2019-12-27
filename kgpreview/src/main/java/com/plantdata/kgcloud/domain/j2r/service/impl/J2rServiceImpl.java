@@ -48,7 +48,7 @@ public class J2rServiceImpl implements J2rService {
                 String entityPath = config.getEntityPath();
                 boolean idPathCheck = idPath == null || idPath.isEmpty() && StringUtils.isNotBlank(entityPath);
                 if (idPathCheck) {
-                    throw new BizException(50013, "idPath is empty for entityPath: " + entityPath);
+                    throw new BizException(50013, String.format("实体名称为【%s】的映射未设置实体ID", entityPath));
                 }
                 List<AttrConfig> attrs = config.getAttrConfigs();
                 if (attrs != null) {
@@ -58,7 +58,7 @@ public class J2rServiceImpl implements J2rService {
                         if (type == 1) {
                             long pathConfigNum = setting.getConfig().stream().filter(a -> a.getEntityPath().equals(valuePath)).count();
                             if (pathConfigNum <= 0) {
-                                throw new BizException(50014, "idPath is empty for entityPath: " + valuePath);
+                                throw new BizException(50014, String.format("关系值域为【%s】的映射不存在", valuePath));
                             }
                         }
                     });

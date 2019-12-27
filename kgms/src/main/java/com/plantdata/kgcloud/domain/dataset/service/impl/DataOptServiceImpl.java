@@ -3,9 +3,12 @@ package com.plantdata.kgcloud.domain.dataset.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
+import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -62,7 +65,7 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, DataOptQueryReq req) {
         Map<String, Object> query = new HashMap<>();
-        if (StringUtils.hasText(req.getField()) && StringUtils.hasText(req.getField())) {
+        if (StringUtils.hasText(req.getField()) && StringUtils.hasText(req.getKw())) {
             Map<String, String> value = new HashMap<>();
             value.put(req.getField(), req.getKw());
             query.put("search", value);
@@ -91,11 +94,14 @@ public class DataOptServiceImpl implements DataOptService {
 
     @Override
     public Map<String, Object> insertData(String userId, Long datasetId, Map<String, Object> data) {
+        data.remove("_id");
+        DataSet one = dataSetService.findOne(userId, datasetId);
+        List<DataSetSchema> schema = one.getSchema();
+        Map<String, Object> result = validate(schema, data);
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            data.remove("_id");
-            data.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
-            data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
-            return provider.insert(data);
+            result.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
+            result.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
+            return provider.insert(result);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
@@ -103,6 +109,21 @@ public class DataOptServiceImpl implements DataOptService {
 
     @Override
     public void upload(String userId, Long datasetId, MultipartFile file) throws Exception {
+        try (DataOptProvider provider = getProvider(userId, datasetId)) {
+            String filename = file.getOriginalFilename();
+            if (filename != null) {
+                int i = filename.lastIndexOf(".");
+                String extName = filename.substring(i);
+                if (KgmsConstants.FileType.XLSX.equalsIgnoreCase(extName) || KgmsConstants.FileType.XLS.equalsIgnoreCase(extName)) {
+                    excelFileHandle(provider, file);
+                } else if (KgmsConstants.FileType.JSON.equalsIgnoreCase(extName)) {
+                    jsonFileHandle(provider, file);
+                }
+            }
+        }
+    }
+
+    private void excelFileHandle(DataOptProvider provider, MultipartFile file) throws Exception {
         EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
             Map<Integer, String> head;
             List<Map<String, Object>> mapList = new ArrayList<>();
@@ -123,11 +144,11 @@ public class DataOptServiceImpl implements DataOptService {
                 map.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
                 mapList.add(map);
                 if (mapList.size() == 10000) {
-                    batchInsertData(userId, datasetId, mapList);
+                    provider.batchInsert(mapList);
                     mapList.clear();
                 }
                 if (!mapList.isEmpty()) {
-                    batchInsertData(userId, datasetId, mapList);
+                    provider.batchInsert(mapList);
                     mapList.clear();
                 }
             }
@@ -139,16 +160,59 @@ public class DataOptServiceImpl implements DataOptService {
         }).sheet().doRead();
     }
 
+    private void jsonFileHandle(DataOptProvider provider, MultipartFile file) throws Exception {
+        List<Map<String, Object>> dataList = JacksonUtils.readValue(file.getInputStream(), new TypeReference<List<Map<String, Object>>>() {
+        });
+        provider.batchInsert(dataList);
+    }
+
     @Override
     public Map<String, Object> updateData(String userId, Long datasetId, String dataId, Map<String, Object> data) {
-        try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
-            return provider.update(dataId, data);
-        } catch (IOException e) {
-            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+        if (data != null && !data.isEmpty()) {
+            DataSet one = dataSetService.findOne(userId, datasetId);
+            List<DataSetSchema> schema = one.getSchema();
+            Map<String, Object> result = validate(schema, data);
+            try (DataOptProvider provider = getProvider(userId, datasetId)) {
+                result.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
+                return provider.update(dataId, result);
+            } catch (IOException e) {
+                throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+            }
+        } else {
+            return data;
         }
     }
 
+    private Map<String, Object> validate(List<DataSetSchema> schema, Map<String, Object> data) {
+        Map<String, DataSetSchema> schemaMap = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
+        for (DataSetSchema o : schema) {
+            schemaMap.put(o.getField(), o);
+        }
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            DataSetSchema dataSetSchema = schemaMap.get(key);
+            if (dataSetSchema != null) {
+                FieldType code = FieldType.findCode(dataSetSchema.getType());
+                try {
+                    Object format = fieldFormat(value, code);
+                    if (format != null) {
+                        result.put(key, format);
+                    }
+                } catch (Exception e) {
+                    throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+                }
+            } else {
+                result.put(key, value);
+            }
+        }
+        return result;
+    }
+
+    private Object fieldFormat(Object o, FieldType field) throws Exception {
+        return field.deserialize(o);
+    }
 
     @Override
     public void batchInsertData(String userId, Long datasetId, List<Map<String, Object>> dataList) {
@@ -233,7 +297,6 @@ public class DataOptServiceImpl implements DataOptService {
     public Map<String, Object> smoke(String userId, DataSetSmokeReq req) {
         return Check.checkJson(JacksonUtils.writeValueAsString(req.getData()), JacksonUtils.writeValueAsString(req.getRules()));
     }
-
 
     private List<List<String>> head(List<DataSetSchema> fields) {
         List<List<String>> list = new ArrayList<>();

@@ -15,6 +15,7 @@ import com.plantdata.kgcloud.sdk.rsp.FolderRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -127,7 +128,10 @@ public class DataSetController {
 
     @ApiOperation("数据集-文件夹-删除")
     @DeleteMapping("/folder/{folderId}")
-    public ApiReturn folderDelete(@PathVariable("folderId") Long folderId, Boolean deleteData) {
+    public ApiReturn folderDelete(
+            @PathVariable("folderId") Long folderId,
+            @ApiParam("是否删除对应数据")
+            @RequestParam("deleteData") Boolean deleteData) {
         String userId = SessionHolder.getUserId();
         dataSetFolderService.folderDelete(userId, folderId, deleteData);
         return ApiReturn.success();

@@ -6,8 +6,9 @@ pipeline {
     }
 
   }
+  options { disableConcurrentBuilds() }
   triggers {
-    pollSCM('H/15 * * * *')
+    pollSCM('* * * * *')
   }
   parameters {
     choice(name:'Project',choices:'kgms\nkgsdk\nkgpreview',description:'select project?')

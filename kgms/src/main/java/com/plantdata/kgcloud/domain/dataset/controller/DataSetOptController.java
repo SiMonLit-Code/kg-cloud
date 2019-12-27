@@ -8,7 +8,6 @@ import com.plantdata.kgcloud.sdk.req.DataSetSmokeReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -115,6 +114,10 @@ public class DataSetOptController {
     public ApiReturn upload(
             @PathVariable("datasetId") Long datasetId,
             @RequestParam(value = "file") MultipartFile file) {
+        long size = file.getSize();
+        if (size > 1024 * 1024) {
+            return ApiReturn.fail(KgmsErrorCodeEnum.FILE_OUT_LIMIT);
+        }
         try {
             String userId = SessionHolder.getUserId();
             dataOptService.upload(userId, datasetId, file);
@@ -161,7 +164,7 @@ public class DataSetOptController {
 
     @ApiOperation("数据集-数据-smoke统计")
     @GetMapping("/{datasetId}/statistics")
-    public ApiReturn<List<Map<String,Long>>> statistics(@PathVariable("datasetId") Long datasetId) {
+    public ApiReturn<List<Map<String, Long>>> statistics(@PathVariable("datasetId") Long datasetId) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dataOptService.statistics(userId, datasetId));
     }
