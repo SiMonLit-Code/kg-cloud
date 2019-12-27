@@ -64,7 +64,7 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, DataOptQueryReq req) {
         Map<String, Object> query = new HashMap<>();
-        if (StringUtils.hasText(req.getField()) && StringUtils.hasText(req.getField())) {
+        if (StringUtils.hasText(req.getField()) && StringUtils.hasText(req.getKw())) {
             Map<String, String> value = new HashMap<>();
             value.put(req.getField(), req.getKw());
             query.put("search", value);
@@ -111,16 +111,15 @@ public class DataOptServiceImpl implements DataOptService {
                 int i = filename.lastIndexOf(".");
                 String extName = filename.substring(i);
                 if (KgmsConstants.FileType.XLSX.equalsIgnoreCase(extName) || KgmsConstants.FileType.XLS.equalsIgnoreCase(extName)) {
-                    excelHandle(provider, file);
+                    excelFileHandle(provider, file);
                 } else if (KgmsConstants.FileType.JSON.equalsIgnoreCase(extName)) {
-                    jsonHandle(provider, file);
+                    jsonFileHandle(provider, file);
                 }
             }
-
         }
     }
 
-    private void excelHandle(DataOptProvider provider, MultipartFile file) throws Exception {
+    private void excelFileHandle(DataOptProvider provider, MultipartFile file) throws Exception {
         EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
             Map<Integer, String> head;
             List<Map<String, Object>> mapList = new ArrayList<>();
@@ -157,7 +156,7 @@ public class DataOptServiceImpl implements DataOptService {
         }).sheet().doRead();
     }
 
-    private void jsonHandle(DataOptProvider provider, MultipartFile file) throws Exception {
+    private void jsonFileHandle(DataOptProvider provider, MultipartFile file) throws Exception {
         List<Map<String, Object>> dataList = JacksonUtils.readValue(file.getInputStream(), new TypeReference<List<Map<String, Object>>>() {
         });
         provider.batchInsert(dataList);
