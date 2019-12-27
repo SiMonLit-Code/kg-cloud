@@ -36,13 +36,16 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @description:
@@ -86,7 +89,34 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     public Map<String, Object> getDataById(String userId, Long datasetId, String dataId) {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            return provider.findOne(dataId);
+            Map<String, Object> one = provider.findOne(dataId);
+            DataSet dataSet = dataSetService.findOne(userId, datasetId);
+            List<DataSetSchema> schema = dataSet.getSchema();
+            Map<String, DataSetSchema> schemaMap = new HashMap<>();
+            Map<String, Object> result = new HashMap<>();
+            for (DataSetSchema o : schema) {
+                schemaMap.put(o.getField(), o);
+            }
+            for (Map.Entry<String, Object> entry : one.entrySet()) {
+                DataSetSchema scm = schemaMap.get(entry.getKey());
+                if (scm != null) {
+                    if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
+                            Objects.equals(scm.getType(), FieldType.FLOAT.getCode())) {
+                        BigDecimal value = new BigDecimal(entry.getValue().toString());
+                        if (value.compareTo(new BigDecimal(value.intValue())) == 0) {
+                            DecimalFormat f = new DecimalFormat("##.0");
+                            result.put(entry.getKey(), f.format(value));
+                        } else {
+                            result.put(entry.getKey(), value);
+                        }
+                    } else {
+                        result.put(entry.getKey(), entry.getValue());
+                    }
+                } else {
+                    result.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return result;
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
@@ -201,7 +231,7 @@ public class DataOptServiceImpl implements DataOptService {
                         result.put(key, format);
                     }
                 } catch (Exception e) {
-                    throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+                    throw BizException.of(KgmsErrorCodeEnum.DATASET_FIELD_ERROR);
                 }
             } else {
                 result.put(key, value);
@@ -256,6 +286,7 @@ public class DataOptServiceImpl implements DataOptService {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
             List<Map<String, Object>> mapList = provider.find(0, 10000, null);
             List<List<Object>> resultList = new ArrayList<>();
+            List<String> fields = one.getFields();
             List<DataSetSchema> schema = one.getSchema();
             for (Map<String, Object> objectMap : mapList) {
                 List<Object> objects = new ArrayList<>(schema.size());
@@ -270,7 +301,7 @@ public class DataOptServiceImpl implements DataOptService {
             String fileName = URLEncoder.encode(dataName, "UTF-8");
             response.setHeader("Content-disposition", "attachment;filename=" + fileName);
             ServletOutputStream outputStream = response.getOutputStream();
-            EasyExcel.write(outputStream).head(head(schema)).sheet().doWrite(resultList);
+            EasyExcel.write(outputStream).head(head(fields)).sheet().doWrite(resultList);
         }
     }
 
@@ -298,10 +329,10 @@ public class DataOptServiceImpl implements DataOptService {
         return Check.checkJson(JacksonUtils.writeValueAsString(req.getData()), JacksonUtils.writeValueAsString(req.getRules()));
     }
 
-    private List<List<String>> head(List<DataSetSchema> fields) {
+    private List<List<String>> head(List<String> fields) {
         List<List<String>> list = new ArrayList<>();
-        for (DataSetSchema field : fields) {
-            list.add(Collections.singletonList(field.getField()));
+        for (String field : fields) {
+            list.add(Collections.singletonList(field));
         }
         return list;
     }

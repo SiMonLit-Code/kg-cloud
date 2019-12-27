@@ -56,6 +56,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -297,11 +298,11 @@ public class DataSetServiceImpl implements DataSetService {
     }
 
     private List<String> transformFields(List<DataSetSchema> schema) {
-        List<String> fields = new ArrayList<>();
+        LinkedHashSet<String> fields = new LinkedHashSet<>();
         for (DataSetSchema dataSetSchema : schema) {
             fields.add(dataSetSchema.getField());
         }
-        return fields;
+        return new ArrayList<>(fields);
     }
 
     @Override
