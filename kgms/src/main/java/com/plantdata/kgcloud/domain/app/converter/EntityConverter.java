@@ -54,6 +54,17 @@ public class EntityConverter {
     }
 
 
+    public static <T extends BasicEntityRsp> T entityVoToBasicEntityRsp(ai.plantdata.kg.api.edit.resp.EntityVO entityVO, T entity) {
+        entity.setId(entityVO.getId());
+        Optional<ImageRsp> imgOpt = ImageConverter.stringT0Image(entityVO.getImageUrl());
+        imgOpt.ifPresent(entity::setImg);
+        entity.setConceptId(entityVO.getConceptId());
+        entity.setMeaningTag(entityVO.getMeaningTag());
+        entity.setName(entityVO.getName());
+        entity.setType(EntityTypeEnum.ENTITY.getValue());
+        MetaConverter.fillMetaWithNoNull(entityVO.getMetaData(), entity);
+        return entity;
+    }
     public static <T extends BasicEntityRsp> T entityVoToBasicEntityRsp(EntityVO entityVO, T entity) {
         entity.setId(entityVO.getId());
         Optional<ImageRsp> imgOpt = ImageConverter.stringT0Image(entityVO.getImageUrl());

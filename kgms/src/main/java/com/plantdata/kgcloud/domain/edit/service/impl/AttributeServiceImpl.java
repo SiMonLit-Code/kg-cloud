@@ -303,7 +303,7 @@ public class AttributeServiceImpl implements AttributeService {
         RestResp<List<RelationVO>> restResp = relationApi.listRelation(KGUtil.dbName(kgName), filterRelationFrom);
         Optional<List<RelationVO>> optional = RestRespConverter.convert(restResp);
         List<RelationRsp> relationRsps =
-                optional.orElse(new ArrayList<>()).stream().map(vo -> MapperUtils.map(vo, RelationRsp.class)).collect(Collectors.toList());
+                optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserRelationMeta).collect(Collectors.toList());
         Optional<Integer> count = RestRespConverter.convertCount(restResp);
         return new PageImpl<>(relationRsps, PageRequest.of(relationSearchReq.getPage() - 1,
                 size), count.get());

@@ -4,9 +4,9 @@ import ai.plantdata.kg.api.semantic.req.ReasoningReq;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.domain.app.dto.RelationReasonRuleDTO;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
+import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.Getter;
 import lombok.ToString;
@@ -32,16 +32,15 @@ public class ReasoningBO {
     private Map<Long, GraphConfReasoning> dbConfigMap;
     private Map<Integer, JsonNode> configMap;
     @Getter
-    private List<RelationReasonRuleDTO> reasonRuleList;
+    private List<RelationReasonRuleRsp> reasonRuleList;
 
-    public ReasoningBO(List<GraphConfReasoning> reasoningList, Map<Integer, Object> configMap) {
+    public ReasoningBO(List<GraphConfReasoning> reasoningList, Map<Long, Object> configMap) {
         this.dbConfigMap = CollectionUtils.isEmpty(reasoningList) ? Collections.emptyMap() : reasoningList.stream().collect(Collectors.toMap(GraphConfReasoning::getId, Function.identity()));
         this.configMap = Maps.newHashMap();
         configMap.forEach((key, value) -> {
             Optional<JsonNode> jsonNodeOpt = JsonUtils.parseJsonNode(JacksonUtils.writeValueAsString(value));
             jsonNodeOpt.ifPresent(v -> configMap.put(key, v));
         });
-
     }
 
     public void replaceRuleInfo() {
@@ -62,7 +61,7 @@ public class ReasoningBO {
                     ruleConfig = ruleConfig.replace(pattern, ruleConfigObject.get(key).toString());
                 }
             }
-            RelationReasonRuleDTO ruleObject = JacksonUtils.readValue(ruleConfig, RelationReasonRuleDTO.class);
+            RelationReasonRuleRsp ruleObject = JacksonUtils.readValue(ruleConfig, RelationReasonRuleRsp.class);
             if (ruleObject == null) {
                 continue;
             }
@@ -81,4 +80,5 @@ public class ReasoningBO {
         reasoningReq.setRuleConfig(JacksonUtils.writeValueAsString(reasonRuleList));
         return reasoningReq;
     }
+
 }

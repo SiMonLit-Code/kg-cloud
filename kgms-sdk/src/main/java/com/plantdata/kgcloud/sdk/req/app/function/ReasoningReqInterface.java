@@ -33,5 +33,5 @@ public interface ReasoningReqInterface {
      *
      * @return 。
      */
-    Map<Integer, Object> fetchReasonConfig();
+    Map<Long, Object> fetchReasonConfig();
 }

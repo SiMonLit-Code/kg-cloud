@@ -93,19 +93,17 @@ public class InfoBoxConverter extends BasicConverter {
         oldBean.setDataLinks(listToRsp(entityLinksRsp.getDataLinks(), InfoBoxConverter::dataLinkRspToDataLinks));
         List<EntityLink> entityLinks = listToRsp(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
         consumerIfNoNull(entityLinks, a -> oldBean.setEntityLinks(Sets.newHashSet(a)));
-        oldBean.setExtra(listToRsp(entityLinksRsp.getExtraList(), InfoBoxConverter::extraRspToExtraKVBean));
+        oldBean.setExtra(listToRsp(entityLinksRsp.getExtraList(), a -> InfoBoxConverter.extraRspToExtraKVBean(a, entityLinksRsp.getConceptId())));
         return oldBean;
     }
 
-    private static ExtraKVBean extraRspToExtraKVBean(EntityLinksRsp.ExtraRsp extraRsp) {
+    private static ExtraKVBean extraRspToExtraKVBean(EntityLinksRsp.ExtraRsp extraRsp, Long domain) {
         ExtraKVBean extraKVBean = new ExtraKVBean();
         extraKVBean.setAttDefid(extraRsp.getAttrId());
-        ///todo
-//        extraKVBean.setDomain(extraRsp.get);
-//        extraKVBean.setType(extraRsp.getValue());
+        extraKVBean.setDomain(domain);
+        extraKVBean.setType(extraRsp.getDataType());
         extraKVBean.setK(extraRsp.getName());
-
-        extraKVBean.setV(extraRsp.getValue());
+        extraKVBean.setV(extraRsp.getValue().toString());
         return extraKVBean;
     }
 

@@ -8,11 +8,11 @@ import com.plantdata.kgcloud.plantdata.converter.semantic.QaConverter;
 import com.plantdata.kgcloud.plantdata.converter.semantic.ReasonConverter;
 import com.plantdata.kgcloud.plantdata.req.reason.InferenceParameter;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
+import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.SemanticClient;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -34,11 +34,12 @@ import java.util.function.Function;
  */
 @RestController
 @RequestMapping("sdk/semantic")
-@Api(tags = "semantic-sdk")
-public class SemanticController implements SdkOldApiInterface{
+public class SemanticController implements SdkOldApiInterface {
 
     @Autowired
     private SemanticClient semanticClient;
+    @Autowired
+    private ReasoningClient reasoningClient;
 
     @ApiOperation("意图图谱生成")
     @GetMapping("kbqa/init")
@@ -79,7 +80,7 @@ public class SemanticController implements SdkOldApiInterface{
             @ApiImplicitParam(name = "PageModel", dataType = "string", paramType = "form", value = "定义域"),
     })
     public RestResp<GraphReasoningResultRsp> inference(@Valid @ApiIgnore InferenceParameter param) {
-        ApiReturn<GraphReasoningResultRsp> reasoning = semanticClient.reasoning(param.getKgName(), ReasonConverter.inferenceParameterToReasoningReq(param));
+        ApiReturn<GraphReasoningResultRsp> reasoning = reasoningClient.reasoning(param.getKgName(), ReasonConverter.inferenceParameterToReasoningReq(param));
         return new RestResp<>(BasicConverter.apiReturnData(reasoning).orElse(new GraphReasoningResultRsp()));
     }
 

@@ -31,7 +31,7 @@ public class CommonReasoningExploreReq extends BasicGraphExploreReq implements R
     @ApiModelProperty(value = "通用参数", required = true)
     private CommonFiltersReq common;
     @ApiModelProperty("推理规则")
-    private Map<Integer, Object> reasoningRuleConfigs;
+    private Map<Long, Object> reasoningRuleConfigs;
 
 
     @Override
@@ -45,7 +45,7 @@ public class CommonReasoningExploreReq extends BasicGraphExploreReq implements R
     }
 
     @Override
-    public Map<Integer, Object> fetchReasonConfig() {
+    public Map<Long, Object> fetchReasonConfig() {
         return reasoningRuleConfigs;
     }
 

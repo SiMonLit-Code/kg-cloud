@@ -1,11 +1,13 @@
 package com.plantdata.kgcloud.domain.edit.util;
 
 import ai.plantdata.kg.api.edit.resp.EntityVO;
+import ai.plantdata.kg.api.pub.resp.RelationVO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
@@ -107,8 +109,9 @@ public class ParserBeanUtils {
 
                 if (entityMetaData.containsKey(MetaDataInfo.TAG.getFieldName())) {
                     basicInfoRsp.setTags(JacksonUtils.readValue(JacksonUtils.writeValueAsString(
-                            entityMetaData.get(MetaDataInfo.TAG.getFieldName())), new TypeReference<List<EntityTagVO>>() {
-                    }));
+                            entityMetaData.get(MetaDataInfo.TAG.getFieldName())),
+                            new TypeReference<List<EntityTagVO>>() {
+                            }));
                 }
                 //设置gis
                 GisVO gisVO = new GisVO();
@@ -134,8 +137,8 @@ public class ParserBeanUtils {
                             }));
                 }
             }
-        }catch (Exception e){
-            log.error("解析实体metadata数据异常: ",e);
+        } catch (Exception e) {
+            log.error("解析实体metadata数据异常: ", e);
             throw BizException.of(KgmsErrorCodeEnum.METADATA_TYPE_ERROR);
         }
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
@@ -182,10 +185,41 @@ public class ParserBeanUtils {
                     relationAttrValueVO.setBatch(relationMetaData.get(MetaDataInfo.BATCH_NO.getFieldName()).toString());
                 }
             }
-        }catch (Exception e){
-            log.error("解析关系metadata数据异常: ",e);
+        } catch (Exception e) {
+            log.error("解析关系metadata数据异常: ", e);
             throw BizException.of(KgmsErrorCodeEnum.METADATA_TYPE_ERROR);
         }
         return relationAttrValueVO;
+    }
+
+    /**
+     * 解析关系溯源的metadata
+     *
+     * @param vo
+     * @return
+     */
+    public static RelationRsp parserRelationMeta(RelationVO vo) {
+        RelationRsp relationRsp = MapperUtils.map(vo, RelationRsp.class);
+        Map<String, Object> relationMetaData = vo.getMetaData();
+        try {
+            if (Objects.nonNull(relationMetaData)) {
+                if (relationMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
+                    relationRsp.setScore((Double) relationMetaData.get(MetaDataInfo.SCORE.getFieldName()));
+                }
+                if (relationMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
+                    relationRsp.setSource((String) relationMetaData.get(MetaDataInfo.SOURCE.getFieldName()));
+                }
+                if (relationMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
+                    relationRsp.setReliability((Double) relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()));
+                }
+                if (relationMetaData.containsKey(MetaDataInfo.BATCH_NO.getFieldName())) {
+                    relationRsp.setBatch(relationMetaData.get(MetaDataInfo.BATCH_NO.getFieldName()).toString());
+                }
+            }
+        } catch (Exception e) {
+            log.error("解析关系metadata数据异常: ", e);
+            throw BizException.of(KgmsErrorCodeEnum.METADATA_TYPE_ERROR);
+        }
+        return null;
     }
 }

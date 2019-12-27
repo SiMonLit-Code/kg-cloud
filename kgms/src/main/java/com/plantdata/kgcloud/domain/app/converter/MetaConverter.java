@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.util.DateUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -54,10 +55,7 @@ public class MetaConverter extends BasicConverter {
         if (metaData.containsKey(MetaDataInfo.GIS_ADDRESS.getFieldName())) {
             metaDataImpl.setAddress((String) metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()));
         }
-        if (metaData.containsKey(MetaDataInfo.TAG.getFieldName())) {
-            List<TagRsp> tagRspList = JsonUtils.objToList(metaData.get(MetaDataInfo.TAG.getFieldName()), TagRsp.class);
-            metaDataImpl.setTags(tagRspList);
-        }
+
         if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
             AdditionalRsp additionalRsp = JsonUtils.objToNewObj(metaData.get(MetaDataInfo.ADDITIONAL.getFieldName()), AdditionalRsp.class);
             metaDataImpl.setAdditional(additionalRsp);
@@ -66,5 +64,14 @@ public class MetaConverter extends BasicConverter {
                 consumerIfNoNull(additionalRsp.getNodeStyle(), metaDataImpl::setNodeStyle);
             }
         }
+        metaDataImpl.setTags(getTags(metaData));
+    }
+
+
+    public static List<TagRsp> getTags(Map<String, Object> metaDataMap) {
+        if (metaDataMap.containsKey(MetaDataInfo.TAG.getFieldName())) {
+            return JsonUtils.objToList(metaDataMap.get(MetaDataInfo.TAG.getFieldName()), TagRsp.class);
+        }
+        return Collections.emptyList();
     }
 }

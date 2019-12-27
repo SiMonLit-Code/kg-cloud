@@ -11,10 +11,8 @@ import ai.plantdata.kg.api.semantic.rsp.EdgeBean;
 import ai.plantdata.kg.api.semantic.rsp.NodeBean;
 import ai.plantdata.kg.api.semantic.rsp.ReasoningResultRsp;
 import ai.plantdata.kg.api.semantic.rsp.TripleBean;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.domain.app.bo.ReasoningBO;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
-import com.plantdata.kgcloud.domain.app.dto.RelationReasonRuleDTO;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -22,11 +20,14 @@ import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepository;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
-import org.apache.commons.collections.CollectionUtils;
+import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,12 +51,24 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
     private EntityApi entityApi;
 
     @Override
+    public List<RelationReasonRuleRsp> generateReasoningRule(Map<Long, Object> configMap) {
+        if (CollectionUtils.isEmpty(configMap)) {
+            return Collections.emptyList();
+        }
+        List<Long> ruleIds = configMap.keySet().stream().distinct().collect(Collectors.toList());
+        List<GraphConfReasoning> configList = graphConfReasoningRepository.findAllById(ruleIds);
+        ReasoningBO reasoning = new ReasoningBO(configList, configMap);
+        reasoning.replaceRuleInfo();
+        return reasoning.getReasonRuleList();
+    }
+
+    @Override
     public GraphVO rebuildByRuleReason(String kgName, GraphVO graphVO, ReasoningReqInterface reasoningParam) {
-        Map<Integer, Object> configMap = reasoningParam.fetchReasonConfig();
+        Map<Long, Object> configMap = reasoningParam.fetchReasonConfig();
         if (MapUtils.isEmpty(configMap)) {
             return graphVO;
         }
-        List<GraphConfReasoning> configList = graphConfReasoningRepository.findAllById(configMap.keySet().stream().map(Integer::longValue).collect(Collectors.toList()));
+        List<GraphConfReasoning> configList = graphConfReasoningRepository.findAllById(new ArrayList<>(configMap.keySet()));
         ReasoningBO reasoning = new ReasoningBO(configList, configMap);
         reasoning.replaceRuleInfo();
         //一次推理
@@ -66,9 +79,9 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
             return graphVO;
         }
         //二次推理
-        Set<Long> realDomains = reasoning.getReasonRuleList().stream().map(RelationReasonRuleDTO::getDomain).collect(Collectors.toSet());
+        Set<Long> realDomains = reasoning.getReasonRuleList().stream().map(RelationReasonRuleRsp::getDomain).collect(Collectors.toSet());
         List<Long> realIdList = graphVO.getEntityList().stream().filter(s -> realDomains.contains(s.getConceptId()) && !analysisEntityIds.contains(s.getId())).map(SimpleEntity::getId).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(realIdList)) {
+        if (!CollectionUtils.isEmpty(realIdList)) {
             reasoningReq = reasoning.buildReasoningReq(realIdList);
             reasoningAndFill(kgName, graphVO, reasoningReq);
         }
@@ -96,7 +109,7 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
             NodeBean end = tripleBean.getEnd();
             EdgeBean edge = tripleBean.getEdge();
             if (end.getType() != 0) {
-               continue;
+                continue;
             }
             if (!entityIdSet.contains(end.getId())) {
                 idList.add(end.getId());
@@ -128,4 +141,6 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
             return entityBean;
         }).collect(Collectors.toList()));
     }
+
+
 }
