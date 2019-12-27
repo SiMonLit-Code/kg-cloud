@@ -12,7 +12,6 @@ import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfQaReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
-import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.req.KgmsCallReq;
 import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
@@ -243,6 +242,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-算法-详情
+     *
      * @param id
      * @return
      */
@@ -406,6 +406,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-统计-分页
+     *
      * @param kgName
      * @param baseReq
      * @return
@@ -425,13 +426,15 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-推理-分页
-     *
      * @param kgName
-     * @param baseReq
+     * @param page
+     * @param size
      * @return
      */
     @GetMapping("/config/reason/page/{kgName}")
-    ApiReturn<BasePage<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName, BaseReq baseReq);
+    ApiReturn<BasePage<GraphConfReasonRsp>> selectReasoningPage(@PathVariable("kgName") String kgName,
+                                                                @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                                                @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
 
     /**
      * 图谱配置-推理-详情

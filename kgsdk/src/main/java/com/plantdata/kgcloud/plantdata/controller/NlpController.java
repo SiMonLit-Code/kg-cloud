@@ -44,7 +44,6 @@ import java.util.function.Function;
 /**
  * @author Administrator
  */
-@Api(tags = "nlp-sdk")
 @RestController("nlpController-v2")
 @RequestMapping("sdk/nlp")
 public class NlpController implements SdkOldApiInterface {

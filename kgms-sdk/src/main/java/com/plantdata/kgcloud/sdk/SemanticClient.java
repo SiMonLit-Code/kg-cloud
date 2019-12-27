@@ -65,15 +65,7 @@ public interface SemanticClient {
     @PostMapping({"qa/intent"})
     ApiReturn<IntentDataBean> intent(@ApiParam("图谱名称") @RequestParam("kgName") String kgName, @ApiParam("自然语言输入") @RequestParam("query") String var2, @RequestParam(value = "size", defaultValue = "5") int var3);
 
-    /**
-     * 推理
-     *
-     * @param kgName
-     * @param var2
-     * @return
-     */
-    @PostMapping({"reasoning/execute/{kgName}"})
-    ApiReturn<GraphReasoningResultRsp> reasoning(@ApiParam("图谱名称") @PathVariable("kgName") String kgName, @RequestBody ReasoningReq var2);
+
 
 
     /**

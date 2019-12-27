@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -35,35 +36,6 @@ public class BasicConverter {
     private static final int SUCCESS = 200;
     private static final String DATE_REG = "yyyy-MM-ddd hh:mm:ss";
 
-    /**
-     * @param param          旧参数
-     * @param paramFunction  旧参数->新参数
-     * @param returnFunction 新参数->新返回值
-     * @param rspFunction    新返回值->旧返回值
-     * @param <OT>           旧参数-类型
-     * @param <OR>           旧参数-类型
-     * @param <NT>           新参数-类型
-     * @param <NR>           新返回值-类型
-     * @return
-     */
-    public static <NT, NR, OT, OR> OR execute(OT param, Function<OT, NT> paramFunction, Function<NT, ApiReturn<NR>> returnFunction, Function<NR, OR> rspFunction) {
-        return returnFunction
-                .compose(paramFunction)
-                .andThen(a -> convert(a, rspFunction))
-                .apply(param);
-    }
-
-    protected static <T> void applyIfTrue(Boolean bool, T param, Consumer<T> consumer) {
-        if (bool != null && bool) {
-            consumer.accept(param);
-        }
-    }
-
-    public static <T, R> RestData<R> basePageToRestData(BasePage<T> pageData, Function<T, R> function) {
-        List<R> rs = listToRsp(pageData.getContent(), function);
-        return new RestData<>(rs, pageData.getTotalElements());
-    }
-
     public static <T, R> List<R> listToRsp(List<T> list, Function<T, R> function) {
         return executeIfNoNull(list, a -> listConvert(a, function));
     }
@@ -75,8 +47,20 @@ public class BasicConverter {
     }
 
     public static <T> Map<String, T> keyIntToStr(Map<Integer, T> oldMap) {
+        if (CollectionUtils.isEmpty(oldMap)) {
+            return Collections.emptyMap();
+        }
         Map<String, T> newMap = Maps.newHashMapWithExpectedSize(oldMap.size());
         oldMap.forEach((k, v) -> newMap.put(String.valueOf(k), v));
+        return newMap;
+    }
+
+    public static <T> Map<Long, T> keyIntToLong(Map<Integer, T> oldMap) {
+        if (CollectionUtils.isEmpty(oldMap)) {
+            return Collections.emptyMap();
+        }
+        Map<Long, T> newMap = Maps.newHashMapWithExpectedSize(oldMap.size());
+        oldMap.forEach((k, v) -> newMap.put(Long.valueOf(k), v));
         return newMap;
     }
 
@@ -88,17 +72,22 @@ public class BasicConverter {
 
     public static <T> Optional<T> apiReturnData(ApiReturn<T> apiReturn) {
         if (SUCCESS != (apiReturn.getErrCode())) {
-            //todo
             throw new BizException(apiReturn.getErrCode(), apiReturn.getMessage());
         }
         return Optional.ofNullable(apiReturn.getData());
     }
 
-
-    protected static <T, R> R executeIfNoNull(T param, Function<T, R> function) {
-        return param == null ? null : function.apply(param);
+    public static <T, R> RestData<R> basePageToRestData(BasePage<T> pageData, Function<T, R> function) {
+        if (pageData == null) {
+            return new RestData<>(Collections.emptyList(), NumberUtils.LONG_ZERO);
+        }
+        List<R> rs = listToRsp(pageData.getContent(), function);
+        return new RestData<>(rs, pageData.getTotalElements());
     }
 
+    static <T, R> R executeIfNoNull(T param, Function<T, R> function) {
+        return param == null ? null : function.apply(param);
+    }
 
     protected static <T> void consumerIfNoNull(T param, Consumer<T> function) {
         if (param == null) {
@@ -113,13 +102,10 @@ public class BasicConverter {
         function.accept(param);
     }
 
-
-    private static <T, R> List<R> executeIfNoNull(List<T> list1, Function<List<T>, List<R>> function) {
-        return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1);
-    }
-
-    private static <T, R> List<R> listConvert(@NonNull List<T> list, Function<T, R> function) {
-        return list.stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
+    protected static <T> void applyIfTrue(Boolean bool, T param, Consumer<T> consumer) {
+        if (bool != null && bool) {
+            consumer.accept(param);
+        }
     }
 
     protected static <T> List<T> flatList(List<List<T>> list) {
@@ -145,9 +131,18 @@ public class BasicConverter {
             log.error("clazz:{} 创建实例失败", JacksonUtils.writeValueAsString(clazz));
             e.printStackTrace();
         }
-        BeanUtils.copyProperties(t, r);
+        if (r != null) {
+            BeanUtils.copyProperties(t, r);
+        }
         return r;
     }
 
+    private static <T, R> List<R> executeIfNoNull(List<T> list1, Function<List<T>, List<R>> function) {
+        return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1);
+    }
+
+    private static <T, R> List<R> listConvert(@NonNull List<T> list, Function<T, R> function) {
+        return list.stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
+    }
 
 }

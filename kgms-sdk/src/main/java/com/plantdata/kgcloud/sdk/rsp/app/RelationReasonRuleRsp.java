@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.app.dto;
+package com.plantdata.kgcloud.sdk.rsp.app;
 
 import com.plantdata.kgcloud.sdk.constant.AggregateEnum;
 import com.plantdata.kgcloud.sdk.constant.AttrDefinitionTypeEnum;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Setter
 @Builder
 @ToString
-public class RelationReasonRuleDTO {
+public class RelationReasonRuleRsp {
     @ApiModelProperty("属性定义id")
     private Integer attrId;
     @ApiModelProperty("名称")

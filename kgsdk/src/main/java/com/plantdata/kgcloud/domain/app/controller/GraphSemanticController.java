@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphSemanticApplicationInterface;
+import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.SemanticClient;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
@@ -28,6 +29,8 @@ public class GraphSemanticController implements GraphSemanticApplicationInterfac
 
     @Autowired
     private SemanticClient semanticClient;
+    @Autowired
+    private ReasoningClient reasoningClient;
 
     @ApiOperation("意图图谱生成")
     @GetMapping("init/{kgName}")
@@ -48,6 +51,6 @@ public class GraphSemanticController implements GraphSemanticApplicationInterfac
     @PostMapping("/execute/{kgName}")
     public ApiReturn<GraphReasoningResultRsp> reasoning(@ApiParam(value = "图谱名称") @PathVariable("kgName") String kgName,
                                                         @RequestBody ReasoningReq reasoningReq) {
-        return semanticClient.reasoning(kgName, reasoningReq);
+        return reasoningClient.reasoning(kgName, reasoningReq);
     }
 }
