@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
+import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -164,12 +165,48 @@ public class DataOptServiceImpl implements DataOptService {
 
     @Override
     public Map<String, Object> updateData(String userId, Long datasetId, String dataId, Map<String, Object> data) {
-        try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
-            return provider.update(dataId, data);
-        } catch (IOException e) {
-            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+        if (data != null && !data.isEmpty()) {
+            Map<String, Object> result = new HashMap<>();
+            DataSet one = dataSetService.findOne(userId, datasetId);
+            List<DataSetSchema> schema = one.getSchema();
+            Map<String, DataSetSchema> schemaMap = new HashMap<>();
+            for (DataSetSchema o : schema) {
+                schemaMap.put(o.getField(), o);
+            }
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                DataSetSchema dataSetSchema = schemaMap.get(key);
+                if (dataSetSchema != null) {
+                    FieldType code = FieldType.findCode(dataSetSchema.getType());
+
+                    try {
+
+                        Object format = fieldFormat(value, code);
+                        if (format != null) {
+                            result.put(key, format);
+                        }
+                    } catch (Exception e) {
+                        throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+                    }
+
+                } else {
+                    result.put(key, value);
+                }
+            }
+            try (DataOptProvider provider = getProvider(userId, datasetId)) {
+                result.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
+                return provider.update(dataId, result);
+            } catch (IOException e) {
+                throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+            }
+        } else {
+            return data;
         }
+    }
+
+    private Object fieldFormat(Object o, FieldType field) throws Exception{
+        return field.deserialize(o);
     }
 
     @Override
