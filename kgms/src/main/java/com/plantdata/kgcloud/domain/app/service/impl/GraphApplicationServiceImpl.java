@@ -11,7 +11,6 @@ import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
@@ -23,6 +22,7 @@ import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
 import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
+import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
 import com.plantdata.kgcloud.domain.app.dto.InfoBoxQueryDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
@@ -56,7 +56,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,18 +180,11 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     @Override
     public GraphInitRsp initGraphExploration(String kgName, GraphInitBaseEnum graphInitType) {
         Optional<GraphConfFocus> focusOpt = graphConfFocusRepository.findByKgNameAndType(kgName, graphInitType.getValue());
-        GraphInitRsp graphInitRsp = new GraphInitRsp();
-        graphInitRsp.setType(graphInitType);
-        graphInitRsp.setKgName(kgName);
+        GraphInitRsp graphInitRsp = new GraphInitRsp(kgName, graphInitType);
         if (focusOpt.isPresent()) {
-            GraphConfFocus initGraphBean = focusOpt.get();
-            graphInitRsp.setConfig(JacksonUtils.readValue(initGraphBean.getFocusConfig(), new TypeReference<Map<String, Object>>() {
-            }));
-            graphInitRsp.setCreateTime(initGraphBean.getCreateAt());
-            if (initGraphBean.getEntities() != null && initGraphBean.getEntities().fieldNames().hasNext()) {
-                graphInitRsp.setEntities(JacksonUtils.readValue(JacksonUtils.writeValueAsString(initGraphBean.getEntities()), new TypeReference<List<GraphInitRsp.GraphInitEntityRsp>>() {
-                }));
-                return graphInitRsp;
+            Optional<GraphInitRsp> initRspOpt = GraphRspConverter.rebuildGraphInitRsp(focusOpt.get(), graphInitRsp);
+            if (initRspOpt.isPresent()) {
+                return initRspOpt.get();
             }
         }
         Optional<List<Long>> entityIdOpt = RestRespConverter.convert(editGraphApi.getRelationEntity(KGUtil.dbName(kgName)));
@@ -225,7 +217,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         BatchInfoBoxReq batchInfoBoxReq = new BatchInfoBoxReq();
         batchInfoBoxReq.setAllowAttrs(infoBoxReq.getAllowAttrs());
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
-        batchInfoBoxReq.setEntityIdList(Lists.newArrayList(infoBoxReq.getId()));
+        batchInfoBoxReq.setIds(Lists.newArrayList(infoBoxReq.getId()));
         batchInfoBoxReq.setRelationAttrs(infoBoxReq.getRelationAttrs());
         List<InfoBoxRsp> list = infoBox(kgName, batchInfoBoxReq);
         if (CollectionUtils.isEmpty(list)) {
@@ -239,19 +231,34 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
     @Override
     public List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReq req) {
+        //实体
         graphHelperService.replaceByAttrKey(kgName, req);
         KgServiceEntityFrom entityFrom = InfoBoxConverter.batchInfoBoxReqToKgServiceEntityFrom(req);
-
         Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), entityFrom));
-        if (!entityOpt.isPresent()) {
-            return Collections.emptyList();
-        }
-        InfoBoxQueryDTO query = InfoBoxQueryDTO.build(entityOpt.get());
+        List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();
+        entityOpt.ifPresent(entityList -> BasicConverter.consumerIfNoNull(entityList, a -> infoBoxRspList.addAll(editSearchInfoBox(kgName, a))));
+        return infoBoxRspList;
+    }
 
+    private List<InfoBoxRsp> editSearchInfoBox(String kgName, List<EntityVO> entityList) {
+
+        List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();
+        InfoBoxQueryDTO query = InfoBoxQueryDTO.build(entityList);
         List<ai.plantdata.kg.api.edit.resp.EntityVO> relationEntityList = RestRespConverter
                 .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), true, query.getRelationEntityIdSet()))
                 .orElse(Collections.emptyList());
-        return InfoBoxConverter.voToInfoBox(query.getSourceEntityIds(), relationEntityList);
+        BasicConverter.consumerIfNoNull(InfoBoxConverter.voToInfoBox(query.getSourceEntityIds(), relationEntityList), infoBoxRspList::addAll);
+
+        Set<Long> entityIds = relationEntityList.stream().map(BasicInfo::getId).collect(Collectors.toSet());
+        List<Long> conceptIdList = entityList.stream().filter(a -> !entityIds.contains(a.getId())).map(EntityVO::getId).collect(Collectors.toList());
+        BasicConverter.consumerIfNoNull(conceptIdList, a -> {
+            List<ai.plantdata.kg.api.edit.resp.EntityVO> conceptEntityList = RestRespConverter
+                    .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), false, conceptIdList))
+                    .orElse(Collections.emptyList());
+            BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(conceptEntityList, InfoBoxConverter::conceptToInfoBoxRsp), infoBoxRspList::addAll);
+        });
+
+        return infoBoxRspList;
     }
 
     @Override

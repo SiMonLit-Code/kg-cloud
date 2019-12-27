@@ -17,8 +17,8 @@ import java.util.List;
 @Getter
 @Setter
 public class BatchInfoBoxReq implements AttrDefKeyReqInterface {
-    @ApiModelProperty("实体id")
-    private List<Long> entityIdList;
+    @ApiModelProperty("实体id、概念id")
+    private List<Long> ids;
     @ApiModelProperty("是否读取对象属性,默认true")
     private Boolean relationAttrs = true;
     @ApiModelProperty("是否读取反向对象属性,默认true")

@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.app;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
@@ -86,7 +85,7 @@ public class GraphAppTest {
     @Test
     public void batchInfoBoxTest() {
         BatchInfoBoxReq infoBoxReq = new BatchInfoBoxReq();
-        infoBoxReq.setEntityIdList(Lists.newArrayList(3L));
+        infoBoxReq.setIds(Lists.newArrayList(3L));
         List<InfoBoxRsp> infoBoxRspList = graphApplicationService.infoBox("dh3773_9r96hk5ii5cfkk11", infoBoxReq);
         System.out.println(JacksonUtils.writeValueAsString(infoBoxRspList));
     }

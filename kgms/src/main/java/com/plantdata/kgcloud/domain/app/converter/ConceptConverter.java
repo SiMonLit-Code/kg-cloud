@@ -125,7 +125,8 @@ public class ConceptConverter extends BasicConverter {
             List<BasicConceptTreeRsp.NumberAttr> numAttrs = Lists.newArrayList();
             v.forEach(attrDef -> {
                 if (AttributeValueType.OBJECT.getType().equals(attrDef.getType())) {
-                    List<BasicConceptTreeRsp> rangeConceptList = toListNoNull(attrDef.getRangeValue(), b -> b.stream().filter(conceptTreeRspMap::containsKey).map(conceptTreeRspMap::get).collect(Collectors.toList()));
+                    List<BasicConceptTreeRsp> tempConceptList = toListNoNull(attrDef.getRangeValue(), b -> b.stream().filter(conceptTreeRspMap::containsKey).map(conceptTreeRspMap::get).collect(Collectors.toList()));
+                    List<BasicConceptTreeRsp> rangeConceptList = BasicConverter.listConvert(tempConceptList, a -> BasicConverter.copy(a, BasicConceptTreeRsp.class));
                     BasicConceptTreeRsp.ObjectAttr objectAttr = new BasicConceptTreeRsp.ObjectAttr(attrDef.getId(), attrDef.getName(),
                             attrDef.getDomainValue(), attrDef.getDirection(),
                             attrDef.getDataType(), attrDef.getRangeValue(), rangeConceptList);

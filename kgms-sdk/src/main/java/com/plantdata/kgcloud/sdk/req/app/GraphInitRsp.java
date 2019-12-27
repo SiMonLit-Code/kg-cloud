@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 @ToString
 @Getter
 @Setter
+@NoArgsConstructor
 @ApiModel("图初始化视图")
 public class GraphInitRsp {
     @ApiModelProperty("图谱名称")
@@ -33,6 +35,11 @@ public class GraphInitRsp {
     private Date createTime;
     @ApiModelProperty("更新时间")
     private Date updateTime;
+
+    public GraphInitRsp(String kgName, GraphInitBaseEnum type) {
+        this.kgName = kgName;
+        this.type = type;
+    }
 
     @ToString
     @Getter
