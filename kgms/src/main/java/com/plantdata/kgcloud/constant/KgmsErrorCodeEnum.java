@@ -55,7 +55,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     SAME_ATTRIBUTE_ONLY_EXIST_ONE(120615, "同一个属性只能在属性分组里面存在一次"),
     TIME_FORM_MORE_THAN_TO(120616, "开始时间不能大于截止时间"),
     FILE_TYPE_ERROR(120617, "文件导入类型不正确"),
-
+    FILE_OUT_LIMIT(120618, "文件大小超出限制"),
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
 
     WORD_NOT_EXISTS(120302, "词条不存在"),

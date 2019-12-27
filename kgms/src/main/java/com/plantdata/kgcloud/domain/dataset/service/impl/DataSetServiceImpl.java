@@ -326,8 +326,6 @@ public class DataSetServiceImpl implements DataSetService {
         if (filename != null) {
             int i = filename.lastIndexOf(".");
             String extName = filename.substring(i);
-            System.out.println(extName);
-
             if (KgmsConstants.FileType.XLSX.equalsIgnoreCase(extName) || KgmsConstants.FileType.XLS.equalsIgnoreCase(extName)) {
                 try {
                     EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {

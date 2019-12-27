@@ -3,7 +3,9 @@ package com.plantdata.kgcloud.domain.dataset.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
@@ -103,6 +105,22 @@ public class DataOptServiceImpl implements DataOptService {
 
     @Override
     public void upload(String userId, Long datasetId, MultipartFile file) throws Exception {
+        try (DataOptProvider provider = getProvider(userId, datasetId)) {
+            String filename = file.getOriginalFilename();
+            if (filename != null) {
+                int i = filename.lastIndexOf(".");
+                String extName = filename.substring(i);
+                if (KgmsConstants.FileType.XLSX.equalsIgnoreCase(extName) || KgmsConstants.FileType.XLS.equalsIgnoreCase(extName)) {
+                    excelHandle(provider, file);
+                } else if (KgmsConstants.FileType.JSON.equalsIgnoreCase(extName)) {
+                    jsonHandle(provider, file);
+                }
+            }
+
+        }
+    }
+
+    private void excelHandle(DataOptProvider provider, MultipartFile file) throws Exception {
         EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
             Map<Integer, String> head;
             List<Map<String, Object>> mapList = new ArrayList<>();
@@ -123,11 +141,11 @@ public class DataOptServiceImpl implements DataOptService {
                 map.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
                 mapList.add(map);
                 if (mapList.size() == 10000) {
-                    batchInsertData(userId, datasetId, mapList);
+                    provider.batchInsert(mapList);
                     mapList.clear();
                 }
                 if (!mapList.isEmpty()) {
-                    batchInsertData(userId, datasetId, mapList);
+                    provider.batchInsert(mapList);
                     mapList.clear();
                 }
             }
@@ -137,6 +155,12 @@ public class DataOptServiceImpl implements DataOptService {
 
             }
         }).sheet().doRead();
+    }
+
+    private void jsonHandle(DataOptProvider provider, MultipartFile file) throws Exception {
+        List<Map<String, Object>> dataList = JacksonUtils.readValue(file.getInputStream(), new TypeReference<List<Map<String, Object>>>() {
+        });
+        provider.batchInsert(dataList);
     }
 
     @Override
