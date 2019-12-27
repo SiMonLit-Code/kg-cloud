@@ -36,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +44,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @description:
@@ -86,7 +88,28 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     public Map<String, Object> getDataById(String userId, Long datasetId, String dataId) {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
-            return provider.findOne(dataId);
+            Map<String, Object> one = provider.findOne(dataId);
+            DataSet dataSet = dataSetService.findOne(userId, datasetId);
+            List<DataSetSchema> schema = dataSet.getSchema();
+            Map<String, DataSetSchema> schemaMap = new HashMap<>();
+            Map<String, Object> result = new HashMap<>();
+            for (DataSetSchema o : schema) {
+                schemaMap.put(o.getField(), o);
+            }
+            for (Map.Entry<String, Object> entry : one.entrySet()) {
+                DataSetSchema scm = schemaMap.get(entry.getKey());
+                if (scm != null) {
+                    if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
+                            Objects.equals(scm.getType(), FieldType.FLOAT.getCode())) {
+                        result.put(entry.getKey(), new BigDecimal(entry.getValue().toString()));
+                    } else {
+                        result.put(entry.getKey(), entry.getValue());
+                    }
+                } else {
+                    result.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return one;
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
@@ -201,7 +224,7 @@ public class DataOptServiceImpl implements DataOptService {
                         result.put(key, format);
                     }
                 } catch (Exception e) {
-                    throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+                    throw BizException.of(KgmsErrorCodeEnum.DATASET_FIELD_ERROR);
                 }
             } else {
                 result.put(key, value);
