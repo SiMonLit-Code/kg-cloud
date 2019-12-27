@@ -286,6 +286,7 @@ public class DataOptServiceImpl implements DataOptService {
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
             List<Map<String, Object>> mapList = provider.find(0, 10000, null);
             List<List<Object>> resultList = new ArrayList<>();
+            List<String> fields = one.getFields();
             List<DataSetSchema> schema = one.getSchema();
             for (Map<String, Object> objectMap : mapList) {
                 List<Object> objects = new ArrayList<>(schema.size());
@@ -300,7 +301,7 @@ public class DataOptServiceImpl implements DataOptService {
             String fileName = URLEncoder.encode(dataName, "UTF-8");
             response.setHeader("Content-disposition", "attachment;filename=" + fileName);
             ServletOutputStream outputStream = response.getOutputStream();
-            EasyExcel.write(outputStream).head(head(schema)).sheet().doWrite(resultList);
+            EasyExcel.write(outputStream).head(head(fields)).sheet().doWrite(resultList);
         }
     }
 
@@ -328,10 +329,10 @@ public class DataOptServiceImpl implements DataOptService {
         return Check.checkJson(JacksonUtils.writeValueAsString(req.getData()), JacksonUtils.writeValueAsString(req.getRules()));
     }
 
-    private List<List<String>> head(List<DataSetSchema> fields) {
+    private List<List<String>> head(List<String> fields) {
         List<List<String>> list = new ArrayList<>();
-        for (DataSetSchema field : fields) {
-            list.add(Collections.singletonList(field.getField()));
+        for (String field : fields) {
+            list.add(Collections.singletonList(field));
         }
         return list;
     }
