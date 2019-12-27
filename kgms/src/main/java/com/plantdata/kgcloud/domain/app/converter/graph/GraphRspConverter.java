@@ -4,10 +4,13 @@ import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.api.pub.resp.SimpleEntity;
 import ai.plantdata.kg.api.pub.resp.SimpleRelation;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
+import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
+import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
@@ -15,12 +18,14 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -84,6 +89,18 @@ public class GraphRspConverter extends BasicConverter {
             statisticRspList.add(new GraphStatisticRsp(config.getKey(), config.getConceptId(), config.getAttrIdList(), detailList));
         }
         return statisticRspList;
+    }
+
+    public static Optional<GraphInitRsp> rebuildGraphInitRsp(GraphConfFocus initGraphBean, GraphInitRsp graphInitRsp) {
+        graphInitRsp.setConfig(JacksonUtils.readValue(initGraphBean.getFocusConfig(), new TypeReference<Map<String, Object>>() {
+        }));
+        graphInitRsp.setCreateTime(initGraphBean.getCreateAt());
+        if (initGraphBean.getEntities() != null && initGraphBean.getEntities().fieldNames().hasNext()) {
+            graphInitRsp.setEntities(JacksonUtils.readValue(JacksonUtils.writeValueAsString(initGraphBean.getEntities()), new TypeReference<List<GraphInitRsp.GraphInitEntityRsp>>() {
+            }));
+            return Optional.of(graphInitRsp);
+        }
+        return Optional.empty();
     }
 
     private static List<CommonEntityRsp> buildCommonEntityList(@NonNull List<SimpleEntity> simpleEntityList, Map<Long, BasicInfo> conceptMap, List<Long> replaceClassIds) {

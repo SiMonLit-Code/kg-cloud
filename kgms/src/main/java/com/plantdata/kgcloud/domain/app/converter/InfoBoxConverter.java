@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -42,7 +43,7 @@ public class InfoBoxConverter extends BasicConverter {
 
     public static KgServiceEntityFrom batchInfoBoxReqToKgServiceEntityFrom(BatchInfoBoxReq boxReq) {
         KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();
-        entityFrom.setIds(boxReq.getEntityIdList());
+        entityFrom.setIds(boxReq.getIds());
         entityFrom.setReadObjectAttribute(boxReq.getRelationAttrs());
         entityFrom.setReadMetaData(true);
         entityFrom.setReadReverseObjectAttribute(boxReq.getReverseRelationAttrs());
@@ -79,6 +80,13 @@ public class InfoBoxConverter extends BasicConverter {
         return listToRsp(sourceEntityIds, entity -> voToInfoBoxRsp(entity, entityMap));
     }
 
+    public static InfoBoxRsp conceptToInfoBoxRsp(EntityVO entity) {
+        InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
+        infoBoxRsp.setSelf(voToSelf(entity, Collections.emptyList()));
+        infoBoxRsp.setParents(listToRsp(entity.getParent(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
+        infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
+        return infoBoxRsp;
+    }
 
     private static InfoBoxRsp voToInfoBoxRsp(Long sourceEntityId,
                                              Map<Long, EntityVO> entityMap) {
@@ -128,7 +136,7 @@ public class InfoBoxConverter extends BasicConverter {
             extraList.add(new EntityLinksRsp.ExtraRsp(-1, "别称", synonyms));
         }
         //设置数值,私有属性
-        fillAttr(extraList, dataAttrList);
+        consumerIfNoNull(dataAttrList, a -> fillAttr(extraList, a));
         self.setExtraList(extraList);
         return self;
     }

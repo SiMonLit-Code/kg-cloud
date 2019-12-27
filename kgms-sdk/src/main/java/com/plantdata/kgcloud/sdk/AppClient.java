@@ -141,8 +141,8 @@ public interface AppClient {
      */
     @GetMapping("concept/{kgName}")
     ApiReturn<List<BasicInfoVO>> conceptTree(@PathVariable("kgName") String kgName,
-                                             @RequestParam("conceptId") Long conceptId,
-                                             @RequestParam("conceptKey") String conceptKey);
+                                             @RequestParam(value = "conceptId", required = false) Long conceptId,
+                                             @RequestParam(value = "conceptKey", required = false) String conceptKey);
 
     /**
      * 获取所有图谱名称

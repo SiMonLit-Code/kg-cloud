@@ -3,6 +3,9 @@ package com.plantdata.kgcloud.plantdata.controller;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import cn.hiboot.mcn.core.exception.RestException;
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
+import com.plantdata.kgcloud.plantdata.converter.common.ConceptConverter;
 import com.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ConceptParameter;
 import com.plantdata.kgcloud.plantdata.req.data.DelectEntityParameter;
@@ -22,10 +25,16 @@ import com.plantdata.kgcloud.plantdata.req.data.UpdataRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import com.plantdata.kgcloud.plantdata.rsp.data.RelationBeanScore;
 import com.plantdata.kgcloud.plantdata.rsp.data.TreeBean;
+import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.KgDataClient;
+import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +46,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author Administrator
@@ -45,6 +56,10 @@ import java.util.Map;
 @RequestMapping("sdk/graph")
 public class GraphDataController implements SdkOldApiInterface {
 
+    @Autowired
+    private AppClient appClient;
+    @Autowired
+    private KgDataClient kgDataClient;
 
     @ApiOperation("获取概念树")
     @GetMapping("data/concept")
@@ -53,11 +68,10 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "conceptId", dataType = "long", paramType = "query", value = "概念id"),
             @ApiImplicitParam(name = "conceptIdKey", dataType = "string", paramType = "query", value = "概念唯一标识key,")
     })
-    public RestResp<List<TreeBean>> concept(@Valid @ApiIgnore ConceptParameter conceptParameter) {
-        if (conceptParameter.getConceptId() == null) {
-            throw RestException.newInstance(57024);
-        }
-        return new RestResp<>();
+    public RestResp<List<TreeBean>> concept(@Valid @ApiIgnore ConceptParameter param) {
+        ApiReturn<List<BasicInfoVO>> apiReturn = appClient.conceptTree(param.getKgName(), param.getConceptId(), param.getConceptIdKey());
+        List<TreeBean> tree = BasicConverter.convert(apiReturn, a -> BasicConverter.listToRsp(a, ConceptConverter::basicInfoVoToTreeBean));
+        return new RestResp<>(tree);
     }
 
     @ApiOperation("添加概念")
@@ -69,8 +83,14 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "key", dataType = "string", paramType = "form", value = "概念唯一标识key"),
             @ApiImplicitParam(name = "meaningTag", required = false, dataType = "string", paramType = "form", value = "唯一标识符")
     })
-    public RestResp<Object> insertConcept(@Valid @ApiIgnore InsertConceptParameter insertConceptParameter) {
-        return new RestResp<>();
+    public RestResp<Long> insertConcept(@Valid @ApiIgnore InsertConceptParameter param) {
+        Function<ConceptAddReq, ApiReturn<Long>> returnFunction = a -> kgDataClient.createConcept(param.getKgName(), a);
+        Optional<Long> idOpt = returnFunction
+                .compose(ConceptConverter::insertConceptParameterToConceptAddReq)
+                .andThen(BasicConverter::apiReturnData)
+                .apply(param);
+
+        return new RestResp<>(idOpt.orElse(NumberUtils.LONG_MINUS_ONE));
     }
 
     @ApiOperation("修改概念")

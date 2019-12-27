@@ -239,16 +239,14 @@ public class ExploreReqConverter extends BasicConverter {
         entityRsp.setConceptName(entityBean.getConceptName());
         entityRsp.setCoordinates(new CoordinateReq());
         entityRsp.setCreationTime(entityBean.getCreationTime());
-        entityRsp.setEndTime(stringToDate(entityBean.getCreationTime()));
-        entityRsp.setStartTime(stringToDate(entityBean.getFromTime()));
         entityRsp.setNodeStyle(entityBean.getNodeStyle());
         entityRsp.setLabelStyle(entityBean.getLabelStyle());
         entityRsp.setScore(entityBean.getScore());
         entityRsp.setType(entityBean.getType());
         entityRsp.setTags(listToRsp(entityBean.getTags(), ExploreReqConverter::tagToTagRsp));
-        if (entityBean.getAdditionalInfo() != null) {
-            entityRsp.setOpenGis(entityBean.getAdditionalInfo().getIsOpenGis());
-        }
+        consumerIfNoNull(entityBean.getCreationTime(), a -> entityRsp.setEndTime(BasicConverter.stringToDate(a)));
+        consumerIfNoNull(entityBean.getFromTime(), a -> entityRsp.setStartTime(BasicConverter.stringToDate(a)));
+        consumerIfNoNull(entityBean.getAdditionalInfo(), a -> entityRsp.setOpenGis(a.getIsOpenGis()));
         return entityRsp;
     }
 

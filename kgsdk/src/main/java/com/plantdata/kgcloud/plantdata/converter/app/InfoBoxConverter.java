@@ -47,7 +47,7 @@ public class InfoBoxConverter extends BasicConverter {
         infoBoxReq.setAllowAttrs(parameterMore.getAllowAtts());
         infoBoxReq.setAllowAttrsKey(parameterMore.getAllowAttsKey());
         infoBoxReq.setRelationAttrs(parameterMore.getIsRelationAtts());
-        infoBoxReq.setEntityIdList(parameterMore.getIds());
+        infoBoxReq.setIds(parameterMore.getIds());
         return infoBoxReq;
     }
 

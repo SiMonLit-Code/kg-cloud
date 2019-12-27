@@ -2,9 +2,14 @@ package com.plantdata.kgcloud.plantdata.converter.common;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.bean.EditAttDefBeanMole;
+import com.plantdata.kgcloud.plantdata.req.data.InsertConceptParameter;
 import com.plantdata.kgcloud.plantdata.rsp.app.TreeItemVo;
+import com.plantdata.kgcloud.plantdata.rsp.data.TreeBean;
+import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
@@ -40,6 +45,27 @@ public class ConceptConverter extends BasicConverter {
         });
         return treeItemVo;
     }
+
+
+    public static TreeBean basicInfoVoToTreeBean(@NonNull BasicInfoVO basicInfo) {
+        TreeBean treeBean = new TreeBean();
+        treeBean.setId(basicInfo.getId());
+        treeBean.setKey(basicInfo.getKey());
+        treeBean.setMeaningTag(basicInfo.getMeaningTag());
+        treeBean.setName(basicInfo.getName());
+        treeBean.setParentId(basicInfo.getConceptId());
+        return treeBean;
+    }
+
+    public static ConceptAddReq insertConceptParameterToConceptAddReq(@NonNull InsertConceptParameter param) {
+        ConceptAddReq conceptAddReq = new ConceptAddReq();
+        conceptAddReq.setParentId(param.getParentId());
+        conceptAddReq.setMeaningTag(param.getMeaningTag());
+        conceptAddReq.setName(param.getName());
+        conceptAddReq.setKey(param.getKey());
+        return conceptAddReq;
+    }
+
 
     private static EditAttDefBeanMole objAttrToEditAttDefBeanMole(BasicConceptTreeRsp.ObjectAttr objAttr, String conceptName, Long conceptId) {
         EditAttDefBeanMole defBeanMole = new EditAttDefBeanMole();

@@ -21,8 +21,8 @@ import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -76,10 +76,11 @@ public class GraphCommonConverter extends BasicConverter {
         CommonFilter commonFilter = new GraphFrom();
         if (page == null) {
             page = new PageReq();
-            page.setPage(NumberUtils.INTEGER_ZERO);
+            page.setPage(NumberUtils.INTEGER_ONE);
             page.setSize(10);
         }
         commonFilter.setSkip(page.getOffset());
+        graphFrom.setLimit(page.getLimit());
         consumerIfNoNull(exploreReq.getDistance(), a -> {
             commonFilter.setDistance(a);
             graphFrom.setDistance(a);
@@ -91,8 +92,6 @@ public class GraphCommonConverter extends BasicConverter {
         });
         //设置边属性筛选
         consumerIfNoNull(exploreReq.getEdgeAttrFilters(), a -> commonFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
-        graphFrom.setSkip(page.getPage());
-        graphFrom.setLimit(page.getSize());
         graphFrom.setHighLevelFilter(commonFilter);
         graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
         graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
