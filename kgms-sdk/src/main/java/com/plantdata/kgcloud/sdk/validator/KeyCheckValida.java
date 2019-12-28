@@ -10,11 +10,14 @@ import javax.validation.ConstraintValidatorContext;
  * @Date: 2019/12/19 11:03
  * @Description:
  */
-public class KeyCheckValida implements ConstraintValidator<KeyCheck,String> {
+public class KeyCheckValida implements ConstraintValidator<KeyCheck, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (!StringUtils.hasText(value)){
+        if (!StringUtils.hasText(value)) {
             return true;
+        }
+        if (value.length() > 50) {
+            return false;
         }
         String newValue = value.replaceAll("_", "");
         return "".equals(newValue) || newValue.matches("^[A-Za-z]+$");

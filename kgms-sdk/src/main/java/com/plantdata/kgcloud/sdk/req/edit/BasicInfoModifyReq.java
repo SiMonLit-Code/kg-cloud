@@ -21,7 +21,7 @@ public class BasicInfoModifyReq {
 
     @ApiModelProperty(required = true)
     @NotNull
-    @Min(value = 1,message = "不能修改图谱")
+    @Min(value = 1, message = "不能修改图谱")
     private Long id;
 
     @ApiModelProperty(hidden = true, value = "0:概念,1:实体", allowableValues = "0,1")
@@ -29,10 +29,11 @@ public class BasicInfoModifyReq {
 
     @ApiModelProperty(required = true, value = "概念或实体名称")
     @NotEmpty
-    @Length(max = 50)
+    @Length(max = 50, message = "实体名称长度不能超过50")
     private String name;
 
     @ApiModelProperty(value = "消歧标识")
+    @Length(max = 100, message = "消歧项长度不能超过100")
     private String meaningTag;
 
     @ApiModelProperty(value = "唯一标示")
