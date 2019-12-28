@@ -146,9 +146,11 @@ public class ClashServiceImpl implements ClashService {
     public void delete(String kgName, List<String> ls) {
 
         String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
+        Bson query = new Document();
         if (ls != null && !ls.isEmpty()) {
             List<ObjectId> objectIds = ls.stream().map(ObjectId::new).collect(Collectors.toList());
-            mongoClient.getDatabase(kgDbName).getCollection(CLASH_DB_NAME).deleteMany(Filters.in("_id", objectIds));
+            query = Filters.in("_id", objectIds);
         }
+        mongoClient.getDatabase(kgDbName).getCollection(CLASH_DB_NAME).deleteMany(query);
     }
 }
