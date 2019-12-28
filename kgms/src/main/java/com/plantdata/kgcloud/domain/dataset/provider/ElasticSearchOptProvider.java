@@ -378,11 +378,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
         Request request = new Request(DELETE, endpoint);
         Optional<String> send = send(request);
-        String rs = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        if (readTree(rs).get("acknowledged").asBoolean()) {
-            log.info("index {}, type {}, id {} 删除成功", index, type, id);
-        }
-        return rs;
+        return send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
     }
 
     private String addAlias(String index) {
