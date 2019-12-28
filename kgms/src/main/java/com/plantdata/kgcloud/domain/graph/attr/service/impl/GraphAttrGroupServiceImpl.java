@@ -158,8 +158,8 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
         List<Integer> allIds = new ArrayList<>();
         groupRsps.stream().filter(graphAttrGroupRsp -> !CollectionUtils.isEmpty(graphAttrGroupRsp.getAttrIds()))
                 .forEach(graphAttrGroupRsp -> allIds.addAll(graphAttrGroupRsp.getAttrIds()));
-        List<Integer> needIds = allIds.stream().filter(allIds::contains).collect(Collectors.toList());
-        needIds.forEach(attrId -> {
+        List<Integer> needIds = attrIds.stream().filter(attrId -> !allIds.contains(attrId)).collect(Collectors.toList());
+        attrIds.forEach(attrId -> {
             GraphAttrGroupDetails attrGroupDetails =
                     GraphAttrGroupDetails.builder().groupId(id).attrId(attrId).build();
             graphAttrGroupDetailsRepository.save(attrGroupDetails);
