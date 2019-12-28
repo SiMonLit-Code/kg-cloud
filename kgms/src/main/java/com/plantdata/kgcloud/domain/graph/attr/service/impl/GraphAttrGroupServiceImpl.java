@@ -149,26 +149,22 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
     }
 
     @Override
-    public void addAttrToAttrGroup(String kgName, Long id, List<Integer> attrIds) {
+    public Integer addAttrToAttrGroup(String kgName, Long id, List<Integer> attrIds) {
         List<GraphAttrGroupRsp> groupRsps = this.listAttrGroups(kgName,
                 AttrGroupSearchReq.builder().readDetail(false).build());
         if (CollectionUtils.isEmpty(groupRsps)) {
-            return;
+            return 0;
         }
         List<Integer> allIds = new ArrayList<>();
         groupRsps.stream().filter(graphAttrGroupRsp -> !CollectionUtils.isEmpty(graphAttrGroupRsp.getAttrIds()))
                 .forEach(graphAttrGroupRsp -> allIds.addAll(graphAttrGroupRsp.getAttrIds()));
-        attrIds.forEach(attrId -> {
-            if (allIds.contains(attrId)) {
-                throw BizException.of(KgmsErrorCodeEnum.SAME_ATTRIBUTE_ONLY_EXIST_ONE);
-            }
-        });
-
-        attrIds.forEach(attrId -> {
+        List<Integer> needIds = allIds.stream().filter(allIds::contains).collect(Collectors.toList());
+        needIds.forEach(attrId -> {
             GraphAttrGroupDetails attrGroupDetails =
                     GraphAttrGroupDetails.builder().groupId(id).attrId(attrId).build();
             graphAttrGroupDetailsRepository.save(attrGroupDetails);
         });
+        return needIds.size();
     }
 
     @Override

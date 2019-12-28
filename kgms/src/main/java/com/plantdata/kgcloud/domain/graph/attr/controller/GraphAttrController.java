@@ -65,11 +65,10 @@ public class GraphAttrController {
 
     @ApiOperation("向属性分组里面添加属性")
     @PostMapping("/{kgName}/{id}/to/add")
-    public ApiReturn addAttrToAttrGroup(@PathVariable("kgName") String kgName,
+    public ApiReturn<Integer> addAttrToAttrGroup(@PathVariable("kgName") String kgName,
                                         @PathVariable("id") Long id,
                                         @Valid @RequestBody List<Integer> attrIds) {
-        graphAttrGroupService.addAttrToAttrGroup(kgName, id, attrIds);
-        return ApiReturn.success();
+        return ApiReturn.success(graphAttrGroupService.addAttrToAttrGroup(kgName, id, attrIds));
     }
 
     @ApiOperation("从属性分组里面删除属性")
