@@ -391,9 +391,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         String endpoint = "/" + index + "/_alias/" + database;
         Request request = new Request(DELETE, endpoint);
         String rs = send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        if (readTree(rs).get("acknowledged").asBoolean()) {
-            log.info("{} 的 database {} 删除成功", index, database);
-        }
     }
 
     private boolean indicesExists(String index) {
