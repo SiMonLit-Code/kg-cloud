@@ -145,7 +145,7 @@ public class EntityServiceImpl implements EntityService {
         Integer page = (basicInfoListReq.getPage() - 1) * size;
         basicInfoListFrom.setSkip(page);
         basicInfoListFrom.setLimit(size + 1);
-        Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(KGUtil.dbName(kgName), true,
+        Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(KGUtil.dbName(kgName),
                 basicInfoListFrom));
         List<BasicInfoRsp> basicInfoRspList =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
