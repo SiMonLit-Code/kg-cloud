@@ -194,7 +194,7 @@ public interface KgmsClient {
     @DeleteMapping("/graph/{kgName}")
     ApiReturn graphDelete(@PathVariable("kgName") String kgName);
 
-    @GetMapping("/status/{kgName}/{spaId}")
+    @GetMapping("/share/status/{kgName}/{spaId}")
     @ApiOperation("SPA分享状态")
     ApiReturn<LinkShareSpaRsp> shareStatus(@PathVariable("kgName") String kgName, @PathVariable("spaId") String spaId);
 

@@ -16,6 +16,7 @@ import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.springframework.beans.BeanUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class MongoUtil {
         initClient();
     }
 
-    private MongoUtil(MongoClient mongoClient) {
+    public MongoUtil(MongoClient mongoClient) {
 
         this.client = mongoClient;
     }
