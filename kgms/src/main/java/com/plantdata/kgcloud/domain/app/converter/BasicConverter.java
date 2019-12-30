@@ -112,11 +112,11 @@ public class BasicConverter {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyMap() : function.apply(list1);
     }
 
-    protected static void infoLog(Object obj) {
+    protected static void infoLog(String name, Object obj) {
         ObjectMapper instance = JacksonUtils.getInstance();
         instance.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         try {
-            log.info(instance.writeValueAsString(obj));
+            log.info("{}:{}", name, instance.writeValueAsString(obj));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
