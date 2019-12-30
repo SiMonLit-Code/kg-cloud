@@ -31,7 +31,6 @@ public class AttrDefinitionReq {
     @ApiModelProperty(required = true,value = "0：数值，1：对象", allowableValues = "0,1")
     @NotNull
     private Integer type;
-
     @NotNull
     @ApiModelProperty(required = true,value = "属性定义域")
     private Long domainValue;
