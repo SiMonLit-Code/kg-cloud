@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictReq;
+import com.plantdata.kgcloud.domain.edit.req.dict.DictSearchReq;
 import com.plantdata.kgcloud.domain.edit.rsp.DictRsp;
 import org.springframework.data.domain.Page;
 
@@ -43,8 +43,8 @@ public interface DomainDictService {
      * 领域词列表
      *
      * @param kgName
-     * @param baseReq
+     * @param dictSearchReq
      * @return
      */
-    Page<DictRsp> listDict(String kgName, BaseReq baseReq);
+    Page<DictRsp> listDict(String kgName, DictSearchReq dictSearchReq);
 }

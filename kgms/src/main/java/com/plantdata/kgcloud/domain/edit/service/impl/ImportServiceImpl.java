@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -153,8 +152,7 @@ public class ImportServiceImpl implements ImportService {
             header.add(Collections.singletonList("纬度"));
         }
         List<EntityAttrValueVO> attrValue = details.getAttrValue();
-        List<Integer> types = Arrays.asList(91, 92, 93);
-        attrValue.stream().filter(vo -> AttributeValueType.isNumeric(vo.getType()) && !types.contains(vo.getDataType()))
+        attrValue.stream().filter(vo -> AttributeValueType.isNumeric(vo.getType()))
                 .forEach(vo -> header.add(Collections.singletonList(vo.getName() + "(" + vo.getId() + ")")));
         return header;
     }
