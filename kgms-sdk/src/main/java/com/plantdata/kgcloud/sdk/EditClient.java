@@ -134,7 +134,7 @@ public interface EditClient {
      */
     @PutMapping("attribute/{kgName}/definition/batch")
     ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModifyAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                                 @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
+                                                                                 @RequestBody List<AttrDefinitionModifyReq> attrDefinitionReqs);
 
     /**
      * 批量删除实体

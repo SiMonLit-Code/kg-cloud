@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.sdk.req.app;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -44,6 +45,8 @@ public class GraphInitRsp {
     @ToString
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class GraphInitEntityRsp {
         private Long id;
         private String name;
