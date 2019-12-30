@@ -66,11 +66,11 @@ public class GisConverter extends BasicConverter {
         PageReq page = req.getPage();
         GisLocusParam gisLocusParam = new GisLocusParam();
         if (page == null) {
-            gisLocusParam.setPos(NumberUtils.INTEGER_ZERO);
-            gisLocusParam.setSize(BaseReq.DEFAULT_SIZE);
+            gisLocusParam.setSkip(NumberUtils.INTEGER_ZERO);
+            gisLocusParam.setLimit(BaseReq.DEFAULT_SIZE);
         } else {
-            gisLocusParam.setPos(page.getPage());
-            gisLocusParam.setSize(page.getSize());
+            gisLocusParam.setSkip(page.getOffset());
+            gisLocusParam.setLimit(page.getLimit());
         }
         gisLocusParam.setFromTime(req.getFromTime());
         gisLocusParam.setToTime(req.getToTime());

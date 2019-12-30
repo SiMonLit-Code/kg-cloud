@@ -157,10 +157,11 @@ public class GraphDataController implements SdkOldApiInterface {
     @PostMapping("data/attribute/update")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "data", required = true, dataType = "string", paramType = "form", value = "数据，是AttributeDefinition 列表的JSON形式")
+            @ApiImplicitParam(name = "data", required = true, dataType = "string", paramType = "form", value = "数据，是AttributeDefinition 列表的JSON形式,修改需要设置id")
     })
-    public RestResp<Object> updateAttribute(@Valid @ApiIgnore ImportAttributeParameter importAttributeParameter) {
-        return new RestResp<>();
+    public RestResp<Object> updateAttribute(@Valid @ApiIgnore ImportAttributeParameter param) {
+        List<Integer> idList = param.getData().stream().map(a -> a.getId()).collect(Collectors.toList());
+        return new RestResp<>(idList);
     }
 
     @ApiOperation("删除属性定义")
