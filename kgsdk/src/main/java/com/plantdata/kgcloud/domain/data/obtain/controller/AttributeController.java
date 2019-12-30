@@ -41,7 +41,7 @@ public class AttributeController implements GraphDataObtainInterface {
     @ApiOperation("属性定义批量-修改")
     @PutMapping("batchModify/{kgName}")
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModify(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                          @RequestBody List<AttrDefinitionReq> attributeList) {
+                                                                          @RequestBody List<AttrDefinitionModifyReq> attributeList) {
         return editClient.batchModifyAttrDefinition(kgName, attributeList);
     }
 
@@ -61,8 +61,8 @@ public class AttributeController implements GraphDataObtainInterface {
 
     @ApiOperation("属性定义-批量新增")
     @PostMapping("{kgName}/batchAdd")
-    public ApiReturn<List<AttrDefinitionBatchRsp>> batchInsertAttribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                        @RequestBody List<AttrDefinitionReq> attributeList) {
+    public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchInsertAttribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                                                   @RequestBody List<AttrDefinitionReq> attributeList) {
         return editClient.batchAddAttrDefinition(kgName, attributeList);
     }
 

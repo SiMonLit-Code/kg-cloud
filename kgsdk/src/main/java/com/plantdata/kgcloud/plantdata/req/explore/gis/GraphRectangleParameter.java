@@ -3,7 +3,11 @@ package com.plantdata.kgcloud.plantdata.req.explore.gis;
 import com.plantdata.kgcloud.plantdata.req.common.PageModel;
 import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
 import com.plantdata.kgcloud.plantdata.validator.DateCheck;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;

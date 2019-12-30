@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.app.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,5 +47,16 @@ public class JsonUtils {
 
     private static JavaType getCollectionType(ObjectMapper instance, Class<?> collectionClass, Class<?>... elementClasses) {
         return instance.getTypeFactory().constructParametricType(collectionClass, elementClasses);
+    }
+
+    public  static String objToJson(Object obj) {
+        ObjectMapper instance = JacksonUtils.getInstance();
+        instance.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        try {
+            return instance.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
