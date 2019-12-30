@@ -4,6 +4,8 @@ import ai.plantdata.kg.common.bean.AttributeDefinition;
 import cn.hiboot.mcn.core.exception.RestException;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
+import com.plantdata.kgcloud.plantdata.converter.common.AttrDefConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.ConceptConverter;
 import com.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
@@ -26,8 +28,13 @@ import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import com.plantdata.kgcloud.plantdata.rsp.data.RelationBeanScore;
 import com.plantdata.kgcloud.plantdata.rsp.data.TreeBean;
 import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -35,6 +42,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Administrator
@@ -60,6 +69,8 @@ public class GraphDataController implements SdkOldApiInterface {
     private AppClient appClient;
     @Autowired
     private KgDataClient kgDataClient;
+    @Autowired
+    private EditClient editClient;
 
     @ApiOperation("获取概念树")
     @GetMapping("data/concept")
@@ -102,8 +113,10 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "key", dataType = "string", paramType = "form", value = "概念唯一标识key"),
             @ApiImplicitParam(name = "meaningTag", required = false, dataType = "string", paramType = "form", value = "唯一标识符")
     })
-    public RestResp<Object> updataConcept(@Valid @ApiIgnore UpdataConceptParameter updataConceptParameter) {
-        return new RestResp<>();
+    public RestResp<Long> updataConcept(@Valid @ApiIgnore UpdataConceptParameter param) {
+        BasicInfoModifyReq modifyReq = ConceptConverter.updataConceptParameterToBasicInfoModifyReq(param);
+        editClient.updateConcept(param.getKgName(), modifyReq);
+        return new RestResp<>(param.getConceptId());
     }
 
 
@@ -114,17 +127,30 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "conceptId", required = true, dataType = "long", paramType = "query", value = "概念id")
     })
     public RestResp deleteConcept(@Valid @ApiIgnore @RequestParam("kgName") String kgName, @RequestParam("conceptId") Long conceptId) {
+        editClient.deleteConcept(kgName, conceptId);
         return new RestResp();
     }
 
-    @ApiOperation("批量属性新增")
+    @ApiOperation("批量属性定义新增")
     @PostMapping("data/attribute/insert")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "data", required = true, dataType = "string", paramType = "form", value = "数据，是AttributeDefinition 列表的JSON形式")
     })
-    public RestResp<Object> importAttribute(@Valid @ApiIgnore ImportAttributeParameter importAttributeParameter) {
-        return new RestResp<>();
+    public RestResp<Object> importAttribute(@Valid @ApiIgnore ImportAttributeParameter param) {
+        Function<List<AttrDefinitionReq>, ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>>> returnFunction =
+                a -> editClient.batchAddAttrDefinition(param.getKgName(), a);
+        Function<List<AttributeConstraintDefinition>, List<AttrDefinitionReq>> reqFunction =
+                a -> BasicConverter.listToRsp(a, AttrDefConverter::attributeConstraintDefinitionToAttrDefinitionReq);
+        Optional<OpenBatchResult<AttrDefinitionBatchRsp>> batchRsps = returnFunction
+                .compose(reqFunction)
+                .andThen(BasicConverter::apiReturnData)
+                .apply(param.getData());
+        if (!batchRsps.isPresent() || CollectionUtils.isEmpty(batchRsps.get().getSuccess())) {
+            return new RestResp<>();
+        }
+        List<Integer> idList = batchRsps.get().getSuccess().stream().map(AttrDefinitionBatchRsp::getId).collect(Collectors.toList());
+        return new RestResp<>(idList);
     }
 
     @ApiOperation("属性修改")

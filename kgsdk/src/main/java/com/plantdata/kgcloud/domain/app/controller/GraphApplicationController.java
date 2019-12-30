@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -40,7 +40,7 @@ import java.util.List;
 public class GraphApplicationController implements GraphApplicationInterface {
 
     @Autowired
-    private HttpServletRequest request;
+    private KgmsClient kgmsClient;
     @Autowired
     private AppClient appClient;
 
@@ -86,5 +86,12 @@ public class GraphApplicationController implements GraphApplicationInterface {
     public ApiReturn<InfoBoxRsp> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                          @RequestBody InfoBoxReq infoBoxReq) {
         return appClient.infoBox(kgName, infoBoxReq);
+    }
+
+    @ApiOperation("spa分享")
+    @GetMapping("share/{kgName}/{spaId}")
+    public ApiReturn share(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                           @ApiParam(value = "spaId", required = true) @PathVariable("spaId") String spaId) {
+        return kgmsClient.shareStatus(kgName, spaId);
     }
 }

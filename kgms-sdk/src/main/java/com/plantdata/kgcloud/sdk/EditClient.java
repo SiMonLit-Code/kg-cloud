@@ -78,7 +78,7 @@ public interface EditClient {
      * @return .
      */
     @PostMapping("attribute/{kgName}/definition/batch")
-    ApiReturn<List<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
+    ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
                                                                    @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
 
     /**

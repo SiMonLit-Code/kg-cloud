@@ -7,6 +7,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+/**
+ * @author Administrator
+ */
 @Data
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
