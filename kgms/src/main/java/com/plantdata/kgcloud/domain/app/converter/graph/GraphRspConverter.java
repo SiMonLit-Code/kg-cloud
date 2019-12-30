@@ -49,7 +49,7 @@ public class GraphRspConverter extends BasicConverter {
         analysisRsp.setHasNextPage(graph.getLevel1HasNext());
         analysisRsp.setRelationList(relationRspList);
         analysisRsp.setStatisticResult(statisticRspList);
-        infoLog(graph);
+        infoLog("GraphVO", graph);
         return analysisRsp;
     }
 

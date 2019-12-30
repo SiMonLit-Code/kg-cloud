@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/11/21 17:12
  */
-public class EntityConverter {
+public class EntityConverter extends BasicConverter {
 
     public static KgServiceEntityFrom buildIdsQuery(@NonNull Collection<Long> entityIdList) {
         KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();
@@ -65,6 +65,7 @@ public class EntityConverter {
         MetaConverter.fillMetaWithNoNull(entityVO.getMetaData(), entity);
         return entity;
     }
+
     public static <T extends BasicEntityRsp> T entityVoToBasicEntityRsp(EntityVO entityVO, T entity) {
         entity.setId(entityVO.getId());
         Optional<ImageRsp> imgOpt = ImageConverter.stringT0Image(entityVO.getImageUrl());
@@ -150,10 +151,9 @@ public class EntityConverter {
             attributeFrom.setKvMap(JacksonUtils.readValue(entityQueryReq.getQuery(), new TypeReference<Map<String, Object>>() {
             }));
         }
-
         attributeFrom.setLimit(entityQueryReq.getLimit());
         attributeFrom.setSkip(entityQueryReq.getOffset());
-        attributeFrom.setConceptIds(Lists.newArrayList(entityQueryReq.getConceptId()));
+        consumerIfNoNull(entityQueryReq.getConceptId(), a -> attributeFrom.setConceptIds(Lists.newArrayList(a)));
         return attributeFrom;
     }
 
