@@ -95,7 +95,7 @@ public class GraphRspConverter extends BasicConverter {
         graphInitRsp.setConfig(JacksonUtils.readValue(initGraphBean.getFocusConfig(), new TypeReference<Map<String, Object>>() {
         }));
         graphInitRsp.setCreateTime(initGraphBean.getCreateAt());
-        if (initGraphBean.getEntities() != null && initGraphBean.getEntities().fieldNames().hasNext()) {
+        if (initGraphBean.getEntities() != null && initGraphBean.getEntities().size() > 0) {
             graphInitRsp.setEntities(JacksonUtils.readValue(JacksonUtils.writeValueAsString(initGraphBean.getEntities()), new TypeReference<List<GraphInitRsp.GraphInitEntityRsp>>() {
             }));
             return Optional.of(graphInitRsp);

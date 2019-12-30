@@ -41,7 +41,7 @@ public class AttributeController implements GraphDataObtainInterface {
     @ApiOperation("属性定义批量-修改")
     @PutMapping("batchModify/{kgName}")
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModify(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                          @RequestBody List<AttrDefinitionReq> attributeList) {
+                                                                          @RequestBody List<AttrDefinitionModifyReq> attributeList) {
         return editClient.batchModifyAttrDefinition(kgName, attributeList);
     }
 

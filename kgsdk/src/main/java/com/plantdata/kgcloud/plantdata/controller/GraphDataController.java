@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
 import ai.plantdata.kg.common.bean.AttributeDefinition;
-import cn.hiboot.mcn.core.exception.RestException;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
@@ -12,7 +11,6 @@ import com.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ConceptParameter;
 import com.plantdata.kgcloud.plantdata.req.data.DelectEntityParameter;
 import com.plantdata.kgcloud.plantdata.req.data.DelectRelationParameter;
-import com.plantdata.kgcloud.plantdata.req.data.DeleteAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityInsertParameter;
@@ -30,11 +28,14 @@ import com.plantdata.kgcloud.plantdata.rsp.data.TreeBean;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
+import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
+import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -52,6 +53,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -160,7 +162,12 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "data", required = true, dataType = "string", paramType = "form", value = "数据，是AttributeDefinition 列表的JSON形式,修改需要设置id")
     })
     public RestResp<Object> updateAttribute(@Valid @ApiIgnore ImportAttributeParameter param) {
-        List<Integer> idList = param.getData().stream().map(a -> a.getId()).collect(Collectors.toList());
+        List<AttrDefinitionModifyReq> modifyReqs = BasicConverter.listToRsp(param.getData(), AttrDefConverter::importAttributeParameterToAttrDefinitionModifyReq);
+        Optional<OpenBatchResult<AttrDefinitionBatchRsp>> batchResult = BasicConverter.apiReturnData(editClient.batchModifyAttrDefinition(param.getKgName(), modifyReqs));
+        if (!batchResult.isPresent() || CollectionUtils.isEmpty(batchResult.get().getSuccess())) {
+            return new RestResp<>(Collections.emptyList());
+        }
+        List<Integer> idList = batchResult.get().getSuccess().stream().map(AttrDefinitionBatchRsp::getId).collect(Collectors.toList());
         return new RestResp<>(idList);
     }
 
@@ -168,14 +175,15 @@ public class GraphDataController implements SdkOldApiInterface {
     @GetMapping("data/attribute/delete")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "id", required = true, dataType = "long", paramType = "query", value = "属性定义ID")
+            @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "query", value = "属性定义ID")
     })
-    public RestResp<Object> deleteAttribute(@Valid @ApiIgnore DeleteAttributeParameter deleteAttributeParameter) {
+    public RestResp<Object> deleteAttribute(@Valid @ApiIgnore @RequestParam("kgName") String kgName, @RequestParam("id") Integer id) {
+        editClient.deleteAttrDefinition(kgName, id);
         return new RestResp<>();
     }
 
 
-    @ApiOperation("读取概念下的属性")
+    @ApiOperation("读取概念下的属性定义")
     @GetMapping("data/attribute/get")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
@@ -183,10 +191,12 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "conceptKey", dataType = "string", paramType = "query", value = "conceptId 为空是生效"),
             @ApiImplicitParam(name = "isInherit", dataType = "boolean", paramType = "query", value = "是否继承展示父概念属性 默认继承")
     })
-    public RestResp<List<AttributeDefinition>> attribute(@Valid @ApiIgnore AttributeParameter attributeParameter) {
-        if (attributeParameter.getConceptId() == null) {
-            throw RestException.newInstance(57024);
-        }
+    public RestResp<List<AttributeDefinition>> attribute(@Valid @ApiIgnore AttributeParameter param) {
+        Function<AttrDefQueryReq, ApiReturn<List<AttrDefinitionRsp>>> returnFunction = a -> kgDataClient.searchAttrDefByConcept(param.getKgName(), a);
+//        returnFunction
+//                .compose(AttrDefConverter::attributeParameterToAttrDefQueryReq)
+//                .andThen()
+//                .apply()
         return new RestResp<>();
     }
 
