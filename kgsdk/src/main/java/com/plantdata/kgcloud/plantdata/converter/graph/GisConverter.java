@@ -28,9 +28,12 @@ public class GisConverter extends BasicConverter {
     public static GisGraphExploreReq graphRectangleParameterToGisGraphExploreReq(@NonNull GraphRectangleParameter param) {
         GisGraphExploreReq exploreReq = new GisGraphExploreReq();
         exploreReq.setFilterType(param.getFilterType());
+        exploreReq.setConceptIds(param.getAllowTypes());
+        exploreReq.setConceptKeys(param.getAllowTypesKey());
         exploreReq.setFromTime(param.getFromTime());
         exploreReq.setToTime(param.getToTime());
-        consumerIfNoNull(param.getGisFilters(),exploreReq::setGisFilters);
+        consumerIfNoNull(param.getGisFilters(), a -> exploreReq.setGisFilters(JsonUtils.jsonToList(a, Object.class)));
+        consumerIfNoNull(param.getFilterType(), exploreReq::setFilterType);
         exploreReq.setPage(new PageReq(param.getPageNo(), param.getPageSize()));
         return exploreReq;
     }
@@ -72,7 +75,7 @@ public class GisConverter extends BasicConverter {
         locusReq.setTimeFilterType(param.getTimeFilterType());
         locusReq.setFromTime(param.getFromTime());
         locusReq.setToTime(param.getToTime());
-        consumerIfNoNull(param.getGisFilters(), a -> locusReq.setGisFilters(param.getGisFilters()));
+        consumerIfNoNull(param.getGisFilters(), a -> locusReq.setGisFilters(JsonUtils.jsonToList(param.getGisFilters(), Object.class)));
         return locusReq;
     }
 
