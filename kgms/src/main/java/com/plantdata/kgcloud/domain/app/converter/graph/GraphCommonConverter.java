@@ -118,7 +118,7 @@ public class GraphCommonConverter extends BasicConverter {
      */
     static List<GraphRelationRsp> simpleRelationToGraphRelationRsp(@NonNull List<SimpleRelation> simpleRelationList, boolean relationMerge) {
         Map<Long, Set<Long>> relationMap = Maps.newHashMap();
-        return listConvert(simpleRelationList, a -> simpleRelationToGraphRelationRsp(a, relationMap, relationMerge));
+        return listToRsp(simpleRelationList, a -> simpleRelationToGraphRelationRsp(a, relationMap, relationMerge));
     }
 
 
