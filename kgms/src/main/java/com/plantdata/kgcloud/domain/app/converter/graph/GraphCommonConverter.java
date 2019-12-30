@@ -150,13 +150,17 @@ public class GraphCommonConverter extends BasicConverter {
         if (!CollectionUtils.isEmpty(relation.getEdgeObjAttr())) {
             relationRsp.setObjAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
         }
-        if (relationMerge) {
+        if (!relationMerge) {
             return relationRsp;
         }
         //关系合并
         Set<Long> toSet = relationMap.computeIfAbsent(relation.getFrom(), Sets::newHashSet);
         if (toSet.contains(relation.getTo())) {
-            relationRsp.getSourceRelationList().add(relationRsp);
+            if (CollectionUtils.isEmpty(relationRsp.getSourceRelationList())) {
+                relationRsp.setSourceRelationList(Lists.newArrayList(relationRsp));
+            } else {
+                relationRsp.getSourceRelationList().add(relationRsp);
+            }
         }
         toSet.add(relation.getTo());
         return relationRsp;

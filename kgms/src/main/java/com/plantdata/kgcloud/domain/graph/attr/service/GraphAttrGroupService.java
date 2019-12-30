@@ -61,8 +61,9 @@ public interface GraphAttrGroupService {
      * @param kgName
      * @param id
      * @param attrIds
+     * @return 添加的数量
      */
-    void addAttrToAttrGroup(String kgName, Long id, List<Integer> attrIds);
+    Integer addAttrToAttrGroup(String kgName, Long id, List<Integer> attrIds);
 
     /**
      * 从属性分组里面删除属性
