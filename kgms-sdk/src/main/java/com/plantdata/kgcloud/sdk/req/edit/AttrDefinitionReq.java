@@ -1,8 +1,10 @@
 package com.plantdata.kgcloud.sdk.req.edit;
 
+import com.plantdata.kgcloud.sdk.validator.KeyCheck;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -20,6 +22,7 @@ public class AttrDefinitionReq {
 
     @NotEmpty
     @ApiModelProperty(required = true,value = "属性名称")
+    @Length(max = 50, message = "属性名称长度不能超过50")
     private String name;
 
     @ApiModelProperty(value = "属性名称别名")
@@ -56,6 +59,7 @@ public class AttrDefinitionReq {
     private Map<String, Object> constraints;
 
     @ApiModelProperty(value = "属性定义key")
+    @KeyCheck
     private String key;
 
 }
