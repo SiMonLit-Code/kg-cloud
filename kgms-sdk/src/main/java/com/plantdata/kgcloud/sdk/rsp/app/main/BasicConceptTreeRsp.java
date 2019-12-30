@@ -55,7 +55,7 @@ public class BasicConceptTreeRsp extends BasicConceptRsp {
         private String name;
         private Long conceptId;
         private Integer dataType;
-        private int direction;
+        private Integer direction;
         private List<Long> rangeValue;
         private List<BasicConceptTreeRsp> rangeConcept;
     }
