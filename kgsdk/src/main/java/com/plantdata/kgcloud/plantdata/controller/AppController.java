@@ -129,7 +129,7 @@ public class AppController implements SdkOldApiInterface {
         Function<BatchInfoBoxReq, ApiReturn<List<InfoBoxRsp>>> returnFunction = a -> appClient.listInfoBox(param.getKgName(), a);
         List<EntityProfileBean> beanList = returnFunction
                 .compose(InfoBoxConverter::infoBoxParameterMoreToBatchInfoBoxReq)
-                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.listToRsp(b, InfoBoxConverter::infoBoxRspToEntityProfileBean)))
+                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, InfoBoxConverter::infoBoxRspToEntityProfileBean)))
                 .apply(param);
         return new RestResp<>(beanList);
     }
@@ -202,7 +202,7 @@ public class AppController implements SdkOldApiInterface {
     })
     public RestResp<List<AttrPromtRemoteBean>> attrPrompt(@Valid @ApiIgnore AttrPromptParameter param) {
         Function<EdgeAttrPromptReq, ApiReturn<List<EdgeAttributeRsp>>> returnFunction = a -> appClient.attrPrompt(param.getKgName(), a);
-        Function<List<EdgeAttributeRsp>, List<AttrPromtRemoteBean>> rspFunction = a -> BasicConverter.listToRsp(a, PromptConverter::edgeAttributeRspToAttrPromtRemoteBean);
+        Function<List<EdgeAttributeRsp>, List<AttrPromtRemoteBean>> rspFunction = a -> BasicConverter.toListNoNull(a, PromptConverter::edgeAttributeRspToAttrPromtRemoteBean);
         List<AttrPromtRemoteBean> remoteBeanList = returnFunction
                 .compose(PromptConverter::attrPromptParameterToEdgeAttrPromptReq)
                 .andThen(a -> BasicConverter.convert(a, rspFunction))
@@ -238,7 +238,7 @@ public class AppController implements SdkOldApiInterface {
         Function<KnowledgeRecommendReq, ApiReturn<List<ObjectAttributeRsp>>> returnFunction = a -> appClient.knowledgeRecommend(param.getKgName(), a);
         List<KVBean<String, List<EntityBean>>> kvBeanList = returnFunction
                 .compose(AppConverter::associationParameterToKnowledgeRecommendReq)
-                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.listToRsp(b, AppConverter::infoBoxAttrRspToKvBean)))
+                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, AppConverter::infoBoxAttrRspToKvBean)))
                 .apply(param);
         return new RestResp<>(kvBeanList);
     }
@@ -255,7 +255,7 @@ public class AppController implements SdkOldApiInterface {
             throw BizException.of(SdkErrorCodeEnum.APK_NOT_IS_ADMIN);
         }
         ApiReturn<PageRsp<ApkRsp>> statDetail = appClient.getKgName(apkParam.getPage(), apkParam.getSize());
-        List<ApkBean> apkBeanList = BasicConverter.convert(statDetail, a -> BasicConverter.listToRsp(a.getData(), AppConverter::apkRspToApkBean));
+        List<ApkBean> apkBeanList = BasicConverter.convert(statDetail, a -> BasicConverter.toListNoNull(a.getData(), AppConverter::apkRspToApkBean));
         return new RestResp<>(apkBeanList);
     }
 }

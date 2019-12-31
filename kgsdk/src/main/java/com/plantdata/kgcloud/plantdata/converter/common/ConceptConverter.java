@@ -37,8 +37,8 @@ public class ConceptConverter extends BasicConverter {
         treeItemVo.setName(treeRsp.getName());
         treeItemVo.setParentId(treeRsp.getParentId());
         treeItemVo.setType(treeRsp.getType());
-        treeItemVo.setChildren(listToRsp(treeRsp.getChildren(), ConceptConverter::basicConceptTreeRspToTreeItemVo));
-        List<EditAttDefBeanMole> editAttDefBeanMoles = listToRsp(treeRsp.getObjAttrs(), a -> objAttrToEditAttDefBeanMole(a, treeRsp.getName(), treeRsp.getId()));
+        treeItemVo.setChildren(toListNoNull(treeRsp.getChildren(), ConceptConverter::basicConceptTreeRspToTreeItemVo));
+        List<EditAttDefBeanMole> editAttDefBeanMoles = toListNoNull(treeRsp.getObjAttrs(), a -> objAttrToEditAttDefBeanMole(a, treeRsp.getName(), treeRsp.getId()));
         consumerIfNoNull(editAttDefBeanMoles, a -> {
             if (CollectionUtils.isEmpty(treeItemVo.getChildren())) {
                 treeItemVo.setChildren(Lists.newArrayList(editAttDefBeanMoles));
@@ -89,7 +89,7 @@ public class ConceptConverter extends BasicConverter {
         defBeanMole.setConceptName(conceptName);
         defBeanMole.setDirection(objAttr.getDirection());
         defBeanMole.setType(String.valueOf(NumberUtils.INTEGER_ONE));
-        consumerIfNoNull(objAttr.getRangeConcept(), a -> defBeanMole.setChildren(listToRsp(a, ConceptConverter::basicConceptTreeRspToTreeItemVo)));
+        consumerIfNoNull(objAttr.getRangeConcept(), a -> defBeanMole.setChildren(toListNoNull(a, ConceptConverter::basicConceptTreeRspToTreeItemVo)));
         return defBeanMole;
     }
 

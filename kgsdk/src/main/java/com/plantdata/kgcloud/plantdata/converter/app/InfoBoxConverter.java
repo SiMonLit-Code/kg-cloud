@@ -54,10 +54,10 @@ public class InfoBoxConverter extends BasicConverter {
     public static EntityProfileBean infoBoxRspToEntityProfileBean(InfoBoxRsp infoBoxRsp) {
         EntityProfileBean entityProfileBean = new EntityProfileBean();
         entityProfileBean.setSelf(entityLinksRspToEntityLinksBean(infoBoxRsp.getSelf()));
-        entityProfileBean.setAtts(Sets.newHashSet(listToRsp(infoBoxRsp.getAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
-        entityProfileBean.setReAtts(Sets.newHashSet(listToRsp(infoBoxRsp.getReAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
-        entityProfileBean.setPars(listToRsp(infoBoxRsp.getParents(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
-        entityProfileBean.setSons(listToRsp(infoBoxRsp.getSons(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
+        entityProfileBean.setAtts(Sets.newHashSet(toListNoNull(infoBoxRsp.getAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
+        entityProfileBean.setReAtts(Sets.newHashSet(toListNoNull(infoBoxRsp.getReAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
+        entityProfileBean.setPars(toListNoNull(infoBoxRsp.getParents(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
+        entityProfileBean.setSons(toListNoNull(infoBoxRsp.getSons(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
         return entityProfileBean;
     }
 
@@ -77,7 +77,7 @@ public class InfoBoxConverter extends BasicConverter {
     }
 
     private static KVBean<String, List<EntityBean>> infoBoxAttrRspToKVBean(@NonNull InfoBoxRsp.InfoBoxAttrRsp attrRsp) {
-        List<EntityBean> entityBeans = listToRsp(attrRsp.getEntityList(), PromptConverter::promptEntityRspToEntityBean);
+        List<EntityBean> entityBeans = toListNoNull(attrRsp.getEntityList(), PromptConverter::promptEntityRspToEntityBean);
         return new KVBean<>(attrRsp.getAttrDefName(), entityBeans, attrRsp.getAttrDefId());
     }
 
@@ -89,11 +89,11 @@ public class InfoBoxConverter extends BasicConverter {
         oldBean.setMeaningTag(entityLinksRsp.getMeaningTag());
         oldBean.setName(entityLinksRsp.getName());
         consumerIfNoNull(entityLinksRsp.getType(), oldBean::setType);
-        oldBean.setTags(listToRsp(entityLinksRsp.getTags(), a -> copy(a, Tag.class)));
-        oldBean.setDataLinks(listToRsp(entityLinksRsp.getDataLinks(), InfoBoxConverter::dataLinkRspToDataLinks));
-        List<EntityLink> entityLinks = listToRsp(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
+        oldBean.setTags(toListNoNull(entityLinksRsp.getTags(), a -> copy(a, Tag.class)));
+        oldBean.setDataLinks(toListNoNull(entityLinksRsp.getDataLinks(), InfoBoxConverter::dataLinkRspToDataLinks));
+        List<EntityLink> entityLinks = toListNoNull(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
         consumerIfNoNull(entityLinks, a -> oldBean.setEntityLinks(Sets.newHashSet(a)));
-        oldBean.setExtra(listToRsp(entityLinksRsp.getExtraList(), a -> InfoBoxConverter.extraRspToExtraKVBean(a, entityLinksRsp.getConceptId())));
+        oldBean.setExtra(toListNoNull(entityLinksRsp.getExtraList(), a -> InfoBoxConverter.extraRspToExtraKVBean(a, entityLinksRsp.getConceptId())));
         return oldBean;
     }
 
@@ -111,7 +111,7 @@ public class InfoBoxConverter extends BasicConverter {
         DataLinks dataLinks = new DataLinks();
         consumerIfNoNull(dataLink.getDataSetId(), a -> dataLinks.setDataSetId(a.intValue()));
         dataLinks.setDataSetTitle(dataLink.getDataSetTitle());
-        dataLinks.setLinks(listToRsp(dataLink.getLinks(), InfoBoxConverter::linkRspToLinks));
+        dataLinks.setLinks(toListNoNull(dataLink.getLinks(), InfoBoxConverter::linkRspToLinks));
         return dataLinks;
     }
 

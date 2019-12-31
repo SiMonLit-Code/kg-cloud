@@ -32,7 +32,7 @@ public class AppConverter extends BasicConverter {
     }
 
     public static KVBean<String, List<EntityBean>> infoBoxAttrRspToKvBean(@NonNull ObjectAttributeRsp attrRsp) {
-        List<EntityBean> entityBeans = listToRsp(attrRsp.getEntityList(), PromptConverter::promptEntityRspToEntityBean);
+        List<EntityBean> entityBeans = toListNoNull(attrRsp.getEntityList(), PromptConverter::promptEntityRspToEntityBean);
         return new KVBean<>(String.valueOf(attrRsp.getAttrDefId()), entityBeans);
     }
 
