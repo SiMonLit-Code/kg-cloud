@@ -39,7 +39,7 @@ public class GraphConfFocusServiceImpl implements GraphConfFocusService {
             GraphConfFocus targe = new GraphConfFocus();
             BeanUtils.copyProperties(req, targe);
             if (!FocusType.contains(req.getType())) {
-
+                throw BizException.of(KgmsErrorCodeEnum.CONF_FOCUS_ERROR);
             }
             if (FocusType.containsTwo(req.getType())) {
                   if (req.getEntities().size()<2){

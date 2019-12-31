@@ -62,6 +62,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     CONF_FOCUS_ENTITIES_SIZE_ERROR(120620, "您至少设置两个节点"),
     CONF_IDORIDS_NOT_EXISTS(120621, "您输入的id不存在"),
     CONF_STATISTICALID_NOT_EXISTS(120622, "图谱统计ID不存在"),
+    CONF_FOCUS_ERROR(120623, "请您选择正确节点"),
+
 
     WORD_NOT_EXISTS(120302, "词条不存在"),
 
