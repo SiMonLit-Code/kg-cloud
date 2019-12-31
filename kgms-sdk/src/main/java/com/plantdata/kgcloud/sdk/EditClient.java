@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.BatchPrivateRelationReq;
+import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.sdk.req.edit.PrivateAttrDataReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -79,7 +81,7 @@ public interface EditClient {
      */
     @PostMapping("attribute/{kgName}/definition/batch")
     ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                   @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
+                                                                              @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
 
     /**
      * 查询多概念下的属性定义
@@ -234,4 +236,13 @@ public interface EditClient {
     @PostMapping("entity/{kgName}/batch/object/add")
     ApiReturn<List<String>> batchAddPrivateRelation(@PathVariable("kgName") String kgName,
                                                     @RequestBody BatchPrivateRelationReq batchPrivateRelationReq);
+
+    /**
+     * kgql
+     *
+     * @param kgqlReq
+     * @return
+     */
+    @PostMapping("basic/execute/kgql")
+    ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq);
 }

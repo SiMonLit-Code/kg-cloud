@@ -37,7 +37,7 @@ import java.util.function.Function;
  */
 @RestController("graphBusinessAlgorithmController-v2")
 @RequestMapping("sdk/graph/business/algorithm")
-public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
+public class GraphAlgorithmConfigController implements SdkOldApiInterface {
     @Autowired
     private KgmsClient kgmsClient;
 

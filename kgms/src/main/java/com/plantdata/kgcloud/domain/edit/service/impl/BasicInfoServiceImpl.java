@@ -25,7 +25,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.KgqlReq;
+import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.StatisticsReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
