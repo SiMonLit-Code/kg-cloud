@@ -445,7 +445,8 @@ public class EntityServiceImpl implements EntityService {
     public String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
-        return RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom)).orElse(null);
+        return RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom))
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.PRIVATE_RELATION_HAS_EXIST));
     }
 
     @Override

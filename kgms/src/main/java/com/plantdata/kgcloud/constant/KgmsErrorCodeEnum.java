@@ -63,6 +63,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     CONF_IDORIDS_NOT_EXISTS(120621, "您输入的id不存在"),
     CONF_STATISTICALID_NOT_EXISTS(120622, "图谱统计ID不存在"),
     CONF_FOCUS_ERROR(120623, "请您选择正确节点"),
+    PRIVATE_RELATION_HAS_EXIST(120624, "私有关系已存在"),
 
 
     WORD_NOT_EXISTS(120302, "词条不存在"),
