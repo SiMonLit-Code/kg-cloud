@@ -72,7 +72,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     @Transactional(rollbackFor = Exception.class)
     public GraphConfKgqlRsp updateKgql(Long id, GraphConfKgqlReq req) {
         GraphConfKgql graphConfKgql = graphConfKgqlRepository.findById(id)
-                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfKgql);
         GraphConfKgql result = graphConfKgqlRepository.save(graphConfKgql);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);
@@ -97,7 +97,7 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     @Override
     public GraphConfKgqlRsp findById(Long id) {
         GraphConfKgql graphConfKgql = graphConfKgqlRepository.findById(id)
-                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(graphConfKgql);
     }
 }
