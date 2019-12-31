@@ -8,7 +8,7 @@ import lombok.Getter;
  * @date 2019/11/1 17:31
  */
 @Getter
-public enum GisFilterTypeEnum {
+public enum GisFilterTypeEnum implements BaseEnum{
     /**
      * gis选取类型
      */

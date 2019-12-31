@@ -4,10 +4,10 @@ import ai.plantdata.kg.api.edit.DomainDicApi;
 import ai.plantdata.kg.api.edit.req.DomainFrom;
 import ai.plantdata.kg.api.edit.resp.DomainDicVO;
 import cn.hiboot.mcn.core.model.result.RestResp;
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictReq;
+import com.plantdata.kgcloud.domain.edit.req.dict.DictSearchReq;
 import com.plantdata.kgcloud.domain.edit.rsp.DictRsp;
 import com.plantdata.kgcloud.domain.edit.service.DomainDictService;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -53,11 +53,12 @@ public class DomainDictServiceImpl implements DomainDictService {
     }
 
     @Override
-    public Page<DictRsp> listDict(String kgName, BaseReq baseReq) {
-        Integer page = baseReq.getPage();
-        Integer size = baseReq.getSize();
+    public Page<DictRsp> listDict(String kgName, DictSearchReq dictSearchReq) {
+        Integer page = dictSearchReq.getPage();
+        Integer size = dictSearchReq.getSize();
         Integer skip = (page - 1) * size;
-        RestResp<List<DomainDicVO>> restResp = domainDicApi.list(KGUtil.dbName(kgName), skip, size);
+        RestResp<List<DomainDicVO>> restResp = domainDicApi.list(KGUtil.dbName(kgName), dictSearchReq.getFrequency(),
+                skip, size);
         Optional<List<DomainDicVO>> optional = RestRespConverter.convert(restResp);
         List<DictRsp> dictRsps =
                 optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(DictRsp.class)).collect(Collectors.toList());

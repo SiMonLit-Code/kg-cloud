@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
@@ -14,6 +15,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/11/21 15:16
  */
+@Slf4j
 public class ConceptConverter extends BasicConverter {
 
 
@@ -124,16 +127,21 @@ public class ConceptConverter extends BasicConverter {
             List<BasicConceptTreeRsp.ObjectAttr> objAttrs = Lists.newArrayList();
             List<BasicConceptTreeRsp.NumberAttr> numAttrs = Lists.newArrayList();
             v.forEach(attrDef -> {
-                if (AttributeValueType.OBJECT.getType().equals(attrDef.getType())) {
-                    List<BasicConceptTreeRsp> tempConceptList = toListNoNull(attrDef.getRangeValue(), b -> b.stream().filter(conceptTreeRspMap::containsKey).map(conceptTreeRspMap::get).collect(Collectors.toList()));
-                    List<BasicConceptTreeRsp> rangeConceptList = BasicConverter.listConvert(tempConceptList, a -> BasicConverter.copy(a, BasicConceptTreeRsp.class));
-                    BasicConceptTreeRsp.ObjectAttr objectAttr = new BasicConceptTreeRsp.ObjectAttr(attrDef.getId(), attrDef.getName(),
-                            attrDef.getDomainValue(), attrDef.getDirection(),
-                            attrDef.getDataType(), attrDef.getRangeValue(), rangeConceptList);
-                    objAttrs.add(objectAttr);
-                } else if (AttributeValueType.NUMERIC.getType().equals(attrDef.getType())) {
-                    BasicConceptTreeRsp.NumberAttr numberAttr = new BasicConceptTreeRsp.NumberAttr(attrDef.getId(), attrDef.getName(), attrDef.getDomainValue(), attrDef.getDataType());
-                    numAttrs.add(numberAttr);
+                try {
+                    if (AttributeValueType.OBJECT.getType().equals(attrDef.getType())) {
+                        List<BasicConceptTreeRsp> tempConceptList = toListNoNull(attrDef.getRangeValue(), b -> b.stream().filter(conceptTreeRspMap::containsKey).map(conceptTreeRspMap::get).collect(Collectors.toList()));
+                        List<BasicConceptTreeRsp> rangeConceptList = BasicConverter.listConvert(tempConceptList, a -> BasicConverter.copy(a, BasicConceptTreeRsp.class));
+                        BasicConceptTreeRsp.ObjectAttr objectAttr = new BasicConceptTreeRsp.ObjectAttr(attrDef.getId(), attrDef.getName(),
+                                attrDef.getDomainValue(), attrDef.getDirection(),
+                                attrDef.getDataType(), attrDef.getRangeValue(), rangeConceptList);
+                        objAttrs.add(objectAttr);
+                    } else if (AttributeValueType.NUMERIC.getType().equals(attrDef.getType())) {
+                        BasicConceptTreeRsp.NumberAttr numberAttr = new BasicConceptTreeRsp.NumberAttr(attrDef.getId(), attrDef.getName(), attrDef.getDomainValue(), attrDef.getDataType());
+                        numAttrs.add(numberAttr);
+                    }
+                } catch (Exception e) {
+                    log.error("attrDef:{}", JsonUtils.objToJson(attrDef));
+                    e.printStackTrace();
                 }
             });
             consumerIfNoNull(objAttrs, a -> objMap.put(k, a));
