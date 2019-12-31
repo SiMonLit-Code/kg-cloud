@@ -41,7 +41,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     CONF_KGQL_NOT_EXISTS(120602, "图谱业务不存在"),
     CONF_KGQLQUERYSETTING_ERROR(120614, "图谱业务规则错误"),
     CONF_QA_NOT_EXISTS(120603, "图谱问答不存在"),
-    CONF_REASONING_NOT_EXISTS(120604, "图谱统计不存在"),
+    CONF_REASONING_NOT_EXISTS(120604, "图谱推理不存在"),
     CONF_STATISTICAL_NOT_EXISTS(120606, "图谱统计不存在"),
     ES_CONFIG_NOT_FOUND(120605, "未找到es配置"),
     GRAPH_TYPE_ERROR(120606, "图谱类型错误"),
@@ -59,6 +59,9 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     FILE_OUT_LIMIT(120619, "文件大小超出限制"),
     METADATA_TYPE_ERROR(120618, "metadata数据类型不正确"),
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
+    CONF_FOCUS_ENTITIES_SIZE_ERROR(120620, "您至少设置两个节点"),
+    CONF_IDORIDS_NOT_EXISTS(120621, "您输入的id不存在"),
+    CONF_STATISTICALID_NOT_EXISTS(120622, "图谱统计ID不存在"),
 
     WORD_NOT_EXISTS(120302, "词条不存在"),
 

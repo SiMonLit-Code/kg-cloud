@@ -25,9 +25,10 @@ public enum AppErrorCodeEnum implements ErrorCode {
     MY_DATA_NULL_ES(120607, "数据集不为搜索数据集"),
     DATE_PARSE_ERROR(120608, "数据时间格式转换失败"),
     EDGE_ATTR_DEF_NULL(120609, "边属性定义不存在"),
-    CONF_STATISTICALID_NOT_EXISTS(120610, "图谱统计ID不存在"),
+
     CONF_STATISTICAL_NOT_EXISTS(120611, "图谱统计不存在"),
-    CONF_IDORIDS_NOT_EXISTS(120612, "您输入的id不存在"),
+
+    CONF_FOCUS_ENTITIES_SIZE_ERROR(120613, "您至少设置两个节点"),
 
 
     NULL_GIS_RULE_ID(120610, "规则id不能为空"),
