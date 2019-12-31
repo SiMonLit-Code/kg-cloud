@@ -32,10 +32,9 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfQaService;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.constant.AttrDefinitionTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.DataType;
+import com.plantdata.kgcloud.sdk.constant.EdgeAttrPromptDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.FusionCandidateReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
@@ -124,19 +123,15 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     }
 
 
-    public void fusionCandidateSet(List<FusionCandidateReq> candidateReqs) {
-        //todo 融合候选集写入
-    }
-
     @Override
     public List<EdgeAttributeRsp> edgeAttributeSearch(String kgName, EdgeAttrPromptReq promptReq) {
         Optional<List<Map<Object, Integer>>> aggOpt;
-        Optional<AttrDefinitionTypeEnum> enumObject = EnumUtils.parseById(AttrDefinitionTypeEnum.class, promptReq.getDataType());
-        AttrDefinitionTypeEnum dataType = enumObject.orElse(AttrDefinitionTypeEnum.OBJECT);
-        if (AttrDefinitionTypeEnum.OBJECT.equals(dataType)) {
+        Optional<EdgeAttrPromptDataTypeEnum> enumObject = EnumUtils.parseById(EdgeAttrPromptDataTypeEnum.class, promptReq.getDataType());
+        EdgeAttrPromptDataTypeEnum dataType = enumObject.orElse(EdgeAttrPromptDataTypeEnum.EDGE_ATTR);
+        if (EdgeAttrPromptDataTypeEnum.EDGE_ATTR.equals(dataType)) {
             AggRelationFrom relationFrom = RelationConverter.edgeAttrPromptReqToAggRelationFrom(promptReq);
             aggOpt = RestRespConverter.convert(relationApi.aggRelation(KGUtil.dbName(kgName), relationFrom));
-        } else if (AttrDefinitionTypeEnum.DATA_VALUE.equals(dataType)) {
+        } else if (EdgeAttrPromptDataTypeEnum.NUM_ATTR.equals(dataType)) {
             aggOpt = RestRespConverter.convert(schemaApi.aggAttr(KGUtil.dbName(kgName), PromptConverter.edgeAttrPromptReqToAggAttrValueFrom(promptReq)));
         } else {
             log.error("dataType:{}", promptReq.getDataType());

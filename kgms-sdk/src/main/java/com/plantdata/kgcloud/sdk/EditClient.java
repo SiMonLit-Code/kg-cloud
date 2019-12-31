@@ -256,4 +256,15 @@ public interface EditClient {
      */
     @DeleteMapping("entity/attr/{kgName}")
     ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName, @RequestBody BatchEntityAttrDeleteReq deleteReq);
+
+    /**
+     * 手工创建融合实体
+     *
+     * @param kgName kgName
+     * @param ids 实体id
+     * @return
+     */
+    @PostMapping("wait/entity/create/{kgName}")
+    ApiReturn<String> createMergeEntity(@PathVariable("kgName") String kgName, @RequestBody List<Long> ids);
+
 }

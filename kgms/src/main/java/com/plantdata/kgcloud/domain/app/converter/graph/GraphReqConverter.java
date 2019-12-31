@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.req.RelationFrom;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
@@ -24,6 +25,7 @@ import com.plantdata.kgcloud.sdk.req.app.function.GraphTimingReqInterface;
 import com.plantdata.kgcloud.util.DateUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -106,12 +108,18 @@ public class GraphReqConverter extends BasicConverter {
         if (common.getId() == null && StringUtils.isEmpty(common.getKw())) {
             throw BizException.of(AppErrorCodeEnum.NULL_KW_AND_ID);
         }
+        consumerIfNoNull(common.getHighLevelSize(), a -> {
+            Map<Integer, CommonFilter> layerFilters = Maps.newHashMapWithExpectedSize(1);
+            CommonFilter commonFilter = new CommonFilter();
+            commonFilter.setSkip(NumberUtils.INTEGER_ZERO);
+            commonFilter.setLimit(a);
+            layerFilters.put(NumberUtils.INTEGER_ONE, commonFilter);
+            graphFrom.setLayerFilters(layerFilters);
+        });
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
         graphFrom.setQueryPrivate(common.isPrivateAttRead());
         graphFrom.setDirection(common.getDirection());
-        graphFrom.getHighLevelFilter().setDirection(common.getDirection());
-        graphFrom.getHighLevelFilter().setLimit(common.getHighLevelSize() == null ? graphFrom.getLimit() : common.getHighLevelSize());
         consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
         if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
             Map<String, Integer> edgeAttrQuery = ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts());

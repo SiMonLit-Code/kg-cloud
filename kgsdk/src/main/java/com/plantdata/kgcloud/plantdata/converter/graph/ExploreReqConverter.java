@@ -171,7 +171,10 @@ public class ExploreReqConverter extends BasicConverter {
         commonFiltersReq.setKw(graphParameter.getKw());
         commonFiltersReq.setHighLevelSize(graphParameter.getHighLevelSize());
         consumerIfNoNull(graphParameter.getPrivateAttRead(), commonFiltersReq::setPrivateAttRead);
-        consumerIfNoNull(graphParameter.getDirection(), commonFiltersReq::setDirection);
+        consumerIfNoNull(graphParameter.getDirection(), a -> {
+            //旧的 2是反向，新的-1 反向
+            commonFiltersReq.setDirection(a == 2 ? -1 : a);
+        });
         consumerIfNoNull(graphParameter.getAttSorts(), a -> commonFiltersReq.setEdgeAttrSorts(toListNoNull(a, ExploreReqConverter::attrSortBeanToAttrSortReq)));
         return commonFiltersReq;
     }
