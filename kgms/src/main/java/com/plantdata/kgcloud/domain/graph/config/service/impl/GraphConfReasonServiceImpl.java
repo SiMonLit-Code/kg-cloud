@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.graph.config.converter.GraphConfReasoningConverter;
@@ -60,7 +61,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteReasoning(Long id) {
         GraphConfReasoning graphConfReasoning = graphConfReasoningRepository.findById(id)
-                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
         graphConfReasoningRepository.delete(graphConfReasoning);
     }
 
@@ -80,7 +81,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     @Override
     public GraphConfReasonRsp findById(Long id) {
         GraphConfReasoning confReasoning = graphConfReasoningRepository.findById(id)
-                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
         GraphConfReasonRsp graphConfReasonRsp = GraphConfReasoningConverter.JsonNodeToMapConverter(confReasoning);
         return graphConfReasonRsp;
     }
@@ -89,7 +90,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     @Transactional(rollbackFor = Exception.class)
     public GraphConfReasonRsp updateReasoning(Long id, GraphConfReasonReq req) {
         GraphConfReasoning graphConfReasoning = graphConfReasoningRepository.findById(id)
-                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfReasoning);
         String strRuleConfig = JacksonUtils.writeValueAsString(req.getRuleConfig());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strRuleConfig);

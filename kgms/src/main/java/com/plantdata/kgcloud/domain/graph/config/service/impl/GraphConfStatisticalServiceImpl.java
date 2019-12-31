@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.domain.graph.config.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
-import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.graph.config.converter.GraphConfStatisticalConverter;
@@ -81,7 +81,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     @Transactional(rollbackFor = Exception.class)
     public GraphConfStatisticalRsp updateStatistical(Long id, GraphConfStatisticalReq req) {
         GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(id)
-                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfStatistical);
         String strStatisRule = JacksonUtils.writeValueAsString(req.getStatisRule());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strStatisRule);
@@ -97,7 +97,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         List<Long> list = new ArrayList<>();
         for (UpdateGraphConfStatisticalReq req : reqs) {
             GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(req.getId())
-                    .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_IDORIDS_NOT_EXISTS));
+                    .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_IDORIDS_NOT_EXISTS));
             list.add(req.getId());
         }
         List<GraphConfStatistical> confStatisticalList = graphConfStatisticalRepository.findAllById(list);
@@ -105,7 +105,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         Map<Long, GraphConfStatistical> confStatisticalMap = confStatisticalList.stream().collect(Collectors.toMap(GraphConfStatistical::getId, Function.identity()));
         for (UpdateGraphConfStatisticalReq req : reqs) {
             if (Objects.isNull(confStatisticalMap.get(req.getId()))){
-                throw BizException.of(AppErrorCodeEnum.CONF_STATISTICALID_NOT_EXISTS);
+                throw BizException.of(KgmsErrorCodeEnum.CONF_STATISTICALID_NOT_EXISTS);
             }
             BeanUtils.copyProperties(req, confStatisticalMap.get(req.getId()));
             String strStatisRule = JacksonUtils.writeValueAsString(req.getStatisRule());
@@ -126,7 +126,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     @Transactional(rollbackFor = Exception.class)
     public void deleteStatistical(Long id) {
         GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(id)
-                .orElseThrow(() -> BizException.of(AppErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
         graphConfStatisticalRepository.delete(graphConfStatistical);
     }
 
