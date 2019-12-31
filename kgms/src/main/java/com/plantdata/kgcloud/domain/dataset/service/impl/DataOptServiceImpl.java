@@ -93,10 +93,11 @@ public class DataOptServiceImpl implements DataOptService {
             DataSet dataSet = dataSetService.findOne(userId, datasetId);
             List<DataSetSchema> schema = dataSet.getSchema();
             Map<String, DataSetSchema> schemaMap = new HashMap<>();
-            Map<String, Object> result = new HashMap<>();
             for (DataSetSchema o : schema) {
                 schemaMap.put(o.getField(), o);
             }
+            Map<String, Object> result = new HashMap<>();
+
             for (Map.Entry<String, Object> entry : one.entrySet()) {
                 DataSetSchema scm = schemaMap.get(entry.getKey());
                 if (scm != null) {
@@ -139,21 +140,27 @@ public class DataOptServiceImpl implements DataOptService {
 
     @Override
     public void upload(String userId, Long datasetId, MultipartFile file) throws Exception {
+        DataSet dataSet = dataSetService.findOne(userId, datasetId);
+        List<DataSetSchema> schema = dataSet.getSchema();
+        Map<String, DataSetSchema> schemaMap = new HashMap<>();
+        for (DataSetSchema o : schema) {
+            schemaMap.put(o.getField(), o);
+        }
         try (DataOptProvider provider = getProvider(userId, datasetId)) {
             String filename = file.getOriginalFilename();
             if (filename != null) {
                 int i = filename.lastIndexOf(".");
                 String extName = filename.substring(i);
                 if (KgmsConstants.FileType.XLSX.equalsIgnoreCase(extName) || KgmsConstants.FileType.XLS.equalsIgnoreCase(extName)) {
-                    excelFileHandle(provider, file);
+                    excelFileHandle(provider, schemaMap, file);
                 } else if (KgmsConstants.FileType.JSON.equalsIgnoreCase(extName)) {
-                    jsonFileHandle(provider, file);
+                    jsonFileHandle(provider, schemaMap, file);
                 }
             }
         }
     }
 
-    private void excelFileHandle(DataOptProvider provider, MultipartFile file) throws Exception {
+    private void excelFileHandle(DataOptProvider provider, Map<String, DataSetSchema> schemaMap, MultipartFile file) throws Exception {
         EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
             Map<Integer, String> head;
             List<Map<String, Object>> mapList = new ArrayList<>();
@@ -165,35 +172,86 @@ public class DataOptServiceImpl implements DataOptService {
 
             @Override
             public void invoke(Map<Integer, Object> data, AnalysisContext context) {
-                Map<String, Object> map = new HashMap<>(data.size());
+                Map<String, Object> map = new HashMap<>();
                 for (Map.Entry<Integer, Object> entry : data.entrySet()) {
-                    map.put(head.get(entry.getKey()), entry.getValue());
+                    String field = head.get(entry.getKey());
+                    DataSetSchema dataSetSchema = schemaMap.get(field);
+                    if (dataSetSchema != null) {
+                        FieldType code = FieldType.findCode(dataSetSchema.getType());
+                        try {
+                            Object format = fieldFormat(entry.getValue(), code);
+                            if (format != null) {
+                                map.put(field, format);
+                            }
+                        } catch (Exception e) {
+
+                        }
+                    } else {
+                        map.put(field, entry.getValue());
+                    }
                 }
                 map.remove("_id");
-                map.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
-                map.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
-                mapList.add(map);
-                if (mapList.size() == 10000) {
+                if (!map.isEmpty()) {
+                    map.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
+                    map.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
+                    mapList.add(map);
+                }
+
+
+                if (mapList.size() >= 10000) {
                     provider.batchInsert(mapList);
                     mapList.clear();
                 }
+
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
                 if (!mapList.isEmpty()) {
                     provider.batchInsert(mapList);
                     mapList.clear();
                 }
             }
-
-            @Override
-            public void doAfterAllAnalysed(AnalysisContext context) {
-
-            }
         }).sheet().doRead();
     }
 
-    private void jsonFileHandle(DataOptProvider provider, MultipartFile file) throws Exception {
+    private void jsonFileHandle(DataOptProvider provider, Map<String, DataSetSchema> schemaMap, MultipartFile file) throws Exception {
         List<Map<String, Object>> dataList = JacksonUtils.readValue(file.getInputStream(), new TypeReference<List<Map<String, Object>>>() {
         });
-        provider.batchInsert(dataList);
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        for (Map<String, Object> map : dataList) {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                String field = entry.getKey();
+                DataSetSchema dataSetSchema = schemaMap.get(field);
+                if (dataSetSchema != null) {
+                    FieldType code = FieldType.findCode(dataSetSchema.getType());
+                    try {
+                        Object format = fieldFormat(entry.getValue(), code);
+                        if (format != null) {
+                            map.put(field, format);
+                        }
+                    } catch (Exception e) {
+
+                    }
+                } else {
+                    map.put(field, entry.getValue());
+                }
+            }
+            map.remove("_id");
+            if (!map.isEmpty()) {
+                map.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
+                map.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
+                mapList.add(map);
+            }
+            if (mapList.size() >= 10000) {
+                provider.batchInsert(mapList);
+                mapList.clear();
+            }
+        }
+        if (!mapList.isEmpty()) {
+            provider.batchInsert(mapList);
+            mapList.clear();
+        }
     }
 
     @Override

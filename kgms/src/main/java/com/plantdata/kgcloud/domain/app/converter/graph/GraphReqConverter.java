@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
@@ -21,7 +22,6 @@ import com.plantdata.kgcloud.sdk.req.app.function.GraphPathReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphRelationReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphTimingReqInterface;
 import com.plantdata.kgcloud.util.DateUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -54,7 +54,7 @@ public class GraphReqConverter extends BasicConverter {
         if (exploreReq instanceof GraphTimingReqInterface) {
             fillTimeFilters(((GraphTimingReqInterface) exploreReq).fetchTimeFilter(), graphFrom);
         }
-        log.info("graphFrom:{}", JacksonUtils.writeValueAsString(graphFrom));
+        log.info("graphFrom:{}", JsonUtils.objToJson(graphFrom));
         return graphFrom;
     }
 
@@ -73,7 +73,7 @@ public class GraphReqConverter extends BasicConverter {
         if (exploreReq instanceof GraphTimingReqInterface) {
             fillTimeFilters(((GraphTimingReqInterface) exploreReq).fetchTimeFilter(), pathFrom);
         }
-        log.info("pathFrom:{}", JacksonUtils.writeValueAsString(pathFrom));
+        log.info("pathFrom:{}", JsonUtils.objToJson(pathFrom));
         return pathFrom;
     }
 
@@ -93,7 +93,7 @@ public class GraphReqConverter extends BasicConverter {
         if (exploreReq instanceof GraphTimingReqInterface) {
             fillTimeFilters(((GraphTimingReqInterface) exploreReq).fetchTimeFilter(), relationFrom);
         }
-        log.info("relationFrom:{}", JacksonUtils.writeValueAsString(relationFrom));
+        log.info("relationFrom:{}", JsonUtils.objToJson(relationFrom));
         return relationFrom;
     }
 
@@ -153,7 +153,6 @@ public class GraphReqConverter extends BasicConverter {
             entityFromTimeSortMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), sortTypeEnum.orElse(SortTypeEnum.DESC).getValue());
         });
         MetaData entityMetaData = commonFilter.getEntityMeta();
-        MetaData relationMetaData = commonFilter.getRelationMeta();
         switch (timeFilter.getTimeFilterType()) {
             case 0:
                 break;
@@ -161,13 +160,13 @@ public class GraphReqConverter extends BasicConverter {
                 fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, entityMetaData);
                 break;
             case 2:
-                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, relationMetaData);
+                consumerIfNoNull(fromTime, commonFilter::setAttrTimeFrom);
+                consumerIfNoNull(toTime, commonFilter::setAttrTimeTo);
                 break;
             case 3:
                 consumerIfNoNull(fromTime, commonFilter::setAttrTimeFrom);
                 consumerIfNoNull(toTime, commonFilter::setAttrTimeTo);
                 fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, entityMetaData);
-                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, relationMetaData);
                 break;
             default:
         }

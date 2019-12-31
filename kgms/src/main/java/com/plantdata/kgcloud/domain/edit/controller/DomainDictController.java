@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.bean.ValidableRequiredList;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictReq;
+import com.plantdata.kgcloud.domain.edit.req.dict.DictSearchReq;
 import com.plantdata.kgcloud.domain.edit.rsp.DictRsp;
 import com.plantdata.kgcloud.domain.edit.service.DomainDictService;
 import io.swagger.annotations.Api;
@@ -60,7 +60,7 @@ public class DomainDictController {
 
     @ApiOperation("领域词列表")
     @GetMapping("/{kgName}/list")
-    public ApiReturn<Page<DictRsp>> listDict(@PathVariable("kgName") String kgName, BaseReq baseReq) {
-        return ApiReturn.success(domainDictService.listDict(kgName, baseReq));
+    public ApiReturn<Page<DictRsp>> listDict(@PathVariable("kgName") String kgName, DictSearchReq dictSearchReq) {
+        return ApiReturn.success(domainDictService.listDict(kgName, dictSearchReq));
     }
 }

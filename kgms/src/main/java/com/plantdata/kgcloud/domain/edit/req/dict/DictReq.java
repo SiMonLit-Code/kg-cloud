@@ -18,11 +18,11 @@ public class DictReq {
     @ApiModelProperty(value = "词性")
     private String nature;
 
-    @NotEmpty
+    @NotEmpty(message = "领域词不能为空")
     @ApiModelProperty(required = true, value = "领域词")
     private String name;
 
-    @NotNull
+    @NotNull(message = "概念id不能为空")
     @ApiModelProperty(required = true, value = "概念id")
     private Long conceptId;
 

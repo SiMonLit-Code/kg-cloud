@@ -3,8 +3,11 @@ package com.plantdata.kgcloud.plantdata.converter.common;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.bean.EditAttDefBeanMole;
 import com.plantdata.kgcloud.plantdata.req.data.InsertConceptParameter;
+import com.plantdata.kgcloud.plantdata.req.data.UpdataConceptParameter;
 import com.plantdata.kgcloud.plantdata.rsp.app.TreeItemVo;
 import com.plantdata.kgcloud.plantdata.rsp.data.TreeBean;
+import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
@@ -46,6 +49,15 @@ public class ConceptConverter extends BasicConverter {
         return treeItemVo;
     }
 
+    public static BasicInfoModifyReq updataConceptParameterToBasicInfoModifyReq(@NonNull UpdataConceptParameter param) {
+        BasicInfoModifyReq modifyReq = new BasicInfoModifyReq();
+        modifyReq.setId(param.getConceptId());
+        modifyReq.setKey(param.getKey());
+        modifyReq.setMeaningTag(param.getMeaningTag());
+        modifyReq.setName(param.getName());
+        modifyReq.setType(EntityTypeEnum.CONCEPT.getValue());
+        return modifyReq;
+    }
 
     public static TreeBean basicInfoVoToTreeBean(@NonNull BasicInfoVO basicInfo) {
         TreeBean treeBean = new TreeBean();
@@ -82,3 +94,4 @@ public class ConceptConverter extends BasicConverter {
     }
 
 }
+

@@ -97,13 +97,13 @@ public class InfoBoxConverter extends BasicConverter {
         return oldBean;
     }
 
-    private static ExtraKVBean extraRspToExtraKVBean(EntityLinksRsp.ExtraRsp extraRsp, Long domain) {
+    private static ExtraKVBean extraRspToExtraKVBean(@NonNull EntityLinksRsp.ExtraRsp extraRsp, Long domain) {
         ExtraKVBean extraKVBean = new ExtraKVBean();
         extraKVBean.setAttDefid(extraRsp.getAttrId());
         extraKVBean.setDomain(domain);
         extraKVBean.setType(extraRsp.getDataType());
         extraKVBean.setK(extraRsp.getName());
-        extraKVBean.setV(extraRsp.getValue().toString());
+        consumerIfNoNull(extraRsp.getValue(), extraKVBean::setV);
         return extraKVBean;
     }
 

@@ -78,7 +78,7 @@ public interface EditClient {
      * @return .
      */
     @PostMapping("attribute/{kgName}/definition/batch")
-    ApiReturn<List<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
+    ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
                                                                    @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
 
     /**
@@ -134,7 +134,7 @@ public interface EditClient {
      */
     @PutMapping("attribute/{kgName}/definition/batch")
     ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModifyAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                                 @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
+                                                                                 @RequestBody List<AttrDefinitionModifyReq> attrDefinitionReqs);
 
     /**
      * 批量删除实体

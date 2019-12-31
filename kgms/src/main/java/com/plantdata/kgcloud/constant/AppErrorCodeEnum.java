@@ -28,7 +28,8 @@ public enum AppErrorCodeEnum implements ErrorCode {
     CONF_STATISTICALID_NOT_EXISTS(120610, "图谱统计ID不存在"),
     CONF_STATISTICAL_NOT_EXISTS(120611, "图谱统计不存在"),
     CONF_IDORIDS_NOT_EXISTS(120612, "您输入的id不存在"),
-
+    GIS_TYPE_ERROR(120618, "gis筛选类型错误"),
+    GIS_INFO_ERROR(120619, "gis筛选坐标格式错误"),
 
     NULL_GIS_RULE_ID(120610, "规则id不能为空"),
     NULL_GIS_ENTITY_ID(120611, "实体ids不能为空"),

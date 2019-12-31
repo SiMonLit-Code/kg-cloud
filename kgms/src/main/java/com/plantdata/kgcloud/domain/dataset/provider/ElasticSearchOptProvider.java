@@ -271,7 +271,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public void batchInsert(List<Map<String, Object>> nodes) {
-        String endpoint = "/" + database + "/" + type + "/_bulk";
+        String endpoint = "/" + database + "/" + type + "/_bulk?refresh=wait_for";
         StringBuilder body = new StringBuilder();
         for (Map<String, Object> node : nodes) {
             body.append("{ \"index\": {}}\n");

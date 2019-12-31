@@ -49,7 +49,7 @@ public class GraphRspConverter extends BasicConverter {
         analysisRsp.setHasNextPage(graph.getLevel1HasNext());
         analysisRsp.setRelationList(relationRspList);
         analysisRsp.setStatisticResult(statisticRspList);
-        infoLog(graph);
+        infoLog("GraphVO", graph);
         return analysisRsp;
     }
 
@@ -94,10 +94,18 @@ public class GraphRspConverter extends BasicConverter {
     public static Optional<GraphInitRsp> rebuildGraphInitRsp(GraphConfFocus initGraphBean, GraphInitRsp graphInitRsp) {
         graphInitRsp.setConfig(JacksonUtils.readValue(initGraphBean.getFocusConfig(), new TypeReference<Map<String, Object>>() {
         }));
+        graphInitRsp.setUpdateTime(graphInitRsp.getUpdateTime());
         graphInitRsp.setCreateTime(initGraphBean.getCreateAt());
-        if (initGraphBean.getEntities() != null && initGraphBean.getEntities().fieldNames().hasNext()) {
-            graphInitRsp.setEntities(JacksonUtils.readValue(JacksonUtils.writeValueAsString(initGraphBean.getEntities()), new TypeReference<List<GraphInitRsp.GraphInitEntityRsp>>() {
-            }));
+        if (initGraphBean.getEntities() != null && initGraphBean.getEntities().size() > 0) {
+            List<GraphInitRsp.GraphInitEntityRsp> entityRspList = Lists.newArrayList();
+            initGraphBean.getEntities().forEach(a -> {
+                GraphInitRsp.GraphInitEntityRsp entityRsp = new GraphInitRsp.GraphInitEntityRsp();
+                consumerIfNoNull(a.findValue("id"), b -> entityRsp.setId(b.asLong()));
+                consumerIfNoNull(a.findValue("conceptId"), b -> entityRsp.setClassId(b.asLong()));
+                consumerIfNoNull(a.findValue("name"), b -> entityRsp.setName(b.asText()));
+                entityRspList.add(entityRsp);
+            });
+            graphInitRsp.setEntities(entityRspList);
             return Optional.of(graphInitRsp);
         }
         return Optional.empty();
