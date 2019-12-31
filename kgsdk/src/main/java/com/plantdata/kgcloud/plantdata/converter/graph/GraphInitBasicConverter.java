@@ -18,7 +18,7 @@ public class GraphInitBasicConverter extends BasicConverter {
         InitGraphBean initGraphBean = new InitGraphBean();
         initGraphBean.setConfig(graphInitRsp.getConfig());
         initGraphBean.setCreateTime(graphInitRsp.getCreateTime());
-        List<InitGraphBean.InitGraphEntity> initGraphEntities = listToRsp(graphInitRsp.getEntities(), GraphInitBasicConverter::graphInitEntityRspToInitGraphEntity);
+        List<InitGraphBean.InitGraphEntity> initGraphEntities = toListNoNull(graphInitRsp.getEntities(), GraphInitBasicConverter::graphInitEntityRspToInitGraphEntity);
         initGraphBean.setEntities(initGraphEntities);
         initGraphBean.setCreateTime(graphInitRsp.getCreateTime());
         initGraphBean.setKgName(graphInitRsp.getKgName());

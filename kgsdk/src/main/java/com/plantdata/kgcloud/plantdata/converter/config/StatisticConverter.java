@@ -19,11 +19,11 @@ import java.util.function.Function;
 public class StatisticConverter extends BasicConverter {
 
     public static Function<List<InitStatisticalBean>, List<UpdateGraphConfStatisticalReq>> updateBeanToReq =
-            a -> BasicConverter.listToRsp(a, StatisticConverter::initStatisticalAddBatchToUpdateGraphConfStatisticalReq);
+            a -> BasicConverter.toListNoNull(a, StatisticConverter::initStatisticalAddBatchToUpdateGraphConfStatisticalReq);
     public static Function<List<InitStatisticalBean>, List<GraphConfStatisticalReq>> addBeanToReq =
-            a -> BasicConverter.listToRsp(a, StatisticConverter::initStatisticalAddBatchToGraphConfStatisticalReq);
+            a -> BasicConverter.toListNoNull(a, StatisticConverter::initStatisticalAddBatchToGraphConfStatisticalReq);
     public static Function<ApiReturn<List<GraphConfStatisticalRsp>>, List<InitStatisticalBean>> rspToBean =
-            a -> BasicConverter.convert(a, b -> BasicConverter.listToRsp(b, StatisticConverter::graphConfStatisticalRspToInitStatisticalBean));
+            a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, StatisticConverter::graphConfStatisticalRspToInitStatisticalBean));
 
     public static InitStatisticalBean graphConfStatisticalRspToInitStatisticalBean(GraphConfStatisticalRsp rsp) {
         InitStatisticalBean statisticalBean = new InitStatisticalBean();

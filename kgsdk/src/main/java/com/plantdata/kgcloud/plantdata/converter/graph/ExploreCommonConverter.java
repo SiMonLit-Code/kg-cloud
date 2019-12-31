@@ -109,17 +109,17 @@ public class ExploreCommonConverter extends BasicConverter {
         consumerIfNoNull(to.getReplaceClassIdsKey(), rs::setReplaceClassKeys);
         consumerIfNoNull(to.getAllowAttsKey(), rs::setAllowAttrsKey);
         consumerIfNoNull(to.getAllowTypes(), rs::setAllowConcepts);
-        consumerIfNoNull(to.getAllowAttrGroups(), a -> rs.setAllowAttrGroups(listToRsp(a, Long::valueOf)));
+        consumerIfNoNull(to.getAllowAttrGroups(), a -> rs.setAllowAttrGroups(toListNoNull(a, Long::valueOf)));
         consumerIfNoNull(to.getAllowAtts(), rs::setAllowAttrs);
-        consumerIfNoNull(to.getEntityQuery(), a -> rs.setEntityFilters(listToRsp(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
-        consumerIfNoNull(to.getAttAttFilters(), a -> listToRsp(a, ExploreCommonConverter::attrScreeningBeanToRelationAttrReq));
+        consumerIfNoNull(to.getEntityQuery(), a -> rs.setEntityFilters(toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
+        consumerIfNoNull(to.getAttAttFilters(), a -> toListNoNull(a, ExploreCommonConverter::attrScreeningBeanToRelationAttrReq));
         return rs;
     }
 
     static <T extends BasicGraphExploreRsp> GraphBean basicGraphExploreRspToGraphBean(T exploreRsp) {
         GraphBean graphBean = new GraphBean();
-        graphBean.setEntityList(listToRsp(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToCommonEntityRsp));
-        graphBean.setRelationList(listToRsp(exploreRsp.getRelationList(), ExploreCommonConverter::relationBeanToGraphRelationRsp));
+        graphBean.setEntityList(toListNoNull(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToCommonEntityRsp));
+        graphBean.setRelationList(toListNoNull(exploreRsp.getRelationList(), ExploreCommonConverter::relationBeanToGraphRelationRsp));
         return graphBean;
     }
 
@@ -135,14 +135,14 @@ public class ExploreCommonConverter extends BasicConverter {
         GraphStatBean graphStatBean = new GraphStatBean();
         graphStatBean.setAtts(statisticRsp.getAttrIdList());
         graphStatBean.setKey(statisticRsp.getKey());
-        graphStatBean.setRs(listToRsp(statisticRsp.getStatisticDetails(), ExploreCommonConverter::graphStatisticDetailRspToGraphStatDetailBean));
+        graphStatBean.setRs(toListNoNull(statisticRsp.getStatisticDetails(), ExploreCommonConverter::graphStatisticDetailRspToGraphStatDetailBean));
         graphStatBean.setType(statisticRsp.getConceptId());
         return graphStatBean;
     }
 
     static void fillStatisticConfig(GraphBean graphBean, List<GraphStatisticRsp> statisticRspList) {
         consumerIfNoNull(statisticRspList, a -> {
-            List<GraphStatBean> graphStatBeans = listToRsp(a, ExploreCommonConverter::graphStatisticRspToGraphStatBean);
+            List<GraphStatBean> graphStatBeans = toListNoNull(a, ExploreCommonConverter::graphStatisticRspToGraphStatBean);
             graphBean.setStats(graphStatBeans);
         });
     }
@@ -156,7 +156,7 @@ public class ExploreCommonConverter extends BasicConverter {
 
     private static EntityBean entityBeanToCommonEntityRsp(CommonEntityRsp newEntity) {
         EntityBean oldEntity = entityBeanToGraphEntityRsp(newEntity);
-        oldEntity.setTags(listToRsp(newEntity.getTags(), a -> copy(a, Tag.class)));
+        oldEntity.setTags(toListNoNull(newEntity.getTags(), a -> copy(a, Tag.class)));
         Additional additional = new Additional();
         ///暂时不管
         //additional.setColor(newEntity);
@@ -185,8 +185,8 @@ public class ExploreCommonConverter extends BasicConverter {
         //边属性
         List<GraphRelationRsp> allRelation = Lists.newArrayList();
         consumerIfNoNull(newBean.getSourceRelationList(), allRelation::addAll);
-        List<RelationInfoBean> numEdgeAttrInfoList = listToRsp(allRelation, ExploreCommonConverter::edgeInfoToRelationInfoBean);
-        List<RelationInfoBean> objEdgeAttrInfoList = listToRsp(allRelation, ExploreCommonConverter::edgeInfoToRelationInfoBean);
+        List<RelationInfoBean> numEdgeAttrInfoList = toListNoNull(allRelation, ExploreCommonConverter::edgeInfoToRelationInfoBean);
+        List<RelationInfoBean> objEdgeAttrInfoList = toListNoNull(allRelation, ExploreCommonConverter::edgeInfoToRelationInfoBean);
         consumerIfNoNull(numEdgeAttrInfoList, oldBean::setnRInfo);
         consumerIfNoNull(objEdgeAttrInfoList, oldBean::setoRInfo);
 
@@ -203,7 +203,7 @@ public class ExploreCommonConverter extends BasicConverter {
     private static RelationInfoBean edgeInfoToRelationInfoBean(GraphRelationRsp relationBean) {
         RelationInfoBean infoBean = new RelationInfoBean();
         infoBean.setId(relationBean.getId());
-        infoBean.setKvs(listToRsp(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId())));
+        infoBean.setKvs(toListNoNull(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId())));
         return infoBean;
     }
 

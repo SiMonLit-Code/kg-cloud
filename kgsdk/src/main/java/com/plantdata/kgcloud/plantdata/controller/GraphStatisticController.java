@@ -86,7 +86,7 @@ public class GraphStatisticController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "需要删除的id列表,json数组格式"),
     })
     public RestResp deleteBatch(@Valid @ApiIgnore InitStatisticalDeleteBatch deleteBatch) {
-        kgmsClient.deleteStatisticalBatch(BasicConverter.listToRsp(deleteBatch.getIds(), Integer::longValue));
+        kgmsClient.deleteStatisticalBatch(BasicConverter.toListNoNull(deleteBatch.getIds(), Integer::longValue));
         return new RestResp();
     }
 

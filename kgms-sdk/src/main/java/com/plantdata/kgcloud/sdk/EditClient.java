@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
@@ -245,4 +246,14 @@ public interface EditClient {
      */
     @PostMapping("basic/execute/kgql")
     ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq);
+
+    /**
+     * 批量删除实体数量
+     *
+     * @param kgName    kgName
+     * @param deleteReq req
+     * @return .
+     */
+    @DeleteMapping("entity/attr/{kgName}")
+    ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName, @RequestBody BatchEntityAttrDeleteReq deleteReq);
 }

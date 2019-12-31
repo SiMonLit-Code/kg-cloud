@@ -36,7 +36,7 @@ public class BasicConverter {
     private static final int SUCCESS = 200;
     private static final String DATE_REG = "yyyy-MM-ddd hh:mm:ss";
 
-    public static <T, R> List<R> listToRsp(List<T> list, Function<T, R> function) {
+    public static <T, R> List<R> toListNoNull(List<T> list, Function<T, R> function) {
         return executeIfNoNull(list, a -> listConvert(a, function));
     }
 
@@ -75,7 +75,7 @@ public class BasicConverter {
         if (pageData == null) {
             return new RestData<>(Collections.emptyList(), NumberUtils.LONG_ZERO);
         }
-        List<R> rs = listToRsp(pageData.getContent(), function);
+        List<R> rs = toListNoNull(pageData.getContent(), function);
         return new RestData<>(rs, pageData.getTotalElements());
     }
 

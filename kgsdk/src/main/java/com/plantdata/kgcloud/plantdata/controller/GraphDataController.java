@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import com.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
@@ -8,6 +9,7 @@ import com.plantdata.kgcloud.plantdata.bean.ImportRelationBean;
 import com.plantdata.kgcloud.plantdata.converter.common.AttrDefConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.ConceptConverter;
+import com.plantdata.kgcloud.plantdata.converter.common.EntityConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.RelationConverter;
 import com.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ConceptParameter;
@@ -32,6 +34,7 @@ import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -39,11 +42,14 @@ import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -90,7 +96,7 @@ public class GraphDataController implements SdkOldApiInterface {
     })
     public RestResp<List<TreeBean>> concept(@Valid @ApiIgnore ConceptParameter param) {
         ApiReturn<List<BasicInfoVO>> apiReturn = appClient.conceptTree(param.getKgName(), param.getConceptId(), param.getConceptIdKey());
-        List<TreeBean> tree = BasicConverter.convert(apiReturn, a -> BasicConverter.listToRsp(a, ConceptConverter::basicInfoVoToTreeBean));
+        List<TreeBean> tree = BasicConverter.convert(apiReturn, a -> BasicConverter.toListNoNull(a, ConceptConverter::basicInfoVoToTreeBean));
         return new RestResp<>(tree);
     }
 
@@ -150,7 +156,7 @@ public class GraphDataController implements SdkOldApiInterface {
         Function<List<AttrDefinitionReq>, ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>>> returnFunction =
                 a -> editClient.batchAddAttrDefinition(param.getKgName(), a);
         Function<List<AttributeConstraintDefinition>, List<AttrDefinitionReq>> reqFunction =
-                a -> BasicConverter.listToRsp(a, AttrDefConverter::attributeConstraintDefinitionToAttrDefinitionReq);
+                a -> BasicConverter.toListNoNull(a, AttrDefConverter::attributeConstraintDefinitionToAttrDefinitionReq);
         Optional<OpenBatchResult<AttrDefinitionBatchRsp>> batchRsps = returnFunction
                 .compose(reqFunction)
                 .andThen(BasicConverter::apiReturnData)
@@ -169,7 +175,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "data", required = true, dataType = "string", paramType = "form", value = "数据，是AttributeDefinition 列表的JSON形式,修改需要设置id")
     })
     public RestResp<Object> updateAttribute(@Valid @ApiIgnore ImportAttributeParameter param) {
-        List<AttrDefinitionModifyReq> modifyReqs = BasicConverter.listToRsp(param.getData(), AttrDefConverter::importAttributeParameterToAttrDefinitionModifyReq);
+        List<AttrDefinitionModifyReq> modifyReqs = BasicConverter.toListNoNull(param.getData(), AttrDefConverter::importAttributeParameterToAttrDefinitionModifyReq);
         Optional<OpenBatchResult<AttrDefinitionBatchRsp>> batchResult = BasicConverter.apiReturnData(editClient.batchModifyAttrDefinition(param.getKgName(), modifyReqs));
         if (!batchResult.isPresent() || CollectionUtils.isEmpty(batchResult.get().getSuccess())) {
             return new RestResp<>(Collections.emptyList());
@@ -200,7 +206,7 @@ public class GraphDataController implements SdkOldApiInterface {
     })
     public RestResp<List<AttributeDefinition>> attribute(@Valid @ApiIgnore AttributeParameter param) {
         Function<AttrDefQueryReq, ApiReturn<List<AttrDefinitionRsp>>> returnFunction = a -> kgDataClient.searchAttrDefByConcept(param.getKgName(), a);
-        Function<List<AttrDefinitionRsp>, List<AttributeDefinition>> rspFunction = a -> BasicConverter.listToRsp(a, AttrDefConverter::attrDefinitionRspToAttributeDefinition);
+        Function<List<AttrDefinitionRsp>, List<AttributeDefinition>> rspFunction = a -> BasicConverter.toListNoNull(a, AttrDefConverter::attrDefinitionRspToAttributeDefinition);
         List<AttributeDefinition> attrDefList = returnFunction
                 .compose(AttrDefConverter::attributeParameterToAttrDefQueryReq)
                 .andThen(a -> BasicConverter.convert(a, rspFunction))
@@ -228,7 +234,7 @@ public class GraphDataController implements SdkOldApiInterface {
     })
     public RestResp<Map<String, Object>> importRelation(@Valid @ApiIgnore ImportRelationParameter param) {
         Function<List<BatchRelationRsp>, ApiReturn<OpenBatchResult<BatchRelationRsp>>> returnFunction = a -> editClient.importRelation(param.getKgName(), a);
-        Function<List<ImportRelationBean>, List<BatchRelationRsp>> reqFunction = a -> BasicConverter.listToRsp(a, RelationConverter::importRelationBeanToBatchRelationRsp);
+        Function<List<ImportRelationBean>, List<BatchRelationRsp>> reqFunction = a -> BasicConverter.toListNoNull(a, RelationConverter::importRelationBeanToBatchRelationRsp);
         Map<String, Object> resMap = returnFunction
                 .compose(reqFunction)
                 .andThen(a -> BasicConverter.convert(a, RelationConverter::batchRelationResdultToMap))
@@ -244,8 +250,9 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "mode", dataType = "int", paramType = "form", value = "0 ")
     })
     public RestResp<List<Long>> updataRelation(@Valid @ApiIgnore UpdataRelationParameter param) {
+        //mode todo
         Function<List<RelationUpdateReq>, ApiReturn<List<RelationUpdateReq>>> returnFunction = a -> editClient.updateRelations(param.getKgName(), a);
-        Function<List<ImportRelationBean>, List<RelationUpdateReq>> reqFunction = a -> BasicConverter.listToRsp(a, RelationConverter::importRelationBeanToRelationUpdateReq);
+        Function<List<ImportRelationBean>, List<RelationUpdateReq>> reqFunction = a -> BasicConverter.toListNoNull(a, RelationConverter::importRelationBeanToRelationUpdateReq);
         returnFunction
                 .compose(reqFunction)
                 .andThen(BasicConverter::apiReturnData)
@@ -298,8 +305,12 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
             @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页数量默认10"),
     })
-    public RestResp<List<ImportEntityBean>> entityByDataAttribute(@Valid @ApiIgnore EntityByDataAttributeParameter entityByDataAttributeParameter) {
-        return new RestResp<>();
+    public RestResp<List<ImportEntityBean>> entityByDataAttribute(@Valid @ApiIgnore EntityByDataAttributeParameter param) {
+        String query = CollectionUtils.isEmpty(param.getQuery()) ? null : JacksonUtils.writeValueAsString(param.getQuery());
+        ApiReturn<List<OpenEntityRsp>> apiReturn = editClient.queryEntityList(param.getKgName(), param.getConceptId(), param.getConceptKey(),
+                query, param.getPageNo(), param.getPageSize());
+        List<ImportEntityBean> entityBeanList = BasicConverter.convertList(apiReturn, EntityConverter::openEntityRspToImportEntityBean);
+        return new RestResp<>(entityBeanList);
     }
 
     @ApiOperation("批量实体添加或修改")
@@ -310,8 +321,19 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "upsert", dataType = "boolean", defaultValue = "true", paramType = "form", value = "实体不存在是否新增，默认新增"),
             @ApiImplicitParam(name = "mode", dataType = "int", paramType = "form", value = "单个实体有部分错误信息时的处理方式，0 表示整条数据不导入，1 表示导入正确的部分"),
     })
-    public RestResp<Map<String, Object>> importEntity(@Valid @ApiIgnore ImportEntityParameter importEntityParameter) {
-        return new RestResp<>();
+
+    public RestResp<Map<String, List<Long>>> importEntity(@Valid @ApiIgnore ImportEntityParameter param) {
+        //mode todo
+        Function<List<OpenBatchSaveEntityRsp>, ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>>>
+                returnFunction = a -> editClient.saveOrUpdate(param.getKgName(), param.getUpsert(), a);
+        Function<List<ImportEntityBean>, List<OpenBatchSaveEntityRsp>> rspFunction = a -> BasicConverter.toListNoNull(param.getData(), EntityConverter::importEntityBeanToOpenBatchSaveEntityRsp);
+
+        Map<String, List<Long>> resMap = returnFunction
+                .compose(rspFunction)
+                .andThen(a -> BasicConverter.convert(a, EntityConverter::openBatchResultToMap))
+                .apply(param.getData());
+
+        return new RestResp<>(resMap);
     }
 
     @ApiOperation("批量实体添加")
@@ -320,8 +342,12 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
     })
-    public RestResp<Map<String, Object>> entityInsert(@Valid @ApiIgnore EntityInsertParameter entityInsertParameter) {
-        return new RestResp<>();
+    public RestResp<Map<String, List<Long>>> entityInsert(@Valid @ApiIgnore EntityInsertParameter param) {
+        ImportEntityParameter parameter = new ImportEntityParameter();
+        parameter.setData(param.getData());
+        parameter.setKgName(param.getKgName());
+        parameter.setUpsert(true);
+        return importEntity(parameter);
     }
 
     @ApiOperation("批量实体修改")
@@ -330,11 +356,12 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
     })
-    public RestResp<Map<String, Object>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter entityInsertParameter) {
+    public RestResp<Map<String, Object>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
+        //todo
         return new RestResp<>();
     }
 
-    @ApiOperation("批量修改实体数值属性")
+    @ApiOperation("批量删除实体数值属性")
     @PostMapping("data/entity/attr/delete")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
@@ -343,7 +370,8 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "attrNames", dataType = "string", paramType = "form", value = "私有属性名称数组的JSON形式"),
 
     })
-    public RestResp entityAttrDelect(@Valid @ApiIgnore EntityAttrDelectParameter entityInsertParameter) {
+    public RestResp entityAttrDelect(@Valid @ApiIgnore EntityAttrDelectParameter param) {
+        editClient.batchDeleteEntityAttr(param.getKgName(), EntityConverter.entityAttrBatchDelParamToReq(param));
         return new RestResp();
     }
 
@@ -353,10 +381,16 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "ids", dataType = "string", required = true, paramType = "form", value = "需要被删除的实体id")
     })
-    public RestResp<List<Map<String, Object>>> delectEntity(@Valid @ApiIgnore DelectEntityParameter delectEntityParameter) {
-        return new RestResp<>();
+    public RestResp<List<Map<String, Object>>> delectEntity(@Valid @ApiIgnore DelectEntityParameter param) {
+        ApiReturn<List<DeleteResult>> listApiReturn = editClient.batchDeleteEntities(param.getKgName(), param.getIds());
+        List<Map<String, Object>> resList = BasicConverter.convertList(listApiReturn, a -> {
+            Map<String, Object> tempMap = Maps.newHashMap();
+            tempMap.put("entityId", a.getId());
+            tempMap.put("message", a.getMessage());
+            return tempMap;
+        });
+        return new RestResp<>(resList);
     }
-
 
     @ApiOperation("合候选集写入")
     @PostMapping("data/entity/merge")
@@ -366,7 +400,7 @@ public class GraphDataController implements SdkOldApiInterface {
     })
     public RestResp<String> entityMerge(@ApiParam(required = true) @RequestParam("kgName") String kgName,
                                         @ApiParam(required = true) @RequestParam("data") List<MergeBean> data) {
-
+        //todo
         return new RestResp<>();
     }
 
@@ -374,7 +408,7 @@ public class GraphDataController implements SdkOldApiInterface {
     @PostMapping("data/entity/get/by/name")
     public RestResp<List<ImportEntityBean>> getEntityByName(@ApiParam(required = true) @RequestParam("kgName") String kgName,
                                                             @ApiParam(required = true, value = "[{\"name\":,\"meaningTag\":}]") @RequestParam("names") String names) {
-
+        //todo
         return new RestResp<>();
     }
 

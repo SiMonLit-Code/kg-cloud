@@ -22,7 +22,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBean;
 import com.plantdata.kgcloud.util.JacksonUtils;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -84,7 +83,7 @@ public class NlpController implements SdkOldApiInterface {
         Function<SegmentReq, ApiReturn<List<SegmentEntityRsp>>> returnFunction = a -> nlpClient.nerGraph(param.getKgName(), a);
         List<SegmentEntityBean> entityBeans = returnFunction
                 .compose(NlpConverter::recognitionParameterToSegmentReq)
-                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.listToRsp(b, NlpConverter::segmentEntityRspToSegmentEntityBean)))
+                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, NlpConverter::segmentEntityRspToSegmentEntityBean)))
                 .apply(param);
         return new RestResp<>(entityBeans);
     }

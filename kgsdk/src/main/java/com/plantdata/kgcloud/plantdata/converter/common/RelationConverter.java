@@ -14,7 +14,6 @@ import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import lombok.NonNull;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -39,8 +38,8 @@ public class RelationConverter extends BasicConverter {
 
     public static Map<String, Object> batchRelationResdultToMap(@NonNull OpenBatchResult<BatchRelationRsp> batchResult) {
         Map<String, Object> resMap = Maps.newHashMap();
-        resMap.put("error", executeIfNoNull(batchResult.getSuccess(), a -> a.stream().map(BatchRelationRsp::getId).collect(Collectors.toList())));
-        resMap.put("success", executeIfNoNull(batchResult.getSuccess(), a -> a.stream().map(BatchRelationRsp::getId).collect(Collectors.toList())));
+        resMap.put("error", toListNoNull(batchResult.getSuccess(), BatchRelationRsp::getId));
+        resMap.put("success", toListNoNull(batchResult.getSuccess(), BatchRelationRsp::getId));
         return resMap;
     }
 
@@ -66,7 +65,7 @@ public class RelationConverter extends BasicConverter {
         searchReq.setAttrTimeFrom(param.getAttrTimeFrom());
         searchReq.setAttrTimeTo(param.getAttrTimeTo());
         searchReq.setAttrValueIds(param.getAttrValueIds());
-        consumerIfNoNull(param.getQuery(), a -> searchReq.setEdgeAttrQuery(listToRsp(a, RelationConverter::attrScreeningBeanToRelationAttrReq)));
+        consumerIfNoNull(param.getQuery(), a -> searchReq.setEdgeAttrQuery(toListNoNull(a, RelationConverter::attrScreeningBeanToRelationAttrReq)));
         searchReq.setEntityIds(param.getEntityIds());
         return searchReq;
     }

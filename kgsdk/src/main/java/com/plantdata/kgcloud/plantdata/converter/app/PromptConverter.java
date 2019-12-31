@@ -50,7 +50,7 @@ public class PromptConverter extends BasicConverter {
     public static PromptReq promptParameterToPromptReq(@NonNull PromptParameter promptParam) {
         PromptReq promptReq = new PromptReq();
         promptReq.setCaseInsensitive(promptParam.getIsCaseInsensitive());
-        consumerIfNoNull(promptParam.getAllowTypes(), a -> promptReq.setConceptIds(listToRsp(a, Long::valueOf)));
+        consumerIfNoNull(promptParam.getAllowTypes(), a -> promptReq.setConceptIds(toListNoNull(a, Long::valueOf)));
         promptReq.setConceptKeys(promptParam.getAllowTypesKey());
         promptReq.setFuzzy(promptParam.getIsFuzzy());
         promptReq.setInherit(promptParam.getIsInherit());
@@ -84,7 +84,7 @@ public class PromptConverter extends BasicConverter {
         promptReq.setKw(param.getKw());
         promptReq.setOpenExportDate(param.getOpenExportDate());
         promptReq.setPage(param.getPageNo());
-        consumerIfNoNull(param.getQuery(), a -> promptReq.setQuery(listToRsp(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
+        consumerIfNoNull(param.getQuery(), a -> promptReq.setQuery(toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
         promptReq.setSize(param.getPageSize());
         return promptReq;
     }

@@ -39,7 +39,7 @@ public class GisConverter extends BasicConverter {
     }
 
     public static GraphBean gisGraphExploreRspToGraphBean(@NonNull GisGraphExploreRsp exploreRsp) {
-        List<EntityBean> entityBeans = listToRsp(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToGraphEntityRsp);
+        List<EntityBean> entityBeans = toListNoNull(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToGraphEntityRsp);
         GraphBean graphBean = new GraphBean();
         graphBean.setEntityList(entityBeans);
         graphBean.setLevel1HasNextPage(exploreRsp.getHasNextPage());
@@ -49,8 +49,8 @@ public class GisConverter extends BasicConverter {
 
     public static GisLocusOldRsp gisGraphExploreRspToGisLocusRsp(@NonNull GisLocusAnalysisRsp exploreRsp) {
         GisLocusOldRsp locusRsp = new GisLocusOldRsp();
-        List<EntityBean> entityBeans = listToRsp(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToGraphEntityRsp);
-        locusRsp.setRelationList(listToRsp(exploreRsp.getRelationList(), GisConverter::gisLocusRelationVOToGisLocusRelationRsp));
+        List<EntityBean> entityBeans = toListNoNull(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToGraphEntityRsp);
+        locusRsp.setRelationList(toListNoNull(exploreRsp.getRelationList(), GisConverter::gisLocusRelationVOToGisLocusRelationRsp));
         locusRsp.setEntityList(entityBeans);
         locusRsp.setLevel1HasNextPage(exploreRsp.getHasNextPage());
         return locusRsp;
@@ -71,7 +71,7 @@ public class GisConverter extends BasicConverter {
 
     public static GisLocusReq graphLocusGisParameterToGisLocusReq(@NonNull GraphLocusGisParameter param) {
         GisLocusReq locusReq = new GisLocusReq();
-        locusReq.setRules(listToRsp(param.getRules(), GisConverter::gisRuleParamToGisLocusReq));
+        locusReq.setRules(toListNoNull(param.getRules(), GisConverter::gisRuleParamToGisLocusReq));
         locusReq.setTimeFilterType(param.getTimeFilterType());
         locusReq.setFromTime(param.getFromTime());
         locusReq.setToTime(param.getToTime());
