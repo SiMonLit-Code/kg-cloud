@@ -445,7 +445,7 @@ public class EntityServiceImpl implements EntityService {
     public String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
-        return RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom)).get();
+        return RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom)).orElse(null);
     }
 
     @Override
