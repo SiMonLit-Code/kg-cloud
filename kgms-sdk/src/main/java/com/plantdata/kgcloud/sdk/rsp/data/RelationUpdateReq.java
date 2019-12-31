@@ -13,7 +13,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@ApiModel("")
+@ApiModel("关系的更新参数")
 public class RelationUpdateReq {
 
     private Integer attrId;

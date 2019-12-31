@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
+import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
@@ -187,6 +188,19 @@ public interface AppClient {
     @PostMapping("attributes/{kgName}")
     ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@PathVariable("kgName") String kgName,
                                                  @RequestBody EdgeAttrPromptReq edgeAttrPromptReq);
+
+    /**
+     * 业务 算法调用
+     *
+     * @param kgName    kgName
+     * @param id        long
+     * @param graphBean 。。
+     * @return 。。
+     */
+    @PostMapping("algorithm/run/{kgName}/{id}")
+    ApiReturn<BusinessGraphRsp> executeAlgorithm(@PathVariable("kgName") String kgName,
+                                    @PathVariable("id") long id,
+                                    @RequestBody BusinessGraphRsp graphBean);
 
     /**
      * 初始化图探索焦点

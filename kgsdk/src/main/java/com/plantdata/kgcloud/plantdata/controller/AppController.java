@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.config.CurrentUser;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.plantdata.bean.AttrPromtRemoteBean;
 import com.plantdata.kgcloud.plantdata.converter.app.AppConverter;
 import com.plantdata.kgcloud.plantdata.converter.app.InfoBoxConverter;
 import com.plantdata.kgcloud.plantdata.converter.app.PromptConverter;
@@ -13,6 +14,7 @@ import com.plantdata.kgcloud.plantdata.converter.common.ConceptConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.SchemaBasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.graph.GraphInitBasicConverter;
 import com.plantdata.kgcloud.plantdata.req.app.AssociationParameter;
+import com.plantdata.kgcloud.plantdata.req.app.AttrPromptParameter;
 import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameter;
 import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameterMore;
 import com.plantdata.kgcloud.plantdata.req.app.KgNameByApkParameter;
@@ -28,6 +30,7 @@ import com.plantdata.kgcloud.plantdata.rsp.app.InitGraphBean;
 import com.plantdata.kgcloud.plantdata.rsp.app.TreeItemVo;
 import com.plantdata.kgcloud.plantdata.rsp.schema.SchemaBean;
 import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
@@ -35,6 +38,7 @@ import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
@@ -180,6 +184,32 @@ public class AppController implements SdkOldApiInterface {
 
         return new RestResp<>(entityBeans);
     }
+
+    @ApiOperation("边属性搜索")
+    @PostMapping("attr/prompt")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "kw", dataType = "string", paramType = "form", value = "开始时间，格式yyyy-MM-dd"),
+            @ApiImplicitParam(name = "attrId", dataType = "int", paramType = "form", value = "属性id"),
+            @ApiImplicitParam(name = "attrKey", dataType = "string", paramType = "form", value = "attrId为空是生效"),
+            @ApiImplicitParam(name = "seqNo", dataType = "int", paramType = "form", value = "边属性id,为保留字段时3.权重，11.来源，12.置信度，13.批次号，15，自定义名称。"),
+            @ApiImplicitParam(name = "isReserved", dataType = "int", paramType = "form", value = "是否为保留字段：1是，0不是"),
+            @ApiImplicitParam(name = "dataType", defaultValue = "2", dataType = "int", paramType = "form", value = "查询类型,1.数值属性,2.边数值属性，默认为2"),
+            @ApiImplicitParam(name = "searchOption", dataType = "string", paramType = "form", value = "数值属性和日期,大小筛选,kw为空时生效,实例{\"$gt\":\"大于\",\"$lt\":\"小于\"}"),
+            @ApiImplicitParam(name = "sort", dataType = "int", paramType = "form", value = "按权重排序:-1=desc 1=asc 0= 不排序,默认0"),
+            @ApiImplicitParam(name = "pageNo", dataType = "int", paramType = "query", value = "当前页，默认1"),
+            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "query", value = "每页数，默认10"),
+    })
+    public RestResp<List<AttrPromtRemoteBean>> attrPrompt(@Valid @ApiIgnore AttrPromptParameter param) {
+        Function<EdgeAttrPromptReq, ApiReturn<List<EdgeAttributeRsp>>> returnFunction = a -> appClient.attrPrompt(param.getKgName(), a);
+        Function<List<EdgeAttributeRsp>, List<AttrPromtRemoteBean>> rspFunction = a -> BasicConverter.listToRsp(a, PromptConverter::edgeAttributeRspToAttrPromtRemoteBean);
+        List<AttrPromtRemoteBean> remoteBeanList = returnFunction
+                .compose(PromptConverter::attrPromptParameterToEdgeAttrPromptReq)
+                .andThen(a -> BasicConverter.convert(a, rspFunction))
+                .apply(param);
+        return new RestResp<>(remoteBeanList);
+    }
+
 
     @ApiOperation(value = "获取模型可视化数据")
     @PostMapping("/model/stat")

@@ -1,17 +1,23 @@
 package com.plantdata.kgcloud.plantdata.converter.app;
 
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.plantdata.bean.AttrPromtRemoteBean;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.MongoQueryConverter;
+import com.plantdata.kgcloud.plantdata.req.app.AttrPromptParameter;
 import com.plantdata.kgcloud.plantdata.req.app.PromptParameter;
 import com.plantdata.kgcloud.plantdata.req.app.SeniorPromptParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
+import com.plantdata.kgcloud.sdk.req.app.CompareFilterReq;
+import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
+import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 
 /**
@@ -20,6 +26,26 @@ import lombok.NonNull;
  * @date 2019/12/16 19:55
  */
 public class PromptConverter extends BasicConverter {
+
+    public static EdgeAttrPromptReq attrPromptParameterToEdgeAttrPromptReq(@NonNull AttrPromptParameter param) {
+        EdgeAttrPromptReq promptReq = new EdgeAttrPromptReq();
+        promptReq.setAttrId(param.getAttrId());
+        promptReq.setAttrKey(param.getAttrKey());
+        consumerIfNoNull(param.getSearchOption(), a -> promptReq.setCompareFilter(JacksonUtils.readValue(a, CompareFilterReq.class)));
+        promptReq.setDataType(param.getDataType());
+        promptReq.setKw(param.getKw());
+        promptReq.setPage(param.getPageNo());
+        promptReq.setSize(param.getPageSize());
+        promptReq.setSeqNo(param.getSeqNo());
+        return promptReq;
+    }
+
+    public static AttrPromtRemoteBean edgeAttributeRspToAttrPromtRemoteBean(@NonNull EdgeAttributeRsp rsp) {
+        AttrPromtRemoteBean remoteBean = new AttrPromtRemoteBean();
+        remoteBean.setKey(rsp.getKey());
+        remoteBean.setNum(remoteBean.getNum());
+        return remoteBean;
+    }
 
     public static PromptReq promptParameterToPromptReq(@NonNull PromptParameter promptParam) {
         PromptReq promptReq = new PromptReq();

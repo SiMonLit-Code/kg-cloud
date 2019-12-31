@@ -109,6 +109,7 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
         graphFrom.setQueryPrivate(common.isPrivateAttRead());
+        graphFrom.setDirection(common.getDirection());
         graphFrom.getHighLevelFilter().setDirection(common.getDirection());
         graphFrom.getHighLevelFilter().setLimit(common.getHighLevelSize() == null ? graphFrom.getLimit() : common.getHighLevelSize());
         consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);

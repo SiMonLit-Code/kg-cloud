@@ -37,10 +37,10 @@ public class GraphConfFocusServiceImpl implements GraphConfFocusService {
             GraphConfFocus targe = new GraphConfFocus();
             BeanUtils.copyProperties(req, targe);
             if (FocusType.contains(req.getType())) {
-                targe.setKgName(kgName);
-                String code = FocusType.findType(req.getType()).getCode();
-                targe.setType(code);
-                list.add(targe);
+            targe.setKgName(kgName);
+            String code = FocusType.findType(req.getType()).getCode();
+            targe.setType(code);
+            list.add(targe);
             }
         }
         List<GraphConfFocus> result = graphConfFocusRepository.saveAll(list);

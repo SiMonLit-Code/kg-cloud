@@ -30,7 +30,7 @@ public class BatchRelationRsp {
     private Long attrValueConcept;
     private String attrTimeFrom;
     private String attrTimeTo;
-    private Map<Integer, String> extraInfoMap;
+    private Map<Integer, Object> extraInfoMap;
     private String id;
     private String note;
 }
