@@ -22,7 +22,6 @@ import com.plantdata.kgcloud.plantdata.req.data.ImportAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportEntityParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.data.InsertConceptParameter;
-import com.plantdata.kgcloud.plantdata.req.data.MergeBean;
 import com.plantdata.kgcloud.plantdata.req.data.QueryRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.data.UpdataConceptParameter;
 import com.plantdata.kgcloud.plantdata.req.data.UpdataRelationParameter;
@@ -54,6 +53,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -343,10 +343,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
     })
     public RestResp<Map<String, List<Long>>> entityInsert(@Valid @ApiIgnore EntityInsertParameter param) {
-        ImportEntityParameter parameter = new ImportEntityParameter();
-        parameter.setData(param.getData());
-        parameter.setKgName(param.getKgName());
-        parameter.setUpsert(true);
+        ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), true, NumberUtils.INTEGER_ZERO);
         return importEntity(parameter);
     }
 
@@ -356,9 +353,9 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
     })
-    public RestResp<Map<String, Object>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
-        //todo
-        return new RestResp<>();
+    public RestResp<Map<String, List<Long>>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
+        ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), false, NumberUtils.INTEGER_ZERO);
+        return importEntity(parameter);
     }
 
     @ApiOperation("批量删除实体数值属性")
@@ -399,9 +396,9 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "data")
     })
     public RestResp<String> entityMerge(@ApiParam(required = true) @RequestParam("kgName") String kgName,
-                                        @ApiParam(required = true) @RequestParam("data") List<MergeBean> data) {
-        //todo
-        return new RestResp<>();
+                                        @ApiParam(required = true) @RequestParam("data") List<Long> entityIds) {
+        Optional<String> optional = BasicConverter.apiReturnData(editClient.createMergeEntity(kgName, entityIds));
+        return new RestResp<>(optional.orElse(StringUtils.EMPTY));
     }
 
     @ApiOperation("根据实体名称返回实体信息")

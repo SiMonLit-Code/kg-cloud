@@ -11,6 +11,7 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
@@ -77,14 +78,11 @@ public class GraphCommonConverter extends BasicConverter {
         if (page == null) {
             page = new PageReq();
             page.setPage(NumberUtils.INTEGER_ONE);
-            page.setSize(10);
+            page.setSize(BaseReq.DEFAULT_SIZE);
         }
-        commonFilter.setSkip(page.getOffset());
+        graphFrom.setSkip(page.getOffset());
         graphFrom.setLimit(page.getLimit());
-        consumerIfNoNull(exploreReq.getDistance(), a -> {
-            commonFilter.setDistance(a);
-            graphFrom.setDistance(a);
-        });
+        consumerIfNoNull(exploreReq.getDistance(), commonFilter::setDistance);
         consumerIfNoNull(exploreReq.getEntityFilters(), a -> {
             EntityFilter entityFilter = new EntityFilter();
             entityFilter.setAttr(ConditionConverter.entityListToIntegerKeyMap(a));
@@ -92,7 +90,7 @@ public class GraphCommonConverter extends BasicConverter {
         });
         //设置边属性筛选
         consumerIfNoNull(exploreReq.getEdgeAttrFilters(), a -> commonFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
-        graphFrom.setHighLevelFilter(commonFilter);
+
         graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
         graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
         graphFrom.setInherit(exploreReq.isInherit());
