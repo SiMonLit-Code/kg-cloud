@@ -14,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +42,7 @@ public class GraphConfFocusServiceImpl implements GraphConfFocusService {
             if (!FocusType.contains(req.getType())) {
                 throw BizException.of(KgmsErrorCodeEnum.CONF_FOCUS_ERROR);
             }
-            if (FocusType.containsTwo(req.getType())) {
-                  if (req.getEntities().size()<2){
-                      throw BizException.of(KgmsErrorCodeEnum.CONF_FOCUS_ENTITIES_SIZE_ERROR);
-                  }
-            }
+            FocusType.check(req.getEntities().size(),req.getType());
             targe.setKgName(kgName);
             String code = FocusType.findType(req.getType()).getCode();
             targe.setType(code);
