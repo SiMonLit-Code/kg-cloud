@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.app.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,11 +46,22 @@ public class JsonUtils {
         return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), clazz);
     }
 
+    public static <T> T parseObj(String json, Class<T> clazz) {
+        ObjectMapper instance = JacksonUtils.getInstance();
+        instance.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            return instance.readValue(json, clazz);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private static JavaType getCollectionType(ObjectMapper instance, Class<?> collectionClass, Class<?>... elementClasses) {
         return instance.getTypeFactory().constructParametricType(collectionClass, elementClasses);
     }
 
-    public  static String objToJson(Object obj) {
+    public static String objToJson(Object obj) {
         ObjectMapper instance = JacksonUtils.getInstance();
         instance.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         try {

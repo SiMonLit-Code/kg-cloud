@@ -45,7 +45,7 @@ public class EntityController implements GraphDataObtainInterface {
 
     @ApiOperation("实体-新增或修改")
     @PostMapping("{kgName}")
-    public ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>> batchAdd(@PathVariable("kgName") String kgName, @ApiParam("实体不存在是否新增，默认新增") @RequestParam boolean add,
+    public ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>> batchAdd(@PathVariable("kgName") String kgName, @ApiParam("true修改") @RequestParam boolean add,
                                                                        @RequestBody List<OpenBatchSaveEntityRsp> batchEntity) {
         return editClient.saveOrUpdate(kgName, add, batchEntity);
     }

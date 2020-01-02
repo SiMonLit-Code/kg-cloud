@@ -217,7 +217,10 @@ public class ExploreReqConverter extends BasicConverter {
         List<String> relationIdlIst = Lists.newArrayList();
         Map<String, List<RelationInfoBean>> edgeObjAttrMap = relationBean.getoRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
         Map<String, List<RelationInfoBean>> edgeNumAttrMap = relationBean.getnRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
-        for (int i = 0; i <= relationIdlIst.size(); i++) {
+        if (relationIdlIst.size() <= 0) {
+            return;
+        }
+        for (int i = 0; i < relationIdlIst.size(); i++) {
             String id = relationIdlIst.get(i);
             List<RelationInfoBean> edgeObjAttrList = edgeObjAttrMap.get(id);
             List<RelationInfoBean> edgeNumAttrList = edgeNumAttrMap.get(id);

@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.util.DateUtils;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -35,11 +36,11 @@ public class MetaConverter extends BasicConverter {
         }
         if (metaData.containsKey(MetaDataInfo.FROM_TIME.getFieldName())) {
             Object o = metaData.get(MetaDataInfo.FROM_TIME.getFieldName());
-            metaDataImpl.setStartTime(DateUtils.parseDatetime(o.toString()));
+            metaDataImpl.setStartTime(parseDate(o.toString()));
         }
         if (metaData.containsKey(MetaDataInfo.TO_TIME.getFieldName())) {
             Object o = metaData.get(MetaDataInfo.TO_TIME.getFieldName());
-            metaDataImpl.setEndTime(DateUtils.parseDatetime(o.toString()));
+            metaDataImpl.setEndTime(parseDate(o.toString()));
         }
         if (metaData.containsKey(MetaDataInfo.ENTITY_LINK.getFieldName())) {
             metaDataImpl.setEntityLinks(JsonUtils.objToList(metaData.get(MetaDataInfo.ENTITY_LINK.getFieldName()), EntityLinkVO.class));
@@ -73,5 +74,13 @@ public class MetaConverter extends BasicConverter {
             return JsonUtils.objToList(metaDataMap.get(MetaDataInfo.TAG.getFieldName()), TagRsp.class);
         }
         return Collections.emptyList();
+    }
+
+    public static Date parseDate(String str) {
+        try {
+            return DateUtils.parseDate(str, "yyyy-MM-dd hh:mm:ss");
+        } catch (Exception e) {
+            return DateUtils.parseDate(str, "yyyy-MM-dd");
+        }
     }
 }
