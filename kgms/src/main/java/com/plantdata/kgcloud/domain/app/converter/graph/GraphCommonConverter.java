@@ -10,7 +10,6 @@ import ai.plantdata.kg.api.pub.resp.SimpleRelation;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
@@ -115,12 +114,23 @@ public class GraphCommonConverter extends BasicConverter {
      * @return 。。。
      */
     static List<GraphRelationRsp> simpleRelationToGraphRelationRsp(@NonNull List<SimpleRelation> simpleRelationList, boolean relationMerge) {
-        Map<Long, Set<Long>> relationMap = Maps.newHashMap();
-        return listToRsp(simpleRelationList, a -> simpleRelationToGraphRelationRsp(a, relationMap, relationMerge));
+
+        List<GraphRelationRsp> graphRelationRsps = listToRsp(simpleRelationList, a -> simpleRelationToGraphRelationRsp(a, relationMerge));
+        if (relationMerge) {
+            Map<String, List<GraphRelationRsp>> rspMap = graphRelationRsps.stream().collect(Collectors.groupingBy(a -> a.getFrom() + "_" + a.getTo()));
+            return rspMap.values().stream().map(a -> {
+                GraphRelationRsp one = a.get(0);
+                if (a.size() >= 2) {
+                    one.setSourceRelationList(listToRsp(a, b -> BasicConverter.copy(b, GraphRelationRsp.class)));
+                }
+                return one;
+            }).collect(Collectors.toList());
+        }
+        return graphRelationRsps;
     }
 
 
-    private static GraphRelationRsp simpleRelationToGraphRelationRsp(@NonNull SimpleRelation relation, Map<Long, Set<Long>> relationMap, boolean relationMerge) {
+    private static GraphRelationRsp simpleRelationToGraphRelationRsp(@NonNull SimpleRelation relation, boolean relationMerge) {
         GraphRelationRsp relationRsp = new GraphRelationRsp();
         relationRsp.setFrom(relation.getFrom());
         relationRsp.setTo(relation.getTo());
@@ -148,19 +158,6 @@ public class GraphCommonConverter extends BasicConverter {
         if (!CollectionUtils.isEmpty(relation.getEdgeObjAttr())) {
             relationRsp.setObjAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
         }
-        if (!relationMerge) {
-            return relationRsp;
-        }
-        //关系合并
-        Set<Long> toSet = relationMap.computeIfAbsent(relation.getFrom(), Sets::newHashSet);
-        if (toSet.contains(relation.getTo())) {
-            if (CollectionUtils.isEmpty(relationRsp.getSourceRelationList())) {
-                relationRsp.setSourceRelationList(Lists.newArrayList(relationRsp));
-            } else {
-                relationRsp.getSourceRelationList().add(relationRsp);
-            }
-        }
-        toSet.add(relation.getTo());
         return relationRsp;
     }
 
