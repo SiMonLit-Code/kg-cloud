@@ -107,6 +107,7 @@ public class ExploreCommonConverter extends BasicConverter {
         consumerIfNoNull(to.getAllowTypesKey(), rs::setAllowConceptsKey);
         consumerIfNoNull(to.getReplaceClassIds(), rs::setReplaceClassIds);
         consumerIfNoNull(to.getReplaceClassIdsKey(), rs::setReplaceClassKeys);
+        consumerIfNoNull(to.getIsRelationMerge(), rs::setRelationMerge);
         consumerIfNoNull(to.getAllowAttsKey(), rs::setAllowAttrsKey);
         consumerIfNoNull(to.getAllowTypes(), rs::setAllowConcepts);
         consumerIfNoNull(to.getAllowAttrGroups(), a -> rs.setAllowAttrGroups(toListNoNull(a, Long::valueOf)));
@@ -170,8 +171,8 @@ public class ExploreCommonConverter extends BasicConverter {
         BeanUtils.copyProperties(newBean, oldBean);
         oldBean.setFrom(newBean.getFrom());
         oldBean.setTo(newBean.getTo());
-        oldBean.addEndTime(newBean.getEndTime());
-        oldBean.addStartTime(newBean.getStartTime());
+        consumerIfNoNull(newBean.getEndTime(), oldBean::addEndTime);
+        consumerIfNoNull(newBean.getStartTime(), oldBean::addStartTime);
         oldBean.setBatch(newBean.getBatch());
         oldBean.setAttId(newBean.getAttId());
         oldBean.setAttName(newBean.getAttName());
