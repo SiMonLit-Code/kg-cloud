@@ -157,7 +157,7 @@ public class ImportController {
             throw BizException.of(CommonErrorCode.BAD_REQUEST);
         }
         String suffix = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
-        if (!suffix.equals("xlsx") && !suffix.equals("xls")) {
+        if (!(suffix.equals("xlsx") || suffix.equals("xls"))) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_TYPE_ERROR);
         }
     }
