@@ -5,7 +5,6 @@ import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.req.RelationFrom;
-import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -118,12 +117,10 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.setSkip(page.getOffset());
         graphFrom.setLimit(page.getLimit());
         consumerIfNoNull(common.getHighLevelSize(), a -> {
-            Map<Integer, CommonFilter> layerFilters = Maps.newHashMapWithExpectedSize(1);
             CommonFilter commonFilter = new CommonFilter();
             commonFilter.setSkip(NumberUtils.INTEGER_ZERO);
             commonFilter.setLimit(a);
-            layerFilters.put(NumberUtils.INTEGER_ONE, commonFilter);
-            graphFrom.setLayerFilters(layerFilters);
+            graphFrom.setHighLevelFilter(commonFilter);
         });
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
