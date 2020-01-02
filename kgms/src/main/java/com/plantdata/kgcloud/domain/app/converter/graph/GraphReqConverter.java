@@ -5,7 +5,6 @@ import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.req.RelationFrom;
-import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -115,16 +114,13 @@ public class GraphReqConverter extends BasicConverter {
             page.setPage(NumberUtils.INTEGER_ONE);
             page.setSize(BaseReq.DEFAULT_SIZE);
         }
-        graphFrom.setSkip(page.getOffset());
-        graphFrom.setLimit(page.getLimit());
-        consumerIfNoNull(common.getHighLevelSize(), a -> {
-            Map<Integer, CommonFilter> layerFilters = Maps.newHashMapWithExpectedSize(1);
-            CommonFilter commonFilter = new CommonFilter();
-            commonFilter.setSkip(NumberUtils.INTEGER_ZERO);
-            commonFilter.setLimit(a);
-            layerFilters.put(NumberUtils.INTEGER_ONE, commonFilter);
-            graphFrom.setLayerFilters(layerFilters);
-        });
+        //最高层节点数
+        graphFrom.setSkip(NumberUtils.INTEGER_ZERO);
+        graphFrom.setLimit(common.getHighLevelSize());
+        //通用
+        graphFrom.getHighLevelFilter().setSkip(page.getOffset());
+        graphFrom.getHighLevelFilter().setLimit(page.getLimit());
+
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
         graphFrom.setQueryPrivate(common.isPrivateAttRead());

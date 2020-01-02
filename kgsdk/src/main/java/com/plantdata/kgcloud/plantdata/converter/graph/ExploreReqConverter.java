@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.link.LinkUtil;
 import com.plantdata.kgcloud.plantdata.req.common.AttrSortBean;
@@ -43,7 +42,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -192,28 +190,19 @@ public class ExploreReqConverter extends BasicConverter {
     }
 
     private static GraphRelationRsp relationBeanToGraphRelationRsp(RelationBean relationBean) {
-        GraphRelationRsp link = LinkUtil.link(relationBean);
-        List<GraphRelationRsp> sourceRelationList = Lists.newArrayList();
-        Set<String> relationIdlIst = Sets.newHashSet();
-        Map<String, List<RelationInfoBean>> edgeObjAttrMap = relationBean.getoRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
-        Map<String, List<RelationInfoBean>> edgeNumAttrMap = relationBean.getnRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
-        relationIdlIst.forEach(id -> {
-            List<RelationInfoBean> edgeObjAttrList = edgeObjAttrMap.get(id);
-            List<RelationInfoBean> edgeNumAttrList = edgeNumAttrMap.get(id);
-            List<BasicRelationRsp.EdgeInfo> edgeNumInfos = flatList(toListNoNull(edgeNumAttrList, ExploreReqConverter::relationInfoBeanToEdgeInfo));
-            List<BasicRelationRsp.EdgeInfo> edgeObjInfos = flatList(toListNoNull(edgeObjAttrList, ExploreReqConverter::relationInfoBeanToEdgeInfo));
-            if (id.equals(relationBean.getId())) {
-                link.setDataValAttrs(edgeNumInfos);
-                link.setObjAttrs(edgeObjInfos);
-            } else {
-                GraphRelationRsp source = new GraphRelationRsp();
-                BeanUtils.copyProperties(link, source);
-                source.setId(id);
-                source.setDataValAttrs(edgeNumInfos);
-                source.setObjAttrs(edgeObjInfos);
-                sourceRelationList.add(source);
-            }
-        });
+        GraphRelationRsp link = new GraphRelationRsp();
+        link.setId(relationBean.getId());
+        link.setFrom(relationBean.getFrom());
+        link.setTo(relationBean.getTo());
+        link.setAttId(relationBean.getAttId());
+        link.setAttName(relationBean.getAttName());
+        link.setBatch(relationBean.getBatch());
+        link.setDirection(relationBean.getDirection());
+        relationBean.setReliability(relationBean.getReliability());
+        relationBean.setScore(relationBean.getScore());
+        link.setLabelStyle(relationBean.getLabelStyle());
+        link.setLinkStyle(relationBean.getLinkStyle());
+        fillSourceAndAttr(relationBean, link);
         if (!CollectionUtils.isEmpty(relationBean.getStartTime())) {
             link.setStartTime(relationBean.getStartTime().get(0));
         }
@@ -221,6 +210,32 @@ public class ExploreReqConverter extends BasicConverter {
             link.setEndTime(relationBean.getEndTime().get(0));
         }
         return link;
+    }
+
+    private static void fillSourceAndAttr(RelationBean relationBean, GraphRelationRsp main) {
+        List<GraphRelationRsp> sourceRelationList = Lists.newArrayList();
+        List<String> relationIdlIst = Lists.newArrayList();
+        Map<String, List<RelationInfoBean>> edgeObjAttrMap = relationBean.getoRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
+        Map<String, List<RelationInfoBean>> edgeNumAttrMap = relationBean.getnRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
+        for (int i = 0; i <= relationIdlIst.size(); i++) {
+            String id = relationIdlIst.get(i);
+            List<RelationInfoBean> edgeObjAttrList = edgeObjAttrMap.get(id);
+            List<RelationInfoBean> edgeNumAttrList = edgeNumAttrMap.get(id);
+            List<BasicRelationRsp.EdgeInfo> edgeNumInfos = flatList(toListNoNull(edgeNumAttrList, ExploreReqConverter::relationInfoBeanToEdgeInfo));
+            List<BasicRelationRsp.EdgeInfo> edgeObjInfos = flatList(toListNoNull(edgeObjAttrList, ExploreReqConverter::relationInfoBeanToEdgeInfo));
+            if (id.equals(relationBean.getId())) {
+                main.setDataValAttrs(edgeNumInfos);
+                main.setObjAttrs(edgeObjInfos);
+            } else {
+                GraphRelationRsp source = new GraphRelationRsp();
+                BeanUtils.copyProperties(main, source);
+                source.setId(id);
+                source.setDataValAttrs(edgeNumInfos);
+                source.setObjAttrs(edgeObjInfos);
+                sourceRelationList.add(source);
+            }
+        }
+        consumerIfNoNull(sourceRelationList, main::setSourceRelationList);
     }
 
     private static List<BasicRelationRsp.EdgeInfo> relationInfoBeanToEdgeInfo(RelationInfoBean relationInfo) {
