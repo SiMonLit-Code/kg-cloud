@@ -1,7 +1,11 @@
 package com.plantdata.kgcloud.sdk.req.app.algorithm;
 
-import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+@NoArgsConstructor
+@AllArgsConstructor
 public class KVBean<W, T> {
 
     private W k;

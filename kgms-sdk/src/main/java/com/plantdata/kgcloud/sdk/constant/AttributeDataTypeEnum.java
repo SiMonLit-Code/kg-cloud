@@ -44,6 +44,9 @@ public enum AttributeDataTypeEnum {
     private String desc;
 
     public static AttributeDataTypeEnum parseById(Integer dataType) {
+        if (dataType == null) {
+            return null;
+        }
         for (AttributeDataTypeEnum dataTypeEnum : AttributeDataTypeEnum.values()) {
             if (dataTypeEnum.value == dataType) {
                 return dataTypeEnum;
