@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.config;
+package com.plantdata.kgcloud.plantdata.rsp;
 
 /**
  * 标记需要转成对象的字段

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.plantdata.bean;
 
-import com.plantdata.kgcloud.config.MarkObject;
+import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
 import com.plantdata.kgcloud.plantdata.rsp.schema.AttributeExtraInfoItem;
 import lombok.*;
 

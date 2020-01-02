@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.nlp;
 
-import com.plantdata.kgcloud.config.MarkObject;
+import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
 import lombok.Data;
 
 import java.util.List;

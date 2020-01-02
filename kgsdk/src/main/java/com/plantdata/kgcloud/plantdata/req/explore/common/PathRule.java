@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.explore.common;
 
-import com.plantdata.kgcloud.config.MarkObject;
+import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
 import lombok.Getter;
 import lombok.Setter;
 
