@@ -8,6 +8,7 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.constant.AttrDefinitionTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
@@ -15,6 +16,7 @@ import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.FileRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxConceptRsp;
@@ -95,7 +97,6 @@ public class InfoBoxConverter extends BasicConverter {
             return null;
         }
         List<EntityAttributeValueVO> objAttrList = Lists.newArrayList();
-        List<EntityAttributeValueVO> reObjAttrList = Lists.newArrayList();
         List<EntityAttributeValueVO> otherDataAttrList = Lists.newArrayList();
         //属性
         if (!CollectionUtils.isEmpty(entity.getAttrValue())) {
@@ -110,12 +111,13 @@ public class InfoBoxConverter extends BasicConverter {
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
         //设置父概念
         infoBoxRsp.setParents(listToRsp(entity.getParent(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
-        //设置子概念 todo
+        //设置子概念
         infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //基本字段
         infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList));
         //对象属性
         infoBoxRsp.setAttrs(listToRsp(objAttrList, a -> attrValToInfoBoxAttrRsp(a, entityMap)));
+        //todo 反向属性
         return infoBoxRsp;
     }
 
@@ -185,14 +187,26 @@ public class InfoBoxConverter extends BasicConverter {
             log.error("attributeDefinition:{},不存在", attributeValue.getDataType());
             return new EntityLinksRsp.ExtraRsp(-1, attributeValue.getName(), attributeValue.getDataValue(), attributeValue.getDataType());
         }
+        EntityLinksRsp.ExtraRsp extraRsp = new EntityLinksRsp.ExtraRsp(attributeValue.getId(), attributeValue.getName(), attributeValue.getDataType());
         switch (dataType) {
+            case ATTACHMENT:
+            case VIDEO:
+                FileRsp fileRsp = JsonUtils.parseObj((String) attributeValue.getDataValue(), FileRsp.class);
+                consumerIfNoNull(fileRsp, extraRsp::setValue);
+                break;
             case IMAGE:
             case URL:
-                return new EntityLinksRsp.ExtraRsp(attributeValue.getId(), attributeValue.getName(), JacksonUtils.readValue(JacksonUtils.writeValueAsString(attributeValue.getDataValue()), ImageRsp.class), attributeValue.getDataType());
+                ImageRsp imageRsp = JsonUtils.parseObj((String) attributeValue.getDataValue(), ImageRsp.class);
+                consumerIfNoNull(imageRsp, extraRsp::setValue);
+                break;
             default:
-                return new EntityLinksRsp.ExtraRsp(attributeValue.getId(), attributeValue.getName(), StringUtils.isNotEmpty(attributeValue.getDataUnit()) ? attributeValue.getDataValue() + attributeValue.getDataUnit() : attributeValue.getDataValue(), attributeValue.getDataType());
+                consumerIfNoNull(attributeValue.getDataValue(), a -> {
+                    String val = StringUtils.isNotEmpty(attributeValue.getDataUnit()) ? attributeValue.getDataValue() + attributeValue.getDataUnit() : attributeValue.getDataValue().toString();
+                    extraRsp.setValue(val);
+                });
+                break;
         }
-
+        return extraRsp;
     }
 
     private static PromptEntityRsp voToPromptEntityRsp(@NonNull ai.plantdata.kg.api.edit.resp.EntityVO entityVO) {

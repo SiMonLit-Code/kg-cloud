@@ -19,7 +19,7 @@ import java.util.Date;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class GraphBusinessAlgorithmBean implements MarkObject {
-    private Integer id;
+    private Long id;
     private String kgName;
     private String name;
     private String abs;

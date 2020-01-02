@@ -113,6 +113,8 @@ public class BasicConverter {
         return DateUtils.parseDate(str, DATE_REG);
     }
 
+
+
     protected static String dateToString(Date date) {
         return DateUtils.formatDate(date, DATE_REG);
     }

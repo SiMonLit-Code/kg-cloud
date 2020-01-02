@@ -343,7 +343,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
     })
     public RestResp<Map<String, List<Long>>> entityInsert(@Valid @ApiIgnore EntityInsertParameter param) {
-        ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), true, NumberUtils.INTEGER_ZERO);
+        ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), false, NumberUtils.INTEGER_ZERO);
         return importEntity(parameter);
     }
 
@@ -354,7 +354,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
     })
     public RestResp<Map<String, List<Long>>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
-        ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), false, NumberUtils.INTEGER_ZERO);
+        ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), true, NumberUtils.INTEGER_ZERO);
         return importEntity(parameter);
     }
 
