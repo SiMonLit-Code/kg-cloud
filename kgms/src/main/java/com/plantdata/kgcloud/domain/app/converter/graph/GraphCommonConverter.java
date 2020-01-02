@@ -69,17 +69,18 @@ public class GraphCommonConverter extends BasicConverter {
      * @return 。。。
      */
     static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(T exploreReq, E graphFrom) {
-        CommonFilter commonFilter = new GraphFrom();
-        consumerIfNoNull(exploreReq.getDistance(), commonFilter::setDistance);
+        CommonFilter highLevelFilter = new GraphFrom();
         consumerIfNoNull(exploreReq.getEntityFilters(), a -> {
             EntityFilter entityFilter = new EntityFilter();
             entityFilter.setAttr(ConditionConverter.entityListToIntegerKeyMap(a));
-            commonFilter.setEntityFilter(entityFilter);
+            highLevelFilter.setEntityFilter(entityFilter);
         });
         //设置边属性筛选
-        consumerIfNoNull(exploreReq.getEdgeAttrFilters(), a -> commonFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
+        consumerIfNoNull(exploreReq.getEdgeAttrFilters(), a -> highLevelFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
         //层级通用
-        commonFilter.setHighLevelFilter(new CommonFilter());
+        graphFrom.setHighLevelFilter(highLevelFilter);
+
+        consumerIfNoNull(exploreReq.getDistance(), graphFrom::setDistance);
         graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
         graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
         graphFrom.setInherit(exploreReq.isInherit());

@@ -114,14 +114,13 @@ public class GraphReqConverter extends BasicConverter {
             page.setPage(NumberUtils.INTEGER_ONE);
             page.setSize(BaseReq.DEFAULT_SIZE);
         }
-        graphFrom.setSkip(page.getOffset());
-        graphFrom.setLimit(page.getLimit());
-        consumerIfNoNull(common.getHighLevelSize(), a -> {
-            CommonFilter commonFilter = new CommonFilter();
-            commonFilter.setSkip(NumberUtils.INTEGER_ZERO);
-            commonFilter.setLimit(a);
-            graphFrom.setHighLevelFilter(commonFilter);
-        });
+        //最高层节点数
+        graphFrom.setSkip(NumberUtils.INTEGER_ZERO);
+        graphFrom.setLimit(common.getHighLevelSize());
+        //通用
+        graphFrom.getHighLevelFilter().setSkip(page.getOffset());
+        graphFrom.getHighLevelFilter().setLimit(page.getLimit());
+
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
         graphFrom.setQueryPrivate(common.isPrivateAttRead());
