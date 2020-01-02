@@ -25,6 +25,6 @@ public class SdkExceptionHandler {
             BizException bizException = (BizException) ex;
             throw new SdkException(bizException.getErrCode(), bizException.getMessage());
         }
-        throw new SdkException(ex.getMessage());
+        throw new SdkException(ex);
     }
 }

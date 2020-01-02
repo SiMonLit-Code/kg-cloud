@@ -191,13 +191,17 @@ public class InfoBoxConverter extends BasicConverter {
         switch (dataType) {
             case ATTACHMENT:
             case VIDEO:
-                FileRsp fileRsp = JsonUtils.parseObj((String) attributeValue.getDataValue(), FileRsp.class);
-                consumerIfNoNull(fileRsp, extraRsp::setValue);
+                consumerIfNoNull(attributeValue.getDataValue(), a -> {
+                    FileRsp fileRsp = JsonUtils.parseObj((String) attributeValue.getDataValue(), FileRsp.class);
+                    consumerIfNoNull(fileRsp, extraRsp::setValue);
+                });
                 break;
             case IMAGE:
             case URL:
-                ImageRsp imageRsp = JsonUtils.parseObj((String) attributeValue.getDataValue(), ImageRsp.class);
-                consumerIfNoNull(imageRsp, extraRsp::setValue);
+                consumerIfNoNull(attributeValue.getDataValue(), a -> {
+                    ImageRsp imageRsp = JsonUtils.parseObj((String) attributeValue.getDataValue(), ImageRsp.class);
+                    consumerIfNoNull(imageRsp, extraRsp::setValue);
+                });
                 break;
             default:
                 consumerIfNoNull(attributeValue.getDataValue(), a -> {
