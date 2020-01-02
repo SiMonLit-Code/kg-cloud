@@ -74,8 +74,6 @@ public class AppController implements SdkOldApiInterface {
 
     @Autowired
     private AppClient appClient;
-    @Autowired
-    private HttpServletRequest request;
 
     @ApiOperation("获取当前图实体类型及属性类型的schema")
     @GetMapping("schema")
