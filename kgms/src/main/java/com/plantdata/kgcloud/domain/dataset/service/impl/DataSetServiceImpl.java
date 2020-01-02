@@ -337,13 +337,15 @@ public class DataSetServiceImpl implements DataSetService {
     private void excelFileSchema(List<DataSetSchema> setSchemas, MultipartFile file) {
         try {
             EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
+                Map<Integer, DataSetSchema> dataSetSchemaMap = new HashMap<>();
+
                 @Override
                 public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
                     for (Map.Entry<Integer, String> entry : headMap.entrySet()) {
                         DataSetSchema dataSetSchema = new DataSetSchema();
                         dataSetSchema.setField(entry.getValue());
                         dataSetSchema.setType(1);
-                        setSchemas.add(dataSetSchema);
+                        dataSetSchemaMap.put(entry.getKey(),dataSetSchema);
                     }
                 }
 
@@ -353,18 +355,20 @@ public class DataSetServiceImpl implements DataSetService {
                     if (rowIndex < 10) {
                         for (Map.Entry<Integer, Object> entry : data.entrySet()) {
                             Object val = entry.getValue();
-                            FieldType type = readType(val);
-                            setSchemas.get(entry.getKey()).setType(type.getCode());
+                            if(val!=null) {
+                                FieldType type = readType(val);
+                                dataSetSchemaMap.get(entry.getKey()).setType(type.getCode());
+                            }
                         }
                     }
                 }
 
                 @Override
                 public void doAfterAllAnalysed(AnalysisContext context) {
-
+                    setSchemas.addAll(dataSetSchemaMap.values());
                 }
             }).sheet().doRead();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
