@@ -253,7 +253,7 @@ public interface AppClient {
      * @param exploreParam param
      * @return CommonBasicGraphExploreRsp
      */
-    @PostMapping("raphExplorereasoning/{kgName}")
+    @PostMapping("graphExplore/reasoning/{kgName}")
     ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@PathVariable("kgName") String kgName, @RequestBody CommonReasoningExploreReq exploreParam);
 
     /**
