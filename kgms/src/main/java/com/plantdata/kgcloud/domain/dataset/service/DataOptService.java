@@ -58,7 +58,7 @@ public interface DataOptService {
      * @param file
      * @throws Exception
      */
-    void upload(String userId, Long datasetId, MultipartFile file) throws Exception;
+    List upload(String userId, Long datasetId, MultipartFile file) throws Exception;
 
     /**
      * 修改

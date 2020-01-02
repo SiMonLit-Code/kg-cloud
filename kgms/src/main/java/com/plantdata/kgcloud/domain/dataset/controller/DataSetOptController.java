@@ -120,11 +120,11 @@ public class DataSetOptController {
         }
         try {
             String userId = SessionHolder.getUserId();
-            dataOptService.upload(userId, datasetId, file);
+            return ApiReturn.success(dataOptService.upload(userId, datasetId, file));
         } catch (Exception e) {
             return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_EXPORT_FAIL);
         }
-        return ApiReturn.success();
+
     }
 
     @ApiOperation("数据集-数据-接口-导入")
