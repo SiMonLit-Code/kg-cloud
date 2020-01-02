@@ -51,7 +51,7 @@ public class StringToObjectGenericConverter implements GenericConverter {
             if (resolvableType.hasGenerics()) {
                 return instance.readValue(StringEscapeUtils.unescapeHtml(source.toString()), JacksonUtils.getInstance().constructType(resolvableType.getType()));
             }
-            return instance.readValue(source.toString(), resolvableType.resolve());
+            return instance.readValue(StringEscapeUtils.unescapeHtml(source.toString()), resolvableType.resolve());
         } catch (IOException e) {
             e.printStackTrace();
         }

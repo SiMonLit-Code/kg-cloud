@@ -10,14 +10,12 @@ import ai.plantdata.kg.api.pub.resp.SimpleRelation;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.ImageConverter;
 import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
@@ -25,7 +23,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -65,14 +62,13 @@ public class GraphCommonConverter extends BasicConverter {
     /**
      * 填充基础参数
      *
-     * @param page       分页参数 仅使用 page->(default:0) size->(default:10)
      * @param exploreReq req
      * @param graphFrom  remote 参数
      * @param <T>        子类
      * @param <E>        子类
      * @return 。。。
      */
-    static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote( T exploreReq, E graphFrom) {
+    static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(T exploreReq, E graphFrom) {
         CommonFilter commonFilter = new GraphFrom();
         consumerIfNoNull(exploreReq.getDistance(), commonFilter::setDistance);
         consumerIfNoNull(exploreReq.getEntityFilters(), a -> {
@@ -82,7 +78,8 @@ public class GraphCommonConverter extends BasicConverter {
         });
         //设置边属性筛选
         consumerIfNoNull(exploreReq.getEdgeAttrFilters(), a -> commonFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
-
+        //层级通用
+        commonFilter.setHighLevelFilter(new CommonFilter());
         graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
         graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
         graphFrom.setInherit(exploreReq.isInherit());
