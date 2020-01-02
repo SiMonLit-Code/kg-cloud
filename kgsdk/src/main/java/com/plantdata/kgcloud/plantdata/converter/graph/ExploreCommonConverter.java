@@ -119,6 +119,7 @@ public class ExploreCommonConverter extends BasicConverter {
 
     static <T extends BasicGraphExploreRsp> GraphBean basicGraphExploreRspToGraphBean(T exploreRsp) {
         GraphBean graphBean = new GraphBean();
+        graphBean.setLevel1HasNextPage(exploreRsp.getHasNextPage());
         graphBean.setEntityList(toListNoNull(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToCommonEntityRsp));
         graphBean.setRelationList(toListNoNull(exploreRsp.getRelationList(), ExploreCommonConverter::relationBeanToGraphRelationRsp));
         return graphBean;
@@ -171,6 +172,7 @@ public class ExploreCommonConverter extends BasicConverter {
         BeanUtils.copyProperties(newBean, oldBean);
         oldBean.setFrom(newBean.getFrom());
         oldBean.setTo(newBean.getTo());
+        oldBean.setDirection(newBean.getDirection());
         consumerIfNoNull(newBean.getEndTime(), oldBean::addEndTime);
         consumerIfNoNull(newBean.getStartTime(), oldBean::addStartTime);
         oldBean.setBatch(newBean.getBatch());

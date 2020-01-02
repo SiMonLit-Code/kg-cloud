@@ -114,22 +114,26 @@ public class GraphReqConverter extends BasicConverter {
             page.setPage(NumberUtils.INTEGER_ONE);
             page.setSize(BaseReq.DEFAULT_SIZE);
         }
+
         //最高层节点数
         graphFrom.setSkip(NumberUtils.INTEGER_ZERO);
         graphFrom.setLimit(common.getHighLevelSize());
         //通用
         graphFrom.getHighLevelFilter().setSkip(page.getOffset());
         graphFrom.getHighLevelFilter().setLimit(page.getLimit());
-
-        graphFrom.setId(common.getId());
-        graphFrom.setName(common.getKw());
-        graphFrom.setQueryPrivate(common.isPrivateAttRead());
-        graphFrom.setDirection(common.getDirection());
-        consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
+        graphFrom.getHighLevelFilter().setDirection(common.getDirection());
+        graphFrom.getHighLevelFilter().setQueryPrivate(common.isPrivateAttRead());
         if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
             Map<String, Integer> edgeAttrQuery = ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts());
             graphFrom.getHighLevelFilter().setEdgeSort(edgeAttrQuery);
         }
+        graphFrom.setDirection(common.getDirection());
+        graphFrom.setId(common.getId());
+        graphFrom.setName(common.getKw());
+        graphFrom.setQueryPrivate(common.isPrivateAttRead());
+
+        consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
+
     }
 
     private static void fillPath(@NonNull CommonPathReq pathReq, PathFrom pathFrom) {

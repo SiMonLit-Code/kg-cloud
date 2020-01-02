@@ -95,6 +95,7 @@ public class InfoBoxConverter extends BasicConverter {
             return null;
         }
         List<EntityAttributeValueVO> objAttrList = Lists.newArrayList();
+        List<EntityAttributeValueVO> reObjAttrList = Lists.newArrayList();
         List<EntityAttributeValueVO> otherDataAttrList = Lists.newArrayList();
         //属性
         if (!CollectionUtils.isEmpty(entity.getAttrValue())) {
