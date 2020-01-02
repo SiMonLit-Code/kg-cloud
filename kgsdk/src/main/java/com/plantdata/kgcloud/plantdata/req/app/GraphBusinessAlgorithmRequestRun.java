@@ -21,5 +21,5 @@ public class GraphBusinessAlgorithmRequestRun {
     @NotNull
     private BusinessGraphBean graphBean;
     @NotNull
-    private Integer id;
+    private Long id;
 }
