@@ -72,15 +72,8 @@ public class GraphCommonConverter extends BasicConverter {
      * @param <E>        子类
      * @return 。。。
      */
-    static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(PageReq page, T exploreReq, E graphFrom) {
+    static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote( T exploreReq, E graphFrom) {
         CommonFilter commonFilter = new GraphFrom();
-        if (page == null) {
-            page = new PageReq();
-            page.setPage(NumberUtils.INTEGER_ONE);
-            page.setSize(BaseReq.DEFAULT_SIZE);
-        }
-        graphFrom.setSkip(page.getOffset());
-        graphFrom.setLimit(page.getLimit());
         consumerIfNoNull(exploreReq.getDistance(), commonFilter::setDistance);
         consumerIfNoNull(exploreReq.getEntityFilters(), a -> {
             EntityFilter entityFilter = new EntityFilter();

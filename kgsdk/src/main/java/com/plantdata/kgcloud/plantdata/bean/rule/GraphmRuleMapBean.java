@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.plantdata.bean.rule;
 
-import com.plantdata.kgcloud.config.MarkObject;
+import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
 import lombok.*;
 import org.apache.commons.lang3.math.NumberUtils;
 import java.util.Date;
