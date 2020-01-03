@@ -109,7 +109,7 @@ public class InfoBoxConverter extends BasicConverter {
 
     private static DataLinks dataLinkRspToDataLinks(DataLinkRsp dataLink) {
         DataLinks dataLinks = new DataLinks();
-        consumerIfNoNull(dataLink.getDataSetId(), a -> dataLinks.setDataSetId(a.intValue()));
+        consumerIfNoNull(dataLink.getDataSetId(), a -> dataLinks.setDataSetId(a));
         dataLinks.setDataSetTitle(dataLink.getDataSetTitle());
         dataLinks.setLinks(toListNoNull(dataLink.getLinks(), InfoBoxConverter::linkRspToLinks));
         return dataLinks;

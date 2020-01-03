@@ -116,7 +116,8 @@ public class GraphHelperServiceImpl implements GraphHelperService {
         if (req.getGraphReq() == null) {
             return Optional.empty();
         }
-        if (rsp.getEntityList() == null && rsp.getRelationList() == null) {
+        BasicGraphExploreRsp graphReq = req.getGraphReq();
+        if (graphReq.getEntityList() == null && graphReq.getRelationList() == null) {
             return Optional.empty();
         }
         rsp.setEntityList(req.getGraphReq().getEntityList());
@@ -126,7 +127,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
 
         //关系筛选
         List<GraphRelationRsp> relationList = rsp.getRelationList();
-        if (!relationFrom.getRelationAttrFilters().isEmpty() || !relationFrom.getMetaFilters().isEmpty()) {
+        if (!CollectionUtils.isEmpty(relationFrom.getRelationAttrFilters()) || !CollectionUtils.isEmpty(relationFrom.getMetaFilters())) {
             Optional<List<String>> relationOpt = RestRespConverter.convert(relationApi.filterRelation(KGUtil.dbName(kgName), relationFrom));
             Set<String> relationIds = !relationOpt.isPresent() ? Collections.emptySet() : Sets.newHashSet(relationOpt.get());
             rsp.setRelationList(relationList.stream().filter(a -> relationIds.contains(a.getId())).collect(Collectors.toList()));

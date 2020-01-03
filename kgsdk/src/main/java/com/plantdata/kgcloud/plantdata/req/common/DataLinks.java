@@ -16,7 +16,7 @@ public class DataLinks {
     /**
      * 数据集ID
      */
-    private Integer dataSetId;
+    private Long dataSetId;
     /**
      * 数据集Title
      */
