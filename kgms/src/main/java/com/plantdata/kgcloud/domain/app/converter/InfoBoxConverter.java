@@ -106,7 +106,7 @@ public class InfoBoxConverter extends BasicConverter {
                         //反向对象属性
                         copy = copy(a, EntityAttributeValueVO.class);
                         copy.setReverseObjectValues(a.getReverseObjectValues());
-                        objAttrList.add(copy);
+                        resObjAttrList.add(copy);
                     }
                 } else {
                     otherDataAttrList.add(a);
