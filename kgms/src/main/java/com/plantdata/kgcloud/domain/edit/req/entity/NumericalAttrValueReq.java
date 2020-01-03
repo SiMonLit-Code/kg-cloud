@@ -44,7 +44,7 @@ public class NumericalAttrValueReq {
         private String href;
 
         @ApiModelProperty(value = "url属性值缩略图路径")
-        private String thumpPath;
+        private String thumbPath;
 
         @ApiModelProperty(value = "url属性值类型,前端用")
         private String type;

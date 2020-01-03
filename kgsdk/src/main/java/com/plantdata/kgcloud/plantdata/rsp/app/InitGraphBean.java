@@ -22,7 +22,7 @@ public class InitGraphBean {
     @Getter
     @Setter
     public static class InitGraphEntity {
-        private Integer id;
+        private Long id;
         private String name;
         private Long classId;
     }

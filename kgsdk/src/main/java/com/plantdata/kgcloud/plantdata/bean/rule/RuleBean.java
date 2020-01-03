@@ -16,7 +16,7 @@ import java.util.Date;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class RuleBean implements MarkObject {
-    private Integer ruleId;
+    private Long ruleId;
     private String kgName;
     private String ruleName;
     private String ruleConfig;

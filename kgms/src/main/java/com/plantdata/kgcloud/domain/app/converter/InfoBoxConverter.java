@@ -151,13 +151,14 @@ public class InfoBoxConverter extends BasicConverter {
     }
 
     private static InfoBoxRsp.InfoBoxAttrRsp attrValToInfoBoxAttrRsp(EntityAttributeValueVO attrVal) {
-        if (CollectionUtils.isEmpty(attrVal.getObjectValues())) {
+        InfoBoxRsp.InfoBoxAttrRsp objectAttributeRsp = new InfoBoxRsp.InfoBoxAttrRsp();
+        if (CollectionUtils.isEmpty(attrVal.getObjectValues()) && CollectionUtils.isEmpty(attrVal.getReverseObjectValues())) {
             return null;
         }
-        InfoBoxRsp.InfoBoxAttrRsp objectAttributeRsp = new InfoBoxRsp.InfoBoxAttrRsp();
+        consumerIfNoNull(attrVal.getObjectValues(), a -> objectAttributeRsp.setEntityList(listToRsp(a, InfoBoxConverter::relationAttrValueVOToEntity)));
+        consumerIfNoNull(attrVal.getReverseObjectValues(), a -> objectAttributeRsp.setEntityList(listToRsp(a, InfoBoxConverter::relationAttrValueVOToEntity)));
         objectAttributeRsp.setAttrDefId(attrVal.getId());
         objectAttributeRsp.setAttrDefName(attrVal.getName());
-        objectAttributeRsp.setEntityList(listToRsp(attrVal.getObjectValues(), InfoBoxConverter::relationAttrValueVOToEntity));
         return objectAttributeRsp;
     }
 

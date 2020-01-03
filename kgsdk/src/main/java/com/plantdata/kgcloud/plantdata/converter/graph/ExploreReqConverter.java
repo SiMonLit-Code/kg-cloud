@@ -19,6 +19,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.relation.RelationGraphParamet
 import com.plantdata.kgcloud.plantdata.req.explore.relation.RuleRelationGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.relation.TimeRelationGraphParameter;
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
+import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
@@ -58,7 +59,7 @@ public class ExploreReqConverter extends BasicConverter {
      * @param param GeneralGraphParameter
      * @return CommonExploreReq
      */
-    public static CommonExploreReq generalGraphParameterToCommonExploreReq(GeneralGraphParameter param) {
+    public static CommonExploreReq generalGraphParameterToCommonExploreReq(@NonNull GeneralGraphParameter param) {
         CommonExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonExploreReq());
         PageReq pageReq = new PageReq(param.getPageNo(), param.getPageSize());
         exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
@@ -66,6 +67,20 @@ public class ExploreReqConverter extends BasicConverter {
         ///300新增exploreRsp.setDisAllowConcepts(Collections.emptyList());
         consumerIfNoNull(param.getGraphBean(), a -> exploreReq.setGraphReq(ExploreReqConverter.graphBeanToBasicGraphExploreRsp(a)));
         return exploreReq;
+    }
+
+    /**
+     * 业务规则
+     *
+     * @param param GeneralGraphParameter
+     * @return ExploreByKgQlReq
+     */
+    public static ExploreByKgQlReq generalGraphParameterToExploreByKgQlReq(@NonNull GeneralGraphParameter param) {
+        ExploreByKgQlReq exploreByKgQlReq = new ExploreByKgQlReq();
+        exploreByKgQlReq.setKgQl(param.getGraphRuleKgql());
+        exploreByKgQlReq.setRelationMerge(param.getIsRelationMerge());
+        exploreByKgQlReq.setEntityId(param.getId());
+        return exploreByKgQlReq;
     }
 
     /**
@@ -233,6 +248,14 @@ public class ExploreReqConverter extends BasicConverter {
                 GraphRelationRsp source = new GraphRelationRsp();
                 BeanUtils.copyProperties(main, source);
                 source.setId(id);
+                List<String> startTime = relationBean.getStartTime();
+                List<String> endTime = relationBean.getEndTime();
+                if (!CollectionUtils.isEmpty(startTime) && i - 1 < startTime.size()) {
+                    source.setStartTime(startTime.get(i));
+                }
+                if (!CollectionUtils.isEmpty(endTime) && i - 1 <= endTime.size()) {
+                    source.setEndTime(endTime.get(i));
+                }
                 source.setDataValAttrs(edgeNumInfos);
                 source.setObjAttrs(edgeObjInfos);
                 sourceRelationList.add(source);
@@ -240,6 +263,7 @@ public class ExploreReqConverter extends BasicConverter {
         }
         consumerIfNoNull(sourceRelationList, main::setSourceRelationList);
     }
+
 
     /**
      * 边数值属性转换 old->new
