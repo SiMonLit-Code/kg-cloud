@@ -187,7 +187,9 @@ public class DataOptServiceImpl implements DataOptService {
                                 map.put(field, format);
                             }
                         } else {
-                            map.put(field, entry.getValue());
+                            if (field.length() <= 20) {
+                                map.put(field, entry.getValue());
+                            }
                         }
                     }
                     map.remove("_id");
@@ -221,22 +223,24 @@ public class DataOptServiceImpl implements DataOptService {
         });
         List<Map<String, Object>> mapList = new ArrayList<>();
         for (Map<String, Object> map : dataList) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                String field = entry.getKey();
-                DataSetSchema dataSetSchema = schemaMap.get(field);
-                if (dataSetSchema != null) {
-                    FieldType code = FieldType.findCode(dataSetSchema.getType());
-                    try {
+            try {
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    String field = entry.getKey();
+                    DataSetSchema dataSetSchema = schemaMap.get(field);
+                    if (dataSetSchema != null) {
+                        FieldType code = FieldType.findCode(dataSetSchema.getType());
                         Object format = fieldFormat(entry.getValue(), code);
                         if (format != null) {
                             map.put(field, format);
                         }
-                    } catch (Exception e) {
-
+                    } else {
+                        if (field.length() <= 20) {
+                            map.put(field, entry.getValue());
+                        }
                     }
-                } else {
-                    map.put(field, entry.getValue());
                 }
+            } catch (Exception e) {
+
             }
             map.remove("_id");
             if (!map.isEmpty()) {
