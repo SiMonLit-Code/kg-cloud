@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 public enum  RdfType {
     RDF_XML("RDF/XML","rdf"),
-    N_TRIPLES("N-TRIPLES","nt"),
+    N_TRIPLES("N-TRIPLE","nt"),
     TURTLE("TURTLE","ttl"),
     N3("N3","n3"),
     ;
