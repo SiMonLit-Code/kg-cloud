@@ -250,11 +250,11 @@ public class ExploreReqConverter extends BasicConverter {
                 source.setId(id);
                 List<String> startTime = relationBean.getStartTime();
                 List<String> endTime = relationBean.getEndTime();
-                if (!CollectionUtils.isEmpty(startTime) && i - 1 < startTime.size()) {
+                try {
                     source.setStartTime(startTime.get(i));
-                }
-                if (!CollectionUtils.isEmpty(endTime) && i - 1 <= endTime.size()) {
                     source.setEndTime(endTime.get(i));
+                } catch (Exception e) {
+                    log.info("该exception忽略");
                 }
                 source.setDataValAttrs(edgeNumInfos);
                 source.setObjAttrs(edgeObjInfos);
