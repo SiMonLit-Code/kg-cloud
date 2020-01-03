@@ -254,7 +254,8 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String exportRdf(String kgName, String format, Integer scope) {
-        ResponseEntity<byte[]> body = rdfApi.exportRdf(KGUtil.dbName(kgName), scope, RdfType.findByType(format).getType());
+        ResponseEntity<byte[]> body = rdfApi.exportRdf(KGUtil.dbName(kgName), scope,
+                RdfType.findByFormat(format).getType());
         ByteArrayInputStream inputStream = new ByteArrayInputStream(Objects.requireNonNull(body.getBody()));
         StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, format, null);
         return "/" + storePath.getFullPath();

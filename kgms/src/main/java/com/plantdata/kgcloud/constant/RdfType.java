@@ -23,15 +23,6 @@ public enum  RdfType {
         this.format = format;
     }
 
-    public static RdfType findByType(String type){
-        for (RdfType rdfType : values()){
-            if (rdfType.getType().equals(type)){
-                return rdfType;
-            }
-        }
-        return RdfType.RDF_XML;
-    }
-
     public static RdfType findByFormat(String format){
         for (RdfType rdfType : values()){
             if (rdfType.getFormat().equals(format)){
