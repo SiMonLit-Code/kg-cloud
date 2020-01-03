@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 public enum  RdfType {
     RDF_XML("RDF/XML","rdf"),
-    N_TRIPLES("N-TRIPLES","nt"),
+    N_TRIPLES("N-TRIPLE","nt"),
     TURTLE("TURTLE","ttl"),
     N3("N3","n3"),
     ;
@@ -21,15 +21,6 @@ public enum  RdfType {
     RdfType(String type, String format) {
         this.type = type;
         this.format = format;
-    }
-
-    public static RdfType findByType(String type){
-        for (RdfType rdfType : values()){
-            if (rdfType.getType().equals(type)){
-                return rdfType;
-            }
-        }
-        return RdfType.RDF_XML;
     }
 
     public static RdfType findByFormat(String format){
