@@ -23,7 +23,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DATASET_KEY_EXISTS(120106, "唯一标识已存在"),
     DATASET_EXPORT_FAIL(120107, "数据集导出失败"),
     DATASET_IMPORT_FAIL(120108, "数据集导入失败"),
-    DATASET_FIELD_ERROR(120109,"数据字段类型校验错误"),
+    DATASET_FIELD_ERROR(120109, "数据字段类型校验错误"),
     QUERYSETTING_NOT_EXISTS(120110, "规则配置不存在"),
 
     KTR_SAVE_FAIL(120113, "kettle文件生成失败"),
@@ -64,6 +64,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     CONF_STATISTICALID_NOT_EXISTS(120622, "图谱统计ID不存在"),
     CONF_FOCUS_ERROR(120623, "请您选择正确节点"),
     PRIVATE_RELATION_HAS_EXIST(120624, "私有关系已存在"),
+    DOMAIN_WORD_NOT_EMPTY(120625, "领域词不能为空"),
+    DOMAIN_CONCEPT_NOT_EMPTY(120626, "领域词相关概念不能为空"),
 
 
     WORD_NOT_EXISTS(120302, "词条不存在"),
