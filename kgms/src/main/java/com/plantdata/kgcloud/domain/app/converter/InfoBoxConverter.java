@@ -1,9 +1,10 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
 import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
+import ai.plantdata.kg.api.edit.resp.RelationAttrValueVO;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
-import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -22,7 +23,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -43,14 +43,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InfoBoxConverter extends BasicConverter {
 
-    public static KgServiceEntityFrom batchInfoBoxReqToKgServiceEntityFrom(BatchInfoBoxReq boxReq) {
-        KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();
-        entityFrom.setIds(boxReq.getIds());
-        entityFrom.setReadObjectAttribute(boxReq.getRelationAttrs());
-        entityFrom.setReadMetaData(true);
-        entityFrom.setReadReverseObjectAttribute(boxReq.getReverseRelationAttrs());
-        entityFrom.setAllowAtts(boxReq.getAllowAttrs());
-        return entityFrom;
+
+    public static BasicDetailFilter batchInfoBoxReqToBasicDetailFilter(BatchInfoBoxReq boxReq) {
+        BasicDetailFilter detailFilter = new BasicDetailFilter();
+        detailFilter.setIds(boxReq.getIds());
+        detailFilter.setReadObj(boxReq.getRelationAttrs());
+        detailFilter.setReadReverseObj(boxReq.getReverseRelationAttrs());
+        return detailFilter;
     }
 
     public static FilterRelationFrom reqToFilterRelationFrom(BasicGraphExploreRsp rsp, List<RelationAttrReq> attrReqList, List<RelationAttrReq> reversedAttrReqList) {
@@ -76,11 +75,6 @@ public class InfoBoxConverter extends BasicConverter {
         return relationFrom;
     }
 
-    public static List<InfoBoxRsp> voToInfoBox(@NonNull List<Long> sourceEntityIds,
-                                               List<EntityVO> relationEntityList) {
-        Map<Long, EntityVO> entityMap = relationEntityList.stream().collect(Collectors.toMap(ai.plantdata.kg.api.edit.resp.EntityVO::getId, Function.identity()));
-        return listToRsp(sourceEntityIds, entity -> voToInfoBoxRsp(entity, entityMap));
-    }
 
     public static InfoBoxRsp conceptToInfoBoxRsp(EntityVO entity) {
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
@@ -90,19 +84,30 @@ public class InfoBoxConverter extends BasicConverter {
         return infoBoxRsp;
     }
 
-    private static InfoBoxRsp voToInfoBoxRsp(Long sourceEntityId,
-                                             Map<Long, EntityVO> entityMap) {
-        EntityVO entity = entityMap.get(sourceEntityId);
-        if (entity == null) {
-            return null;
-        }
+    public static InfoBoxRsp entityToInfoBoxRsp(EntityVO entity) {
         List<EntityAttributeValueVO> objAttrList = Lists.newArrayList();
+        List<EntityAttributeValueVO> resObjAttrList = Lists.newArrayList();
         List<EntityAttributeValueVO> otherDataAttrList = Lists.newArrayList();
         //属性
         if (!CollectionUtils.isEmpty(entity.getAttrValue())) {
             entity.getAttrValue().forEach(a -> {
                 if (a.getType() != null && AttrDefinitionTypeEnum.OBJECT.fetchId().equals(a.getType())) {
-                    objAttrList.add(a);
+                    if (a.getDomainValue() == null) {
+                        return;
+                    }
+                    EntityAttributeValueVO copy;
+                    if (!CollectionUtils.isEmpty(a.getObjectValues())) {
+                        //正向对象属性
+                        copy = copy(a, EntityAttributeValueVO.class);
+                        copy.setObjectValues(a.getObjectValues());
+                        objAttrList.add(copy);
+                    }
+                    if (!CollectionUtils.isEmpty(a.getReverseObjectValues())) {
+                        //反向对象属性
+                        copy = copy(a, EntityAttributeValueVO.class);
+                        copy.setReverseObjectValues(a.getReverseObjectValues());
+                        resObjAttrList.add(copy);
+                    }
                 } else {
                     otherDataAttrList.add(a);
                 }
@@ -115,16 +120,17 @@ public class InfoBoxConverter extends BasicConverter {
         infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //基本字段
         infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList));
-        //对象属性
-        infoBoxRsp.setAttrs(listToRsp(objAttrList, a -> attrValToInfoBoxAttrRsp(a, entityMap)));
-        //todo 反向属性
+        // 正向对象属性
+        infoBoxRsp.setAttrs(listToRsp(objAttrList, InfoBoxConverter::attrValToInfoBoxAttrRsp));
+        // 反向对象属性
+        infoBoxRsp.setReAttrs(listToRsp(resObjAttrList, InfoBoxConverter::attrValToInfoBoxAttrRsp));
         return infoBoxRsp;
     }
 
     private static EntityLinksRsp voToSelf(EntityVO entity, List<EntityAttributeValueVO> dataAttrList) {
         EntityLinksRsp self = EntityConverter.entityVoToBasicEntityRsp(entity, new EntityLinksRsp());
         if (StringUtils.isNotEmpty(entity.getImageUrl())) {
-            self.setImg(JacksonUtils.readValue(entity.getImageUrl(), ImageRsp.class));
+            self.setImgUrl(entity.getImageUrl());
         }
         //扩展属性
         List<EntityLinksRsp.ExtraRsp> extraList = new ArrayList<>();
@@ -144,20 +150,26 @@ public class InfoBoxConverter extends BasicConverter {
         return self;
     }
 
-    private static InfoBoxRsp.InfoBoxAttrRsp attrValToInfoBoxAttrRsp(EntityAttributeValueVO attrVal, Map<Long, EntityVO> entityMap) {
+    private static InfoBoxRsp.InfoBoxAttrRsp attrValToInfoBoxAttrRsp(EntityAttributeValueVO attrVal) {
         if (CollectionUtils.isEmpty(attrVal.getObjectValues())) {
-            return null;
-        }
-        List<EntityVO> entityList = attrVal.getObjectValues().stream().map(a -> entityMap.get(a.getId())).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(entityList)) {
             return null;
         }
         InfoBoxRsp.InfoBoxAttrRsp objectAttributeRsp = new InfoBoxRsp.InfoBoxAttrRsp();
         objectAttributeRsp.setAttrDefId(attrVal.getId());
         objectAttributeRsp.setAttrDefName(attrVal.getName());
-
-        objectAttributeRsp.setEntityList(listToRsp(entityList, InfoBoxConverter::voToPromptEntityRsp));
+        objectAttributeRsp.setEntityList(listToRsp(attrVal.getObjectValues(), InfoBoxConverter::relationAttrValueVOToEntity));
         return objectAttributeRsp;
+    }
+
+    private static PromptEntityRsp relationAttrValueVOToEntity(@NonNull RelationAttrValueVO attrValueVO) {
+        PromptEntityRsp promptEntityRsp = new PromptEntityRsp();
+        promptEntityRsp.setId(attrValueVO.getId());
+        promptEntityRsp.setConceptId(attrValueVO.getConceptId());
+        promptEntityRsp.setMeaningTag(attrValueVO.getMeaningTag());
+        promptEntityRsp.setName(attrValueVO.getName());
+        promptEntityRsp.setQa(false);
+        promptEntityRsp.setType(EntityTypeEnum.ENTITY);
+        return promptEntityRsp;
     }
 
     private static void fillAttr(List<EntityLinksRsp.ExtraRsp> extraList, List<EntityAttributeValueVO> attrValueList) {
@@ -199,8 +211,8 @@ public class InfoBoxConverter extends BasicConverter {
             case IMAGE:
             case URL:
                 consumerIfNoNull(attributeValue.getDataValue(), a -> {
-                    ImageRsp imageRsp = JsonUtils.parseObj((String) attributeValue.getDataValue(), ImageRsp.class);
-                    consumerIfNoNull(imageRsp, extraRsp::setValue);
+                    Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image((String) attributeValue.getDataValue());
+                    consumerIfNoNull(imageRsp.orElse(null), extraRsp::setValue);
                 });
                 break;
             default:

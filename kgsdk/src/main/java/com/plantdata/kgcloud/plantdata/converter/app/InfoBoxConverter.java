@@ -85,7 +85,7 @@ public class InfoBoxConverter extends BasicConverter {
         EntityLinksBean oldBean = new EntityLinksBean();
         oldBean.setClassId(entityLinksRsp.getConceptId());
         oldBean.setId(entityLinksRsp.getId());
-        consumerIfNoNull(entityLinksRsp.getImg(), a -> oldBean.setImg(a.getHref()));
+        oldBean.setImg(entityLinksRsp.getImgUrl());
         oldBean.setMeaningTag(entityLinksRsp.getMeaningTag());
         oldBean.setName(entityLinksRsp.getName());
         consumerIfNoNull(entityLinksRsp.getType(), oldBean::setType);
