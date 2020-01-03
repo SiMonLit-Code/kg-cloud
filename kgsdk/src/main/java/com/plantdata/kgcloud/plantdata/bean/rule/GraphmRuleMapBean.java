@@ -14,7 +14,7 @@ import java.util.Date;
 public class GraphmRuleMapBean implements MarkObject {
 
     private static final int KGQL_LENGTH = 255;
-    private Integer ruleId;
+    private Long ruleId;
     /**
      * ruleType 0 图探索 1 gis轨迹分析
      */
