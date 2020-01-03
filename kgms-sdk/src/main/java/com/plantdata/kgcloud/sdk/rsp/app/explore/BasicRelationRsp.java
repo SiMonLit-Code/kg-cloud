@@ -47,7 +47,7 @@ public class BasicRelationRsp {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class EdgeInfo {
+    public static class EdgeDataInfo {
         @ApiModelProperty("边属性名称")
         private String name;
         @ApiModelProperty("边属性序号")
@@ -55,6 +55,21 @@ public class BasicRelationRsp {
         @ApiModelProperty("边属性值")
         private Object value;
         @ApiModelProperty("边属性值")
+        private Integer dataType;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EdgeObjectInfo {
+        @ApiModelProperty("边属性名称")
+        private String name;
+        @ApiModelProperty("边属性序号")
+        private Integer seqNo;
+        @ApiModelProperty("实体名称")
+        private String entityName;
+        @ApiModelProperty("边属性类型")
         private Integer dataType;
         @ApiModelProperty("值域")
         private List<Long> rangeValue;

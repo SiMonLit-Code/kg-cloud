@@ -224,8 +224,8 @@ public class ExploreReqConverter extends BasicConverter {
             String id = relationIdlIst.get(i);
             List<RelationInfoBean> edgeObjAttrList = edgeObjAttrMap.get(id);
             List<RelationInfoBean> edgeNumAttrList = edgeNumAttrMap.get(id);
-            List<BasicRelationRsp.EdgeInfo> edgeNumInfos = flatList(toListNoNull(edgeNumAttrList, ExploreReqConverter::relationInfoBeanToEdgeInfo));
-            List<BasicRelationRsp.EdgeInfo> edgeObjInfos = flatList(toListNoNull(edgeObjAttrList, ExploreReqConverter::relationInfoBeanToEdgeInfo));
+            List<BasicRelationRsp.EdgeDataInfo> edgeNumInfos = flatList(toListNoNull(edgeNumAttrList, a -> toListNoNull(a.getKvs(), ExploreReqConverter::kvBeanToEdgeDataInfo)));
+            List<BasicRelationRsp.EdgeObjectInfo> edgeObjInfos = flatList(toListNoNull(edgeObjAttrList, a -> toListNoNull(a.getKvs(), ExploreReqConverter::kvBeanToEdgeObjInfo)));
             if (id.equals(relationBean.getId())) {
                 main.setDataValAttrs(edgeNumInfos);
                 main.setObjAttrs(edgeObjInfos);
@@ -241,16 +241,32 @@ public class ExploreReqConverter extends BasicConverter {
         consumerIfNoNull(sourceRelationList, main::setSourceRelationList);
     }
 
-    private static List<BasicRelationRsp.EdgeInfo> relationInfoBeanToEdgeInfo(RelationInfoBean relationInfo) {
-        return toListNoNull(relationInfo.getKvs(), ExploreReqConverter::kVBeanToEdgeInfo);
+    /**
+     * 边数值属性转换 old->new
+     *
+     * @param kvBean k 边属性名称，v 边属性值
+     * @return EdgeDataInfo
+     */
+    private static BasicRelationRsp.EdgeDataInfo kvBeanToEdgeDataInfo(KVBean<String, String> kvBean) {
+        BasicRelationRsp.EdgeDataInfo edgeObjectInfo = new BasicRelationRsp.EdgeDataInfo();
+        edgeObjectInfo.setDataType(kvBean.getType());
+        edgeObjectInfo.setName(kvBean.getK());
+        edgeObjectInfo.setValue(kvBean.getV());
+        return edgeObjectInfo;
     }
 
-    private static BasicRelationRsp.EdgeInfo kVBeanToEdgeInfo(KVBean<String, String> kvBean) {
-        BasicRelationRsp.EdgeInfo edgeInfo = new BasicRelationRsp.EdgeInfo();
-        edgeInfo.setDataType(kvBean.getType());
-        edgeInfo.setName(kvBean.getK());
-        edgeInfo.setValue(kvBean.getV());
-        return edgeInfo;
+    /**
+     * 边对象属性转换 old->new
+     *
+     * @param kvBean k 边对象属性名称，v 边对象对应实体名称
+     * @return EdgeObjectInfo
+     */
+    private static BasicRelationRsp.EdgeObjectInfo kvBeanToEdgeObjInfo(KVBean<String, String> kvBean) {
+        BasicRelationRsp.EdgeObjectInfo edgeObjectInfo = new BasicRelationRsp.EdgeObjectInfo();
+        edgeObjectInfo.setDataType(kvBean.getType());
+        edgeObjectInfo.setName(kvBean.getK());
+        edgeObjectInfo.setEntityName(kvBean.getV());
+        return edgeObjectInfo;
     }
 
     private static CommonEntityRsp entityBeanToCommonEntityRsp(EntityBean entityBean) {

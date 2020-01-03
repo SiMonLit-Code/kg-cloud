@@ -17,7 +17,6 @@ import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisInfoRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NamedEntityRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
@@ -27,7 +26,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -56,8 +54,7 @@ public class EntityConverter extends BasicConverter {
 
     public static <T extends BasicEntityRsp> T entityVoToBasicEntityRsp(ai.plantdata.kg.api.edit.resp.EntityVO entityVO, T entity) {
         entity.setId(entityVO.getId());
-        Optional<ImageRsp> imgOpt = ImageConverter.stringT0Image(entityVO.getImageUrl());
-        imgOpt.ifPresent(entity::setImg);
+        entity.setImgUrl(entityVO.getImageUrl());
         entity.setConceptId(entityVO.getConceptId());
         entity.setMeaningTag(entityVO.getMeaningTag());
         entity.setName(entityVO.getName());
@@ -68,8 +65,7 @@ public class EntityConverter extends BasicConverter {
 
     public static <T extends BasicEntityRsp> T entityVoToBasicEntityRsp(EntityVO entityVO, T entity) {
         entity.setId(entityVO.getId());
-        Optional<ImageRsp> imgOpt = ImageConverter.stringT0Image(entityVO.getImageUrl());
-        imgOpt.ifPresent(entity::setImg);
+        entity.setImgUrl(entityVO.getImageUrl());
         entity.setConceptId(entityVO.getConceptId());
         entity.setMeaningTag(entityVO.getMeaningTag());
         entity.setName(entityVO.getName());
@@ -111,8 +107,7 @@ public class EntityConverter extends BasicConverter {
             gisEntityRsp.setConceptId(gisEntity.getConceptId());
             gisEntityRsp.setConceptName(gisEntity.getConceptName());
             gisEntityRsp.setClassId(gisEntity.getTopConceptId());
-            Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(gisEntity.getImage());
-            imageRsp.ifPresent(gisEntityRsp::setImg);
+            gisEntityRsp.setImgUrl(gisEntity.getImage());
             gisEntityRsp.setGis(new GisInfoRsp(gisEntity.getOpenGis(), gisEntity.getLng(), gisEntity.getLat(), gisEntity.getAddress()));
             entityRspList.add(gisEntityRsp);
         }
@@ -128,9 +123,7 @@ public class EntityConverter extends BasicConverter {
             //gisEntityRsp.setCoordinates();
             //gisEntityRsp.setCreationTime();
             gisEntityRsp.setMeaningTag(entity.getMeaningTag());
-
-            Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(entity.getImageUrl());
-            imageRsp.ifPresent(gisEntityRsp::setImg);
+            gisEntityRsp.setImgUrl(entity.getImageUrl());
             Map<String, Object> metaData = entity.getMetaData();
             if (!CollectionUtils.isEmpty(metaData)) {
                 GisInfoRsp gisInfoRsp = new GisInfoRsp();
