@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.GraphApi;
+import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
 import ai.plantdata.kg.api.edit.req.BasicInfoFrom;
 import ai.plantdata.kg.api.edit.req.MetaDataFrom;
 import ai.plantdata.kg.api.edit.req.PromptFrom;
@@ -25,7 +26,6 @@ import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
-import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.StatisticsReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
@@ -43,6 +43,7 @@ import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,7 +148,13 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public List<BasicInfoRsp> listByIds(String kgName, List<Long> ids) {
-        RestResp<List<EntityVO>> restResp = conceptEntityApi.listByIds(KGUtil.dbName(kgName), true, ids);
+        BasicDetailFilter basicDetailFilter = new BasicDetailFilter();
+        basicDetailFilter.setIds(ids);
+        basicDetailFilter.setEntity(true);
+        basicDetailFilter.setReadObj(true);
+        basicDetailFilter.setReadReverseObj(false);
+        RestResp<List<EntityVO>> restResp = conceptEntityApi.listByIds(KGUtil.dbName(kgName),
+                basicDetailFilter);
         Optional<List<EntityVO>> optional = RestRespConverter.convert(restResp);
         return optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
     }

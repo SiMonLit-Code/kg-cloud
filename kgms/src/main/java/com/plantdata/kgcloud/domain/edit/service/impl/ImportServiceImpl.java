@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
+import ai.plantdata.kg.api.edit.RdfApi;
 import ai.plantdata.kg.api.edit.UploadApi;
-import ai.plantdata.kg.api.rdf.RdfApi;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
