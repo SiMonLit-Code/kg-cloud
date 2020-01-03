@@ -116,7 +116,8 @@ public class GraphStatisticController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "rule", required = true, dataType = "string", paramType = "form", value = "rule"),
     })
     public RestResp<InitStatisticalBean> update(@Valid @ApiIgnore InitStatisticalBeanUpdate beanUpdate) {
-        Function<GraphConfStatisticalReq, ApiReturn<GraphConfStatisticalRsp>> returnRsp = a -> kgmsClient.updateStatistical(beanUpdate.getId().longValue(), a);
+
+        Function<GraphConfStatisticalReq, ApiReturn<GraphConfStatisticalRsp>> returnRsp = a -> kgmsClient.updateStatistical(beanUpdate.getId(), a);
         InitStatisticalBean statisticalBean = returnRsp
                 .compose(StatisticConverter::initStatisticalBeanAddToGraphConfStatisticalReq)
                 .andThen(a -> BasicConverter.convert(a, StatisticConverter::graphConfStatisticalRspToInitStatisticalBean))

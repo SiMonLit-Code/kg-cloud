@@ -27,7 +27,7 @@ public class StatisticConverter extends BasicConverter {
 
     public static InitStatisticalBean graphConfStatisticalRspToInitStatisticalBean(GraphConfStatisticalRsp rsp) {
         InitStatisticalBean statisticalBean = new InitStatisticalBean();
-        statisticalBean.setId(rsp.getId().intValue());
+        statisticalBean.setId(rsp.getId());
         statisticalBean.setKgName(rsp.getKgName());
         statisticalBean.setType(rsp.getStatisType());
         statisticalBean.setRule(rsp.getStatisRule());

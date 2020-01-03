@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 /**
  * @author cjw
@@ -15,5 +16,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class InitStatisticalBeanUpdate extends InitStatisticalBeanAdd {
 
-    private Integer id;
+    @NonNull
+    private Long id;
 }

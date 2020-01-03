@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class AttrCategoryOutputBean {
-    private Integer id;
+    private Long id;
     private String name;
     private List<Integer> attrDefIds;
 }
