@@ -17,6 +17,7 @@ public class ImageConverter {
 
     private static final String HREF = "href";
     private static final String NAME = "name";
+    private static final String THUMB_NAIL = "thumppath";
 
     public static Optional<ImageRsp> stringT0Image(String imageUrl) {
         if (StringUtils.isEmpty(imageUrl)) {
@@ -26,11 +27,12 @@ public class ImageConverter {
             Map<String, String> map = JacksonUtils.getInstance().readValue(imageUrl, Map.class);
             String href = map.get(HREF);
             String name = map.get(NAME);
-            if (!StringUtils.isAnyEmpty(href, name)) {
-                return Optional.of(new ImageRsp(name, href));
+            String thumbnail = map.get(THUMB_NAIL);
+            if (!StringUtils.isAnyEmpty(href, name, thumbnail)) {
+                return Optional.of(new ImageRsp(name, href, thumbnail));
             }
         } catch (IOException e) {
-            return Optional.of(new ImageRsp("image", imageUrl));
+            return Optional.of(new ImageRsp("image", imageUrl, imageUrl));
         }
         return Optional.empty();
     }

@@ -10,7 +10,6 @@ import ai.plantdata.kg.api.pub.resp.SimpleRelation;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
@@ -106,7 +105,7 @@ public class GraphCommonConverter extends BasicConverter {
      */
     static List<GraphRelationRsp> simpleRelationToGraphRelationRsp(@NonNull List<SimpleRelation> simpleRelationList, boolean relationMerge) {
 
-        List<GraphRelationRsp> graphRelationRsps = listToRsp(simpleRelationList, a -> simpleRelationToGraphRelationRsp(a, relationMerge));
+        List<GraphRelationRsp> graphRelationRsps = listToRsp(simpleRelationList, GraphCommonConverter::simpleRelationToGraphRelationRsp);
         if (relationMerge) {
             Map<String, List<GraphRelationRsp>> rspMap = graphRelationRsps.stream().collect(Collectors.groupingBy(a -> a.getFrom() + "_" + a.getTo()));
             return rspMap.values().stream().map(a -> {
@@ -121,7 +120,7 @@ public class GraphCommonConverter extends BasicConverter {
     }
 
 
-    private static GraphRelationRsp simpleRelationToGraphRelationRsp(@NonNull SimpleRelation relation, boolean relationMerge) {
+    private static GraphRelationRsp simpleRelationToGraphRelationRsp(@NonNull SimpleRelation relation) {
         GraphRelationRsp relationRsp = new GraphRelationRsp();
         relationRsp.setFrom(relation.getFrom());
         relationRsp.setTo(relation.getTo());
@@ -131,29 +130,19 @@ public class GraphCommonConverter extends BasicConverter {
         relationRsp.setStartTime(relation.getAttrTimeFrom());
         relationRsp.setEndTime(relation.getAttrTimeFrom());
         relationRsp.setId(relation.getId());
-        if (!CollectionUtils.isEmpty(relation.getMetaData())) {
-            MetaConverter.fillMetaWithNoNull(relation.getMetaData(), relationRsp);
-            Map<String, Object> additionalMap = (Map<String, Object>) relation.getMetaData().get(MetaDataInfo.ADDITIONAL.getFieldName());
-            if (!CollectionUtils.isEmpty(additionalMap)) {
-                if (additionalMap.containsKey("labelStyle")) {
-                    relationRsp.setLabelStyle((Map<String, Object>) additionalMap.get("labelStyle"));
-                }
-                if (additionalMap.containsKey("linkStyle")) {
-                    relationRsp.setLinkStyle((Map<String, Object>) additionalMap.get("linkStyle"));
-                }
-            }
-        }
-        if (!CollectionUtils.isEmpty(relation.getEdgeNumericAttr())) {
-            relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
-        }
-        if (!CollectionUtils.isEmpty(relation.getEdgeObjAttr())) {
-            relationRsp.setObjAttrs(edgeVoListToEdgeInfo(relation.getEdgeNumericAttr()));
-        }
+        consumerIfNoNull(relation.getMetaData(), a -> MetaConverter.fillMetaWithNoNull(a, relationRsp));
+        consumerIfNoNull(relation.getEdgeNumericAttr(), a -> relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(a)));
+        ///todo 等待浩哥返回实体名称
+        consumerIfNoNull(relation.getEdgeObjAttr(), a -> relationRsp.setObjAttrs(edgeVoListToEdgeObjInfo(a)));
         return relationRsp;
     }
 
-    private static List<BasicRelationRsp.EdgeInfo> edgeVoListToEdgeInfo(@NonNull List<EdgeVO> edgeList) {
-        return edgeList.stream().map(a -> new BasicRelationRsp.EdgeInfo(a.getName(), a.getSeqNo(), a.getValue(), a.getDataType(), a.getObjRange())).collect(Collectors.toList());
+    private static List<BasicRelationRsp.EdgeObjectInfo> edgeVoListToEdgeObjInfo(@NonNull List<EdgeVO> edgeList) {
+        return listToRsp(edgeList, a -> new BasicRelationRsp.EdgeObjectInfo(a.getName(), a.getSeqNo(), a.getValue().toString(), a.getDataType(), a.getObjRange()));
+    }
+
+    private static List<BasicRelationRsp.EdgeDataInfo> edgeVoListToEdgeInfo(@NonNull List<EdgeVO> edgeList) {
+        return listToRsp(edgeList, a -> new BasicRelationRsp.EdgeDataInfo(a.getName(), a.getSeqNo(), a.getValue(), a.getDataType()));
     }
 
     /**

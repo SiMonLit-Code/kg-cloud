@@ -26,9 +26,9 @@ public class GraphRelationRsp extends BasicRelationRsp implements MetaDataInterf
     private String batch;
     private Double reliability;
     @ApiModelProperty("边数值属性")
-    private List<BasicRelationRsp.EdgeInfo> dataValAttrs;
+    private List<EdgeDataInfo> dataValAttrs;
     @ApiModelProperty("边对象属性")
-    private List<BasicRelationRsp.EdgeInfo> objAttrs;
+    private List<EdgeObjectInfo> objAttrs;
     @ApiModelProperty("源关系")
     private List<GraphRelationRsp> sourceRelationList;
 

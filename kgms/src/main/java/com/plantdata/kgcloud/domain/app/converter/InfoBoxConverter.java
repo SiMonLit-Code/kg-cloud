@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
 import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
@@ -22,7 +23,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,14 @@ public class InfoBoxConverter extends BasicConverter {
         entityFrom.setReadReverseObjectAttribute(boxReq.getReverseRelationAttrs());
         entityFrom.setAllowAtts(boxReq.getAllowAttrs());
         return entityFrom;
+    }
+
+    public static BasicDetailFilter batchInfoBoxReqToBasicDetailFilter(BatchInfoBoxReq boxReq) {
+        BasicDetailFilter detailFilter = new BasicDetailFilter();
+        detailFilter.setIds(boxReq.getIds());
+        detailFilter.setReadObj(detailFilter.isReadObj());
+        detailFilter.setReadReverseObj(detailFilter.isReadReverseObj());
+        return detailFilter;
     }
 
     public static FilterRelationFrom reqToFilterRelationFrom(BasicGraphExploreRsp rsp, List<RelationAttrReq> attrReqList, List<RelationAttrReq> reversedAttrReqList) {
@@ -124,7 +133,7 @@ public class InfoBoxConverter extends BasicConverter {
     private static EntityLinksRsp voToSelf(EntityVO entity, List<EntityAttributeValueVO> dataAttrList) {
         EntityLinksRsp self = EntityConverter.entityVoToBasicEntityRsp(entity, new EntityLinksRsp());
         if (StringUtils.isNotEmpty(entity.getImageUrl())) {
-            self.setImg(JacksonUtils.readValue(entity.getImageUrl(), ImageRsp.class));
+            self.setImg(new ImageRsp(entity.getImageUrl()));
         }
         //扩展属性
         List<EntityLinksRsp.ExtraRsp> extraList = new ArrayList<>();
@@ -199,8 +208,8 @@ public class InfoBoxConverter extends BasicConverter {
             case IMAGE:
             case URL:
                 consumerIfNoNull(attributeValue.getDataValue(), a -> {
-                    ImageRsp imageRsp = JsonUtils.parseObj((String) attributeValue.getDataValue(), ImageRsp.class);
-                    consumerIfNoNull(imageRsp, extraRsp::setValue);
+                    Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image((String) attributeValue.getDataValue());
+                    consumerIfNoNull(imageRsp.orElse(null), extraRsp::setValue);
                 });
                 break;
             default:
