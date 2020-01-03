@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
@@ -23,6 +24,8 @@ public class DataSetCreateReq {
     private Long folderId;
 
     @ApiModelProperty("标题")
+    @Length(min = 1, max = 20, message = "标题长度必须在1-20之间")
+    @NotBlank(message = "标题不能为空")
     private String title;
 
     @ApiModelProperty("唯一标识")

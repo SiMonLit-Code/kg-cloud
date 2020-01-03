@@ -148,10 +148,13 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public List<BasicInfoRsp> listByIds(String kgName, List<Long> ids) {
-        BasicDetailFilter detailFilter = new BasicDetailFilter();
-        detailFilter.setEntity(true);
-        detailFilter.setIds(ids);
-        RestResp<List<EntityVO>> restResp = conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter);
+        BasicDetailFilter basicDetailFilter = new BasicDetailFilter();
+        basicDetailFilter.setIds(ids);
+        basicDetailFilter.setEntity(true);
+        basicDetailFilter.setReadObj(true);
+        basicDetailFilter.setReadReverseObj(false);
+        RestResp<List<EntityVO>> restResp = conceptEntityApi.listByIds(KGUtil.dbName(kgName),
+                basicDetailFilter);
         Optional<List<EntityVO>> optional = RestRespConverter.convert(restResp);
         return optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
     }

@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.sdk.req;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,6 +20,7 @@ public class DataSetSchema {
 
     @NotBlank
     @ApiModelProperty("列")
+    @Length(min = 1, max = 20, message = "字段长度必须在1-20之间")
     private String field;
 
     @NotNull
