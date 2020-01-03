@@ -43,7 +43,7 @@ public class SchemaBasicConverter extends BasicConverter {
     private static AttrCategoryOutputBean attrDefGroupRspToAttrCategoryOutputBean(@NonNull AttributeDefinitionGroupRsp groupRsp) {
         AttrCategoryOutputBean temp = new AttrCategoryOutputBean();
         temp.setAttrDefIds(groupRsp.getAttrDefIds());
-        temp.setId(groupRsp.getId().intValue());
+        temp.setId(groupRsp.getId());
         temp.setName(groupRsp.getName());
         return temp;
     }

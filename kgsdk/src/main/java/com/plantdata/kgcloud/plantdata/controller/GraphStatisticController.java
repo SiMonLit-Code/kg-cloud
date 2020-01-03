@@ -86,7 +86,7 @@ public class GraphStatisticController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "需要删除的id列表,json数组格式"),
     })
     public RestResp deleteBatch(@Valid @ApiIgnore InitStatisticalDeleteBatch deleteBatch) {
-        kgmsClient.deleteStatisticalBatch(BasicConverter.toListNoNull(deleteBatch.getIds(), Integer::longValue));
+        kgmsClient.deleteStatisticalBatch(deleteBatch.getIds());
         return new RestResp();
     }
 
@@ -116,7 +116,8 @@ public class GraphStatisticController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "rule", required = true, dataType = "string", paramType = "form", value = "rule"),
     })
     public RestResp<InitStatisticalBean> update(@Valid @ApiIgnore InitStatisticalBeanUpdate beanUpdate) {
-        Function<GraphConfStatisticalReq, ApiReturn<GraphConfStatisticalRsp>> returnRsp = a -> kgmsClient.updateStatistical(beanUpdate.getId().longValue(), a);
+
+        Function<GraphConfStatisticalReq, ApiReturn<GraphConfStatisticalRsp>> returnRsp = a -> kgmsClient.updateStatistical(beanUpdate.getId(), a);
         InitStatisticalBean statisticalBean = returnRsp
                 .compose(StatisticConverter::initStatisticalBeanAddToGraphConfStatisticalReq)
                 .andThen(a -> BasicConverter.convert(a, StatisticConverter::graphConfStatisticalRspToInitStatisticalBean))
@@ -130,8 +131,8 @@ public class GraphStatisticController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "string", paramType = "form", value = "需要删除的id"),
     })
-    public RestResp delete(@RequestParam("id") Integer id, @RequestParam(value = "kgName", required = false) String kgName) {
-        kgmsClient.deleteStatistical(id.longValue());
+    public RestResp delete(@RequestParam("id") Long id, @RequestParam(value = "kgName", required = false) String kgName) {
+        kgmsClient.deleteStatistical(id);
         return new RestResp();
     }
 }

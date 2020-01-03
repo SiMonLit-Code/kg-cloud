@@ -13,5 +13,5 @@ import lombok.*;
 public class RuleUpdate {
     private String kgName;
     private RuleBean bean;
-    private Integer id;
+    private Long id;
 }

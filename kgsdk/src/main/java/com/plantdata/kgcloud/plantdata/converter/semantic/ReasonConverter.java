@@ -43,7 +43,7 @@ public class ReasonConverter extends BasicConverter {
         ruleBean.setCreateTime(reasonRsp.getCreateAt());
         ruleBean.setKgName(reasonRsp.getKgName());
         ruleBean.setRuleConfig(JacksonUtils.writeValueAsString(reasonRsp.getRuleConfig()));
-        ruleBean.setRuleId(reasonRsp.getId().intValue());
+        ruleBean.setRuleId(reasonRsp.getId());
         ruleBean.setRuleName(reasonRsp.getRuleName());
         ruleBean.setUpdateTime(reasonRsp.getUpdateAt());
         return ruleBean;
