@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.beans.BeanMap;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -34,16 +35,10 @@ public class ReasonServiceImpl implements ReasonService {
         long count = mongoClient.getDatabase("reasoning_store").getCollection(kgName).countDocuments(new Document("exec_id", execId));
         if (count > 0) {
             FindIterable<Document> documents = mongoClient.getDatabase("reasoning_store").getCollection(kgName).find(new Document("exec_id", execId));
-
             documents = documents.skip(req.getOffset()).limit(req.getLimit());
-
-
-            MongoCursor<Document> cursor = documents.iterator();
             List<TripleBean> tripleList = new ArrayList<>();
-            while (cursor.hasNext()) {
-                Document doc = cursor.next();
-                Object data = doc.get("data");
-                String temp = JacksonUtils.writeValueAsString(data);
+            for (Document doc : documents) {
+                String temp = JacksonUtils.writeValueAsString(doc.get("data"));
                 TripleBean tripleBean = JacksonUtils.readValue(temp, TripleBean.class);
                 tripleBean.setId(doc.getObjectId("_id").toString());
                 tripleBean.setStatus(doc.getInteger("status", 0));
@@ -77,14 +72,12 @@ public class ReasonServiceImpl implements ReasonService {
             }
 
             if (matchDoc != null) {
-                MongoCursor<Document> cursor = mongoClient.getDatabase("reasoning_store").getCollection(kgName).find(matchDoc).iterator();
+                FindIterable<Document> findIterable = mongoClient.getDatabase("reasoning_store").getCollection(kgName).find(matchDoc);
                 String batch = "";
                 String source = "reasoning";
-                while (cursor.hasNext()) {
-                    Document doc = cursor.next();
-                    Object data = doc.get("data");
+                for (Document doc : findIterable) {
                     batch = doc.getString("batch");
-                    String temp = JacksonUtils.writeValueAsString(data);
+                    String temp = JacksonUtils.writeValueAsString(doc.get("data"));
                     TripleBean tripleBean = JacksonUtils.readValue(temp, TripleBean.class);
                     tripleList.add(tripleBean);
                 }
