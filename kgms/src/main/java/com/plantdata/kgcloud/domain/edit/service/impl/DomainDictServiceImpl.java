@@ -41,7 +41,7 @@ public class DomainDictServiceImpl implements DomainDictService {
     public void batchInsert(String kgName, List<DictReq> dictReqs) {
         //TODO 待优化
         if (CollectionUtils.isEmpty(dictReqs)){
-            return;
+            throw BizException.of(KgmsErrorCodeEnum.DOMAIN_WORD_NOT_EMPTY);
         }
         List<DomainFrom> domainFroms = new ArrayList<>();
         for (DictReq dictReq : dictReqs){
