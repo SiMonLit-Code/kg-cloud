@@ -1,20 +1,12 @@
 package com.plantdata.kgcloud.domain.task.dto;
 
-import lombok.Data;
+import java.util.Map;
 
-@Data
+
 public class EdgeBean {
     private Integer id;
+    private Map<String, Object> attr;
     private String name;
-
-    public EdgeBean() {
-
-    }
-
-    public EdgeBean(Integer id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 
     public Integer getId() {
         return id;
@@ -30,5 +22,13 @@ public class EdgeBean {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Map<String, Object> getAttr() {
+        return attr;
+    }
+
+    public void setAttr(Map<String, Object> attr) {
+        this.attr = attr;
     }
 }
