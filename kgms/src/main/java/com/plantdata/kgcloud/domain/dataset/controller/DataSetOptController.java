@@ -122,7 +122,7 @@ public class DataSetOptController {
             String userId = SessionHolder.getUserId();
             return ApiReturn.success(dataOptService.upload(userId, datasetId, file));
         } catch (Exception e) {
-            return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_EXPORT_FAIL);
+            return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_IMPORT_FAIL);
         }
 
     }
