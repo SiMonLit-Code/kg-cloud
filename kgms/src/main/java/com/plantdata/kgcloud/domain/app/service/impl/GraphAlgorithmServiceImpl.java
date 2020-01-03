@@ -1,11 +1,14 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.GraphAlgorithmService;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.SseUtils;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfAlgorithmService;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -17,6 +20,7 @@ import org.springframework.util.MultiValueMap;
  * @date 2019/12/31 9:51
  */
 @Service
+@Slf4j
 public class GraphAlgorithmServiceImpl implements GraphAlgorithmService {
 
     @Autowired
@@ -30,7 +34,12 @@ public class GraphAlgorithmServiceImpl implements GraphAlgorithmService {
             MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
             form.add("kgName", kgName);
             form.add("graphBean", JsonUtils.objToJson(graphBean));
-            return SseUtils.postForObject(url, null, form, BusinessGraphRsp.class);
+            try {
+                return SseUtils.postForObject(url, null, form, BusinessGraphRsp.class);
+            } catch (Exception e) {
+                log.error("url:{},message:{}", url, e.getMessage());
+                throw BizException.of(AppErrorCodeEnum.ALGORITHM_EXECUTE_ERROR);
+            }
         }
         return graphBean;
     }
