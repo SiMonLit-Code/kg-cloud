@@ -28,7 +28,7 @@ public class ImageConverter {
             String href = map.get(HREF);
             String name = map.get(NAME);
             String thumbnail = map.get(THUMB_NAIL);
-            if (!StringUtils.isAnyEmpty(href, name, thumbnail)) {
+            if (!StringUtils.isAllEmpty(href, name, thumbnail)) {
                 return Optional.of(new ImageRsp(name, href, thumbnail));
             }
         } catch (IOException e) {

@@ -42,7 +42,7 @@ public class EntityConverter extends BasicConverter {
         entityBean.setAttributes(rsp.getAttributes());
         entityBean.setConceptId(rsp.getConceptId());
         entityBean.setConceptIdList(rsp.getConceptIdList());
-        consumerIfNoNull(rsp.getImg(), a -> entityBean.setImageUrl(a.getHref()));
+        entityBean.setImageUrl(rsp.getImgUrl());
         entityBean.setMeaningTag(rsp.getMeaningTag());
         entityBean.setSynonyms(rsp.getSynonyms());
         return entityBean;

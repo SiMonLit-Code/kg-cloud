@@ -27,7 +27,7 @@ public class BasicEntityRsp implements MetaDataInterface {
     @ApiModelProperty("消歧标识")
     private String meaningTag;
     @ApiModelProperty("图片")
-    private ImageRsp img;
+    private String imgUrl;
     @ApiModelProperty("开始时间")
     private Date startTime;
     @ApiModelProperty("结束时间")

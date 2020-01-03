@@ -24,7 +24,6 @@ import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
 import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
-import com.plantdata.kgcloud.domain.app.dto.InfoBoxQueryDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
@@ -242,35 +241,13 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
         detailFilter.setEntity(false);
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> conceptListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
-//        if (entityListOpt.isPresent()) {
-//            BasicConverter.consumerIfNoNull(InfoBoxConverter.voToInfoBox(entityListOpt), infoBoxRspList::addAll);
-//        }
-//        if (conceptListOpt.isPresent()) {
-//            BasicConverter.consumerIfNoNull(InfoBoxConverter.voToInfoBox(entityListOpt), infoBoxRspList::addAll);
-//        }
+        entityListOpt.ifPresent(entityList ->
+                BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList, InfoBoxConverter::entityToInfoBoxRsp), infoBoxRspList::addAll));
+        conceptListOpt.ifPresent(conceptList ->
+                BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(conceptList, InfoBoxConverter::conceptToInfoBoxRsp), infoBoxRspList::addAll));
         return infoBoxRspList;
     }
 
-//    private List<InfoBoxRsp> editSearchInfoBox(String kgName, List<EntityVO> entityList) {
-//
-//
-//        InfoBoxQueryDTO query = InfoBoxQueryDTO.build(entityList);
-//        List<ai.plantdata.kg.api.edit.resp.EntityVO> relationEntityList = RestRespConverter
-//                .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), true, query.getRelationEntityIdSet()))
-//                .orElse(Collections.emptyList());
-//
-//
-//        Set<Long> entityIds = relationEntityList.stream().map(BasicInfo::getId).collect(Collectors.toSet());
-//        List<Long> conceptIdList = entityList.stream().filter(a -> !entityIds.contains(a.getId())).map(EntityVO::getId).collect(Collectors.toList());
-//        BasicConverter.consumerIfNoNull(conceptIdList, a -> {
-//            List<ai.plantdata.kg.api.edit.resp.EntityVO> conceptEntityList = RestRespConverter
-//                    .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), false, conceptIdList))
-//                    .orElse(Collections.emptyList());
-//            BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(conceptEntityList, InfoBoxConverter::conceptToInfoBoxRsp), infoBoxRspList::addAll);
-//        });
-//
-//        return infoBoxRspList;
-//    }
 
     @Override
     public ComplexGraphVisualRsp complexGraphVisual(String kgName, ComplexGraphVisualReq analysisReq) {

@@ -13,13 +13,11 @@ import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
-import com.plantdata.kgcloud.domain.app.converter.ImageConverter;
 import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -138,7 +136,7 @@ public class GraphCommonConverter extends BasicConverter {
     }
 
     private static List<BasicRelationRsp.EdgeObjectInfo> edgeVoListToEdgeObjInfo(@NonNull List<EdgeVO> edgeList) {
-        return listToRsp(edgeList, a -> new BasicRelationRsp.EdgeObjectInfo(a.getName(), a.getSeqNo(), a.getValue().toString(), a.getDataType(), a.getObjRange()));
+        return listToRsp(edgeList, a -> new BasicRelationRsp.EdgeObjectInfo(a.getName(), a.getSeqNo(), a.getEntityName(), a.getDataType(), a.getObjRange()));
     }
 
     private static List<BasicRelationRsp.EdgeDataInfo> edgeVoListToEdgeInfo(@NonNull List<EdgeVO> edgeList) {
@@ -160,8 +158,7 @@ public class GraphCommonConverter extends BasicConverter {
         graphEntityRsp.setName(simpleEntity.getName());
         graphEntityRsp.setType(simpleEntity.getType());
         graphEntityRsp.setMeaningTag(simpleEntity.getMeaningTag());
-        Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(simpleEntity.getImageUrl());
-        imageRsp.ifPresent(graphEntityRsp::setImg);
+        graphEntityRsp.setImgUrl(simpleEntity.getImageUrl());
         GraphCommonConverter.fillConcept(simpleEntity.getConceptId(), graphEntityRsp, conceptMap);
         Map<String, Object> metaDataMap = simpleEntity.getMetaData();
         consumerIfNoNull(metaDataMap, a -> MetaConverter.fillMetaWithNoNull(a, graphEntityRsp));
