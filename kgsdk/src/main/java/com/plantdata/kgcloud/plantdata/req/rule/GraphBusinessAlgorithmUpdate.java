@@ -1,6 +1,10 @@
 package com.plantdata.kgcloud.plantdata.req.rule;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -18,5 +22,5 @@ public class GraphBusinessAlgorithmUpdate {
     @NotNull
     private GraphBusinessAlgorithmBean bean;
     @NotNull
-    private Integer id;
+    private Long id;
 }

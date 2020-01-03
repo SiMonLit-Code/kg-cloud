@@ -96,7 +96,7 @@ public interface KgDataClient {
      */
     @PostMapping("statistic/{kgName}/edgeAttr/groupByAttrValue")
     ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                               EdgeAttrStatisticByAttrValueReq statisticReq);
+                                               @RequestBody EdgeAttrStatisticByAttrValueReq statisticReq);
 
     /**
      * 读取数据集

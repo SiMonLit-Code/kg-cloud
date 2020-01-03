@@ -1,5 +1,7 @@
-package com.plantdata.kgcloud.plantdata.req.rule;
+package com.plantdata.kgcloud.plantdata.req.data;
 
+
+import com.plantdata.kgcloud.plantdata.bean.RelationbyFilterBean;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -17,9 +18,18 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class InitStatisticalDeleteBatch {
+public class StatCountRelationbyEntityParameter {
     @NotBlank
     private String kgName;
-    @NotNull
-    private List<Long> ids;
+
+
+    private Long entityId;
+
+    private Boolean isDistinct = false;
+
+    private List<RelationbyFilterBean<Integer>> allowAtts;
+
+    private List<RelationbyFilterBean<Long>> allowTypes;
+
+
 }
