@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.service.impl;
 import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.GraphApi;
+import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.EntityApi;
@@ -244,8 +245,13 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
         List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();
         InfoBoxQueryDTO query = InfoBoxQueryDTO.build(entityList);
+        BasicDetailFilter basicDetailFilter = new BasicDetailFilter();
+        basicDetailFilter.setIds(query.getRelationEntityIdSet());
+        basicDetailFilter.setEntity(true);
+        basicDetailFilter.setReadObj(true);
+        basicDetailFilter.setReadReverseObj(true);
         List<ai.plantdata.kg.api.edit.resp.EntityVO> relationEntityList = RestRespConverter
-                .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), true, query.getRelationEntityIdSet()))
+                .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), basicDetailFilter ))
                 .orElse(Collections.emptyList());
         BasicConverter.consumerIfNoNull(InfoBoxConverter.voToInfoBox(query.getSourceEntityIds(), relationEntityList), infoBoxRspList::addAll);
 
@@ -253,7 +259,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         List<Long> conceptIdList = entityList.stream().filter(a -> !entityIds.contains(a.getId())).map(EntityVO::getId).collect(Collectors.toList());
         BasicConverter.consumerIfNoNull(conceptIdList, a -> {
             List<ai.plantdata.kg.api.edit.resp.EntityVO> conceptEntityList = RestRespConverter
-                    .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), false, conceptIdList))
+                    .convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), basicDetailFilter))
                     .orElse(Collections.emptyList());
             BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(conceptEntityList, InfoBoxConverter::conceptToInfoBoxRsp), infoBoxRspList::addAll);
         });
