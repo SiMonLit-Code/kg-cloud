@@ -132,11 +132,11 @@ public class InfoBoxConverter extends BasicConverter {
             fillDefaultAttr(extraList, a);
             self.setTags(MetaConverter.getTags(a));
         });
-        consumerIfNoNull(entity.getAbs(), a -> extraList.add(new EntityLinksRsp.ExtraRsp(-1, "简介", a)));
+        consumerIfNoNull(entity.getAbs(), a -> extraList.add(new EntityLinksRsp.ExtraRsp(-1, "简介", a, null)));
 
         if (!CollectionUtils.isEmpty(entity.getSynonym())) {
             String synonyms = org.springframework.util.StringUtils.collectionToDelimitedString(entity.getSynonym(), ",");
-            extraList.add(new EntityLinksRsp.ExtraRsp(-1, "别称", synonyms));
+            extraList.add(new EntityLinksRsp.ExtraRsp(-1, "别称", synonyms, null));
         }
         //设置数值,私有属性
         consumerIfNoNull(dataAttrList, a -> fillAttr(extraList, a));
@@ -228,19 +228,19 @@ public class InfoBoxConverter extends BasicConverter {
         final int defaultDefId = -1;
         //默认属性
         if (metaDataMap.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
-            extraList.add(new EntityLinksRsp.ExtraRsp(defaultDefId, "来源", metaDataMap.get(MetaDataInfo.SOURCE.getFieldName())));
+            extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "来源", metaDataMap.get(MetaDataInfo.SOURCE.getFieldName())));
         }
         if (metaDataMap.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-            extraList.add(new EntityLinksRsp.ExtraRsp(defaultDefId, "权重", metaDataMap.get(MetaDataInfo.SOURCE.getFieldName())));
+            extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "权重", metaDataMap.get(MetaDataInfo.SOURCE.getFieldName())));
         }
         if (metaDataMap.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-            extraList.add(new EntityLinksRsp.ExtraRsp(defaultDefId, "置信度", metaDataMap.get(MetaDataInfo.RELIABILITY.getFieldName())));
+            extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "置信度", metaDataMap.get(MetaDataInfo.RELIABILITY.getFieldName())));
         }
         if (metaDataMap.containsKey(MetaDataInfo.FROM_TIME.getFieldName())) {
-            extraList.add(new EntityLinksRsp.ExtraRsp(defaultDefId, "开始时间", metaDataMap.get(MetaDataInfo.FROM_TIME.getFieldName())));
+            extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "开始时间", metaDataMap.get(MetaDataInfo.FROM_TIME.getFieldName())));
         }
         if (metaDataMap.containsKey(MetaDataInfo.TO_TIME.getFieldName())) {
-            extraList.add(new EntityLinksRsp.ExtraRsp(defaultDefId, "结束时间", metaDataMap.get(MetaDataInfo.TO_TIME.getFieldName())));
+            extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "结束时间", metaDataMap.get(MetaDataInfo.TO_TIME.getFieldName())));
         }
     }
 
