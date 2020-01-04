@@ -1,14 +1,14 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
-import ai.plantdata.kg.api.ql.SparqlApi;
-import ai.plantdata.kg.api.ql.resp.QueryResultVO;
+import ai.plantdata.kg.api.pub.SparqlApi;
+import ai.plantdata.kg.api.pub.resp.QueryResultVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
-import com.plantdata.kgcloud.domain.app.converter.SparQlConverter;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -57,7 +57,11 @@ public class KgDataController implements GraphAppInterface {
     @PostMapping("sparQl/query/{kgName}")
     public ApiReturn<QueryResultRsp> sparQlQuery(@PathVariable("kgName") String kgName, @RequestBody SparQlReq sparQlReq) {
         Optional<QueryResultVO> resOpt = RestRespConverter.convert(sparqlApi.query(kgName, sparQlReq.getQuery(), sparQlReq.getSize()));
-        return ApiReturn.success(resOpt.map(SparQlConverter::queryResultVoToRsp).orElseGet(QueryResultRsp::new));
+        if (!resOpt.isPresent()) {
+            return ApiReturn.success(new QueryResultRsp());
+        }
+        QueryResultRsp copy = BasicConverter.copy(resOpt.get(), QueryResultRsp.class);
+        return ApiReturn.success(copy);
     }
 
     @ApiOperation("第三方模型抽取")

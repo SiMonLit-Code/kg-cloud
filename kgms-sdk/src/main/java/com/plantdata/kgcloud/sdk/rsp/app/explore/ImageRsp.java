@@ -24,8 +24,4 @@ public class ImageRsp {
     private String href;
     @ApiModelProperty("图片链接地址")
     private String thumbnail;
-
-    public ImageRsp(String href) {
-        this.href = href;
-    }
 }

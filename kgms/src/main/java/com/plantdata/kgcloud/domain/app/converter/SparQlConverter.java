@@ -23,8 +23,6 @@ public class SparQlConverter extends BasicConverter {
         sparQlNodeRsp.setId(nodeBean.getId());
         sparQlNodeRsp.setKey(nodeBean.getKey());
         sparQlNodeRsp.setType(nodeBean.getType());
-        ///todo 问丁浩
-        //sparQlNodeRsp.setUri();
         sparQlNodeRsp.setValue(nodeBean.getValue());
         return sparQlNodeRsp;
     }
