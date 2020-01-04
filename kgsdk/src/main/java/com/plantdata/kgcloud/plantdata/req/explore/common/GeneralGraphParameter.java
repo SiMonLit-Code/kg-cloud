@@ -28,7 +28,7 @@ public class GeneralGraphParameter extends AbstrackGraphParameter {
     private Integer direction = 0;
     private Integer highLevelSize = 10;
 
-    private GraphRuleBean graphRule;
+    private String graphRule;
 
 
     private String graphRuleKgql;

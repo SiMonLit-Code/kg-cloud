@@ -2,8 +2,9 @@ package com.plantdata.kgcloud.plantdata.converter.common;
 
 import com.plantdata.kgcloud.plantdata.req.explore.common.EntityScreeningBean;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
+import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
-import org.springframework.beans.BeanUtils;
 
 /**
  * @author cjw
@@ -13,9 +14,11 @@ import org.springframework.beans.BeanUtils;
 public class MongoQueryConverter extends BasicConverter {
 
     public static EntityQueryFiltersReq entityScreeningBeanToEntityQueryFiltersReq(@NonNull EntityScreeningBean screeningBean) {
-        EntityQueryFiltersReq entityQueryFiltersReq = new EntityQueryFiltersReq();
-        BeanUtils.copyProperties(screeningBean, entityQueryFiltersReq);
-        consumerIfNoNull(screeningBean.get$ne(), entityQueryFiltersReq::set$neq);
+        if (screeningBean == null) {
+            return null;
+        }
+        EntityQueryFiltersReq entityQueryFiltersReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), EntityQueryFiltersReq.class);
+        consumerIfNoNull(entityQueryFiltersReq, a -> consumerIfNoNull(screeningBean.get$ne(), a::set$neq));
         return entityQueryFiltersReq;
     }
 }

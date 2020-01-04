@@ -77,7 +77,7 @@ public class ExploreReqConverter extends BasicConverter {
      */
     public static ExploreByKgQlReq generalGraphParameterToExploreByKgQlReq(@NonNull GeneralGraphParameter param) {
         ExploreByKgQlReq exploreByKgQlReq = new ExploreByKgQlReq();
-        exploreByKgQlReq.setKgQl(param.getGraphRuleKgql());
+        exploreByKgQlReq.setKgQl(param.getGraphRule());
         exploreByKgQlReq.setRelationMerge(param.getIsRelationMerge());
         exploreByKgQlReq.setEntityId(param.getId());
         return exploreByKgQlReq;
