@@ -2,15 +2,15 @@ package com.plantdata.kgcloud.domain.app.service.impl;
 
 import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.pub.GraphApi;
+import ai.plantdata.kg.api.pub.SparqlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
 import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
 import ai.plantdata.kg.api.pub.req.statistics.AttributeStatisticsBean;
 import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import ai.plantdata.kg.api.pub.req.statistics.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.statistics.RelationStatisticsBean;
-import ai.plantdata.kg.api.ql.SparqlApi;
-import ai.plantdata.kg.api.ql.resp.NodeBean;
-import ai.plantdata.kg.api.ql.resp.QueryResultVO;
+import ai.plantdata.kg.api.pub.resp.NodeBean;
+import ai.plantdata.kg.api.pub.resp.QueryResultVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
