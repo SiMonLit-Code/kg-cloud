@@ -66,6 +66,7 @@ public class ExploreCommonConverter extends BasicConverter {
         oldEntity.setScore(newEntity.getScore());
         oldEntity.setType(newEntity.getType());
         Additional additional = new Additional();
+        additional.setIsOpenGis(newEntity.getOpenGis());
         oldEntity.setAdditionalInfo(additional);
         return oldEntity;
     }
