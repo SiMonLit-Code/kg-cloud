@@ -112,6 +112,7 @@ public class InfoBoxConverter extends BasicConverter {
             if (extraRsp.getDataType() != null && extraRsp.getDataType() == 91) {
                 Map<String, Object> objectMap = JsonUtils.stringToMap(JacksonUtils.writeValueAsString(a));
                 objectMap.put("thumppath", objectMap.get("thumbnail"));
+                extraKVBean.setV(objectMap);
             } else {
                 extraKVBean.setV(a);
             }
