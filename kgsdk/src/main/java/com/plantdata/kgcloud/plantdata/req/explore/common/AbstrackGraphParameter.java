@@ -27,7 +27,7 @@ public abstract class AbstrackGraphParameter {
     private List<String> allowAttsKey;
     private List<Long> allowTypes;
     private List<String> allowTypesKey;
-    private List<Integer> allowAttrGroups;
+    private List<Long> allowAttrGroups;
     private List<EntityScreeningBean> entityQuery;
     private GraphBean graphBean;
     private List<AttrScreeningBean> attAttFilters;
