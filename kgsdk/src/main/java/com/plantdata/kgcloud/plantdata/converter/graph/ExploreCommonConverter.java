@@ -33,6 +33,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -52,7 +53,7 @@ public class ExploreCommonConverter extends BasicConverter {
         oldEntity.setId(newEntity.getId());
         oldEntity.setName(newEntity.getName());
         oldEntity.setMeaningTag(newEntity.getMeaningTag());
-        oldEntity.setClassId(newEntity.getClassId());
+        oldEntity.setClassId(newEntity.getClassId() == null ? NumberUtils.LONG_ZERO : newEntity.getClassId());
         oldEntity.setClassIdList(newEntity.getConceptIdList());
         oldEntity.setConceptId(newEntity.getConceptId());
         oldEntity.setImg(newEntity.getImgUrl());
@@ -124,7 +125,7 @@ public class ExploreCommonConverter extends BasicConverter {
         GraphBean graphBean = new GraphBean();
         graphBean.setLevel1HasNextPage(exploreRsp.getHasNextPage());
         graphBean.setEntityList(toListNoNull(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToCommonEntityRsp));
-        Map<Long, Long> entityConceptMap =  exploreRsp.getEntityList().stream().filter(a -> a.getConceptId() != null).collect(Collectors.toMap(CommonEntityRsp::getId, CommonEntityRsp::getConceptId, (a, b) -> b));
+        Map<Long, Long> entityConceptMap = exploreRsp.getEntityList().stream().filter(a -> a.getConceptId() != null).collect(Collectors.toMap(CommonEntityRsp::getId, CommonEntityRsp::getConceptId, (a, b) -> b));
         graphBean.setRelationList(toListNoNull(exploreRsp.getRelationList(), a -> ExploreCommonConverter.relationBeanToGraphRelationRsp(a, entityConceptMap)));
         return graphBean;
     }
