@@ -297,7 +297,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     public List<SimpleBasicRsp> listNames(String kgName, List<String> names) {
         BasicQuery basicQuery = new BasicQuery();
         basicQuery.setNames(names);
-        Optional<List<SimpleBasic>> optional = RestRespConverter.convert(conceptEntityApi.listBatch(kgName, basicQuery));
+        Optional<List<SimpleBasic>> optional = RestRespConverter.convert(conceptEntityApi.listBatch(KGUtil.dbName(kgName), basicQuery));
 
         return optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(SimpleBasicRsp.class)).collect(Collectors.toList());
     }
