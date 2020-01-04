@@ -45,7 +45,7 @@ public class GraphStatisticConverter extends BasicConverter{
         statisticsBean.setEntityIds(attrIdReq.getEntityIds());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(reSize);
-        statisticsBean.setDirection(attrIdReq.getDirection());
+        statisticsBean.setSort(attrIdReq.getDirection());
         statisticsBean.setAppendId(appendId);
         statisticsBean.setAttributeId(attrIdReq.getAttrId());
         statisticsBean.setAllowValues(attrIdReq.getAllowValues());
@@ -58,7 +58,7 @@ public class GraphStatisticConverter extends BasicConverter{
         ConceptStatisticsBean statisticsBean = new ConceptStatisticsBean();
         statisticsBean.setAllowTypes(statisticReq.getAllowTypes());
         statisticsBean.setAppendId(appendId);
-        statisticsBean.setDirection(statisticReq.getDirection());
+        statisticsBean.setSort(statisticReq.getSort());
         statisticsBean.setEntityIds(statisticReq.getEntityIds());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(defaultStatisticSize(statisticReq.getSize()));
@@ -90,7 +90,7 @@ public class GraphStatisticConverter extends BasicConverter{
         statisticBean.setTripleIds(attrValueReq.getTripleIds());
         statisticBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticBean.setLimit(defaultStatisticSize(attrValueReq.getSize()));
-        statisticBean.setDirection(attrValueReq.getSort());
+        statisticBean.setSort(attrValueReq.getSort());
         infoLog("RelationExtraInfoStatisticBean:{}", JsonUtils.objToJson(statisticBean));
         return statisticBean;
     }

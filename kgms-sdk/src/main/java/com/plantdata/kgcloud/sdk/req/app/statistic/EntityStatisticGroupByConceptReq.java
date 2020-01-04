@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 public class EntityStatisticGroupByConceptReq {
     private List<Long> entityIds;
-    private Integer direction = -1;
+    private Integer sort = -1;
     private List<Long> allowTypes;
     private List<String> allowTypesKey;
     private Integer returnType = 0;

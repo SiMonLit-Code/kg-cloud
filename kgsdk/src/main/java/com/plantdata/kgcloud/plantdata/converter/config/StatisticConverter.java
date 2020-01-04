@@ -118,7 +118,7 @@ public class StatisticConverter extends BasicConverter {
         EntityStatisticGroupByConceptReq conceptReq = new EntityStatisticGroupByConceptReq();
         conceptReq.setAllowTypes(param.getAllowTypes());
         conceptReq.setAllowTypesKey(param.getAllowTypesKey());
-        conceptReq.setDirection(0);
+        consumerIfNoNull(param.getSort(), conceptReq::setSort);
         conceptReq.setEntityIds(param.getEntityIds());
         conceptReq.setReturnType(param.getReturnType());
         conceptReq.setSize(param.getSize());
