@@ -27,7 +27,7 @@ public class GisLocusOldRsp {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class GisLocusRelationRsp extends RelationBean {
-        public Integer ruleId;
+        public Long ruleId;
     }
 
 }

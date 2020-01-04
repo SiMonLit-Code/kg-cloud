@@ -70,7 +70,7 @@ public class GraphExploreController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "query", value = "每页数，默认10"),
     })
     public RestResp<GraphBean> graph(@Valid @ApiIgnore GeneralGraphParameter param) {
-        if (StringUtils.isNotEmpty(param.getGraphRuleKgql())) {
+        if (StringUtils.isNotEmpty(param.getGraphRule())) {
             return graphByKgQl(param);
         }
         Function<CommonExploreReq, ApiReturn<CommonBasicGraphExploreRsp>> returnFunction = a -> appClient.commonGraphExploration(param.getKgName(), a);

@@ -20,7 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GisInfoRsp implements MetaDataInterface {
 
-    @ApiModelProperty("精度")
+    @ApiModelProperty("经度")
     private Double lng;
     @ApiModelProperty("纬度")
     private Double lat;

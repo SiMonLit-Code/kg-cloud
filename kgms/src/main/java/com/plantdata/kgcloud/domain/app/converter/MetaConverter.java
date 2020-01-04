@@ -50,8 +50,8 @@ public class MetaConverter extends BasicConverter {
         }
         if (metaData.containsKey(MetaDataInfo.GIS_COORDINATE.getFieldName())) {
             List<Double> list = JsonUtils.objToList(metaData.get(MetaDataInfo.GIS_COORDINATE.getFieldName()), Double.class);
-            metaDataImpl.setLat(list.get(0));
-            metaDataImpl.setLng(list.get(1));
+            metaDataImpl.setLat(list.get(1));
+            metaDataImpl.setLng(list.get(0));
         }
         if (metaData.containsKey(MetaDataInfo.GIS_ADDRESS.getFieldName())) {
             metaDataImpl.setAddress((String) metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()));
