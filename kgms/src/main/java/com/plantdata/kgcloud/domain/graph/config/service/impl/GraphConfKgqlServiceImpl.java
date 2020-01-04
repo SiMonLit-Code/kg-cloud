@@ -56,12 +56,11 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
             if (!convert.isPresent()) {
                 throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
             }
-            if (Objects.isNull(convert.get().getDomain())){
+            if (Objects.isNull(convert.get().getDomain())) {
                 throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
             }
             String s = JacksonUtils.writeValueAsString(convert.get());
             targe.setRuleSettings(s);
-
         }
         GraphConfKgql result = graphConfKgqlRepository.save(targe);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);
