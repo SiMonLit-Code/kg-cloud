@@ -58,7 +58,7 @@ public class RelationConverter extends BasicConverter {
     }
 
 
-    static GisRelationRsp voToGisRsp(@NotNull GisRelationVO relation, Map<String, Integer> ruleIdMap) {
+    static GisRelationRsp voToGisRsp(@NotNull GisRelationVO relation, Map<String, Long> ruleIdMap) {
         GisRelationRsp relationRsp = new GisRelationRsp();
         relationRsp.setRuleId(ruleIdMap.get(relation.getId()));
         relationRsp.setAttId(relation.getAttId());

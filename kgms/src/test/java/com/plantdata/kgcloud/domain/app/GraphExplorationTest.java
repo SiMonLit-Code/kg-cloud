@@ -85,7 +85,7 @@ public class GraphExplorationTest {
         GisLocusReq gisLocusReq = new GisLocusReq();
         GisLocusReq.GisRuleParam gisRuleParam = new GisLocusReq.GisRuleParam();
         gisRuleParam.setIds(Lists.newArrayList(3L));
-        gisRuleParam.setRuleId(1);
+        gisRuleParam.setRuleId(1L);
         gisRuleParam.setKql("concept('人').relation('任职机构')");
         gisLocusReq.setRules(Lists.newArrayList(gisRuleParam));
         GisLocusAnalysisRsp analysisRsp = graphExplorationService.gisLocusAnalysis(KG_NAME, gisLocusReq);

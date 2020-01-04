@@ -5,14 +5,15 @@ import com.plantdata.kgcloud.plantdata.link.LinkModel;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 
 import java.util.List;
+
 /**
  * @author Administrator
  */
 @LinkModel(clazz = RelationAttrReq.class)
-public class AttrScreeningBean{
+public class AttrScreeningBean {
     private Integer attrId;
     private Integer seqNo;
-    private String $eq;
+    private Object $eq;
     private String $neq;
     private Object $gt;
     private Object $lt;
@@ -37,7 +38,7 @@ public class AttrScreeningBean{
         this.seqNo = seqNo;
     }
 
-    public String get$eq() {
+    public Object get$eq() {
         return $eq;
     }
 

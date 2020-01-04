@@ -13,5 +13,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GisRelationRsp extends GraphRelationRsp {
-    private Integer ruleId;
+    private Long ruleId;
 }

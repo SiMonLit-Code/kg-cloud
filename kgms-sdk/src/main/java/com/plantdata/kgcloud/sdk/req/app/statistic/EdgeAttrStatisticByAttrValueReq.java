@@ -26,7 +26,6 @@ public class EdgeAttrStatisticByAttrValueReq {
     private Set<Long> entityIds;
 
     private List<String> tripleIds;
-    //@ChooseCheck(value = "[-1,1]", name = "sort")
     private Integer sort = 1;
 
     private List<Object> allowValues;

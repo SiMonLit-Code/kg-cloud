@@ -18,13 +18,13 @@ public class CompareFilterReq {
     @ApiModelProperty("大于")
     private Object $gt;
     @ApiModelProperty("大于等于")
-    private String $gte;
+    private Object $gte;
     @ApiModelProperty("小于")
     private Object $lt;
     @ApiModelProperty("小于等于")
     private Object $lte;
     @ApiModelProperty("等于")
-    private String $eq;
+    private Object $eq;
     @ApiModelProperty("包含")
     private Object $in;
     @ApiModelProperty("不等于")
@@ -80,19 +80,19 @@ public class CompareFilterReq {
         this.$lt = $lt;
     }
 
-    public String get$eq() {
+    public Object get$eq() {
         return $eq;
     }
 
-    public void set$eq(String $eq) {
+    public void set$eq(Object $eq) {
         this.$eq = $eq;
     }
 
-    public String get$gte() {
+    public Object get$gte() {
         return $gte;
     }
 
-    public void set$gte(String $gte) {
+    public void set$gte(Object $gte) {
         this.$gte = $gte;
     }
 }

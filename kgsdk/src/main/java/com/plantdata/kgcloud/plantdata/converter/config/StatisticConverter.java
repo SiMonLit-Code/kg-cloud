@@ -90,7 +90,7 @@ public class StatisticConverter extends BasicConverter {
         req.setReturnType(param.getReturnType());
         req.setSeqNo(param.getSeqNo());
         req.setSize(param.getSize());
-        req.setSize(param.getSize());
+        req.setSort(param.getSort());
         req.setTripleIds(param.getTripleIds());
         return req;
     }
