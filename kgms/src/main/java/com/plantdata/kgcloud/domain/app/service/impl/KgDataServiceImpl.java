@@ -36,7 +36,6 @@ import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
-import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.DateTypeReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
@@ -207,10 +206,10 @@ public class KgDataServiceImpl implements KgDataService {
     }
 
     @Override
-    public void sparkSqlExport(String kgName, ExportTypeEnum exportType, SparQlReq sparQlReq, HttpServletResponse response) throws IOException {
+    public void sparkSqlExport(String kgName, ExportTypeEnum exportType, String query, int size, HttpServletResponse response) throws IOException {
 
         //查询搜索结果
-        Optional<QueryResultVO> resOpt = RestRespConverter.convert(sparqlApi.query(KGUtil.dbName(kgName), sparQlReq.getQuery(), sparQlReq.getSize()));
+        Optional<QueryResultVO> resOpt = RestRespConverter.convert(sparqlApi.query(KGUtil.dbName(kgName), query, size));
         if (!resOpt.isPresent()) {
             return;
         }

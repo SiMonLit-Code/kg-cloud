@@ -110,7 +110,7 @@ public class InfoBoxConverter extends BasicConverter {
         consumerIfNoNull(extraRsp.getValue(), a -> {
             //图片缩略图适配
             if (extraRsp.getDataType() != null && extraRsp.getDataType() == 91) {
-                Map<String, Object> objectMap = JsonUtils.stringToMap(JacksonUtils.writeValueAsString(extraKVBean.getV()));
+                Map<String, Object> objectMap = JsonUtils.stringToMap(JacksonUtils.writeValueAsString(a));
                 objectMap.put("thumppath", objectMap.get("thumbnail"));
             } else {
                 extraKVBean.setV(a);
