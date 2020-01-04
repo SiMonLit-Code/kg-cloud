@@ -139,7 +139,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             List<Long> entityIds = entity.stream().map(CommonEntityRsp::getId).collect(Collectors.toList());
             Optional<List<Long>> entityIdOpt = RestRespConverter.convert(entityApi.filterIds(KGUtil.dbName(kgName), EntityConverter.buildEntityFilterFrom(entityIds, queryMaps)));
             Set<Long> entityIdSet = !entityIdOpt.isPresent() ? Collections.emptySet() : Sets.newHashSet(entityIdOpt.get());
-            rsp.setEntityList(entity.stream().filter(a -> entityIdSet.contains(a.getId())).collect(Collectors.toList()));
+            rsp.setEntityList(entity.stream().filter(a -> req.fetchNeedSaveEntityIds().contains(a.getId()) || entityIdSet.contains(a.getId())).collect(Collectors.toList()));
         }
         GraphCommonBO.rebuildGraphRelationAndEntity(rsp, req.fetchNeedSaveEntityIds());
         return Optional.of(rsp);

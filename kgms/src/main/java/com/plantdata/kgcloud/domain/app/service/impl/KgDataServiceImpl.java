@@ -12,12 +12,10 @@ import ai.plantdata.kg.api.ql.SparqlApi;
 import ai.plantdata.kg.api.ql.resp.NodeBean;
 import ai.plantdata.kg.api.ql.resp.QueryResultVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
-import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppConstants;
-import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
@@ -48,6 +46,7 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdR
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatDataRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,9 +133,8 @@ public class KgDataServiceImpl implements KgDataService {
     @Override
     public Object statisticRelation(String kgName, EdgeStatisticByConceptIdReq conceptIdReq) {
         RelationStatisticsBean statisticsBean = GraphStatisticConverter.conceptIdReqConceptStatisticsBean(conceptIdReq);
-        boolean isNoEdgeId = CollectionUtils.isEmpty(conceptIdReq.getTripleIds());
-        if (!isNoEdgeId) {
-            return null;
+        if (CollectionUtils.isEmpty(conceptIdReq.getTripleIds())) {
+            return new StatDataRsp();
         }
         Optional<List<Map<String, Object>>> resultOpt = RestRespConverter.convert(statisticsApi.relationStatistics(KGUtil.dbName(kgName), statisticsBean));
         List<StatisticDTO> dataList = !resultOpt.isPresent() ? Collections.emptyList()

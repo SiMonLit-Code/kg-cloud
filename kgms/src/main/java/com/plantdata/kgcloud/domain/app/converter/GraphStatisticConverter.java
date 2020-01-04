@@ -107,7 +107,7 @@ public class GraphStatisticConverter extends BasicConverter{
                 if (relation != null) {
                     map.put("ids", relation);
                 }
-                if (relation != null) {
+                if (entity != null) {
                     map.put("ids", entity);
                 }
                 return map;
