@@ -15,6 +15,9 @@ import lombok.Setter;
 @Getter
 @ApiModel("词典列表")
 public class DictSearchReq extends BaseReq {
+    @ApiModelProperty(value = "概念id")
+    private Long conceptId;
+
     @ApiModelProperty(value = "词频,-1:降序,1-升序")
     private Integer frequency = 1;
 }

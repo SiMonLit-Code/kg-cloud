@@ -40,15 +40,15 @@ public class DomainDictServiceImpl implements DomainDictService {
     @Override
     public void batchInsert(String kgName, List<DictReq> dictReqs) {
         //TODO 待优化
-        if (CollectionUtils.isEmpty(dictReqs)){
+        if (CollectionUtils.isEmpty(dictReqs)) {
             throw BizException.of(KgmsErrorCodeEnum.DOMAIN_WORD_NOT_EMPTY);
         }
         List<DomainFrom> domainFroms = new ArrayList<>();
-        for (DictReq dictReq : dictReqs){
-            if (dictReq.getConceptId() == null){
+        for (DictReq dictReq : dictReqs) {
+            if (dictReq.getConceptId() == null) {
                 throw BizException.of(KgmsErrorCodeEnum.DOMAIN_CONCEPT_NOT_EMPTY);
             }
-            if (!StringUtils.hasText(dictReq.getName())){
+            if (!StringUtils.hasText(dictReq.getName())) {
                 throw BizException.of(KgmsErrorCodeEnum.DOMAIN_WORD_NOT_EMPTY);
             }
             domainFroms.add(ConvertUtils.convert(DomainFrom.class).apply(dictReq));
@@ -72,8 +72,8 @@ public class DomainDictServiceImpl implements DomainDictService {
         Integer page = dictSearchReq.getPage();
         Integer size = dictSearchReq.getSize();
         Integer skip = (page - 1) * size;
-        RestResp<List<DomainDicVO>> restResp = domainDicApi.list(KGUtil.dbName(kgName), dictSearchReq.getFrequency(),
-                skip, size);
+        RestResp<List<DomainDicVO>> restResp = domainDicApi.list(KGUtil.dbName(kgName),
+                dictSearchReq.getConceptId(), dictSearchReq.getFrequency(), skip, size);
         Optional<List<DomainDicVO>> optional = RestRespConverter.convert(restResp);
         List<DictRsp> dictRsps =
                 optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(DictRsp.class)).collect(Collectors.toList());
