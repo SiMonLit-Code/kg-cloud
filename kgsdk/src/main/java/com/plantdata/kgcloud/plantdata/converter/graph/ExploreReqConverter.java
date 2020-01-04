@@ -198,7 +198,8 @@ public class ExploreReqConverter extends BasicConverter {
 
     private static BasicGraphExploreRsp graphBeanToBasicGraphExploreRsp(GraphBean graphBean) {
         BasicGraphExploreRsp graphExploreRsp = new BasicGraphExploreRsp();
-        graphExploreRsp.setEntityList(toListNoNull(graphBean.getEntityList(), ExploreReqConverter::entityBeanToCommonEntityRsp));
+
+        graphExploreRsp.setEntityList(toListNoNull(graphBean.getEntityList(), a -> ExploreReqConverter.entityBeanToCommonEntityRsp(a, new CommonEntityRsp())));
         graphExploreRsp.setRelationList(toListNoNull(graphBean.getRelationList(), ExploreReqConverter::relationBeanToGraphRelationRsp));
         graphExploreRsp.setHasNextPage(graphBean.getLevel1HasNextPage());
         return graphExploreRsp;
@@ -293,8 +294,16 @@ public class ExploreReqConverter extends BasicConverter {
         return edgeObjectInfo;
     }
 
-    private static CommonEntityRsp entityBeanToCommonEntityRsp(EntityBean entityBean) {
-        CommonEntityRsp entityRsp = new CommonEntityRsp();
+    private static <T extends CommonEntityRsp> T entityBeanToCommonEntityRsp(EntityBean entityBean, T entityRsp) {
+        entityRsp.setId(entityBean.getId());
+        entityRsp.setName(entityBean.getName());
+        entityRsp.setImgUrl(entityBean.getImg());
+        consumerIfNoNull(entityBean.getGis(), a -> {
+            entityRsp.setOpenGis(a.getIsOpenGis());
+            entityRsp.setLat(a.getLat());
+            entityRsp.setLng(a.getLng());
+            entityRsp.setAddress(a.getAddress());
+        });
         entityRsp.setConceptId(entityBean.getConceptId());
         entityRsp.setConceptIdList(entityBean.getConceptIdList());
         entityRsp.setConceptName(entityBean.getConceptName());
@@ -304,6 +313,7 @@ public class ExploreReqConverter extends BasicConverter {
         entityRsp.setLabelStyle(entityBean.getLabelStyle());
         entityRsp.setScore(entityBean.getScore());
         entityRsp.setType(entityBean.getType());
+
         entityRsp.setTags(toListNoNull(entityBean.getTags(), ExploreReqConverter::tagToTagRsp));
         consumerIfNoNull(entityBean.getCreationTime(), a -> entityRsp.setEndTime(BasicConverter.stringToDate(a)));
         consumerIfNoNull(entityBean.getFromTime(), a -> entityRsp.setStartTime(BasicConverter.stringToDate(a)));
