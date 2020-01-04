@@ -17,7 +17,7 @@ public class ImageConverter {
 
     private static final String HREF = "href";
     private static final String NAME = "name";
-    private static final String THUMB_NAIL = "thumppath";
+    private static final String THUMB_NAIL = "thumbPath";
 
     public static Optional<ImageRsp> stringT0Image(String imageUrl) {
         if (StringUtils.isEmpty(imageUrl)) {
