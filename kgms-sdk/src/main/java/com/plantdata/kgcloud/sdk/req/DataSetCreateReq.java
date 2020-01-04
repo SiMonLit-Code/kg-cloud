@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -45,5 +46,6 @@ public class DataSetCreateReq {
 
     @Valid
     @ApiModelProperty
+    @Size(min = 1,max = 100,message = "数据集最多只支持100个字段")
     private List<DataSetSchema> schema;
 }
