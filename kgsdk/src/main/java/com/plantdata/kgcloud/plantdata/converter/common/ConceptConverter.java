@@ -43,7 +43,7 @@ public class ConceptConverter extends BasicConverter {
             if (CollectionUtils.isEmpty(treeItemVo.getChildren())) {
                 treeItemVo.setChildren(Lists.newArrayList(editAttDefBeanMoles));
             } else {
-                treeItemVo.getChildren().add(editAttDefBeanMoles);
+                treeItemVo.getChildren().addAll(editAttDefBeanMoles);
             }
         });
         return treeItemVo;

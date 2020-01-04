@@ -22,9 +22,12 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.LinksRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -103,13 +106,22 @@ public class InfoBoxConverter extends BasicConverter {
         extraKVBean.setDomain(domain);
         extraKVBean.setType(extraRsp.getDataType());
         extraKVBean.setK(extraRsp.getName());
-        consumerIfNoNull(extraRsp.getValue(), extraKVBean::setV);
+
+        consumerIfNoNull(extraRsp.getValue(), a -> {
+            //图片缩略图适配
+            if (extraRsp.getDataType() != null && extraRsp.getDataType() == 91) {
+                Map<String, Object> objectMap = JsonUtils.stringToMap(JacksonUtils.writeValueAsString(extraKVBean.getV()));
+                objectMap.put("thumppath", objectMap.get("thumbnail"));
+            } else {
+                extraKVBean.setV(a);
+            }
+        });
         return extraKVBean;
     }
 
     private static DataLinks dataLinkRspToDataLinks(DataLinkRsp dataLink) {
         DataLinks dataLinks = new DataLinks();
-        consumerIfNoNull(dataLink.getDataSetId(), a -> dataLinks.setDataSetId(a));
+        consumerIfNoNull(dataLink.getDataSetId(), dataLinks::setDataSetId);
         dataLinks.setDataSetTitle(dataLink.getDataSetTitle());
         dataLinks.setLinks(toListNoNull(dataLink.getLinks(), InfoBoxConverter::linkRspToLinks));
         return dataLinks;
