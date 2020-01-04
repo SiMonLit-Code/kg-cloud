@@ -63,7 +63,7 @@ public class GraphStatisticController implements SdkOpenApiInterface {
     @ApiOperation("边数值属性统计，按数值属性值分组")
     @PostMapping("{kgName}/edgeAttr/groupByAttrValue")
     public ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                      EdgeAttrStatisticByAttrValueReq statisticReq) {
+                                                      @RequestBody EdgeAttrStatisticByAttrValueReq statisticReq) {
         return ApiReturn.success(kgDataService.statEdgeGroupByEdgeValue(kgName, statisticReq));
     }
 

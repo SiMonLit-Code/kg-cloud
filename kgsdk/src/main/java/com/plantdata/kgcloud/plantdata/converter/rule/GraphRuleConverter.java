@@ -39,6 +39,7 @@ public class GraphRuleConverter extends BasicConverter {
         ruleMapBean.setKgName(rsp.getKgName());
         consumerIfNoNull(rsp.getId(), ruleMapBean::setRuleId);
         ruleMapBean.setRuleName(rsp.getKgqlName());
+        ruleMapBean.setRuleKgql(rsp.getKgql());
         ruleMapBean.setRuleType(rsp.getRuleType());
         ruleMapBean.setUpdateTime(rsp.getUpdateAt());
         consumerIfNoNull(rsp.getRuleSettings(), a -> {
