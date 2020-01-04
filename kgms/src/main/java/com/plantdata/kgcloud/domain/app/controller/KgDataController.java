@@ -74,13 +74,15 @@ public class KgDataController implements GraphAppInterface {
 
     @ApiOperation("sparkSql结果导出")
     @GetMapping("export/{kgName}")
-    public ApiReturn sparkSqlExport(@PathVariable("kgName") String kgName, @RequestBody SparQlReq sparQlReq,
+    public ApiReturn sparkSqlExport(@PathVariable("kgName") String kgName,
+                                    @RequestParam(value = "query") String query,
+                                    @RequestParam(value = "size", required = false) int size,
                                     @ApiParam("导出格式 0 txt  1 xls 2 xlsx") @RequestParam("type") int type) throws IOException {
         Optional<ExportTypeEnum> typeOpt = EnumUtils.parseById(ExportTypeEnum.class, type);
         if (!typeOpt.isPresent()) {
             throw BizException.of(AppErrorCodeEnum.EXPORT_TYPE_ERROR);
         }
-        kgDataService.sparkSqlExport(kgName, typeOpt.get(), sparQlReq, response);
+        kgDataService.sparkSqlExport(kgName, typeOpt.get(), query, size, response);
         return ApiReturn.success(kgName);
     }
 
