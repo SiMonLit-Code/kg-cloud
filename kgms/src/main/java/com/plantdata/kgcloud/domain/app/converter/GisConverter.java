@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.GisFilterTypeEnum;
@@ -38,13 +39,15 @@ import java.util.Optional;
 public class GisConverter extends BasicConverter {
 
     private static final int GIS_FILTERS_LENGTH = 2;
-    private static final List<Integer> DEFAULT_GIS = Lists.newArrayList(-180, 90);
+    private static final List<Integer> DEFAULT_GIS_A = Lists.newArrayList(-180, 90);
+    private static final List<Integer> DEFAULT_GIS_B = Lists.newArrayList(180, -90);
+    private static final Double GIS_CONSTANT = 6378.1;
 
     public static GisFrom reqToGisFrom(GisGraphExploreReq exploreReq) {
         GisFrom gisFrom = new GisFrom();
         if (CollectionUtils.isEmpty(exploreReq.getGisFilters())) {
             exploreReq.setFilterType("$box");
-            exploreReq.setGisFilters(Lists.newArrayList(DEFAULT_GIS, DEFAULT_GIS));
+            exploreReq.setGisFilters(Lists.newArrayList(DEFAULT_GIS_A, DEFAULT_GIS_B));
         }
         PageReq page = exploreReq.getPage();
         if (page == null) {
@@ -59,6 +62,7 @@ public class GisConverter extends BasicConverter {
         gisFrom.setGisConceptIds(exploreReq.getConceptIds());
         gisFrom.setGisFilter(buildSearchMap(exploreReq.getFilterType(), exploreReq.getGisFilters()));
         gisFrom.setInherit(exploreReq.getIsInherit());
+        log.error("gisFrom:{}", JsonUtils.objToJson(gisFrom));
         return gisFrom;
     }
 
@@ -99,7 +103,7 @@ public class GisConverter extends BasicConverter {
         if (GisFilterTypeEnum.CENTER_SPHERE.equals(typeEnum)) {
             Double paramTwo = Double.parseDouble(list.get(1).toString());
             list.remove(1);
-            list.add(paramTwo / 6378.1);
+            list.add(paramTwo / GIS_CONSTANT);
         }
         Map<String, Object> filtersMap = Maps.newHashMap();
         filtersMap.put(typeEnum.getValue(), list);
