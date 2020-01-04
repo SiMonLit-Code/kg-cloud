@@ -42,7 +42,7 @@ public class GraphConfFocusServiceImpl implements GraphConfFocusService {
             if (!FocusType.contains(req.getType())) {
                 throw BizException.of(KgmsErrorCodeEnum.CONF_FOCUS_ERROR);
             }
-            FocusType.check(req.getEntities().size(),req.getType());
+            FocusType.check(req.getEntities().size(), req.getType());
             targe.setKgName(kgName);
             String code = FocusType.findType(req.getType()).getCode();
             targe.setType(code);
