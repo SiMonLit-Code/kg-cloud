@@ -20,6 +20,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -255,16 +256,26 @@ public interface EditClient {
      * @return .
      */
     @DeleteMapping("entity/attr/{kgName}")
-    ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName, @RequestBody BatchEntityAttrDeleteReq deleteReq);
+    ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName,
+                                    @RequestBody BatchEntityAttrDeleteReq deleteReq);
 
     /**
      * 手工创建融合实体
      *
      * @param kgName kgName
-     * @param ids 实体id
+     * @param ids    实体id
      * @return
      */
     @PostMapping("wait/entity/create/{kgName}")
     ApiReturn<String> createMergeEntity(@PathVariable("kgName") String kgName, @RequestBody List<Long> ids);
 
+    /**
+     * 根据批量名称查询实体
+     *
+     * @param kgName
+     * @param names
+     * @return
+     */
+    @PostMapping("basic/{kgName}/list/name")
+    ApiReturn<List<SimpleBasicRsp>> listNames(@PathVariable("kgName") String kgName, @RequestBody List<String> names);
 }

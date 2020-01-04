@@ -4,7 +4,6 @@ import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
-import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
@@ -12,6 +11,8 @@ import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 
 import java.util.List;
 
@@ -142,4 +143,5 @@ public interface BasicInfoService {
     Object executeQl(KgqlReq kgqlReq);
 //    Object executeQl(String query);
 
+    List<SimpleBasicRsp> listNames(String kgName, List<String> names);
 }

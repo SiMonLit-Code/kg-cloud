@@ -5,12 +5,14 @@ import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
 import ai.plantdata.kg.api.edit.req.BasicInfoFrom;
+import ai.plantdata.kg.api.edit.req.BasicQuery;
 import ai.plantdata.kg.api.edit.req.MetaDataFrom;
 import ai.plantdata.kg.api.edit.req.PromptFrom;
 import ai.plantdata.kg.api.edit.req.SynonymFrom;
 import ai.plantdata.kg.api.edit.req.UpdateBasicInfoFrom;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.edit.resp.PromptVO;
+import ai.plantdata.kg.api.edit.resp.SimpleBasic;
 import ai.plantdata.kg.api.pub.CountApi;
 import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
@@ -44,6 +46,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -288,5 +291,14 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     @Override
     public Object executeQl(KgqlReq kgqlReq) {
         return RestRespConverter.convert(qlApi.executeQl(kgqlReq.getQuery()));
+    }
+
+    @Override
+    public List<SimpleBasicRsp> listNames(String kgName, List<String> names) {
+        BasicQuery basicQuery = new BasicQuery();
+        basicQuery.setNames(names);
+        Optional<List<SimpleBasic>> optional = RestRespConverter.convert(conceptEntityApi.listBatch(kgName, basicQuery));
+
+        return optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(SimpleBasicRsp.class)).collect(Collectors.toList());
     }
 }
