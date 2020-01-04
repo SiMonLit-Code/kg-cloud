@@ -242,7 +242,13 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         detailFilter.setEntity(false);
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> conceptListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
         entityListOpt.ifPresent(entityList ->
-                BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList, InfoBoxConverter::entityToInfoBoxRsp), infoBoxRspList::addAll));
+        {
+            BasicConverter.consumerIfNoNull(req.getAllowAttrs(), allowAttrIds -> entityList.forEach(entity -> {
+                BasicConverter.consumerIfNoNull(entity.getAttrValue(), a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
+            }));
+            BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList, InfoBoxConverter::entityToInfoBoxRsp), infoBoxRspList::addAll);
+
+        });
         conceptListOpt.ifPresent(conceptList ->
                 BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(conceptList, InfoBoxConverter::conceptToInfoBoxRsp), infoBoxRspList::addAll));
         return infoBoxRspList;

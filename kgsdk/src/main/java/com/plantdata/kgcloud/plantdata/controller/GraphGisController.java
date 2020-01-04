@@ -49,8 +49,8 @@ public class GraphGisController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "direction", defaultValue = "0", dataType = "int", paramType = "form", value = "查询边关系的方向，0表示双向，1表示出发，2表示到达,默认0"),
             @ApiImplicitParam(name = "fromTime", dataType = "string", paramType = "form", value = "开始时间，格式yyyy-MM-dd"),
             @ApiImplicitParam(name = "toTime", dataType = "string", paramType = "form", value = "结束时间，格式yyyy-MM-dd，默认当前时间"),
-            @ApiImplicitParam(name = "filterType", required = true, dataType = "string", paramType = "form", value = "坐标筛选类型,可选值:$box 矩形区域，$centerSphere 圆形区域"),
-            @ApiImplicitParam(name = "gisFilters", required = true, dataType = "string", paramType = "form", value = "经度范围,数组格式，值为2个元素，box时例：[[-75,40],[-70,50]]，表示2个坐标点组成的矩形，center时例：[[-74,40],10]，第一个表示圆心坐标，第二个表示半径"),
+            @ApiImplicitParam(name = "filterType",  dataType = "string", paramType = "form", value = "坐标筛选类型,可选值:$box 矩形区域，$centerSphere 圆形区域"),
+            @ApiImplicitParam(name = "gisFilters",  dataType = "string", paramType = "form", value = "经度范围,数组格式，值为2个元素，box时例：[[-75,40],[-70,50]]，表示2个坐标点组成的矩形，center时例：[[-74,40],10]，第一个表示圆心坐标，第二个表示半径"),
     })
     public RestResp<GraphBean> graphRectangle(@Valid @ApiIgnore GraphRectangleParameter param) {
         Function<GisGraphExploreReq, ApiReturn<GisGraphExploreRsp>> returnFunction = a -> appClient.gisGraphExploration(param.getKgName(), a);

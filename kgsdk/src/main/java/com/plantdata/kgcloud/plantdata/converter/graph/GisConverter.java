@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
+import com.plantdata.kgcloud.plantdata.req.common.GisBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphBean;
 import com.plantdata.kgcloud.plantdata.req.explore.gis.GraphLocusGisParameter;
@@ -9,6 +10,7 @@ import com.plantdata.kgcloud.plantdata.rsp.explore.gis.GisLocusOldRsp;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GisEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
@@ -39,12 +41,25 @@ public class GisConverter extends BasicConverter {
     }
 
     public static GraphBean gisGraphExploreRspToGraphBean(@NonNull GisGraphExploreRsp exploreRsp) {
-        List<EntityBean> entityBeans = toListNoNull(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToGraphEntityRsp);
+        List<EntityBean> entityBeans = toListNoNull(exploreRsp.getEntityList(), GisConverter::gisGraphExploreRspToEntityBean);
         GraphBean graphBean = new GraphBean();
         graphBean.setEntityList(entityBeans);
         graphBean.setLevel1HasNextPage(exploreRsp.getHasNextPage());
         graphBean.setRelationList(Collections.emptyList());
         return graphBean;
+    }
+
+    private static EntityBean gisGraphExploreRspToEntityBean(@NonNull GisEntityRsp gisEntityRsp) {
+        EntityBean entityBean = ExploreCommonConverter.entityBeanToGraphEntityRsp(gisEntityRsp);
+        GisBean gisBean = new GisBean();
+        gisBean.setIsOpenGis(gisEntityRsp.getOpenGis());
+        consumerIfNoNull(gisEntityRsp.getGis(), gis -> {
+            gisBean.setAddress(gis.getAddress());
+            gisBean.setLat(gis.getLat());
+            gisBean.setLng(gis.getLng());
+            entityBean.setGis(gisBean);
+        });
+        return entityBean;
     }
 
     public static GisLocusOldRsp gisGraphExploreRspToGisLocusRsp(@NonNull GisLocusAnalysisRsp exploreRsp) {

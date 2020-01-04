@@ -96,7 +96,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     public List<GraphConfStatisticalRsp> updateAll(List<UpdateGraphConfStatisticalReq> reqs) {
         List<Long> list = new ArrayList<>();
         for (UpdateGraphConfStatisticalReq req : reqs) {
-            GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(req.getId())
+            graphConfStatisticalRepository.findById(req.getId())
                     .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_IDORIDS_NOT_EXISTS));
             list.add(req.getId());
         }
@@ -104,7 +104,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         List<GraphConfStatistical> statisticalArrayList = new ArrayList<>();
         Map<Long, GraphConfStatistical> confStatisticalMap = confStatisticalList.stream().collect(Collectors.toMap(GraphConfStatistical::getId, Function.identity()));
         for (UpdateGraphConfStatisticalReq req : reqs) {
-            if (Objects.isNull(confStatisticalMap.get(req.getId()))){
+            if (Objects.isNull(confStatisticalMap.get(req.getId()))) {
                 throw BizException.of(KgmsErrorCodeEnum.CONF_STATISTICALID_NOT_EXISTS);
             }
             BeanUtils.copyProperties(req, confStatisticalMap.get(req.getId()));

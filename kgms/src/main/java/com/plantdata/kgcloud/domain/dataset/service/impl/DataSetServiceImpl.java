@@ -197,7 +197,7 @@ public class DataSetServiceImpl implements DataSetService {
         set.add("_id");
         set.add(DataConst.CREATE_AT);
         set.add(DataConst.UPDATE_AT);
-        List<String> newField = new ArrayList<>();
+        Set<String> newField = new LinkedHashSet<>();
         List<DataSetSchema> newSchema = new ArrayList<>();
         DataOptConnect connect = DataOptConnect.of(one.get());
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, one.get().getDataType())) {
@@ -219,7 +219,7 @@ public class DataSetServiceImpl implements DataSetService {
             dataSetSchema.setIsIndex(0);
             newSchema.add(dataSetSchema);
         }
-        rsp.setNewFields(newField);
+        rsp.setNewFields(new ArrayList<>(newField));
         rsp.setNewSchema(newSchema);
         return rsp;
     }

@@ -97,18 +97,20 @@ public class EntityConverter extends BasicConverter {
         GisEntityRsp gisEntityRsp;
         for (GisEntityVO gisEntity : entityVOList) {
             gisEntityRsp = new GisEntityRsp();
-            gisEntityRsp.setConceptIdList(gisEntity.getConceptIdList());
-            //todo
-            //gisEntityRsp.setCoordinates();
             gisEntityRsp.setCreationTime(gisEntity.getCreateTime());
             gisEntityRsp.setStartTime(gisEntity.getStartTime());
             gisEntityRsp.setEndTime(gisEntity.getEndTime());
             gisEntityRsp.setMeaningTag(gisEntity.getMeaningTag());
-            gisEntityRsp.setConceptId(gisEntity.getConceptId());
-            gisEntityRsp.setConceptName(gisEntity.getConceptName());
-            gisEntityRsp.setClassId(gisEntity.getTopConceptId());
+            gisEntityRsp.setType(EntityTypeEnum.ENTITY.getValue());
             gisEntityRsp.setImgUrl(gisEntity.getImage());
-            gisEntityRsp.setGis(new GisInfoRsp(gisEntity.getOpenGis(), gisEntity.getLng(), gisEntity.getLat(), gisEntity.getAddress()));
+            gisEntityRsp.setOpenGis(gisEntity.getOpenGis());
+            gisEntityRsp.setId(gisEntity.getId());
+            gisEntityRsp.setName(gisEntity.getName());
+            gisEntityRsp.setConceptId(gisEntity.getConceptId());
+            gisEntityRsp.setConceptIdList(gisEntity.getConceptIdList());
+            gisEntityRsp.setClassId(gisEntity.getTopConceptId());
+            gisEntityRsp.setConceptName(gisEntity.getConceptName());
+            gisEntityRsp.setGis(new GisInfoRsp(gisEntity.getLng(), gisEntity.getLat(), gisEntity.getAddress()));
             entityRspList.add(gisEntityRsp);
         }
         return entityRspList;
@@ -119,9 +121,10 @@ public class EntityConverter extends BasicConverter {
         GisEntityRsp gisEntityRsp;
         for (BasicInfo entity : basicInfoList) {
             gisEntityRsp = new GisEntityRsp();
-            ///todo
-            //gisEntityRsp.setCoordinates();
-            //gisEntityRsp.setCreationTime();
+            gisEntityRsp.setId(entity.getId());
+            gisEntityRsp.setName(entity.getName());
+            gisEntityRsp.setConceptId(entity.getConceptId());
+            gisEntityRsp.setType(EntityTypeEnum.ENTITY.getValue());
             gisEntityRsp.setMeaningTag(entity.getMeaningTag());
             gisEntityRsp.setImgUrl(entity.getImageUrl());
             Map<String, Object> metaData = entity.getMetaData();
