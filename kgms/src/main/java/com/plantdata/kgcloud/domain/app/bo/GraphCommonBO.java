@@ -28,8 +28,8 @@ public class GraphCommonBO {
         Set<Long> entityIdSet = graphBean.getEntityList().stream().map(CommonEntityRsp::getId).collect(Collectors.toSet());
         Set<Long> needSaveEntityIdSet = Sets.newHashSet();
         graphBean.getRelationList().removeIf(a -> {
-            boolean needRemove = !entityIdSet.contains(a.getFrom()) || !entityIdSet.contains(a.getTo());
-            if (needRemove) {
+            boolean needHave = entityIdSet.contains(a.getFrom()) && entityIdSet.contains(a.getTo());
+            if (!needHave) {
                 return true;
             }
             needSaveEntityIdSet.add(a.getFrom());
