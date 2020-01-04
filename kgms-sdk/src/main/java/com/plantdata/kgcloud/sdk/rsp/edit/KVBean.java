@@ -2,7 +2,8 @@ package com.plantdata.kgcloud.sdk.rsp.edit;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.util.Objects;
 
 /**
  * @param <T>
@@ -16,12 +17,19 @@ public class KVBean<T, S> {
     private S value;
 
     @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(key.toString()).append(value).hashCode();
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        KVBean<?, ?> kvBean = (KVBean<?, ?>) o;
+        return Objects.equals(key, kvBean.key);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return this.key.equals(obj);
+    public int hashCode() {
+        return Objects.hash(key);
     }
 }
