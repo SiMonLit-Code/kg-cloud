@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.bo.GraphAttributeStatisticBO;
 import com.plantdata.kgcloud.domain.app.bo.GraphRelationStatisticBO;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.GraphStatisticConverter;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
@@ -58,6 +59,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -222,15 +224,15 @@ public class KgDataServiceImpl implements KgDataService {
             return;
         }
         List<List<String>> titleList = Lists.newArrayList();
-        List<List<String>> valueList = Lists.newArrayList();
+        List<List<String>> valueList = Collections.emptyList();
         if (sparQlNodeBeans != null && sparQlNodeBeans.size() > 0) {
             List<NodeBean> sparQlNodeBeanList = sparQlNodeBeans.get(0);
             if (sparQlNodeBeanList.size() > 0) {
                 for (NodeBean sparQlNodeBean : sparQlNodeBeanList) {
                     titleList.add(Lists.newArrayList(sparQlNodeBean.getKey()));
-                    valueList.add(Lists.newArrayList(sparQlNodeBean.getValue()));
                 }
             }
+            valueList = sparQlNodeBeans.stream().map(a -> BasicConverter.listConvert(a, NodeBean::getValue)).collect(Collectors.toList());
         }
         ExcelTypeEnum excelType = ExportTypeEnum.XLS.equals(exportType) ? ExcelTypeEnum.XLS : ExcelTypeEnum.XLSX;
         // 设置response参数
