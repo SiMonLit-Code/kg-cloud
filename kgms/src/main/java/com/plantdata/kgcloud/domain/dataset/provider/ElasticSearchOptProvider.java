@@ -141,7 +141,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
         Request request = new Request(GET, endpoint);
         ObjectNode queryNode = buildQuery(offset, limit, query);
-        NStringEntity entity = new NStringEntity(JacksonUtils.writeValueAsString(queryNode), ContentType.APPLICATION_JSON);
+        NStringEntity entity = new NStringEntity(queryNode.toString(), ContentType.APPLICATION_JSON);
         request.setEntity(entity);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
@@ -246,7 +246,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         String endpoint = "/" + database + "/" + type + "/" + id + "/_update/?refresh=wait_for";
         Request request = new Request(POST, endpoint);
         Map<String, Object> map = new HashMap<>();
-        map.put("doc",node);
+        map.put("doc", node);
         String string = JacksonUtils.writeValueAsString(map);
         request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
         send(request);
