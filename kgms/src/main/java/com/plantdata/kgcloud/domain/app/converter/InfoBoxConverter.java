@@ -69,7 +69,7 @@ public class InfoBoxConverter extends BasicConverter {
             relationFrom.setEntityIds(entityIdSet);
         }
         if (!CollectionUtils.isEmpty(attrReqList)) {
-            relationFrom.setRelationAttrFilters(ConditionConverter.relationAttrReqToMap(attrReqList));
+            relationFrom.setRelationAttrFilters(ConditionConverter.relationAttrReqToMapV1(attrReqList));
         }
         relationFrom.setMetaFilters(executeNoNull(reversedAttrReqList, a -> Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
         return relationFrom;

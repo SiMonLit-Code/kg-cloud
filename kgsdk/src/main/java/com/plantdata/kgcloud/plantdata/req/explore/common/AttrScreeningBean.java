@@ -14,7 +14,7 @@ public class AttrScreeningBean {
     private Integer attrId;
     private Integer seqNo;
     private Object $eq;
-    private String $neq;
+    private Object $neq;
     private Object $gt;
     private Object $lt;
     private Object $lte;
@@ -42,15 +42,15 @@ public class AttrScreeningBean {
         return $eq;
     }
 
-    public void set$eq(String $eq) {
+    public void set$eq(Object $eq) {
         this.$eq = $eq;
     }
 
-    public String get$neq() {
+    public Object get$neq() {
         return $neq;
     }
 
-    public void set$neq(String $neq) {
+    public void set$neq(Object $neq) {
         this.$neq = $neq;
     }
 
