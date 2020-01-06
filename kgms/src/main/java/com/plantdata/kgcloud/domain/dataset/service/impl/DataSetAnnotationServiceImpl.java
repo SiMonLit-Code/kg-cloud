@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSetAnnotation;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetAnnotationRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
@@ -117,23 +118,15 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
         }
         DataSetAnnotation one = findOne(annotationId);
         List<AnnotationConf> config = one.getConfig();
-
-        MongoDatabase mongoDatabase = mongoClient.getDatabase("kg_attribute_definition");
-        MongoCollection<Document> kgDbName = mongoDatabase.getCollection("kg_db_name");
-        FindIterable<Document> findIterable = kgDbName.find(new Document("kg_name", kgName));
-
-        Document document = findIterable.first();
         Set<String> key = new HashSet<>();
         for (AnnotationConf conf : config) {
             if (Objects.equals(conf.getSource(), 1)) {
                 key.add(conf.getKey());
             }
         }
-        if (document != null && !key.isEmpty()) {
-            String dbName = document.getString("db_name");
-            MongoDatabase database = mongoClient.getDatabase(dbName);
+        if (!key.isEmpty()) {
+            MongoDatabase database = mongoClient.getDatabase(KGUtil.dbName(kgName));
             MongoCollection<Document> collection = database.getCollection("entity_annotation");
-
             for (String sss : key) {
                 JsonNode node = objectNode.get(sss);
                 if (node.isArray()) {
