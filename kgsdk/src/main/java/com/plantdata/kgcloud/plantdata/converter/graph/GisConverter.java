@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
+import com.plantdata.kgcloud.plantdata.constant.DirectionEnum;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.common.GisBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
@@ -16,6 +17,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +36,8 @@ public class GisConverter extends BasicConverter {
         exploreReq.setConceptKeys(param.getAllowTypesKey());
         exploreReq.setFromTime(param.getFromTime());
         exploreReq.setToTime(param.getToTime());
+        exploreReq.setAttrId(param.getAttrId());
+        consumerIfNoNull(param.getDirection(), a -> exploreReq.setDirection(NumberUtils.INTEGER_TWO.equals(a) ? DirectionEnum.BACKWARD.getValue() : a));
         consumerIfNoNull(param.getGisFilters(), a -> exploreReq.setGisFilters(JsonUtils.jsonToList(a, Object.class)));
         consumerIfNoNull(param.getFilterType(), exploreReq::setFilterType);
         exploreReq.setPage(new PageReq(param.getPageNo(), param.getPageSize()));

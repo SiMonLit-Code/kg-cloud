@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.bo.GraphAttributeStatisticBO;
 import com.plantdata.kgcloud.domain.app.bo.GraphRelationStatisticBO;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.GraphStatisticConverter;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
@@ -58,6 +59,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -103,12 +105,12 @@ public class KgDataServiceImpl implements KgDataService {
         Optional<AttributeDefinition> arrDefOpt = getAttrDefById(kgName, statisticReq.getAttrId());
 
         if (!arrDefOpt.isPresent()) {
-            return GraphStatisticConverter.statisticByType(Collections.emptyList(), statisticReq.getReturnType(), StatisticResultTypeEnum.VALUE);
+            return new StatDataRsp();
         }
         RelationExtraInfoStatisticBean statisticBean = GraphStatisticConverter.edgeAttrReqToRelationExtraInfoStatisticBean(statisticReq);
         Optional<List<Map<String, Object>>> dataOpt = RestRespConverter.convert(statisticsApi.relationExtraInfoStatistic(KGUtil.dbName(kgName), statisticBean));
         if (!dataOpt.isPresent()) {
-            return GraphStatisticConverter.statisticByType(Collections.emptyList(), statisticReq.getReturnType(), StatisticResultTypeEnum.VALUE);
+            return new StatDataRsp();
         }
         List<StatisticDTO> dataList = JsonUtils.objToList(dataOpt.get(), StatisticDTO.class);
         AttributeDataTypeEnum dataType = GraphStatisticConverter.edgeAttrDataType(statisticReq.getSeqNo(), arrDefOpt.get());
@@ -119,11 +121,11 @@ public class KgDataServiceImpl implements KgDataService {
     public Object statEntityGroupByConcept(String kgName, EntityStatisticGroupByConceptReq statisticReq) {
         ConceptStatisticsBean statisticsBean = GraphStatisticConverter.entityReqConceptStatisticsBean(statisticReq);
         if (CollectionUtils.isEmpty(statisticReq.getEntityIds())) {
-            return null;
+            return new StatDataRsp();
         }
         Optional<List<Map<String, Object>>> resultOpt = RestRespConverter.convert(statisticsApi.conceptStatistics(KGUtil.dbName(kgName), statisticsBean));
         if (!resultOpt.isPresent()) {
-            return null;
+            return new StatDataRsp();
         }
         List<StatisticDTO> dataList = JsonUtils.objToList(resultOpt.get(), StatisticDTO.class);
         return GraphStatisticConverter.statisticByType(dataList, statisticReq.getReturnType(), StatisticResultTypeEnum.NAME);
@@ -222,18 +224,22 @@ public class KgDataServiceImpl implements KgDataService {
             return;
         }
         List<List<String>> titleList = Lists.newArrayList();
-        List<List<String>> valueList = Lists.newArrayList();
+        List<List<String>> valueList = Collections.emptyList();
         if (sparQlNodeBeans != null && sparQlNodeBeans.size() > 0) {
             List<NodeBean> sparQlNodeBeanList = sparQlNodeBeans.get(0);
             if (sparQlNodeBeanList.size() > 0) {
                 for (NodeBean sparQlNodeBean : sparQlNodeBeanList) {
                     titleList.add(Lists.newArrayList(sparQlNodeBean.getKey()));
-                    valueList.add(Lists.newArrayList(sparQlNodeBean.getValue()));
                 }
             }
+            valueList = sparQlNodeBeans.stream().map(a -> BasicConverter.listConvert(a, NodeBean::getValue)).collect(Collectors.toList());
         }
         ExcelTypeEnum excelType = ExportTypeEnum.XLS.equals(exportType) ? ExcelTypeEnum.XLS : ExcelTypeEnum.XLSX;
-        EasyExcelFactory.write().file(response.getOutputStream()).head(titleList).excelType(excelType).sheet(0, exportName).doWrite(valueList);
+        // 设置response参数
+        response.reset();
+        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String((exportName + ".xls").getBytes(), "iso-8859-1"));
+        EasyExcelFactory.write().file(response.getOutputStream()).head(titleList).excelType(excelType).sheet(0, "data").doWrite(valueList);
     }
 
 

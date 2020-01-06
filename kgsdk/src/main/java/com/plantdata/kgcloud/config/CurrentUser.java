@@ -6,7 +6,7 @@ package com.plantdata.kgcloud.config;
  * @date 2019/12/26 11:25
  */
 public class CurrentUser {
-    private static ThreadLocal<Boolean> adminLocal = new ThreadLocal();
+    private static ThreadLocal<Boolean> adminLocal = new ThreadLocal<>();
 
     public static boolean isAdmin() {
         return adminLocal.get() != null && adminLocal.get();
