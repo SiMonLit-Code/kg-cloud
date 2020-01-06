@@ -4,22 +4,20 @@ import ai.plantdata.kg.api.edit.req.AttrQueryFrom;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
-import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author cjw
  * @version 1.0
  * @date 2019/11/21 14:53
  */
-public class AttrDefConverter {
+public class AttrDefConverter extends BasicConverter {
     /**
      * 属性定义 vo转return
      */
@@ -33,15 +31,15 @@ public class AttrDefConverter {
         attrDefReq.setRangeValue(att.getRangeValue());
         attrDefReq.setDomainValue(att.getDomainValue());
         attrDefReq.setDataType(att.getDataType());
-        if (!CollectionUtils.isEmpty(att.getExtraInfo())) {
-            List<AttrExtraRsp> extraInfoItemList = att.getExtraInfo().stream().map(a -> {
+        consumerIfNoNull(att.getExtraInfo(), a -> {
+            List<AttrExtraRsp> extraInfoItemList = listConvert(a, b -> {
                 AttrExtraRsp infoItem = new AttrExtraRsp();
                 //!!要求属性名称一致
-                BeanUtils.copyProperties(a, infoItem);
+                BeanUtils.copyProperties(b, infoItem);
                 return infoItem;
-            }).collect(Collectors.toList());
+            });
             attrDefReq.setExtraInfos(extraInfoItemList);
-        }
+        });
         return attrDefReq;
     }
 
@@ -51,14 +49,6 @@ public class AttrDefConverter {
         searchReq.setInherit(queryReq.isInherit());
         searchReq.setType(NumberUtils.INTEGER_ZERO);
         return searchReq;
-    }
-
-    public static AttrQueryFrom convertToQuery(List<Long> conceptIdList, boolean inherit, int type) {
-        AttrQueryFrom attrQueryFrom = new AttrQueryFrom();
-        attrQueryFrom.setIds(conceptIdList);
-        attrQueryFrom.setInherit(inherit);
-        attrQueryFrom.setType(type);
-        return attrQueryFrom;
     }
 
 
