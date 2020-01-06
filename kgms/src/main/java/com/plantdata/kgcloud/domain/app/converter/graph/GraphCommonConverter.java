@@ -20,6 +20,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -49,11 +50,12 @@ public class GraphCommonConverter extends BasicConverter {
         BasicInfo topConcept = ConceptConverter.getTopConcept(conceptId, conceptMap);
         if (concept == null || topConcept == null) {
             log.error("conceptId:{}概念不存在", conceptId);
-            return;
         }
-        entityRsp.setConceptName(concept.getName());
-        entityRsp.setClassId(topConcept.getId());
-        entityRsp.setConceptIdList(ConceptConverter.getAllParentConceptId(Lists.newArrayList(conceptId), conceptId, conceptMap));
+        consumerIfNoNull(concept, a -> {
+            entityRsp.setConceptName(a.getName());
+            entityRsp.setConceptIdList(ConceptConverter.getAllParentConceptId(Lists.newArrayList(conceptId), conceptId, conceptMap));
+        });
+        entityRsp.setClassId(topConcept == null ? NumberUtils.LONG_ZERO : topConcept.getId());
     }
 
     /**

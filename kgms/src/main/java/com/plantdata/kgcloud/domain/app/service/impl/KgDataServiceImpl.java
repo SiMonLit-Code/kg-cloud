@@ -103,12 +103,12 @@ public class KgDataServiceImpl implements KgDataService {
         Optional<AttributeDefinition> arrDefOpt = getAttrDefById(kgName, statisticReq.getAttrId());
 
         if (!arrDefOpt.isPresent()) {
-            return GraphStatisticConverter.statisticByType(Collections.emptyList(), statisticReq.getReturnType(), StatisticResultTypeEnum.VALUE);
+            return new StatDataRsp();
         }
         RelationExtraInfoStatisticBean statisticBean = GraphStatisticConverter.edgeAttrReqToRelationExtraInfoStatisticBean(statisticReq);
         Optional<List<Map<String, Object>>> dataOpt = RestRespConverter.convert(statisticsApi.relationExtraInfoStatistic(KGUtil.dbName(kgName), statisticBean));
         if (!dataOpt.isPresent()) {
-            return GraphStatisticConverter.statisticByType(Collections.emptyList(), statisticReq.getReturnType(), StatisticResultTypeEnum.VALUE);
+            return new StatDataRsp();
         }
         List<StatisticDTO> dataList = JsonUtils.objToList(dataOpt.get(), StatisticDTO.class);
         AttributeDataTypeEnum dataType = GraphStatisticConverter.edgeAttrDataType(statisticReq.getSeqNo(), arrDefOpt.get());
@@ -119,11 +119,11 @@ public class KgDataServiceImpl implements KgDataService {
     public Object statEntityGroupByConcept(String kgName, EntityStatisticGroupByConceptReq statisticReq) {
         ConceptStatisticsBean statisticsBean = GraphStatisticConverter.entityReqConceptStatisticsBean(statisticReq);
         if (CollectionUtils.isEmpty(statisticReq.getEntityIds())) {
-            return null;
+            return new StatDataRsp();
         }
         Optional<List<Map<String, Object>>> resultOpt = RestRespConverter.convert(statisticsApi.conceptStatistics(KGUtil.dbName(kgName), statisticsBean));
         if (!resultOpt.isPresent()) {
-            return null;
+            return new StatDataRsp();
         }
         List<StatisticDTO> dataList = JsonUtils.objToList(resultOpt.get(), StatisticDTO.class);
         return GraphStatisticConverter.statisticByType(dataList, statisticReq.getReturnType(), StatisticResultTypeEnum.NAME);

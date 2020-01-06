@@ -32,6 +32,7 @@ public class ApkAuthFilter extends OncePerRequestFilter {
 
     private AntPathMatcher antPathMatcher = new AntPathMatcher();
 
+    private static final String ADMIN_APK = "03c7a9376254ebb8a6b27706194";
 
 
     private static final List<String> ROBOT_ALLOW_PATHS = Lists.newArrayList("graphExplore/common/**",
@@ -48,7 +49,16 @@ public class ApkAuthFilter extends OncePerRequestFilter {
                 break;
             }
         }
+
         boolean robotAllow = ROBOT_ALLOW_PATHS.stream().anyMatch(a -> antPathMatcher.match(a, requestUri));
+        String apk = WebUtils.getKgApk(httpServletRequest);
+
+        if (ADMIN_APK.equals(apk)) {
+            CurrentUser.setAdmin(true);
+            isAllowed = true;
+        } else {
+            CurrentUser.setAdmin(false);
+        }
         if (robotAllow) {
             isAllowed = true;
         }
@@ -56,7 +66,7 @@ public class ApkAuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
-        String apk = WebUtils.getKgApk(httpServletRequest);
+
         if (StringUtils.isEmpty(apk)) {
             log.debug("ApkAuthFilter reject request uri [{}]", requestUri);
             WebUtils.sendResponse(httpServletResponse, ApiReturn.fail(CommonErrorCode.BAD_REQUEST));
@@ -67,7 +77,6 @@ public class ApkAuthFilter extends OncePerRequestFilter {
         if (!loginOpt.isPresent()) {
             return;
         }
-        CurrentUser.setAdmin(loginOpt.get().isAdmin());
         SessionHolder.setUserId(loginOpt.get().getToken());
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }

@@ -20,7 +20,6 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatDataRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/12/11 9:59
  */
-public class GraphStatisticConverter extends BasicConverter{
+public class GraphStatisticConverter extends BasicConverter {
 
 
     public static AttributeStatisticsBean attrReqToAttributeStatisticsBean(int reSize, EntityStatisticGroupByAttrIdReq attrIdReq) {
@@ -96,6 +95,10 @@ public class GraphStatisticConverter extends BasicConverter{
     }
 
     public static Object statisticByType(List<StatisticDTO> dataMapList, int returnType, StatisticResultTypeEnum resultType) {
+        StatDataRsp statDataRsp = new StatDataRsp();
+        if (CollectionUtils.isEmpty(dataMapList)) {
+            return statDataRsp;
+        }
         if (returnType == DataSetStatisticEnum.KV.getValue()) {
             return dataMapList.stream().map(s -> {
                 Map<String, Object> map = new HashMap<>();
@@ -113,13 +116,8 @@ public class GraphStatisticConverter extends BasicConverter{
                 return map;
             }).collect(Collectors.toList());
         }
-        StatDataRsp statDataRsp = new StatDataRsp();
-        if (CollectionUtils.isEmpty(dataMapList)) {
-            return statDataRsp;
-        }
         List<String> xData = new ArrayList<>();
         List<Long> sData = new ArrayList<>();
-
         dataMapList.forEach(data -> {
             String value = StatisticResultTypeEnum.NAME.equals(resultType) ? data.getName() : data.getValue();
             xData.add(value);
@@ -139,7 +137,7 @@ public class GraphStatisticConverter extends BasicConverter{
     }
 
     private static int defaultStatisticSize(Integer size) {
-        if (size.equals(NumberUtils.INTEGER_MINUS_ONE)) {
+        if (size != null && size.equals(NumberUtils.INTEGER_MINUS_ONE)) {
             return Integer.MAX_VALUE - NumberUtils.INTEGER_ONE;
         }
         return PageUtils.DEFAULT_SIZE;
