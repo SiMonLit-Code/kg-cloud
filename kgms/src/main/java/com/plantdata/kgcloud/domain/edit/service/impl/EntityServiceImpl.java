@@ -277,7 +277,9 @@ public class EntityServiceImpl implements EntityService {
         gisCoordinate.add(0, gisInfoModifyReq.getLongitude());
         gisCoordinate.add(1, gisInfoModifyReq.getLatitude());
         metadata.put(MetaDataInfo.GIS_COORDINATE.getFieldName(), gisCoordinate);
-        metadata.put(MetaDataInfo.GIS_ADDRESS.getFieldName(), gisInfoModifyReq.getAddress());
+        if (Objects.nonNull(gisInfoModifyReq.getAddress())){
+            metadata.put(MetaDataInfo.GIS_ADDRESS.getFieldName(), gisInfoModifyReq.getAddress());
+        }
         conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }
 
