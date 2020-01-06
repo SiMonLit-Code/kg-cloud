@@ -1,8 +1,9 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.ConceptReplaceReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.GisModifyReq;
-import com.plantdata.kgcloud.domain.edit.vo.BasicInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 
 import java.util.List;
 
@@ -39,5 +40,13 @@ public interface ConceptService {
      * @return
      */
     void updateAdditional(String kgName, AdditionalModifyReq additionalModifyReq);
+
+    /**
+     * 修改父概念
+     *
+     * @param kgName
+     * @param conceptReplaceReq
+     */
+    void replaceConceptId(String kgName, ConceptReplaceReq conceptReplaceReq);
 
 }

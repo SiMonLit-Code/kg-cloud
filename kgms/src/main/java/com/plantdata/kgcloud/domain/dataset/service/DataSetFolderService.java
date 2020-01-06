@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
 import com.plantdata.kgcloud.domain.dataset.entity.DataSetFolder;
-
 import com.plantdata.kgcloud.sdk.req.FolderReq;
 import com.plantdata.kgcloud.sdk.rsp.FolderRsp;
 
@@ -23,7 +22,10 @@ public interface DataSetFolderService {
      */
     DataSetFolder getDefaultFolder(String userId);
 
-
+    /**
+     * @param userId
+     * @return
+     */
     FolderRsp getDefault(String userId);
 
     /**
@@ -39,7 +41,7 @@ public interface DataSetFolderService {
      * @param id
      * @return
      */
-    Optional<DataSetFolder> getFolder(String userId,Long id);
+    Optional<DataSetFolder> getFolder(String userId, Long id);
 
     /**
      * 查询所有
@@ -63,7 +65,7 @@ public interface DataSetFolderService {
      * @param deleteData
      * @return
      */
-    void folderDelete(String userId,Long id, Boolean deleteData);
+    void folderDelete(String userId, Long id, Boolean deleteData);
 
     /**
      * 修改
@@ -72,6 +74,6 @@ public interface DataSetFolderService {
      * @param req
      * @return
      */
-    FolderRsp folderUpdate(String userId,Long id, FolderReq req);
+    FolderRsp folderUpdate(String userId, Long id, FolderReq req);
 
 }

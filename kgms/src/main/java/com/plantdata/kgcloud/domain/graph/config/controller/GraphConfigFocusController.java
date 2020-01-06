@@ -25,15 +25,15 @@ public class GraphConfigFocusController {
     @Autowired
     GraphConfFocusService graphConfFocusService;
 
-    @ApiOperation("图谱焦点")
+    @ApiOperation("图谱配置-焦点-获取")
     @GetMapping("/focus/{kgName}")
     public ApiReturn<List<GraphConfFocusRsp>> find(@PathVariable("kgName") String kgName) {
         return ApiReturn.success(graphConfFocusService.findByKgName(kgName));
     }
 
-    @ApiOperation("图谱焦点保存")
-    @PatchMapping("/focus/{kgName}")
-    public ApiReturn<List<GraphConfFocusRsp>> save(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfFocusReq> req) {
+    @ApiOperation("图谱配置-焦点-保存")
+    @PutMapping("/focus/{kgName}")
+    public ApiReturn<List<GraphConfFocusRsp>> saveFocus(@PathVariable("kgName") String kgName, @RequestBody @Valid List<GraphConfFocusReq> req) {
         return ApiReturn.success(graphConfFocusService.save(kgName, req));
     }
 }

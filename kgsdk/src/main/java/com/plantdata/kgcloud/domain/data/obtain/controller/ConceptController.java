@@ -4,8 +4,10 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.EditClient;
-import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
+import com.plantdata.kgcloud.sdk.KgDataClient;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
+import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,34 +28,43 @@ import java.util.List;
  * @date 2019/11/12 18:32
  */
 @RestController
-@RequestMapping("kgData/concept")
+@RequestMapping("v3/kgdata/concept")
 public class ConceptController implements GraphDataObtainInterface {
 
     @Resource
     private AppClient appClient;
     @Resource
     private EditClient editClient;
+    @Resource
+    private KgDataClient kgDataClient;
 
-    @ApiOperation("获取概念树")
+    @ApiOperation("概念树获取")
     @GetMapping("{kgName}")
-    public ApiReturn<List<BasicConceptRsp>> conceptTree(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @ApiParam("概念id") @RequestParam("conceptId") Long conceptId,
-                                                        @ApiParam("概念唯一标识") @RequestParam("conceptKey") String conceptKey) {
+    public ApiReturn<List<BasicInfoVO>> conceptTree(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                    @ApiParam("概念id 和key不能同时为null") @RequestParam(value = "conceptId", required = false) Long conceptId,
+                                                    @ApiParam("概念唯一标识") @RequestParam(value = "conceptKey", required = false) String conceptKey) {
         return appClient.conceptTree(kgName, conceptId, conceptKey);
     }
 
-    @ApiOperation("添加概念")
+    @ApiOperation("概念-新增")
     @PostMapping("add/{kgName}")
     public ApiReturn<Long> addConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                      @RequestBody BasicInfoReq basicInfoReq) {
-        return editClient.createConcept(kgName, basicInfoReq);
+                                      @RequestBody ConceptAddReq basicInfoReq) {
+        return kgDataClient.createConcept(kgName, basicInfoReq);
     }
 
-    @ApiOperation("删除概念")
+    @ApiOperation("概念-删除")
     @DeleteMapping("{kgName}/{conceptId}")
     public ApiReturn deleteConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                    @ApiParam(value = "概念id", required = true) @PathVariable("conceptId") Long conceptId) {
         return editClient.deleteConcept(kgName, conceptId);
+    }
+
+    @ApiOperation("概念-修改")
+    @PostMapping("/{kgName}/update")
+    public ApiReturn updateConcept(@PathVariable("kgName") String kgName,
+                                   @RequestBody BasicInfoModifyReq basicInfoModifyReq) {
+        return editClient.updateConcept(kgName, basicInfoModifyReq);
     }
 
 }

@@ -1,36 +1,40 @@
 package com.plantdata.kgcloud.domain.app.converter.graph;
 
 import ai.plantdata.kg.api.pub.req.CommonFilter;
+import ai.plantdata.kg.api.pub.req.EntityFilter;
 import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
+import ai.plantdata.kg.api.pub.resp.EdgeVO;
 import ai.plantdata.kg.api.pub.resp.SimpleEntity;
 import ai.plantdata.kg.api.pub.resp.SimpleRelation;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.bean.BaseReq;
+import com.google.common.collect.Maps;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
-import com.plantdata.kgcloud.domain.app.converter.ImageConverter;
+import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
-import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.ExploreConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.NonNull;
-import org.apache.commons.lang3.math.NumberUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
  * @version 1.0
  * @date 2019/12/2 16:43
  */
-public class GraphCommonConverter {
+@Slf4j
+public class GraphCommonConverter extends BasicConverter {
 
     /**
      * 图探索填充概念信息
@@ -42,34 +46,43 @@ public class GraphCommonConverter {
      */
     public static <T extends GraphEntityRsp> void fillConcept(Long conceptId, T entityRsp, Map<Long, BasicInfo> conceptMap) {
         BasicInfo concept = conceptMap.get(conceptId);
-        entityRsp.setMainConcept(new ExploreConceptRsp(concept.getId(), concept.getName()));
         BasicInfo topConcept = ConceptConverter.getTopConcept(conceptId, conceptMap);
-        entityRsp.setTopConcept(new ExploreConceptRsp(topConcept.getId(), topConcept.getName()));
+        if (concept == null || topConcept == null) {
+            log.error("conceptId:{}概念不存在", conceptId);
+            return;
+        }
+        entityRsp.setConceptName(concept.getName());
+        entityRsp.setClassId(topConcept.getId());
         entityRsp.setConceptIdList(ConceptConverter.getAllParentConceptId(Lists.newArrayList(conceptId), conceptId, conceptMap));
     }
 
     /**
      * 填充基础参数
      *
-     * @param page       分页
      * @param exploreReq req
      * @param graphFrom  remote 参数
      * @param <T>        子类
      * @param <E>        子类
      * @return 。。。
      */
-    static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(BaseReq page, T exploreReq, E graphFrom) {
-        CommonFilter commonFilter = new GraphFrom();
-        commonFilter.setSkip(NumberUtils.INTEGER_ZERO);
-        commonFilter.setLimit(exploreReq.getHighLevelSize());
-        graphFrom.setHighLevelFilter(commonFilter);
+    static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(T exploreReq, E graphFrom) {
+        CommonFilter highLevelFilter = new GraphFrom();
+        consumerIfNoNull(exploreReq.getEntityFilters(), a -> {
+            EntityFilter entityFilter = new EntityFilter();
+            entityFilter.setAttr(ConditionConverter.entityListToIntegerKeyMap(a));
+            highLevelFilter.setEntityFilter(entityFilter);
+        });
+        //设置边属性筛选
+        consumerIfNoNull(exploreReq.getEdgeAttrFilters(), a -> highLevelFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
+        //层级通用
+        graphFrom.setHighLevelFilter(highLevelFilter);
+
+        consumerIfNoNull(exploreReq.getDistance(), graphFrom::setDistance);
         graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
         graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
-        graphFrom.setDirection(exploreReq.getDirection());
         graphFrom.setInherit(exploreReq.isInherit());
-        graphFrom.setDistance(exploreReq.getDistance());
-        graphFrom.setSkip(page.getPage());
-        graphFrom.setLimit(page.getSize());
+        graphFrom.setDisAllowTypes(exploreReq.getDisAllowConcepts());
+
         //读取元数据
         MetaData entityMetaData = new MetaData();
         entityMetaData.setRead(true);
@@ -77,8 +90,10 @@ public class GraphCommonConverter {
         MetaData relationMetaData = new MetaData();
         relationMetaData.setRead(true);
         graphFrom.setRelationMeta(relationMetaData);
+
         return graphFrom;
     }
+
 
     /**
      * 关系转换
@@ -86,20 +101,46 @@ public class GraphCommonConverter {
      * @param simpleRelationList 关系结果
      * @return 。。。
      */
-    static List<BasicRelationRsp> simpleRelationToBasicRelationRsp(@NonNull List<SimpleRelation> simpleRelationList) {
-        List<BasicRelationRsp> relationRspList = Lists.newArrayList();
-        BasicRelationRsp relationRsp;
-        for (SimpleRelation relation : simpleRelationList) {
-            relationRsp = new BasicRelationRsp();
-            relationRsp.setAttId(relation.getAttrId());
-            relationRsp.setAttName(relation.getAttrName());
-            relationRsp.setDirection(relation.getDirection());
-            relationRsp.setStartTime(relation.getAttrTimeFrom());
-            relationRsp.setEndTime(relation.getAttrTimeFrom());
-            relationRsp.setId(relation.getId());
-            relationRspList.add(relationRsp);
+    static List<GraphRelationRsp> simpleRelationToGraphRelationRsp(@NonNull List<SimpleRelation> simpleRelationList, boolean relationMerge) {
+
+        List<GraphRelationRsp> graphRelationRsps = listToRsp(simpleRelationList, GraphCommonConverter::simpleRelationToGraphRelationRsp);
+        if (relationMerge) {
+            Map<String, List<GraphRelationRsp>> rspMap = graphRelationRsps.stream().collect(Collectors.groupingBy(a -> a.getFrom() + "_" + a.getTo()));
+            return rspMap.values().stream().map(a -> {
+                GraphRelationRsp one = a.get(0);
+                if (a.size() >= 2) {
+                    one.setSourceRelationList(listToRsp(a, b -> BasicConverter.copy(b, GraphRelationRsp.class)));
+                }
+                return one;
+            }).collect(Collectors.toList());
         }
-        return relationRspList;
+        return graphRelationRsps;
+    }
+
+
+    private static GraphRelationRsp simpleRelationToGraphRelationRsp(@NonNull SimpleRelation relation) {
+        GraphRelationRsp relationRsp = new GraphRelationRsp();
+        relationRsp.setFrom(relation.getFrom());
+        relationRsp.setTo(relation.getTo());
+        relationRsp.setAttId(relation.getAttrId());
+        relationRsp.setAttName(relation.getAttrName());
+        relationRsp.setDirection(relation.getDirection());
+        relationRsp.setStartTime(relation.getAttrTimeFrom());
+        relationRsp.setEndTime(relation.getAttrTimeFrom());
+        relationRsp.setId(relation.getId());
+        consumerIfNoNull(relation.getMetaData(), a -> MetaConverter.fillMetaWithNoNull(a, relationRsp));
+        consumerIfNoNull(relation.getEdgeNumericAttr(), a -> relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(a)));
+        ///todo 等待浩哥返回实体名称
+        consumerIfNoNull(relation.getEdgeObjAttr(), a -> relationRsp.setObjAttrs(edgeVoListToEdgeObjInfo(a)));
+        return relationRsp;
+    }
+
+    private static List<BasicRelationRsp.EdgeObjectInfo> edgeVoListToEdgeObjInfo(@NonNull List<EdgeVO> edgeList) {
+        return listToRsp(edgeList, a -> new BasicRelationRsp.EdgeObjectInfo(a.getName(), a.getSeqNo(), a.getEntityName(), a.getDataType(), a.getObjRange()));
+    }
+
+    private static List<BasicRelationRsp.EdgeDataInfo> edgeVoListToEdgeInfo(@NonNull List<EdgeVO> edgeList) {
+        return listToRsp(edgeList, a -> new BasicRelationRsp.EdgeDataInfo(a.getName(), a.getSeqNo(), a.getValue(), a.getDataType()));
     }
 
     /**
@@ -111,20 +152,19 @@ public class GraphCommonConverter {
      * @param <T>            子类
      * @return 。。。
      */
-    static <T extends GraphEntityRsp> T simpleToGraphEntityRsp(T graphEntityRsp, SimpleEntity simpleEntity, Map<Long, BasicInfo> conceptMap) {
+    static <T extends GraphEntityRsp> T simpleToGraphEntityRsp(T graphEntityRsp, SimpleEntity simpleEntity, Map<Long, BasicInfo> conceptMap, Set<Long> replaceClassIds) {
         graphEntityRsp.setId(simpleEntity.getId());
+        graphEntityRsp.setConceptId(simpleEntity.getConceptId());
         graphEntityRsp.setName(simpleEntity.getName());
-        graphEntityRsp.setType(EntityTypeEnum.parseById(simpleEntity.getType()));
+        graphEntityRsp.setType(simpleEntity.getType());
         graphEntityRsp.setMeaningTag(simpleEntity.getMeaningTag());
-        Optional<ImageRsp> imageRsp = ImageConverter.stringT0Image(simpleEntity.getImageUrl());
-        imageRsp.ifPresent(graphEntityRsp::setImg);
-        //todo查询所有概念
-        if (EntityTypeEnum.ENTITY.equals(graphEntityRsp.getType())) {
-            GraphCommonConverter.fillConcept(simpleEntity.getConceptId(), graphEntityRsp, conceptMap);
-        }
+        graphEntityRsp.setImgUrl(simpleEntity.getImageUrl());
+        GraphCommonConverter.fillConcept(simpleEntity.getConceptId(), graphEntityRsp, conceptMap);
         Map<String, Object> metaDataMap = simpleEntity.getMetaData();
-        if (!CollectionUtils.isEmpty(metaDataMap)) {
-            MetaConverter.fillMetaWithNoNull(metaDataMap, graphEntityRsp);
+        consumerIfNoNull(metaDataMap, a -> MetaConverter.fillMetaWithNoNull(a, graphEntityRsp));
+        if (!CollectionUtils.isEmpty(replaceClassIds)) {
+            Optional<Long> first = graphEntityRsp.getConceptIdList().stream().filter(replaceClassIds::contains).findFirst();
+            first.ifPresent(graphEntityRsp::setClassId);
         }
         return graphEntityRsp;
     }

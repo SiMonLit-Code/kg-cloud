@@ -5,7 +5,9 @@ import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.WordReq;
 import com.plantdata.kgcloud.sdk.rsp.WordRsp;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -20,7 +22,7 @@ public interface WordService {
      * @param dictId
      * @return
      */
-    List<WordRsp> findAll(Long dictId);
+    List<WordRsp> findAll(String userId, Long dictId);
 
     /**
      * 词条分页查找
@@ -28,7 +30,7 @@ public interface WordService {
      * @param dictId
      * @return
      */
-    Page<WordRsp> findAll(Long dictId, BaseReq baseReq);
+    Page<WordRsp> findAll(String userId, Long dictId, BaseReq baseReq);
 
     /**
      * 词条按照id查找
@@ -37,7 +39,7 @@ public interface WordService {
      * @param id
      * @return
      */
-    WordRsp findById(Long dictId, String id);
+    WordRsp findById(String userId, Long dictId, String id);
 
     /**
      * 词条删除
@@ -46,7 +48,7 @@ public interface WordService {
      * @param id
      * @return
      */
-    void delete(Long dictId, String id);
+    void delete(String userId, Long dictId, String id);
 
     /**
      * 词条新增
@@ -54,7 +56,7 @@ public interface WordService {
      * @param r
      * @return
      */
-    WordRsp insert(Long dictId, WordReq r);
+    WordRsp insert(String userId, Long dictId, WordReq r);
 
     /**
      * 词条更新
@@ -64,5 +66,23 @@ public interface WordService {
      * @param r
      * @return
      */
-    WordRsp update(Long dictId, String id, WordReq r);
+    WordRsp update(String userId, Long dictId, String id, WordReq r);
+
+    /**
+     * 导出词典
+     *
+     * @param dictId
+     * @param response
+     */
+    void exportWord(String userId, Long dictId, HttpServletResponse response);
+
+    /**
+     * 词典导入
+     *
+     * @param userId
+     * @param dictId
+     * @param file
+     * @throws Exception
+     */
+    void importWord(String userId, Long dictId, MultipartFile file) throws Exception;
 }

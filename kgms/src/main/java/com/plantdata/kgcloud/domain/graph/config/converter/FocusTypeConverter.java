@@ -1,11 +1,11 @@
 package com.plantdata.kgcloud.domain.graph.config.converter;
 
-import com.plantdata.kgcloud.domain.dataset.constant.DataType;
 import com.plantdata.kgcloud.domain.graph.config.constant.FocusType;
 
 import javax.persistence.AttributeConverter;
 
 /**
+ * @author
  * Created by plantdata-1007 on 2019/11/29.
  */
 public class FocusTypeConverter implements AttributeConverter<FocusType, String> {

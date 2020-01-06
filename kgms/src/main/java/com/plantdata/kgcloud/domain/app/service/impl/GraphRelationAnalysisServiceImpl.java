@@ -7,8 +7,9 @@ import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphRelationAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
@@ -37,47 +38,48 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
     private RuleReasoningService ruleReasoningService;
 
     @Override
-    public RelationAnalysisRsp relationAnalysis(String kgName, RelationAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
+    public RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReq analysisReq) {
+
+        analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationAnalysisRsp analysisRsp = new RelationAnalysisRsp();
         //执行分析
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(kgName, relationFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(KGUtil.dbName(kgName), relationFrom));
         if (!graphOpt.isPresent()) {
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp, analysisReq);
     }
 
     @Override
     public RelationTimingAnalysisRsp relationTimingAnalysis(String kgName, RelationTimingAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
+        analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationTimingAnalysisRsp analysisRsp = new RelationTimingAnalysisRsp();
         //执行分析
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(kgName, relationFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(KGUtil.dbName(kgName), relationFrom));
         if (!graphOpt.isPresent()) {
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp, analysisReq);
     }
 
     @Override
     public RelationReasoningAnalysisRsp relationReasoningAnalysis(String kgName, RelationReasoningAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
+        analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationReasoningAnalysisRsp analysisRsp = new RelationReasoningAnalysisRsp();
         //执行分析
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(kgName, relationFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.relationFull(KGUtil.dbName(kgName), relationFrom));
         if (!graphOpt.isPresent()) {
             return analysisRsp;
         }
         //推理
         GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), analysisReq);
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphVO, analysisRsp);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphVO, analysisRsp, analysisReq);
     }
 
 

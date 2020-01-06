@@ -1,8 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
-import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.BatchPrivateRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.DeleteEdgeObjectReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
@@ -11,16 +10,24 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.PrivateAttrDataReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
-import com.plantdata.kgcloud.domain.edit.vo.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
+import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.req.edit.BatchPrivateRelationReq;
+import com.plantdata.kgcloud.sdk.req.edit.PrivateAttrDataReq;
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -33,13 +40,31 @@ import java.util.List;
 public interface EntityService {
 
     /**
+     * 添加概念
+     *
+     * @param kgName
+     * @param conceptId
+     * @param entityId
+     */
+    void addMultipleConcept(String kgName, Long conceptId, Long entityId);
+
+    /**
+     * 删除概念
+     *
+     * @param kgName
+     * @param conceptId
+     * @param entityId
+     */
+    void deleteMultipleConcept(String kgName, Long conceptId, Long entityId);
+
+    /**
      * 实体列表
      *
      * @param kgName
      * @param basicInfoListReq
      * @return
      */
-    Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq);
+    Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq, BasicInfoListBodyReq bodyReq);
 
     /**
      * 批量删除实体
@@ -48,7 +73,7 @@ public interface EntityService {
      * @param ids
      * @return
      */
-    List<BatchDeleteResult> deleteByIds(String kgName, List<Long> ids);
+    List<DeleteResult> deleteByIds(String kgName, List<Long> ids);
 
 
     /**
@@ -58,7 +83,7 @@ public interface EntityService {
      * @param entityDeleteReq
      * @return
      */
-    void deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq);
+    Long deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq);
 
     /**
      * 修改实体权重,来源,置信度
@@ -163,7 +188,7 @@ public interface EntityService {
      * @param kgName
      * @param objectAttrValueReq
      */
-    void addObjectAttrValue(String kgName, ObjectAttrValueReq objectAttrValueReq);
+    String addObjectAttrValue(String kgName, ObjectAttrValueReq objectAttrValueReq);
 
     /**
      * 修改关系的metadata(权重,来源,置信度,来源理由,关系时间)
@@ -187,7 +212,7 @@ public interface EntityService {
      * @param kgName
      * @param privateAttrDataReq
      */
-    void addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq);
+    String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq);
 
     /**
      * 批量删除私有数值或对象属性值
@@ -238,4 +263,19 @@ public interface EntityService {
      * @return
      */
     List<String> batchAddPrivateRelation(String kgName, BatchPrivateRelationReq batchPrivateRelationReq);
+
+    /**
+     * 实体标签搜索
+     *
+     * @param kgName
+     * @param entityTagSearchReq
+     * @return
+     */
+    List<String> tagSearch(String kgName, EntityTagSearchReq entityTagSearchReq);
+
+    List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq);
+
+    OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity);
+
+    void batchDeleteEntityAttr(String kgName, BatchEntityAttrDeleteReq deleteReq);
 }

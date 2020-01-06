@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
-import com.plantdata.kgcloud.domain.dataset.constant.DataType;
+import com.plantdata.kgcloud.sdk.constant.DataType;
 
 /**
  * @description:

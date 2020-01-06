@@ -1,9 +1,10 @@
 package com.plantdata.kgcloud.sdk.req;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * Created by plantdata-1007 on 2019/12/2.
@@ -15,12 +16,12 @@ public class GraphConfQaReq {
     @ApiModelProperty("优先级")
     private int priority;
 
-    @ApiModelProperty("类型")
+    @ApiModelProperty(value = "类型",required = true)
     private int type;
 
-    @ApiModelProperty("问题")
+    @ApiModelProperty(value = "问题",required = true)
     private String question;
 
-    @ApiModelProperty("选择概念")
-    private ArrayNode conceptIds;
+    @ApiModelProperty(value = "选择概念",required = true)
+    private List<Long> conceptIds;
 }

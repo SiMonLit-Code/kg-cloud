@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -17,6 +18,7 @@ public class ImageUrlReq {
 
     @ApiModelProperty(required = true)
     @NotNull
+    @Min(value = 1,message = "不能修改图谱")
     private Long id;
 
     @ApiModelProperty(value = "图片路径")

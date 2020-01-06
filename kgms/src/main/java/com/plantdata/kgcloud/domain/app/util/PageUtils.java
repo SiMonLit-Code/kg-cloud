@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.util;
 
+import lombok.Getter;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -12,23 +13,36 @@ import java.util.List;
  */
 public class PageUtils {
 
+    public static final int DEFAULT_SIZE = 10;
+    @Getter
+    private Integer offset;
+    @Getter
+    private Integer limit;
+
+    public PageUtils(Integer pageNo, Integer pageSize) {
+        init(pageNo, pageSize);
+    }
+
     public static <T> List<T> subList(Integer pageNo, Integer pageSize, List<T> list) {
-        int start;
-        int length;
+        PageUtils pageUtils = new PageUtils(pageNo, pageSize);
+        if (CollectionUtils.isEmpty(list) || pageUtils.offset > list.size()) {
+            return Collections.emptyList();
+        }
+        if (pageUtils.limit > list.size()) {
+            pageUtils.limit = list.size();
+        }
+        return list.subList( pageUtils.offset,pageUtils.limit);
+    }
+
+    private PageUtils init(Integer pageNo, Integer pageSize) {
         if (pageSize <= 0) {
-            pageSize = 10;
+            pageSize = DEFAULT_SIZE;
         }
         if (pageNo == 0) {
             pageNo = 1;
         }
-        start = (pageNo - 1) * pageSize;
-        length = pageSize;
-        if (CollectionUtils.isEmpty(list) || start > list.size()) {
-            return Collections.emptyList();
-        }
-        if (length > list.size()) {
-            length = list.size();
-        }
-        return list.subList(start, length);
+        this.offset = (pageNo - 1) * pageSize;
+        this.limit = pageSize;
+        return this;
     }
 }

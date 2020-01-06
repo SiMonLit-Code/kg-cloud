@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description:
@@ -32,7 +33,7 @@ public class GraphConfQaRsp {
     private int count;
 
     @ApiModelProperty(value = "选择概念")
-    private ArrayNode conceptIds;
+    private List<Long> conceptIds;
 
     @ApiModelProperty(value = "优先")
     private Integer priority;

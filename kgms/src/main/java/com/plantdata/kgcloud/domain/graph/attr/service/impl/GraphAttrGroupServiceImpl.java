@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.graph.attr.service.impl;
 
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
-import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
 import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroup;
@@ -14,6 +13,7 @@ import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupSearchReq;
 import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -61,6 +61,7 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
 
     @Override
     public Long createAttrGroup(String kgName, AttrGroupReq attrGroupReq) {
+        this.checkGroupName(kgName, attrGroupReq.getGroupName());
         GraphAttrGroup graphAttrGroup = GraphAttrGroup.builder()
                 .id(kgKeyGenerator.getNextId())
                 .kgName(kgName)
@@ -68,6 +69,20 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
                 .build();
         GraphAttrGroup group = graphAttrGroupRepository.save(graphAttrGroup);
         return group.getId();
+    }
+
+    /**
+     * 校验属性分组名称不能相同
+     *
+     * @param kgName
+     * @param groupName
+     */
+    private void checkGroupName(String kgName, String groupName) {
+        List<GraphAttrGroup> attrGroups =
+                graphAttrGroupRepository.findAll(Example.of(GraphAttrGroup.builder().kgName(kgName).groupName(groupName).build()));
+        if (!CollectionUtils.isEmpty(attrGroups)) {
+            throw BizException.of(KgmsErrorCodeEnum.ATTR_GROUP_NOT_EXISTS_SAME_NAME);
+        }
     }
 
     @Override
@@ -82,6 +97,7 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
 
     @Override
     public Long updateAttrGroup(String kgName, Long id, AttrGroupReq attrGroupReq) {
+        this.checkGroupName(kgName, attrGroupReq.getGroupName());
         Optional<GraphAttrGroup> optional = graphAttrGroupRepository.findById(id);
         GraphAttrGroup graphAttrGroup =
                 optional.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.ATTR_GROUP_NOT_EXISTS));
@@ -133,20 +149,22 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
     }
 
     @Override
-    public void addAttrToAttrGroup(String kgName, Long id, List<Integer> attrIds) {
+    public Integer addAttrToAttrGroup(String kgName, Long id, List<Integer> attrIds) {
         List<GraphAttrGroupRsp> groupRsps = this.listAttrGroups(kgName,
-                AttrGroupSearchReq.builder().id(id).readDetail(false).build());
+                AttrGroupSearchReq.builder().readDetail(false).build());
         if (CollectionUtils.isEmpty(groupRsps)) {
-            return;
+            return 0;
         }
-        GraphAttrGroupRsp graphAttrGroupRsp = groupRsps.get(0);
-        List<Integer> oldAttrIds = graphAttrGroupRsp.getAttrIds();
-        attrIds.stream().filter(attrId -> !oldAttrIds.contains(attrId))
-                .forEach(attrId -> {
-                    GraphAttrGroupDetails attrGroupDetails =
-                            GraphAttrGroupDetails.builder().groupId(id).attrId(attrId).build();
-                    graphAttrGroupDetailsRepository.save(attrGroupDetails);
-                });
+        List<Integer> allIds = new ArrayList<>();
+        groupRsps.stream().filter(graphAttrGroupRsp -> !CollectionUtils.isEmpty(graphAttrGroupRsp.getAttrIds()))
+                .forEach(graphAttrGroupRsp -> allIds.addAll(graphAttrGroupRsp.getAttrIds()));
+        List<Integer> needIds = attrIds.stream().filter(attrId -> !allIds.contains(attrId)).collect(Collectors.toList());
+        needIds.forEach(attrId -> {
+            GraphAttrGroupDetails attrGroupDetails =
+                    GraphAttrGroupDetails.builder().groupId(id).attrId(attrId).build();
+            graphAttrGroupDetailsRepository.save(attrGroupDetails);
+        });
+        return needIds.size();
     }
 
     @Override

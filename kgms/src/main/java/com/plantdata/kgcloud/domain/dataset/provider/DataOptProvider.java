@@ -1,8 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-
 
 import java.io.Closeable;
 import java.util.Collection;
@@ -21,20 +19,28 @@ public interface DataOptProvider extends Closeable {
 
     List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query);
 
+    List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort);
+
+    long count(Map<String, Object> query);
+
+    Map<String, Object> findOne(String id);
+
     void createTable(List<DataSetSchema> colList);
 
     void dropTable();
 
-    Map<String, Object> insert(JsonNode node);
+    Map<String, Object> insert(Map<String, Object> node);
 
-    Map<String, Object> update(String id, JsonNode node);
+    Map<String, Object> update(String id, Map<String, Object> node);
 
     void delete(String id);
 
     void deleteAll();
 
-    void batchInsert(List<JsonNode> nodes);
+    void batchInsert(List<Map<String, Object>> nodes);
 
     void batchDelete(Collection<String> ids);
+
+    List<Map<String, Long>> statistics();
 
 }

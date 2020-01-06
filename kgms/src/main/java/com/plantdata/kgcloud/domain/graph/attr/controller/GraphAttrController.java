@@ -35,48 +35,47 @@ public class GraphAttrController {
 
     @ApiOperation("创建属性分组")
     @PostMapping("/{kgName}/create")
-    ApiReturn<Long> createAttrGroup(@PathVariable("kgName") String kgName,
-                                    @Valid @RequestBody AttrGroupReq attrGroupReq) {
+    public ApiReturn<Long> createAttrGroup(@PathVariable("kgName") String kgName,
+                                           @Valid @RequestBody AttrGroupReq attrGroupReq) {
         return ApiReturn.success(graphAttrGroupService.createAttrGroup(kgName, attrGroupReq));
     }
 
     @ApiOperation("删除属性分组")
     @DeleteMapping("/{kgName}/delete/{id}")
-    ApiReturn deleteAttrGroup(@PathVariable("kgName") String kgName,
-                              @PathVariable("id") Long id) {
+    public ApiReturn deleteAttrGroup(@PathVariable("kgName") String kgName,
+                                     @PathVariable("id") Long id) {
         graphAttrGroupService.deleteAttrGroup(kgName, id);
         return ApiReturn.success();
     }
 
     @ApiOperation("修改属性分组名称")
     @PutMapping("/{kgName}/update/{id}")
-    ApiReturn<Long> updateAttrGroup(@PathVariable("kgName") String kgName,
-                                    @PathVariable("id") Long id,
-                                    @Valid @RequestBody AttrGroupReq attrGroupReq) {
+    public ApiReturn<Long> updateAttrGroup(@PathVariable("kgName") String kgName,
+                                           @PathVariable("id") Long id,
+                                           @Valid @RequestBody AttrGroupReq attrGroupReq) {
         return ApiReturn.success(graphAttrGroupService.updateAttrGroup(kgName, id, attrGroupReq));
     }
 
-    @ApiOperation("修改属性分组名称")
+    @ApiOperation("属性分组名称列表")
     @GetMapping("/{kgName}")
-    ApiReturn<List<GraphAttrGroupRsp>> listAttrGroups(@PathVariable("kgName") String kgName,
-                                                      @Valid @RequestBody AttrGroupSearchReq attrGroupSearchReq) {
+    public ApiReturn<List<GraphAttrGroupRsp>> listAttrGroups(@PathVariable("kgName") String kgName,
+                                                             AttrGroupSearchReq attrGroupSearchReq) {
         return ApiReturn.success(graphAttrGroupService.listAttrGroups(kgName, attrGroupSearchReq));
     }
 
     @ApiOperation("向属性分组里面添加属性")
-    @PostMapping("/{kgName}/to/add")
-    ApiReturn addAttrToAttrGroup(@PathVariable("kgName") String kgName,
-                                 @PathVariable("id") Long id,
-                                 @Valid @RequestBody List<Integer> attrIds) {
-        graphAttrGroupService.addAttrToAttrGroup(kgName, id, attrIds);
-        return ApiReturn.success();
+    @PostMapping("/{kgName}/{id}/to/add")
+    public ApiReturn<Integer> addAttrToAttrGroup(@PathVariable("kgName") String kgName,
+                                        @PathVariable("id") Long id,
+                                        @Valid @RequestBody List<Integer> attrIds) {
+        return ApiReturn.success(graphAttrGroupService.addAttrToAttrGroup(kgName, id, attrIds));
     }
 
     @ApiOperation("从属性分组里面删除属性")
-    @PostMapping("/{kgName}/from/delete")
-    ApiReturn deleteAttrFromAttrGroup(@PathVariable("kgName") String kgName,
-                                      @PathVariable("id") Long id,
-                                      @Valid @RequestBody List<Integer> attrIds) {
+    @PostMapping("/{kgName}/{id}/from/delete")
+    public ApiReturn deleteAttrFromAttrGroup(@PathVariable("kgName") String kgName,
+                                             @PathVariable("id") Long id,
+                                             @Valid @RequestBody List<Integer> attrIds) {
         graphAttrGroupService.deleteAttrFromAttrGroup(kgName, id, attrIds);
         return ApiReturn.success();
     }

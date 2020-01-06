@@ -33,5 +33,5 @@ public class AttrInduceFindRsp {
     private String msg;
 
     @ApiModelProperty(value = "属性定义集")
-    private List<AttrDefinitionVO> attrDefinitionList;
+    private List<AttrDefinitionVO> attrList;
 }

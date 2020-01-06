@@ -1,17 +1,19 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.edit.aop.EditPermissionUnwanted;
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
-import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.KgqlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -41,87 +46,80 @@ public class BasicInfoController {
 
     @ApiOperation("添加概念或实体")
     @PostMapping("/{kgName}")
-    ApiReturn<Long> createConcept(@PathVariable("kgName") String kgName,
-                                  @Valid @RequestBody BasicInfoReq basicInfoReq) {
+    public ApiReturn<Long> createConcept(@PathVariable("kgName") String kgName,
+                                         @Valid @RequestBody BasicInfoReq basicInfoReq) {
         return ApiReturn.success(basicInfoService.createBasicInfo(kgName, basicInfoReq));
     }
 
     @ApiOperation("删除概念或实体")
     @DeleteMapping("/{kgName}/{id}")
-    ApiReturn deleteConcept(@PathVariable("kgName") String kgName, @PathVariable("id") Long id) {
-        basicInfoService.deleteBasicInfo(kgName, id);
+    public ApiReturn deleteConcept(@PathVariable("kgName") String kgName, @PathVariable("id") Long id,
+                                   @RequestParam(defaultValue = "false", required = false) Boolean force) {
+        basicInfoService.deleteBasicInfo(kgName, id, force);
         return ApiReturn.success();
     }
 
     @ApiOperation("概念或实体详情")
-    @GetMapping("/{kgName}/{id}")
-    ApiReturn<BasicInfoRsp> getDetails(@PathVariable("kgName") String kgName, @PathVariable("id") Long id) {
-        return ApiReturn.success(basicInfoService.getDetails(kgName, id));
+    @GetMapping("/{kgName}/detail")
+    public ApiReturn<BasicInfoRsp> getDetails(@PathVariable("kgName") String kgName,
+                                              @Valid BasicReq basicReq) {
+        return ApiReturn.success(basicInfoService.getDetails(kgName, basicReq));
     }
 
     @ApiOperation("修改概念或实体摘要")
     @PostMapping("/{kgName}/update/abs")
-    ApiReturn updateAbstract(@PathVariable("kgName") String kgName,
-                             @Valid @RequestBody AbstractModifyReq abstractModifyReq) {
+    public ApiReturn updateAbstract(@PathVariable("kgName") String kgName,
+                                    @Valid @RequestBody AbstractModifyReq abstractModifyReq) {
         basicInfoService.updateAbstract(kgName, abstractModifyReq);
-        return ApiReturn.success();
-    }
-
-    @ApiOperation("添加概念同义词")
-    @PostMapping("/{kgName}/synonym/add")
-    ApiReturn addSynonym(@PathVariable("kgName") String kgName,
-                         @Valid @RequestBody SynonymReq synonymReq) {
-        basicInfoService.addSynonym(kgName, synonymReq);
-        return ApiReturn.success();
-    }
-
-    @ApiOperation("删除概念同义词")
-    @PostMapping("/{kgName}/synonym/delete")
-    ApiReturn deleteSynonym(@PathVariable("kgName") String kgName,
-                            @Valid @RequestBody SynonymReq synonymReq) {
-        basicInfoService.deleteSynonym(kgName, synonymReq);
         return ApiReturn.success();
     }
 
     @ApiOperation("保存图片路径")
     @PostMapping("/{kgName}/image/url")
-    ApiReturn saveImageUrl(@PathVariable("kgName") String kgName,
-                           @Valid @RequestBody ImageUrlReq imageUrlReq) {
+    public ApiReturn saveImageUrl(@PathVariable("kgName") String kgName,
+                                  @Valid @RequestBody ImageUrlReq imageUrlReq) {
         basicInfoService.saveImageUrl(kgName, imageUrlReq);
         return ApiReturn.success();
     }
 
     @ApiOperation("概念实体同义属性提示")
-    @GetMapping("/{kgName}/prompt")
-    ApiReturn<List<PromptRsp>> prompt(@PathVariable("kgName") String kgName, PromptReq promptReq) {
+    @PostMapping("/{kgName}/prompt")
+    public ApiReturn<List<PromptRsp>> prompt(@PathVariable("kgName") String kgName, @RequestBody PromptReq promptReq) {
         return ApiReturn.success(basicInfoService.prompt(kgName, promptReq));
     }
 
     @ApiOperation("图谱统计")
     @GetMapping("/{kgName}/statis")
-    ApiReturn<GraphStatisRsp> graphStatis(@PathVariable("kgName") String kgName) {
+    public ApiReturn<GraphStatisRsp> graphStatis(@PathVariable("kgName") String kgName) {
         return ApiReturn.success(basicInfoService.graphStatis(kgName));
     }
 
     @ApiOperation("批量保存额外信息")
     @PostMapping("/{kgName}/batch/additional/save")
-    ApiReturn batchAddMetaData(@PathVariable("kgName") String kgName,
-                               @Valid @RequestBody AdditionalReq additionalReq) {
+    public ApiReturn batchAddMetaData(@PathVariable("kgName") String kgName,
+                                      @Valid @RequestBody AdditionalReq additionalReq) {
         basicInfoService.batchAddMetaData(kgName, additionalReq);
         return ApiReturn.success();
     }
 
     @ApiOperation("一键清空额外信息")
     @DeleteMapping("/{kgName}/additional/clear")
-    ApiReturn clearMetaData(@PathVariable("kgName") String kgName) {
+    public ApiReturn clearMetaData(@PathVariable("kgName") String kgName) {
         basicInfoService.clearMetaData(kgName);
         return ApiReturn.success();
     }
 
-    @ApiOperation("一键清空额外信息")
+    @ApiOperation("kgql")
     @PostMapping("/execute/kgql")
-    ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq) {
-        basicInfoService.executeQl(kgqlReq);
-        return ApiReturn.success();
+    @EditPermissionUnwanted
+    public ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq) {
+        return ApiReturn.success(basicInfoService.executeQl(kgqlReq));
+    }
+
+    @ApiOperation("根据批量名称查询实体")
+    @PostMapping("/{kgName}/list/name")
+    public ApiReturn<List<SimpleBasicRsp>> listNames(@PathVariable("kgName") String kgName,
+                                                     @Valid @Min(1) @Max(10000) @RequestBody List<String> names) {
+        return ApiReturn.success(basicInfoService.listNames(kgName, names));
     }
 }

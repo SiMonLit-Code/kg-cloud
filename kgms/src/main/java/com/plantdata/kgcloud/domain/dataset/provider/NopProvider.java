@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
@@ -34,6 +33,21 @@ public class NopProvider implements DataOptProvider {
     }
 
     @Override
+    public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
+        return null;
+    }
+
+    @Override
+    public long count(Map<String, Object> query) {
+        return 0;
+    }
+
+    @Override
+    public Map<String, Object> findOne(String id) {
+        return null;
+    }
+
+    @Override
     public void createTable(List<DataSetSchema> colList) {
 
     }
@@ -44,12 +58,12 @@ public class NopProvider implements DataOptProvider {
     }
 
     @Override
-    public Map<String, Object> insert(JsonNode node) {
+    public Map<String, Object> insert(Map<String, Object> node) {
         return null;
     }
 
     @Override
-    public Map<String, Object> update(String id, JsonNode node) {
+    public Map<String, Object> update(String id, Map<String, Object> node) {
         return null;
     }
 
@@ -64,7 +78,7 @@ public class NopProvider implements DataOptProvider {
     }
 
     @Override
-    public void batchInsert(List<JsonNode> nodes) {
+    public void batchInsert(List<Map<String, Object>> nodes) {
 
     }
 
@@ -72,6 +86,11 @@ public class NopProvider implements DataOptProvider {
     @Override
     public void batchDelete(Collection<String> ids) {
 
+    }
+
+    @Override
+    public List<Map<String, Long>> statistics() {
+        return null;
     }
 
     @Override

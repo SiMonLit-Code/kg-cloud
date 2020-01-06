@@ -4,20 +4,27 @@ import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.api.pub.resp.SimpleEntity;
 import ai.plantdata.kg.api.pub.resp.SimpleRelation;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
+import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
+import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,21 +34,22 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/12/2 16:57
  */
-public class GraphRspConverter {
+public class GraphRspConverter extends BasicConverter {
 
-    public static CommonBasicGraphExploreRsp graphVoToCommonRsp(GraphVO graph, List<BasicInfo> conceptList) {
-        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.getOrDefault(buildCommonEntityList(graph.getEntityList(), conceptList));
-        List<BasicRelationRsp> relationRspList = DefaultUtils.getOrDefault(GraphCommonConverter.simpleRelationToBasicRelationRsp(graph.getRelationList()));
-        return new CommonBasicGraphExploreRsp(relationRspList, NumberUtils.INTEGER_ONE, commonEntityRspList);
+    public static CommonBasicGraphExploreRsp graphVoToCommonRsp(GraphVO graph, Map<Long, BasicInfo> conceptIdMap, GraphReqAfterInterface graphAfter) {
+        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap, graphAfter.getReplaceClassIds()));
+        List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, graphAfter.isRelationMerge()));
+        return new CommonBasicGraphExploreRsp(relationRspList, graph.getLevel1HasNext(), commonEntityRspList);
     }
 
-    public static <T extends StatisticRsp> T graphVoToStatisticRsp(GraphVO graph, List<GraphStatisticRsp> statisticRspList, List<BasicInfo> conceptList, T analysisRsp) {
-        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.getOrDefault(buildCommonEntityList(graph.getEntityList(), conceptList));
-        List<BasicRelationRsp> relationRspList = DefaultUtils.getOrDefault(GraphCommonConverter.simpleRelationToBasicRelationRsp(graph.getRelationList()));
+    public static <T extends StatisticRsp> T graphVoToStatisticRsp(GraphVO graph, List<GraphStatisticRsp> statisticRspList, Map<Long, BasicInfo> conceptIdMap, T analysisRsp, GraphReqAfterInterface graphAfter) {
+        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap, graphAfter.getReplaceClassIds()));
+        List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, graphAfter.isRelationMerge()));
         analysisRsp.setEntityList(commonEntityRspList);
-        analysisRsp.setHasNextPage(NumberUtils.INTEGER_ONE);
+        analysisRsp.setHasNextPage(graph.getLevel1HasNext());
         analysisRsp.setRelationList(relationRspList);
         analysisRsp.setStatisticResult(statisticRspList);
+        infoLog("GraphVO", graph);
         return analysisRsp;
     }
 
@@ -49,8 +57,8 @@ public class GraphRspConverter {
      * 路径分析 业务逻辑需要抽离
      */
     public static List<GraphStatisticRsp> buildStatisticResult(GraphVO statisticRsp, @NonNull List<BasicStatisticReq> configList) {
-        Map<Long, List<SimpleEntity>> conceptIdKeyMap = statisticRsp.getEntityList().stream().collect(Collectors.groupingBy(SimpleEntity::getConceptId));
-        Map<Integer, List<SimpleRelation>> attrIdKeyMap = statisticRsp.getRelationList().stream().collect(Collectors.groupingBy(SimpleRelation::getAttrId));
+        Map<Long, List<SimpleEntity>> conceptIdKeyMap = listToMapNoNull(statisticRsp.getEntityList(), a -> a.stream().collect(Collectors.groupingBy(SimpleEntity::getConceptId)));
+        Map<Integer, List<SimpleRelation>> attrIdKeyMap = listToMapNoNull(statisticRsp.getRelationList(), a -> a.stream().collect(Collectors.groupingBy(SimpleRelation::getAttrId)));
         List<GraphStatisticRsp> statisticRspList = Lists.newArrayList();
         for (BasicStatisticReq config : configList) {
             //拿要计算的type, 构建待计算的entityList
@@ -83,9 +91,29 @@ public class GraphRspConverter {
         return statisticRspList;
     }
 
-    private static List<CommonEntityRsp> buildCommonEntityList(@NonNull List<SimpleEntity> simpleEntityList, List<BasicInfo> conceptList) {
-        Map<Long, BasicInfo> conceptMap = DefaultUtils.getOrDefault(conceptList.stream().collect(Collectors.toMap(BasicInfo::getId, Function.identity())));
-        return simpleEntityList.stream().map(a -> GraphCommonConverter.simpleToGraphEntityRsp(new CommonEntityRsp(), a, conceptMap)).collect(Collectors.toList());
+    public static Optional<GraphInitRsp> rebuildGraphInitRsp(GraphConfFocus initGraphBean, GraphInitRsp graphInitRsp) {
+        graphInitRsp.setConfig(JacksonUtils.readValue(initGraphBean.getFocusConfig(), new TypeReference<Map<String, Object>>() {
+        }));
+        graphInitRsp.setUpdateTime(graphInitRsp.getUpdateTime());
+        graphInitRsp.setCreateTime(initGraphBean.getCreateAt());
+        if (initGraphBean.getEntities() != null && initGraphBean.getEntities().size() > 0) {
+            List<GraphInitRsp.GraphInitEntityRsp> entityRspList = Lists.newArrayList();
+            initGraphBean.getEntities().forEach(a -> {
+                GraphInitRsp.GraphInitEntityRsp entityRsp = new GraphInitRsp.GraphInitEntityRsp();
+                consumerIfNoNull(a.findValue("id"), b -> entityRsp.setId(b.asLong()));
+                consumerIfNoNull(a.findValue("conceptId"), b -> entityRsp.setClassId(b.asLong()));
+                consumerIfNoNull(a.findValue("name"), b -> entityRsp.setName(b.asText()));
+                entityRspList.add(entityRsp);
+            });
+            graphInitRsp.setEntities(entityRspList);
+            return Optional.of(graphInitRsp);
+        }
+        return Optional.empty();
+    }
+
+    private static List<CommonEntityRsp> buildCommonEntityList(@NonNull List<SimpleEntity> simpleEntityList, Map<Long, BasicInfo> conceptMap, List<Long> replaceClassIds) {
+        Set<Long> replaceClassIdsSet = listToSetNoNull(replaceClassIds, Sets::newHashSet);
+        return simpleEntityList.stream().map(a -> GraphCommonConverter.simpleToGraphEntityRsp(new CommonEntityRsp(), a, conceptMap, replaceClassIdsSet)).collect(Collectors.toList());
     }
 
 

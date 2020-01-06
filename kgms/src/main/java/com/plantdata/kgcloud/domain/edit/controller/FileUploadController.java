@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
+import com.plantdata.kgcloud.domain.edit.aop.EditPermissionUnwanted;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.ThumbPathRsp;
 import com.plantdata.kgcloud.domain.edit.service.FileUploadService;
@@ -28,6 +29,7 @@ public class FileUploadController {
 
     @ApiOperation("上传文件,不带缩略图")
     @PostMapping
+    @EditPermissionUnwanted
     public ApiReturn<FilePathRsp> uploadFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
@@ -37,6 +39,7 @@ public class FileUploadController {
 
     @ApiOperation("上传图片,带缩略图")
     @PostMapping("/thump")
+    @EditPermissionUnwanted
     public ApiReturn<ThumbPathRsp> uploadPicture(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);

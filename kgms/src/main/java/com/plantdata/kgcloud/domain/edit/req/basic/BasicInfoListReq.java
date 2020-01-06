@@ -5,9 +5,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * @Author: LinHo
  * @Date: 2019/11/18 10:40
@@ -24,30 +21,18 @@ public class BasicInfoListReq extends BaseReq {
     private String kw;
 
     @ApiModelProperty(value = "是否忽略大小写")
-    private boolean ignore;
+    private Boolean ignore;
 
     @ApiModelProperty(value = "是否开启模糊查询")
-    private boolean like;
+    private Boolean like;
 
     @ApiModelProperty(value = "消歧标识")
     private String meaningTag;
 
     @ApiModelProperty(value = "是否继承")
-    private boolean inherit;
+    private Boolean inherit;
 
-    @ApiModelProperty(value = "0:概念,1:实体")
-    private Integer type;
-
-    @ApiModelProperty(value = "来源")
-    private String source;
-
-    @ApiModelProperty(value = "批次号")
-    private String batchNo;
-
-    @ApiModelProperty(value = "实体标签")
-    private List<String> tags;
-
-    @ApiModelProperty(value = "置信度筛选,{$gt:0}")
-    private Map<String, Object> reliability;
+    @ApiModelProperty(hidden = true,value = "0:概念,1:实体")
+    private Integer type = 1;
 
 }

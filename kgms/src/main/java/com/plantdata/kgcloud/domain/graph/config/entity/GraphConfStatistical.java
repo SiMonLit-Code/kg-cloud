@@ -1,16 +1,14 @@
 package com.plantdata.kgcloud.domain.graph.config.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.plantdata.kgcloud.domain.common.converter.JsonNodeConverter;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -20,6 +18,7 @@ import java.util.Date;
  **/
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "graph_conf_statistical")
 @EntityListeners(AuditingEntityListener.class)
@@ -39,7 +38,8 @@ public class GraphConfStatistical {
 
     @Basic
     @Column(name = "statis_rule")
-    private String statisRule;
+    @Convert(converter = JsonNodeConverter.class)
+    private JsonNode statisRule;
 
     @Basic
     @Column(name = "create_at", updatable = false)

@@ -2,10 +2,12 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.edit.req.AttrQueryFrom;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
-import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
+import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeExtraInfoItem;
+import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import lombok.NonNull;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -21,31 +23,34 @@ public class AttrDefConverter {
     /**
      * 属性定义 vo转return
      */
-    public static List<AttributeDefinitionRsp> voToRsp(@NonNull List<AttributeDefinition> attrDefList) {
-        List<AttributeDefinitionRsp> attributeDefinitionRspList = Lists.newArrayListWithCapacity(attrDefList.size());
-        AttributeDefinitionRsp attrDefReq;
-        for (AttributeDefinition att : attrDefList) {
-            attrDefReq = new AttributeDefinitionRsp();
-            attrDefReq.setId(att.getId());
-            attrDefReq.setName(att.getName());
-            attrDefReq.setKey(att.getKey());
-            attrDefReq.setType(att.getType());
-            attrDefReq.setDirection(att.getDirection());
-            attrDefReq.setRange(att.getRangeValue());
-            attrDefReq.setDomain(att.getDomainValue());
-            attrDefReq.setDataType(att.getDataType());
-            if (!CollectionUtils.isEmpty(att.getExtraInfo())) {
-                List<AttributeExtraInfoItem> extraInfoItemList = att.getExtraInfo().stream().map(a -> {
-                    AttributeExtraInfoItem infoItem = new AttributeExtraInfoItem();
-                    //!!要求属性名称一致
-                    BeanUtils.copyProperties(a, infoItem);
-                    return infoItem;
-                }).collect(Collectors.toList());
-                attrDefReq.setExtraInfos(extraInfoItemList);
-            }
-            attributeDefinitionRspList.add(attrDefReq);
+    public static AttributeDefinitionRsp attrDefToAttrDefRsp(@NonNull AttributeDefinition att) {
+        AttributeDefinitionRsp attrDefReq = new AttributeDefinitionRsp();
+        attrDefReq.setId(att.getId());
+        attrDefReq.setName(att.getName());
+        attrDefReq.setKey(att.getKey());
+        attrDefReq.setType(att.getType());
+        attrDefReq.setDirection(att.getDirection());
+        attrDefReq.setRangeValue(att.getRangeValue());
+        attrDefReq.setDomainValue(att.getDomainValue());
+        attrDefReq.setDataType(att.getDataType());
+        if (!CollectionUtils.isEmpty(att.getExtraInfo())) {
+            List<AttrExtraRsp> extraInfoItemList = att.getExtraInfo().stream().map(a -> {
+                AttrExtraRsp infoItem = new AttrExtraRsp();
+                //!!要求属性名称一致
+                BeanUtils.copyProperties(a, infoItem);
+                return infoItem;
+            }).collect(Collectors.toList());
+            attrDefReq.setExtraInfos(extraInfoItemList);
         }
-        return attributeDefinitionRspList;
+        return attrDefReq;
+    }
+
+    public static AttrDefinitionSearchReq attrDefQueryReqToAttrDefinitionSearchReq(AttrDefQueryReq queryReq) {
+        AttrDefinitionSearchReq searchReq = new AttrDefinitionSearchReq();
+        searchReq.setConceptId(queryReq.getConceptId());
+        searchReq.setInherit(queryReq.isInherit());
+        searchReq.setType(NumberUtils.INTEGER_ZERO);
+        return searchReq;
     }
 
     public static AttrQueryFrom convertToQuery(List<Long> conceptIdList, boolean inherit, int type) {
@@ -55,4 +60,6 @@ public class AttrDefConverter {
         attrQueryFrom.setType(type);
         return attrQueryFrom;
     }
+
+
 }

@@ -2,15 +2,17 @@ package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoModifyReq;
-import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.KgqlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
+import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 
 import java.util.List;
 
@@ -37,7 +39,7 @@ public interface BasicInfoService {
      * @param id
      * @return
      */
-    void deleteBasicInfo(String kgName, Long id);
+    void deleteBasicInfo(String kgName, Long id,Boolean force);
 
     /**
      * 更新概念或实体名称,消歧标识,唯一标示
@@ -52,10 +54,10 @@ public interface BasicInfoService {
      * 概念或实体详情
      *
      * @param kgName
-     * @param id
+     * @param basicReq
      * @return
      */
-    BasicInfoRsp getDetails(String kgName, Long id);
+    BasicInfoRsp getDetails(String kgName, BasicReq basicReq);
 
 
     /**
@@ -133,8 +135,13 @@ public interface BasicInfoService {
     void clearMetaData(String kgName);
 
     /**
+     * kgql
+     *
      * @param kgqlReq
      * @return
      */
     Object executeQl(KgqlReq kgqlReq);
+//    Object executeQl(String query);
+
+    List<SimpleBasicRsp> listNames(String kgName, List<String> names);
 }

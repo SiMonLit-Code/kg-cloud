@@ -1,5 +1,8 @@
 package com.plantdata.kgcloud.domain.model.entity;
 
+import com.plantdata.kgcloud.domain.common.converter.StringListConverter;
+import com.plantdata.kgcloud.domain.model.converter.ModelPrfConverter;
+import com.plantdata.kgcloud.sdk.req.ModelPrf;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +16,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description:
@@ -57,11 +62,13 @@ public class Model {
 
     @Basic
     @Column(name = "prf")
-    private String prf;
+    @Convert(converter = ModelPrfConverter.class)
+    private ModelPrf prf;
 
     @Basic
     @Column(name = "labels")
-    private String labels;
+    @Convert(converter = StringListConverter.class)
+    private List<String> labels;
 
     @Basic
     @Column(name = "remark")

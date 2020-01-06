@@ -2,20 +2,21 @@ package com.plantdata.kgcloud.domain.app.bo;
 
 import ai.plantdata.kg.api.semantic.req.ReasoningReq;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.domain.app.dto.RelationReasonRuleDTO;
+import com.google.common.collect.Maps;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
+import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -31,23 +32,26 @@ public class ReasoningBO {
     private Map<Long, GraphConfReasoning> dbConfigMap;
     private Map<Integer, JsonNode> configMap;
     @Getter
-    private List<RelationReasonRuleDTO> reasonRuleList;
+    private List<RelationReasonRuleRsp> reasonRuleList;
 
-    public ReasoningBO(List<GraphConfReasoning> reasoningList, Map<Integer, JsonNode> configMap) {
+    public ReasoningBO(List<GraphConfReasoning> reasoningList, Map<Long, Object> configMap) {
         this.dbConfigMap = CollectionUtils.isEmpty(reasoningList) ? Collections.emptyMap() : reasoningList.stream().collect(Collectors.toMap(GraphConfReasoning::getId, Function.identity()));
-        this.configMap = configMap;
+        this.configMap = Maps.newHashMap();
+        configMap.forEach((key, value) -> {
+            Optional<JsonNode> jsonNodeOpt = JsonUtils.parseJsonNode(JacksonUtils.writeValueAsString(value));
+            jsonNodeOpt.ifPresent(v -> configMap.put(key, v));
+        });
     }
 
     public void replaceRuleInfo() {
         this.reasonRuleList = Lists.newArrayListWithCapacity(configMap.size());
-        ObjectMapper instance = JacksonUtils.getInstance();
         for (Integer ruleId : configMap.keySet()) {
             JsonNode ruleConfigObject = configMap.get(ruleId);
             GraphConfReasoning ruleBean = dbConfigMap.get(Long.valueOf(ruleId));
             if (ruleBean == null) {
                 continue;
             }
-            String ruleConfig = ruleBean.getRuleConfig();
+            String ruleConfig = ruleBean.getRuleConfig().toString();
 
             Iterator<String> iterator = ruleConfigObject.fieldNames();
             while (iterator.hasNext()) {
@@ -57,12 +61,7 @@ public class ReasoningBO {
                     ruleConfig = ruleConfig.replace(pattern, ruleConfigObject.get(key).toString());
                 }
             }
-            RelationReasonRuleDTO ruleObject = null;
-            try {
-                ruleObject = instance.readValue(ruleConfig, RelationReasonRuleDTO.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            RelationReasonRuleRsp ruleObject = JacksonUtils.readValue(ruleConfig, RelationReasonRuleRsp.class);
             if (ruleObject == null) {
                 continue;
             }
@@ -81,4 +80,5 @@ public class ReasoningBO {
         reasoningReq.setRuleConfig(JacksonUtils.writeValueAsString(reasonRuleList));
         return reasoningReq;
     }
+
 }

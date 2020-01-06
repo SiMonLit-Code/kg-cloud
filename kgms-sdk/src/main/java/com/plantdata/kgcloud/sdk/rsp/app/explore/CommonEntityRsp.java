@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.rsp.app.explore;
 
+import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,9 +16,9 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("普通图探索视图")
-public class CommonEntityRsp extends GraphEntityRsp{
+public class CommonEntityRsp extends GraphEntityRsp {
     @ApiModelProperty("标签信息")
     private List<TagRsp> tags;
     @ApiModelProperty("样式")
-    private StyleRsp style;
+    private AdditionalRsp additional;
 }

@@ -13,15 +13,15 @@ import lombok.Data;
 @ApiModel("实体标签查询结果模型")
 public class EntityTagVO {
 
-    @ApiModelProperty(value = "标签名称")
+    @ApiModelProperty(required = true, value = "标签名称")
     private String name;
 
     @ApiModelProperty(value = "标签来源")
     private String source;
 
-    @ApiModelProperty(value = "标签创建时间")
+    @ApiModelProperty(required = true, value = "标签创建时间")
     private String creationTime;
 
-    @ApiModelProperty(value = "等级,1-5")
+    @ApiModelProperty(required = true, value = "等级,1-5")
     private Integer grade;
 }

@@ -1,11 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.plantdata.kgcloud.domain.common.converter.ArrayNodeConcerter;
-import com.plantdata.kgcloud.domain.graph.config.constant.FocusType;
-import com.plantdata.kgcloud.domain.graph.config.converter.FocusTypeConverter;
-import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.domain.common.converter.ArrayNodeConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +10,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -43,7 +38,7 @@ public class GraphConfFocus {
 
     @Basic
     @Column(name = "focus_entity")
-    @Convert(converter = ArrayNodeConcerter.class)
+    @Convert(converter = ArrayNodeConverter.class)
     private ArrayNode entities;
 
     @Basic

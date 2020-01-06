@@ -1,14 +1,11 @@
 package com.plantdata.kgcloud.domain.edit.req.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @Author: LinHo
@@ -27,14 +24,15 @@ public class EdgeObjectAttrValueReq {
     @ApiModelProperty(value = "边id")
     private Integer seqNo;
 
+    @ApiModelProperty(hidden = true)
+    private String objId;
+
+    @NotNull
+    @ApiModelProperty(value = "属性id")
+    private Integer attrId;
+
     @NotNull
     @ApiModelProperty(value = "边对象属性值")
-    private List<Long> ranges;
-
-    /**
-     * 格式: {seqNo:value}
-     */
-    @JsonIgnore
-    private Map<Integer, List<Long>> object;
+    private Long entityId;
 
 }

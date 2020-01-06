@@ -6,7 +6,10 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.ReasoningReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphPathReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphTimingReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -23,16 +26,16 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@ApiModel("路径分析推理参数")
-public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface {
+@ApiModel("路径分析推理-参数")
+public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphPathReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
 
     @NotNull
     @ApiModelProperty(value = "路径参数", required = true)
     private CommonPathReq path;
     @ApiModelProperty("时间过滤参数")
-    private List<TimeFilterExploreReq> timeFilters;
+    private TimeFilterExploreReq timeFilters;
     @ApiModelProperty("推理规则")
-    private Map<Integer, JsonNode> reasoningRuleConfigs;
+    private Map<Long, Object> reasoningRuleConfigs;
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
 
@@ -43,11 +46,21 @@ public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements Re
 
     @Override
     public Integer fetchDistance() {
-        return path.getDistance();
+        return getDistance();
     }
 
     @Override
-    public Map<Integer, JsonNode> fetchReasonConfig() {
+    public Map<Long, Object> fetchReasonConfig() {
         return reasoningRuleConfigs;
+    }
+
+    @Override
+    public CommonPathReq fetchPath() {
+        return path;
+    }
+
+    @Override
+    public TimeFilterExploreReq fetchTimeFilter() {
+        return timeFilters;
     }
 }

@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
-import com.plantdata.kgcloud.bean.BaseReq;
+
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -17,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("实体提示参数")
-public class PromptReq extends BaseReq {
+public class PromptReq extends PageReq implements PromptSearchInterface {
 
     @ApiModelProperty("关键字")
     private String kw;
@@ -27,14 +29,23 @@ public class PromptReq extends BaseReq {
     private List<Long> conceptIds = new ArrayList<>();
     @ApiModelProperty("conceptIds为空时此参数生效")
     private List<String> conceptKeys = new ArrayList<>();
-    @ApiModelProperty("提示类型")
-    private Integer promptType = 0;
+    @ApiModelProperty("提示类型 默认0")
+    private int promptType;
     @ApiModelProperty("allowTypes字段指定的概念是否继承")
-    private Boolean isInherit = false;
+    private Boolean inherit = false;
     @ApiModelProperty("是否大小写敏感（默认区分大小写")
-    private Boolean isCaseInsensitive = false;
+    private Boolean caseInsensitive = false;
     @ApiModelProperty("是否模糊搜索")
-    private Boolean isFuzzy = false;
+    private Boolean fuzzy = false;
     @ApiModelProperty("是否使用导出实体数据集检索")
     private Boolean openExportDate = true;
+    @ApiModelProperty("排序")
+    private Integer sort;
+
+
+    @ApiModelProperty(hidden = true)
+    @Override
+    public Boolean getInherit() {
+        return inherit;
+    }
 }

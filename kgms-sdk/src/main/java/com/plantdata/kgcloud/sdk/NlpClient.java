@@ -1,16 +1,18 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019/12/4 18:03
  */
-@FeignClient(value = "kgms", path = "nlp", contextId = "nlpClient")
+@FeignClient(value = "kgms", path = "app/nlp", contextId = "nlpClient")
 public interface NlpClient {
     /**
      * 中文命名实体识别
@@ -41,5 +43,26 @@ public interface NlpClient {
     @PostMapping("segment/graph/{kgName}")
     ApiReturn<List<GraphSegmentRsp>> graphSegment(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                   @RequestBody SegmentReq segmentReq);
+
+    /**
+     * 语义标注
+     *
+     * @param kgName     图谱名称
+     * @param linkingReq .
+     * @return .
+     */
+    @PostMapping("annotation/{kgName}")
+    ApiReturn<List<TaggingItemRsp>> tagging(@PathVariable("kgName") String kgName, @RequestBody EntityLinkingReq linkingReq);
+
+    /**
+     * 图谱实体识别
+     *
+     * @param kgName
+     * @param segmentReq
+     * @return
+     */
+    @PostMapping("ner/graph/{kgName}")
+    ApiReturn<List<SegmentEntityRsp>> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                               @Valid @RequestBody SegmentReq segmentReq);
 
 }

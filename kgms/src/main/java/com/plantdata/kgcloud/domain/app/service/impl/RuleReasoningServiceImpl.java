@@ -11,20 +11,23 @@ import ai.plantdata.kg.api.semantic.rsp.EdgeBean;
 import ai.plantdata.kg.api.semantic.rsp.NodeBean;
 import ai.plantdata.kg.api.semantic.rsp.ReasoningResultRsp;
 import ai.plantdata.kg.api.semantic.rsp.TripleBean;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.domain.app.bo.ReasoningBO;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
-import com.plantdata.kgcloud.domain.app.dto.RelationReasonRuleDTO;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
-import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasoningRepository;
+import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepository;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.ReasoningReqInterface;
-import org.apache.commons.collections.CollectionUtils;
+import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
+import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,32 +46,50 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
     @Autowired
     private ReasoningApi reasoningApi;
     @Autowired
-    private GraphConfReasoningRepository graphConfReasoningRepository;
+    private GraphConfReasonRepository graphConfReasoningRepository;
     @Autowired
     private EntityApi entityApi;
 
     @Override
-    public GraphVO rebuildByRuleReason(String kgName, GraphVO graphVO, ReasoningReqInterface reasoningParam) {
-        Map<Integer, JsonNode> configMap = reasoningParam.fetchReasonConfig();
-        List<GraphConfReasoning> configList = graphConfReasoningRepository.findAllById(configMap.keySet().stream().map(Integer::longValue).collect(Collectors.toList()));
+    public List<RelationReasonRuleRsp> generateReasoningRule(Map<Long, Object> configMap) {
+        if (CollectionUtils.isEmpty(configMap)) {
+            return Collections.emptyList();
+        }
+        List<Long> ruleIds = configMap.keySet().stream().distinct().collect(Collectors.toList());
+        List<GraphConfReasoning> configList = graphConfReasoningRepository.findAllById(ruleIds);
         ReasoningBO reasoning = new ReasoningBO(configList, configMap);
         reasoning.replaceRuleInfo();
+        return reasoning.getReasonRuleList();
+    }
+
+    @Override
+    public GraphVO rebuildByRuleReason(String kgName, GraphVO graphVO, ReasoningReqInterface reasoningParam) {
+        Map<Long, Object> configMap = reasoningParam.fetchReasonConfig();
+        if (MapUtils.isEmpty(configMap)) {
+            return graphVO;
+        }
+        List<GraphConfReasoning> configList = graphConfReasoningRepository.findAllById(new ArrayList<>(configMap.keySet()));
+        ReasoningBO reasoning = new ReasoningBO(configList, configMap);
+        reasoning.replaceRuleInfo();
+        //一次推理
         List<Long> analysisEntityIds = reasoningParam.fetchEntityIdList();
         ReasoningReq reasoningReq = reasoning.buildReasoningReq(analysisEntityIds);
         reasoningAndFill(kgName, graphVO, reasoningReq);
-        if (reasoningParam.fetchDistance() != 1) {
-            Set<Long> realDomains = reasoning.getReasonRuleList().stream().map(RelationReasonRuleDTO::getDomain).collect(Collectors.toSet());
-            List<Long> realIdList = graphVO.getEntityList().stream().filter(s -> realDomains.contains(s.getConceptId()) && !analysisEntityIds.contains(s.getId())).map(SimpleEntity::getId).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(realIdList)) {
-                reasoningReq = reasoning.buildReasoningReq(realIdList);
-                reasoningAndFill(kgName, graphVO, reasoningReq);
-            }
+        if (reasoningParam.fetchDistance() == 1) {
+            return graphVO;
+        }
+        //二次推理
+        Set<Long> realDomains = reasoning.getReasonRuleList().stream().map(RelationReasonRuleRsp::getDomain).collect(Collectors.toSet());
+        List<Long> realIdList = graphVO.getEntityList().stream().filter(s -> realDomains.contains(s.getConceptId()) && !analysisEntityIds.contains(s.getId())).map(SimpleEntity::getId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(realIdList)) {
+            reasoningReq = reasoning.buildReasoningReq(realIdList);
+            reasoningAndFill(kgName, graphVO, reasoningReq);
         }
         return graphVO;
     }
 
     private void reasoningAndFill(String kgName, GraphVO graphVO, ReasoningReq reasoningReq) {
-        Optional<ReasoningResultRsp> resultOpt = RestRespConverter.convert(reasoningApi.reasoning(kgName, reasoningReq));
+        Optional<ReasoningResultRsp> resultOpt = RestRespConverter.convert(reasoningApi.reasoning(KGUtil.dbName(kgName), reasoningReq));
         resultOpt.ifPresent(reasoningResultRsp -> this.fillReasonEntityAndRelation(kgName, graphVO, reasoningResultRsp, false));
     }
 
@@ -87,26 +108,27 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
             NodeBean start = tripleBean.getStart();
             NodeBean end = tripleBean.getEnd();
             EdgeBean edge = tripleBean.getEdge();
-            if (end.getType() == 0) {
-                if (!entityIdSet.contains(end.getId())) {
-                    idList.add(end.getId());
+            if (end.getType() != 0) {
+                continue;
+            }
+            if (!entityIdSet.contains(end.getId())) {
+                idList.add(end.getId());
+            }
+            if (entityIdSet.contains(end.getId()) || newEntity) {
+                SimpleRelation relationBean = new SimpleRelation();
+                relationBean.setFrom(start.getId());
+                relationBean.setTo(end.getId());
+                if (edge.getId() != null) {
+                    relationBean.setAttrId(-edge.getId());
                 }
-                if (entityIdSet.contains(end.getId()) || newEntity) {
-                    SimpleRelation relationBean = new SimpleRelation();
-                    relationBean.setFrom(start.getId());
-                    relationBean.setTo(end.getId());
-                    if (edge.getId() != null) {
-                        relationBean.setAttrId(-edge.getId());
-                    }
-                    relationBean.setAttrName(edge.getName());
-                    graphBean.getRelationList().add(relationBean);
-                }
+                relationBean.setAttrName(edge.getName());
+                graphBean.getRelationList().add(relationBean);
             }
         }
         if (idList.isEmpty() || !newEntity) {
             return;
         }
-        Optional<List<EntityVO>> entityBeans = RestRespConverter.convert(entityApi.serviceEntity(kgName, EntityConverter.buildIdsQuery(idList)));
+        Optional<List<EntityVO>> entityBeans = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(idList)));
         if (!entityBeans.isPresent() || CollectionUtils.isEmpty(entityBeans.get())) {
             return;
         }
@@ -119,4 +141,6 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
             return entityBean;
         }).collect(Collectors.toList()));
     }
+
+
 }

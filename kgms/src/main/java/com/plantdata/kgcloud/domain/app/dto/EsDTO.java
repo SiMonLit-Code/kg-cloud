@@ -1,7 +1,8 @@
 package com.plantdata.kgcloud.domain.app.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -21,7 +23,6 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class EsDTO {
-    @JSONField(name = "_source")
     @JsonProperty("_source")
     private List<String> source;
     private Object query;
@@ -35,5 +36,11 @@ public class EsDTO {
         this.size = size;
         this.aggs = aggs;
         this.from = 0;
+    }
+
+    public Map<String, Object> parseMap() {
+        String s = JacksonUtils.writeValueAsString(this);
+        return JacksonUtils.readValue(s, new TypeReference<Map<String, Object>>() {
+        });
     }
 }

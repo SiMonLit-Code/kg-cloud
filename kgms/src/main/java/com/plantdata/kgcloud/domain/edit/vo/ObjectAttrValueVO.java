@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.vo;
 
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -67,4 +68,10 @@ public class ObjectAttrValueVO {
 
     @ApiModelProperty(value = "关系的来源理由 ")
     private String sourceReason;
+
+    /**
+     * 批次号
+     */
+    @ApiModelProperty(value = "实体批次")
+    private String batch;
 }

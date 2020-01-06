@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetTwoDimStatisticReq;
 
 /**
  * @author cjw
@@ -20,7 +21,7 @@ public interface DataSetStatisticService {
      * @param dimension      维度
      * @return ...
      */
-    DataSetStatisticRsp statisticByDimensionAndTable(TableStatisticByDimensionalReq dimensionalReq, DimensionEnum dimension);
+    DataSetStatisticRsp statisticByDimensionAndTable(String userId,TableStatisticByDimensionalReq dimensionalReq, DimensionEnum dimension);
 
     /**
      * es数据集按照mysql存储的 database & table & 维度统计
@@ -30,5 +31,15 @@ public interface DataSetStatisticService {
      * @param dataSetKey     数据集唯一标识
      * @return ...
      */
-    DataSetStatisticRsp statisticByDimension(StatisticByDimensionalReq dimensionalReq, String dataSetKey, DimensionEnum dimension);
+    DataSetStatisticRsp statisticByDimension(String userId,StatisticByDimensionalReq dimensionalReq, String dataSetKey, DimensionEnum dimension);
+
+    /**
+     * es ...
+     *
+     * @param userId       用户id
+     * @param statisticReq req
+     * @param dimension    .
+     * @return .
+     */
+    DataSetStatisticRsp dataSetStatistic(String userId, DataSetTwoDimStatisticReq statisticReq, DimensionEnum dimension);
 }

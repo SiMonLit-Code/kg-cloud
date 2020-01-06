@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.rsp.app.explore;
 
-import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.rsp.app.MetaDataInterface;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,25 +14,24 @@ import java.util.Date;
  */
 @Getter
 @Setter
-public class BasicEntityRsp  implements MetaDataInterface {
+public class BasicEntityRsp implements MetaDataInterface {
 
     @ApiModelProperty("实例或概念id")
     private Long id;
     @ApiModelProperty("实例或概念名称")
     private String name;
     @ApiModelProperty("0概念 1实例 ")
-    private EntityTypeEnum type;
-    @ApiModelProperty("概念id ")
+    private Integer type;
+    @ApiModelProperty("直接父概念名称id ")
     private Long conceptId;
     @ApiModelProperty("消歧标识")
     private String meaningTag;
     @ApiModelProperty("图片")
-    private ImageRsp img;
+    private String imgUrl;
     @ApiModelProperty("开始时间")
     private Date startTime;
     @ApiModelProperty("结束时间")
     private Date endTime;
     @ApiModelProperty("创建时间")
     private String creationTime;
-
 }

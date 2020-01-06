@@ -90,4 +90,24 @@ public interface ImportService {
      */
     String importRelation(String kgName, Integer attrId, Integer mode, MultipartFile file);
 
+    /**
+     * rdf导入
+     *
+     * @param kgName
+     * @param file
+     * @param format
+     * @return
+     */
+    String importRdf(String kgName, MultipartFile file, String format);
+
+    /**
+     * rdf导出
+     *
+     * @param kgName
+     * @param format
+     * @param scope
+     * @return
+     */
+    String exportRdf(String kgName, String format, Integer scope);
+
 }

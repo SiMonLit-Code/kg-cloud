@@ -2,21 +2,25 @@ package com.plantdata.kgcloud.domain.data.obtain.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
-import com.plantdata.kgcloud.domain.data.obtain.req.StatisticConfigReq;
-import com.plantdata.kgcloud.domain.data.obtain.rsp.StatisticConfigRsp;
+import com.plantdata.kgcloud.sdk.KgmsClient;
+import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author cjw
@@ -24,56 +28,58 @@ import java.util.List;
  * @date 2019/11/15 16:01
  */
 @RestController
-@RequestMapping("kgData/statisticConfig")
+@RequestMapping("v3/kgdata/statisticConfig")
 public class GraphStatisticConfigController implements GraphDataObtainInterface {
 
-    @ApiOperation("获取统计配置列表")
+    @Autowired
+    private KgmsClient kgmsClient;
+
+    @ApiOperation("统计配置-获取列表")
     @GetMapping("{kgName}")
-    public ApiReturn<List<StatisticConfigRsp>> configList(@ApiParam("图谱名称") @PathVariable String kgName) {
-        return ApiReturn.success(null);
+    public ApiReturn<List<GraphConfStatisticalRsp>> configList(@ApiParam("图谱名称") @PathVariable("kgName") String kgName) {
+
+        return kgmsClient.selectStatistical(kgName);
     }
 
 
-    @ApiOperation("批量新增统计配置")
-    @PostMapping("batch/{kgName}")
-    public ApiReturn<List<StatisticConfigRsp>> batchAdd(@ApiParam("图谱名称") @PathVariable String kgName,
-                                                        @RequestBody List<StatisticConfigReq> configList) {
-        return ApiReturn.success(null);
+    @ApiOperation("统计配置-批量新增")
+    @PostMapping("batch")
+    public ApiReturn<List<GraphConfStatisticalRsp>> batchAdd(@RequestBody List<GraphConfStatisticalReq> listReq) {
+
+        return kgmsClient.saveStatisticalBatch(listReq);
     }
 
-    @ApiOperation("批量修改统计配置")
-    @PatchMapping("batch/{kgName}")
-    public ApiReturn<List<StatisticConfigRsp>> batchModify(@ApiParam("图谱名称") @PathVariable String kgName,
-                                                           @RequestBody List<StatisticConfigReq> configList) {
-        return ApiReturn.success(null);
+    @ApiOperation("统计配置-批量修改")
+    @PutMapping("batch")
+    public ApiReturn<List<GraphConfStatisticalRsp>> batchModify(@RequestBody List<UpdateGraphConfStatisticalReq> reqList) {
+        return kgmsClient.updateStatisticalBatch(reqList);
     }
 
-    @ApiOperation("批量删除统计配置")
-    @DeleteMapping("batch/{kgName}")
-    public ApiReturn batchRemove(@ApiParam("图谱名称") @PathVariable String kgName,
-                                 @RequestParam("ids") List<Integer> ids) {
-        return ApiReturn.success();
+    @ApiOperation("统计配置-批量删除")
+    @DeleteMapping("batch")
+    public ApiReturn batchRemove(@RequestParam("ids") List<Long> ids) {
+        ids.removeIf(Objects::isNull);
+        return kgmsClient.deleteStatisticalBatch(ids);
     }
 
-    @ApiOperation("新增统计配置")
+    @ApiOperation("统计配置-新增")
     @PostMapping("{kgName}")
-    public ApiReturn<StatisticConfigRsp> add(@ApiParam("图谱名称") @PathVariable String kgName,
-                                             @RequestBody StatisticConfigReq config) {
-        return ApiReturn.success(null);
+    public ApiReturn<GraphConfStatisticalRsp> add(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                                  @RequestBody GraphConfStatisticalReq config) {
+        return kgmsClient.saveStatistical(kgName, config);
     }
 
-    @ApiOperation("修改统计配置")
-    @PatchMapping("{kgName}")
-    public ApiReturn<StatisticConfigRsp> modify(@ApiParam("图谱名称") @PathVariable String kgName,
-                                                @RequestBody StatisticConfigReq config) {
-        return ApiReturn.success(null);
+    @ApiOperation("统计配置-修改")
+    @PutMapping("{id}")
+    public ApiReturn<GraphConfStatisticalRsp> modify(@ApiParam("配置id") @PathVariable("id") Long id,
+                                                     @RequestBody GraphConfStatisticalReq config) {
+        return kgmsClient.updateStatistical(id, config);
     }
 
-    @ApiOperation("删除统计配置")
-    @DeleteMapping("{kgName}/{id}")
-    public ApiReturn remove(@ApiParam("图谱名称") @PathVariable String kgName,
-                            @ApiParam("配置id") @PathVariable Integer id) {
-        return ApiReturn.success();
+    @ApiOperation("统计配置-删除")
+    @DeleteMapping("{id}")
+    public ApiReturn remove(@ApiParam("配置id") @PathVariable("id") Long id) {
+        return kgmsClient.deleteStatistical(id);
     }
 
 }

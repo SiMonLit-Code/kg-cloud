@@ -1,12 +1,12 @@
 package com.plantdata.kgcloud.domain.app.service;
 
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author cjw
@@ -32,4 +32,13 @@ public interface NlpService {
      * @return .
      */
     List<GraphSegmentRsp> graphSegment(String kgName, SegmentReq segmentReq);
+
+    /**
+     * 图谱实体识别
+     *
+     * @param kgName
+     * @param segmentReq
+     * @return
+     */
+    List<SegmentEntityRsp> segment(String kgName, SegmentReq segmentReq);
 }

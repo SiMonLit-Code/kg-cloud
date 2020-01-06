@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -24,6 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel("gis轨迹分析接口")
 public class GisLocusReq extends GisExploreReq {
+    @NotNull
     @ApiModelProperty("gis规则参数")
     private List<GisRuleParam> rules;
 
@@ -36,11 +37,12 @@ public class GisLocusReq extends GisExploreReq {
     @NoArgsConstructor
     public static class GisRuleParam {
         @ApiModelProperty("实例id")
-        @NotBlank
+        @NotNull
         private List<Long> ids;
         @ApiModelProperty("规则id")
-        @NotBlank
-        private Integer ruleId;
+        @NotNull
+        private Long ruleId;
+        @NotNull
         @ApiModelProperty("kgQl语句")
         private String kql;
     }

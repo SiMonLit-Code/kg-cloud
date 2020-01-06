@@ -3,7 +3,9 @@ package com.plantdata.kgcloud.domain.model.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.model.service.ModelService;
-import com.plantdata.kgcloud.sdk.req.WordReq;
+import com.plantdata.kgcloud.sdk.req.KgmsCallReq;
+import com.plantdata.kgcloud.sdk.req.KgmsModelReq;
+import com.plantdata.kgcloud.sdk.req.ModelPageReq;
 import com.plantdata.kgcloud.sdk.rsp.ModelRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
@@ -46,7 +48,7 @@ public class ModelController {
 
     @ApiOperation("模型分页查找")
     @GetMapping("/")
-    public ApiReturn<Page<ModelRsp>> findAll(BaseReq baseReq) {
+    public ApiReturn<Page<ModelRsp>> findAll(ModelPageReq baseReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(modelService.findAll(userId, baseReq));
     }
@@ -60,14 +62,14 @@ public class ModelController {
 
     @ApiOperation("模型创建")
     @PostMapping("/")
-    public ApiReturn<ModelRsp> insert(@Valid @RequestBody WordReq.ModelReq modelReq) {
+    public ApiReturn<ModelRsp> insert(@Valid @RequestBody KgmsModelReq modelReq) {
 
         return ApiReturn.success(modelService.insert(modelReq));
     }
 
     @ApiOperation("模型编辑")
     @PatchMapping("/{id}")
-    public ApiReturn<ModelRsp> update(@PathVariable Long id, @Valid @RequestBody WordReq.ModelReq req) {
+    public ApiReturn<ModelRsp> update(@PathVariable Long id, @Valid @RequestBody KgmsModelReq req) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(modelService.update(userId,id, req));
     }
@@ -82,7 +84,7 @@ public class ModelController {
 
     @ApiOperation("模型调用")
     @PostMapping("/call/{id}")
-    public ApiReturn callJson(@PathVariable Long id, @RequestBody WordReq.ModelCallReq req) {
+    public ApiReturn callJson(@PathVariable Long id, @RequestBody KgmsCallReq req) {
         return ApiReturn.success(modelService.call(id, req.getInput()));
     }
 

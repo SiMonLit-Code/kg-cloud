@@ -35,7 +35,6 @@ public class AttrDefinitionSearchReq {
     /**
      * 0:全部，1:数值，2:对象
      */
-    @JsonIgnore
     @ApiModelProperty(hidden = true)
     private Integer type = 0;
 
@@ -45,4 +44,14 @@ public class AttrDefinitionSearchReq {
     @JsonIgnore
     @ApiModelProperty(hidden = true)
     private List<Long> ids = new ArrayList<>(1);
+
+    public AttrDefinitionSearchReq(Long conceptId) {
+        this.conceptId = conceptId;
+    }
+
+    public AttrDefinitionSearchReq(Boolean inherit, Long conceptId, Integer type) {
+        this.inherit = inherit;
+        this.conceptId = conceptId;
+        this.type = type;
+    }
 }

@@ -1,13 +1,15 @@
 package com.plantdata.kgcloud.sdk.req.edit;
 
+import com.plantdata.kgcloud.sdk.validator.KeyCheck;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: LinHo
@@ -19,26 +21,25 @@ import java.util.List;
 public class AttrDefinitionReq {
 
     @NotEmpty
-    @ApiModelProperty(value = "属性名称")
+    @ApiModelProperty(required = true,value = "属性名称")
+    @Length(max = 50, message = "属性名称长度不能超过50")
     private String name;
 
     @ApiModelProperty(value = "属性名称别名")
     private String alias;
 
-    @ApiModelProperty(value = "0：数值，1：对象", allowableValues = "0,1")
+    @ApiModelProperty(required = true,value = "0：数值，1：对象", allowableValues = "0,1")
     @NotNull
-    @Pattern(regexp = "^[0-1]$")
     private Integer type;
-
     @NotNull
-    @ApiModelProperty(value = "属性定义域")
+    @ApiModelProperty(required = true,value = "属性定义域")
     private Long domainValue;
 
     @ApiModelProperty(value = "属性值域")
     private List<Long> rangeValue;
 
     @NotNull
-    @ApiModelProperty(value = "属性类型")
+    @ApiModelProperty(required = true,value = "属性类型")
     private Integer dataType;
 
     @ApiModelProperty(value = "属性单位")
@@ -51,12 +52,13 @@ public class AttrDefinitionReq {
     private Integer direction = 0;
 
     @ApiModelProperty(value = "前端使用")
-    private String additionalInfo;
+    private Map<String, Object> additionalInfo;
 
     @ApiModelProperty(value = "属性约束")
-    private String constraints;
+    private Map<String, Object> constraints;
 
     @ApiModelProperty(value = "属性定义key")
+    @KeyCheck
     private String key;
 
 }

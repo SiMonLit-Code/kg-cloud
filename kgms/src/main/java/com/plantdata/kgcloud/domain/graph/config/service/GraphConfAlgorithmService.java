@@ -6,8 +6,8 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
 import org.springframework.data.domain.Page;
 
 /**
- *
- * Created by plantdata-1007 on 2019/11/29.
+ * @author jiangdeming
+ * @date 2019/11/29
  */
 public interface GraphConfAlgorithmService {
     /**
@@ -18,11 +18,12 @@ public interface GraphConfAlgorithmService {
      * @param req
      * @return
      */
-    GraphConfAlgorithmRsp createAlgorithm(String kgName,GraphConfAlgorithmReq req);
+    GraphConfAlgorithmRsp createAlgorithm(String kgName, GraphConfAlgorithmReq req);
 
     /**
      * 修改算法
      *
+     * @param id
      * @param req
      * @return
      */
@@ -33,15 +34,22 @@ public interface GraphConfAlgorithmService {
      *
      * @param id
      */
-    void deleteAlgorithm(Long id );
+    void deleteAlgorithm(Long id);
 
     /**
      * 查询算法
      *
      * @param kgName
+     * @param baseReq
      * @return
      */
-    Page<GraphConfAlgorithmRsp> findByKgName(String kgName , BaseReq baseReq);
+    Page<GraphConfAlgorithmRsp> findByKgName(String kgName, BaseReq baseReq);
 
-
+    /**
+     * 详情
+     *
+     * @param id
+     * @return
+     */
+    GraphConfAlgorithmRsp findById(Long id);
 }

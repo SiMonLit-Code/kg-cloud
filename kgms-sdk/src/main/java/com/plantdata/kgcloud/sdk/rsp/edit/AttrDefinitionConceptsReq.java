@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -16,8 +17,8 @@ import java.util.List;
 public class AttrDefinitionConceptsReq {
 
     @ApiModelProperty(value = "是否继承")
-    private Boolean inherit = false;
-
+    private Boolean inherit=false;
+    @NotNull
     @ApiModelProperty(value = "概念ids")
     private List<Long> ids;
 

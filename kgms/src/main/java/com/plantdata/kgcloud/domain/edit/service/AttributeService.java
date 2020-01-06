@@ -2,20 +2,26 @@ package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
-import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
-import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionModifyReq;
-import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrTemplateReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.RelationMetaReq;
+import com.plantdata.kgcloud.domain.edit.req.attr.RelationSearchMetaReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.RelationSearchReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.AttrConstraintsRsp;
-import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
+import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -81,7 +87,16 @@ public interface AttributeService {
      * @param attrDefinitionReqs
      * @return
      */
-    List<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName, List<AttrDefinitionReq> attrDefinitionReqs);
+    OpenBatchResult<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName, List<AttrDefinitionReq> attrDefinitionReqs);
+
+    /**
+     * 批量修改属性定义
+     *
+     * @param kgName
+     * @param attrDefinitionReqs
+     * @return
+     */
+    OpenBatchResult<AttrDefinitionBatchRsp> batchUpdate(String kgName, List<AttrDefinitionModifyReq> attrDefinitionReqs);
 
     /**
      * 修改属性定义
@@ -106,7 +121,7 @@ public interface AttributeService {
      * @param attrId
      * @param edgeAttrDefinitionReq
      */
-    void addEdgeAttr(String kgName, Integer attrId, EdgeAttrDefinitionReq edgeAttrDefinitionReq);
+    Integer addEdgeAttr(String kgName, Integer attrId, EdgeAttrDefinitionReq edgeAttrDefinitionReq);
 
     /**
      * 修改边属性定义
@@ -142,7 +157,7 @@ public interface AttributeService {
      * @param relationSearchReq
      * @return
      */
-    Page<RelationRsp> listRelations(String kgName, RelationSearchReq relationSearchReq);
+    Page<RelationRsp> listRelations(String kgName, RelationSearchReq relationSearchReq, RelationSearchMetaReq metaReq);
 
     /**
      * 批量删除关系
@@ -193,4 +208,22 @@ public interface AttributeService {
      * @param tripleIds
      */
     void attrConstraintsDelete(String kgName, Integer attrId, List<String> tripleIds);
+
+    /**
+     * 根据属性获得三元组
+     *
+     * @param kgName
+     * @param tripleReq
+     * @return
+     */
+    List<TripleRsp> getRelationByAttr(String kgName, TripleReq tripleReq);
+
+    /**
+     * 批量关系搜索
+     *
+     * @param kgName   图谱名称
+     * @param queryReq 查询参数
+     * @return 。。
+     */
+    List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq);
 }

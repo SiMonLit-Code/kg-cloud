@@ -1,12 +1,13 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.service.DataSetStatisticService;
 import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
-import io.swagger.annotations.Api;
+import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,37 +25,37 @@ import javax.validation.Valid;
  * @date 2019/12/5 15:28
  */
 @RestController
-@Api(tags = "图谱应用")
 @RequestMapping("app/dataset/statistic")
-public class DataSetStatisticController {
+public class DataSetStatisticController implements SdkOpenApiInterface {
 
     @Resource
     private DataSetStatisticService dataSetStatisticService;
 
-    @ApiOperation("统计数据二维")
-    @PostMapping("2d/{dataSetKey}")
+    @ApiOperation("统计数据二维(仅支持搜索数据集)")
+    @PostMapping("2d/{dataName}")
     public ApiReturn<DataSetStatisticRsp> statistic2d(
-            @ApiParam("数据集唯一标识") @PathVariable("dataSetKey") String dataSetKey,
+            @ApiParam("数据集唯一标识") @PathVariable("dataName") String dataName,
             @RequestBody @Valid StatisticByDimensionalReq twoDimensional) {
-        return ApiReturn.success(dataSetStatisticService.statisticByDimension(twoDimensional, dataSetKey, DimensionEnum.TWO));
+
+        return ApiReturn.success(dataSetStatisticService.statisticByDimension(SessionHolder.getUserId(), twoDimensional, dataName, DimensionEnum.TWO));
     }
 
-    @ApiOperation("统计数据三维")
-    @PostMapping("3d/{dataSetKey}")
-    public ApiReturn<DataSetStatisticRsp> statistic3d(@ApiParam("数据集唯一标识") @PathVariable("dataSetKey") String dataSetKey,
-                                                      @Valid StatisticByDimensionalReq twoDimensional) {
-        return ApiReturn.success(dataSetStatisticService.statisticByDimension(twoDimensional, dataSetKey, DimensionEnum.THIRD));
+    @ApiOperation("统计数据三维(仅支持搜索数据集)")
+    @PostMapping("3d/{dataName}")
+    public ApiReturn<DataSetStatisticRsp> statistic3d(@ApiParam("数据集唯一标识") @PathVariable("dataName") String dataName,
+                                                      @Valid @RequestBody StatisticByDimensionalReq twoDimensional) {
+        return ApiReturn.success(dataSetStatisticService.statisticByDimension(SessionHolder.getUserId(), twoDimensional, dataName, DimensionEnum.THIRD));
     }
 
     @ApiOperation("统计数据二维/按表统计")
     @PostMapping("2dByTable")
-    public ApiReturn<DataSetStatisticRsp> statistic2dByTable(@Valid TableStatisticByDimensionalReq twoDimensional) {
-        return ApiReturn.success(dataSetStatisticService.statisticByDimensionAndTable(twoDimensional, DimensionEnum.TWO));
+    public ApiReturn<DataSetStatisticRsp> statistic2dByTable(@Valid @RequestBody TableStatisticByDimensionalReq twoDimensional) {
+        return ApiReturn.success(dataSetStatisticService.statisticByDimensionAndTable(SessionHolder.getUserId(), twoDimensional, DimensionEnum.TWO));
     }
 
     @ApiOperation("统计数据三维/按表统计")
     @PostMapping("3dByTable")
-    public ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid TableStatisticByDimensionalReq thirdDimensional) {
-        return ApiReturn.success(dataSetStatisticService.statisticByDimensionAndTable(thirdDimensional, DimensionEnum.THIRD));
+    public ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid @RequestBody TableStatisticByDimensionalReq thirdDimensional) {
+        return ApiReturn.success(dataSetStatisticService.statisticByDimensionAndTable(SessionHolder.getUserId(), thirdDimensional, DimensionEnum.THIRD));
     }
 }

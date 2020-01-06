@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
@@ -28,6 +27,5 @@ public class GisGraphExploreReq extends GisExploreReq {
     private String attrKey;
     @ApiModelProperty("allowTypes字段指定的概念是否继承 true允许继承 默认false")
     private Boolean isInherit = false;
-    @Pattern(regexp = "^[0-2]$")
     private Integer direction = 0;
 }

@@ -19,7 +19,7 @@ import java.util.List;
 public class DataLinkRsp {
 
     @ApiModelProperty("数据集ID")
-    private Integer dataSetId;
+    private Long dataSetId;
     @ApiModelProperty("数据集Title")
     private String dataSetTitle;
     @ApiModelProperty("数据集")

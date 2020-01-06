@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.sdk.rsp;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @description:
@@ -10,10 +13,10 @@ import lombok.Data;
 @Data
 public class WordRsp {
     private String id;
-
+    @ApiModelProperty("词条名称")
     private String name;
-
-    private String syns;
-
+    @ApiModelProperty("词条同义")
+    private List<String> syns;
+    @ApiModelProperty("词条类型")
     private String nature;
 }

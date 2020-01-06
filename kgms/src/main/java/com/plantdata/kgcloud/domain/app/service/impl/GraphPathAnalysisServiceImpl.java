@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphPathAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
@@ -36,46 +37,47 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
 
     @Override
     public PathAnalysisRsp path(String kgName, PathAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
-        PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
-        PathAnalysisRsp pathAnalysisRsp = new PathAnalysisRsp();
-        //路径探索
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(kgName, pathFrom));
-        if (!graphOpt.isPresent()) {
-            return pathAnalysisRsp;
-        }
-        //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), new PathAnalysisRsp());
-    }
 
-    @Override
-    public PathAnalysisReasonRsp pathRuleReason(String kgName, PathReasoningAnalysisReq reasonReq) {
-        reasonReq = graphHelperService.dealGraphReq(reasonReq);
-        PathFrom pathFrom = GraphReqConverter.pathReqProxy(reasonReq);
-        PathAnalysisReasonRsp analysisReasonRsp = new PathAnalysisReasonRsp();
-        //路径探索
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(kgName, pathFrom));
-        if (!graphOpt.isPresent()) {
-            return analysisReasonRsp;
-        }
-        //推理
-        GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), reasonReq);
-        //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, reasonReq.getConfigList(), graphVO, new PathAnalysisReasonRsp());
-    }
-
-    @Override
-    public PathTimingAnalysisRsp pathTimingAnalysis(String kgName, PathTimingAnalysisReq analysisReq) {
-        analysisReq = graphHelperService.dealGraphReq(analysisReq);
+        analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
-        PathTimingAnalysisRsp analysisRsp = new PathTimingAnalysisRsp();
         //路径探索
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(kgName, pathFrom));
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(KGUtil.dbName(kgName), pathFrom));
+        PathAnalysisRsp analysisRsp = new PathAnalysisRsp();
         if (!graphOpt.isPresent()) {
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), new PathTimingAnalysisRsp());
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp, analysisReq);
+    }
+
+    @Override
+    public PathAnalysisReasonRsp pathRuleReason(String kgName, PathReasoningAnalysisReq reasonReq) {
+        PathAnalysisReasonRsp analysisRsp = new PathAnalysisReasonRsp();
+        reasonReq = graphHelperService.keyToId(kgName, reasonReq);
+        PathFrom pathFrom = GraphReqConverter.pathReqProxy(reasonReq);
+        //路径探索
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(KGUtil.dbName(kgName), pathFrom));
+        if (!graphOpt.isPresent()) {
+            return analysisRsp;
+        }
+        //推理
+        GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), reasonReq);
+        //统计+组装结果
+        return graphHelperService.buildExploreRspWithStatistic(kgName, reasonReq.getConfigList(), graphVO, analysisRsp, reasonReq);
+    }
+
+    @Override
+    public PathTimingAnalysisRsp pathTimingAnalysis(String kgName, PathTimingAnalysisReq analysisReq) {
+        PathTimingAnalysisRsp analysisRsp = new PathTimingAnalysisRsp();
+        analysisReq = graphHelperService.keyToId(kgName, analysisReq);
+        PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
+        //路径探索
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.path(KGUtil.dbName(kgName), pathFrom));
+        if (!graphOpt.isPresent()) {
+            return analysisRsp;
+        }
+        //统计+组装结果
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), new PathTimingAnalysisRsp(), analysisReq);
     }
 
 

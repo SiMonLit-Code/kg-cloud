@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.sdk.req;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import javax.validation.constraints.NotEmpty;
 
 /**
  * @description:
@@ -9,5 +12,7 @@ import lombok.Data;
  **/
 @Data
 public class FolderReq {
+    @NotEmpty
+    @ApiModelProperty("文件夹名称")
     private String folderName;
 }

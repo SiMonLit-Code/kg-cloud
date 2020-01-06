@@ -1,27 +1,29 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
-import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
-import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
-import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.PromptReq;
-import com.plantdata.kgcloud.sdk.req.app.InfoBoxReq;
-import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
-import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
+import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
+import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
+import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
+import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
+import com.plantdata.kgcloud.sdk.req.app.PromptReq;
+import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.security.SessionHolder;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -42,16 +45,14 @@ import java.util.List;
  * @date 2019/11/21 13:50
  */
 @RestController
-@Api(tags = "图谱应用")
 @RequestMapping("app")
-public class GraphApplicationController {
+public class GraphApplicationController implements GraphAppInterface {
 
     @Autowired
     private GraphApplicationService graphApplicationService;
     @Autowired
     private GraphPromptService graphPromptService;
-    @Autowired
-    private GraphService graphService;
+
 
     @ApiOperation("获取当前图实体类型及属性类型的schema")
     @GetMapping("schema/{kgName}")
@@ -76,26 +77,37 @@ public class GraphApplicationController {
 
     @ApiOperation("获取概念树")
     @GetMapping("concept/{kgName}")
-    public ApiReturn<List<BasicConceptRsp>> conceptTree(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @ApiParam("概念id") @RequestParam("conceptId") Long conceptId,
-                                                        @ApiParam("概念唯一标识") @RequestParam("conceptKey") String conceptKey) {
+    public ApiReturn<List<BasicInfoVO>> conceptTree(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                    @ApiParam("概念id 0或不传查询全部") @RequestParam(value = "conceptId", required = false) Long conceptId,
+                                                    @ApiParam("概念唯一标识概念id为null时有效") @RequestParam(value = "conceptKey", required = false) String conceptKey) {
         return ApiReturn.success(graphApplicationService.conceptTree(kgName, conceptId, conceptKey));
+    }
+
+    @ApiOperation("批量读取知识卡片")
+    @PostMapping("infoBox/list/{kgName}")
+    public ApiReturn<List<InfoBoxRsp>> listInfoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                   @RequestBody BatchInfoBoxReq batchInfoBoxReq) {
+        return ApiReturn.success(graphApplicationService.infoBox(kgName, batchInfoBoxReq));
     }
 
     @ApiOperation("读取知识卡片")
     @PostMapping("infoBox/{kgName}")
-    public ApiReturn<List<InfoBoxRsp>> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                               @RequestBody InfoBoxReq infoBoxReq) {
-        return ApiReturn.success(graphApplicationService.infoBox(kgName, infoBoxReq));
+    public ApiReturn<InfoBoxRsp> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                         @RequestBody InfoBoxReq infoBoxReq) throws IOException {
+        return ApiReturn.success(graphApplicationService.infoBox(kgName, SessionHolder.getUserId(), infoBoxReq));
     }
 
+    @ApiOperation("复杂图分析-可视化展示")
+    @GetMapping("complex/graph/visual/{kgName}")
+    public ApiReturn<ComplexGraphVisualRsp> complexGraphVisual(@ApiParam("图谱名称") @PathVariable("kgName") String kgName, @Valid ComplexGraphVisualReq visualReq) {
+        return ApiReturn.success(graphApplicationService.complexGraphVisual(kgName, visualReq));
+    }
 
     @ApiOperation("获取所有图谱名称")
-    @GetMapping("kgName/all/{apk}")
-    public ApiReturn<List<ApkRsp>> getKgName(@PathVariable("apk") String apk) {
-        String userId = SessionHolder.getUserId();
-        List<GraphRsp> all = graphService.findAll(userId);
-        return ApiReturn.success(ApkConverter.graphRspToApkRsp(all, apk));
+    @GetMapping("kgName/all")
+    public ApiReturn<PageRsp<ApkRsp>> getKgName(PageReq pageReq) {
+        PageRsp<ApkRsp> pageRsp = graphApplicationService.listAllGraph(pageReq);
+        return ApiReturn.success(pageRsp);
     }
 
 
@@ -107,17 +119,23 @@ public class GraphApplicationController {
     }
 
     @ApiOperation("高级搜索查实体")
-    @GetMapping("prompt/senior/{kgName}")
+    @PostMapping("prompt/senior/{kgName}")
     public ApiReturn<List<SeniorPromptRsp>> seniorPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                          @RequestBody @Valid SeniorPromptReq seniorPromptReq) {
         return ApiReturn.success(graphPromptService.seniorPrompt(kgName, seniorPromptReq));
     }
 
     @ApiOperation("边属性搜索")
-    @GetMapping("attributes/{kgName}")
+    @PostMapping("attributes/{kgName}")
     public ApiReturn<List<EdgeAttributeRsp>> attrPrompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        @Valid EdgeAttrPromptReq edgeAttrPromptReq) {
+                                                        @Valid @RequestBody EdgeAttrPromptReq edgeAttrPromptReq) {
         return ApiReturn.success(graphPromptService.edgeAttributeSearch(kgName, edgeAttrPromptReq));
+    }
+
+    @ApiOperation("融合候选集写入")
+    @PostMapping("fusion/candidate")
+    public ApiReturn fusionCandidateSet() {
+        return ApiReturn.success();
     }
 
 }

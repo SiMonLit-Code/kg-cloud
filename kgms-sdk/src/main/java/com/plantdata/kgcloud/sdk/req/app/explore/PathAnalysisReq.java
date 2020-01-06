@@ -3,11 +3,14 @@ package com.plantdata.kgcloud.sdk.req.app.explore;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphPathReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -17,10 +20,17 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel("路径分析参数")
-public class PathAnalysisReq extends BasicGraphExploreReq {
+@ApiModel("路径分析-参数")
+public class PathAnalysisReq extends BasicGraphExploreReq implements GraphPathReqInterface, SecondaryScreeningInterface {
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
-    @ApiModelProperty("路径")
+    @NotNull
+    @ApiModelProperty(value = "路径", required = true)
     private CommonPathReq path;
+
+    @Override
+    public CommonPathReq fetchPath() {
+        return path;
+    }
+
 }
