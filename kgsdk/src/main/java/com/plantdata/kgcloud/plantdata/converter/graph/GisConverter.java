@@ -36,7 +36,7 @@ public class GisConverter extends BasicConverter {
         exploreReq.setConceptKeys(param.getAllowTypesKey());
         exploreReq.setFromTime(param.getFromTime());
         exploreReq.setToTime(param.getToTime());
-        consumerIfNoNull(exploreReq.getDirection(), a -> exploreReq.setDirection(NumberUtils.INTEGER_TWO.equals(a) ? DirectionEnum.BACKWARD.getValue() : a));
+        consumerIfNoNull(param.getDirection(), a -> exploreReq.setDirection(NumberUtils.INTEGER_TWO.equals(a) ? DirectionEnum.BACKWARD.getValue() : a));
         consumerIfNoNull(param.getGisFilters(), a -> exploreReq.setGisFilters(JsonUtils.jsonToList(a, Object.class)));
         consumerIfNoNull(param.getFilterType(), exploreReq::setFilterType);
         exploreReq.setPage(new PageReq(param.getPageNo(), param.getPageSize()));

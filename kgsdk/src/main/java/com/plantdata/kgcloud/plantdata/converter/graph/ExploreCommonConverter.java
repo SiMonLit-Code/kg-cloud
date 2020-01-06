@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.MongoQueryConverter;
-import com.plantdata.kgcloud.plantdata.link.LinkUtil;
 import com.plantdata.kgcloud.plantdata.req.common.Additional;
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
 import com.plantdata.kgcloud.plantdata.req.common.RelationBean;
@@ -32,6 +31,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
@@ -117,7 +117,7 @@ public class ExploreCommonConverter extends BasicConverter {
         consumerIfNoNull(to.getAllowAttrGroups(), a -> rs.setAllowAttrGroups(toListNoNull(a, Long::valueOf)));
         consumerIfNoNull(to.getAllowAtts(), rs::setAllowAttrs);
         consumerIfNoNull(to.getEntityQuery(), a -> rs.setEntityFilters(toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
-        consumerIfNoNull(to.getAttAttFilters(), a -> toListNoNull(a, ExploreCommonConverter::attrScreeningBeanToRelationAttrReq));
+        consumerIfNoNull(to.getAttAttFilters(), a -> rs.setEdgeAttrFilters(toListNoNull(a, ExploreCommonConverter::attrScreeningBeanToRelationAttrReq)));
         return rs;
     }
 
@@ -230,6 +230,6 @@ public class ExploreCommonConverter extends BasicConverter {
     }
 
     private static RelationAttrReq attrScreeningBeanToRelationAttrReq(@NonNull AttrScreeningBean screeningBean) {
-        return LinkUtil.link(screeningBean);
+        return JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), RelationAttrReq.class);
     }
 }

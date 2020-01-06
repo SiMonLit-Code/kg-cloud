@@ -21,13 +21,22 @@ import java.util.stream.Collectors;
 public class ConditionConverter extends BasicConverter {
 
     public static Map<String, Map<String, Object>> relationAttrReqToMap(List<RelationAttrReq> attrReqList) {
+        return attrReqList.stream().collect(Collectors.toMap(a -> buildEdgeFilter(a.getAttrId(), a.getSeqNo()),
+                ConditionConverter::buildMongoQueryMap));
+    }
+
+    public static Map<String, Map<String, Object>> relationAttrReqToMapV1(List<RelationAttrReq> attrReqList) {
         return attrReqList.stream().collect(Collectors.toMap(a -> String.valueOf(a.getAttrId()),
                 ConditionConverter::relationAttrReqToStringMap));
     }
 
     public static Map<String, Integer> relationAttrSortToMap(List<AttrSortReq> sortReqList) {
-        return sortReqList.stream().collect(Collectors.toMap(a -> "attr_ext" + a.getAttrId() + "_" + a.getSeqNo(),
+        return sortReqList.stream().collect(Collectors.toMap(a -> buildEdgeFilter(a.getAttrId(), a.getSeqNo()),
                 AttrSortReq::getSort));
+    }
+
+    private static String buildEdgeFilter(Integer attrId, Integer seqNo) {
+        return "attr_ext_" + attrId + "_" + seqNo;
     }
 
     public static List<Map<String, Object>> entityScreeningListToMap(List<EntityQueryFiltersReq> entityScreeningList) {
@@ -74,7 +83,7 @@ public class ConditionConverter extends BasicConverter {
 
     private static Map<String, Object> relationAttrReqToStringMap(RelationAttrReq attrReq) {
         Map<String, Object> seqMap = Maps.newHashMap();
-        seqMap.put(String.valueOf(attrReq.getSeqNo()), buildMongoQueryMap(attrReq));
+        seqMap.put(String.valueOf(attrReq.getSeqNo()), attrReq.get$eq() != null ? attrReq.get$eq() : buildMongoQueryMap(attrReq));
         return seqMap;
     }
 
