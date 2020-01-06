@@ -46,6 +46,6 @@ public class DataSetCreateReq {
 
     @Valid
     @ApiModelProperty
-    @Size(min = 1,max = 100,message = "数据集最多只支持100个字段")
+    @Size(min = 1,max = 50,message = "数据集最多只支持50个字段")
     private List<DataSetSchema> schema;
 }
