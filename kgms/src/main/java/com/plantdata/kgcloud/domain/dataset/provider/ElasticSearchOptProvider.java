@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -244,13 +245,14 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public Map<String, Object> update(String id, Map<String, Object> node) {
-        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/";
+        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/?refresh=wait_for";
         Request request = new Request(POST, endpoint);
-        String string = JacksonUtils.writeValueAsString(node);
+        Map<String, Object> map = new HashMap<>();
+        map.put("doc",node);
+        String string = JacksonUtils.writeValueAsString(map);
         request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
         send(request);
-        return JacksonUtils.readValue(string, new TypeReference<Map<String, Object>>() {
-        });
+        return node;
     }
 
     @Override
