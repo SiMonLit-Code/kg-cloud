@@ -31,8 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -63,9 +67,17 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
 
     @Override
     public Page<AnnotationRsp> findAll(String kgName, AnnotationQueryReq baseReq) {
-        DataSetAnnotation build = DataSetAnnotation.builder().kgName(kgName).build();
         PageRequest of = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
-        Page<DataSetAnnotation> all = dataSetAnnotationRepository.findAll(Example.of(build), of);
+        Specification<DataSetAnnotation> specification = (Specification<DataSetAnnotation>) (root, query, cb) -> {
+            Predicate predicate = cb.conjunction();
+            List<Expression<Boolean>> expressions = predicate.getExpressions();
+            expressions.add(cb.equal(root.get("kgName"),kgName));
+            if (StringUtils.hasText(baseReq.getName())) {
+                expressions.add(cb.like(root.get("name"), "%" + baseReq.getName() + "%"));
+            }
+            return predicate;
+        };
+        Page<DataSetAnnotation> all = dataSetAnnotationRepository.findAll(specification, of);
         return all.map(ConvertUtils.convert(AnnotationRsp.class));
     }
 
