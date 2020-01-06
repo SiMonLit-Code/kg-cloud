@@ -151,7 +151,8 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         List<Map<String, Object>> maps = null;
         try {
             DataOptProvider provider = DataOptProviderFactory.createProvider(connect, DataType.ELASTIC);
-            maps = provider.find(promptReq.getOffset(), promptReq.getLimit(), PromptConverter.buildEsParam(promptReq));
+            Map<String, Object> objectMap = PromptConverter.buildEsParam(promptReq);
+            maps = provider.find(promptReq.getOffset(), promptReq.getLimit(), objectMap);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("promptReq:{}", JacksonUtils.writeValueAsString(promptReq));

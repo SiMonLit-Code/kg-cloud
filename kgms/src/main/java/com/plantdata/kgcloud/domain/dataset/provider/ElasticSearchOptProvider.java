@@ -88,13 +88,12 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
         int size = limit != null && limit > 0 ? limit : 10;
         queryNode.put("size", size);
-
-        if (CollectionUtils.isEmpty(query)) {
-            return queryNode;
-        }
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "sort")) {
                 queryNode.put("sort", DataConst.CREATE_AT);
+            }
+            if (Objects.equals(entry.getKey(), "query")) {
+                queryNode.putPOJO("query", entry.getValue());
             }
             if (Objects.equals(entry.getKey(), "search")) {
                 Map<String, String> value = (Map<String, String>) entry.getValue();
@@ -141,7 +140,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
         Request request = new Request(GET, endpoint);
         ObjectNode queryNode = buildQuery(offset, limit, query);
-        NStringEntity entity = new NStringEntity(queryNode.toString(), ContentType.APPLICATION_JSON);
+        NStringEntity entity = new NStringEntity(JacksonUtils.writeValueAsString(queryNode), ContentType.APPLICATION_JSON);
         request.setEntity(entity);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
@@ -151,7 +150,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             Map<String, Object> map = JacksonUtils.readValue(jsonNode.get("_source").traverse(), new TypeReference<Map<String, Object>>() {
             });
             map.put("_id", id);
-            mapList.add(map);
         }
         return mapList;
     }
