@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
@@ -22,9 +22,9 @@ import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.LinksRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -172,7 +172,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         map.put("_id", "$data_set_id");
         map.put("count", DefaultUtils.oneElMap("$sum", 1));
         List<Map<String, Object>> mathMapList = Lists.newArrayList();
-        mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("entity_id", String.valueOf(entityId))));
+        mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("entity_id", entityId)));
         mathMapList.add(DefaultUtils.oneElMap("$group", map));
         mongoQueryFrom.setQuery(mathMapList);
         return mongoQueryFrom;
