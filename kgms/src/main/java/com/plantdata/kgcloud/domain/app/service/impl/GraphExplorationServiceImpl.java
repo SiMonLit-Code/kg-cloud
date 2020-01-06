@@ -15,16 +15,17 @@ import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,7 @@ import java.util.Optional;
  * @date 2019/11/22 16:49
  */
 @Service
+@Slf4j
 public class GraphExplorationServiceImpl implements GraphExplorationService {
 
     @Autowired
@@ -51,6 +53,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
 
     @Override
     public CommonBasicGraphExploreRsp exploreByKgQl(String kgName, ExploreByKgQlReq kgQlReq) {
+        log.error("kgql:{}", kgQlReq.getKgQl());
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.traversalRule(KGUtil.dbName(kgName), kgQlReq.getEntityId(), kgQlReq.getKgQl()));
         return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, kgQlReq)).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }

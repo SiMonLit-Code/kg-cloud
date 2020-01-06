@@ -233,7 +233,11 @@ public class KgDataServiceImpl implements KgDataService {
             }
         }
         ExcelTypeEnum excelType = ExportTypeEnum.XLS.equals(exportType) ? ExcelTypeEnum.XLS : ExcelTypeEnum.XLSX;
-        EasyExcelFactory.write().file(response.getOutputStream()).head(titleList).excelType(excelType).sheet(0, exportName).doWrite(valueList);
+        // 设置response参数
+        response.reset();
+        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String((exportName + ".xls").getBytes(), "iso-8859-1"));
+        EasyExcelFactory.write().file(response.getOutputStream()).head(titleList).excelType(excelType).sheet(0, "data").doWrite(valueList);
     }
 
 
