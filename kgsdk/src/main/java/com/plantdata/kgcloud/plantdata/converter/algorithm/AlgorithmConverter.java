@@ -41,6 +41,10 @@ public class AlgorithmConverter extends BasicConverter {
         analysis.setConceptId(entityRsp.getConceptId());
         analysis.setConceptIdList(entityRsp.getConceptIdList());
         analysis.setCreationTime(entityRsp.getCreationTime());
+        consumerIfNoNull(entityRsp.getCoordinates(), a -> {
+            analysis.setX(a.getX());
+            analysis.setY(a.getY());
+        });
         analysis.setDistance(entityRsp.getDistance());
         analysis.setMeaningTag(entityRsp.getMeaningTag());
         return analysis;
