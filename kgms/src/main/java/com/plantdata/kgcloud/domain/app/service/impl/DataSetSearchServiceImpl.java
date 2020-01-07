@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
@@ -17,6 +18,7 @@ import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
+import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.exception.BizException;
@@ -50,6 +52,8 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     private MongoApi mongoApi;
     @Autowired
     private DataSetService dataSetService;
+    @Autowired
+    private DataOptService dataOptService;
 
     @Override
     public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query, String sort) {
@@ -129,40 +133,54 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         }
         List<DataLinkRsp> dataLinks = new ArrayList<>();
 
+
         for (Map<String, Object> map : opt.get()) {
             Long dataSetId = Long.valueOf(map.get("_id").toString());
-
-            List<Map<String, Object>> query = JacksonUtils.getInstance().readValue("[{ $match : { data_set_id:" + dataSetId + ",entity_id : " + entityId.toString() + " } },{ $sort: {score: -1 }},{$limit : 5}]", new TypeReference<List<Map<String, Object>>>() {
-            });
-            mongoQueryFrom.setQuery(query);
-            Optional<List<Map<String, Object>>> oneOpt = RestRespConverter.convert(mongoApi.postJson(mongoQueryFrom));
-            if (!oneOpt.isPresent()) {
+            mongoQueryFrom.setQuery(buildTwoQuery(entityId, dataSetId));
+            Optional<List<Map<String, Object>>> dataOpt = RestRespConverter.convert(mongoApi.postJson(mongoQueryFrom));
+            if (!dataOpt.isPresent()) {
                 continue;
             }
-            DataLinkRsp dataLink = new DataLinkRsp();
-            dataLink.setDataSetId(dataSetId);
-            List<LinksRsp> linkList = new ArrayList<>();
-            for (Map<String, Object> map1 : oneOpt.get()) {
-                LinksRsp links = new LinksRsp();
-                links.setDataId(map1.get("data_id").toString());
-                links.setScore(Double.valueOf(map1.get("score").toString()));
-                links.setScore(Double.valueOf(map1.get("source").toString()));
-                Map<String, String> mydata = getDataTitle(userId, map1.get("data_id").toString(), dataSetId);
-                if (CollectionUtils.isEmpty(mydata)) {
-                    continue;
-                }
-                if (dataLink.getDataSetTitle() == null) {
-                    dataLink.setDataSetTitle(mydata.get("dataSetTitle"));
-                }
-                links.setDataTitle(mydata.get("dataTitle"));
-                linkList.add(links);
-            }
-            dataLink.setLinks(linkList);
-            dataLinks.add(dataLink);
+            DataLinkRsp dataLinkRsp = buildDataLink(dataSetId, userId, dataOpt.get());
+            dataLinks.add(dataLinkRsp);
         }
         return dataLinks;
     }
 
+    private DataLinkRsp buildDataLink(Long dataSetId, String userId, List<Map<String, Object>> maps) {
+        DataLinkRsp dataLink = new DataLinkRsp();
+        dataLink.setDataSetId(dataSetId);
+        List<LinksRsp> linkList = new ArrayList<>();
+        for (Map<String, Object> map1 : maps) {
+            LinksRsp links = new LinksRsp();
+            links.setDataId(map1.get("data_id").toString());
+            BasicConverter.consumerIfNoNull(map1.get("score"), a -> links.setScore(Double.valueOf(a.toString())));
+            BasicConverter.consumerIfNoNull(map1.get("source"), a -> links.setSource(Integer.valueOf(a.toString())));
+            BasicConverter.consumerIfNoNull(map1.get("data_id"), a -> {
+                Map<String, String> myData = getDataTitle(userId, a.toString(), dataSetId);
+                if (!CollectionUtils.isEmpty(myData)) {
+                    if (dataLink.getDataSetTitle() == null) {
+                        dataLink.setDataSetTitle(myData.get("dataSetTitle"));
+                    }
+                    links.setDataTitle(myData.get("dataTitle"));
+                }
+            });
+            linkList.add(links);
+        }
+        dataLink.setLinks(linkList);
+        return dataLink;
+    }
+
+    private List<Map<String, Object>> buildTwoQuery(Long entityId, Long dataSetId) {
+        List<Map<String, Object>> mathMapList = Lists.newArrayList();
+        Map<String, Object> queryMap = Maps.newHashMap();
+        queryMap.put("data_set_id", dataSetId);
+        queryMap.put("entity_id", entityId);
+        mathMapList.add(DefaultUtils.oneElMap("$match", queryMap));
+        mathMapList.add(DefaultUtils.oneElMap("$sort", DefaultUtils.oneElMap("score", -1)));
+        mathMapList.add(DefaultUtils.oneElMap("$limit", 5));
+        return mathMapList;
+    }
 
     private static MongoQueryFrom buildMongoQuery(String kgName, long entityId) {
         MongoQueryFrom mongoQueryFrom = new MongoQueryFrom();
@@ -192,12 +210,14 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             return Collections.emptyMap();
         }
         String dataTitle = StringUtils.EMPTY;
-        Optional<DataSetSchema> schemaOpt = dataSet.getSchema().stream().filter(a -> (boolean) a.getSettings().get("setTitle")).findAny();
+        //todo 博文
+        Optional<DataSetSchema> schemaOpt = dataSet.getSchema().stream().findAny();
         if (schemaOpt.isPresent()) {
             DataOptConnect connect = DataOptConnect.of(dataSet);
             DataOptProvider provider = DataOptProviderFactory.createProvider(connect, dataSet.getDataType());
-            Map<String, Object> dataMap = provider.findOne(data_id);
-            dataTitle = dataMap.get("key").toString();
+            String key = (String) schemaOpt.get().getSettings().get("key");
+            Map<String, Object> oneMap = provider.findOne(data_id);
+            dataTitle = (String) oneMap.get(key);
         }
         Map<String, String> map = Maps.newHashMapWithExpectedSize(NumberUtils.INTEGER_TWO);
         map.put("dataSetTitle", dataSet.getTitle());
