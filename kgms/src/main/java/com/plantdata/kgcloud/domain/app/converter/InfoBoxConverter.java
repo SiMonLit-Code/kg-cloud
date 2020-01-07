@@ -244,7 +244,7 @@ public class InfoBoxConverter extends BasicConverter {
             extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "来源", metaDataMap.get(MetaDataInfo.SOURCE.getFieldName())));
         }
         if (metaDataMap.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-            extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "权重", metaDataMap.get(MetaDataInfo.SOURCE.getFieldName())));
+            extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "权重", metaDataMap.get(MetaDataInfo.SCORE.getFieldName())));
         }
         if (metaDataMap.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
             extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "置信度", metaDataMap.get(MetaDataInfo.RELIABILITY.getFieldName())));
