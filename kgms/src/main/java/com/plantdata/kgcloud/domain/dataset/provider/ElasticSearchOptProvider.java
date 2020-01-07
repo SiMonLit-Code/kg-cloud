@@ -89,13 +89,12 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
         int size = limit != null && limit > 0 ? limit : 10;
         queryNode.put("size", size);
-
-        if (CollectionUtils.isEmpty(query)) {
-            return queryNode;
-        }
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "sort")) {
                 queryNode.put("sort", DataConst.CREATE_AT);
+            }
+            if (Objects.equals(entry.getKey(), "query")) {
+                queryNode.putPOJO("query", entry.getValue());
             }
             if (Objects.equals(entry.getKey(), "search")) {
                 Map<String, String> value = (Map<String, String>) entry.getValue();
@@ -152,7 +151,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             Map<String, Object> map = JacksonUtils.readValue(jsonNode.get("_source").traverse(), new TypeReference<Map<String, Object>>() {
             });
             map.put("_id", id);
-            mapList.add(map);
         }
         return mapList;
     }
@@ -248,7 +246,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         String endpoint = "/" + database + "/" + type + "/" + id + "/_update/?refresh=wait_for";
         Request request = new Request(POST, endpoint);
         Map<String, Object> map = new HashMap<>();
-        map.put("doc",node);
+        map.put("doc", node);
         String string = JacksonUtils.writeValueAsString(map);
         request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
         send(request);

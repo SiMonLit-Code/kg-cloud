@@ -1,7 +1,11 @@
 package com.plantdata.kgcloud.plantdata.req.rule;
 
 import com.plantdata.kgcloud.plantdata.req.common.PageModel;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
@@ -13,6 +17,6 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class ListByPageParameter extends PageModel {
-    @NotBlank
+    @NotBlank(message = "kgName不能为空")
     private String kgName;
 }

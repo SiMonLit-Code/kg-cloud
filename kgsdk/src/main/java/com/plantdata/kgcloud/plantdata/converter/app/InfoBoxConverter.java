@@ -133,7 +133,7 @@ public class InfoBoxConverter extends BasicConverter {
         links.setDataId(linksRsp.getDataId());
         links.setDataTitle(linksRsp.getDataTitle());
         links.setScore(linksRsp.getScore());
-        links.setSource(links.getSource());
+        links.setSource(linksRsp.getSource());
         return links;
     }
 }
