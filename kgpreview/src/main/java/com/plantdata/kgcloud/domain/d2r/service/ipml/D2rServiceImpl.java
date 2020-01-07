@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.domain.d2r.entity.*;
 import com.plantdata.kgcloud.domain.d2r.service.D2rService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.KgmsClient;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,6 @@ public class D2rServiceImpl implements D2rService {
             int pageNo = 1;
             int pageSize = req.getEntSize() > 0 ? req.getEntSize() : 10;
             JSONArray datas = this.loadData(configBean.getDataSetId(), pageNo, pageSize);
-            System.out.println("data: " + datas.toJSONString());
             int dataLength = datas.size();
             for (int i = 0; i < dataLength; i++) {
                 JSONObject data = datas.getJSONObject(i);
@@ -85,7 +85,11 @@ public class D2rServiceImpl implements D2rService {
                         attr.setAttrId(attrMapper.getAttrDef());
                         String attrv = "";
                         for (String k : attrMapper.getMapField()) {
-                            attrv += data.getString(k) + ";";
+                            if (data.get(k) instanceof Map) {
+                                attrv += JacksonUtils.writeValueAsString(data.get(k)) + ";";
+                            } else {
+                                attrv += data.getString(k) + ";";
+                            }
                         }
                         attrv = attrv.substring(0, attrv.length() - 1);
                         attr.setAttrValue(attrv);
@@ -177,7 +181,8 @@ public class D2rServiceImpl implements D2rService {
                     data.put(entry.getKey(), dateValue);
                 }
             }
-            ls.add(JSONObject.parseObject(JSON.toJSONString(data)));
+            String dataStr = JacksonUtils.writeValueAsString(data);
+            ls.add(JacksonUtils.readValue(dataStr, JSONObject.class));
         }
         return ls;
     }
