@@ -52,7 +52,11 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
         targe.setKgName(kgName);
         if (!targe.getKgql().isEmpty()) {
             RestResp<QuerySetting> restResp = qlApi.business(kgName, targe.getKgql());
+           if (RestResp.ActionStatusMethod.FAIL.equals(restResp.getActionStatus())){
+               throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
+           }
             Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
+
             if (!convert.isPresent()) {
                 throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
             }
@@ -75,6 +79,9 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
 
         if (!req.getKgql().isEmpty()) {
             RestResp<QuerySetting> restResp = qlApi.business(graphConfKgql.getKgName(), req.getKgql());
+            if (RestResp.ActionStatusMethod.FAIL.equals(restResp.getActionStatus())){
+                throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
+            }
             Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
             if (!convert.isPresent()) {
                 throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
