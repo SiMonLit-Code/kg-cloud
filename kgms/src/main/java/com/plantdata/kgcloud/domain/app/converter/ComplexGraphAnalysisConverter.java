@@ -2,8 +2,10 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
+import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.EsKwConstants;
+import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
@@ -47,13 +49,14 @@ public class ComplexGraphAnalysisConverter extends BasicConverter {
         return coor;
     }
 
-    public static ComplexGraphVisualRsp.CoordinatesEntityRsp entityVoToCoordinatesEntityRsp(@NonNull EntityVO entity, CoordinatesDTO coordinates) {
+    public static ComplexGraphVisualRsp.CoordinatesEntityRsp entityVoToCoordinatesEntityRsp(@NonNull EntityVO entity, Map<Long, BasicInfo> conceptIdMap, CoordinatesDTO coordinates) {
         ComplexGraphVisualRsp.CoordinatesEntityRsp entityRsp = EntityConverter.entityVoToBasicEntityRsp(entity, new ComplexGraphVisualRsp.CoordinatesEntityRsp());
         consumerIfNoNull(coordinates, a -> {
             entityRsp.setCluster(a.getCluster());
             entityRsp.setCoordinates(new CoordinateReq(a.getX(), a.getY()));
             entityRsp.setDistance(a.getDistance());
         });
+        GraphCommonConverter.fillConcept(entityRsp.getConceptId(), entityRsp, conceptIdMap);
         return entityRsp;
     }
 
