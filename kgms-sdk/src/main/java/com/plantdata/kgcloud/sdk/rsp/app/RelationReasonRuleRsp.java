@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,22 +20,22 @@ import java.util.Map;
 @ApiModel("推理规则参数")
 @Getter
 @Setter
-@Builder
 @ToString
+@NoArgsConstructor
 public class RelationReasonRuleRsp {
-    @ApiModelProperty("属性定义id")
     private Integer attrId;
-    @ApiModelProperty("名称")
     private String name;
-    @ApiModelProperty("2 关系 1 属性")
-    private AttrDefinitionTypeEnum type;
-    @ApiModelProperty("概念id")
+    /**
+     *  0 关系 1 属性 2 tag
+     */
+    private int type;
+    /**
+     *  0 私有 1 公有
+     */
+    private int pub;
     private Long domain;
-    @ApiModelProperty("值域")
-    private List<Long> rangeList;
-    @ApiModelProperty("数据类型")
-    private Integer literalDataType;
-    private Integer pub;
+    private List<Long> rangeList = new ArrayList<>();
+    private int literalDataType;
     private String literalValue;
     private RuleCube nodeRule;
     private List<RuleSection> pathRuleList;
@@ -42,6 +43,7 @@ public class RelationReasonRuleRsp {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     private static class RuleCube {
         private String id;
         private CubeTypeEnum type;
@@ -58,6 +60,7 @@ public class RelationReasonRuleRsp {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     private static class RuleSection {
         private SecEnum sec;
         private int mode; //0 满足 1 不满足
@@ -76,6 +79,7 @@ public class RelationReasonRuleRsp {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     private static class HaltBean {
         private Integer maxTimes;
         private Map<Integer, Map<String, Object>> condition;
@@ -83,6 +87,7 @@ public class RelationReasonRuleRsp {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     private static class Equation {
         private String leftExpression;
         private String rightExpression;
@@ -91,6 +96,7 @@ public class RelationReasonRuleRsp {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     private static class FilterBean {
         private AggregateEnum agg;
         private String attrId;
