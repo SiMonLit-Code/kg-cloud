@@ -34,6 +34,7 @@ public class AlgorithmConverter extends BasicConverter {
     private static EntityBeanAnalysisa coordinatesEntityRspToEntityBeanAnalysisa(@NonNull ComplexGraphVisualRsp.CoordinatesEntityRsp entityRsp) {
         EntityBeanAnalysisa analysis = new EntityBeanAnalysisa();
         analysis.setName(entityRsp.getName());
+        analysis.setId(entityRsp.getId());
         analysis.setCluster(entityRsp.getCluster());
         analysis.setClassId(entityRsp.getClassId() == null ? NumberUtils.INTEGER_ZERO : entityRsp.getClassId());
         analysis.setClassIdList(Lists.newArrayList(entityRsp.getClassId()));
