@@ -252,8 +252,8 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         attributeFrom.setConceptIds(Lists.newArrayList(seniorPromptReq.getConceptId()));
         List<EntityVO> queryList;
         if (queryMapList.size() < AppConstants.NER_ENTITY_NUMBER) {
-            attributeFrom.setSkip(seniorPromptReq.getPage());
-            attributeFrom.setLimit(seniorPromptReq.getSize());
+            attributeFrom.setSkip(seniorPromptReq.getOffset());
+            attributeFrom.setLimit(seniorPromptReq.getLimit());
             queryList = RestRespConverter.convert(entityApi.searchByAttribute(KGUtil.dbName(kgName), attributeFrom)).orElse(Collections.emptyList());
 
         } else {
