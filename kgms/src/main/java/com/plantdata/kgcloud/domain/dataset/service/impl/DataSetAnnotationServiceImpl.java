@@ -124,10 +124,7 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
         Long datasetId = request.getId();
         String objId = request.getObjId();
         Map<String, Object> objectMap = dataOptService.updateData(userId, datasetId, objId, request.getData());
-        ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
-        for (Map.Entry<String, Object> entry : objectMap.entrySet()) {
-            objectNode.putPOJO(entry.getKey(), entry.getValue());
-        }
+        ObjectNode objectNode = JacksonUtils.readValue(JacksonUtils.writeValueAsString(objectMap),ObjectNode.class );
         DataSetAnnotation one = findOne(annotationId);
         List<AnnotationConf> config = one.getConfig();
         Set<String> key = new HashSet<>();
