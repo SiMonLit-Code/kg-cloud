@@ -96,7 +96,7 @@ public class ConditionConverter extends BasicConverter {
     private static <T extends CompareFilterReq> Map<String, Object> buildMongoQueryMap(T filtersReq) {
         Map<String, Object> map = Maps.newHashMap();
         consumerIfNoNull(filtersReq.get$eq(), a -> map.put("$eq", a));
-        consumerIfNoNull(filtersReq.get$neq(), a -> map.put("$neq", a));
+        consumerIfNoNull(filtersReq.get$ne(), a -> map.put("$ne", a));
         consumerIfNoNull(filtersReq.get$gt(), a -> map.put("$gt", a));
         consumerIfNoNull(filtersReq.get$gte(), a -> map.put("$gte", a));
         consumerIfNoNull(filtersReq.get$lte(), a -> map.put("$lte", a));

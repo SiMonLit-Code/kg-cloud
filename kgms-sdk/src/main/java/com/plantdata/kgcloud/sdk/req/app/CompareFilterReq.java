@@ -28,7 +28,7 @@ public class CompareFilterReq {
     @ApiModelProperty("包含")
     private Object $in;
     @ApiModelProperty("不等于")
-    private Object $neq;
+    private Object $ne;
     @ApiModelProperty("不等于")
     private Object $nin;
 
@@ -40,12 +40,12 @@ public class CompareFilterReq {
         this.$nin = $nin;
     }
 
-    public Object get$neq() {
-        return $neq;
+    public Object get$ne() {
+        return $ne;
     }
 
-    public void set$neq(Object $neq) {
-        this.$neq = $neq;
+    public void set$ne(Object $ne) {
+        this.$ne = $ne;
     }
 
     public Object get$lte() {

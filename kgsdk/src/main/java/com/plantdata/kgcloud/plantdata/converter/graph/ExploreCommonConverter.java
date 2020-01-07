@@ -230,6 +230,8 @@ public class ExploreCommonConverter extends BasicConverter {
     }
 
     private static RelationAttrReq attrScreeningBeanToRelationAttrReq(@NonNull AttrScreeningBean screeningBean) {
-        return JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), RelationAttrReq.class);
+        RelationAttrReq relationAttrReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), RelationAttrReq.class);
+        consumerIfNoNull(relationAttrReq, a -> a.set$ne(screeningBean.get$neq()));
+        return relationAttrReq;
     }
 }

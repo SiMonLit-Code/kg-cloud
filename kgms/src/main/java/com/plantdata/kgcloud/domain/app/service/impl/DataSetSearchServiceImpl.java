@@ -52,8 +52,6 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     private MongoApi mongoApi;
     @Autowired
     private DataSetService dataSetService;
-    @Autowired
-    private DataOptService dataOptService;
 
     @Override
     public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query, String sort) {

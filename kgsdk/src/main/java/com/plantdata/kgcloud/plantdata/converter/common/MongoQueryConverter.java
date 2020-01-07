@@ -18,7 +18,7 @@ public class MongoQueryConverter extends BasicConverter {
             return null;
         }
         EntityQueryFiltersReq entityQueryFiltersReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), EntityQueryFiltersReq.class);
-        consumerIfNoNull(entityQueryFiltersReq, a -> consumerIfNoNull(screeningBean.get$ne(), a::set$neq));
+        consumerIfNoNull(entityQueryFiltersReq, a -> consumerIfNoNull(screeningBean.get$ne(), a::set$ne));
         return entityQueryFiltersReq;
     }
 }
