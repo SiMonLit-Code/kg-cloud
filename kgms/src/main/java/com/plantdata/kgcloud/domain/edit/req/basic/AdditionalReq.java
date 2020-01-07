@@ -34,5 +34,5 @@ public class AdditionalReq {
     private Map<String, Object> objMetaData;
 
     @ApiModelProperty("属性定义id:metadata value")
-    private Map<Integer, Object> adfMetaData;
+    private Map<Integer, String> adfMetaData;
 }
