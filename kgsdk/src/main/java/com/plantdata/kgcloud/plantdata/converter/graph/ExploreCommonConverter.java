@@ -99,11 +99,10 @@ public class ExploreCommonConverter extends BasicConverter {
         return exploreReq;
     }
 
-    static Map<Long, Object> buildReasonConfig(Map<Integer, JSONObject> config) {
+    static Map<Long, Object> buildReasonConfig(Map<Long, JSONObject> config) {
         String configJson = JacksonUtils.writeValueAsString(config);
-        Map<Integer, Object> tempMap = JacksonUtils.readValue(configJson, new TypeReference<Map<Integer, Object>>() {
+        return JacksonUtils.readValue(configJson, new TypeReference<Map<Long, Object>>() {
         });
-        return keyIntToLong(tempMap);
     }
 
     static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReq> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {

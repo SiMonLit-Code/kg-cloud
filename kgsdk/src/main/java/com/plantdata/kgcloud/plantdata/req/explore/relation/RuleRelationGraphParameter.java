@@ -18,6 +18,6 @@ import java.util.Map;
 public class RuleRelationGraphParameter extends TimeRelationGraphParameter implements RuleGraphParameter {
 
     private List<RelationReasoningBean> rule;
-    private Map<Integer, JSONObject> reasoningRuleConfigs;
+    private Map<Long, JSONObject> reasoningRuleConfigs;
 
 }
