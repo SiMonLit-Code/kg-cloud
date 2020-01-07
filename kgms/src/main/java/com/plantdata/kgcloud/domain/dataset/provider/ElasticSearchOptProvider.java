@@ -127,10 +127,10 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
+        if (query == null) {
+            query = Maps.newHashMap();
+        }
         if (!CollectionUtils.isEmpty(sort)) {
-            if (query == null) {
-                query = Maps.newHashMap();
-            }
             query.put("sort", sort);
         }
 
