@@ -271,7 +271,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return visualRsp;
         }
-        List<ComplexGraphVisualRsp.CoordinatesEntityRsp> entityRspList = BasicConverter.listConvert(entityOpt.get(), a -> ComplexGraphAnalysisConverter.entityVoToCoordinatesEntityRsp(a, dataMap.get(a.getId())));
+        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
+        List<ComplexGraphVisualRsp.CoordinatesEntityRsp> entityRspList = BasicConverter.listConvert(entityOpt.get(), a -> ComplexGraphAnalysisConverter.entityVoToCoordinatesEntityRsp(a, conceptIdMap, dataMap.get(a.getId())));
         visualRsp.setEntityList(entityRspList);
         return visualRsp;
     }
