@@ -41,6 +41,7 @@ public class AnnotationServiceImpl implements AnnotationService {
 
         checkConfig(setting);
         String kgDbName = KgQueryUtil.getKgDbName(setting.getKgName());
+        double totalWeight = setting.fieldsAndWeights.values().stream().mapToDouble(s -> s).sum();
         List<AnnotationRsp> ls = new ArrayList<>();
         ApiReturn<BasePage<Map<String, Object>>> apiReturn = kgmsClient.dataOptFindAll(setting.getDataSetId(), 1, 20);
         for (Map<String, Object> data : apiReturn.getData().getContent()) {
@@ -57,7 +58,7 @@ public class AnnotationServiceImpl implements AnnotationService {
                         double weight = entry.getValue();
                         String text = data.getOrDefault(field, "").toString().toLowerCase();
                         if (text.contains(name)) {
-                            score += weight + (name.length() * 1.0 / text.length());
+                            score += weight / totalWeight * (name.length() * 1.0 / text.length());
                         }
                     }
                     if (score > 0) {
