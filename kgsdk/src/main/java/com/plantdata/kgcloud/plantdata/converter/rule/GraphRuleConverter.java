@@ -20,7 +20,6 @@ import java.util.Map;
 public class GraphRuleConverter extends BasicConverter {
 
 
-
     public static GraphConfKgqlReq graphRuleMapBeanToGraphConfKgqlReq(GraphmRuleMapBean ruleMapBean) {
         GraphConfKgqlReq confKgqlReq = new GraphConfKgqlReq();
         confKgqlReq.setKgql(ruleMapBean.getRuleKgql());
@@ -38,15 +37,16 @@ public class GraphRuleConverter extends BasicConverter {
         GraphmRuleMapBean ruleMapBean = new GraphmRuleMapBean();
         ruleMapBean.setCreateTime(rsp.getCreateAt());
         ruleMapBean.setKgName(rsp.getKgName());
-        consumerIfNoNull(rsp.getId(), a -> ruleMapBean.setRuleId(a.intValue()));
+        consumerIfNoNull(rsp.getId(), ruleMapBean::setRuleId);
         ruleMapBean.setRuleName(rsp.getKgqlName());
+        ruleMapBean.setRuleKgql(rsp.getKgql());
         ruleMapBean.setRuleType(rsp.getRuleType());
         ruleMapBean.setUpdateTime(rsp.getUpdateAt());
         consumerIfNoNull(rsp.getRuleSettings(), a -> {
-            Map<String, Object> objectMap = JsonUtils.jsonToObj(rsp.getRuleSettings(), new TypeReference<Map<String, Object>>() {
+            Map<String, Object> objectMap = JsonUtils.jsonToObj(a, new TypeReference<Map<String, Object>>() {
             });
             GraphRuleBean bean = new GraphRuleBean();
-            applyIfTrue(objectMap.containsKey(StringConstants.DOMAIN), (Long) objectMap.get(StringConstants.DOMAIN), bean::setDomain);
+            consumerIfNoNull(objectMap.get(StringConstants.DOMAIN), b -> applyIfTrue(objectMap.containsKey(StringConstants.DOMAIN), Long.valueOf(b.toString()), bean::setDomain));
             ruleMapBean.setRuleSettings(bean);
         });
         return ruleMapBean;

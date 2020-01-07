@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -88,13 +89,19 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
         int size = limit != null && limit > 0 ? limit : 10;
         queryNode.put("size", size);
-
         if (CollectionUtils.isEmpty(query)) {
             return queryNode;
         }
+        return handleQuery(queryNode,query);
+    }
+
+    private ObjectNode handleQuery(ObjectNode queryNode,Map<String, Object> query) {
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "sort")) {
                 queryNode.put("sort", DataConst.CREATE_AT);
+            }
+            if (Objects.equals(entry.getKey(), "query")) {
+                queryNode.putPOJO("query", entry.getValue());
             }
             if (Objects.equals(entry.getKey(), "search")) {
                 Map<String, String> value = (Map<String, String>) entry.getValue();
@@ -128,9 +135,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     @Override
     public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
         if (!CollectionUtils.isEmpty(sort)) {
-            if (query == null) {
-                query = Maps.newHashMap();
-            }
             query.put("sort", sort);
         }
 
@@ -153,30 +157,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             map.put("_id", id);
             mapList.add(map);
         }
-        return mapList;
-    }
-
-    public List<Map<String, Object>> batchFind(Integer offset, Integer limit, Map<String, Object> query) {
-        List<Map<String, Object>> mapList = new ArrayList<>();
-
-        String endpoint = "/" + database + "/" + type + "/_search";
-        if (StringUtils.hasText(type)) {
-            endpoint = "/" + database + "/_search";
-        }
-        Request request = new Request(POST, endpoint);
-
-
-//            NStringEntity entity = new NStringEntity(query, ContentType.APPLICATION_JSON);
-//
-//            request.setEntity(entity);
-
-
-        Optional<String> send = send(request);
-        String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        JsonNode node = readTree(result);
-
-        System.out.println(node.toString());
-
         return mapList;
     }
 
@@ -244,13 +224,14 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public Map<String, Object> update(String id, Map<String, Object> node) {
-        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/";
+        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/?refresh=wait_for";
         Request request = new Request(POST, endpoint);
-        String string = JacksonUtils.writeValueAsString(node);
+        Map<String, Object> map = new HashMap<>();
+        map.put("doc", node);
+        String string = JacksonUtils.writeValueAsString(map);
         request.setEntity(new StringEntity(string, ContentType.APPLICATION_JSON));
         send(request);
-        return JacksonUtils.readValue(string, new TypeReference<Map<String, Object>>() {
-        });
+        return node;
     }
 
     @Override

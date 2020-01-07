@@ -32,7 +32,7 @@ public class GraphLocusGisParameter extends PageModel {
     private String fromTime;
     @DateCheck(name = "toTime")
     private String toTime;
-    @ChooseCheck(value = "[0,1,2,3]", name = "timeFilterType")
+    @ChooseCheck(value = "[0,1,2,3]", name = "timeFilterType", isBlank = true)
     private Integer timeFilterType = 0;
 
     @Data
@@ -40,7 +40,7 @@ public class GraphLocusGisParameter extends PageModel {
     @NoArgsConstructor
     public static class GisRuleParam {
         private List<Long> ids;
-        private Integer ruleId;
+        private Long ruleId;
         private String kql;
     }
 }

@@ -17,7 +17,7 @@ import java.util.Map;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class InitStatisticalBean {
-    private Integer id;
+    private Long id;
 
     private String kgName;
 

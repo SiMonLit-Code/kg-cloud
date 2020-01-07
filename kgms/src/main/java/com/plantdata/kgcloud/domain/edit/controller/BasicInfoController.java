@@ -6,13 +6,14 @@ import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.KgqlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
+import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -111,5 +114,12 @@ public class BasicInfoController {
     @EditPermissionUnwanted
     public ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq) {
         return ApiReturn.success(basicInfoService.executeQl(kgqlReq));
+    }
+
+    @ApiOperation("根据批量名称查询实体")
+    @PostMapping("/{kgName}/list/name")
+    public ApiReturn<List<SimpleBasicRsp>> listNames(@PathVariable("kgName") String kgName,
+                                                     @Valid @Min(1) @Max(10000) @RequestBody List<String> names) {
+        return ApiReturn.success(basicInfoService.listNames(kgName, names));
     }
 }

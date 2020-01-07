@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.req.RelationFrom;
+import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
@@ -13,6 +14,7 @@ import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
@@ -24,6 +26,7 @@ import com.plantdata.kgcloud.sdk.req.app.function.GraphTimingReqInterface;
 import com.plantdata.kgcloud.util.DateUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -40,16 +43,16 @@ import java.util.Optional;
 public class GraphReqConverter extends BasicConverter {
 
     /**
-     * 图探索参数 构建 GraphFrom
+     * 图探索参数 构建 GraphFrom 支持分页
      *
      * @param exploreReq 探索的参数
      * @param <E>        。。。
      * @return 。。
      */
     public static <E extends BasicGraphExploreReq> GraphFrom commonReqProxy(E exploreReq) {
-        GraphFrom graphFrom = GraphCommonConverter.basicReqToRemote(exploreReq.getPage(), exploreReq, new GraphFrom());
+        GraphFrom graphFrom = GraphCommonConverter.basicReqToRemote(exploreReq, new GraphFrom());
         if (exploreReq instanceof GraphCommonReqInterface) {
-            fillCommon(((GraphCommonReqInterface) exploreReq).fetchCommon(), graphFrom);
+            fillCommon(((GraphCommonReqInterface) exploreReq).fetchCommon(), exploreReq.getPage(), graphFrom);
         }
         if (exploreReq instanceof GraphTimingReqInterface) {
             fillTimeFilters(((GraphTimingReqInterface) exploreReq).fetchTimeFilter(), graphFrom);
@@ -59,14 +62,14 @@ public class GraphReqConverter extends BasicConverter {
     }
 
     /**
-     * 路径分析参数 构建 PathFrom
+     * 路径分析参数 构建 PathFrom 暂不支持分页
      *
      * @param exploreReq 探索的参数
      * @param <E>        。。。
      * @return 。。
      */
     public static <E extends BasicGraphExploreReq> PathFrom pathReqProxy(E exploreReq) {
-        PathFrom pathFrom = GraphCommonConverter.basicReqToRemote(exploreReq.getPage(), exploreReq, new PathFrom());
+        PathFrom pathFrom = GraphCommonConverter.basicReqToRemote(exploreReq, new PathFrom());
         if (exploreReq instanceof GraphPathReqInterface) {
             fillPath(((GraphPathReqInterface) exploreReq).fetchPath(), pathFrom);
         }
@@ -78,14 +81,14 @@ public class GraphReqConverter extends BasicConverter {
     }
 
     /**
-     * 路径分析参数 构建 PathFrom
+     * 路径分析参数 构建 PathFrom 暂不支持分页
      *
      * @param exploreReq 探索的参数
      * @param <E>        。。。
      * @return 。。
      */
     public static <E extends BasicGraphExploreReq> RelationFrom relationReqProxy(E exploreReq) {
-        RelationFrom relationFrom = GraphCommonConverter.basicReqToRemote(exploreReq.getPage(), exploreReq, new RelationFrom());
+        RelationFrom relationFrom = GraphCommonConverter.basicReqToRemote(exploreReq, new RelationFrom());
         //关联分析
         if (exploreReq instanceof GraphRelationReqInterface) {
             fillRelation(((GraphRelationReqInterface) exploreReq).fetchRelation(), relationFrom);
@@ -102,20 +105,35 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.setIds(relation.getIds());
     }
 
-    private static void fillCommon(@NonNull CommonFiltersReq common, GraphFrom graphFrom) {
+    private static void fillCommon(@NonNull CommonFiltersReq common, PageReq page, GraphFrom graphFrom) {
         if (common.getId() == null && StringUtils.isEmpty(common.getKw())) {
             throw BizException.of(AppErrorCodeEnum.NULL_KW_AND_ID);
         }
-        graphFrom.setId(common.getId());
-        graphFrom.setName(common.getKw());
-        graphFrom.setQueryPrivate(common.isPrivateAttRead());
+        if (page == null) {
+            page = new PageReq();
+            page.setPage(NumberUtils.INTEGER_ONE);
+            page.setSize(BaseReq.DEFAULT_SIZE);
+        }
+
+        //最高层节点数
+        graphFrom.setSkip(NumberUtils.INTEGER_ZERO);
+        graphFrom.setLimit(common.getHighLevelSize());
+        //通用
+        graphFrom.getHighLevelFilter().setSkip(page.getOffset());
+        graphFrom.getHighLevelFilter().setLimit(page.getLimit());
         graphFrom.getHighLevelFilter().setDirection(common.getDirection());
-        graphFrom.getHighLevelFilter().setLimit(common.getHighLevelSize() == null ? graphFrom.getLimit() : common.getHighLevelSize());
-        consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
+        graphFrom.getHighLevelFilter().setQueryPrivate(common.isPrivateAttRead());
         if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
             Map<String, Integer> edgeAttrQuery = ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts());
             graphFrom.getHighLevelFilter().setEdgeSort(edgeAttrQuery);
         }
+        graphFrom.setDirection(common.getDirection());
+        graphFrom.setId(common.getId());
+        graphFrom.setName(common.getKw());
+        graphFrom.setQueryPrivate(common.isPrivateAttRead());
+
+        consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
+
     }
 
     private static void fillPath(@NonNull CommonPathReq pathReq, PathFrom pathFrom) {

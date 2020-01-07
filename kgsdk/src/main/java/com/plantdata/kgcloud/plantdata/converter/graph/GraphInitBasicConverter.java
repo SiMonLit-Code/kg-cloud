@@ -18,7 +18,7 @@ public class GraphInitBasicConverter extends BasicConverter {
         InitGraphBean initGraphBean = new InitGraphBean();
         initGraphBean.setConfig(graphInitRsp.getConfig());
         initGraphBean.setCreateTime(graphInitRsp.getCreateTime());
-        List<InitGraphBean.InitGraphEntity> initGraphEntities = listToRsp(graphInitRsp.getEntities(), GraphInitBasicConverter::graphInitEntityRspToInitGraphEntity);
+        List<InitGraphBean.InitGraphEntity> initGraphEntities = toListNoNull(graphInitRsp.getEntities(), GraphInitBasicConverter::graphInitEntityRspToInitGraphEntity);
         initGraphBean.setEntities(initGraphEntities);
         initGraphBean.setCreateTime(graphInitRsp.getCreateTime());
         initGraphBean.setKgName(graphInitRsp.getKgName());
@@ -30,7 +30,7 @@ public class GraphInitBasicConverter extends BasicConverter {
     private static InitGraphBean.InitGraphEntity graphInitEntityRspToInitGraphEntity(@NonNull GraphInitRsp.GraphInitEntityRsp initEntityRsp) {
         InitGraphBean.InitGraphEntity initGraphEntity = new InitGraphBean.InitGraphEntity();
         initGraphEntity.setClassId(initEntityRsp.getClassId());
-        initGraphEntity.setId(initEntityRsp.getId().intValue());
+        initGraphEntity.setId(initEntityRsp.getId());
         initGraphEntity.setName(initEntityRsp.getName());
         return initGraphEntity;
     }

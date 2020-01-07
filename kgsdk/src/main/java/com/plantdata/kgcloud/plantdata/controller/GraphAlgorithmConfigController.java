@@ -37,7 +37,7 @@ import java.util.function.Function;
  */
 @RestController("graphBusinessAlgorithmController-v2")
 @RequestMapping("sdk/graph/business/algorithm")
-public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
+public class GraphAlgorithmConfigController implements SdkOldApiInterface {
     @Autowired
     private KgmsClient kgmsClient;
 
@@ -63,8 +63,8 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "query"),
     })
     public RestResp<GraphBusinessAlgorithmBean> get(@RequestParam(value = "kgName", required = false) String kgName,
-                                                    @RequestParam @NotNull Integer id) {
-        ApiReturn<GraphConfAlgorithmRsp> apiReturn = kgmsClient.detailAlgorithm(id.longValue());
+                                                    @RequestParam @NotNull Long id) {
+        ApiReturn<GraphConfAlgorithmRsp> apiReturn = kgmsClient.detailAlgorithm(id);
         GraphBusinessAlgorithmBean algorithmBean = BasicConverter.convert(apiReturn, GraphAlgorithmConverter::graphConfAlgorithmRspToGraphBusinessAlgorithmBean);
         return new RestResp<>(algorithmBean);
     }
@@ -90,8 +90,8 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
     })
-    public RestResp delete(@RequestParam(value = "kgName", required = false) String kgName, @RequestParam("id") Integer id) {
-        kgmsClient.delete(id.longValue());
+    public RestResp delete(@RequestParam(value = "kgName", required = false) String kgName, @RequestParam("id") Long id) {
+        kgmsClient.delete(id);
         return new RestResp<>();
     }
 
@@ -104,7 +104,7 @@ public class GraphBusinessAlgorithmController implements SdkOldApiInterface {
     })
     public RestResp<GraphBusinessAlgorithmBean> update(@Valid @ApiIgnore GraphBusinessAlgorithmUpdate algorithmUpdate) {
         HttpUtils.isHttp(algorithmUpdate.getBean().getUrl());
-        Function<GraphConfAlgorithmReq, ApiReturn<GraphConfAlgorithmRsp>> returnFunction = a -> kgmsClient.update(algorithmUpdate.getId().longValue(), a);
+        Function<GraphConfAlgorithmReq, ApiReturn<GraphConfAlgorithmRsp>> returnFunction = a -> kgmsClient.update(algorithmUpdate.getId(), a);
         returnFunction.compose(GraphAlgorithmConverter::graphBusinessAlgorithmAddToGraphConfAlgorithmReq)
                 .andThen(a -> BasicConverter.convert(a, GraphAlgorithmConverter::graphConfAlgorithmRspToGraphBusinessAlgorithmBean))
                 .apply(algorithmUpdate.getBean());

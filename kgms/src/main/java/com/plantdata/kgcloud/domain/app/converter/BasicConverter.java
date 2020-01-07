@@ -53,25 +53,27 @@ public class BasicConverter {
      * 非空 消费
      */
     public static <T> void consumerIfNoNull(T param, Consumer<T> function) {
-        if (param == null) {
-            return;
+        if (!isNull(param)) {
+            function.accept(param);
         }
-        if (param instanceof String && StringUtils.isEmpty(param)) {
-            return;
-        }
-        if (param instanceof Collection && CollectionUtils.isEmpty((Collection) param)) {
-            return;
-        }
-        if (param instanceof Map && CollectionUtils.isEmpty((Map) param)) {
-            return;
-        }
-        function.accept(param);
     }
 
     public static <T, R> List<R> listConvert(@NonNull Collection<T> list, Function<T, R> function) {
         return CollectionUtils.isEmpty(list) ? Collections.emptyList() : list.stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
     }
 
+    private static <T> boolean isNull(T param) {
+        if (param == null) {
+            return true;
+        }
+        if (param instanceof String && StringUtils.isEmpty(param)) {
+            return true;
+        }
+        if (param instanceof Collection && CollectionUtils.isEmpty((Collection) param)) {
+            return true;
+        }
+        return param instanceof Map && CollectionUtils.isEmpty((Map) param);
+    }
 
     public static <T, R> R copy(T t, Class<R> clazz) {
         R r = null;

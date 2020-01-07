@@ -120,7 +120,7 @@ public class ConceptConverter extends BasicConverter {
     }
 
     private static void fillAttrDef(@NonNull List<BasicConceptTreeRsp> allConceptList, @NonNull List<AttrDefVO> attrDefList) {
-        Map<Long, BasicConceptTreeRsp> conceptTreeRspMap = allConceptList.stream().collect(Collectors.toMap(BasicConceptTreeRsp::getId, Function.identity()));
+        Map<Long, BasicConceptTreeRsp> conceptTreeRspMap = allConceptList.stream().collect(Collectors.toMap(BasicConceptTreeRsp::getId, Function.identity(), (a, b) -> b));
         Map<Long, List<BasicConceptTreeRsp.ObjectAttr>> objMap = Maps.newHashMap();
         Map<Long, List<BasicConceptTreeRsp.NumberAttr>> numMap = Maps.newHashMap();
         attrDefList.stream().collect(Collectors.groupingBy(AttrDefVO::getDomainValue)).forEach((k, v) -> {

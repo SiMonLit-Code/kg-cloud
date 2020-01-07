@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
+import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
@@ -189,6 +190,19 @@ public interface AppClient {
                                                  @RequestBody EdgeAttrPromptReq edgeAttrPromptReq);
 
     /**
+     * 业务 算法调用
+     *
+     * @param kgName    kgName
+     * @param id        long
+     * @param graphBean 。。
+     * @return 。。
+     */
+    @PostMapping("algorithm/run/{kgName}/{id}")
+    ApiReturn<BusinessGraphRsp> executeAlgorithm(@PathVariable("kgName") String kgName,
+                                    @PathVariable("id") long id,
+                                    @RequestBody BusinessGraphRsp graphBean);
+
+    /**
      * 初始化图探索焦点
      *
      * @param kgName 图谱名称
@@ -239,7 +253,7 @@ public interface AppClient {
      * @param exploreParam param
      * @return CommonBasicGraphExploreRsp
      */
-    @PostMapping("reasoning/{kgName}")
+    @PostMapping("graphExplore/reasoning/{kgName}")
     ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@PathVariable("kgName") String kgName, @RequestBody CommonReasoningExploreReq exploreParam);
 
     /**

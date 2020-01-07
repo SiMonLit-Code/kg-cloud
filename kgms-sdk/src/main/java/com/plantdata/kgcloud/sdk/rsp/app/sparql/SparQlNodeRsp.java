@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author Administrator
+ */
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
@@ -14,6 +17,4 @@ public class SparQlNodeRsp {
     private String value;
     private String type;
     private String id;
-    private String uri;
-
 }

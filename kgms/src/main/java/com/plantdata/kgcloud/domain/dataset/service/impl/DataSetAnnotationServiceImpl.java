@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSetAnnotation;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetAnnotationRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
@@ -30,8 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,9 +67,17 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
 
     @Override
     public Page<AnnotationRsp> findAll(String kgName, AnnotationQueryReq baseReq) {
-        DataSetAnnotation build = DataSetAnnotation.builder().kgName(kgName).build();
         PageRequest of = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
-        Page<DataSetAnnotation> all = dataSetAnnotationRepository.findAll(Example.of(build), of);
+        Specification<DataSetAnnotation> specification = (Specification<DataSetAnnotation>) (root, query, cb) -> {
+            Predicate predicate = cb.conjunction();
+            List<Expression<Boolean>> expressions = predicate.getExpressions();
+            expressions.add(cb.equal(root.get("kgName"),kgName));
+            if (StringUtils.hasText(baseReq.getName())) {
+                expressions.add(cb.like(root.get("name"), "%" + baseReq.getName() + "%"));
+            }
+            return predicate;
+        };
+        Page<DataSetAnnotation> all = dataSetAnnotationRepository.findAll(specification, of);
         return all.map(ConvertUtils.convert(AnnotationRsp.class));
     }
 
@@ -111,29 +124,18 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
         Long datasetId = request.getId();
         String objId = request.getObjId();
         Map<String, Object> objectMap = dataOptService.updateData(userId, datasetId, objId, request.getData());
-        ObjectNode objectNode = JacksonUtils.getInstance().createObjectNode();
-        for (Map.Entry<String, Object> entry : objectMap.entrySet()) {
-            objectNode.putPOJO(entry.getKey(), entry.getValue());
-        }
+        ObjectNode objectNode = JacksonUtils.readValue(JacksonUtils.writeValueAsString(objectMap),ObjectNode.class );
         DataSetAnnotation one = findOne(annotationId);
         List<AnnotationConf> config = one.getConfig();
-
-        MongoDatabase mongoDatabase = mongoClient.getDatabase("kg_attribute_definition");
-        MongoCollection<Document> kgDbName = mongoDatabase.getCollection("kg_db_name");
-        FindIterable<Document> findIterable = kgDbName.find(new Document("kg_name", kgName));
-
-        Document document = findIterable.first();
         Set<String> key = new HashSet<>();
         for (AnnotationConf conf : config) {
             if (Objects.equals(conf.getSource(), 1)) {
                 key.add(conf.getKey());
             }
         }
-        if (document != null && !key.isEmpty()) {
-            String dbName = document.getString("db_name");
-            MongoDatabase database = mongoClient.getDatabase(dbName);
+        if (!key.isEmpty()) {
+            MongoDatabase database = mongoClient.getDatabase(KGUtil.dbName(kgName));
             MongoCollection<Document> collection = database.getCollection("entity_annotation");
-
             for (String sss : key) {
                 JsonNode node = objectNode.get(sss);
                 if (node.isArray()) {

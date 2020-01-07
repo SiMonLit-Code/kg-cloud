@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
@@ -19,7 +20,6 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatDataRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/12/11 9:59
  */
-public class GraphStatisticConverter {
+public class GraphStatisticConverter extends BasicConverter {
 
 
     public static AttributeStatisticsBean attrReqToAttributeStatisticsBean(int reSize, EntityStatisticGroupByAttrIdReq attrIdReq) {
@@ -44,10 +44,11 @@ public class GraphStatisticConverter {
         statisticsBean.setEntityIds(attrIdReq.getEntityIds());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(reSize);
-        statisticsBean.setDirection(attrIdReq.getDirection());
+        statisticsBean.setSort(attrIdReq.getDirection());
         statisticsBean.setAppendId(appendId);
         statisticsBean.setAttributeId(attrIdReq.getAttrId());
         statisticsBean.setAllowValues(attrIdReq.getAllowValues());
+        infoLog("AttributeStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
 
@@ -56,10 +57,11 @@ public class GraphStatisticConverter {
         ConceptStatisticsBean statisticsBean = new ConceptStatisticsBean();
         statisticsBean.setAllowTypes(statisticReq.getAllowTypes());
         statisticsBean.setAppendId(appendId);
-        statisticsBean.setDirection(statisticReq.getDirection());
+        statisticsBean.setSort(statisticReq.getSort());
         statisticsBean.setEntityIds(statisticReq.getEntityIds());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(defaultStatisticSize(statisticReq.getSize()));
+        infoLog("ConceptStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
 
@@ -73,6 +75,7 @@ public class GraphStatisticConverter {
         statisticsBean.setEndTime(conceptIdReq.getToTime());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(defaultStatisticSize(conceptIdReq.getSize()));
+        infoLog("RelationStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
 
@@ -86,11 +89,16 @@ public class GraphStatisticConverter {
         statisticBean.setTripleIds(attrValueReq.getTripleIds());
         statisticBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticBean.setLimit(defaultStatisticSize(attrValueReq.getSize()));
-        statisticBean.setDirection(attrValueReq.getSort());
+        statisticBean.setSort(attrValueReq.getSort());
+        infoLog("RelationExtraInfoStatisticBean:{}", JsonUtils.objToJson(statisticBean));
         return statisticBean;
     }
 
     public static Object statisticByType(List<StatisticDTO> dataMapList, int returnType, StatisticResultTypeEnum resultType) {
+        StatDataRsp statDataRsp = new StatDataRsp();
+        if (CollectionUtils.isEmpty(dataMapList)) {
+            return statDataRsp;
+        }
         if (returnType == DataSetStatisticEnum.KV.getValue()) {
             return dataMapList.stream().map(s -> {
                 Map<String, Object> map = new HashMap<>();
@@ -102,19 +110,14 @@ public class GraphStatisticConverter {
                 if (relation != null) {
                     map.put("ids", relation);
                 }
-                if (relation != null) {
+                if (entity != null) {
                     map.put("ids", entity);
                 }
                 return map;
             }).collect(Collectors.toList());
         }
-        StatDataRsp statDataRsp = new StatDataRsp();
-        if (CollectionUtils.isEmpty(dataMapList)) {
-            return statDataRsp;
-        }
         List<String> xData = new ArrayList<>();
         List<Long> sData = new ArrayList<>();
-
         dataMapList.forEach(data -> {
             String value = StatisticResultTypeEnum.NAME.equals(resultType) ? data.getName() : data.getValue();
             xData.add(value);
@@ -134,7 +137,7 @@ public class GraphStatisticConverter {
     }
 
     private static int defaultStatisticSize(Integer size) {
-        if (size.equals(NumberUtils.INTEGER_MINUS_ONE)) {
+        if (size != null && size.equals(NumberUtils.INTEGER_MINUS_ONE)) {
             return Integer.MAX_VALUE - NumberUtils.INTEGER_ONE;
         }
         return PageUtils.DEFAULT_SIZE;

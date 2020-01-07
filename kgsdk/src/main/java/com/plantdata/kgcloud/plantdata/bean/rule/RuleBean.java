@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.plantdata.bean.rule;
 
-import com.plantdata.kgcloud.config.MarkObject;
+import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +16,7 @@ import java.util.Date;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class RuleBean implements MarkObject {
-    private Integer ruleId;
+    private Long ruleId;
     private String kgName;
     private String ruleName;
     private String ruleConfig;

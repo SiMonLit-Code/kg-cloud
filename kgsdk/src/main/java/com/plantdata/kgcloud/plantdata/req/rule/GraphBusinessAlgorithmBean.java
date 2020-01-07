@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.plantdata.req.rule;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.plantdata.kgcloud.config.MarkObject;
+import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +19,7 @@ import java.util.Date;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class GraphBusinessAlgorithmBean implements MarkObject {
-    private Integer id;
+    private Long id;
     private String kgName;
     private String name;
     private String abs;

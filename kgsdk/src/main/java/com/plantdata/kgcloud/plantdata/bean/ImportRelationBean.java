@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.plantdata.bean;
 
-import com.plantdata.kgcloud.config.MarkObject;
+import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

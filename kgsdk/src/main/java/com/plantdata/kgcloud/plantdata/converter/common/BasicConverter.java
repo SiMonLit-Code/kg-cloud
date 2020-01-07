@@ -36,7 +36,7 @@ public class BasicConverter {
     private static final int SUCCESS = 200;
     private static final String DATE_REG = "yyyy-MM-ddd hh:mm:ss";
 
-    public static <T, R> List<R> listToRsp(List<T> list, Function<T, R> function) {
+    public static <T, R> List<R> toListNoNull(List<T> list, Function<T, R> function) {
         return executeIfNoNull(list, a -> listConvert(a, function));
     }
 
@@ -47,21 +47,15 @@ public class BasicConverter {
     }
 
     public static <T> Map<String, T> keyIntToStr(Map<Integer, T> oldMap) {
-        if (CollectionUtils.isEmpty(oldMap)) {
-            return Collections.emptyMap();
-        }
-        Map<String, T> newMap = Maps.newHashMapWithExpectedSize(oldMap.size());
-        oldMap.forEach((k, v) -> newMap.put(String.valueOf(k), v));
-        return newMap;
+        return keyConvert(oldMap, String.class);
+    }
+
+    public static <T> Map<Integer, T> keyStringToInt(Map<String, T> oldMap) {
+        return keyConvert(oldMap, Integer.class);
     }
 
     public static <T> Map<Long, T> keyIntToLong(Map<Integer, T> oldMap) {
-        if (CollectionUtils.isEmpty(oldMap)) {
-            return Collections.emptyMap();
-        }
-        Map<Long, T> newMap = Maps.newHashMapWithExpectedSize(oldMap.size());
-        oldMap.forEach((k, v) -> newMap.put(Long.valueOf(k), v));
-        return newMap;
+        return keyConvert(oldMap, Long.class);
     }
 
     public static <T, R> List<R> convertList(ApiReturn<List<T>> apiReturn, Function<T, R> function) {
@@ -81,7 +75,7 @@ public class BasicConverter {
         if (pageData == null) {
             return new RestData<>(Collections.emptyList(), NumberUtils.LONG_ZERO);
         }
-        List<R> rs = listToRsp(pageData.getContent(), function);
+        List<R> rs = toListNoNull(pageData.getContent(), function);
         return new RestData<>(rs, pageData.getTotalElements());
     }
 
@@ -119,6 +113,8 @@ public class BasicConverter {
         return DateUtils.parseDate(str, DATE_REG);
     }
 
+
+
     protected static String dateToString(Date date) {
         return DateUtils.formatDate(date, DATE_REG);
     }
@@ -136,6 +132,28 @@ public class BasicConverter {
         }
         return r;
     }
+
+    private static <T, R, E> Map<E, R> keyConvert(Map<T, R> oldMap, Class<E> clazz) {
+        if (CollectionUtils.isEmpty(oldMap)) {
+            return Collections.emptyMap();
+        }
+        Map<E, R> newMap = Maps.newHashMapWithExpectedSize(oldMap.size());
+        oldMap.forEach((k, v) -> {
+            E tempKey = null;
+            if (clazz.equals(String.class)) {
+                tempKey = (E) k.toString();
+            }
+            if (clazz.equals(Integer.class)) {
+                tempKey = (E) Integer.valueOf(k.toString());
+            }
+            if (clazz.equals(Long.class)) {
+                tempKey = (E) Long.valueOf(k.toString());
+            }
+            newMap.put(tempKey, v);
+        });
+        return newMap;
+    }
+
 
     private static <T, R> List<R> executeIfNoNull(List<T> list1, Function<List<T>, List<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1);

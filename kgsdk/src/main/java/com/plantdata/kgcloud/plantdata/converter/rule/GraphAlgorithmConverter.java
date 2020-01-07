@@ -16,7 +16,7 @@ public class GraphAlgorithmConverter extends BasicConverter {
         GraphBusinessAlgorithmBean algorithmBean = new GraphBusinessAlgorithmBean();
         algorithmBean.setAbs(algorithmRsp.getRemark());
         algorithmBean.setCreateTime(algorithmRsp.getCreateAt());
-        algorithmBean.setId(algorithmRsp.getId().intValue());
+        algorithmBean.setId(algorithmRsp.getId());
         algorithmBean.setKgName(algorithmRsp.getKgName());
         algorithmBean.setName(algorithmRsp.getAlgorithmName());
         algorithmBean.setUpdateTime(algorithmRsp.getUpdateAt());

@@ -6,7 +6,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Set;
 
@@ -18,8 +17,7 @@ import java.util.Set;
 @Getter
 @Setter
 public class EdgeAttrStatisticByAttrValueReq {
-    @NotBlank
-    private String kgName;
+
     private Integer attrId;
     private String attrKey;
     @NonNull
@@ -28,7 +26,6 @@ public class EdgeAttrStatisticByAttrValueReq {
     private Set<Long> entityIds;
 
     private List<String> tripleIds;
-    //@ChooseCheck(value = "[-1,1]", name = "sort")
     private Integer sort = 1;
 
     private List<Object> allowValues;

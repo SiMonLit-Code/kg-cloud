@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.List;
@@ -17,7 +18,8 @@ import java.util.List;
 @Getter
 @Setter
 public class BatchInfoBoxReq implements AttrDefKeyReqInterface {
-    @ApiModelProperty("实体id、概念id")
+    @ApiModelProperty(value = "实体id、概念id", required = true)
+    @NonNull
     private List<Long> ids;
     @ApiModelProperty("是否读取对象属性,默认true")
     private Boolean relationAttrs = true;

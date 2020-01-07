@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.link.LinkUtil;
 import com.plantdata.kgcloud.plantdata.req.common.AttrSortBean;
@@ -20,6 +19,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.relation.RelationGraphParamet
 import com.plantdata.kgcloud.plantdata.req.explore.relation.RuleRelationGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.relation.TimeRelationGraphParameter;
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
+import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
@@ -43,7 +43,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -60,7 +59,7 @@ public class ExploreReqConverter extends BasicConverter {
      * @param param GeneralGraphParameter
      * @return CommonExploreReq
      */
-    public static CommonExploreReq generalGraphParameterToCommonExploreReq(GeneralGraphParameter param) {
+    public static CommonExploreReq generalGraphParameterToCommonExploreReq(@NonNull GeneralGraphParameter param) {
         CommonExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonExploreReq());
         PageReq pageReq = new PageReq(param.getPageNo(), param.getPageSize());
         exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
@@ -68,6 +67,20 @@ public class ExploreReqConverter extends BasicConverter {
         ///300新增exploreRsp.setDisAllowConcepts(Collections.emptyList());
         consumerIfNoNull(param.getGraphBean(), a -> exploreReq.setGraphReq(ExploreReqConverter.graphBeanToBasicGraphExploreRsp(a)));
         return exploreReq;
+    }
+
+    /**
+     * 业务规则
+     *
+     * @param param GeneralGraphParameter
+     * @return ExploreByKgQlReq
+     */
+    public static ExploreByKgQlReq generalGraphParameterToExploreByKgQlReq(@NonNull GeneralGraphParameter param) {
+        ExploreByKgQlReq exploreByKgQlReq = new ExploreByKgQlReq();
+        exploreByKgQlReq.setKgQl(param.getGraphRule());
+        exploreByKgQlReq.setRelationMerge(param.getIsRelationMerge());
+        exploreByKgQlReq.setEntityId(param.getId());
+        return exploreByKgQlReq;
     }
 
     /**
@@ -105,7 +118,7 @@ public class ExploreReqConverter extends BasicConverter {
     public static RelationReqAnalysisReq generalGraphParameterToRelationReqAnalysisReq(RelationGraphParameter param) {
         RelationReqAnalysisReq pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationReqAnalysisReq());
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
-        consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(listToRsp(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
+        consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(toListNoNull(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
         return pathAnalysisReq;
     }
 
@@ -118,7 +131,7 @@ public class ExploreReqConverter extends BasicConverter {
     public static RelationTimingAnalysisReq timeRelationGraphParameterToRelationTimingAnalysisReq(TimeRelationGraphParameter param) {
         RelationTimingAnalysisReq pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationTimingAnalysisReq());
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
-        consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(listToRsp(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
+        consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(toListNoNull(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
         consumerIfNoNull(param, a -> pathAnalysisReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(a)));
         return pathAnalysisReq;
     }
@@ -132,7 +145,7 @@ public class ExploreReqConverter extends BasicConverter {
     public static RelationReasoningAnalysisReq ruleRelationGraphParameterToRelationReasoningAnalysisReq(RuleRelationGraphParameter param) {
         RelationReasoningAnalysisReq pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationReasoningAnalysisReq());
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
-        consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(listToRsp(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
+        consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(toListNoNull(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
         consumerIfNoNull(param.getReasoningRuleConfigs(), a -> pathAnalysisReq.setReasoningRuleConfigs(ExploreCommonConverter.buildReasonConfig(a)));
         return pathAnalysisReq;
     }
@@ -146,7 +159,7 @@ public class ExploreReqConverter extends BasicConverter {
     public static PathAnalysisReq pathGraphParameterToPathAnalysisReq(PathGraphParameter graphParam) {
         PathAnalysisReq pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(graphParam, new PathAnalysisReq());
         pathAnalysisReq.setPath(ExploreCommonConverter.buildPathReq(graphParam));
-        pathAnalysisReq.setConfigList(listToRsp(graphParam.getStatsConfig(), ExploreCommonConverter::graphStatBeanToBasicStatisticReq));
+        pathAnalysisReq.setConfigList(toListNoNull(graphParam.getStatsConfig(), ExploreCommonConverter::graphStatBeanToBasicStatisticReq));
         return pathAnalysisReq;
     }
 
@@ -160,7 +173,7 @@ public class ExploreReqConverter extends BasicConverter {
         PathTimingAnalysisReq pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(graphParam, new PathTimingAnalysisReq());
         pathAnalysisReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(graphParam));
         pathAnalysisReq.setPath(ExploreCommonConverter.buildPathReq(graphParam));
-        pathAnalysisReq.setConfigList(listToRsp(graphParam.getStatsConfig(), ExploreCommonConverter::graphStatBeanToBasicStatisticReq));
+        pathAnalysisReq.setConfigList(toListNoNull(graphParam.getStatsConfig(), ExploreCommonConverter::graphStatBeanToBasicStatisticReq));
         return pathAnalysisReq;
     }
 
@@ -171,8 +184,11 @@ public class ExploreReqConverter extends BasicConverter {
         commonFiltersReq.setKw(graphParameter.getKw());
         commonFiltersReq.setHighLevelSize(graphParameter.getHighLevelSize());
         consumerIfNoNull(graphParameter.getPrivateAttRead(), commonFiltersReq::setPrivateAttRead);
-        consumerIfNoNull(graphParameter.getDirection(), commonFiltersReq::setDirection);
-        consumerIfNoNull(graphParameter.getAttSorts(), a -> commonFiltersReq.setEdgeAttrSorts(listToRsp(a, ExploreReqConverter::attrSortBeanToAttrSortReq)));
+        consumerIfNoNull(graphParameter.getDirection(), a -> {
+            //旧的 2是反向，新的-1 反向
+            commonFiltersReq.setDirection(a == 2 ? -1 : a);
+        });
+        consumerIfNoNull(graphParameter.getAttSorts(), a -> commonFiltersReq.setEdgeAttrSorts(toListNoNull(a, ExploreReqConverter::attrSortBeanToAttrSortReq)));
         return commonFiltersReq;
     }
 
@@ -182,35 +198,27 @@ public class ExploreReqConverter extends BasicConverter {
 
     private static BasicGraphExploreRsp graphBeanToBasicGraphExploreRsp(GraphBean graphBean) {
         BasicGraphExploreRsp graphExploreRsp = new BasicGraphExploreRsp();
-        graphExploreRsp.setEntityList(listToRsp(graphBean.getEntityList(), ExploreReqConverter::entityBeanToCommonEntityRsp));
-        graphExploreRsp.setRelationList(listToRsp(graphBean.getRelationList(), ExploreReqConverter::relationBeanToGraphRelationRsp));
+
+        graphExploreRsp.setEntityList(toListNoNull(graphBean.getEntityList(), a -> ExploreReqConverter.entityBeanToCommonEntityRsp(a, new CommonEntityRsp())));
+        graphExploreRsp.setRelationList(toListNoNull(graphBean.getRelationList(), ExploreReqConverter::relationBeanToGraphRelationRsp));
         graphExploreRsp.setHasNextPage(graphBean.getLevel1HasNextPage());
         return graphExploreRsp;
     }
 
     private static GraphRelationRsp relationBeanToGraphRelationRsp(RelationBean relationBean) {
-        GraphRelationRsp link = LinkUtil.link(relationBean);
-        List<GraphRelationRsp> sourceRelationList = Lists.newArrayList();
-        Set<String> relationIdlIst = Sets.newHashSet();
-        Map<String, List<RelationInfoBean>> edgeObjAttrMap = relationBean.getoRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
-        Map<String, List<RelationInfoBean>> edgeNumAttrMap = relationBean.getnRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
-        relationIdlIst.forEach(id -> {
-            List<RelationInfoBean> edgeObjAttrList = edgeObjAttrMap.get(id);
-            List<RelationInfoBean> edgeNumAttrList = edgeNumAttrMap.get(id);
-            List<BasicRelationRsp.EdgeInfo> edgeNumInfos = flatList(listToRsp(edgeNumAttrList, ExploreReqConverter::relationInfoBeanToEdgeInfo));
-            List<BasicRelationRsp.EdgeInfo> edgeObjInfos = flatList(listToRsp(edgeObjAttrList, ExploreReqConverter::relationInfoBeanToEdgeInfo));
-            if (id.equals(relationBean.getId())) {
-                link.setDataValAttrs(edgeNumInfos);
-                link.setObjAttrs(edgeObjInfos);
-            } else {
-                GraphRelationRsp source = new GraphRelationRsp();
-                BeanUtils.copyProperties(link, source);
-                source.setId(id);
-                source.setDataValAttrs(edgeNumInfos);
-                source.setObjAttrs(edgeObjInfos);
-                sourceRelationList.add(source);
-            }
-        });
+        GraphRelationRsp link = new GraphRelationRsp();
+        link.setId(relationBean.getId());
+        link.setFrom(relationBean.getFrom());
+        link.setTo(relationBean.getTo());
+        link.setAttId(relationBean.getAttId());
+        link.setAttName(relationBean.getAttName());
+        link.setBatch(relationBean.getBatch());
+        link.setDirection(relationBean.getDirection());
+        relationBean.setReliability(relationBean.getReliability());
+        relationBean.setScore(relationBean.getScore());
+        link.setLabelStyle(relationBean.getLabelStyle());
+        link.setLinkStyle(relationBean.getLinkStyle());
+        fillSourceAndAttr(relationBean, link);
         if (!CollectionUtils.isEmpty(relationBean.getStartTime())) {
             link.setStartTime(relationBean.getStartTime().get(0));
         }
@@ -220,20 +228,82 @@ public class ExploreReqConverter extends BasicConverter {
         return link;
     }
 
-    private static List<BasicRelationRsp.EdgeInfo> relationInfoBeanToEdgeInfo(RelationInfoBean relationInfo) {
-        return listToRsp(relationInfo.getKvs(), ExploreReqConverter::kVBeanToEdgeInfo);
+    private static void fillSourceAndAttr(RelationBean relationBean, GraphRelationRsp main) {
+        List<GraphRelationRsp> sourceRelationList = Lists.newArrayList();
+        List<String> relationIdlIst = Lists.newArrayList();
+        Map<String, List<RelationInfoBean>> edgeObjAttrMap = relationBean.getoRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
+        Map<String, List<RelationInfoBean>> edgeNumAttrMap = relationBean.getnRInfo().stream().peek(a -> relationIdlIst.add(a.getId())).collect(Collectors.groupingBy(RelationInfoBean::getId));
+        if (relationIdlIst.size() <= 0) {
+            return;
+        }
+        for (int i = 0; i < relationIdlIst.size(); i++) {
+            String id = relationIdlIst.get(i);
+            List<RelationInfoBean> edgeObjAttrList = edgeObjAttrMap.get(id);
+            List<RelationInfoBean> edgeNumAttrList = edgeNumAttrMap.get(id);
+            List<BasicRelationRsp.EdgeDataInfo> edgeNumInfos = flatList(toListNoNull(edgeNumAttrList, a -> toListNoNull(a.getKvs(), ExploreReqConverter::kvBeanToEdgeDataInfo)));
+            List<BasicRelationRsp.EdgeObjectInfo> edgeObjInfos = flatList(toListNoNull(edgeObjAttrList, a -> toListNoNull(a.getKvs(), ExploreReqConverter::kvBeanToEdgeObjInfo)));
+            if (id.equals(relationBean.getId())) {
+                main.setDataValAttrs(edgeNumInfos);
+                main.setObjAttrs(edgeObjInfos);
+            } else {
+                GraphRelationRsp source = new GraphRelationRsp();
+                BeanUtils.copyProperties(main, source);
+                source.setId(id);
+                List<String> startTime = relationBean.getStartTime();
+                List<String> endTime = relationBean.getEndTime();
+                try {
+                    source.setStartTime(startTime.get(i));
+                    source.setEndTime(endTime.get(i));
+                } catch (Exception e) {
+                    log.info("该exception忽略");
+                }
+                source.setDataValAttrs(edgeNumInfos);
+                source.setObjAttrs(edgeObjInfos);
+                sourceRelationList.add(source);
+            }
+        }
+        consumerIfNoNull(sourceRelationList, main::setSourceRelationList);
     }
 
-    private static BasicRelationRsp.EdgeInfo kVBeanToEdgeInfo(KVBean<String, String> kvBean) {
-        BasicRelationRsp.EdgeInfo edgeInfo = new BasicRelationRsp.EdgeInfo();
-        edgeInfo.setDataType(kvBean.getType());
-        edgeInfo.setName(kvBean.getK());
-        edgeInfo.setValue(kvBean.getV());
-        return edgeInfo;
+
+    /**
+     * 边数值属性转换 old->new
+     *
+     * @param kvBean k 边属性名称，v 边属性值
+     * @return EdgeDataInfo
+     */
+    private static BasicRelationRsp.EdgeDataInfo kvBeanToEdgeDataInfo(KVBean<String, String> kvBean) {
+        BasicRelationRsp.EdgeDataInfo edgeObjectInfo = new BasicRelationRsp.EdgeDataInfo();
+        edgeObjectInfo.setDataType(kvBean.getType());
+        edgeObjectInfo.setName(kvBean.getK());
+        edgeObjectInfo.setValue(kvBean.getV());
+        return edgeObjectInfo;
     }
 
-    private static CommonEntityRsp entityBeanToCommonEntityRsp(EntityBean entityBean) {
-        CommonEntityRsp entityRsp = new CommonEntityRsp();
+    /**
+     * 边对象属性转换 old->new
+     *
+     * @param kvBean k 边对象属性名称，v 边对象对应实体名称
+     * @return EdgeObjectInfo
+     */
+    private static BasicRelationRsp.EdgeObjectInfo kvBeanToEdgeObjInfo(KVBean<String, String> kvBean) {
+        BasicRelationRsp.EdgeObjectInfo edgeObjectInfo = new BasicRelationRsp.EdgeObjectInfo();
+        edgeObjectInfo.setDataType(kvBean.getType());
+        edgeObjectInfo.setName(kvBean.getK());
+        edgeObjectInfo.setEntityName(kvBean.getV());
+        return edgeObjectInfo;
+    }
+
+    private static <T extends CommonEntityRsp> T entityBeanToCommonEntityRsp(EntityBean entityBean, T entityRsp) {
+        entityRsp.setId(entityBean.getId());
+        entityRsp.setName(entityBean.getName());
+        entityRsp.setImgUrl(entityBean.getImg());
+        consumerIfNoNull(entityBean.getGis(), a -> {
+            entityRsp.setOpenGis(a.getIsOpenGis());
+            entityRsp.setLat(a.getLat());
+            entityRsp.setLng(a.getLng());
+            entityRsp.setAddress(a.getAddress());
+        });
         entityRsp.setConceptId(entityBean.getConceptId());
         entityRsp.setConceptIdList(entityBean.getConceptIdList());
         entityRsp.setConceptName(entityBean.getConceptName());
@@ -243,7 +313,8 @@ public class ExploreReqConverter extends BasicConverter {
         entityRsp.setLabelStyle(entityBean.getLabelStyle());
         entityRsp.setScore(entityBean.getScore());
         entityRsp.setType(entityBean.getType());
-        entityRsp.setTags(listToRsp(entityBean.getTags(), ExploreReqConverter::tagToTagRsp));
+
+        entityRsp.setTags(toListNoNull(entityBean.getTags(), ExploreReqConverter::tagToTagRsp));
         consumerIfNoNull(entityBean.getCreationTime(), a -> entityRsp.setEndTime(BasicConverter.stringToDate(a)));
         consumerIfNoNull(entityBean.getFromTime(), a -> entityRsp.setStartTime(BasicConverter.stringToDate(a)));
         consumerIfNoNull(entityBean.getAdditionalInfo(), a -> entityRsp.setOpenGis(a.getIsOpenGis()));

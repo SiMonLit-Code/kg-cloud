@@ -68,8 +68,8 @@ public class ReasonRuleController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", defaultValue = "1", dataType = "int", paramType = "query"),
     })
-    public RestResp<RuleBean> get(@RequestParam(required = false) String kgName, @RequestParam Integer id) {
-        ApiReturn<GraphConfReasonRsp> apiReturn = kgmsClient.detailReasoning(id.longValue());
+    public RestResp<RuleBean> get(@RequestParam(required = false) String kgName, @RequestParam("id") Long id) {
+        ApiReturn<GraphConfReasonRsp> apiReturn = kgmsClient.detailReasoning(id);
         RuleBean ruleBean = BasicConverter.convert(apiReturn, ReasonConverter::graphConfReasonRspToRuleBean);
         return new RestResp<>(ruleBean);
     }
@@ -96,8 +96,8 @@ public class ReasonRuleController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
     })
-    public RestResp add(@RequestParam("id") Integer id, @RequestParam(value = "kgName", required = false) String kgName) {
-        kgmsClient.deleteReasoning(id.longValue());
+    public RestResp add(@RequestParam("id") Long id, @RequestParam(value = "kgName", required = false) String kgName) {
+        kgmsClient.deleteReasoning(id);
         return new RestResp();
     }
 
@@ -110,7 +110,7 @@ public class ReasonRuleController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "data", required = true, dataType = "string", paramType = "form", value = "需要修改的数据"),
     })
     public RestResp<RuleBean> update(@Valid @ApiIgnore RuleUpdate ruleUpdate) {
-        Function<GraphConfReasonReq, ApiReturn<GraphConfReasonRsp>> returnFunction = a -> kgmsClient.updateReasoning(ruleUpdate.getId().longValue(), a);
+        Function<GraphConfReasonReq, ApiReturn<GraphConfReasonRsp>> returnFunction = a -> kgmsClient.updateReasoning(ruleUpdate.getId(), a);
         RuleBean ruleBean = returnFunction
                 .compose(ReasonConverter::ruleBeanToGraphConfReasonReq)
                 .andThen(a -> BasicConverter.convert(a, ReasonConverter::graphConfReasonRspToRuleBean))

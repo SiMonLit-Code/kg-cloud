@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
+import ai.plantdata.kg.api.edit.RdfApi;
 import ai.plantdata.kg.api.edit.UploadApi;
-import ai.plantdata.kg.api.rdf.RdfApi;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
@@ -12,17 +12,18 @@ import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.RdfType;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
+import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
-import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -151,8 +152,9 @@ public class ImportServiceImpl implements ImportService {
             header.add(Collections.singletonList("经度"));
             header.add(Collections.singletonList("纬度"));
         }
-        List<EntityAttrValueVO> attrValue = details.getAttrValue();
-        attrValue.stream().filter(vo -> AttributeValueType.isNumeric(vo.getType()))
+        List<AttrDefinitionRsp> attrDefinitionRsps = attributeService.getAttrDefinitionByConceptId(kgName,
+                new AttrDefinitionSearchReq(conceptId));
+        attrDefinitionRsps.stream().filter(vo -> AttributeValueType.isNumeric(vo.getType()))
                 .forEach(vo -> header.add(Collections.singletonList(vo.getName() + "(" + vo.getId() + ")")));
         return header;
     }
@@ -252,7 +254,8 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String exportRdf(String kgName, String format, Integer scope) {
-        ResponseEntity<byte[]> body = rdfApi.exportRdf(KGUtil.dbName(kgName), scope, RdfType.findByType(format).getType());
+        ResponseEntity<byte[]> body = rdfApi.exportRdf(KGUtil.dbName(kgName), scope,
+                RdfType.findByFormat(format).getType());
         ByteArrayInputStream inputStream = new ByteArrayInputStream(Objects.requireNonNull(body.getBody()));
         StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, format, null);
         return "/" + storePath.getFullPath();

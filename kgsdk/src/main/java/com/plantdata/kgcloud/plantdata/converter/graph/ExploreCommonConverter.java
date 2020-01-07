@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.MongoQueryConverter;
-import com.plantdata.kgcloud.plantdata.link.LinkUtil;
 import com.plantdata.kgcloud.plantdata.req.common.Additional;
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
 import com.plantdata.kgcloud.plantdata.req.common.RelationBean;
@@ -32,12 +31,15 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -51,9 +53,10 @@ public class ExploreCommonConverter extends BasicConverter {
         oldEntity.setId(newEntity.getId());
         oldEntity.setName(newEntity.getName());
         oldEntity.setMeaningTag(newEntity.getMeaningTag());
-        oldEntity.setClassId(newEntity.getClassId());
+        oldEntity.setClassId(newEntity.getClassId() == null ? NumberUtils.LONG_ZERO : newEntity.getClassId());
         oldEntity.setClassIdList(newEntity.getConceptIdList());
         oldEntity.setConceptId(newEntity.getConceptId());
+        oldEntity.setImg(newEntity.getImgUrl());
         oldEntity.setConceptIdList(newEntity.getConceptIdList());
         oldEntity.setConceptName(newEntity.getConceptName());
         oldEntity.setCreationTime(newEntity.getCreationTime());
@@ -64,6 +67,7 @@ public class ExploreCommonConverter extends BasicConverter {
         oldEntity.setScore(newEntity.getScore());
         oldEntity.setType(newEntity.getType());
         Additional additional = new Additional();
+        additional.setIsOpenGis(newEntity.getOpenGis());
         oldEntity.setAdditionalInfo(additional);
         return oldEntity;
     }
@@ -107,19 +111,22 @@ public class ExploreCommonConverter extends BasicConverter {
         consumerIfNoNull(to.getAllowTypesKey(), rs::setAllowConceptsKey);
         consumerIfNoNull(to.getReplaceClassIds(), rs::setReplaceClassIds);
         consumerIfNoNull(to.getReplaceClassIdsKey(), rs::setReplaceClassKeys);
+        consumerIfNoNull(to.getIsRelationMerge(), rs::setRelationMerge);
         consumerIfNoNull(to.getAllowAttsKey(), rs::setAllowAttrsKey);
         consumerIfNoNull(to.getAllowTypes(), rs::setAllowConcepts);
-        consumerIfNoNull(to.getAllowAttrGroups(), a -> rs.setAllowAttrGroups(listToRsp(a, Long::valueOf)));
+        consumerIfNoNull(to.getAllowAttrGroups(), a -> rs.setAllowAttrGroups(toListNoNull(a, Long::valueOf)));
         consumerIfNoNull(to.getAllowAtts(), rs::setAllowAttrs);
-        consumerIfNoNull(to.getEntityQuery(), a -> rs.setEntityFilters(listToRsp(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
-        consumerIfNoNull(to.getAttAttFilters(), a -> listToRsp(a, ExploreCommonConverter::attrScreeningBeanToRelationAttrReq));
+        consumerIfNoNull(to.getEntityQuery(), a -> rs.setEntityFilters(toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
+        consumerIfNoNull(to.getAttAttFilters(), a -> rs.setEdgeAttrFilters(toListNoNull(a, ExploreCommonConverter::attrScreeningBeanToRelationAttrReq)));
         return rs;
     }
 
     static <T extends BasicGraphExploreRsp> GraphBean basicGraphExploreRspToGraphBean(T exploreRsp) {
         GraphBean graphBean = new GraphBean();
-        graphBean.setEntityList(listToRsp(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToCommonEntityRsp));
-        graphBean.setRelationList(listToRsp(exploreRsp.getRelationList(), ExploreCommonConverter::relationBeanToGraphRelationRsp));
+        graphBean.setLevel1HasNextPage(exploreRsp.getHasNextPage());
+        graphBean.setEntityList(toListNoNull(exploreRsp.getEntityList(), ExploreCommonConverter::entityBeanToCommonEntityRsp));
+        Map<Long, Long> entityConceptMap = exploreRsp.getEntityList().stream().filter(a -> a.getConceptId() != null).collect(Collectors.toMap(CommonEntityRsp::getId, CommonEntityRsp::getConceptId, (a, b) -> b));
+        graphBean.setRelationList(toListNoNull(exploreRsp.getRelationList(), a -> ExploreCommonConverter.relationBeanToGraphRelationRsp(a, entityConceptMap)));
         return graphBean;
     }
 
@@ -135,14 +142,14 @@ public class ExploreCommonConverter extends BasicConverter {
         GraphStatBean graphStatBean = new GraphStatBean();
         graphStatBean.setAtts(statisticRsp.getAttrIdList());
         graphStatBean.setKey(statisticRsp.getKey());
-        graphStatBean.setRs(listToRsp(statisticRsp.getStatisticDetails(), ExploreCommonConverter::graphStatisticDetailRspToGraphStatDetailBean));
+        graphStatBean.setRs(toListNoNull(statisticRsp.getStatisticDetails(), ExploreCommonConverter::graphStatisticDetailRspToGraphStatDetailBean));
         graphStatBean.setType(statisticRsp.getConceptId());
         return graphStatBean;
     }
 
     static void fillStatisticConfig(GraphBean graphBean, List<GraphStatisticRsp> statisticRspList) {
         consumerIfNoNull(statisticRspList, a -> {
-            List<GraphStatBean> graphStatBeans = listToRsp(a, ExploreCommonConverter::graphStatisticRspToGraphStatBean);
+            List<GraphStatBean> graphStatBeans = toListNoNull(a, ExploreCommonConverter::graphStatisticRspToGraphStatBean);
             graphBean.setStats(graphStatBeans);
         });
     }
@@ -156,7 +163,7 @@ public class ExploreCommonConverter extends BasicConverter {
 
     private static EntityBean entityBeanToCommonEntityRsp(CommonEntityRsp newEntity) {
         EntityBean oldEntity = entityBeanToGraphEntityRsp(newEntity);
-        oldEntity.setTags(listToRsp(newEntity.getTags(), a -> copy(a, Tag.class)));
+        oldEntity.setTags(toListNoNull(newEntity.getTags(), a -> copy(a, Tag.class)));
         Additional additional = new Additional();
         ///暂时不管
         //additional.setColor(newEntity);
@@ -165,13 +172,14 @@ public class ExploreCommonConverter extends BasicConverter {
         return oldEntity;
     }
 
-    private static RelationBean relationBeanToGraphRelationRsp(GraphRelationRsp newBean) {
+    private static RelationBean relationBeanToGraphRelationRsp(GraphRelationRsp newBean, Map<Long, Long> entityConceptMap) {
         RelationBean oldBean = new RelationBean();
         BeanUtils.copyProperties(newBean, oldBean);
         oldBean.setFrom(newBean.getFrom());
         oldBean.setTo(newBean.getTo());
-        oldBean.addEndTime(newBean.getEndTime());
-        oldBean.addStartTime(newBean.getStartTime());
+        oldBean.setDirection(newBean.getDirection());
+        consumerIfNoNull(newBean.getEndTime(), oldBean::addEndTime);
+        consumerIfNoNull(newBean.getStartTime(), oldBean::addStartTime);
         oldBean.setBatch(newBean.getBatch());
         oldBean.setAttId(newBean.getAttId());
         oldBean.setAttName(newBean.getAttName());
@@ -182,32 +190,48 @@ public class ExploreCommonConverter extends BasicConverter {
                 consumerIfNoNull(relationRsp.getStartTime(), oldBean::addStartTime);
             });
         }
-        //边属性
+
         List<GraphRelationRsp> allRelation = Lists.newArrayList();
         consumerIfNoNull(newBean.getSourceRelationList(), allRelation::addAll);
-        List<RelationInfoBean> numEdgeAttrInfoList = listToRsp(allRelation, ExploreCommonConverter::edgeInfoToRelationInfoBean);
-        List<RelationInfoBean> objEdgeAttrInfoList = listToRsp(allRelation, ExploreCommonConverter::edgeInfoToRelationInfoBean);
+        if (CollectionUtils.isEmpty(allRelation)) {
+            allRelation.add(newBean);
+        }
+        //边数值属性
+        List<RelationInfoBean> numEdgeAttrInfoList = toListNoNull(allRelation,
+                a -> ExploreCommonConverter.edgeInfoToRelationInfoBean(a, entityConceptMap.get(a.getFrom())));
+        //边对象属性
+        List<RelationInfoBean> objEdgeAttrInfoList = toListNoNull(allRelation,
+                a -> ExploreCommonConverter.edgeInfoToRelationInfoObjBean(a.getId(), a.getObjAttrs()));
         consumerIfNoNull(numEdgeAttrInfoList, oldBean::setnRInfo);
         consumerIfNoNull(objEdgeAttrInfoList, oldBean::setoRInfo);
 
         return oldBean;
     }
 
-    private static KVBean<String, String> edgeInfoToKvBean(BasicRelationRsp.EdgeInfo edgeInfo, Integer attrDefId) {
-        KVBean<String, String> kvBean = new KVBean<>(edgeInfo.getName(), edgeInfo.getValue().toString(), attrDefId);
-        ///kvBean.setDomain();
-        kvBean.setType(edgeInfo.getDataType());
+    private static KVBean<String, String> edgeInfoToKvBean(BasicRelationRsp.EdgeDataInfo edgeDataInfo, Integer attrDefId, Long conceptId) {
+        KVBean<String, String> kvBean = new KVBean<>(edgeDataInfo.getName(), edgeDataInfo.getValue().toString(), attrDefId);
+        kvBean.setDomain(conceptId);
+        kvBean.setType(edgeDataInfo.getDataType());
         return kvBean;
     }
 
-    private static RelationInfoBean edgeInfoToRelationInfoBean(GraphRelationRsp relationBean) {
+    private static RelationInfoBean edgeInfoToRelationInfoBean(GraphRelationRsp relationBean, Long conceptId) {
         RelationInfoBean infoBean = new RelationInfoBean();
         infoBean.setId(relationBean.getId());
-        infoBean.setKvs(listToRsp(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId())));
+        infoBean.setKvs(toListNoNull(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId(), conceptId)));
+        return infoBean;
+    }
+
+    private static RelationInfoBean edgeInfoToRelationInfoObjBean(String relationId, List<BasicRelationRsp.EdgeObjectInfo> objList) {
+        RelationInfoBean infoBean = new RelationInfoBean();
+        infoBean.setId(relationId);
+        infoBean.setKvs(toListNoNull(objList, a -> new KVBean<>(a.getName(), a.getEntityName())));
         return infoBean;
     }
 
     private static RelationAttrReq attrScreeningBeanToRelationAttrReq(@NonNull AttrScreeningBean screeningBean) {
-        return LinkUtil.link(screeningBean);
+        RelationAttrReq relationAttrReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), RelationAttrReq.class);
+        consumerIfNoNull(relationAttrReq, a -> a.set$ne(screeningBean.get$neq()));
+        return relationAttrReq;
     }
 }

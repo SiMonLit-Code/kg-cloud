@@ -2,9 +2,11 @@ package com.plantdata.kgcloud.plantdata.bean;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.plantdata.kgcloud.plantdata.req.common.RelationInfoBean;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.lang.reflect.Type;
@@ -17,6 +19,8 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class BusinessRelationBean {
 
     private String id;

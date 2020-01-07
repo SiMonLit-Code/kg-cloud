@@ -41,7 +41,7 @@ public class GisLocusReq extends GisExploreReq {
         private List<Long> ids;
         @ApiModelProperty("规则id")
         @NotNull
-        private Integer ruleId;
+        private Long ruleId;
         @NotNull
         @ApiModelProperty("kgQl语句")
         private String kql;

@@ -28,10 +28,10 @@ public class SchemaBasicConverter extends BasicConverter {
     public static SchemaBean schemaRspToSchemaBean(SchemaRsp rsp) {
         SchemaBean schemaBean = new SchemaBean();
         //属性分组
-        List<AttrCategoryOutputBean> attrDefGroupList = listToRsp(rsp.getAttrGroups(), SchemaBasicConverter::attrDefGroupRspToAttrCategoryOutputBean);
+        List<AttrCategoryOutputBean> attrDefGroupList = toListNoNull(rsp.getAttrGroups(), SchemaBasicConverter::attrDefGroupRspToAttrCategoryOutputBean);
         //属性定义
-        List<AttBean> attBeanList = listToRsp(rsp.getAttrs(), SchemaBasicConverter::attrDefRspToAttBean);
-        List<TypeBean> typeBeanList = listToRsp(rsp.getTypes(), SchemaBasicConverter::baseConceptRspToTypeBean);
+        List<AttBean> attBeanList = toListNoNull(rsp.getAttrs(), SchemaBasicConverter::attrDefRspToAttBean);
+        List<TypeBean> typeBeanList = toListNoNull(rsp.getTypes(), SchemaBasicConverter::baseConceptRspToTypeBean);
         schemaBean.setAttGroup(attrDefGroupList);
         schemaBean.setAtts(attBeanList);
         schemaBean.setKgTitle(rsp.getKgTitle());
@@ -43,7 +43,7 @@ public class SchemaBasicConverter extends BasicConverter {
     private static AttrCategoryOutputBean attrDefGroupRspToAttrCategoryOutputBean(@NonNull AttributeDefinitionGroupRsp groupRsp) {
         AttrCategoryOutputBean temp = new AttrCategoryOutputBean();
         temp.setAttrDefIds(groupRsp.getAttrDefIds());
-        temp.setId(groupRsp.getId().intValue());
+        temp.setId(groupRsp.getId());
         temp.setName(groupRsp.getName());
         return temp;
     }
@@ -54,7 +54,7 @@ public class SchemaBasicConverter extends BasicConverter {
         attBean.setDataType(attrDefRsp.getDataType());
         attBean.setDirection(attrDefRsp.getDirection());
         attBean.setDomain(attrDefRsp.getDomainValue());
-        List<AttributeExtraInfoItem> extraInfoItemList = listToRsp(attrDefRsp.getExtraInfos(), SchemaBasicConverter::attrExtraItemToAttributeExtraInfoItem);
+        List<AttributeExtraInfoItem> extraInfoItemList = toListNoNull(attrDefRsp.getExtraInfos(), SchemaBasicConverter::attrExtraItemToAttributeExtraInfoItem);
         attBean.setExtraInfos(extraInfoItemList);
         attBean.setRange(attrDefRsp.getRangeValue());
         attBean.setK(Long.valueOf(attrDefRsp.getId()));

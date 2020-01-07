@@ -13,5 +13,4 @@ import java.util.List;
 public class QueryResultRsp {
     private int count;
     private List<List<SparQlNodeRsp>> result;
-
 }

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.rule;
 
-import com.plantdata.kgcloud.config.MarkObject;
+import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
 import com.plantdata.kgcloud.plantdata.bean.BusinessEntityBean;
 import com.plantdata.kgcloud.plantdata.bean.BusinessRelationBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphStatBean;

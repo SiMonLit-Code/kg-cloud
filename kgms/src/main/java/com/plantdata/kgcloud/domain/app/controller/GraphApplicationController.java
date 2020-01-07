@@ -132,6 +132,11 @@ public class GraphApplicationController implements GraphAppInterface {
         return ApiReturn.success(graphPromptService.edgeAttributeSearch(kgName, edgeAttrPromptReq));
     }
 
+    @ApiOperation("融合候选集写入")
+    @PostMapping("fusion/candidate")
+    public ApiReturn fusionCandidateSet() {
+        return ApiReturn.success();
+    }
 
 }
 

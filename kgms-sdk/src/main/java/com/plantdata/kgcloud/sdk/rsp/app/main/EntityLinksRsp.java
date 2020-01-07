@@ -38,10 +38,19 @@ public class EntityLinksRsp extends BasicEntityRsp {
         private Object value;
         private Integer dataType;
 
-        public ExtraRsp(Integer attrId, String name, Object value) {
+        public ExtraRsp(Integer attrId, String name, Integer dataType) {
             this.attrId = attrId;
             this.name = name;
-            this.value = value;
+            this.dataType = dataType;
         }
+
+        public static ExtraRsp buildDefault(Integer attrId, String name, Object value) {
+            ExtraRsp extraRsp = new ExtraRsp();
+            extraRsp.attrId = attrId;
+            extraRsp.name = name;
+            extraRsp.value = value;
+            return extraRsp;
+        }
+
     }
 }

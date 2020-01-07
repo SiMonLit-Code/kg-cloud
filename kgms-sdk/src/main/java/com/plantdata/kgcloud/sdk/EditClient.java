@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
@@ -9,6 +10,7 @@ import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.BatchPrivateRelationReq;
+import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.sdk.req.edit.PrivateAttrDataReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
@@ -18,6 +20,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -79,7 +83,7 @@ public interface EditClient {
      */
     @PostMapping("attribute/{kgName}/definition/batch")
     ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                   @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
+                                                                              @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
 
     /**
      * 查询多概念下的属性定义
@@ -234,4 +238,44 @@ public interface EditClient {
     @PostMapping("entity/{kgName}/batch/object/add")
     ApiReturn<List<String>> batchAddPrivateRelation(@PathVariable("kgName") String kgName,
                                                     @RequestBody BatchPrivateRelationReq batchPrivateRelationReq);
+
+    /**
+     * kgql
+     *
+     * @param kgqlReq
+     * @return
+     */
+    @PostMapping("basic/execute/kgql")
+    ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq);
+
+    /**
+     * 批量删除实体数量
+     *
+     * @param kgName    kgName
+     * @param deleteReq req
+     * @return .
+     */
+    @DeleteMapping("entity/attr/{kgName}")
+    ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName,
+                                    @RequestBody BatchEntityAttrDeleteReq deleteReq);
+
+    /**
+     * 手工创建融合实体
+     *
+     * @param kgName kgName
+     * @param ids    实体id
+     * @return
+     */
+    @PostMapping("wait/entity/create/{kgName}")
+    ApiReturn<String> createMergeEntity(@PathVariable("kgName") String kgName, @RequestBody List<Long> ids);
+
+    /**
+     * 根据批量名称查询实体
+     *
+     * @param kgName
+     * @param names
+     * @return
+     */
+    @PostMapping("basic/{kgName}/list/name")
+    ApiReturn<List<SimpleBasicRsp>> listNames(@PathVariable("kgName") String kgName, @RequestBody List<String> names);
 }

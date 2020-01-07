@@ -52,16 +52,19 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
         targe.setKgName(kgName);
         if (!targe.getKgql().isEmpty()) {
             RestResp<QuerySetting> restResp = qlApi.business(kgName, targe.getKgql());
+           if (RestResp.ActionStatusMethod.FAIL.equals(restResp.getActionStatus())){
+               throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
+           }
             Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
+
             if (!convert.isPresent()) {
                 throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
             }
-            if (Objects.isNull(convert.get().getDomain())){
+            if (Objects.isNull(convert.get().getDomain())) {
                 throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
             }
             String s = JacksonUtils.writeValueAsString(convert.get());
             targe.setRuleSettings(s);
-
         }
         GraphConfKgql result = graphConfKgqlRepository.save(targe);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);
@@ -73,6 +76,24 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     public GraphConfKgqlRsp updateKgql(Long id, GraphConfKgqlReq req) {
         GraphConfKgql graphConfKgql = graphConfKgqlRepository.findById(id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
+
+        if (!req.getKgql().isEmpty()) {
+            RestResp<QuerySetting> restResp = qlApi.business(graphConfKgql.getKgName(), req.getKgql());
+            if (RestResp.ActionStatusMethod.FAIL.equals(restResp.getActionStatus())){
+                throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
+            }
+            Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
+            if (!convert.isPresent()) {
+                throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
+            }
+            if (Objects.isNull(convert.get().getDomain())) {
+                throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
+            }
+            String s = JacksonUtils.writeValueAsString(convert.get());
+            graphConfKgql.setRuleSettings(s);
+        }
+
+
         BeanUtils.copyProperties(req, graphConfKgql);
         GraphConfKgql result = graphConfKgqlRepository.save(graphConfKgql);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);

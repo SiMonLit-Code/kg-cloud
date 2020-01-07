@@ -277,7 +277,9 @@ public class EntityServiceImpl implements EntityService {
         gisCoordinate.add(0, gisInfoModifyReq.getLongitude());
         gisCoordinate.add(1, gisInfoModifyReq.getLatitude());
         metadata.put(MetaDataInfo.GIS_COORDINATE.getFieldName(), gisCoordinate);
-        metadata.put(MetaDataInfo.GIS_ADDRESS.getFieldName(), gisInfoModifyReq.getAddress());
+        if (Objects.nonNull(gisInfoModifyReq.getAddress())){
+            metadata.put(MetaDataInfo.GIS_ADDRESS.getFieldName(), gisInfoModifyReq.getAddress());
+        }
         conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }
 
@@ -445,7 +447,8 @@ public class EntityServiceImpl implements EntityService {
     public String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
-        return RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom)).get();
+        return RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom))
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.PRIVATE_RELATION_HAS_EXIST));
     }
 
     @Override

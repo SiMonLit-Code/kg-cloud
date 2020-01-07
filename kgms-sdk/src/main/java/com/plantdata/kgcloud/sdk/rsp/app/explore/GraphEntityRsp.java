@@ -28,5 +28,6 @@ public class GraphEntityRsp extends BasicEntityRsp {
     private Map<String, Object> nodeStyle;
     @ApiModelProperty("label样式")
     private Map<String, Object> labelStyle;
-
+    @ApiModelProperty("true 开启 false未开启")
+    private Boolean openGis = true;
 }

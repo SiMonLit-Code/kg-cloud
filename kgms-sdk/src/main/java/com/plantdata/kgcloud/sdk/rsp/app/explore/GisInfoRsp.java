@@ -19,9 +19,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GisInfoRsp implements MetaDataInterface {
-    @ApiModelProperty("true 开启 false未开启")
-    private Boolean openGis = true;
-    @ApiModelProperty("精度")
+
+    @ApiModelProperty("经度")
     private Double lng;
     @ApiModelProperty("纬度")
     private Double lat;

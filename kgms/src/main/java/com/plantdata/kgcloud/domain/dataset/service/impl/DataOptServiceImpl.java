@@ -139,7 +139,7 @@ public class DataOptServiceImpl implements DataOptService {
     }
 
     @Override
-    public void upload(String userId, Long datasetId, MultipartFile file) throws Exception {
+    public List upload(String userId, Long datasetId, MultipartFile file) throws Exception {
         DataSet dataSet = dataSetService.findOne(userId, datasetId);
         List<DataSetSchema> schema = dataSet.getSchema();
         Map<String, DataSetSchema> schemaMap = new HashMap<>();
@@ -152,15 +152,17 @@ public class DataOptServiceImpl implements DataOptService {
                 int i = filename.lastIndexOf(".");
                 String extName = filename.substring(i);
                 if (KgmsConstants.FileType.XLSX.equalsIgnoreCase(extName) || KgmsConstants.FileType.XLS.equalsIgnoreCase(extName)) {
-                    excelFileHandle(provider, schemaMap, file);
+                    return excelFileHandle(provider, schemaMap, file);
                 } else if (KgmsConstants.FileType.JSON.equalsIgnoreCase(extName)) {
                     jsonFileHandle(provider, schemaMap, file);
                 }
             }
         }
+        return null;
     }
 
-    private void excelFileHandle(DataOptProvider provider, Map<String, DataSetSchema> schemaMap, MultipartFile file) throws Exception {
+    private List excelFileHandle(DataOptProvider provider, Map<String, DataSetSchema> schemaMap, MultipartFile file) throws Exception {
+        List<String> error = new ArrayList<>();
         EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
             Map<Integer, String> head;
             List<Map<String, Object>> mapList = new ArrayList<>();
@@ -172,37 +174,37 @@ public class DataOptServiceImpl implements DataOptService {
 
             @Override
             public void invoke(Map<Integer, Object> data, AnalysisContext context) {
+                Integer rowIndex = context.readRowHolder().getRowIndex();
                 Map<String, Object> map = new HashMap<>();
-                for (Map.Entry<Integer, Object> entry : data.entrySet()) {
-                    String field = head.get(entry.getKey());
-                    DataSetSchema dataSetSchema = schemaMap.get(field);
-                    if (dataSetSchema != null) {
-                        FieldType code = FieldType.findCode(dataSetSchema.getType());
-                        try {
+                try {
+                    for (Map.Entry<Integer, Object> entry : data.entrySet()) {
+                        String field = head.get(entry.getKey());
+                        DataSetSchema dataSetSchema = schemaMap.get(field);
+                        if (dataSetSchema != null) {
+                            FieldType code = FieldType.findCode(dataSetSchema.getType());
                             Object format = fieldFormat(entry.getValue(), code);
                             if (format != null) {
                                 map.put(field, format);
                             }
-                        } catch (Exception e) {
-
+                        } else {
+                            if (field.length() <= 20) {
+                                map.put(field, entry.getValue());
+                            }
                         }
-                    } else {
-                        map.put(field, entry.getValue());
                     }
+                    map.remove("_id");
+                    if (!map.isEmpty()) {
+                        map.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
+                        map.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
+                        mapList.add(map);
+                    }
+                } catch (Exception e) {
+                    error.add("第" + rowIndex + "数据格式不正确");
                 }
-                map.remove("_id");
-                if (!map.isEmpty()) {
-                    map.put(DataConst.CREATE_AT, DateUtils.formatDatetime());
-                    map.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
-                    mapList.add(map);
-                }
-
-
                 if (mapList.size() >= 10000) {
                     provider.batchInsert(mapList);
                     mapList.clear();
                 }
-
             }
 
             @Override
@@ -213,6 +215,7 @@ public class DataOptServiceImpl implements DataOptService {
                 }
             }
         }).sheet().doRead();
+        return error;
     }
 
     private void jsonFileHandle(DataOptProvider provider, Map<String, DataSetSchema> schemaMap, MultipartFile file) throws Exception {
@@ -220,22 +223,24 @@ public class DataOptServiceImpl implements DataOptService {
         });
         List<Map<String, Object>> mapList = new ArrayList<>();
         for (Map<String, Object> map : dataList) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                String field = entry.getKey();
-                DataSetSchema dataSetSchema = schemaMap.get(field);
-                if (dataSetSchema != null) {
-                    FieldType code = FieldType.findCode(dataSetSchema.getType());
-                    try {
+            try {
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    String field = entry.getKey();
+                    DataSetSchema dataSetSchema = schemaMap.get(field);
+                    if (dataSetSchema != null) {
+                        FieldType code = FieldType.findCode(dataSetSchema.getType());
                         Object format = fieldFormat(entry.getValue(), code);
                         if (format != null) {
                             map.put(field, format);
                         }
-                    } catch (Exception e) {
-
+                    } else {
+                        if (field.length() <= 20) {
+                            map.put(field, entry.getValue());
+                        }
                     }
-                } else {
-                    map.put(field, entry.getValue());
                 }
+            } catch (Exception e) {
+
             }
             map.remove("_id");
             if (!map.isEmpty()) {
@@ -353,7 +358,15 @@ public class DataOptServiceImpl implements DataOptService {
                 List<Object> objects = new ArrayList<>(schema.size());
                 for (DataSetSchema dataSetSchema : schema) {
                     String field = dataSetSchema.getField();
-                    objects.add(objectMap.get(field));
+                    Object e = objectMap.get(field);
+                    if (e != null) {
+                        FieldType code = FieldType.findCode(dataSetSchema.getType());
+                        if (code == FieldType.STRING_ARRAY || code == FieldType.OBJECT || code == FieldType.ARRAY || code == FieldType.NESTED) {
+                            objects.add(JacksonUtils.writeValueAsString(e));
+                        } else {
+                            objects.add(e);
+                        }
+                    }
                 }
                 resultList.add(objects);
             }

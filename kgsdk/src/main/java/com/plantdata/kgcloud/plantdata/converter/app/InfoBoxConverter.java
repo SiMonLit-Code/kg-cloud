@@ -22,9 +22,12 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.LinksRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -54,10 +57,10 @@ public class InfoBoxConverter extends BasicConverter {
     public static EntityProfileBean infoBoxRspToEntityProfileBean(InfoBoxRsp infoBoxRsp) {
         EntityProfileBean entityProfileBean = new EntityProfileBean();
         entityProfileBean.setSelf(entityLinksRspToEntityLinksBean(infoBoxRsp.getSelf()));
-        entityProfileBean.setAtts(Sets.newHashSet(listToRsp(infoBoxRsp.getAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
-        entityProfileBean.setReAtts(Sets.newHashSet(listToRsp(infoBoxRsp.getReAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
-        entityProfileBean.setPars(listToRsp(infoBoxRsp.getParents(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
-        entityProfileBean.setSons(listToRsp(infoBoxRsp.getSons(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
+        entityProfileBean.setAtts(Sets.newHashSet(toListNoNull(infoBoxRsp.getAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
+        entityProfileBean.setReAtts(Sets.newHashSet(toListNoNull(infoBoxRsp.getReAttrs(), InfoBoxConverter::infoBoxAttrRspToKVBean)));
+        entityProfileBean.setPars(toListNoNull(infoBoxRsp.getParents(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
+        entityProfileBean.setSons(toListNoNull(infoBoxRsp.getSons(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
         return entityProfileBean;
     }
 
@@ -77,7 +80,7 @@ public class InfoBoxConverter extends BasicConverter {
     }
 
     private static KVBean<String, List<EntityBean>> infoBoxAttrRspToKVBean(@NonNull InfoBoxRsp.InfoBoxAttrRsp attrRsp) {
-        List<EntityBean> entityBeans = listToRsp(attrRsp.getEntityList(), PromptConverter::promptEntityRspToEntityBean);
+        List<EntityBean> entityBeans = toListNoNull(attrRsp.getEntityList(), PromptConverter::promptEntityRspToEntityBean);
         return new KVBean<>(attrRsp.getAttrDefName(), entityBeans, attrRsp.getAttrDefId());
     }
 
@@ -85,15 +88,15 @@ public class InfoBoxConverter extends BasicConverter {
         EntityLinksBean oldBean = new EntityLinksBean();
         oldBean.setClassId(entityLinksRsp.getConceptId());
         oldBean.setId(entityLinksRsp.getId());
-        consumerIfNoNull(entityLinksRsp.getImg(), a -> oldBean.setImg(a.getHref()));
+        oldBean.setImg(entityLinksRsp.getImgUrl());
         oldBean.setMeaningTag(entityLinksRsp.getMeaningTag());
         oldBean.setName(entityLinksRsp.getName());
         consumerIfNoNull(entityLinksRsp.getType(), oldBean::setType);
-        oldBean.setTags(listToRsp(entityLinksRsp.getTags(), a -> copy(a, Tag.class)));
-        oldBean.setDataLinks(listToRsp(entityLinksRsp.getDataLinks(), InfoBoxConverter::dataLinkRspToDataLinks));
-        List<EntityLink> entityLinks = listToRsp(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
+        oldBean.setTags(toListNoNull(entityLinksRsp.getTags(), a -> copy(a, Tag.class)));
+        oldBean.setDataLinks(toListNoNull(entityLinksRsp.getDataLinks(), InfoBoxConverter::dataLinkRspToDataLinks));
+        List<EntityLink> entityLinks = toListNoNull(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
         consumerIfNoNull(entityLinks, a -> oldBean.setEntityLinks(Sets.newHashSet(a)));
-        oldBean.setExtra(listToRsp(entityLinksRsp.getExtraList(), a -> InfoBoxConverter.extraRspToExtraKVBean(a, entityLinksRsp.getConceptId())));
+        oldBean.setExtra(toListNoNull(entityLinksRsp.getExtraList(), a -> InfoBoxConverter.extraRspToExtraKVBean(a, entityLinksRsp.getConceptId())));
         return oldBean;
     }
 
@@ -103,15 +106,25 @@ public class InfoBoxConverter extends BasicConverter {
         extraKVBean.setDomain(domain);
         extraKVBean.setType(extraRsp.getDataType());
         extraKVBean.setK(extraRsp.getName());
-        consumerIfNoNull(extraRsp.getValue(), extraKVBean::setV);
+
+        consumerIfNoNull(extraRsp.getValue(), a -> {
+            //图片缩略图适配
+            if (extraRsp.getDataType() != null && extraRsp.getDataType() == 91) {
+                Map<String, Object> objectMap = JsonUtils.stringToMap(JacksonUtils.writeValueAsString(a));
+                objectMap.put("thumppath", objectMap.get("thumbnail"));
+                extraKVBean.setV(objectMap);
+            } else {
+                extraKVBean.setV(a);
+            }
+        });
         return extraKVBean;
     }
 
     private static DataLinks dataLinkRspToDataLinks(DataLinkRsp dataLink) {
         DataLinks dataLinks = new DataLinks();
-        consumerIfNoNull(dataLink.getDataSetId(), a -> dataLinks.setDataSetId(a.intValue()));
+        consumerIfNoNull(dataLink.getDataSetId(), dataLinks::setDataSetId);
         dataLinks.setDataSetTitle(dataLink.getDataSetTitle());
-        dataLinks.setLinks(listToRsp(dataLink.getLinks(), InfoBoxConverter::linkRspToLinks));
+        dataLinks.setLinks(toListNoNull(dataLink.getLinks(), InfoBoxConverter::linkRspToLinks));
         return dataLinks;
     }
 
@@ -120,7 +133,7 @@ public class InfoBoxConverter extends BasicConverter {
         links.setDataId(linksRsp.getDataId());
         links.setDataTitle(linksRsp.getDataTitle());
         links.setScore(linksRsp.getScore());
-        links.setSource(links.getSource());
+        links.setSource(linksRsp.getSource());
         return links;
     }
 }

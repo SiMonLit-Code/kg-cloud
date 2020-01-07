@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
-import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
@@ -78,12 +77,15 @@ public interface KgDataService {
     RestData<Map<String, Object>> searchDataSet(String userId, NameReadReq nameReadReq);
 
     /**
+     * &
      * 导出sparQl 查询结果
      *
      * @param kgName
      * @param type
-     * @param sparQlReq
+     * @param query
+     * @param size
      * @param response
+     * @throws IOException
      */
-    void sparkSqlExport(String kgName, ExportTypeEnum type, SparQlReq sparQlReq, HttpServletResponse response) throws IOException;
+    void sparkSqlExport(String kgName, ExportTypeEnum type, String query, int size, HttpServletResponse response) throws IOException;
 }

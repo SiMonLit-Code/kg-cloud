@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.TimeGeneralGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GeneralGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphBean;
 import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
@@ -17,6 +18,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,13 +69,31 @@ public class GraphExploreController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "pageNo", dataType = "int", paramType = "query", value = "当前页，默认1"),
             @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "query", value = "每页数，默认10"),
     })
-    public RestResp<GraphBean> graph(@Valid @ApiIgnore GeneralGraphParameter generalGraphParameter) {
-        Function<CommonExploreReq, ApiReturn<CommonBasicGraphExploreRsp>> returnFunction = a -> appClient.commonGraphExploration(generalGraphParameter.getKgName(), a);
+    public RestResp<GraphBean> graph(@Valid @ApiIgnore GeneralGraphParameter param) {
+        if (StringUtils.isNotEmpty(param.getGraphRule())) {
+            return graphByKgQl(param);
+        }
+        Function<CommonExploreReq, ApiReturn<CommonBasicGraphExploreRsp>> returnFunction = a -> appClient.commonGraphExploration(param.getKgName(), a);
         GraphBean graphBean = returnFunction.compose(ExploreReqConverter::generalGraphParameterToCommonExploreReq)
                 .andThen(a -> BasicConverter.convert(a, ExploreRspConverter::commonBasicGraphExploreRspToGraphBean))
-                .apply(generalGraphParameter);
+                .apply(param);
         return new RestResp<>(graphBean);
     }
+
+    /**
+     * 业务规则
+     *
+     * @param param GeneralGraphParameter
+     * @return GraphBean
+     */
+    private RestResp<GraphBean> graphByKgQl(@Valid @ApiIgnore GeneralGraphParameter param) {
+        Function<ExploreByKgQlReq, ApiReturn<CommonBasicGraphExploreRsp>> returnFunction = a -> appClient.exploreByKgQl(param.getKgName(), a);
+        GraphBean graphBean = returnFunction.compose(ExploreReqConverter::generalGraphParameterToExploreByKgQlReq)
+                .andThen(a -> BasicConverter.convert(a, ExploreRspConverter::commonBasicGraphExploreRspToGraphBean))
+                .apply(param);
+        return new RestResp<>(graphBean);
+    }
+
 
     @ApiOperation("时序图探索")
     @PostMapping("sdk/app/graph/timing")
@@ -155,8 +175,6 @@ public class GraphExploreController implements SdkOldApiInterface {
                 .apply(graphParam);
         return new RestResp<>(graphBean);
     }
-
-
 
 
 }

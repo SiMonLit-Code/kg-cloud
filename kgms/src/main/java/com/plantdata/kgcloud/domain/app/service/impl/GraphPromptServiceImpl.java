@@ -19,24 +19,25 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.PromptQaTypeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
+import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.PromptConverter;
 import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
-import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfQaService;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.constant.AttrDefinitionTypeEnum;
+import com.plantdata.kgcloud.sdk.constant.DataType;
+import com.plantdata.kgcloud.sdk.constant.EdgeAttrPromptDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
-import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
+import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
@@ -48,9 +49,14 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -116,15 +122,16 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         return BasicConverter.listConvert(entityOpt.get(), PromptConverter::entityVoToSeniorPromptRsp);
     }
 
+
     @Override
     public List<EdgeAttributeRsp> edgeAttributeSearch(String kgName, EdgeAttrPromptReq promptReq) {
         Optional<List<Map<Object, Integer>>> aggOpt;
-        Optional<AttrDefinitionTypeEnum> enumObject = EnumUtils.parseById(AttrDefinitionTypeEnum.class, promptReq.getDataType());
-        AttrDefinitionTypeEnum dataType = enumObject.orElse(AttrDefinitionTypeEnum.OBJECT);
-        if (AttrDefinitionTypeEnum.OBJECT.equals(dataType)) {
+        Optional<EdgeAttrPromptDataTypeEnum> enumObject = EnumUtils.parseById(EdgeAttrPromptDataTypeEnum.class, promptReq.getDataType());
+        EdgeAttrPromptDataTypeEnum dataType = enumObject.orElse(EdgeAttrPromptDataTypeEnum.EDGE_ATTR);
+        if (EdgeAttrPromptDataTypeEnum.EDGE_ATTR.equals(dataType)) {
             AggRelationFrom relationFrom = RelationConverter.edgeAttrPromptReqToAggRelationFrom(promptReq);
             aggOpt = RestRespConverter.convert(relationApi.aggRelation(KGUtil.dbName(kgName), relationFrom));
-        } else if (AttrDefinitionTypeEnum.DATA_VALUE.equals(dataType)) {
+        } else if (EdgeAttrPromptDataTypeEnum.NUM_ATTR.equals(dataType)) {
             aggOpt = RestRespConverter.convert(schemaApi.aggAttr(KGUtil.dbName(kgName), PromptConverter.edgeAttrPromptReqToAggAttrValueFrom(promptReq)));
         } else {
             log.error("dataType:{}", promptReq.getDataType());
@@ -144,7 +151,8 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         List<Map<String, Object>> maps = null;
         try {
             DataOptProvider provider = DataOptProviderFactory.createProvider(connect, DataType.ELASTIC);
-            maps = provider.find(promptReq.getOffset(), promptReq.getLimit(), PromptConverter.buildEsParam(promptReq));
+            Map<String, Object> objectMap = PromptConverter.buildEsParam(promptReq);
+            maps = provider.find(promptReq.getOffset(), promptReq.getLimit(), objectMap);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("promptReq:{}", JacksonUtils.writeValueAsString(promptReq));
@@ -240,12 +248,12 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
         attributeFrom.setKvMap(queryMapList.isEmpty() ? null : queryMapList.get(0));
         attributeFrom.setEntityName(seniorPromptReq.getKw());
-        
+
         attributeFrom.setConceptIds(Lists.newArrayList(seniorPromptReq.getConceptId()));
         List<EntityVO> queryList;
         if (queryMapList.size() < AppConstants.NER_ENTITY_NUMBER) {
-            attributeFrom.setSkip(seniorPromptReq.getPage());
-            attributeFrom.setLimit(seniorPromptReq.getSize());
+            attributeFrom.setSkip(seniorPromptReq.getOffset());
+            attributeFrom.setLimit(seniorPromptReq.getLimit());
             queryList = RestRespConverter.convert(entityApi.searchByAttribute(KGUtil.dbName(kgName), attributeFrom)).orElse(Collections.emptyList());
 
         } else {
