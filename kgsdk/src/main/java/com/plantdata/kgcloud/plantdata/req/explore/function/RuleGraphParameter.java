@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Administrator
  */
 public interface RuleGraphParameter {
-    Map<Integer, JSONObject> getReasoningRuleConfigs();
+    Map<Long, JSONObject> getReasoningRuleConfigs();
 
     List<RelationReasoningBean> getRule();
 

@@ -219,6 +219,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
         batchInfoBoxReq.setIds(Lists.newArrayList(infoBoxReq.getId()));
         batchInfoBoxReq.setRelationAttrs(infoBoxReq.getRelationAttrs());
+        batchInfoBoxReq.setReverseRelationAttrs(infoBoxReq.getRelationAttrs());
         List<InfoBoxRsp> list = infoBox(kgName, batchInfoBoxReq);
         if (CollectionUtils.isEmpty(list)) {
             return null;
@@ -271,7 +272,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return visualRsp;
         }
-        List<ComplexGraphVisualRsp.CoordinatesEntityRsp> entityRspList = BasicConverter.listConvert(entityOpt.get(), a -> ComplexGraphAnalysisConverter.entityVoToCoordinatesEntityRsp(a, dataMap.get(a.getId())));
+        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
+        List<ComplexGraphVisualRsp.CoordinatesEntityRsp> entityRspList = BasicConverter.listConvert(entityOpt.get(), a -> ComplexGraphAnalysisConverter.entityVoToCoordinatesEntityRsp(a, conceptIdMap, dataMap.get(a.getId())));
         visualRsp.setEntityList(entityRspList);
         return visualRsp;
     }

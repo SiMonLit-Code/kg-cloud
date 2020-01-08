@@ -119,11 +119,11 @@ public class InfoBoxConverter extends BasicConverter {
         //设置子概念
         infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //基本字段
-        infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList));
+        consumerIfNoNull(otherDataAttrList, a -> infoBoxRsp.setSelf(voToSelf(entity, a)));
         // 正向对象属性
-        infoBoxRsp.setAttrs(listToRsp(objAttrList, InfoBoxConverter::attrValToInfoBoxAttrRsp));
+        consumerIfNoNull(objAttrList, a -> infoBoxRsp.setAttrs(listToRsp(a, InfoBoxConverter::attrValToInfoBoxAttrRsp)));
         // 反向对象属性
-        infoBoxRsp.setReAttrs(listToRsp(resObjAttrList, InfoBoxConverter::attrValToInfoBoxAttrRsp));
+        consumerIfNoNull(resObjAttrList, a -> infoBoxRsp.setReAttrs(listToRsp(resObjAttrList, InfoBoxConverter::attrValToInfoBoxAttrRsp)));
         return infoBoxRsp;
     }
 
@@ -244,7 +244,7 @@ public class InfoBoxConverter extends BasicConverter {
             extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "来源", metaDataMap.get(MetaDataInfo.SOURCE.getFieldName())));
         }
         if (metaDataMap.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-            extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "权重", metaDataMap.get(MetaDataInfo.SOURCE.getFieldName())));
+            extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "权重", metaDataMap.get(MetaDataInfo.SCORE.getFieldName())));
         }
         if (metaDataMap.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
             extraList.add(EntityLinksRsp.ExtraRsp.buildDefault(defaultDefId, "置信度", metaDataMap.get(MetaDataInfo.RELIABILITY.getFieldName())));

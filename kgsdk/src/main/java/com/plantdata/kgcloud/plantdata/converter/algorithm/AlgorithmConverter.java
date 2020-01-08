@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.plantdata.rsp.app.GraphAnalysisaBean;
 import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import lombok.NonNull;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * @author cjw
@@ -31,14 +32,21 @@ public class AlgorithmConverter extends BasicConverter {
     }
 
     private static EntityBeanAnalysisa coordinatesEntityRspToEntityBeanAnalysisa(@NonNull ComplexGraphVisualRsp.CoordinatesEntityRsp entityRsp) {
-        EntityBeanAnalysisa analysisa = new EntityBeanAnalysisa();
-        analysisa.setName(entityRsp.getName());
-        analysisa.setCluster(entityRsp.getCluster());
-        analysisa.setConceptId(entityRsp.getConceptId());
-        analysisa.setConceptIdList(Lists.newArrayList(entityRsp.getConceptId()));
-        analysisa.setCreationTime(entityRsp.getCreationTime());
-        analysisa.setDistance(entityRsp.getDistance());
-        analysisa.setMeaningTag(entityRsp.getMeaningTag());
-        return analysisa;
+        EntityBeanAnalysisa analysis = new EntityBeanAnalysisa();
+        analysis.setName(entityRsp.getName());
+        analysis.setId(entityRsp.getId());
+        analysis.setCluster(entityRsp.getCluster());
+        analysis.setClassId(entityRsp.getClassId() == null ? NumberUtils.INTEGER_ZERO : entityRsp.getClassId());
+        analysis.setClassIdList(Lists.newArrayList(entityRsp.getClassId()));
+        analysis.setConceptId(entityRsp.getConceptId());
+        analysis.setConceptIdList(entityRsp.getConceptIdList());
+        analysis.setCreationTime(entityRsp.getCreationTime());
+        consumerIfNoNull(entityRsp.getCoordinates(), a -> {
+            analysis.setX(a.getX());
+            analysis.setY(a.getY());
+        });
+        analysis.setDistance(entityRsp.getDistance());
+        analysis.setMeaningTag(entityRsp.getMeaningTag());
+        return analysis;
     }
 }

@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -67,7 +68,7 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
 
     @Override
     public Page<AnnotationRsp> findAll(String kgName, AnnotationQueryReq baseReq) {
-        PageRequest of = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
+        PageRequest of = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), Sort.by(Sort.Direction.DESC,"createAt"));
         Specification<DataSetAnnotation> specification = (Specification<DataSetAnnotation>) (root, query, cb) -> {
             Predicate predicate = cb.conjunction();
             List<Expression<Boolean>> expressions = predicate.getExpressions();

@@ -30,7 +30,7 @@ public class ReasoningBO {
     private static final int POS = 0;
     private static final int SIZE = 50;
     private Map<Long, GraphConfReasoning> dbConfigMap;
-    private Map<Integer, JsonNode> configMap;
+    private Map<Long, JsonNode> configMap;
     @Getter
     private List<RelationReasonRuleRsp> reasonRuleList;
 
@@ -39,15 +39,15 @@ public class ReasoningBO {
         this.configMap = Maps.newHashMap();
         configMap.forEach((key, value) -> {
             Optional<JsonNode> jsonNodeOpt = JsonUtils.parseJsonNode(JacksonUtils.writeValueAsString(value));
-            jsonNodeOpt.ifPresent(v -> configMap.put(key, v));
+            jsonNodeOpt.ifPresent(v -> this.configMap.put(key, v));
         });
     }
 
     public void replaceRuleInfo() {
         this.reasonRuleList = Lists.newArrayListWithCapacity(configMap.size());
-        for (Integer ruleId : configMap.keySet()) {
+        for (Long ruleId : configMap.keySet()) {
             JsonNode ruleConfigObject = configMap.get(ruleId);
-            GraphConfReasoning ruleBean = dbConfigMap.get(Long.valueOf(ruleId));
+            GraphConfReasoning ruleBean = dbConfigMap.get(ruleId);
             if (ruleBean == null) {
                 continue;
             }
@@ -65,7 +65,7 @@ public class ReasoningBO {
             if (ruleObject == null) {
                 continue;
             }
-            ruleObject.setAttrId(ruleId);
+            ruleObject.setAttrId(ruleId.intValue());
             ruleObject.setName(ruleBean.getRuleName());
             reasonRuleList.add(ruleObject);
         }

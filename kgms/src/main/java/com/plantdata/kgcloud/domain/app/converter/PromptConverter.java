@@ -36,7 +36,7 @@ public class PromptConverter extends BasicConverter {
         PromptListFrom from = new PromptListFrom();
         from.setConceptIds(req.getConceptIds());
         from.setCaseInsensitive(req.getCaseInsensitive() == null ? false : req.getCaseInsensitive());
-        from.setFuzzy(req.getFuzzy());
+        from.setFuzzy(req.isFuzzy());
         from.setSkip(req.getOffset());
         from.setLimit(req.getLimit());
         from.setInherit(req.getInherit());
@@ -65,7 +65,9 @@ public class PromptConverter extends BasicConverter {
         } else {
             query = "{\"bool\":{\"must\":{\"prefix\":{\"name.pinyin\":\"" + promptReq.getKw() + "\"}}" + filter + "}}";
         }
-        return JacksonUtils.readValue(query, Map.class);
+        Map<String, Object> queryMap = JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
+        });
+        return DefaultUtils.oneElMap("query", queryMap);
     }
 
     public static List<PromptEntityRsp> esResultToEntity(@NotNull List<Map<String, Object>> maps) {
