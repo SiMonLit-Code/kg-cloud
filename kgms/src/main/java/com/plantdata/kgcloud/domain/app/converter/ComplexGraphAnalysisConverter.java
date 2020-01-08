@@ -2,9 +2,12 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
+import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.EsKwConstants;
+import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CoordinateReq;
@@ -24,9 +27,10 @@ public class ComplexGraphAnalysisConverter extends BasicConverter {
 
     public static MongoQueryFrom complexGraphVisualReqReqToMongoQueryFrom(String kgName, ComplexGraphVisualReq analysisReq) {
         MongoQueryFrom queryFrom = new MongoQueryFrom();
-        queryFrom.setCollection(kgName + "_data_" + analysisReq.getAzkId());
+        queryFrom.setCollection(EsKwConstants.DEGREE);
         queryFrom.setQuery(buildComplexGraphVisualAggQueryList(analysisReq.getType(), analysisReq.getSize()));
-        queryFrom.setKgName(kgName);
+        queryFrom.setKgName((kgName + "_data_" + analysisReq.getAzkId()));
+        JsonUtils.objToJson(queryFrom);
         return queryFrom;
     }
 
@@ -37,21 +41,22 @@ public class ComplexGraphAnalysisConverter extends BasicConverter {
         Object y = resMap.get("y");
         Object lou = resMap.get(EsKwConstants.LOUVAIN);
         Object distance = resMap.get(EsKwConstants.DISTANCE);
-        consumerIfNoNull(id, a -> coor.setId((Long) id));
+        consumerIfNoNull(id, a -> coor.setId(Long.valueOf(id.toString())));
         consumerIfNoNull(x, a -> coor.setX((Double) x));
         consumerIfNoNull(y, a -> coor.setY((Double) y));
-        consumerIfNoNull(lou, a -> coor.setCluster((Long) lou));
+        consumerIfNoNull(lou, a -> coor.setCluster(Long.valueOf(lou.toString())));
         consumerIfNoNull(distance, a -> coor.setDistance((Double) distance));
         return coor;
     }
 
-    public static ComplexGraphVisualRsp.CoordinatesEntityRsp entityVoToCoordinatesEntityRsp(@NonNull EntityVO entity, CoordinatesDTO coordinates) {
+    public static ComplexGraphVisualRsp.CoordinatesEntityRsp entityVoToCoordinatesEntityRsp(@NonNull EntityVO entity, Map<Long, BasicInfo> conceptIdMap, CoordinatesDTO coordinates) {
         ComplexGraphVisualRsp.CoordinatesEntityRsp entityRsp = EntityConverter.entityVoToBasicEntityRsp(entity, new ComplexGraphVisualRsp.CoordinatesEntityRsp());
         consumerIfNoNull(coordinates, a -> {
             entityRsp.setCluster(a.getCluster());
             entityRsp.setCoordinates(new CoordinateReq(a.getX(), a.getY()));
             entityRsp.setDistance(a.getDistance());
         });
+        GraphCommonConverter.fillConcept(entityRsp.getConceptId(), entityRsp, conceptIdMap);
         return entityRsp;
     }
 

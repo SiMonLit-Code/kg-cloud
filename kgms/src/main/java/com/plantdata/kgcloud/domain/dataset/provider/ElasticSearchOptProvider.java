@@ -89,6 +89,13 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
         int size = limit != null && limit > 0 ? limit : 10;
         queryNode.put("size", size);
+        if (CollectionUtils.isEmpty(query)) {
+            return queryNode;
+        }
+        return handleQuery(queryNode,query);
+    }
+
+    private ObjectNode handleQuery(ObjectNode queryNode,Map<String, Object> query) {
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "sort")) {
                 queryNode.put("sort", DataConst.CREATE_AT);
@@ -128,9 +135,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     @Override
     public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
         if (!CollectionUtils.isEmpty(sort)) {
-            if (query == null) {
-                query = Maps.newHashMap();
-            }
             query.put("sort", sort);
         }
 
@@ -151,31 +155,8 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             Map<String, Object> map = JacksonUtils.readValue(jsonNode.get("_source").traverse(), new TypeReference<Map<String, Object>>() {
             });
             map.put("_id", id);
+            mapList.add(map);
         }
-        return mapList;
-    }
-
-    public List<Map<String, Object>> batchFind(Integer offset, Integer limit, Map<String, Object> query) {
-        List<Map<String, Object>> mapList = new ArrayList<>();
-
-        String endpoint = "/" + database + "/" + type + "/_search";
-        if (StringUtils.hasText(type)) {
-            endpoint = "/" + database + "/_search";
-        }
-        Request request = new Request(POST, endpoint);
-
-
-//            NStringEntity entity = new NStringEntity(query, ContentType.APPLICATION_JSON);
-//
-//            request.setEntity(entity);
-
-
-        Optional<String> send = send(request);
-        String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
-        JsonNode node = readTree(result);
-
-        System.out.println(node.toString());
-
         return mapList;
     }
 

@@ -11,12 +11,13 @@ import java.util.Map;
 
 /**
  * 普通图探索类
+ *
  * @author Administrator
  */
 @Data
 public class RuleGeneralGraphParameter extends TimeGeneralGraphParameter implements RuleGraphParameter {
 
     private List<RelationReasoningBean> rule;
-    private Map<Integer, JSONObject> reasoningRuleConfigs;
+    private Map<Long, JSONObject> reasoningRuleConfigs;
 
 }

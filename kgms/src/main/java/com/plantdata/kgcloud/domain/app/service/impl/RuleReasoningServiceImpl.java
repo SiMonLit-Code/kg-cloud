@@ -21,6 +21,8 @@ import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepos
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,7 @@ import java.util.stream.Collectors;
  * @date 2019/12/3 15:21
  */
 @Service
+@Slf4j
 public class RuleReasoningServiceImpl implements RuleReasoningService {
 
     @Autowired
@@ -90,6 +93,7 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
 
     private void reasoningAndFill(String kgName, GraphVO graphVO, ReasoningReq reasoningReq) {
         Optional<ReasoningResultRsp> resultOpt = RestRespConverter.convert(reasoningApi.reasoning(KGUtil.dbName(kgName), reasoningReq));
+        log.error("推理reasoningReq:{}", JacksonUtils.writeValueAsString(reasoningReq));
         resultOpt.ifPresent(reasoningResultRsp -> this.fillReasonEntityAndRelation(kgName, graphVO, reasoningResultRsp, false));
     }
 

@@ -248,14 +248,13 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
         attributeFrom.setKvMap(queryMapList.isEmpty() ? null : queryMapList.get(0));
         attributeFrom.setEntityName(seniorPromptReq.getKw());
-
+        attributeFrom.setInherit(true);
         attributeFrom.setConceptIds(Lists.newArrayList(seniorPromptReq.getConceptId()));
         List<EntityVO> queryList;
         if (queryMapList.size() < AppConstants.NER_ENTITY_NUMBER) {
-            attributeFrom.setSkip(seniorPromptReq.getPage());
-            attributeFrom.setLimit(seniorPromptReq.getSize());
+            attributeFrom.setSkip(seniorPromptReq.getOffset());
+            attributeFrom.setLimit(seniorPromptReq.getLimit());
             queryList = RestRespConverter.convert(entityApi.searchByAttribute(KGUtil.dbName(kgName), attributeFrom)).orElse(Collections.emptyList());
-
         } else {
             attributeFrom.setSkip(NumberUtils.INTEGER_ZERO);
             attributeFrom.setLimit(Integer.MAX_VALUE);

@@ -99,11 +99,10 @@ public class ExploreCommonConverter extends BasicConverter {
         return exploreReq;
     }
 
-    static Map<Long, Object> buildReasonConfig(Map<Integer, JSONObject> config) {
+    static Map<Long, Object> buildReasonConfig(Map<Long, JSONObject> config) {
         String configJson = JacksonUtils.writeValueAsString(config);
-        Map<Integer, Object> tempMap = JacksonUtils.readValue(configJson, new TypeReference<Map<Integer, Object>>() {
+        return JacksonUtils.readValue(configJson, new TypeReference<Map<Long, Object>>() {
         });
-        return keyIntToLong(tempMap);
     }
 
     static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReq> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {
@@ -230,6 +229,8 @@ public class ExploreCommonConverter extends BasicConverter {
     }
 
     private static RelationAttrReq attrScreeningBeanToRelationAttrReq(@NonNull AttrScreeningBean screeningBean) {
-        return JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), RelationAttrReq.class);
+        RelationAttrReq relationAttrReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), RelationAttrReq.class);
+        consumerIfNoNull(relationAttrReq, a -> a.set$ne(screeningBean.get$neq()));
+        return relationAttrReq;
     }
 }
