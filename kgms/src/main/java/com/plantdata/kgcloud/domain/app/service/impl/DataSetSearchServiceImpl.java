@@ -18,7 +18,6 @@ import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
-import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.exception.BizException;
@@ -59,20 +58,19 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         dataOptConnect.setDatabase(dataSet.getDbName());
         dataOptConnect.setTable(dataSet.getTbName());
         dataOptConnect.setAddresses(dataSet.getAddr());
-        DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, dataSet.getDataType());
-        Map<String, Object> queryMap;
-        Map<String, Object> sortMap;
-        try {
-            queryMap = JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
+        List<Map<String, Object>> maps;
+        long count;
+        try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, dataSet.getDataType())) {
+            Map<String, Object> queryMap = JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
             });
-            sortMap = JacksonUtils.readValue(sort, new TypeReference<Map<String, Object>>() {
+            Map<String, Object> sortMap = JacksonUtils.readValue(sort, new TypeReference<Map<String, Object>>() {
             });
+            maps = provider.findWithSort(offset, limit, queryMap, sortMap);
+            count = provider.count(queryMap);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BizException(AppErrorCodeEnum.ERROR_DATA_SET_QUERY);
         }
-        List<Map<String, Object>> maps = provider.findWithSort(offset, limit, queryMap, sortMap);
-        long count = provider.count(queryMap);
         return new RestData<>(maps, count);
     }
 
@@ -208,14 +206,16 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             return Collections.emptyMap();
         }
         String dataTitle = StringUtils.EMPTY;
-        //todo 博文
         Optional<DataSetSchema> schemaOpt = dataSet.getSchema().stream().findAny();
         if (schemaOpt.isPresent()) {
             DataOptConnect connect = DataOptConnect.of(dataSet);
-            DataOptProvider provider = DataOptProviderFactory.createProvider(connect, dataSet.getDataType());
-            String key = (String) schemaOpt.get().getSettings().get("key");
-            Map<String, Object> oneMap = provider.findOne(data_id);
-            dataTitle = (String) oneMap.get(key);
+            try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, dataSet.getDataType())) {
+                String key = (String) schemaOpt.get().getSettings().get("key");
+                Map<String, Object> oneMap = provider.findOne(data_id);
+                dataTitle = (String) oneMap.get(key);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         Map<String, String> map = Maps.newHashMapWithExpectedSize(NumberUtils.INTEGER_TWO);
         map.put("dataSetTitle", dataSet.getTitle());

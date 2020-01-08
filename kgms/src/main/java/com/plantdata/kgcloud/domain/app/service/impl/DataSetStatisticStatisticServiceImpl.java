@@ -7,12 +7,12 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.bo.DataSetStatisticBO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.DataSetStatisticService;
-import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
@@ -23,6 +23,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +53,12 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
             throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
         }
         DataSetStatisticBO statistic = new DataSetStatisticBO().init(statisticReq.getAggregation(), statisticReq.getQuery(), dimension, statisticReq.getReturnType());
-        DataOptProvider provider = dataOptService.getProvider(userId, dataOpt.get().getId());
-
-        List<Map<String, Object>> maps = provider.find(0, Integer.MAX_VALUE - 1, statistic.getEsDTO().parseMap());
+        List<Map<String, Object>> maps = Collections.emptyList();
+        try (DataOptProvider provider = dataOptService.getProvider(userId, dataOpt.get().getId())) {
+            maps = provider.find(0, Integer.MAX_VALUE - 1, statistic.getEsDTO().parseMap());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return statistic.postDealData(maps);
     }
 
