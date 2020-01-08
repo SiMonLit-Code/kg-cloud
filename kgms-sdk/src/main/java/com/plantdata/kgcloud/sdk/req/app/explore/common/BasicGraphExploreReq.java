@@ -31,9 +31,9 @@ public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyL
     private List<Long> replaceClassIds;
     @ApiModelProperty("实例id")
     private List<String> replaceClassKeys;
-    @ApiModelProperty("读取层数")
-    @Max(value = 30, message = "层数最多可查询30层")
-    @Min(value = 1, message = "层数最小为1")
+    @ApiModelProperty("读取层数,最小1最大10")
+    @Min(1)
+    @Max(10)
     private Integer distance = 1;
     @ApiModelProperty("是否关系合并")
     private boolean relationMerge;

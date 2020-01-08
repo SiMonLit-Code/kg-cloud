@@ -119,7 +119,7 @@ public class InfoBoxConverter extends BasicConverter {
         //设置子概念
         infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //基本字段
-        consumerIfNoNull(otherDataAttrList, a -> infoBoxRsp.setSelf(voToSelf(entity, a)));
+        infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList));
         // 正向对象属性
         consumerIfNoNull(objAttrList, a -> infoBoxRsp.setAttrs(listToRsp(a, InfoBoxConverter::attrValToInfoBoxAttrRsp)));
         // 反向对象属性
