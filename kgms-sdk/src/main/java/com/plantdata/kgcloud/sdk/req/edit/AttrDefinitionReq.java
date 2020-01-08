@@ -26,6 +26,7 @@ public class AttrDefinitionReq {
     private String name;
 
     @ApiModelProperty(value = "属性名称别名")
+    @Length(max = 100, message = "属性别名长度不能超过100")
     private String alias;
 
     @ApiModelProperty(required = true,value = "0：数值，1：对象", allowableValues = "0,1")
@@ -43,6 +44,7 @@ public class AttrDefinitionReq {
     private Integer dataType;
 
     @ApiModelProperty(value = "属性单位")
+    @Length(max = 10, message = "属性单位长度不能超过10")
     private String dataUnit;
 
     @ApiModelProperty(value = "对象属性是否唯一,0:N,1:Y")
