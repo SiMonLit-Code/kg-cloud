@@ -64,7 +64,7 @@ public class ConditionConverter extends BasicConverter {
         if (entityScreeningList == null) {
             return Collections.emptyMap();
         }
-        return entityScreeningList.stream().collect(Collectors.toMap(EntityQueryFiltersReq::getAttrId,
+        return entityScreeningList.stream().collect(Collectors.toMap(EntityQueryFiltersReq::getAttrDefId,
                 s -> s.get$eq() != null ? s.get$eq() : buildMongoQueryMap(s)));
     }
 
@@ -72,7 +72,7 @@ public class ConditionConverter extends BasicConverter {
         if (entityScreeningList == null) {
             return Collections.emptyMap();
         }
-        return entityScreeningList.stream().collect(Collectors.toMap(s -> String.valueOf(s.getAttrId()),
+        return entityScreeningList.stream().collect(Collectors.toMap(s -> String.valueOf(s.getAttrDefId()),
                 s -> s.get$eq() != null ? s.get$eq() : buildMongoQueryMap(s)));
     }
 

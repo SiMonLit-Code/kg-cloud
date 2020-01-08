@@ -35,7 +35,7 @@ public class BasicConverter {
         }
     }
 
-    public static <T> void consumerWithDefault(@NonNull T def, T a, Consumer<T> consumer) {
+    static <T> void consumerWithDefault(@NonNull T def, T a, Consumer<T> consumer) {
         consumer.accept(a == null ? def : a);
     }
 
@@ -102,7 +102,7 @@ public class BasicConverter {
         return toListNoNull(list, a -> listConvert(a, function));
     }
 
-    public static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, List<R>> function) {
+    static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, Collection<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1).stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
