@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.filter;
 
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.config.CurrentUser;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
@@ -21,7 +20,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -35,10 +33,6 @@ public class ApkAuthFilter extends OncePerRequestFilter {
     private static final String ADMIN_APK = "03c7a9376254ebb8a6b27706194";
 
 
-    private static final List<String> ROBOT_ALLOW_PATHS = Lists.newArrayList("graphExplore/common/**",
-            "infoBox/list/**", "graphExplore/path/**", "knowledgeRecommend/**", "graphExplore/relation/**", "graphExplore/timing/**"
-    );
-
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         String requestUri = httpServletRequest.getRequestURI();
@@ -50,7 +44,6 @@ public class ApkAuthFilter extends OncePerRequestFilter {
             }
         }
 
-        boolean robotAllow = ROBOT_ALLOW_PATHS.stream().anyMatch(a -> antPathMatcher.match(a, requestUri));
         String apk = WebUtils.getKgApk(httpServletRequest);
 
         if (ADMIN_APK.equals(apk)) {
@@ -58,9 +51,6 @@ public class ApkAuthFilter extends OncePerRequestFilter {
             isAllowed = true;
         } else {
             CurrentUser.setAdmin(false);
-        }
-        if (robotAllow) {
-            isAllowed = true;
         }
         if (isAllowed) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
