@@ -147,6 +147,9 @@ public class GraphStatisticConverter extends BasicConverter {
         if (seqNo == -1 || seqNo == -2) {
             return AttributeDataTypeEnum.DATETIME;
         }
+        if (CollectionUtils.isEmpty(attrDef.getExtraInfo())) {
+            throw BizException.of(AppErrorCodeEnum.EDGE_ATTR_DEF_NULL);
+        }
         Optional<ExtraInfo> firstOpt = attrDef.getExtraInfo().stream().filter(a -> a.getSeqNo() == seqNo).findFirst();
         if (!firstOpt.isPresent()) {
             throw BizException.of(AppErrorCodeEnum.EDGE_ATTR_DEF_NULL);
