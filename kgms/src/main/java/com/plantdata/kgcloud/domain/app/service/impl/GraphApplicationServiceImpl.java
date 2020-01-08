@@ -225,6 +225,9 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             return null;
         }
         InfoBoxRsp infoBoxRsp = list.get(0);
+        if (infoBoxRsp.getSelf() == null) {
+            return null;
+        }
         List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(KGUtil.dbName(kgName), userId, infoBoxRsp.getSelf().getId());
         infoBoxRsp.getSelf().setDataLinks(dataLinks);
         return infoBoxRsp;
