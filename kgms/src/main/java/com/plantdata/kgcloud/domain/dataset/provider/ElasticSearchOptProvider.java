@@ -224,7 +224,8 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public Map<String, Object> update(String id, Map<String, Object> node) {
-        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/?refresh=wait_for";
+        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/";
+//        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/?refresh=wait_for";
         Request request = new Request(POST, endpoint);
         Map<String, Object> map = new HashMap<>();
         map.put("doc", node);
