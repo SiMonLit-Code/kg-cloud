@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.config;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.exception.BizException;
@@ -17,7 +18,6 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 @RestControllerAdvice
 @Slf4j
 public class SdkAdviceConfig {
-
 
     @ExceptionHandler(value = {Exception.class})
     public Object handleException(Exception e) {
@@ -52,4 +52,5 @@ public class SdkAdviceConfig {
         //未知异常
         return ApiReturn.fail(CommonErrorCode.INTERNAL_SERVER_ERROR.getErrorCode(), ExceptionUtils.getStackTrace(e));
     }
+
 }
