@@ -53,7 +53,7 @@ public class EntityController implements GraphDataObtainInterface {
     @ApiOperation("实体-批量删除")
     @DeleteMapping("{kgName}/batch/delete")
     public ApiReturn<List<DeleteResult>> batchDeleteEntities(@PathVariable("kgName") String kgName,
-                                                             @RequestParam("ids") List<Long> ids) {
+                                                             @RequestParam("ids[]") List<Long> ids) {
         return editClient.batchDeleteEntities(kgName, ids);
     }
 }
