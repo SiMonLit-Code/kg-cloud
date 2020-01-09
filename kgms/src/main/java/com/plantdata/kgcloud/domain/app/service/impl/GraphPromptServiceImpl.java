@@ -160,8 +160,12 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         if (CollectionUtils.isEmpty(maps)) {
             return Collections.emptyList();
         }
-        return BasicConverter.listToRsp(maps, PromptConverter::esResultToEntity);
-
+        List<PromptEntityRsp> promptEntityRspList = BasicConverter.listToRsp(maps, PromptConverter::esResultToEntity);
+        BasicConverter.consumerIfNoNull(promptEntityRspList, a -> {
+            Set<Long> idSet = Sets.newHashSet();
+            a.removeIf(b -> !idSet.add(b.getId()));
+        });
+        return promptEntityRspList;
     }
 
     private List<PromptEntityRsp> queryAnswer(String kgName, PromptReq promptReq) {

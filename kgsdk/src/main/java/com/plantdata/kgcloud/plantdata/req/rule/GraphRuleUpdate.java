@@ -17,5 +17,5 @@ import lombok.NoArgsConstructor;
 public class GraphRuleUpdate {
     private String kgName;
     private GraphmRuleMapBean bean;
-    private Integer id;
+    private Long id;
 }

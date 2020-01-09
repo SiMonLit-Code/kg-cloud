@@ -9,7 +9,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class IntentDataBean {
+public class IntentDataBeanRsp {
     private int count;
     private List<ElementSeqBean> array;
 

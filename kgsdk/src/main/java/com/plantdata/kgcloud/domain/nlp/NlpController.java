@@ -14,7 +14,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBean;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBeanRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +80,7 @@ public class NlpController implements NaturalLanguageProcessingInterface {
 
     @ApiOperation("语义关联")
     @PostMapping("association")
-    public ApiReturn<IntentDataBean> intent(
+    public ApiReturn<IntentDataBeanRsp> intent(
             @ApiParam(value = "图谱名称") @RequestParam("kgName") String kgName,
             @ApiParam(value = "自然语言输入") @RequestParam("query") String query,
             @RequestParam(value = "size", defaultValue = "5") int size) {

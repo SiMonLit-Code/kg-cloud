@@ -44,7 +44,7 @@ public class GraphSemanticController implements GraphSemanticApplicationInterfac
     public ApiReturn<QaAnswerDataRsp> qaKbQa(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                              @RequestBody QueryReq queryReq) {
 
-        return semanticClient.query(kgName, queryReq);
+        return semanticClient.qaKbQa(kgName, queryReq);
     }
 
     @ApiOperation("隐含关系推理")

@@ -1,15 +1,9 @@
 package com.plantdata.kgcloud.plantdata.req.explore.common;
-
-
-import com.plantdata.kgcloud.plantdata.link.LinkModel;
-import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
-
 import java.util.List;
 
 /**
  * @author Administrator
  */
-@LinkModel(clazz = RelationAttrReq.class)
 public class AttrScreeningBean {
     private Integer attrId;
     private Integer seqNo;
