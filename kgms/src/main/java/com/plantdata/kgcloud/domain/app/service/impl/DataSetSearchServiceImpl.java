@@ -199,14 +199,13 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
      * 多重循环查询 改不动
      *
      * @param userId
-     * @param data_id
+     * @param dataId
      * @param dataSetId
      * @return
      */
-    private Map<String, String> getDataTitle(String userId, String data_id, Long dataSetId) {
+    private Map<String, String> getDataTitle(String userId, String dataId, Long dataSetId) {
 
-        boolean exists = dataSetRepository.existsById(dataSetId);
-        if (!exists) {
+        if (!dataSetRepository.existsById(dataSetId)) {
             return Collections.emptyMap();
         }
         DataSet dataSet = dataSetService.findOne(userId, dataSetId);
@@ -219,7 +218,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             DataOptConnect connect = DataOptConnect.of(dataSet);
             try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, dataSet.getDataType())) {
                 String key = (String) schemaOpt.get().getSettings().get("key");
-                Map<String, Object> oneMap = provider.findOne(data_id);
+                Map<String, Object> oneMap = provider.findOne(dataId);
                 dataTitle = (String) oneMap.get(key);
             } catch (Exception e) {
                 e.printStackTrace();

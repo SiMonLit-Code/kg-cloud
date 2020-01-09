@@ -356,7 +356,8 @@ public class GraphDataController implements SdkOldApiInterface {
     @PostMapping("data/entity/update")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
+            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean" +
+                    "[{\"id\":long,\"conceptId\":long,\"conceptIdList\":[2],\"name\":\"String\",\"meaningTag\":\"String\",\"synonyms\":null,\"abs\":null,\"imageUrl\":null,\"attributes\":null,\"privateAttributes\":null}]"),
     })
     public RestResp<Map<String, List<Long>>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
         ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), true, NumberUtils.INTEGER_ZERO);
