@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.sdk.rsp.app;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 import java.util.List;
@@ -19,6 +20,7 @@ public interface MetaDataInterface {
      *
      * @param startTime 。
      */
+    @ApiModelProperty(hidden = true)
     default void setStartTime(Date startTime) {
     }
 
@@ -27,6 +29,7 @@ public interface MetaDataInterface {
      *
      * @param entityLinks 。
      */
+    @ApiModelProperty(hidden = true)
     default void setEntityLinks(List<EntityLinkVO> entityLinks) {
 
     }
@@ -36,6 +39,7 @@ public interface MetaDataInterface {
      *
      * @param endTime 。
      */
+    @ApiModelProperty(hidden = true)
     default void setEndTime(Date endTime) {
     }
 
@@ -44,6 +48,7 @@ public interface MetaDataInterface {
      *
      * @param openGis 。。。
      */
+    @ApiModelProperty(hidden = true)
     default void setOpenGis(Boolean openGis) {
     }
 
@@ -52,6 +57,7 @@ public interface MetaDataInterface {
      *
      * @param lng 。
      */
+    @ApiModelProperty(hidden = true)
     default void setLng(Double lng) {
     }
 
@@ -60,6 +66,7 @@ public interface MetaDataInterface {
      *
      * @param lat 。
      */
+    @ApiModelProperty(hidden = true)
     default void setLat(Double lat) {
     }
 
@@ -68,6 +75,7 @@ public interface MetaDataInterface {
      *
      * @param address 。
      */
+    @ApiModelProperty(hidden = true)
     default void setAddress(String address) {
     }
 
@@ -76,12 +84,25 @@ public interface MetaDataInterface {
      *
      * @param additional .
      */
+    @ApiModelProperty(hidden = true)
     default void setAdditional(AdditionalRsp additional) {
     }
 
+    /**
+     * 节点样式
+     *
+     * @param nodeStyle .
+     */
+    @ApiModelProperty(hidden = true)
     default void setNodeStyle(Map<String, Object> nodeStyle) {
     }
 
+    /**
+     * label 样式
+     *
+     * @param labelStyle .
+     */
+    @ApiModelProperty(hidden = true)
     default void setLabelStyle(Map<String, Object> labelStyle) {
     }
 
@@ -90,6 +111,7 @@ public interface MetaDataInterface {
      *
      * @param tagRspList .
      */
+    @ApiModelProperty(hidden = true)
     default void setTags(List<TagRsp> tagRspList) {
     }
 
@@ -98,6 +120,7 @@ public interface MetaDataInterface {
      *
      * @param score .
      */
+    @ApiModelProperty(hidden = true)
     default void setScore(Double score) {
     }
 
@@ -106,9 +129,16 @@ public interface MetaDataInterface {
      *
      * @param batch .
      */
+    @ApiModelProperty(hidden = true)
     default void setBatch(String batch) {
     }
 
+    /**
+     * ？
+     *
+     * @param reliability .
+     */
+    @ApiModelProperty(hidden = true)
     default void setReliability(Double reliability) {
     }
 }

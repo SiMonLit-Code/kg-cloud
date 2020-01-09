@@ -18,6 +18,7 @@ import com.plantdata.kgcloud.plantdata.req.data.DelectRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityInsertParameter;
+import com.plantdata.kgcloud.plantdata.req.data.EntityQueryReq;
 import com.plantdata.kgcloud.plantdata.req.data.ImportAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportEntityParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportRelationParameter;
@@ -49,6 +50,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.util.JsonUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -405,6 +407,7 @@ public class GraphDataController implements SdkOldApiInterface {
     @PostMapping("data/entity/get/by/name")
     public RestResp<List<ImportEntityBean>> getEntityByName(@ApiParam(required = true) @RequestParam("kgName") String kgName,
                                                             @ApiParam(required = true, value = "[{\"name\":,\"meaningTag\":}]") @RequestParam("names") String names) {
+        List<EntityQueryReq> queryList = JsonUtils.jsonToList(names, EntityQueryReq.class);
         //todo
         return new RestResp<>();
     }
