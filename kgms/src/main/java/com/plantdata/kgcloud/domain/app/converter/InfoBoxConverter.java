@@ -232,7 +232,7 @@ public class InfoBoxConverter extends BasicConverter {
         entityRsp.setId(entityVO.getId());
         entityRsp.setMeaningTag(entityVO.getMeaningTag());
         entityRsp.setName(entityVO.getName());
-        entityRsp.setType(EntityTypeEnum.ENTITY);
+        entityRsp.setType(EntityTypeEnum.parseById(entityVO.getType()));
         return entityRsp;
     }
 
