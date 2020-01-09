@@ -219,11 +219,15 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
         batchInfoBoxReq.setIds(Lists.newArrayList(infoBoxReq.getId()));
         batchInfoBoxReq.setRelationAttrs(infoBoxReq.getRelationAttrs());
+        batchInfoBoxReq.setReverseRelationAttrs(infoBoxReq.getRelationAttrs());
         List<InfoBoxRsp> list = infoBox(kgName, batchInfoBoxReq);
         if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         InfoBoxRsp infoBoxRsp = list.get(0);
+        if (infoBoxRsp.getSelf() == null) {
+            return null;
+        }
         List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(KGUtil.dbName(kgName), userId, infoBoxRsp.getSelf().getId());
         infoBoxRsp.getSelf().setDataLinks(dataLinks);
         return infoBoxRsp;

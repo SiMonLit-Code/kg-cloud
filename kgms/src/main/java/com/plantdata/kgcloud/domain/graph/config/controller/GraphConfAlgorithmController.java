@@ -52,7 +52,7 @@ public class GraphConfAlgorithmController {
     }
 
     @ApiOperation("图谱配置-算法-详情")
-    @GetMapping("/config/algorithm/detail/{id}")
+    @GetMapping("/algorithm/detail/{id}")
     public ApiReturn<GraphConfAlgorithmRsp> detailAlgorithm(@PathVariable("id") Long id) {
         return ApiReturn.success(graphConfAlgorithmService.findById(id));
     }

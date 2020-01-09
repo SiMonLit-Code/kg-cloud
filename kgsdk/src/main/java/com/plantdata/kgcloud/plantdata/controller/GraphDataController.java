@@ -18,6 +18,7 @@ import com.plantdata.kgcloud.plantdata.req.data.DelectRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityInsertParameter;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.plantdata.req.data.ImportAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportEntityParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportRelationParameter;
@@ -49,6 +50,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.util.JsonUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -318,7 +320,7 @@ public class GraphDataController implements SdkOldApiInterface {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
-            @ApiImplicitParam(name = "upsert", dataType = "boolean", defaultValue = "true", paramType = "form", value = "实体不存在是否新增，默认新增"),
+            @ApiImplicitParam(name = "upsert", dataType = "boolean", defaultValue = "true", paramType = "form", value = "true 更新 false 修改"),
             @ApiImplicitParam(name = "mode", dataType = "int", paramType = "form", value = "单个实体有部分错误信息时的处理方式，0 表示整条数据不导入，1 表示导入正确的部分"),
     })
 
@@ -405,6 +407,7 @@ public class GraphDataController implements SdkOldApiInterface {
     @PostMapping("data/entity/get/by/name")
     public RestResp<List<ImportEntityBean>> getEntityByName(@ApiParam(required = true) @RequestParam("kgName") String kgName,
                                                             @ApiParam(required = true, value = "[{\"name\":,\"meaningTag\":}]") @RequestParam("names") String names) {
+        List<EntityQueryWithConditionReq> queryList = JsonUtils.jsonToList(names, EntityQueryWithConditionReq.class);
         //todo
         return new RestResp<>();
     }

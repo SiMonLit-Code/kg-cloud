@@ -46,7 +46,7 @@ public class GraphExploreController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", dataType = "long", paramType = "form", value = "实体id"),
             @ApiImplicitParam(name = "kw", dataType = "string", paramType = "form", value = "实体或概念名称,若id为空时此参数生效"),
-            @ApiImplicitParam(name = "distance", dataType = "int", paramType = "form", value = "查询层数"),
+            @ApiImplicitParam(name = "distance", dataType = "int", paramType = "form", value = "查询层数 最大10层"),
             @ApiImplicitParam(name = "direction", dataType = "int", paramType = "form", value = "查询边关系的方向，0表示双向，1表示出发，2表示到达,默认0"),
             @ApiImplicitParam(name = "highLevelSize", dataType = "long", paramType = "form", value = "第二层以上节点查询个数，如果指定，第2层及第2层以上返回的节点以此数为限"),
             @ApiImplicitParam(name = "isRelationMerge", dataType = "boolean", paramType = "form", value = "同节点的关系是否进行合并"),

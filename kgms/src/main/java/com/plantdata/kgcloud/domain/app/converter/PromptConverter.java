@@ -2,9 +2,11 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.AggAttrValueFrom;
 import ai.plantdata.kg.api.pub.req.PromptListFrom;
+import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.PromptItemVO;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.PromptResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
@@ -12,6 +14,7 @@ import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
+import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
@@ -23,7 +26,6 @@ import org.springframework.beans.BeanUtils;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -31,6 +33,15 @@ import java.util.stream.Collectors;
  * @date 2019/11/29 13:35
  */
 public class PromptConverter extends BasicConverter {
+
+    public static SearchByAttributeFrom seniorPromptReqToSearchByAttributeFrom(@NonNull SeniorPromptReq promptReq, List<Map<String, Object>> queryMapList) {
+        SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
+        consumerIfNoNull(queryMapList, a -> attributeFrom.setKvMap(a.get(0)));
+        attributeFrom.setEntityName(promptReq.getKw());
+        attributeFrom.setInherit(true);
+        attributeFrom.setConceptIds(Lists.newArrayList(promptReq.getConceptId()));
+        return attributeFrom;
+    }
 
     public static PromptListFrom promptReqReqToPromptListFrom(PromptReq req) {
         PromptListFrom from = new PromptListFrom();
@@ -70,27 +81,24 @@ public class PromptConverter extends BasicConverter {
         return DefaultUtils.oneElMap("query", queryMap);
     }
 
-    public static List<PromptEntityRsp> esResultToEntity(@NotNull List<Map<String, Object>> maps) {
-        return maps.stream().map(s -> {
-            PromptEntityRsp entityBean = new PromptEntityRsp();
-            Object conceptId = s.get("concept_id");
-            if (conceptId != null) {
-                try {
-                    entityBean.setConceptId(Long.parseLong(conceptId.toString()));
-                } catch (Exception e) {
-                    List<Long> conceptIds = JacksonUtils.readValue(conceptId.toString(), new TypeReference<List<Long>>() {
-                    });
-                    if (conceptIds.size() > 0) {
-                        entityBean.setConceptId(conceptIds.get(0));
-                    }
-                }
+    public static PromptEntityRsp esResultToEntity(@NotNull Map<String, Object> map) {
+
+        PromptEntityRsp entityBean = new PromptEntityRsp();
+        Object conceptId = map.get("concept_id");
+        consumerIfNoNull(conceptId, a -> {
+            try {
+                entityBean.setConceptId(Long.parseLong(conceptId.toString()));
+            } catch (Exception e) {
+                List<Long> conceptIds = JacksonUtils.readValue(conceptId.toString(), new TypeReference<List<Long>>() {
+                });
+                consumerIfNoNull(conceptIds, b -> entityBean.setConceptId(b.get(0)));
             }
-            DefaultUtils.ifPresent(a -> entityBean.setId(Long.parseLong(s.get("entity_id").toString())), s.get("entity_id"));
-            DefaultUtils.ifPresent(a -> entityBean.setName(s.get("name").toString()), s.get("name"));
-            DefaultUtils.ifPresent(a -> entityBean.setName(s.get("meaning_tag").toString()), s.get("meaning_tag"));
-            DefaultUtils.ifPresent(a -> entityBean.setName(s.get("score").toString()), s.get("score"));
-            return entityBean;
-        }).collect(Collectors.toList());
+        });
+        DefaultUtils.ifPresent(a -> entityBean.setId(Long.parseLong(map.get("entity_id").toString())), map.get("entity_id"));
+        DefaultUtils.ifPresent(a -> entityBean.setName(map.get("name").toString()), map.get("name"));
+        DefaultUtils.ifPresent(a -> entityBean.setName(map.get("meaning_tag").toString()), map.get("meaning_tag"));
+        DefaultUtils.ifPresent(a -> entityBean.setName(map.get("score").toString()), map.get("score"));
+        return entityBean;
     }
 
     public static SeniorPromptRsp seniorPromptRspToPromptEntityRsp(@NonNull PromptEntityRsp promptEntityRsp) {

@@ -426,6 +426,7 @@ public interface KgmsClient {
 
     /**
      * 图谱配置-推理-分页
+     *
      * @param kgName
      * @param page
      * @param size

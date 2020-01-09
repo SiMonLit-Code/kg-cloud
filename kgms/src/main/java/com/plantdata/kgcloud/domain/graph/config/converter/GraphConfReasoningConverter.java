@@ -13,7 +13,7 @@ import java.util.Map;
  * @date 2019/12/25  17:15
  */
 public class GraphConfReasoningConverter {
-    public static GraphConfReasonRsp JsonNodeToMapConverter(GraphConfReasoning graphConfReasoning){
+    public static GraphConfReasonRsp jsonNodeToMapConverter(GraphConfReasoning graphConfReasoning){
         GraphConfReasonRsp rsp =
                 ConvertUtils.convert(GraphConfReasonRsp.class).apply(graphConfReasoning);
         String strGraphConfReasoning = JacksonUtils.writeValueAsString(graphConfReasoning.getRuleConfig());

@@ -27,7 +27,7 @@ public class PromptParameter extends PageModel {
     private Integer promptType = 0;
     private Boolean isInherit = false;
     private Boolean isCaseInsensitive = false;
-    private Boolean isFuzzy = false;
+    private Boolean isFuzzy;
     private Boolean openExportDate = true;
     private String sort;
 

@@ -23,6 +23,7 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -143,9 +144,10 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         if (!StringUtils.hasText(type)) {
             endpoint = "/" + database + "/_search";
         }
-        Request request = new Request(GET, endpoint);
+
+        Request request = new Request(RequestMethod.POST.toString(), endpoint);
         ObjectNode queryNode = buildQuery(offset, limit, query);
-        NStringEntity entity = new NStringEntity(queryNode.toString(), ContentType.APPLICATION_JSON);
+        NStringEntity entity = new NStringEntity(JacksonUtils.writeValueAsString(queryNode), ContentType.APPLICATION_JSON);
         request.setEntity(entity);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
