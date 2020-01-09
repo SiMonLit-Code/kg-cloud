@@ -21,6 +21,7 @@ import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityTagFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
+import cn.hiboot.mcn.core.model.result.RestResp;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
@@ -145,8 +146,10 @@ public class EntityServiceImpl implements EntityService {
         Integer page = (basicInfoListReq.getPage() - 1) * size;
         basicInfoListFrom.setSkip(page);
         basicInfoListFrom.setLimit(size + 1);
-        Optional<List<EntityVO>> optional = RestRespConverter.convert(conceptEntityApi.list(KGUtil.dbName(kgName),
-                basicInfoListFrom));
+        RestResp<List<EntityVO>> restResp = conceptEntityApi.list(KGUtil.dbName(kgName),
+                basicInfoListFrom);
+        Optional<List<EntityVO>> optional = RestRespConverter.convert(restResp);
+        Integer count = RestRespConverter.convertCount(restResp).orElse(0);
         List<BasicInfoRsp> basicInfoRspList =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
         List<BasicInfoRsp> retBasicInfoList = new ArrayList<>(basicInfoRspList);
@@ -154,10 +157,10 @@ public class EntityServiceImpl implements EntityService {
         if (basicInfoRspList.size() > size) {
             retBasicInfoList.remove(retBasicInfoList.size() - 1);
             pages = new PageImpl<>(retBasicInfoList, PageRequest.of(basicInfoListReq.getPage() - 1,
-                    size), size + 1);
+                    size), count);
         } else {
             pages = new PageImpl<>(retBasicInfoList, PageRequest.of(basicInfoListReq.getPage() - 1,
-                    size), size - 1);
+                    size), count);
         }
         return pages;
     }
