@@ -4,7 +4,6 @@ import com.fasterxml.classmate.TypeResolver;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import springfox.documentation.builders.ParameterBuilder;
@@ -26,7 +25,7 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
 @NoArgsConstructor
 public class SwaggerHeaderPlugin implements OperationBuilderPlugin {
 
-    @Autowired
+
     private TypeResolver resolver;
 
 
