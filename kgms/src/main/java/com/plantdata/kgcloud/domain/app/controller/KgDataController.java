@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import ai.plantdata.kg.api.pub.SparqlApi;
 import ai.plantdata.kg.api.pub.resp.QueryResultVO;
-import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
@@ -14,6 +13,8 @@ import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.model.service.ModelService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import io.swagger.annotations.ApiOperation;
@@ -30,9 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author cjw
@@ -86,21 +85,10 @@ public class KgDataController implements GraphAppInterface {
         return ApiReturn.success(kgName);
     }
 
-    @PostMapping("concept/entity")
-    @ApiOperation("实体概念标注")
-    public ApiReturn entity(@ApiParam(required = true) @RequestParam("kgName") String kgName,
-                            @ApiParam(required = true) @RequestParam("dataSetId") Integer dataSetId,
-                            @ApiParam("需要标注的字段和权重，如不指定表示使用所有字段且权重相同") @RequestParam("fieldsAndWeights") String fieldsAndWeights,
-                            @ApiParam(required = true) @RequestParam("targetConcepts") String targetConcepts,
-                            @ApiParam(required = true) @RequestParam("traceConfig") String traceConfig,
-                            @ApiParam("默认使用算法1，目前三种算法分别为：1：基础标注算法:2：语义相似标注算法:3：图传播标注算法") @RequestParam("algorithms") String algorithms) {
-        //todo 改不了
-        return null;//taggingService.tagging(kgName, dataSetId, fieldsAndWeights, targetConcepts, traceConfig, algorithms);
-    }
-
     @ApiOperation("依据实体name和meaningTag查询实体id")
-    @PostMapping({"{kgName}/entity/name/meaningTag"})
-    public ApiReturn<Map<String, Set<Long>>> getIdByNameAndMeaningTag(@RequestParam("kgName") String var1, @RequestBody List<BasicInfo> var2) {
+    @PostMapping({"{kgName}/entity/query"})
+    public ApiReturn<OpenEntityRsp> queryEntityByNameAndMeaningTag(@PathVariable("kgName") String kgName,
+                                                                   @RequestBody List<EntityQueryWithConditionReq> var2) {
         //todo
         return ApiReturn.success();
     }

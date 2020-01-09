@@ -76,7 +76,7 @@ public class EntityConverter extends BasicConverter {
 
     public static Map<String, List<Long>> openBatchResultToMap(@NonNull OpenBatchResult<OpenBatchSaveEntityRsp> batchResult) {
         Map<String, List<Long>> resMap = Maps.newHashMap();
-        resMap.put("error", toListNoNull(batchResult.getSuccess(), OpenBatchSaveEntityRsp::getId));
+        resMap.put("error", toListNoNull(batchResult.getError(), OpenBatchSaveEntityRsp::getId));
         resMap.put("success", toListNoNull(batchResult.getSuccess(), OpenBatchSaveEntityRsp::getId));
         return resMap;
     }

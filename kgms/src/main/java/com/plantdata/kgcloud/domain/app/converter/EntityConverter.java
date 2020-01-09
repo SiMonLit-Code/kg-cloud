@@ -12,6 +12,7 @@ import com.hiekn.pddocument.bean.element.PdEntity;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
@@ -24,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +36,20 @@ import java.util.stream.Collectors;
  * @date 2019/11/21 17:12
  */
 public class EntityConverter extends BasicConverter {
+
+    public static BasicInfo entityQueryWithConditionReqToBasicInfo(@NonNull EntityQueryWithConditionReq conditionReq) {
+        BasicInfo basicInfo = new BasicInfo();
+        conditionReq.setName(conditionReq.getName());
+        conditionReq.setMeaningTag(conditionReq.getMeaningTag());
+        return basicInfo;
+    }
+
+    protected static <T> List<T> flatList(List<List<T>> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        return list.stream().flatMap(Collection::stream).collect(Collectors.toList());
+    }
 
     public static KgServiceEntityFrom buildIdsQuery(@NonNull Collection<Long> entityIdList) {
         KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();

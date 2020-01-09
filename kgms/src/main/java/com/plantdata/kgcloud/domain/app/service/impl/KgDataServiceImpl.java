@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
 import ai.plantdata.kg.api.edit.AttributeApi;
+import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.SparqlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
@@ -12,6 +13,7 @@ import ai.plantdata.kg.api.pub.req.statistics.RelationStatisticsBean;
 import ai.plantdata.kg.api.pub.resp.NodeBean;
 import ai.plantdata.kg.api.pub.resp.QueryResultVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
+import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
@@ -22,6 +24,7 @@ import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.bo.GraphAttributeStatisticBO;
 import com.plantdata.kgcloud.domain.app.bo.GraphRelationStatisticBO;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
+import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.GraphStatisticConverter;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
@@ -37,6 +40,8 @@ import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.DateTypeReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
@@ -59,6 +64,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +74,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class KgDataServiceImpl implements KgDataService {
-
+    @Autowired
+    public EntityApi entityApi;
     @Autowired
     public GraphApi graphApi;
     @Autowired
@@ -238,11 +245,15 @@ public class KgDataServiceImpl implements KgDataService {
         // 设置response参数
         response.reset();
         response.setContentType("application/vnd.ms-excel;charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment;filename=" + new String((exportName + ".xls").getBytes(), "iso-8859-1"));
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String((exportName + excelType.getValue()).getBytes(), "iso-8859-1"));
         EasyExcelFactory.write().file(response.getOutputStream()).head(titleList).excelType(excelType).sheet(0, "data").doWrite(valueList);
     }
 
-
+    public List<OpenEntityRsp> queryEntityByNameAndMeaningTag(String kgName, List<EntityQueryWithConditionReq> conditionReqs) {
+        List<BasicInfo> basicInfoList = BasicConverter.listToRsp(conditionReqs, EntityConverter::entityQueryWithConditionReqToBasicInfo);
+        Optional<Map<String, Set<Long>>> entityIdList = RestRespConverter.convert(entityApi.getIdByNameAndMeaningTag(kgName, basicInfoList));
+        return null;
+    }
 }
 
 
