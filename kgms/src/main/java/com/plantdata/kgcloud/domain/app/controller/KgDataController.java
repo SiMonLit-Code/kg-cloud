@@ -87,10 +87,10 @@ public class KgDataController implements GraphAppInterface {
 
     @ApiOperation("依据实体name和meaningTag查询实体id")
     @PostMapping({"{kgName}/entity/query"})
-    public ApiReturn<OpenEntityRsp> queryEntityByNameAndMeaningTag(@PathVariable("kgName") String kgName,
-                                                                   @RequestBody List<EntityQueryWithConditionReq> var2) {
-        //todo
-        return ApiReturn.success();
+    public ApiReturn<List<OpenEntityRsp>> queryEntityByNameAndMeaningTag(@PathVariable("kgName") String kgName,
+                                                                         @RequestBody List<EntityQueryWithConditionReq> conditionReqList) {
+        List<OpenEntityRsp> openEntityRspList = kgDataService.queryEntityByNameAndMeaningTag(kgName, conditionReqList);
+        return ApiReturn.success(openEntityRspList);
     }
 
 

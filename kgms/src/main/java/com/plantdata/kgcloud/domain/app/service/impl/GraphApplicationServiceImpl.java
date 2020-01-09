@@ -111,7 +111,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     @Override
     public SchemaRsp querySchema(String kgName) {
         SchemaRsp schemaRsp = new SchemaRsp();
-        Optional<SchemaVO> schemaOptional = RestRespConverter.convert(graphApi.schema(kgName));
+        Optional<SchemaVO> schemaOptional = RestRespConverter.convert(graphApi.schema(KGUtil.dbName(kgName)));
         if (!schemaOptional.isPresent()) {
             return schemaRsp;
         }
@@ -134,7 +134,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         //replace attrKey
         graphHelperService.replaceByAttrKey(kgName, knowledgeRecommendReq);
 
-        Optional<Map<Integer, Set<Long>>> entityAttrOpt = RestRespConverter.convert(entityApi.entityAttributesObject(kgName, KnowledgeRecommendConverter.reqToFrom(knowledgeRecommendReq)));
+        Optional<Map<Integer, Set<Long>>> entityAttrOpt = RestRespConverter.convert(entityApi.entityAttributesObject(KGUtil.dbName(kgName), KnowledgeRecommendConverter.reqToFrom(knowledgeRecommendReq)));
         if (!entityAttrOpt.isPresent()) {
             return Collections.emptyList();
         }
