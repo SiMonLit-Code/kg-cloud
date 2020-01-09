@@ -16,6 +16,6 @@ import lombok.Setter;
 public class SparQlReq {
     @ApiModelProperty("查询语句")
     private String query;
-    @ApiModelProperty("数量")
-    private Integer size;
+    @ApiModelProperty("数量 默认0")
+    private int size;
 }

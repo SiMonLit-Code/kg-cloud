@@ -27,7 +27,7 @@ public class PathGraphParameter extends AbstrackGraphParameter implements StatsG
     private Long start;
     @NotNull
     private Long end;
-    @Max(value = 30, message = "步长不可超过30步")
+    @Max(value = 10, message = "步长不可超过10步")
     @Min(value = 1, message = "步长最小为1")
     private Integer distance = 1;
     private Boolean isShortest = false;

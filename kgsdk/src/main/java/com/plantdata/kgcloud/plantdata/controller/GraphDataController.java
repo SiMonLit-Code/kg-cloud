@@ -18,7 +18,6 @@ import com.plantdata.kgcloud.plantdata.req.data.DelectRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityInsertParameter;
-import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.plantdata.req.data.ImportAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportEntityParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportRelationParameter;
@@ -32,8 +31,10 @@ import com.plantdata.kgcloud.plantdata.rsp.data.TreeBean;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
+import com.plantdata.kgcloud.sdk.MergeClient;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
@@ -88,6 +89,8 @@ public class GraphDataController implements SdkOldApiInterface {
     private KgDataClient kgDataClient;
     @Autowired
     private EditClient editClient;
+    @Autowired
+    private MergeClient mergeClient;
 
     @ApiOperation("获取概念树")
     @GetMapping("data/concept")
@@ -353,7 +356,7 @@ public class GraphDataController implements SdkOldApiInterface {
     @PostMapping("data/entity/update")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
+            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean 详细参数参照开放平台"),
     })
     public RestResp<Map<String, List<Long>>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
         ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), true, NumberUtils.INTEGER_ZERO);
@@ -376,9 +379,9 @@ public class GraphDataController implements SdkOldApiInterface {
 
     @ApiOperation("批量实体删除")
     @PostMapping("data/entity/delete")
-    @ApiImplicitParams({
+    @ApiImplicitParams(value = {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "ids", dataType = "string", required = true, paramType = "form", value = "需要被删除的实体id")
+            @ApiImplicitParam(name = "ids", dataType = "string", required = true, paramType = "form", example = " [1,2]", value = "需要被删除的实体id")
     })
     public RestResp<List<Map<String, Object>>> delectEntity(@Valid @ApiIgnore DelectEntityParameter param) {
         ApiReturn<List<DeleteResult>> listApiReturn = editClient.batchDeleteEntities(param.getKgName(), param.getIds());
@@ -391,25 +394,35 @@ public class GraphDataController implements SdkOldApiInterface {
         return new RestResp<>(resList);
     }
 
-    @ApiOperation("合候选集写入")
+    @ApiOperation("融合候选集写入")
     @PostMapping("data/entity/merge")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "data")
+            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "data 实体id,格式[2131,1231]")
     })
     public RestResp<String> entityMerge(@ApiParam(required = true) @RequestParam("kgName") String kgName,
                                         @ApiParam(required = true) @RequestParam("data") List<Long> entityIds) {
-        Optional<String> optional = BasicConverter.apiReturnData(editClient.createMergeEntity(kgName, entityIds));
+        Optional<String> optional = BasicConverter.apiReturnData(mergeClient.createMergeEntity(kgName, entityIds));
         return new RestResp<>(optional.orElse(StringUtils.EMPTY));
     }
 
     @ApiOperation("根据实体名称返回实体信息")
     @PostMapping("data/entity/get/by/name")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "names", dataType = "string", required = true, paramType = "form", value = "[{\"name\":,\"meaningTag\":}]")
+    })
     public RestResp<List<ImportEntityBean>> getEntityByName(@ApiParam(required = true) @RequestParam("kgName") String kgName,
-                                                            @ApiParam(required = true, value = "[{\"name\":,\"meaningTag\":}]") @RequestParam("names") String names) {
-        List<EntityQueryWithConditionReq> queryList = JsonUtils.jsonToList(names, EntityQueryWithConditionReq.class);
-        //todo
-        return new RestResp<>();
+                                                            @ApiIgnore @RequestParam("names") String names) {
+
+        Function<List<EntityQueryWithConditionReq>, ApiReturn<List<OpenEntityRsp>>> returnFunction =
+                a -> kgDataClient.queryEntityByNameAndMeaningTag(kgName, a);
+        Function<String, List<EntityQueryWithConditionReq>> reqFunction = a -> JsonUtils.jsonToList(a, EntityQueryWithConditionReq.class);
+        List<ImportEntityBean> entityBeanList = returnFunction
+                .compose(reqFunction)
+                .andThen(a -> BasicConverter.convertList(a, EntityConverter::openEntityRspToImportEntityBean))
+                .apply(names);
+        return new RestResp<>(entityBeanList);
     }
 
 }

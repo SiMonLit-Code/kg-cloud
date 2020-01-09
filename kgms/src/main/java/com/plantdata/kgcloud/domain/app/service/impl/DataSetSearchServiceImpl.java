@@ -18,6 +18,7 @@ import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
+import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.exception.BizException;
@@ -51,6 +52,8 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     private MongoApi mongoApi;
     @Autowired
     private DataSetService dataSetService;
+    @Autowired
+    private DataSetRepository dataSetRepository;
 
     @Override
     public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query, String sort) {
@@ -154,12 +157,12 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             BasicConverter.consumerIfNoNull(map1.get("source"), a -> links.setSource(Integer.valueOf(a.toString())));
             BasicConverter.consumerIfNoNull(map1.get("data_id"), a -> {
                 Map<String, String> myData = getDataTitle(userId, a.toString(), dataSetId);
-                if (!CollectionUtils.isEmpty(myData)) {
+                BasicConverter.consumerIfNoNull(myData, data -> {
                     if (dataLink.getDataSetTitle() == null) {
                         dataLink.setDataSetTitle(myData.get("dataSetTitle"));
                     }
                     links.setDataTitle(myData.get("dataTitle"));
-                }
+                });
             });
             linkList.add(links);
         }
@@ -196,11 +199,15 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
      * 多重循环查询 改不动
      *
      * @param userId
-     * @param data_id
+     * @param dataId
      * @param dataSetId
      * @return
      */
-    private Map<String, String> getDataTitle(String userId, String data_id, Long dataSetId) {
+    private Map<String, String> getDataTitle(String userId, String dataId, Long dataSetId) {
+
+        if (!dataSetRepository.existsById(dataSetId)) {
+            return Collections.emptyMap();
+        }
         DataSet dataSet = dataSetService.findOne(userId, dataSetId);
         if (dataSet == null) {
             return Collections.emptyMap();
@@ -211,7 +218,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             DataOptConnect connect = DataOptConnect.of(dataSet);
             try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, dataSet.getDataType())) {
                 String key = (String) schemaOpt.get().getSettings().get("key");
-                Map<String, Object> oneMap = provider.findOne(data_id);
+                Map<String, Object> oneMap = provider.findOne(dataId);
                 dataTitle = (String) oneMap.get(key);
             } catch (Exception e) {
                 e.printStackTrace();

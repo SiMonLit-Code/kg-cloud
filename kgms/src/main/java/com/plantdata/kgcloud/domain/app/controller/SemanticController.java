@@ -5,19 +5,20 @@ import ai.plantdata.kg.api.pub.req.SemanticDistanceFrom;
 import ai.plantdata.kg.api.semantic.QuestionAnswersApi;
 import ai.plantdata.kg.api.semantic.ReasoningApi;
 import ai.plantdata.kg.api.semantic.req.QueryReq;
-import ai.plantdata.kg.api.semantic.req.ReasoningReq;
 import ai.plantdata.kg.api.semantic.rsp.AnswerDataRsp;
-import ai.plantdata.kg.api.semantic.rsp.ReasoningResultRsp;
+import ai.plantdata.kg.api.semantic.rsp.IntentDataBean;
 import ai.plantdata.kg.common.bean.SemanticDistance;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.DistanceConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBeanRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -54,15 +55,27 @@ public class SemanticController implements SdkOpenApiInterface {
     @ApiOperation("意图图谱生成")
     @GetMapping("qa/init/{kgName}")
     public ApiReturn kbQaiInit(@ApiParam("图谱名称") @PathVariable("kgName") String kgName) {
-        questionAnswersApi.create(kgName);
+        questionAnswersApi.create(KGUtil.dbName(kgName));
         return ApiReturn.success();
+    }
+
+    @PostMapping({"qa/intent"})
+    public ApiReturn<IntentDataBeanRsp> intent(@ApiParam("图谱名称") @RequestParam("kgName") String kgName,
+                                               @ApiParam("自然语言输入") @RequestParam("query") String query,
+                                               @RequestParam(value = "size", defaultValue = "5") int size) {
+        Optional<IntentDataBean> dataBean = RestRespConverter.convert(questionAnswersApi.intent(KGUtil.dbName(kgName), query, size));
+        if (!dataBean.isPresent()) {
+            return ApiReturn.success(new IntentDataBeanRsp());
+        }
+        IntentDataBeanRsp beanRsp = BasicConverter.copy(dataBean.get(), IntentDataBeanRsp.class);
+        return ApiReturn.success(beanRsp);
     }
 
     @ApiOperation("知识图谱问答")
     @PostMapping("qa/{kgName}")
     public ApiReturn<QaAnswerDataRsp> qaKbQa(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                              @RequestBody QueryReq queryReq) {
-        RestResp<AnswerDataRsp> query = questionAnswersApi.query(kgName, queryReq);
+        RestResp<AnswerDataRsp> query = questionAnswersApi.query(KGUtil.dbName(kgName), queryReq);
         return ApiReturn.success(RestCopyConverter.copyRestRespResult(query, new QaAnswerDataRsp()));
     }
 
@@ -70,7 +83,7 @@ public class SemanticController implements SdkOpenApiInterface {
     @PostMapping("distance/score/{kgName}")
     public ApiReturn<Double> semanticDistanceScore(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                    @RequestParam("entityIdOne") Long entityIdOne, @RequestParam("entityIdTwo") Long entityIdTwo) {
-        Optional<Double> distanceOpt = RestRespConverter.convert(semanticApi.distanceScore(kgName, entityIdOne, entityIdTwo));
+        Optional<Double> distanceOpt = RestRespConverter.convert(semanticApi.distanceScore(KGUtil.dbName(kgName), entityIdOne, entityIdTwo));
         return ApiReturn.success(distanceOpt.orElse(NumberUtils.DOUBLE_ZERO));
     }
 
@@ -80,7 +93,7 @@ public class SemanticController implements SdkOpenApiInterface {
                                                                         @Valid @RequestBody DistanceListReq listReq) {
 
         SemanticDistanceFrom distanceFrom = DistanceConverter.distanceListReqToSemanticDistanceFrom(listReq);
-        Optional<List<SemanticDistance>> distanceOpt = RestRespConverter.convert(semanticApi.distance(kgName, distanceFrom));
+        Optional<List<SemanticDistance>> distanceOpt = RestRespConverter.convert(semanticApi.distance(KGUtil.dbName(kgName), distanceFrom));
         return ApiReturn.success();
     }
 }

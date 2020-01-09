@@ -80,7 +80,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
         //统计
         List<GraphStatisticRsp> statisticRspList = CollectionUtils.isEmpty(configList) ? Collections.emptyList() : GraphRspConverter.buildStatisticResult(graphVO, configList);
         //组装结果
-        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(KGUtil.dbName(kgName));
+        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
         return GraphRspConverter.graphVoToStatisticRsp(graphVO, statisticRspList, conceptIdMap, pathAnalysisRsp, graphAfter);
     }
 

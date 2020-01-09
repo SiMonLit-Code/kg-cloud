@@ -2,6 +2,9 @@ package com.plantdata.kgcloud.plantdata.req.explore.common;
 
 import java.util.List;
 
+/**
+ * @author Administrator
+ */
 public class EntityScreeningBean {
     private Integer attrId;
     private Object $eq;
