@@ -16,9 +16,6 @@ public class KeyCheckValida implements ConstraintValidator<KeyCheck, String> {
         if (!StringUtils.hasText(value)) {
             return true;
         }
-        if (value.length() > 50) {
-            return false;
-        }
         String newValue = value.replaceAll("_", "");
         return "".equals(newValue) || newValue.matches("^[A-Za-z]+$");
     }

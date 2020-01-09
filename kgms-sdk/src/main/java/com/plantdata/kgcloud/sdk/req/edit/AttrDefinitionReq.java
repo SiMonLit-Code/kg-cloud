@@ -61,6 +61,7 @@ public class AttrDefinitionReq {
 
     @ApiModelProperty(value = "属性定义key")
     @KeyCheck
+    @Length(max = 50, message = "key长度不能超过50")
     private String key;
 
 }
