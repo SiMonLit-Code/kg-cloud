@@ -52,7 +52,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         targe.setId(kgKeyGenerator.getNextId());
         targe.setKgName(kgName);
         GraphConfStatistical statistical = graphConfStatisticalRepository.save(targe);
-        GraphConfStatisticalRsp graphConfStatisticalRsp = GraphConfStatisticalConverter.JsonNodeToMapConverter(statistical);
+        GraphConfStatisticalRsp graphConfStatisticalRsp = GraphConfStatisticalConverter.jsonNodeToMapConverter(statistical);
 
         return graphConfStatisticalRsp;
     }
@@ -72,7 +72,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         }
         List<GraphConfStatistical> list1 = graphConfStatisticalRepository.saveAll(list);
         List<GraphConfStatisticalRsp> graphConfReasonRsps = BasicConverter.listConvert(
-                list1, a -> GraphConfStatisticalConverter.JsonNodeToMapConverter(a));
+                list1, a -> GraphConfStatisticalConverter.jsonNodeToMapConverter(a));
         return graphConfReasonRsps;
 
     }
@@ -87,7 +87,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strStatisRule);
         graphConfStatistical.setStatisRule(jsonNode.get());
         GraphConfStatistical save = graphConfStatisticalRepository.save(graphConfStatistical);
-        GraphConfStatisticalRsp graphConfStatisticalRsp = GraphConfStatisticalConverter.JsonNodeToMapConverter(save);
+        GraphConfStatisticalRsp graphConfStatisticalRsp = GraphConfStatisticalConverter.jsonNodeToMapConverter(save);
         return graphConfStatisticalRsp;
     }
 
@@ -117,7 +117,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         }
         List<GraphConfStatistical> statisticalList = graphConfStatisticalRepository.saveAll(statisticalArrayList);
         List<GraphConfStatisticalRsp> graphConfReasonRsps = BasicConverter.listConvert(
-                statisticalList, a -> GraphConfStatisticalConverter.JsonNodeToMapConverter(a));
+                statisticalList, a -> GraphConfStatisticalConverter.jsonNodeToMapConverter(a));
         return graphConfReasonRsps;
     }
 
@@ -141,7 +141,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     public List<GraphConfStatisticalRsp> findByKgName(String kgName) {
         List<GraphConfStatistical> all = graphConfStatisticalRepository.findByKgName(kgName);
         List<GraphConfStatisticalRsp> graphConfReasonRsps = BasicConverter.listConvert(
-                all, a -> GraphConfStatisticalConverter.JsonNodeToMapConverter(a));
+                all, a -> GraphConfStatisticalConverter.jsonNodeToMapConverter(a));
         return graphConfReasonRsps;
     }
 
@@ -150,7 +150,7 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
         Page<GraphConfStatistical> all = graphConfStatisticalRepository.getByKgName(kgName, pageable);
         List<GraphConfStatisticalRsp> graphConfStatisticalRsps = BasicConverter.listConvert(
-                all.getContent(), a -> GraphConfStatisticalConverter.JsonNodeToMapConverter(a));
+                all.getContent(), a -> GraphConfStatisticalConverter.jsonNodeToMapConverter(a));
         BasePage<GraphConfStatisticalRsp> basePage = new BasePage<>();
         basePage.setContent(graphConfStatisticalRsps);
         basePage.setTotalElements(all.getTotalElements());
