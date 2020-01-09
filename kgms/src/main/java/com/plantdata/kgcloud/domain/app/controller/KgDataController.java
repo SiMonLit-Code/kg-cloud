@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.model.service.ModelService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -55,7 +56,7 @@ public class KgDataController implements GraphAppInterface {
     @ApiOperation("sparql查询")
     @PostMapping("sparQl/query/{kgName}")
     public ApiReturn<QueryResultRsp> sparQlQuery(@PathVariable("kgName") String kgName, @RequestBody SparQlReq sparQlReq) {
-        Optional<QueryResultVO> resOpt = RestRespConverter.convert(sparqlApi.query(kgName, sparQlReq.getQuery(), sparQlReq.getSize()));
+        Optional<QueryResultVO> resOpt = RestRespConverter.convert(sparqlApi.query(KGUtil.dbName(kgName), sparQlReq.getQuery(), sparQlReq.getSize()));
         if (!resOpt.isPresent()) {
             return ApiReturn.success(new QueryResultRsp());
         }
