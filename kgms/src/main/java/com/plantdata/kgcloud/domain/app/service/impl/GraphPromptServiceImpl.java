@@ -147,7 +147,6 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     private List<PromptEntityRsp> queryFromEs(String kgName, PromptSearchInterface promptReq) {
         DataOptConnect connect = DataOptConnect.builder()
                 .addresses(esProperties.getAddrs())
-                .table(AppConstants.ES_DEFAULT_TABLE)
                 .database(kgName)
                 .build();
         List<Map<String, Object>> maps = null;
