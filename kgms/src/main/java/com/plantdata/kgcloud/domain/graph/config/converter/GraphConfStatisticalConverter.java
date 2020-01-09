@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class GraphConfStatisticalConverter {
 
-    public static GraphConfStatisticalRsp JsonNodeToMapConverter(GraphConfStatistical graphConfStatistical){
+    public static GraphConfStatisticalRsp jsonNodeToMapConverter(GraphConfStatistical graphConfStatistical){
         GraphConfStatisticalRsp rsp =
                 ConvertUtils.convert(GraphConfStatisticalRsp.class).apply(graphConfStatistical);
         String strGraphConfReasoning = JacksonUtils.writeValueAsString(graphConfStatistical.getStatisRule());
