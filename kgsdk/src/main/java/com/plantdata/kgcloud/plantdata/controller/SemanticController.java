@@ -58,7 +58,7 @@ public class SemanticController implements SdkOldApiInterface {
     })
     public RestResp<QaAnswerDataRsp> qaKbqa(@Valid @ApiIgnore QaKbqaParameter param) {
 
-        Function<QueryReq, ApiReturn<QaAnswerDataRsp>> returnFunction = a -> semanticClient.query(param.getKgName(), a);
+        Function<QueryReq, ApiReturn<QaAnswerDataRsp>> returnFunction = a -> semanticClient.qaKbQa(param.getKgName(), a);
         Optional<QaAnswerDataRsp> dataRsp = returnFunction
                 .compose(QaConverter::qaKbqaParameterToQueryReq)
                 .andThen(BasicConverter::apiReturnData)

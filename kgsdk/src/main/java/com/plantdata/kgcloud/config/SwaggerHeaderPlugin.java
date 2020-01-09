@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.config;
 import com.fasterxml.classmate.TypeResolver;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import lombok.NoArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import springfox.documentation.builders.ParameterBuilder;
@@ -22,11 +21,10 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  */
 @Component
 @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER + 1000)
-@NoArgsConstructor
 public class SwaggerHeaderPlugin implements OperationBuilderPlugin {
 
 
-    private TypeResolver resolver;
+    private TypeResolver resolver = new TypeResolver();
 
 
     @Override

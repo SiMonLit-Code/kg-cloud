@@ -1,7 +1,5 @@
 package com.plantdata.kgcloud.plantdata.req.common;
 
-import com.plantdata.kgcloud.plantdata.link.LinkModel;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -11,7 +9,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@LinkModel(clazz = GraphRelationRsp.class)
 public class RelationBean extends RelationMetaData {
     private static final String RELATION_START_TIME_SSE_KEY = "开始时间";
     private static final String RELATION_END_TIME_SSE_KEY = "结束时间";

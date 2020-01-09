@@ -20,7 +20,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NerResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBean;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBeanRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -58,7 +58,7 @@ public class NlpController implements SdkOldApiInterface {
      *
      * @return 词列表
      */
-    @ApiOperation("中文命名实体识别")
+    @ApiOperation("命名实体识别")
     @PostMapping("ner")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "input", dataType = "string", paramType = "form", value = "input"),
@@ -129,9 +129,9 @@ public class NlpController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "query", required = true, dataType = "string", paramType = "form", value = "待识别语句"),
             @ApiImplicitParam(name = "size", defaultValue = "5", dataType = "int", paramType = "query", value = "返回结果数量"),
     })
-    public RestResp<IntentDataBean> qaIntent(@Valid @ApiIgnore QaIntentParameter param) {
-        Optional<IntentDataBean> intentDataBean = BasicConverter.apiReturnData(semanticClient.intent(param.getKgName(), param.getQuery(), param.getSize()));
-        return new RestResp<>(intentDataBean.orElse(new IntentDataBean()));
+    public RestResp<IntentDataBeanRsp> qaIntent(@Valid @ApiIgnore QaIntentParameter param) {
+        Optional<IntentDataBeanRsp> intentDataBean = BasicConverter.apiReturnData(semanticClient.intent(param.getKgName(), param.getQuery(), param.getSize()));
+        return new RestResp<>(intentDataBean.orElse(new IntentDataBeanRsp()));
     }
 
     /**

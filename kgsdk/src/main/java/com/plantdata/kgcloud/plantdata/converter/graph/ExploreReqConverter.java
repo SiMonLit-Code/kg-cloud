@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.plantdata.converter.graph;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
-import com.plantdata.kgcloud.plantdata.link.LinkUtil;
 import com.plantdata.kgcloud.plantdata.req.common.AttrSortBean;
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
 import com.plantdata.kgcloud.plantdata.req.common.RelationBean;
@@ -193,7 +192,11 @@ public class ExploreReqConverter extends BasicConverter {
     }
 
     private static AttrSortReq attrSortBeanToAttrSortReq(@NonNull AttrSortBean attrSortBean) {
-        return LinkUtil.link(attrSortBean);
+        AttrSortReq attrSortReq = new AttrSortReq();
+        attrSortReq.setSort(attrSortBean.getSort());
+        attrSortReq.setAttrId(attrSortBean.getAttrId());
+        attrSortReq.setSeqNo(attrSortBean.getSeqNo());
+        return attrSortReq;
     }
 
     private static BasicGraphExploreRsp graphBeanToBasicGraphExploreRsp(GraphBean graphBean) {
@@ -322,8 +325,13 @@ public class ExploreReqConverter extends BasicConverter {
     }
 
 
-    private static TagRsp tagToTagRsp(Tag tag) {
-        return LinkUtil.link(tag);
+    private static TagRsp tagToTagRsp(@NonNull Tag tag) {
+        TagRsp tagRsp = new TagRsp();
+        tagRsp.setCreationTime(tag.getCreationTime());
+        tagRsp.setGrade(tag.getGrade());
+        tagRsp.setName(tag.getName());
+        tagRsp.setSource(tag.getSource());
+        return tagRsp;
     }
 
 }

@@ -356,8 +356,7 @@ public class GraphDataController implements SdkOldApiInterface {
     @PostMapping("data/entity/update")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean" +
-                    "[{\"id\":long,\"conceptId\":long,\"conceptIdList\":[2],\"name\":\"String\",\"meaningTag\":\"String\",\"synonyms\":null,\"abs\":null,\"imageUrl\":null,\"attributes\":null,\"privateAttributes\":null}]"),
+            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean 详细参数参照开放平台"),
     })
     public RestResp<Map<String, List<Long>>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
         ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), true, NumberUtils.INTEGER_ZERO);
@@ -380,9 +379,9 @@ public class GraphDataController implements SdkOldApiInterface {
 
     @ApiOperation("批量实体删除")
     @PostMapping("data/entity/delete")
-    @ApiImplicitParams({
+    @ApiImplicitParams(value = {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "ids", dataType = "string", required = true, paramType = "form", value = "需要被删除的实体id")
+            @ApiImplicitParam(name = "ids", dataType = "string", required = true, paramType = "form", example = " [1,2]", value = "需要被删除的实体id")
     })
     public RestResp<List<Map<String, Object>>> delectEntity(@Valid @ApiIgnore DelectEntityParameter param) {
         ApiReturn<List<DeleteResult>> listApiReturn = editClient.batchDeleteEntities(param.getKgName(), param.getIds());
