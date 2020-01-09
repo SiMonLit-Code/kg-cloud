@@ -18,6 +18,7 @@ import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
+import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.exception.BizException;
@@ -51,6 +52,8 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     private MongoApi mongoApi;
     @Autowired
     private DataSetService dataSetService;
+    @Autowired
+    private DataSetRepository dataSetRepository;
 
     @Override
     public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query, String sort) {
@@ -154,12 +157,12 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             BasicConverter.consumerIfNoNull(map1.get("source"), a -> links.setSource(Integer.valueOf(a.toString())));
             BasicConverter.consumerIfNoNull(map1.get("data_id"), a -> {
                 Map<String, String> myData = getDataTitle(userId, a.toString(), dataSetId);
-                if (!CollectionUtils.isEmpty(myData)) {
+                BasicConverter.consumerIfNoNull(myData, data -> {
                     if (dataLink.getDataSetTitle() == null) {
                         dataLink.setDataSetTitle(myData.get("dataSetTitle"));
                     }
                     links.setDataTitle(myData.get("dataTitle"));
-                }
+                });
             });
             linkList.add(links);
         }
@@ -201,6 +204,11 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
      * @return
      */
     private Map<String, String> getDataTitle(String userId, String data_id, Long dataSetId) {
+
+        boolean exists = dataSetRepository.existsById(dataSetId);
+        if (!exists) {
+            return Collections.emptyMap();
+        }
         DataSet dataSet = dataSetService.findOne(userId, dataSetId);
         if (dataSet == null) {
             return Collections.emptyMap();
