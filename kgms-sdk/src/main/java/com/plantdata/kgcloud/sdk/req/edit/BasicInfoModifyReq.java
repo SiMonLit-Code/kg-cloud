@@ -38,5 +38,6 @@ public class BasicInfoModifyReq {
 
     @ApiModelProperty(value = "唯一标示")
     @KeyCheck
+    @Length(max = 50, message = "key长度不能超过50")
     private String key;
 }
