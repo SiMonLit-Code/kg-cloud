@@ -31,6 +31,7 @@ import com.plantdata.kgcloud.plantdata.rsp.data.TreeBean;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
+import com.plantdata.kgcloud.sdk.MergeClient;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
@@ -88,6 +89,8 @@ public class GraphDataController implements SdkOldApiInterface {
     private KgDataClient kgDataClient;
     @Autowired
     private EditClient editClient;
+    @Autowired
+    private MergeClient mergeClient;
 
     @ApiOperation("获取概念树")
     @GetMapping("data/concept")
@@ -391,15 +394,15 @@ public class GraphDataController implements SdkOldApiInterface {
         return new RestResp<>(resList);
     }
 
-    @ApiOperation("合候选集写入")
+    @ApiOperation("融合候选集写入")
     @PostMapping("data/entity/merge")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "data")
+            @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "data 实体id,格式[2131,1231]")
     })
     public RestResp<String> entityMerge(@ApiParam(required = true) @RequestParam("kgName") String kgName,
                                         @ApiParam(required = true) @RequestParam("data") List<Long> entityIds) {
-        Optional<String> optional = BasicConverter.apiReturnData(editClient.createMergeEntity(kgName, entityIds));
+        Optional<String> optional = BasicConverter.apiReturnData(mergeClient.createMergeEntity(kgName, entityIds));
         return new RestResp<>(optional.orElse(StringUtils.EMPTY));
     }
 
