@@ -6,10 +6,12 @@ import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.SparqlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
 import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
+import ai.plantdata.kg.api.pub.req.KgServiceEntityFrom;
 import ai.plantdata.kg.api.pub.req.statistics.AttributeStatisticsBean;
 import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import ai.plantdata.kg.api.pub.req.statistics.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.statistics.RelationStatisticsBean;
+import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.NodeBean;
 import ai.plantdata.kg.api.pub.resp.QueryResultVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
@@ -60,6 +62,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -249,10 +252,20 @@ public class KgDataServiceImpl implements KgDataService {
         EasyExcelFactory.write().file(response.getOutputStream()).head(titleList).excelType(excelType).sheet(0, "data").doWrite(valueList);
     }
 
+    @Override
     public List<OpenEntityRsp> queryEntityByNameAndMeaningTag(String kgName, List<EntityQueryWithConditionReq> conditionReqs) {
-        List<BasicInfo> basicInfoList = BasicConverter.listToRsp(conditionReqs, EntityConverter::entityQueryWithConditionReqToBasicInfo);
-        Optional<Map<String, Set<Long>>> entityIdList = RestRespConverter.convert(entityApi.getIdByNameAndMeaningTag(kgName, basicInfoList));
-        return null;
+        List<BasicInfo> basicInfoList = BasicConverter.listToRsp(conditionReqs, EntityConverter.entityQueryWithConditionReqToBasicInfo);
+        Optional<Map<String, Set<Long>>> entityIdListOpt = RestRespConverter.convert(entityApi.getIdByNameAndMeaningTag(kgName, basicInfoList));
+        if (!entityIdListOpt.isPresent()) {
+            return Collections.emptyList();
+        }
+        Set<Long> entityIdSet = entityIdListOpt.get().values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        KgServiceEntityFrom entityFrom = EntityConverter.buildIdsQuery(entityIdSet);
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, entityFrom));
+        if (!entityOpt.isPresent()) {
+            return Collections.emptyList();
+        }
+        return BasicConverter.listToRsp(entityOpt.get(), EntityConverter::voToOpenEntityRsp);
     }
 }
 

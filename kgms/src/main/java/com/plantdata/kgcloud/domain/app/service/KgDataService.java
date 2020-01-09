@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
@@ -88,4 +90,13 @@ public interface KgDataService {
      * @throws IOException
      */
     void sparkSqlExport(String kgName, ExportTypeEnum type, String query, int size, HttpServletResponse response) throws IOException;
+
+    /**
+     * 根据名称和消歧标识 查询实体
+     *
+     * @param kgName
+     * @param conditionReqs
+     * @return
+     */
+    List<OpenEntityRsp> queryEntityByNameAndMeaningTag(String kgName, List<EntityQueryWithConditionReq> conditionReqs);
 }

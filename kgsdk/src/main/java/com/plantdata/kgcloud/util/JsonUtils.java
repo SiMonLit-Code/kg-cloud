@@ -17,11 +17,16 @@ import java.util.Map;
 @Slf4j
 public class JsonUtils {
 
+    private static ObjectMapper instance = JacksonUtils.getInstance();
+
+    static {
+        instance.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
     public static <T> T jsonToObj(String jsonString, TypeReference<T> tr) {
         if (jsonString != null && !("".equals(jsonString))) {
             try {
-                return JacksonUtils.getInstance().readValue(jsonString, tr);
+                return instance.readValue(jsonString, tr);
             } catch (Exception e) {
                 log.warn("json error:" + e.getMessage());
             }
@@ -30,8 +35,6 @@ public class JsonUtils {
     }
 
     public static <T> T parseObj(String json, Class<T> clazz) {
-        ObjectMapper instance = JacksonUtils.getInstance();
-        instance.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             return instance.readValue(json, clazz);
         } catch (IOException e) {

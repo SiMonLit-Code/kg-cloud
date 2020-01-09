@@ -18,7 +18,6 @@ import com.plantdata.kgcloud.plantdata.req.data.DelectRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityInsertParameter;
-import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.plantdata.req.data.ImportAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportEntityParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ImportRelationParameter;
@@ -34,6 +33,7 @@ import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
@@ -405,11 +405,21 @@ public class GraphDataController implements SdkOldApiInterface {
 
     @ApiOperation("根据实体名称返回实体信息")
     @PostMapping("data/entity/get/by/name")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "names", dataType = "string", required = true, paramType = "form", value = "[{\"name\":,\"meaningTag\":}]")
+    })
     public RestResp<List<ImportEntityBean>> getEntityByName(@ApiParam(required = true) @RequestParam("kgName") String kgName,
-                                                            @ApiParam(required = true, value = "[{\"name\":,\"meaningTag\":}]") @RequestParam("names") String names) {
-        List<EntityQueryWithConditionReq> queryList = JsonUtils.jsonToList(names, EntityQueryWithConditionReq.class);
-        //todo
-        return new RestResp<>();
+                                                            @ApiIgnore @RequestParam("names") String names) {
+
+        Function<List<EntityQueryWithConditionReq>, ApiReturn<List<OpenEntityRsp>>> returnFunction =
+                a -> kgDataClient.queryEntityByNameAndMeaningTag(kgName, a);
+        Function<String, List<EntityQueryWithConditionReq>> reqFunction = a -> JsonUtils.jsonToList(a, EntityQueryWithConditionReq.class);
+        List<ImportEntityBean> entityBeanList = returnFunction
+                .compose(reqFunction)
+                .andThen(a -> BasicConverter.convertList(a, EntityConverter::openEntityRspToImportEntityBean))
+                .apply(names);
+        return new RestResp<>(entityBeanList);
     }
 
 }

@@ -25,9 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -37,19 +37,14 @@ import java.util.stream.Collectors;
  */
 public class EntityConverter extends BasicConverter {
 
-    public static BasicInfo entityQueryWithConditionReqToBasicInfo(@NonNull EntityQueryWithConditionReq conditionReq) {
+    @NonNull
+    public static Function<EntityQueryWithConditionReq, BasicInfo> entityQueryWithConditionReqToBasicInfo = a -> {
         BasicInfo basicInfo = new BasicInfo();
-        conditionReq.setName(conditionReq.getName());
-        conditionReq.setMeaningTag(conditionReq.getMeaningTag());
+        basicInfo.setName(a.getName());
+        basicInfo.setMeaningTag(a.getMeaningTag());
         return basicInfo;
-    }
+    };
 
-    protected static <T> List<T> flatList(List<List<T>> list) {
-        if (CollectionUtils.isEmpty(list)) {
-            return Collections.emptyList();
-        }
-        return list.stream().flatMap(Collection::stream).collect(Collectors.toList());
-    }
 
     public static KgServiceEntityFrom buildIdsQuery(@NonNull Collection<Long> entityIdList) {
         KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();

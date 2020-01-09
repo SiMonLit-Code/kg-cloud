@@ -39,6 +39,12 @@ public class BasicConverter {
         consumer.accept(a == null ? def : a);
     }
 
+    public static <T> List<T> flatToList(Collection<Collection<T>> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        return list.stream().flatMap(Collection::stream).collect(Collectors.toList());
+    }
 
     /**
      * 非空 消费 批量

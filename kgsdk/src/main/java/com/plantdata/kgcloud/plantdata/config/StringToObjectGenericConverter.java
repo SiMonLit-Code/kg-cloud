@@ -32,6 +32,7 @@ public class StringToObjectGenericConverter implements GenericConverter {
     public Set<ConvertiblePair> getConvertibleTypes() {
         return Sets.newHashSet(new ConvertiblePair(String.class, MarkObject.class),
                 new ConvertiblePair(String.class, BaseEnum.class),
+                new ConvertiblePair(String.class, String.class),
                 new ConvertiblePair(String.class, Collection.class),
                 new ConvertiblePair(String.class, Map.class));
     }
@@ -41,17 +42,21 @@ public class StringToObjectGenericConverter implements GenericConverter {
         if (StringUtils.isEmpty(source)) {
             return null;
         }
+        String sourceStr = StringEscapeUtils.unescapeHtml(source.toString());
+        if (targetType.getType() == String.class) {
+            return sourceStr;
+        }
         if (targetType.getType().getSuperclass() == Enum.class) {
-            return EnumUtils.getEnumObject((Class) targetType.getType(), source.toString()).get();
+            return EnumUtils.getEnumObject((Class) targetType.getType(), sourceStr).get();
         }
         ResolvableType resolvableType = targetType.getResolvableType();
         ObjectMapper instance = JacksonUtils.getInstance();
         instance.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             if (resolvableType.hasGenerics()) {
-                return instance.readValue(StringEscapeUtils.unescapeHtml(source.toString()), JacksonUtils.getInstance().constructType(resolvableType.getType()));
+                return instance.readValue(sourceStr, JacksonUtils.getInstance().constructType(resolvableType.getType()));
             }
-            return instance.readValue(StringEscapeUtils.unescapeHtml(source.toString()), resolvableType.resolve());
+            return instance.readValue(sourceStr, resolvableType.resolve());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -2,6 +2,8 @@ package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
@@ -140,4 +142,15 @@ public interface KgDataClient {
 
     @PostMapping("sparQl/query/{kgName}")
     ApiReturn<QueryResultRsp> sparQlQuery(@PathVariable("kgName") String kgName, @RequestBody SparQlReq sparQlReq);
+
+    /**
+     * 根据 name 和消歧标识 查询实例
+     *
+     * @param kgName           。
+     * @param conditionReqList 。
+     * @return List<OpenEntityRsp>
+     */
+    @PostMapping("{kgName}/entity/query")
+    ApiReturn<List<OpenEntityRsp>> queryEntityByNameAndMeaningTag(@PathVariable("kgName") String kgName,
+                                                                  @RequestBody List<EntityQueryWithConditionReq> conditionReqList);
 }
