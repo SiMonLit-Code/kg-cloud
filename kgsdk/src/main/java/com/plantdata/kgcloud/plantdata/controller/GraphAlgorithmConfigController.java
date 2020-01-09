@@ -112,13 +112,4 @@ public class GraphAlgorithmConfigController implements SdkOldApiInterface {
     }
 
 
-    @PostMapping("test")
-    @ApiOperation("业务算法-测试")
-    public RestResp<BusinessGraphBean> test(@Valid @ApiIgnore GraphBusinessAlgorithmRequestTest graphBusinessAlgorithmRequestTest) {
-        BusinessGraphBean beans = JsonUtils.fromJson(graphBusinessAlgorithmRequestTest.getGraphBean(), BusinessGraphBean.class);
-        beans.getEntityList().forEach(s -> s.setName("test"));
-        beans.setMessage("这是一个测试message的<span style='color: #f00;'>字段</span>");
-        return new RestResp<>(beans);
-    }
-
 }

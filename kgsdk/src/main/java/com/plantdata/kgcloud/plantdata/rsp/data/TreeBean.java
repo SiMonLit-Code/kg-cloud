@@ -21,5 +21,5 @@ public class TreeBean {
     /**
      * 父概念id
      */
-    private long parentId;
+    private Long parentId;
 }
