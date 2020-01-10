@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.Set;
@@ -28,6 +29,7 @@ import java.util.Set;
 @Setter
 public class CommonTimingExploreReq extends BasicGraphExploreReq implements GraphCommonReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
     @NotNull
+    @Valid
     @ApiModelProperty(value = "普通参数", required = true)
     private CommonFiltersReq common;
     @ApiModelProperty("时间参数过滤")

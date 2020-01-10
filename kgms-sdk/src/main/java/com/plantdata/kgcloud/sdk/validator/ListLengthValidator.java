@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.plantdata.validator;
+package com.plantdata.kgcloud.sdk.validator;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -7,7 +7,8 @@ import java.util.List;
 /**
  * @author Administrator
  */
-public class ValidatorForListLength implements ConstraintValidator<ListLengthCheck, List> {
+public class ListLengthValidator implements ConstraintValidator<ListLengthCheck, List> {
+
 
     private int min;
     private int max;

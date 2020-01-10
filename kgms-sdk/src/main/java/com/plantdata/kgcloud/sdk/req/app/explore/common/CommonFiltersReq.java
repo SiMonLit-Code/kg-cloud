@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app.explore.common;
 
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -33,6 +34,7 @@ public class CommonFiltersReq {
     @Min(value = 1, message = "highLevelSize最小为0")
     private Integer highLevelSize = 10;
     @ApiModelProperty("查询边关系的方向，0表示双向，1表示正向，-1表示反向,默认0")
+    @ChooseCheck(value = "[0,-1,1]")
     private int direction = 0;
     @ApiModelProperty(value = "边附加属性排序参数")
     private List<AttrSortReq> edgeAttrSorts;

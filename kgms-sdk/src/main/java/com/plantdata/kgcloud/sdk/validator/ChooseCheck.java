@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.plantdata.validator;
+package com.plantdata.kgcloud.sdk.validator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -13,7 +13,7 @@ import static java.lang.annotation.ElementType.*;
  */
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {ValidatorForChoose.class})
+@Constraint(validatedBy = {ChooseValidator.class})
 public @interface ChooseCheck {
 
     String message() default "格式错误";

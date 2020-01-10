@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.plantdata.req.app;
 
 import ai.plantdata.kg.validator.group.Insert;
 import com.plantdata.kgcloud.plantdata.req.common.PageModel;
-import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

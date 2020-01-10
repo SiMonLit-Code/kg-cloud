@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.plantdata.req.rule;
 
 import com.plantdata.kgcloud.plantdata.req.common.PageModel;
-import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.*;
 
 /**

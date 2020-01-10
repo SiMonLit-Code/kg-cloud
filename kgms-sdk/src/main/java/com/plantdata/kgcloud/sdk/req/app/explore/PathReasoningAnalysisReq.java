@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.req.app.explore;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
@@ -15,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +30,7 @@ import java.util.Map;
 public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphPathReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
 
     @NotNull
+    @Valid
     @ApiModelProperty(value = "路径参数", required = true)
     private CommonPathReq path;
     @ApiModelProperty("时间过滤参数")

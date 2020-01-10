@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.Set;
@@ -24,8 +25,9 @@ import java.util.Set;
 @Setter
 public class CommonExploreReq extends BasicGraphExploreReq implements GraphCommonReqInterface, SecondaryScreeningInterface {
 
-    @ApiModelProperty(value = "通用参数", required = true)
     @NotNull
+    @Valid
+    @ApiModelProperty(value = "通用参数", required = true)
     private CommonFiltersReq common;
 
     @Override

@@ -1,8 +1,7 @@
 package com.plantdata.kgcloud.plantdata.req.data;
 
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
-import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
-import lombok.AccessLevel;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -4,11 +4,16 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphRelationReqInterface;
+import com.plantdata.kgcloud.sdk.validator.ListLengthCheck;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
@@ -22,7 +27,9 @@ import java.util.List;
 @ApiModel("关联分析-参数")
 public class RelationReqAnalysisReq extends BasicGraphExploreReq implements GraphRelationReqInterface {
     @ApiModelProperty("统计配置")
-        private List<BasicStatisticReq> configList;
+    private List<BasicStatisticReq> configList;
+    @NotNull
+    @Valid
     @ApiModelProperty(value = "关联搜索参数", required = true)
     private CommonRelationReq relation;
 
