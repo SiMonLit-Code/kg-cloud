@@ -41,7 +41,7 @@ public class PromptReq extends PageReq implements PromptSearchInterface {
     @ApiModelProperty("是否使用导出实体数据集检索")
     private Boolean openExportDate = true;
     @ApiModelProperty("排序")
-    @ChooseCheck(value = "[0,1,-1]",isBlank = true)
+    @ChooseCheck(value = "[0,1,-1]", name = "sort", isBlank = true)
     private Integer sort;
 
 
