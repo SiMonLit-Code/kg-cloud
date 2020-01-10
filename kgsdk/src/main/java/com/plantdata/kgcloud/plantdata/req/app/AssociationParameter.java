@@ -21,7 +21,7 @@ public class AssociationParameter {
     private String kgName;
     @NotNull
     private Long entityId;
-    @ChooseCheck(value = "[0,1,2]", name = "direction")
+    @ChooseCheck(value = "[0,1,2]")
     private Integer direction = 1;
     @NotNull
     private List<Integer> allowAtts;

@@ -37,5 +37,14 @@ public class OpenBatchSaveEntityRsp {
     private Map<Integer, String> attributes;
     @ApiModelProperty("私有属性")
     private Map<String, String> privateAttributes;
+    @ApiModelProperty("元数据")
+    private MetaDataReq metaData;
 
+    @ApiModel("元数据")
+    @Getter
+    @Setter
+    public static class MetaDataReq {
+        @ApiModelProperty("批次号")
+        private String batchNo;
+    }
 }

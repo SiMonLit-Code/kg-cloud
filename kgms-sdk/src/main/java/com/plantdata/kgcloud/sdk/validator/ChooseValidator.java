@@ -46,7 +46,7 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
                 context.buildConstraintViolationWithTemplate(msg).addConstraintViolation();
                 return false;
             }
-            if (list != null && list.contains(value)) {
+            if (list.contains(value)) {
                 return true;
             } else {
                 msg += "错误，参数填写范围" + this.value;
