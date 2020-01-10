@@ -32,7 +32,7 @@ import java.util.List;
 public class EntityController implements GraphDataObtainInterface {
 
     @Autowired
-    public EditClient editClient;
+    private EditClient editClient;
 
     @ApiOperation("实体-查询")
     @GetMapping("{kgName}/list")
@@ -51,9 +51,9 @@ public class EntityController implements GraphDataObtainInterface {
     }
 
     @ApiOperation("实体-批量删除")
-    @DeleteMapping("{kgName}/batch/delete")
+    @PostMapping("{kgName}/batch/delete")
     public ApiReturn<List<DeleteResult>> batchDeleteEntities(@PathVariable("kgName") String kgName,
-                                                             @RequestParam("ids") List<Long> ids) {
+                                                             @RequestBody List<Long> ids) {
         return editClient.batchDeleteEntities(kgName, ids);
     }
 }

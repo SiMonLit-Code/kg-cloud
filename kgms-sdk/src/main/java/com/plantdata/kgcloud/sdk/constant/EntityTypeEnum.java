@@ -26,7 +26,7 @@ public enum EntityTypeEnum {
                 return dataTypeEnum;
             }
         }
-        return null;
+        return CONCEPT;
     }
 
 }
