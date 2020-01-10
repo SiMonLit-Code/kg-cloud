@@ -46,7 +46,7 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
                 context.buildConstraintViolationWithTemplate(msg).addConstraintViolation();
                 return false;
             }
-            if (list.contains(value)) {
+            if (list != null && list.contains(value)) {
                 return true;
             } else {
                 msg += "错误，参数填写范围" + this.value;
@@ -67,6 +67,7 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
         }
         return null;
     }
+
     public static <T> List<T> jsonToList(String jsonString, Class<T> clazz) {
         return jsonToObj(jsonString, new TypeReference<List<T>>() {
         });
