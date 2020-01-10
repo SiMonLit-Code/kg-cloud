@@ -13,6 +13,6 @@ import lombok.*;
 @NoArgsConstructor
 public class GraphRuleListByPageParameter extends PageModel {
     private String kgName;
-    @ChooseCheck(value = "['0','1']", name = "ruleType", isBlank = true)
+    @ChooseCheck(value = "[0,1]", name = "ruleType", isBlank = true)
     private Integer ruleType = 0;
 }
