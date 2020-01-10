@@ -1,6 +1,7 @@
-package com.plantdata.kgcloud.plantdata.validator;
+package com.plantdata.kgcloud.sdk.validator;
 
-import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintValidator;
@@ -8,7 +9,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.Objects;
 
-public class ValidatorForChoose implements ConstraintValidator<ChooseCheck, Object> {
+public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object> {
 
     private boolean isBlank;
     private String name;
@@ -39,7 +40,7 @@ public class ValidatorForChoose implements ConstraintValidator<ChooseCheck, Obje
             }
             List<?> list;
             try {
-                list = JSON.parseArray(this.value, type);
+                list = jsonToList(this.value, type);
             } catch (Exception e) {
                 msg += "json数据格式错误";
                 context.buildConstraintViolationWithTemplate(msg).addConstraintViolation();
@@ -54,6 +55,21 @@ public class ValidatorForChoose implements ConstraintValidator<ChooseCheck, Obje
             }
         }
         return isBlank;
+    }
+
+    public static <T> T jsonToObj(String jsonString, TypeReference<T> tr) {
+        if (jsonString != null && !("".equals(jsonString))) {
+            try {
+                return JacksonUtils.getInstance().readValue(jsonString, tr);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+    public static <T> List<T> jsonToList(String jsonString, Class<T> clazz) {
+        return jsonToObj(jsonString, new TypeReference<List<T>>() {
+        });
     }
 }
 

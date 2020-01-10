@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.req.app.explore;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
@@ -13,6 +12,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,8 @@ import java.util.Set;
 @Getter
 @Setter
 public class CommonReasoningExploreReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphCommonReqInterface, SecondaryScreeningInterface {
-
+    @NotNull
+    @Valid
     @ApiModelProperty(value = "通用参数", required = true)
     private CommonFiltersReq common;
     @ApiModelProperty("推理规则")

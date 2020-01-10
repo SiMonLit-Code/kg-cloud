@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class PathAnalysisReq extends BasicGraphExploreReq implements GraphPathRe
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
     @NotNull
+    @Valid
     @ApiModelProperty(value = "路径", required = true)
     private CommonPathReq path;
 

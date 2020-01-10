@@ -108,6 +108,7 @@ public class RelationConverter extends BasicConverter {
         to.setName(relation.getAttrValueName());
 
         EdgeSearchRsp edgeSearchRsp = new EdgeSearchRsp();
+        edgeSearchRsp.setAttrId(relation.getAttrId());
         edgeSearchRsp.setFromEntity(from);
         edgeSearchRsp.setToEntity(to);
         edgeSearchRsp.setTripleId(relation.getId());
@@ -120,8 +121,8 @@ public class RelationConverter extends BasicConverter {
             if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
                 edgeSearchRsp.setSource(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
             }
-            if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
-                edgeSearchRsp.setReliability(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+            if (metaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
+                edgeSearchRsp.setReliability(metaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString());
             }
         }
         return edgeSearchRsp;

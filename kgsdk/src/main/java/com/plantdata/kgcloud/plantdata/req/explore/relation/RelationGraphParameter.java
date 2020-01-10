@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.plantdata.req.explore.relation;
 import com.plantdata.kgcloud.plantdata.req.explore.common.AbstrackGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphStatBean;
 import com.plantdata.kgcloud.plantdata.req.explore.function.StatsGraphParameter;
-import com.plantdata.kgcloud.plantdata.validator.ListLengthCheck;
+import com.plantdata.kgcloud.sdk.validator.ListLengthCheck;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
