@@ -41,9 +41,9 @@ public class RelationController implements GraphDataObtainInterface {
     }
 
     @ApiOperation("关系-批量删除")
-    @DeleteMapping("batch/delete/{kgName}")
+    @PostMapping("batch/delete/{kgName}")
     public ApiReturn deleteRelations(@PathVariable("kgName") String kgName,
-                                     @RequestParam List<String> relationIds) {
+                                     @RequestBody List<String> relationIds) {
         return editClient.deleteRelations(kgName, relationIds);
     }
 
