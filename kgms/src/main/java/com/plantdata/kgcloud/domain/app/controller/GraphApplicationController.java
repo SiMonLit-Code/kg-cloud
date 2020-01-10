@@ -86,14 +86,14 @@ public class GraphApplicationController implements GraphAppInterface {
     @ApiOperation("批量读取知识卡片")
     @PostMapping("infoBox/list/{kgName}")
     public ApiReturn<List<InfoBoxRsp>> listInfoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                   @RequestBody BatchInfoBoxReq batchInfoBoxReq) {
+                                                   @RequestBody @Valid BatchInfoBoxReq batchInfoBoxReq) {
         return ApiReturn.success(graphApplicationService.infoBox(kgName, batchInfoBoxReq));
     }
 
     @ApiOperation("读取知识卡片")
     @PostMapping("infoBox/{kgName}")
     public ApiReturn<InfoBoxRsp> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                         @RequestBody InfoBoxReq infoBoxReq) throws IOException {
+                                         @RequestBody @Valid InfoBoxReq infoBoxReq) throws IOException {
         return ApiReturn.success(graphApplicationService.infoBox(kgName, SessionHolder.getUserId(), infoBoxReq));
     }
 

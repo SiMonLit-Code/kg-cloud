@@ -44,13 +44,13 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
             if (StringUtils.isNoneBlank(name)) {
                 msg = "参数" + name;
             }
+            Class<? extends Number> numberClass = getNumberClass(type);
+            if (numberClass != null&& org.apache.commons.lang.math.NumberUtils.isNumber(value.toString())) {
+                value = NumberUtils.parseNumber(value.toString(), Integer.class);
+            }
             List<?> list;
             try {
                 list = jsonToList(this.value, type);
-                Class<? extends Number> numberClass = getNumberClass(type);
-                if (numberClass != null) {
-                    value = NumberUtils.parseNumber(value.toString(), Integer.class);
-                }
             } catch (Exception e) {
                 msg += "json数据格式错误";
                 context.buildConstraintViolationWithTemplate(msg).addConstraintViolation();
