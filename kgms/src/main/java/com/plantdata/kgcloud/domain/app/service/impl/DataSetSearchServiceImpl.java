@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -123,7 +122,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
 
 
     @Override
-    public List<DataLinkRsp> getDataLinks(String kgName, String userId, Long entityId) throws IOException {
+    public List<DataLinkRsp> getDataLinks(String kgName, String userId, Long entityId) {
         MongoQueryFrom mongoQueryFrom = buildMongoQuery(kgName, entityId);
 
         Optional<List<Map<String, Object>>> opt = RestRespConverter.convert(mongoApi.postJson(mongoQueryFrom));
@@ -151,18 +150,23 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         dataLink.setDataSetId(dataSetId);
         List<LinksRsp> linkList = new ArrayList<>();
         for (Map<String, Object> map1 : maps) {
+            if (map1.get("data_id") == null) {
+                continue;
+            }
+            String dataId = map1.get("data_id").toString();
+            Map<String, String> myData = getDataTitle(userId, dataId, dataSetId);
+            if (CollectionUtils.isEmpty(myData)) {
+                continue;
+            }
             LinksRsp links = new LinksRsp();
-            links.setDataId(map1.get("data_id").toString());
+            links.setDataId(dataId);
             BasicConverter.consumerIfNoNull(map1.get("score"), a -> links.setScore(Double.valueOf(a.toString())));
             BasicConverter.consumerIfNoNull(map1.get("source"), a -> links.setSource(Integer.valueOf(a.toString())));
-            BasicConverter.consumerIfNoNull(map1.get("data_id"), a -> {
-                Map<String, String> myData = getDataTitle(userId, a.toString(), dataSetId);
-                BasicConverter.consumerIfNoNull(myData, data -> {
-                    if (dataLink.getDataSetTitle() == null) {
-                        dataLink.setDataSetTitle(myData.get("dataSetTitle"));
-                    }
-                    links.setDataTitle(myData.get("dataTitle"));
-                });
+            BasicConverter.consumerIfNoNull(myData, data -> {
+                if (dataLink.getDataSetTitle() == null) {
+                    dataLink.setDataSetTitle(myData.get("dataSetTitle"));
+                }
+                links.setDataTitle(myData.get("dataTitle"));
             });
             linkList.add(links);
         }

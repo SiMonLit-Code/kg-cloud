@@ -7,10 +7,11 @@ import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.PromptItemVO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.constant.PromptResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
+import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
+import com.plantdata.kgcloud.sdk.constant.PromptResultTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
@@ -26,6 +27,7 @@ import org.springframework.beans.BeanUtils;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -52,7 +54,8 @@ public class PromptConverter extends BasicConverter {
         from.setLimit(req.getLimit());
         from.setInherit(req.getInherit());
         from.setText(req.getKw());
-        PromptResultTypeEnum resultType = req.getType() == null ? PromptResultTypeEnum.CONCEPT_ENTITY : PromptResultTypeEnum.parseWithDefault(req.getType());
+        Optional<PromptResultTypeEnum> enumObject = EnumUtils.getEnumObject(PromptResultTypeEnum.class, req.getType());
+        PromptResultTypeEnum resultType = enumObject.orElse(PromptResultTypeEnum.ENTITY);
         from.setType(resultType.getId());
         return from;
     }
@@ -109,10 +112,7 @@ public class PromptConverter extends BasicConverter {
 
     public static PromptEntityRsp promptItemVoToPromptEntityRsp(@NonNull PromptItemVO item) {
         PromptEntityRsp entityRsp = new PromptEntityRsp();
-        if (item.getType() != null) {
-            EntityTypeEnum typeEnum = EntityTypeEnum.parseById(item.getType());
-            consumerWithDefault(EntityTypeEnum.ENTITY, typeEnum, entityRsp::setType);
-        }
+        consumerIfNoNull(item.getType(), a -> entityRsp.setType(EntityTypeEnum.parseById(a)));
         entityRsp.setName(item.getName());
         entityRsp.setMeaningTag(item.getMeaningTag());
         entityRsp.setId(item.getId());
