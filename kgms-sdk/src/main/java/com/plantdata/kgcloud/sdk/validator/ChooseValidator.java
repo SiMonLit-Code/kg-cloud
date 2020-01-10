@@ -2,10 +2,16 @@ package com.plantdata.kgcloud.sdk.validator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import jdk.internal.dynalink.support.TypeConverterFactory;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.convert.converter.GenericConverter;
+import org.springframework.util.NumberUtils;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,12 +47,16 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
             List<?> list;
             try {
                 list = jsonToList(this.value, type);
+                Class<? extends Number> numberClass = getNumberClass(type);
+                if (numberClass != null) {
+                    value = NumberUtils.parseNumber(value.toString(), Integer.class);
+                }
             } catch (Exception e) {
                 msg += "json数据格式错误";
                 context.buildConstraintViolationWithTemplate(msg).addConstraintViolation();
                 return false;
             }
-            if (list != null && list.contains(value)) {
+            if (list.contains(value)) {
                 return true;
             } else {
                 msg += "错误，参数填写范围" + this.value;
@@ -55,6 +65,28 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
             }
         }
         return isBlank;
+    }
+
+    private Class<? extends Number> getNumberClass(Class targetClass) {
+        if (Byte.class == targetClass) {
+            return Byte.class;
+        } else if (Short.class == targetClass) {
+            return Short.class;
+        } else if (Integer.class == targetClass) {
+            return Integer.class;
+        } else if (Long.class == targetClass) {
+            return Long.class;
+        } else if (BigInteger.class == targetClass) {
+            return BigInteger.class;
+        } else if (Float.class == targetClass) {
+            return Float.class;
+        } else if (Double.class == targetClass) {
+            return Double.class;
+        } else if (BigDecimal.class == targetClass) {
+            return BigDecimal.class;
+        } else {
+            return null;
+        }
     }
 
     public static <T> T jsonToObj(String jsonString, TypeReference<T> tr) {

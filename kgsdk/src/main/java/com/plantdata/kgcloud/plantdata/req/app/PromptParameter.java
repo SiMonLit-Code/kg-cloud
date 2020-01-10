@@ -29,7 +29,7 @@ public class PromptParameter extends PageModel {
     private Boolean isCaseInsensitive = false;
     private Boolean isFuzzy;
     private Boolean openExportDate = true;
-    @ChooseCheck(value = "[0,1,-1]")
+    @ChooseCheck(value = "[0,1,-1]",isBlank = true)
     private String sort;
 
 

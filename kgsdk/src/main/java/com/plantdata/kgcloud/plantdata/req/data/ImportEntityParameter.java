@@ -23,7 +23,7 @@ public class ImportEntityParameter {
     private String kgName;
     private List<ImportEntityBean> data;
     private Boolean upsert = true;
-    @ChooseCheck(value = "[0,1]", name = "mode")
+    @ChooseCheck(value = "[0,1]", name = "mode",isBlank = true)
     private Integer mode = 0;
 
 }
