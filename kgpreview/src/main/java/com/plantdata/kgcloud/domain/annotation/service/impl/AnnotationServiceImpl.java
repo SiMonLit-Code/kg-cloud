@@ -44,6 +44,9 @@ public class AnnotationServiceImpl implements AnnotationService {
         double totalWeight = setting.fieldsAndWeights.values().stream().mapToDouble(s -> s).sum();
         List<AnnotationRsp> ls = new ArrayList<>();
         ApiReturn<BasePage<Map<String, Object>>> apiReturn = kgmsClient.dataOptFindAll(setting.getDataSetId(), 1, 20);
+        if (apiReturn == null || apiReturn.getData() == null) {
+            throw new BizException(5004, "数据集不存在");
+        }
         for (Map<String, Object> data : apiReturn.getData().getContent()) {
             for (TargetConcept targetConcept : setting.targetConcepts) {
                 Set<Long> conceptIds = KgQueryUtil.getSonConceptIds(kgDbName, true, targetConcept.conceptId);
