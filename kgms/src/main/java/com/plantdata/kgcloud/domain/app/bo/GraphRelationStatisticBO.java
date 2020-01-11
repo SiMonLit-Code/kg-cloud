@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.bo;
 import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.IdsFilterReq;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
@@ -22,14 +23,12 @@ public class GraphRelationStatisticBO {
 
 
     public static EntityRelationDegreeFrom buildDegreeFrom(EdgeStatisticByEntityIdReq statisticReq) {
-        Map<Integer, List<Integer>> allowAttrMap = GraphRelationStatisticBO.buildDataFilterMap(statisticReq.getAllowAttrs());
-        Map<Integer, List<Long>> allowTypeMap = GraphRelationStatisticBO.buildDataFilterMap(statisticReq.getAllowTypes());
         EntityRelationDegreeFrom degreeFrom = new EntityRelationDegreeFrom();
-        degreeFrom.setAllowAtts(allowAttrMap);
-        degreeFrom.setAllowTypes(allowTypeMap);
+        BasicConverter.consumerIfNoNull(statisticReq.getAllowAttrDefIds(),a->degreeFrom.setAllowAtts(GraphRelationStatisticBO.buildDataFilterMap(a)));
+        BasicConverter.consumerIfNoNull(statisticReq.getAllowConceptIds(),a->  degreeFrom.setAllowTypes(GraphRelationStatisticBO.buildDataFilterMap(a)));
         degreeFrom.setEntityId(statisticReq.getEntityId());
         degreeFrom.setDirection(1);
-        degreeFrom.setIsDistinct(statisticReq.getIsDistinct() ? 1 : 0);
+        degreeFrom.setIsDistinct(statisticReq.getDistinct() ? 1 : 0);
         return degreeFrom;
     }
 

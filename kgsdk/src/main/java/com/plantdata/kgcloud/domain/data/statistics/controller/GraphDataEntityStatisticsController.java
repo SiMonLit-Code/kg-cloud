@@ -25,7 +25,7 @@ import java.util.Map;
  * @date 2019/11/12 18:42
  */
 @RestController
-@RequestMapping("v3/kgData/entity/statistic")
+@RequestMapping("v3/kgdata/entity/statistic")
 public class GraphDataEntityStatisticsController implements GraphDataStatisticsInterface {
 
     @Autowired

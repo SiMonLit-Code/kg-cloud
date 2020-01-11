@@ -1,8 +1,12 @@
 package com.plantdata.kgcloud.sdk.req.app.statistic;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -12,15 +16,19 @@ import java.util.List;
  */
 @Getter
 @Setter
+@ApiModel("实体统计-关系度数-参数")
 public class EdgeStatisticByEntityIdReq {
 
-
+    @ApiModelProperty(value = "实体id",required = true)
+    @NotNull
     private Long entityId;
-
-    private Boolean isDistinct = false;
-
-    private List<IdsFilterReq<Integer>> allowAttrs;
-
-    private List<IdsFilterReq<Long>> allowTypes;
+    @ApiModelProperty("是否去重")
+    private Boolean distinct = false;
+    @Valid
+    @ApiModelProperty("允许的属性定义id")
+    private List<IdsFilterReq<Integer>> allowAttrDefIds;
+    @Valid
+    @ApiModelProperty("允许的概念id")
+    private List<IdsFilterReq<Long>> allowConceptIds;
 
 }
