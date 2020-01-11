@@ -53,10 +53,10 @@ public class StatisticConverter extends BasicConverter {
 
     public static EdgeStatisticByEntityIdReq statCountRelationbyEntityParameterToEdgeStatisticByEntityIdReq(@NonNull StatCountRelationbyEntityParameter param) {
         EdgeStatisticByEntityIdReq req = new EdgeStatisticByEntityIdReq();
-        req.setIsDistinct(param.getIsDistinct());
+        req.setDistinct(param.getIsDistinct());
         req.setEntityId(param.getEntityId());
-        consumerIfNoNull(toListNoNull(param.getAllowAtts(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowAttrs);
-        consumerIfNoNull(toListNoNull(param.getAllowTypes(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowTypes);
+        consumerIfNoNull(toListNoNull(param.getAllowAtts(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowAttrDefIds);
+        consumerIfNoNull(toListNoNull(param.getAllowTypes(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowConceptIds);
         return req;
     }
 

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public class GraphStatisticController implements SdkOpenApiInterface {
     @ApiOperation("查询实体的关系度数")
     @PostMapping("{kgName}/entity/degree/")
     public ApiReturn<List<EdgeStatisticByEntityIdRsp>> statisticCountEdgeByEntity(@PathVariable("kgName") String kgName,
-                                                                                  @RequestBody EdgeStatisticByEntityIdReq statisticReq) {
+                                                                                  @RequestBody @Valid EdgeStatisticByEntityIdReq statisticReq) {
         return ApiReturn.success(kgDataService.statisticCountEdgeByEntity(kgName, statisticReq));
 
     }
