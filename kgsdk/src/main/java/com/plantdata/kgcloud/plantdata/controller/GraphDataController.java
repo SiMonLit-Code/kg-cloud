@@ -34,6 +34,7 @@ import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.MergeClient;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
@@ -311,9 +312,8 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页数量默认10"),
     })
     public RestResp<List<ImportEntityBean>> entityByDataAttribute(@Valid @ApiIgnore EntityByDataAttributeParameter param) {
-        String query = CollectionUtils.isEmpty(param.getQuery()) ? null : JacksonUtils.writeValueAsString(param.getQuery());
-        ApiReturn<List<OpenEntityRsp>> apiReturn = editClient.queryEntityList(param.getKgName(), param.getConceptId(), param.getConceptKey(),
-                query, param.getPageNo(), param.getPageSize());
+        EntityQueryReq entityQueryReq = EntityConverter.entityByDataAttributeParameterToEntityQueryReq(param);
+        ApiReturn<List<OpenEntityRsp>> apiReturn = editClient.queryEntityList(param.getKgName(),entityQueryReq);
         List<ImportEntityBean> entityBeanList = BasicConverter.convertList(apiReturn, EntityConverter::openEntityRspToImportEntityBean);
         return new RestResp<>(entityBeanList);
     }

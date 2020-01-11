@@ -293,9 +293,9 @@ public class EntityController {
 
 
     @ApiOperation("实体-查询-实体查询")
-    @GetMapping("/{kgName}/list/search")
+    @PostMapping("/{kgName}/list/search")
     public ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
-                                                          EntityQueryReq entityQueryReq) {
+                                                          @RequestBody  EntityQueryReq entityQueryReq) {
         return ApiReturn.success(entityService.queryEntityList(kgName, entityQueryReq));
     }
 
