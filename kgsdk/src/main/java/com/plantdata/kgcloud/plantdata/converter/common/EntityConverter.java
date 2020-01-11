@@ -3,13 +3,17 @@ package com.plantdata.kgcloud.plantdata.converter.common;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.plantdata.req.common.Additional;
 import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
+import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
+import com.plantdata.kgcloud.sdk.req.app.DataAttrReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
+import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 
 import java.util.List;
@@ -46,6 +50,19 @@ public class EntityConverter extends BasicConverter {
         entityBean.setMeaningTag(rsp.getMeaningTag());
         entityBean.setSynonyms(rsp.getSynonyms());
         return entityBean;
+    }
+
+    public static  EntityQueryReq entityByDataAttributeParameterToEntityQueryReq(EntityByDataAttributeParameter parameter){
+        EntityQueryReq entityQueryReq = new EntityQueryReq();
+        consumerIfNoNull(parameter.getQuery(),a->{
+            List<DataAttrReq> dataAttrReqs = BasicConverter.toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityDataAttrReq);
+            entityQueryReq.setDataAttrFilters(dataAttrReqs);
+        });
+        entityQueryReq.setConceptId(parameter.getConceptId());
+        entityQueryReq.setConceptKey(parameter.getConceptKey());
+        entityQueryReq.setPage(parameter.getPageNo());
+        entityQueryReq.setSize(parameter.getPageSize());
+        return entityQueryReq;
     }
 
     public static OpenBatchSaveEntityRsp importEntityBeanToOpenBatchSaveEntityRsp(@NonNull ImportEntityBean entityRsp) {

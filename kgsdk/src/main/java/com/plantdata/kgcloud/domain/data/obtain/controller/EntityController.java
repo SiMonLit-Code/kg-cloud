@@ -38,9 +38,7 @@ public class EntityController implements GraphDataObtainInterface {
     @GetMapping("{kgName}/list")
     public ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
                                                           EntityQueryReq entityQueryReq) {
-        return editClient.queryEntityList(kgName, entityQueryReq.getConceptId(),
-                entityQueryReq.getConceptKey(), entityQueryReq.getQuery(),
-                entityQueryReq.getPage(), entityQueryReq.getSize());
+        return editClient.queryEntityList(kgName,entityQueryReq);
     }
 
     @ApiOperation("实体-新增或修改")
