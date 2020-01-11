@@ -53,7 +53,6 @@ public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyL
     private List<Long> allowAttrGroups;
     @ApiModelProperty("分页")
     private PageReq page;
-
     @ApiModelProperty("实例筛选")
     private List<EntityQueryFiltersReq> entityFilters;
     @ApiModelProperty("边属性过滤条件")

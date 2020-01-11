@@ -4,7 +4,7 @@ import com.plantdata.kgcloud.plantdata.constant.SortEnum;
 import com.plantdata.kgcloud.plantdata.req.common.AttrSortBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GeneralGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.function.TimeGraphParameter;
-import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import com.plantdata.kgcloud.plantdata.validator.DateCheck;
 import lombok.Data;
 

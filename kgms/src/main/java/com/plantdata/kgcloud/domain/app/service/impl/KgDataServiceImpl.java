@@ -144,9 +144,7 @@ public class KgDataServiceImpl implements KgDataService {
     @Override
     public Object statisticRelation(String kgName, EdgeStatisticByConceptIdReq conceptIdReq) {
         RelationStatisticsBean statisticsBean = GraphStatisticConverter.conceptIdReqConceptStatisticsBean(conceptIdReq);
-        if (CollectionUtils.isEmpty(conceptIdReq.getTripleIds())) {
-            return new StatDataRsp();
-        }
+
         Optional<List<Map<String, Object>>> resultOpt = RestRespConverter.convert(statisticsApi.relationStatistics(KGUtil.dbName(kgName), statisticsBean));
         List<StatisticDTO> dataList = !resultOpt.isPresent() ? Collections.emptyList()
                 : JsonUtils.objToList(resultOpt.get(), StatisticDTO.class);

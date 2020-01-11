@@ -382,7 +382,7 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void batchAddDataForDataSet(String userId, DataSetAddReq addReq) {
-        List<Long> ids = dataSetService.findByDataNames(userId, Lists.newArrayList(addReq.getDataName()));
+        List<Long> ids = dataSetService.findByDataNames(userId, Lists.newArrayList(addReq.getDataSetId()));
         if (CollectionUtils.isEmpty(ids)) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
         }

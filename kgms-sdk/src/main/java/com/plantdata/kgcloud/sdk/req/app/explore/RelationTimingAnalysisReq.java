@@ -11,6 +11,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -23,6 +25,8 @@ import java.util.List;
 @ApiModel("时序关联分析-参数")
 public class RelationTimingAnalysisReq extends BasicGraphExploreReq implements GraphRelationReqInterface, GraphTimingReqInterface {
 
+    @NotNull
+    @Valid
     @ApiModelProperty(value = "关联搜索参数", required = true)
     private CommonRelationReq relation;
     @ApiModelProperty("时间参数过滤")

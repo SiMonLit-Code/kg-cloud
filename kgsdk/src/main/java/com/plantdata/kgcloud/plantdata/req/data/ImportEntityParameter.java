@@ -1,8 +1,7 @@
 package com.plantdata.kgcloud.plantdata.req.data;
 
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
-import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
-import lombok.AccessLevel;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +23,7 @@ public class ImportEntityParameter {
     private String kgName;
     private List<ImportEntityBean> data;
     private Boolean upsert = true;
-    @ChooseCheck(value = "[0,1]", name = "mode")
+    @ChooseCheck(value = "[0,1]", name = "mode",isBlank = true)
     private Integer mode = 0;
 
 }

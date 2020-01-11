@@ -62,7 +62,7 @@ public class PromptConverter extends BasicConverter {
         promptReq.setOpenExportDate(promptParam.getOpenExportDate());
         promptReq.setPage(promptParam.getPageNo());
         Optional<PromptResultTypeEnum> promptResultTypeEnum = EnumUtils.parseById(PromptResultTypeEnum.class, getKgType(promptParam.getType()));
-        promptReq.setType(promptResultTypeEnum.orElse(PromptResultTypeEnum.CONCEPT_ENTITY).getDesc());
+        promptReq.setType(promptResultTypeEnum.orElse(PromptResultTypeEnum.CONCEPT).getDesc());
         promptReq.setPromptType(promptParam.getPromptType());
         promptReq.setSize(promptParam.getPageSize());
         consumerIfNoNull(promptParam.getSort(), a -> promptReq.setSort(SortTypeEnum.parseByName(a).orElse(SortTypeEnum.DESC).getValue()));

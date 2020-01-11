@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
+import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 
 import java.util.Map;
@@ -62,8 +63,10 @@ public class RelationConverter extends BasicConverter {
         EdgeSearchReq searchReq = new EdgeSearchReq();
         searchReq.setAttrIds(param.getAttrIds());
         searchReq.setAttrKeys(param.getAttrKeys());
-        searchReq.setAttrTimeFrom(param.getAttrTimeFrom());
-        searchReq.setAttrTimeTo(param.getAttrTimeTo());
+        consumerIfNoNull(param.getAttrTimeFrom(),a-> searchReq. setAttrTimeFrom(JsonUtils.stringToMap(a)));
+        consumerIfNoNull(param.getAttrTimeTo(),a-> searchReq.setAttrTimeTo(JsonUtils.stringToMap(a)));
+        searchReq.setPage(param.getPageNo());
+        searchReq.setSize(param.getPageSize());
         searchReq.setAttrValueIds(param.getAttrValueIds());
         consumerIfNoNull(param.getQuery(), a -> searchReq.setEdgeAttrQuery(toListNoNull(a, RelationConverter::attrScreeningBeanToRelationAttrReq)));
         searchReq.setEntityIds(param.getEntityIds());
@@ -73,13 +76,20 @@ public class RelationConverter extends BasicConverter {
     public static RelationBeanScore edgeSearchRspToRelationBeanScore(@NonNull EdgeSearchRsp rsp) {
         RelationBeanScore beanScore = new RelationBeanScore();
         beanScore.setAttrId(rsp.getAttrId());
+        beanScore.setTripleId(rsp.getTripleId());
+        beanScore.setSource(rsp.getSource());
+        beanScore.setScore(rsp.getScore());
+        beanScore.setAttrTimeFrom(rsp.getAttrTimeFrom());
+        beanScore.setAttrTimeTo(rsp.getAttrTimeTo());
         consumerIfNoNull(rsp.getFromEntity(), a -> {
             beanScore.setAttrTimeFrom(a.getId().toString());
             beanScore.setEntityConcept(a.getConceptId());
             beanScore.setEntityName(a.getName());
+            beanScore.setEntityId(a.getId());
             beanScore.setEntityMeaningTag(a.getMeaningTag());
         });
         consumerIfNoNull(rsp.getToEntity(), a -> {
+            beanScore.setAttrValueId(a.getId());
             beanScore.setAttrTimeTo(a.getId().toString());
             beanScore.setAttrValueConcept(a.getConceptId());
             beanScore.setAttrValueName(a.getName());

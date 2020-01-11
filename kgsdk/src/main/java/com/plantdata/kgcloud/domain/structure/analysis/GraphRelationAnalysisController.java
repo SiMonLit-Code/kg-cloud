@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +36,7 @@ public class GraphRelationAnalysisController implements GraphStructureAnalysisIn
     @ApiOperation("关联分析")
     @PostMapping("{kgName}")
     public ApiReturn<RelationAnalysisRsp> relationAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                           @RequestBody @Valid RelationReqAnalysisReq analysisReq) {
+                                                           @RequestBody @Validated RelationReqAnalysisReq analysisReq) {
         return appClient.relationAnalysis(kgName, analysisReq);
     }
 

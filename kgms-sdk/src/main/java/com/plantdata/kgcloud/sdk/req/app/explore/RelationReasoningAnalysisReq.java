@@ -10,6 +10,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +24,9 @@ import java.util.Map;
 @Setter
 @ApiModel("关联推理分析-参数")
 public class RelationReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphRelationReqInterface {
-
     @ApiModelProperty(value = "关联搜索参数", required = true)
+    @NotNull
+    @Valid
     private CommonRelationReq relation;
     @ApiModelProperty("推理规则")
     private Map<Long, Object> reasoningRuleConfigs;

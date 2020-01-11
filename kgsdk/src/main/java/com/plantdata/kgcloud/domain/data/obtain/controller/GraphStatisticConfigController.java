@@ -28,7 +28,7 @@ import java.util.Objects;
  * @date 2019/11/15 16:01
  */
 @RestController
-@RequestMapping("v3/kgdata/statisticConfig")
+@RequestMapping("v3/kgdata/config/statistic")
 public class GraphStatisticConfigController implements GraphDataObtainInterface {
 
     @Autowired
@@ -56,8 +56,8 @@ public class GraphStatisticConfigController implements GraphDataObtainInterface 
     }
 
     @ApiOperation("统计配置-批量删除")
-    @DeleteMapping("batch")
-    public ApiReturn batchRemove(@RequestParam("ids") List<Long> ids) {
+    @PostMapping("batch/delete")
+    public ApiReturn batchRemove(@RequestBody List<Long> ids) {
         ids.removeIf(Objects::isNull);
         return kgmsClient.deleteStatisticalBatch(ids);
     }

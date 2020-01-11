@@ -169,7 +169,7 @@ public class InfoBoxConverter extends BasicConverter {
         promptEntityRsp.setMeaningTag(attrValueVO.getMeaningTag());
         promptEntityRsp.setName(attrValueVO.getName());
         promptEntityRsp.setQa(false);
-        promptEntityRsp.setType(EntityTypeEnum.ENTITY);
+        promptEntityRsp.setType(EntityTypeEnum.parseById(attrValueVO.getType()));
         return promptEntityRsp;
     }
 
@@ -224,16 +224,6 @@ public class InfoBoxConverter extends BasicConverter {
                 break;
         }
         return extraRsp;
-    }
-
-    private static PromptEntityRsp voToPromptEntityRsp(@NonNull ai.plantdata.kg.api.edit.resp.EntityVO entityVO) {
-        PromptEntityRsp entityRsp = new PromptEntityRsp();
-        entityRsp.setConceptId(entityVO.getConceptId());
-        entityRsp.setId(entityVO.getId());
-        entityRsp.setMeaningTag(entityVO.getMeaningTag());
-        entityRsp.setName(entityVO.getName());
-        entityRsp.setType(EntityTypeEnum.parseById(entityVO.getType()));
-        return entityRsp;
     }
 
 

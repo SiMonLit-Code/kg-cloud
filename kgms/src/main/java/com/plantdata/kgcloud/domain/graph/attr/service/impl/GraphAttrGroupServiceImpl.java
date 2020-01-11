@@ -97,10 +97,13 @@ public class GraphAttrGroupServiceImpl implements GraphAttrGroupService {
 
     @Override
     public Long updateAttrGroup(String kgName, Long id, AttrGroupReq attrGroupReq) {
-        this.checkGroupName(kgName, attrGroupReq.getGroupName());
+
         Optional<GraphAttrGroup> optional = graphAttrGroupRepository.findById(id);
         GraphAttrGroup graphAttrGroup =
                 optional.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.ATTR_GROUP_NOT_EXISTS));
+        if (!graphAttrGroup.getGroupName().equals(attrGroupReq.getGroupName())){
+            this.checkGroupName(kgName, attrGroupReq.getGroupName());
+        }
         graphAttrGroup.setGroupName(attrGroupReq.getGroupName());
         graphAttrGroup = graphAttrGroupRepository.save(graphAttrGroup);
         return graphAttrGroup.getId();

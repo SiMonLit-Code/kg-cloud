@@ -21,7 +21,7 @@ import java.util.Map;
  * @date 2019/11/8 10:56
  */
 @RestController
-@RequestMapping("v3/dataSet/obtain")
+@RequestMapping("v3/dataset/obtain")
 public class DataSetObtainController implements DataSetDataObtainInterface {
 
     @Autowired

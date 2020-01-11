@@ -34,6 +34,7 @@ import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
+import com.plantdata.kgcloud.domain.edit.converter.OpenEntityConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
@@ -518,9 +519,7 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean add,
                                                                 List<OpenBatchSaveEntityRsp> batchEntity) {
-        List<BatchEntityVO> entityList = batchEntity.stream()
-                .map(a -> ConvertUtils.convert(BatchEntityVO.class).apply(a))
-                .collect(Collectors.toList());
+        List<BatchEntityVO> entityList = BasicConverter.listToRsp(batchEntity, OpenEntityConverter::openBatchSaveEntityRspToVo);
 
         Optional<BatchResult<BatchEntityVO>> editOpt =
                 RestRespConverter.convert(batchApi.addEntities(KGUtil.dbName(kgName),

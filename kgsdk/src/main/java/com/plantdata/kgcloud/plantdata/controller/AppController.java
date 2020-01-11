@@ -159,6 +159,25 @@ public class AppController implements SdkOldApiInterface {
         return new RestResp<>(entityBeans);
     }
 
+    @ApiOperation("综合搜索")
+    @PostMapping("graph/prompt")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "kw", required = true, dataType = "string", paramType = "form", value = "搜索关键词"),
+            @ApiImplicitParam(name = "type", defaultValue = "11", dataType = "string", paramType = "form", value = "类型，默认11。第一位表示概念，第二位表示实例。。1为有，0为没有"),
+            @ApiImplicitParam(name = "allowTypes", dataType = "string", paramType = "form", value = "查询指定的概念，格式为json数组，默认为查询全部"),
+            @ApiImplicitParam(name = "allowTypesKey", dataType = "string", paramType = "form", value = "allowTypes为空时此参数生效"),
+            @ApiImplicitParam(name = "isInherit", defaultValue = "false", dataType = "boolean", paramType = "form", value = "allowTypes字段指定的概念是否继承"),
+            @ApiImplicitParam(name = "isFuzzy", defaultValue = "false", dataType = "boolean", paramType = "form", value = "是否模糊搜索"),
+            @ApiImplicitParam(name = "openExportDate", defaultValue = "true", dataType = "boolean", paramType = "form", value = "是否使用导出实体数据集检索"),
+            @ApiImplicitParam(name = "sort", dataType = "Integer", defaultValue = "-1", paramType = "form", value = "按权重排序:-1=desc 1=asc,默认-1"),
+            @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
+            @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页最小为1"),
+    })
+    public RestResp<List<EntityBean>> promptPost(@Valid @ApiIgnore PromptParameter promptParameter) {
+        return prompt(promptParameter);
+    }
+
     @ApiOperation("高级搜索查实体,")
     @PostMapping("senior/prompt")
     @ApiImplicitParams({

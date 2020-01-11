@@ -2,10 +2,8 @@ package com.plantdata.kgcloud.domain.app;
 
 import ai.plantdata.kg.api.ql.SparqlApi;
 import ai.plantdata.kg.api.ql.resp.QueryResultVO;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
@@ -54,7 +52,7 @@ public class KgDataTest {
     public void statisticCountEdgeByEntityTest() {
         EdgeStatisticByEntityIdReq req = new EdgeStatisticByEntityIdReq();
         req.setEntityId(3L);
-        req.setIsDistinct(true);
+        req.setDistinct(true);
         List<EdgeStatisticByEntityIdRsp> maps = kgDataService.statisticCountEdgeByEntity(KG_NAME, req);
         System.out.println(JacksonUtils.writeValueAsString(maps));
     }
