@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
@@ -34,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 /**
  * @description:
@@ -58,6 +58,37 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     private final String type;
 
+    private BiFunction<JsonNode, Long, Map<String, Long>> smokeFun = (buckets, total) -> {
+        Map<String, Long> smoke = new HashMap<>();
+        long checked = 0L;
+        if (buckets.isArray()) {
+            for (JsonNode bucket : buckets) {
+                String status = bucket.get("key_as_string").asText();
+                long count = bucket.get("doc_count").asLong();
+                checked += count;
+                if (Objects.equals(status, "true")) {
+                    smoke.put("2", count);
+                } else if (Objects.equals(status, "false")) {
+                    smoke.put("3", count);
+                }
+            }
+            smoke.put("4", total - checked);
+        }
+        return smoke;
+    };
+
+    private BiFunction<JsonNode, Long, Map<String, Long>> smokeMsgFun = (buckets, total) -> {
+        Map<String, Long> smoke = new HashMap<>();
+        if (buckets.isArray()) {
+            for (JsonNode bucket : buckets) {
+                String msg = bucket.get("key").asText();
+                long count = bucket.get("doc_count").asLong();
+                smoke.put(msg, count);
+            }
+        }
+        return smoke;
+    };
+
     public ElasticSearchOptProvider(DataOptConnect info) {
         HttpHost[] hosts = info.getAddresses().stream()
                 .map(this::buildHttpHost)
@@ -67,7 +98,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         this.database = info.getDatabase();
         this.type = info.getTable();
     }
-
 
     @Override
     public List<String> getFields() {
@@ -94,10 +124,10 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         if (CollectionUtils.isEmpty(query)) {
             return queryNode;
         }
-        return handleQuery(queryNode,query);
+        return handleQuery(queryNode, query);
     }
 
-    private ObjectNode handleQuery(ObjectNode queryNode,Map<String, Object> query) {
+    private ObjectNode handleQuery(ObjectNode queryNode, Map<String, Object> query) {
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "sort")) {
                 queryNode.put("sort", DataConst.CREATE_AT);
@@ -163,7 +193,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         return mapList;
     }
 
-
     @Override
     public long count(Map<String, Object> query) {
         String endpoint = "/" + database + "/" + type + "/_search?_source=false";
@@ -187,7 +216,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         return map;
     }
 
-
     @Override
     public void createTable(List<DataSetSchema> colList) {
         ObjectNode properties = buildProperties(colList);
@@ -199,7 +227,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             createMapping(mapping);
         }
     }
-
 
     @Override
     public void dropTable() {
@@ -281,21 +308,35 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public List<Map<String, Long>> statistics() {
-        String endpoint = "/" + database + "/" + type;
+        String smokeQuery = "_smoke";
+        String smokeMsgQuery = "_smokeMsg.msg.keyword";
+        List<Map<String, Long>> maps = new ArrayList<>();
+        Map<String, Long> smoke = statisticsSmoke(smokeQuery, smokeFun);
+        Map<String, Long> smokeMsg = statisticsSmoke(smokeMsgQuery, smokeMsgFun);
+        if (smoke != null) {
+            maps.add(smoke);
+        }
+        if (smokeMsg != null) {
+            maps.add(smokeMsg);
+        }
+        return maps;
+    }
+
+    private Map<String, Long> statisticsSmoke(String t, BiFunction<JsonNode, Long, Map<String, Long>> function) {
+        String endpoint = "/" + database + "/" + type + "/_search";
         Request request = new Request(POST, endpoint);
         //language=JSON
-        String statusQuery = "{\"aggs\":{\"all_interests\":{\"terms\":{\"field\":\"_smoke\"}}}}";
+        String statusQuery = "{\"aggs\":{\"smoke_aggs\":{\"terms\":{\"field\":\"" + t + "\"}}}}";
         request.setEntity(new StringEntity(statusQuery, ContentType.APPLICATION_JSON));
-//        Optional<String> send = send(request);
-//        if (send.isPresent()) {
-//            JsonNode node = readTree(send.get());
-//            JsonNode hits = node.get("hits");
-//            long total = node.get("total").asLong();
-//            if(hits.has("aggregations")){
-//                JsonNode buckets = hits.get("aggregations").get("all_interests").get("buckets");
-//            }
-//        }
-        return new ArrayList<>();
+        Optional<String> send = send(request);
+        if (send.isPresent()) {
+            JsonNode node = readTree(send.get());
+            JsonNode hits = node.get("hits");
+            long total = node.get("total").asLong();
+            JsonNode buckets = hits.get("aggregations").get("smoke_aggs").get("buckets");
+            return function.apply(buckets, total);
+        }
+        return null;
     }
 
     @Override
