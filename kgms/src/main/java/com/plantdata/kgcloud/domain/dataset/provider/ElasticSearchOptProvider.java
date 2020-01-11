@@ -55,6 +55,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     private final ObjectMapper objectMapper = JacksonUtils.getInstance();
 
     private final String database;
+
     private final String type;
 
     public ElasticSearchOptProvider(DataOptConnect info) {
@@ -107,7 +108,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             if (Objects.equals(entry.getKey(), "search")) {
                 Map<String, String> value = (Map<String, String>) entry.getValue();
                 for (Map.Entry<String, String> objectEntry : value.entrySet()) {
-                    String s = "{\"multi_match\":{\"fields\":\"" + objectEntry.getKey() + "\",\"query\":\"" + objectEntry.getValue() + "\"}}";
+                    String s = "{\"prefix\":{\"" + objectEntry.getKey() + "\":\"" + objectEntry.getValue() + "\"}}";
                     queryNode.putPOJO("query", JacksonUtils.readValue(s, JsonNode.class));
                 }
             }
@@ -285,14 +286,15 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         //language=JSON
         String statusQuery = "{\"aggs\":{\"all_interests\":{\"terms\":{\"field\":\"_smoke\"}}}}";
         request.setEntity(new StringEntity(statusQuery, ContentType.APPLICATION_JSON));
-        Optional<String> send = send(request);
-        if (send.isPresent()) {
-            JsonNode node = readTree(send.get());
-            JsonNode hits = node.get("hits");
-            long total = node.get("total").asLong();
-            JsonNode buckets = hits.get("aggregations").get("all_interests").get("buckets");
-        }
-
+//        Optional<String> send = send(request);
+//        if (send.isPresent()) {
+//            JsonNode node = readTree(send.get());
+//            JsonNode hits = node.get("hits");
+//            long total = node.get("total").asLong();
+//            if(hits.has("aggregations")){
+//                JsonNode buckets = hits.get("aggregations").get("all_interests").get("buckets");
+//            }
+//        }
         return new ArrayList<>();
     }
 
@@ -374,7 +376,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     private void deleteAlias(String index) {
         String endpoint = "/" + index + "/_alias/" + database;
         Request request = new Request(DELETE, endpoint);
-        String rs = send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
     }
 
     private boolean indicesExists(String index) {
@@ -392,7 +394,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
         return code == 200;
     }
-
 
     private HttpHost buildHttpHost(String addr) {
         String[] address = addr.split(":");
