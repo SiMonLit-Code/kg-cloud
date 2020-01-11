@@ -290,10 +290,12 @@ public class DataSetServiceImpl implements DataSetService {
         target.setFields(transformFields(schema));
 
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
-        DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, type);
-        provider.createTable(schema);
-
-        target = dataSetRepository.save(target);
+        try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, type);) {
+            provider.createTable(schema);
+            target = dataSetRepository.save(target);
+        } catch (Exception e) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+        }
         return dataSet2rsp.apply(target);
     }
 
@@ -345,7 +347,7 @@ public class DataSetServiceImpl implements DataSetService {
                         DataSetSchema dataSetSchema = new DataSetSchema();
                         dataSetSchema.setField(entry.getValue());
                         dataSetSchema.setType(1);
-                        dataSetSchemaMap.put(entry.getKey(),dataSetSchema);
+                        dataSetSchemaMap.put(entry.getKey(), dataSetSchema);
                     }
                 }
 
@@ -355,7 +357,7 @@ public class DataSetServiceImpl implements DataSetService {
                     if (rowIndex < 10) {
                         for (Map.Entry<Integer, Object> entry : data.entrySet()) {
                             Object val = entry.getValue();
-                            if(val!=null) {
+                            if (val != null) {
                                 FieldType type = readType(val);
                                 dataSetSchemaMap.get(entry.getKey()).setType(type.getCode());
                             }
