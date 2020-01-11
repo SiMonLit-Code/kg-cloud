@@ -332,8 +332,8 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         if (send.isPresent()) {
             JsonNode node = readTree(send.get());
             JsonNode hits = node.get("hits");
-            long total = node.get("total").asLong();
-            JsonNode buckets = hits.get("aggregations").get("smoke_aggs").get("buckets");
+            long total = hits.get("total").asLong();
+            JsonNode buckets = node.get("aggregations").get("smoke_aggs").get("buckets");
             return function.apply(buckets, total);
         }
         return null;
