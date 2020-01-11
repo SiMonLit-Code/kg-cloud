@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
+import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 
 import java.util.Map;
@@ -62,8 +63,8 @@ public class RelationConverter extends BasicConverter {
         EdgeSearchReq searchReq = new EdgeSearchReq();
         searchReq.setAttrIds(param.getAttrIds());
         searchReq.setAttrKeys(param.getAttrKeys());
-        searchReq.setAttrTimeFrom(param.getAttrTimeFrom());
-        searchReq.setAttrTimeTo(param.getAttrTimeTo());
+        consumerIfNoNull(param.getAttrTimeFrom(),a-> searchReq. setAttrTimeFrom(JsonUtils.stringToMap(a)));
+        consumerIfNoNull(param.getAttrTimeTo(),a-> searchReq.setAttrTimeTo(JsonUtils.stringToMap(a)));
         searchReq.setPage(param.getPageNo());
         searchReq.setSize(param.getPageSize());
         searchReq.setAttrValueIds(param.getAttrValueIds());
@@ -78,6 +79,8 @@ public class RelationConverter extends BasicConverter {
         beanScore.setTripleId(rsp.getTripleId());
         beanScore.setSource(rsp.getSource());
         beanScore.setScore(rsp.getScore());
+        beanScore.setAttrTimeFrom(rsp.getAttrTimeFrom());
+        beanScore.setAttrTimeTo(rsp.getAttrTimeTo());
         consumerIfNoNull(rsp.getFromEntity(), a -> {
             beanScore.setAttrTimeFrom(a.getId().toString());
             beanScore.setEntityConcept(a.getConceptId());

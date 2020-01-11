@@ -170,7 +170,7 @@ public interface EditClient {
      * @param list   req
      * @return .
      */
-    @PatchMapping("attribute/relation/update/{kgName}")
+    @PutMapping("attribute/relation/update/{kgName}")
     ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
                                                        @RequestBody List<RelationUpdateReq> list);
 

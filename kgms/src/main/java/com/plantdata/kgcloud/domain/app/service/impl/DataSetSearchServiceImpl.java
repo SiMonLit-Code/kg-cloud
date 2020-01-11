@@ -158,16 +158,17 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             if (CollectionUtils.isEmpty(myData)) {
                 continue;
             }
+            if (StringUtils.isEmpty(myData.get("dataTitle"))) {
+                continue;
+            }
             LinksRsp links = new LinksRsp();
+            links.setDataTitle(myData.get("dataTitle"));
             links.setDataId(dataId);
             BasicConverter.consumerIfNoNull(map1.get("score"), a -> links.setScore(Double.valueOf(a.toString())));
             BasicConverter.consumerIfNoNull(map1.get("source"), a -> links.setSource(Integer.valueOf(a.toString())));
-            BasicConverter.consumerIfNoNull(myData, data -> {
-                if (dataLink.getDataSetTitle() == null) {
-                    dataLink.setDataSetTitle(myData.get("dataSetTitle"));
-                }
-                links.setDataTitle(myData.get("dataTitle"));
-            });
+            if (dataLink.getDataSetTitle() == null) {
+                dataLink.setDataSetTitle(myData.get("dataSetTitle"));
+            }
             linkList.add(links);
         }
         dataLink.setLinks(linkList);
