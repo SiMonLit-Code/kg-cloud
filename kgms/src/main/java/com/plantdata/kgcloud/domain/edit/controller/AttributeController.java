@@ -246,7 +246,7 @@ public class AttributeController {
     }
 
     @ApiOperation("关系-批量修改关系")
-    @PatchMapping("relation/update/{kgName}")
+    @PutMapping("relation/update/{kgName}")
     public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
                                                               @RequestBody List<RelationUpdateReq> list) {
         List<UpdateEdgeVO> edgeList = RestCopyConverter.copyToNewList(list, UpdateEdgeVO.class);
