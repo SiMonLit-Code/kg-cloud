@@ -44,7 +44,7 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticsBean.setEntityIds(attrIdReq.getEntityIds());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(reSize);
-        statisticsBean.setSort(attrIdReq.getDirection());
+        statisticsBean.setSort(attrIdReq.getSort());
         statisticsBean.setAppendId(appendId);
         statisticsBean.setAttributeId(attrIdReq.getAttrId());
         statisticsBean.setAllowValues(attrIdReq.getAllowValues());

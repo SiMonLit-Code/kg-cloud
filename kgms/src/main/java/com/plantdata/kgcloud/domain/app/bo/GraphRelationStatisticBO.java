@@ -28,7 +28,7 @@ public class GraphRelationStatisticBO {
         BasicConverter.consumerIfNoNull(statisticReq.getAllowConceptIds(),a->  degreeFrom.setAllowTypes(GraphRelationStatisticBO.buildDataFilterMap(a)));
         degreeFrom.setEntityId(statisticReq.getEntityId());
         degreeFrom.setDirection(1);
-        degreeFrom.setIsDistinct(statisticReq.getDistinct() ? 1 : 0);
+        degreeFrom.setIsDistinct(statisticReq.isDistinct() ? 1 : 0);
         return degreeFrom;
     }
 

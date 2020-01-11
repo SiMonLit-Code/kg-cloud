@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -23,23 +24,23 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/11/21 16:55
  */
-public class KnowledgeRecommendConverter {
+@Slf4j
+public class KnowledgeRecommendConverter extends BasicConverter{
 
     public static EntityAttributesObjectFrom reqToFrom(KnowledgeRecommendReq req) {
         EntityAttributesObjectFrom from = new EntityAttributesObjectFrom();
         from.setEntityId(req.getEntityId());
         from.setAttributeIds(req.getAllowAttrs());
-        if (!CollectionUtils.isEmpty(req.getAllowAttrs())) {
-            Map<Integer, Integer> directionMap = Maps.newHashMapWithExpectedSize(req.getAllowAttrs().size());
-            Map<Integer, Integer> sizeMap = Maps.newHashMapWithExpectedSize(req.getAllowAttrs().size());
-            for (int i = 0; i < req.getAllowAttrs().size(); i++) {
-                directionMap.put(req.getAllowAttrs().get(i), req.getDirection());
-                sizeMap.put(req.getAllowAttrs().get(i), req.getSize());
+        consumerIfNoNull(req.getAllowAttrs(),a->{
+            Map<Integer, Integer> directionMap = Maps.newHashMapWithExpectedSize(a.size());
+            Map<Integer, Integer> sizeMap = Maps.newHashMapWithExpectedSize(a.size());
+            for (int i = 0; i < a.size(); i++) {
+                directionMap.put(a.get(i), req.getDirection());
+                sizeMap.put(a.get(i), req.getSize());
             }
             from.setDirections(directionMap);
             from.setSizes(sizeMap);
-
-        }
+        });
         return from;
     }
 
