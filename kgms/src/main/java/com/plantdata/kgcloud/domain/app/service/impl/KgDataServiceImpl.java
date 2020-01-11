@@ -170,7 +170,7 @@ public class KgDataServiceImpl implements KgDataService {
                 dataList = JsonUtils.objToList(mapOpt.get(), StatisticDTO.class);
             }
         }
-        return buildStatisticResult(dataType, attrIdReq.getMerge(), dataList, attrIdReq.getDateType(), attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
+        return buildStatisticResult(dataType, attrIdReq.getMerge(), dataList, attrIdReq.getDataType(), attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
     }
 
     @Override

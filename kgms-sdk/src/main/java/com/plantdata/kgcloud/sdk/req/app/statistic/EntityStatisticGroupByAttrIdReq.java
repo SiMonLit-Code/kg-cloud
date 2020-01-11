@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app.statistic;
 
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,11 +22,10 @@ public class EntityStatisticGroupByAttrIdReq {
     private Integer attrId;
     private String attrKey;
     private List<Long> entityIds;
-    //    @ChooseCheck(value = "[-1,1]", name = "sort")
-    private Integer direction = -1;
+    @ChooseCheck(value = "[-1,1]", name = "sort")
     private Integer sort = -1;
     private List<Object> allowValues;
-    // @ChooseCheck(value = "[0,1]", name = "returnType")
+    @ChooseCheck(value = "[0,1]", name = "returnType")
     private Integer returnType = 0;
     @Min(-1)
     @Max(10000)
@@ -33,7 +33,7 @@ public class EntityStatisticGroupByAttrIdReq {
 
     private Boolean merge = false;
 
-    private DateTypeReq dateType;
+    private DateTypeReq dataType;
 
 
 }

@@ -48,7 +48,7 @@ public class GraphStatisticController implements SdkOpenApiInterface {
     }
 
     @ApiOperation("实体属性值统计")
-    @PostMapping("{kgName}/attr/groupByAttrValue")
+    @PostMapping("{kgName}/attr/value")
     public ApiReturn<Object> statisticAttrGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                          @RequestBody EntityStatisticGroupByAttrIdReq statisticReq) {
         return ApiReturn.success(kgDataService.statisticAttrGroupByConcept(kgName, statisticReq));

@@ -20,13 +20,13 @@ public enum EntityTypeEnum {
     private int value;
     private String desc;
 
-    public static EntityTypeEnum parseById(int entityType) {
+    public static EntityTypeEnum parseById(Integer entityType) {
         for (EntityTypeEnum dataTypeEnum : EntityTypeEnum.values()) {
             if (dataTypeEnum.value == entityType) {
                 return dataTypeEnum;
             }
         }
-        return CONCEPT;
+        return ENTITY;
     }
 
 }

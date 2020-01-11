@@ -53,6 +53,7 @@ public class GraphAppTest {
 //        knowledgeRecommendReq.setPage();
 //        knowledgeRecommendReq.setSize();
 //        knowledgeRecommendReq
+
         knowledgeRecommendReq.setEntityId(3L);
         knowledgeRecommendReq.setAllowAttrs(Lists.newArrayList(1, 2));
         List<ObjectAttributeRsp> attributeRspList = graphApplicationService.knowledgeRecommend("dh3773_9r96hk5ii5cfkk11", knowledgeRecommendReq);

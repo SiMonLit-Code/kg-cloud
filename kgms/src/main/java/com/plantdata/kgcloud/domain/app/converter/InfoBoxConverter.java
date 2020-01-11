@@ -170,7 +170,7 @@ public class InfoBoxConverter extends BasicConverter {
         promptEntityRsp.setName(attrValueVO.getName());
         promptEntityRsp.setQa(false);
         EntityTypeEnum entityTypeEnum = EntityTypeEnum.parseById(attrValueVO.getType());
-        promptEntityRsp.setType(entityTypeEnum==null?entityTypeEnum:EntityTypeEnum.ENTITY);
+        promptEntityRsp.setType(entityTypeEnum);
         return promptEntityRsp;
     }
 

@@ -75,7 +75,7 @@ public interface KgDataClient {
      * @param statisticReq
      * @return
      */
-    @PostMapping("statistic/{kgName}/attr/groupByAttrValue")
+    @PostMapping("statistic/{kgName}/attr/value")
     ApiReturn<Object> statisticAttrGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                   @RequestBody EntityStatisticGroupByAttrIdReq statisticReq);
 
