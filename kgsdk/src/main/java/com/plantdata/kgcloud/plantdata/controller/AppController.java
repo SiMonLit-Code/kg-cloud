@@ -248,7 +248,7 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "direction", dataType = "int", paramType = "form", value = "关系方向。默认正向，0表示双向，1表示出发，2表示到达,默认0"),
             @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "推荐范围，格式为json数组的属性定义id,必须指定范围"),
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts 为空时生效"),
-            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "form"),
+            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "form",value = "每个属性要显示的数量"),
     })
     public RestResp<List<KVBean<String, List<EntityBean>>>> association(@Valid @ApiIgnore AssociationParameter param) {
         Function<KnowledgeRecommendReq, ApiReturn<List<ObjectAttributeRsp>>> returnFunction = a -> appClient.knowledgeRecommend(param.getKgName(), a);

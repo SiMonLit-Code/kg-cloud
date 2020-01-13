@@ -23,7 +23,7 @@ public class EdgeStatisticByEntityIdReq {
     @NotNull
     private Long entityId;
     @ApiModelProperty("是否去重")
-    private Boolean distinct = false;
+    private boolean distinct ;
     @Valid
     @ApiModelProperty("允许的属性定义id")
     private List<IdsFilterReq<Integer>> allowAttrDefIds;

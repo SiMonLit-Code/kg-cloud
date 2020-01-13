@@ -36,7 +36,7 @@ public class PromptReq extends PageReq implements PromptSearchInterface {
     private Boolean inherit = false;
     @ApiModelProperty("是否大小写敏感（默认区分大小写")
     private Boolean caseInsensitive = false;
-    @ApiModelProperty("是否模糊搜索")
+    @ApiModelProperty("是否模糊搜索 false前缀搜索，true支持模糊搜索")
     private boolean fuzzy;
     @ApiModelProperty("是否使用导出实体数据集检索")
     private Boolean openExportDate = true;
