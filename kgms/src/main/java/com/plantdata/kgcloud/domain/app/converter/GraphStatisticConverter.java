@@ -73,6 +73,7 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticsBean.setAllowAttrs(conceptIdReq.getAllowAtts());
         statisticsBean.setConceptId(conceptIdReq.getConceptId());
         statisticsBean.setAppendId(appendId);
+        statisticsBean.setSort(conceptIdReq.getSort());
         statisticsBean.setStartTime(conceptIdReq.getFromTime());
         statisticsBean.setEndTime(conceptIdReq.getToTime());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
@@ -87,6 +88,7 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticBean.setAllowValues(attrValueReq.getAllowValues());
         statisticBean.setAttributeId(attrValueReq.getAttrId());
         statisticBean.setAppendId(appendId);
+        statisticBean.setSort(attrValueReq.getSort());
         statisticBean.setSeqNo(attrValueReq.getSeqNo());
         statisticBean.setTripleIds(attrValueReq.getTripleIds());
         statisticBean.setSkip(NumberUtils.INTEGER_ZERO);

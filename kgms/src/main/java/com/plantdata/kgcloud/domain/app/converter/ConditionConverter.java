@@ -106,6 +106,7 @@ public class ConditionConverter extends BasicConverter {
         consumerIfNoNull(filtersReq.get$gt(), a -> map.put("$gt", a));
         consumerIfNoNull(filtersReq.get$gte(), a -> map.put("$gte", a));
         consumerIfNoNull(filtersReq.get$lte(), a -> map.put("$lte", a));
+        consumerIfNoNull(filtersReq.get$lt(), a -> map.put("$lt", a));
         consumerIfNoNull(filtersReq.get$in(), a -> map.put("$in", a));
         consumerIfNoNull(filtersReq.get$nin(), a -> map.put("$nin", a));
         return map;
