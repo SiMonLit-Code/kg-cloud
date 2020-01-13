@@ -177,8 +177,6 @@ public class ExploreCommonConverter extends BasicConverter {
         oldBean.setFrom(newBean.getFrom());
         oldBean.setTo(newBean.getTo());
         oldBean.setDirection(newBean.getDirection());
-        consumerIfNoNull(newBean.getEndTime(), oldBean::addEndTime);
-        consumerIfNoNull(newBean.getStartTime(), oldBean::addStartTime);
         oldBean.setBatch(newBean.getBatch());
         oldBean.setAttId(newBean.getAttId());
         oldBean.setAttName(newBean.getAttName());
