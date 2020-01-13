@@ -17,12 +17,15 @@ public enum EntityTypeEnum {
      */
     ENTITY(1, "实例"),
     CONCEPT(0, "概念");
-    private int value;
+    private Integer value;
     private String desc;
 
     public static EntityTypeEnum parseById(Integer entityType) {
+        if(entityType!=null){
+            return ENTITY;
+        }
         for (EntityTypeEnum dataTypeEnum : EntityTypeEnum.values()) {
-            if (dataTypeEnum.value == entityType) {
+            if (dataTypeEnum.value.equals(entityType) ) {
                 return dataTypeEnum;
             }
         }

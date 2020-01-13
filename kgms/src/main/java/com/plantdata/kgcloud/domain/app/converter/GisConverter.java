@@ -86,7 +86,7 @@ public class GisConverter extends BasicConverter {
     public static Map<String, Object> buildSearchMap(String filterType, List<Object> list) {
         Optional<GisFilterTypeEnum> enumObject = EnumUtils.getEnumObject(GisFilterTypeEnum.class, filterType);
         if (!enumObject.isPresent()) {
-            infoLog("gisFilterType", filterType);
+            log.error("gisFilterType:{}", filterType);
             throw BizException.of(AppErrorCodeEnum.GIS_TYPE_ERROR);
         }
         GisFilterTypeEnum typeEnum = enumObject.get();

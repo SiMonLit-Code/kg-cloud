@@ -20,6 +20,7 @@ import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatDataRsp;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/12/11 9:59
  */
+@Slf4j
 public class GraphStatisticConverter extends BasicConverter {
 
 
@@ -48,7 +50,7 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticsBean.setAppendId(appendId);
         statisticsBean.setAttributeId(attrIdReq.getAttrId());
         statisticsBean.setAllowValues(attrIdReq.getAllowValues());
-        infoLog("AttributeStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
+        log.error("AttributeStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
 
@@ -61,7 +63,7 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticsBean.setEntityIds(statisticReq.getEntityIds());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(defaultStatisticSize(statisticReq.getSize()));
-        infoLog("ConceptStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
+        log.error("ConceptStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
 
@@ -75,7 +77,7 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticsBean.setEndTime(conceptIdReq.getToTime());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(defaultStatisticSize(conceptIdReq.getSize()));
-        infoLog("RelationStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
+        log.error("RelationStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
 
@@ -90,7 +92,7 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticBean.setLimit(defaultStatisticSize(attrValueReq.getSize()));
         statisticBean.setSort(attrValueReq.getSort());
-        infoLog("RelationExtraInfoStatisticBean:{}", JsonUtils.objToJson(statisticBean));
+        log.error("RelationExtraInfoStatisticBean:{}", JsonUtils.objToJson(statisticBean));
         return statisticBean;
     }
 

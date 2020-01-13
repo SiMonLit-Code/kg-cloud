@@ -105,7 +105,6 @@ public class StatisticConverter extends BasicConverter {
             BeanUtils.copyProperties(a, dateTypeReq);
             req.setDataType(dateTypeReq);
         });
-        // req.setDirection(param);
         req.setMerge(param.getMerge());
         req.setReturnType(param.getReturnType());
         req.setSize(param.getSize());
