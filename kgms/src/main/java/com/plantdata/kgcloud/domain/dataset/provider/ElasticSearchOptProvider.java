@@ -347,7 +347,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     private void createMapping(ObjectNode mapping) {
         String type = database + "_" + Long.toHexString(System.currentTimeMillis());
-        String endpoint = "/" + type;
+        String endpoint = "/" + type + "?refresh=wait_for";
         Request request = new Request(PUT, endpoint);
         String string = mapping.toString();
         HttpEntity entity = new StringEntity(string, ContentType.APPLICATION_JSON);
