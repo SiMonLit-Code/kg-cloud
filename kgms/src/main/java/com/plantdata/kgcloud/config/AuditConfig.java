@@ -16,6 +16,6 @@ public class AuditConfig implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        return Optional.ofNullable(SessionHolder.getUserId());
+        return Optional.of(SessionHolder.getUserId());
     }
 }
