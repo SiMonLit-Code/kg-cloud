@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app.statistic;
 
+import com.plantdata.kgcloud.sdk.constant.StatisticConstants;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -26,16 +28,14 @@ public class EdgeAttrStatisticByAttrValueReq {
     private Set<Long> entityIds;
 
     private List<String> tripleIds;
+    @ChooseCheck(value = "[0,1,-1]", name = "sort")
     private Integer sort = 1;
-
     private List<Object> allowValues;
-    // @ChooseCheck(value = "[0,1]", name = "returnType")
+    @ChooseCheck(value = "[0,1]", name = "returnType")
     private Integer returnType = 0;
     @Min(-1)
-    @Max(1000)
+    @Max(StatisticConstants.STATISTIC_MAX_SIZE)
     private Integer size = 10;
-
-
     private Boolean merge = false;
 
     private DateTypeReq dateType;

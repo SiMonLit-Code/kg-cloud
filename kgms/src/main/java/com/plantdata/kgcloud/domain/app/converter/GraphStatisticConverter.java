@@ -15,6 +15,7 @@ import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.DataSetStatisticEnum;
+import com.plantdata.kgcloud.sdk.constant.StatisticConstants;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
@@ -77,7 +78,8 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticsBean.setStartTime(conceptIdReq.getFromTime());
         statisticsBean.setEndTime(conceptIdReq.getToTime());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
-        statisticsBean.setLimit(defaultStatisticSize(conceptIdReq.getSize()));
+        consumerIfNoNull(conceptIdReq.getTripleIds(),statisticsBean::setTripleIds);
+        consumerIfNoNull(conceptIdReq.getSize(),a-> statisticsBean.setLimit(a==-1?Integer.MAX_VALUE-1:a));
         log.error("RelationStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
@@ -135,14 +137,14 @@ public class GraphStatisticConverter extends BasicConverter {
 
     public static Integer reBuildResultSize(Integer size, Integer valueType, AttributeDataTypeEnum dataType) {
         if (AttributeValueType.isNumeric(valueType) && AttributeDataTypeEnum.DATE_SET.contains(dataType)) {
-            return Integer.MAX_VALUE;
+            return StatisticConstants.STATISTIC_MAX_SIZE;
         }
         return size == null ? 10 : size;
     }
 
     private static int defaultStatisticSize(Integer size) {
         if (size != null && size.equals(NumberUtils.INTEGER_MINUS_ONE)) {
-            return Integer.MAX_VALUE - NumberUtils.INTEGER_ONE;
+            return StatisticConstants.STATISTIC_MAX_SIZE;
         }
         return PageUtils.DEFAULT_SIZE;
     }
