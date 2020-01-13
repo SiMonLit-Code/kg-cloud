@@ -39,9 +39,9 @@ public class PromptConverter extends BasicConverter {
     public static SearchByAttributeFrom seniorPromptReqToSearchByAttributeFrom(@NonNull SeniorPromptReq promptReq, List<Map<String, Object>> queryMapList) {
         SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
         consumerIfNoNull(queryMapList, a -> attributeFrom.setKvMap(a.get(0)));
-        attributeFrom.setEntityName(promptReq.getKw());
+        consumerIfNoNull(promptReq.getKw(),attributeFrom::setEntityName);
         attributeFrom.setInherit(true);
-        attributeFrom.setConceptIds(Lists.newArrayList(promptReq.getConceptId()));
+        consumerIfNoNull(promptReq.getConceptId(),a-> attributeFrom.setConceptIds(Lists.newArrayList(a)));
         return attributeFrom;
     }
 

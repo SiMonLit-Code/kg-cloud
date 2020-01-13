@@ -19,6 +19,7 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
@@ -185,7 +186,8 @@ public class KgDataServiceImpl implements KgDataService {
             return RestData.empty();
         }
         DataSet dataSet = dataSetOpt.get();
-        return dataSetSearchService.readDataSetData(dataSet, pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getSort());
+        Set<String> fieldSet = BasicConverter.listToSetNoNull(nameReadReq.getFields(), Sets::newHashSet);
+        return dataSetSearchService.readDataSetData(dataSet, fieldSet, pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getSort());
     }
 
     private Optional<AttributeDefinition> getAttrDefById(String kgName, Integer attrId) {

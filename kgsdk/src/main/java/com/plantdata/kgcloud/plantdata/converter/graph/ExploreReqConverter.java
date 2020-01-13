@@ -317,7 +317,7 @@ public class ExploreReqConverter extends BasicConverter {
         entityRsp.setLabelStyle(entityBean.getLabelStyle());
         entityRsp.setScore(entityBean.getScore());
         entityRsp.setType(entityBean.getType());
-
+        entityRsp.setClassId(entityBean.getClassId());
         entityRsp.setTags(toListNoNull(entityBean.getTags(), ExploreReqConverter::tagToTagRsp));
         consumerIfNoNull(entityBean.getCreationTime(), a -> entityRsp.setEndTime(BasicConverter.stringToDate(a)));
         consumerIfNoNull(entityBean.getFromTime(), a -> entityRsp.setStartTime(BasicConverter.stringToDate(a)));
