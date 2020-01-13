@@ -37,7 +37,7 @@ public class StatEntityGroupByAttrvalueByAttrIdParameter {
     @Min(-1)
     @Max(10000)
     private Integer size = 10;
-    private Boolean merge = false;
+    private boolean isMerge = false;
     private DateTypeBean dateType;
 
 }
