@@ -197,6 +197,11 @@ public class DataSetServiceImpl implements DataSetService {
         set.add("_id");
         set.add(DataConst.CREATE_AT);
         set.add(DataConst.UPDATE_AT);
+        set.add("_smoke");
+        set.add("_smokeMsg");
+        set.add("annotation_tag");
+        set.add("parent_annotation_tag");
+        set.add("isAnnotation");
         Set<String> newField = new LinkedHashSet<>();
         List<DataSetSchema> newSchema = new ArrayList<>();
         DataOptConnect connect = DataOptConnect.of(one.get());
