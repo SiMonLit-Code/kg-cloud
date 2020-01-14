@@ -19,7 +19,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     FOLDER_NOT_EXISTS(120102, "文件夹不存在"),
     FOLDER_DISABLE_DELETE(120103, "默认文件夹不允许删除"),
     DATASET_TYPE_NONSUPPORT(120104, "不支持的数据集类型"),
-    DATASET_CONNECT_ERROR(120105, "数据连接失败"),
+    DATASET_CONNECT_ERROR(120105, "数据集连接失败"),
     DATASET_KEY_EXISTS(120106, "唯一标识已存在"),
     DATASET_EXPORT_FAIL(120107, "数据集导出失败"),
     DATASET_IMPORT_FAIL(120108, "数据集导入失败"),
