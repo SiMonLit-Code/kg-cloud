@@ -64,6 +64,17 @@ public class BasicConverter {
         }
     }
 
+    public static <T> List<T> mergeList(List<T> source, List<T> target) {
+        if (CollectionUtils.isEmpty(source)) {
+            return target;
+        }
+        if (!CollectionUtils.isEmpty(target)) {
+            source.addAll(target);
+        }
+
+        return source;
+    }
+
     public static <T, R> List<R> listConvert(@NonNull Collection<T> list, Function<T, R> function) {
         return CollectionUtils.isEmpty(list) ? Collections.emptyList() : list.stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
     }
@@ -108,7 +119,7 @@ public class BasicConverter {
         return toListNoNull(list, a -> listConvert(a, function));
     }
 
-      static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, Collection<R>> function) {
+    static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, Collection<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1).stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 

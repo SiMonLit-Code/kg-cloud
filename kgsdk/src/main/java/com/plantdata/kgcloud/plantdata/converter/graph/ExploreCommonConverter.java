@@ -178,13 +178,24 @@ public class ExploreCommonConverter extends BasicConverter {
         oldBean.setTo(newBean.getTo());
         oldBean.setDirection(newBean.getDirection());
         oldBean.setBatch(newBean.getBatch());
-        oldBean.setAttId(newBean.getAttId());
         oldBean.setAttName(newBean.getAttName());
+        consumerIfNoNull(newBean.getStartTime(), oldBean::addStartTime);
+        consumerIfNoNull(newBean.getEndTime(), oldBean::addEndTime);
+        //推理规则id强行适配
+        if (newBean.getReasonRuleId() != null) {
+            oldBean.setAttId(-newBean.getReasonRuleId());
+            oldBean.setType(1);
+        } else {
+            consumerIfNoNull(newBean.getAttId(), a -> oldBean.setAttId(a.longValue()));
+        }
+
         //时间
         if (!CollectionUtils.isEmpty(newBean.getSourceRelationList())) {
             newBean.getSourceRelationList().forEach(relationRsp -> {
-                consumerIfNoNull(relationRsp.getEndTime(), oldBean::addEndTime);
-                consumerIfNoNull(relationRsp.getStartTime(), oldBean::addStartTime);
+                if (newBean.getId() != null && !relationRsp.getId().equals(newBean.getId())) {
+                    consumerIfNoNull(relationRsp.getEndTime(), oldBean::addEndTime);
+                    consumerIfNoNull(relationRsp.getStartTime(), oldBean::addStartTime);
+                }
             });
         }
 

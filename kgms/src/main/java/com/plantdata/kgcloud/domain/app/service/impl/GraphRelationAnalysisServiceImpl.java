@@ -4,6 +4,8 @@ import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.req.RelationFrom;
 import ai.plantdata.kg.api.pub.resp.GraphVO;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
+import com.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
+import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphRelationAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
@@ -49,7 +51,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp, analysisReq);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), analysisRsp, new GraphRspDTO(graphOpt.get(), analysisReq));
     }
 
     @Override
@@ -63,7 +65,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp, analysisReq);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), analysisRsp, new GraphRspDTO(graphOpt.get(), analysisReq));
     }
 
     @Override
@@ -77,9 +79,9 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
             return analysisRsp;
         }
         //推理
-        GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), analysisReq);
+        GraphReasoningDTO reasoningDTO = ruleReasoningService.buildRuleReasonDto(kgName, graphOpt.get(), analysisReq);
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphVO, analysisRsp, analysisReq);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), analysisRsp, new GraphRspDTO(graphOpt.get(), analysisReq, reasoningDTO));
     }
 
 

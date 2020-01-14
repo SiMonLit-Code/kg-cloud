@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.DistanceConverter;
+import com.plantdata.kgcloud.domain.app.converter.SegmentConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -75,8 +76,12 @@ public class SemanticController implements SdkOpenApiInterface {
     @PostMapping("qa/{kgName}")
     public ApiReturn<QaAnswerDataRsp> qaKbQa(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                              @RequestBody QueryReq queryReq) {
-        RestResp<AnswerDataRsp> query = questionAnswersApi.query(KGUtil.dbName(kgName), queryReq);
-        return ApiReturn.success(RestCopyConverter.copyRestRespResult(query, new QaAnswerDataRsp()));
+        Optional<AnswerDataRsp> query = RestRespConverter.convert(questionAnswersApi.query(KGUtil.dbName(kgName), queryReq));
+        if (!query.isPresent()) {
+            return ApiReturn.success(new QaAnswerDataRsp());
+        }
+        QaAnswerDataRsp beanRsp = SegmentConverter.AnswerDataRspToQaAnswerDataRsp(query.get());
+        return ApiReturn.success(beanRsp);
     }
 
     @ApiOperation("两个实体间语义距离查询")

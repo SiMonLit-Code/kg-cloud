@@ -24,6 +24,8 @@ public class GraphRelationRsp extends BasicRelationRsp implements MetaDataInterf
     private Double score = 0.0;
     @ApiModelProperty("批次")
     private String batch;
+    @ApiModelProperty("推理规则id")
+    private Long reasonRuleId;
     private Double reliability;
     @ApiModelProperty("边数值属性")
     private List<EdgeDataInfo> dataValAttrs;
