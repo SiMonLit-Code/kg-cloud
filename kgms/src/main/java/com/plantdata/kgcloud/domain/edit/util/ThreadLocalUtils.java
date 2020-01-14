@@ -14,13 +14,12 @@ public class ThreadLocalUtils {
 
     public static final ThreadLocal<String> batchNo = new NamedThreadLocal<>("log batch number");
 
-    private static String getBatchNo() {
+    public static String getBatchNo() {
         return batchNo.get();
     }
 
-    public static String setBatchNo() {
+    public static void setBatchNo() {
         batchNo.set(getNextTimestamp());
-        return batchNo.get();
     }
 
     public static void remove() {
