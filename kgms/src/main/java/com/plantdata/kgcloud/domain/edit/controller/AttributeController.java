@@ -72,7 +72,7 @@ public class AttributeController {
     @ApiOperation("属性定义-查询概念的属性定义")
     @GetMapping("/{kgName}")
     public ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptId(@PathVariable("kgName") String kgName,
-                                                                           AttrDefinitionSearchReq attrDefinitionSearchReq) {
+                                                                           @Valid AttrDefinitionSearchReq attrDefinitionSearchReq) {
         return ApiReturn.success(attributeService.getAttrDefinitionByConceptId(kgName, attrDefinitionSearchReq));
     }
 
