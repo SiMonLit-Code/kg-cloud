@@ -38,7 +38,7 @@ public class StatEdgeGroupByEdgeValueParameter {
     @Min(-1)
     @Max(1000)
     private Integer size = 10;
-    private Boolean merge = false;
+    private Boolean isMerge = false;
     private DateTypeBean dateType;
 
 }

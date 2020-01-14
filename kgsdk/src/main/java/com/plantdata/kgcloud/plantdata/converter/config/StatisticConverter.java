@@ -81,12 +81,14 @@ public class StatisticConverter extends BasicConverter {
         req.setAttrKey(param.getAttrKey());
         consumerIfNoNull(param.getDateType(), a -> {
             DateTypeReq dateTypeReq = new DateTypeReq();
-            BeanUtils.copyProperties(a, dateTypeReq);
+            dateTypeReq.setType(a.getType());
+            dateTypeReq.set$gte(a.get$gte());
+            dateTypeReq.set$lte(a.get$lte());
             req.setDateType(dateTypeReq);
         });
         req.setEntityIds(param.getEntityIds());
         req.setAttrKey(param.getAttrKey());
-        req.setMerge(param.getMerge());
+        req.setMerge(param.getIsMerge());
         req.setReturnType(param.getReturnType());
         req.setSeqNo(param.getSeqNo());
         req.setSize(param.getSize());

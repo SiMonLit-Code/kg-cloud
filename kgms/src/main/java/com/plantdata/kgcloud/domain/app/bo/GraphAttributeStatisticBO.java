@@ -195,7 +195,7 @@ public class GraphAttributeStatisticBO {
             dataMaps.put(s1, one);
         });
 
-        return dataMaps.values().stream().map(s -> {
+        return dataMaps.values().stream().peek(s -> {
             switch (dateTypeBean.getType()) {
                 case 1:
                     s.setName(VeDateUtils.dateToStrYear(s.min));
@@ -226,10 +226,7 @@ public class GraphAttributeStatisticBO {
                     s.setValue(VeDateUtils.dateToStrLong(s.min));
                     break;
             }
-            return s;
         }).sorted(Comparator.comparing(DateRang::getValue))
-
-
                 .collect(Collectors.toList());
     }
 

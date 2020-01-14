@@ -111,14 +111,8 @@ public class GraphStatisticConverter extends BasicConverter {
                 String value = StatisticResultTypeEnum.NAME.equals(resultType) ? s.getName() : s.getValue();
                 map.put("name", value);
                 map.put("value", s.getTotal());
-                Object relation = s.getRelation();
-                Object entity = s.getEntity();
-                if (relation != null) {
-                    map.put("ids", relation);
-                }
-                if (entity != null) {
-                    map.put("ids", entity);
-                }
+                BasicConverter.consumerIfNoNull(s.getRelation(),a->map.put("ids", a));
+                BasicConverter.consumerIfNoNull( s.getEntity(),a->map.put("ids", a));
                 return map;
             }).collect(Collectors.toList());
         }

@@ -114,7 +114,6 @@ public class BasicConverter {
     }
 
 
-
     protected static String dateToString(Date date) {
         return DateUtils.formatDate(date, DATE_REG);
     }

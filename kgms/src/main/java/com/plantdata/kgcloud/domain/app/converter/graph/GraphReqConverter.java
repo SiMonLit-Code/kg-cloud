@@ -144,12 +144,17 @@ public class GraphReqConverter extends BasicConverter {
 
     private static <T extends CommonFilter> void fillTimeFilters(TimeFilterExploreReq timeFilter, T commonFilter) {
         //实体时间筛选
-        if (timeFilter == null) {
+        if (timeFilter == null ) {
             return;
         }
+        consumerIfNoNull(timeFilter.getTimeFilterType(), a->{
+            commonFilter.getHighLevelFilter().setTimeFilterType(a);
+            commonFilter.setTimeFilterType(a);
+        });
         if (null == timeFilter.getFromTime() && null == timeFilter.getToTime()) {
             return;
         }
+        //关系时间筛选参数
         String fromTime = null;
         String toTime = null;
         Map<String, String> timeRangeMap = new HashMap<>(2);
@@ -161,19 +166,17 @@ public class GraphReqConverter extends BasicConverter {
             toTime = DateUtils.formatDate(timeFilter.getToTime());
             timeRangeMap.put("$lte", toTime);
         }
+        //实体时间筛选参数
         Map<Integer, Object> entityFromTimeMap = new HashMap<>(2);
-        consumerIfNoNull(timeRangeMap, a -> {
-            entityFromTimeMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), a);
-        });
+        //实体时间排序参数
         Map<Integer, Integer> entityFromTimeSortMap = new HashMap<>(1);
+        consumerIfNoNull(timeRangeMap, a -> entityFromTimeMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), a));
         consumerIfNoNull(timeFilter.getSort(), a -> {
             Optional<SortTypeEnum> sortTypeEnum = SortTypeEnum.parseByName(timeFilter.getSort());
             entityFromTimeSortMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), sortTypeEnum.orElse(SortTypeEnum.DESC).getValue());
         });
         MetaData entityMetaData = commonFilter.getEntityMeta();
         switch (timeFilter.getTimeFilterType()) {
-            case 0:
-                break;
             case 1:
                 fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, entityMetaData);
                 break;
@@ -187,6 +190,7 @@ public class GraphReqConverter extends BasicConverter {
                 fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, entityMetaData);
                 break;
             default:
+                break;
         }
     }
 
