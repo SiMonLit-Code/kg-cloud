@@ -69,6 +69,7 @@ CREATE TABLE `data_set_annotation`  (
   `dataset_id` bigint(20) UNSIGNED NOT NULL COMMENT '数据集id',
   `title` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '名称',
   `config` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '配置',
+  `task_id` bigint(20) UNSIGNED NULL DEFAULT NULL COMMENT '任务id',
   `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备注',
   `create_at` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
