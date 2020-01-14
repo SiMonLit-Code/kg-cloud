@@ -2,8 +2,10 @@ package com.plantdata.kgcloud.domain.edit.service;
 
 import com.plantdata.graph.logging.core.GraphServiceLog;
 import com.plantdata.graph.logging.core.ServiceEnum;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.kgcloud.security.SessionHolder;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -33,8 +35,9 @@ public class LogSender {
     public void sendLog(String kgName, ServiceEnum serviceEnum) {
         if (enableLog) {
             ThreadLocalUtils.setBatchNo();
-            kafkaTemplate.send(topicKgLog, kgName, new GraphServiceLog(serviceEnum,ThreadLocalUtils.getBatchNo(),
-                    SessionHolder.getUserId()));
+            kafkaTemplate.send(topicKgLog, KGUtil.dbName(kgName),
+                    JacksonUtils.writeValueAsString(new GraphServiceLog(serviceEnum,
+                    ThreadLocalUtils.getBatchNo(), SessionHolder.getUserId())));
         }
     }
 

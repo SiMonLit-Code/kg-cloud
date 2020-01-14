@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
+import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import io.swagger.annotations.Api;
@@ -29,6 +31,7 @@ public class SynonymController {
 
     @ApiOperation("添加概念或实体同义词")
     @PostMapping("/{kgName}/synonym/add")
+    @EditLogOperation(serviceEnum = ServiceEnum.SYNS_EDIT)
     public ApiReturn addSynonym(@PathVariable("kgName") String kgName,
                                 @Valid @RequestBody SynonymReq synonymReq) {
         basicInfoService.addSynonym(kgName, synonymReq);
@@ -37,6 +40,7 @@ public class SynonymController {
 
     @ApiOperation("删除概念或实体同义词")
     @PostMapping("/{kgName}/synonym/delete")
+    @EditLogOperation(serviceEnum = ServiceEnum.SCRIPT_MEREGE)
     public ApiReturn deleteSynonym(@PathVariable("kgName") String kgName,
                                    @Valid @RequestBody SynonymReq synonymReq) {
         basicInfoService.deleteSynonym(kgName, synonymReq);
