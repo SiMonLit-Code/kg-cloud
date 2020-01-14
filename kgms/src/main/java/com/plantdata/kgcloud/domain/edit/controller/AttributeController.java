@@ -4,10 +4,12 @@ import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
+import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.ValidableList;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
+import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
@@ -40,7 +42,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -99,6 +100,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-添加")
     @PostMapping("/{kgName}/definition")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn<Integer> addAttrDefinition(@PathVariable("kgName") String kgName,
                                                 @Valid @RequestBody AttrDefinitionReq attrDefinitionReq) {
         return ApiReturn.success(attributeService.addAttrDefinition(kgName, attrDefinitionReq));
@@ -106,6 +108,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-批量添加")
     @PostMapping("/{kgName}/definition/batch")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
                                                                           @Valid @RequestBody ValidableList<AttrDefinitionReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchAddAttrDefinition(kgName, attrDefinitionReqs));
@@ -113,6 +116,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-批量修改")
     @PutMapping("/{kgName}/definition/batch")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModifyAttrDefinition(@PathVariable("kgName") String kgName,
                                                                                         @Valid @RequestBody ValidableList<AttrDefinitionModifyReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchUpdate(kgName, attrDefinitionReqs));
@@ -120,6 +124,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-修改")
     @PostMapping("/{kgName}/definition/update")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn updateAttrDefinition(@PathVariable("kgName") String kgName,
                                           @Valid @RequestBody AttrDefinitionModifyReq modifyReq) {
         attributeService.updateAttrDefinition(kgName, modifyReq);
@@ -128,6 +133,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-删除")
     @PostMapping("/{kgName}/definition/delete/{id}")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn deleteAttrDefinition(@PathVariable("kgName") String kgName,
                                           @PathVariable("id") Integer id) {
         attributeService.deleteAttrDefinition(kgName, id);
@@ -136,6 +142,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-边属性定义-添加")
     @PostMapping("/{kgName}/{attrId}/edge/definition")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn<Integer> addEdgeAttr(@PathVariable("kgName") String kgName,
                                           @PathVariable("attrId") Integer attrId,
                                           @Valid @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
@@ -144,6 +151,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-边属性定义-修改")
     @PostMapping("/{kgName}/{attrId}/edge/definition/{seqNo}")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn updateEdgeAttr(@PathVariable("kgName") String kgName,
                                     @PathVariable("attrId") Integer attrId,
                                     @PathVariable("seqNo") Integer seqNo,
@@ -154,6 +162,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-边属性定义-删除")
     @PostMapping("/{kgName}/{attrId}/edge/definition/{seqNo}/delete")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn deleteEdgeAttr(@PathVariable("kgName") String kgName,
                                     @PathVariable("attrId") Integer attrId,
                                     @PathVariable("seqNo") Integer seqNo) {
@@ -163,6 +172,7 @@ public class AttributeController {
 
     @ApiOperation("属性定义-根据属性模板添加")
     @PostMapping("/{kgName}/definition/template")
+    @EditLogOperation(serviceEnum = ServiceEnum.SCHEMA_REPO)
     public ApiReturn addAttrDefinitionTemplate(@PathVariable("kgName") String kgName,
                                                @Valid @RequestBody List<AttrTemplateReq> attrTemplateReqs) {
         attributeService.addAttrDefinitionTemplate(kgName, attrTemplateReqs);
@@ -179,6 +189,7 @@ public class AttributeController {
 
     @ApiOperation("关系-批量删除")
     @PostMapping("/{kgName}/batch/relation/delete")
+    @EditLogOperation(serviceEnum = ServiceEnum.RELATION_EDIT)
     public ApiReturn deleteRelations(@PathVariable("kgName") String kgName,
                                      @RequestBody List<String> tripleIds) {
         attributeService.deleteRelations(kgName, tripleIds);
@@ -187,6 +198,7 @@ public class AttributeController {
 
     @ApiOperation("关系-根据meta删除")
     @PostMapping("/{kgName}/relation/delete/meta")
+    @EditLogOperation(serviceEnum = ServiceEnum.RELATION_TRACE)
     public ApiReturn deleteRelationByMeta(@PathVariable("kgName") String kgName,
                                           @Valid @RequestBody RelationMetaReq relationMetaReq) {
         attributeService.deleteRelationByMeta(kgName, relationMetaReq);
@@ -202,6 +214,7 @@ public class AttributeController {
 
     @ApiOperation("属性约束-批量删除不满足属性约束的值")
     @PostMapping("/{kgName}/constraints/delete/{attrId}")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn attrConstraintsDelete(@PathVariable("kgName") String kgName,
                                            @PathVariable("attrId") Integer attrId,
                                            @RequestBody List<String> tripleIds) {
@@ -234,6 +247,7 @@ public class AttributeController {
 
     @ApiOperation("关系-批量关系新增")
     @PostMapping("relation/insert/{kgName}")
+    @EditLogOperation(serviceEnum = ServiceEnum.SDK)
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
                                                                        @RequestBody List<BatchRelationRsp> relationList) {
         List<BatchRelationVO> collect = BasicConverter.listConvert(relationList, a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
@@ -247,6 +261,7 @@ public class AttributeController {
 
     @ApiOperation("关系-批量修改关系")
     @PutMapping("relation/update/{kgName}")
+    @EditLogOperation(serviceEnum = ServiceEnum.SDK)
     public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
                                                               @RequestBody List<RelationUpdateReq> list) {
         List<UpdateEdgeVO> edgeList = RestCopyConverter.copyToNewList(list, UpdateEdgeVO.class);

@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
+import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ConceptReplaceReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.GisModifyReq;
@@ -38,6 +40,7 @@ public class ConceptController {
 
     @ApiOperation("修改概念名称,消歧,key")
     @PostMapping("/{kgName}/update")
+    @EditLogOperation(serviceEnum = ServiceEnum.CONCEPT_DEFINE)
     public ApiReturn updateConcept(@PathVariable("kgName") String kgName,
                                    @Valid @RequestBody BasicInfoModifyReq basicInfoModifyReq) {
         basicInfoService.updateBasicInfo(kgName, basicInfoModifyReq);
@@ -46,6 +49,7 @@ public class ConceptController {
 
     @ApiOperation("修改父概念")
     @PostMapping("/{kgName}/update/concept")
+    @EditLogOperation(serviceEnum = ServiceEnum.CONCEPT_DEFINE)
     public ApiReturn updateConcept(@PathVariable("kgName") String kgName,
                                    @Valid @RequestBody ConceptReplaceReq conceptReplaceReq) {
         conceptService.replaceConceptId(kgName, conceptReplaceReq);
@@ -61,6 +65,7 @@ public class ConceptController {
 
     @ApiOperation("修改概念gis")
     @PostMapping("/{kgName}/update/gis")
+    @EditLogOperation(serviceEnum = ServiceEnum.CONCEPT_DEFINE)
     public ApiReturn updateGis(@PathVariable("kgName") String kgName, @Valid @RequestBody GisModifyReq gisModifyReq) {
         conceptService.updateGis(kgName, gisModifyReq);
         return ApiReturn.success();
@@ -68,6 +73,7 @@ public class ConceptController {
 
     @ApiOperation("修改概念额外信息")
     @PostMapping("/{kgName}/update/additional")
+    @EditLogOperation(serviceEnum = ServiceEnum.CONCEPT_DEFINE)
     public ApiReturn updateAdditional(@PathVariable("kgName") String kgName,
                                       @Valid @RequestBody AdditionalModifyReq additionalModifyReq) {
         conceptService.updateAdditional(kgName, additionalModifyReq);
