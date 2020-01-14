@@ -2,8 +2,10 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.SemanticSegFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
+import ai.plantdata.kg.api.semantic.rsp.AnswerDataRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -36,5 +38,15 @@ public class SegmentConverter extends BasicConverter {
             entityDto.setSynonym(a.getSynonyms());
             return entityDto;
         }).collect(Collectors.toList());
+    }
+
+    public static QaAnswerDataRsp AnswerDataRspToQaAnswerDataRsp(@NotNull AnswerDataRsp dataRsp) {
+        QaAnswerDataRsp qaAnswerDataRsp = new QaAnswerDataRsp();
+        qaAnswerDataRsp.setHit(dataRsp.getHit());
+        qaAnswerDataRsp.setArray(dataRsp.getArray());
+        qaAnswerDataRsp.setText(dataRsp.getText());
+        qaAnswerDataRsp.setType(dataRsp.getType());
+        qaAnswerDataRsp.setWord(dataRsp.getWord());
+        return qaAnswerDataRsp;
     }
 }

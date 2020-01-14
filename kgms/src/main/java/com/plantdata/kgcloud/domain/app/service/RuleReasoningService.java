@@ -1,11 +1,13 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import ai.plantdata.kg.api.pub.resp.GraphVO;
+import com.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
 import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -22,7 +24,7 @@ public interface RuleReasoningService {
      * @param reasoningParam ReasoningReqInterface
      * @return GraphVO
      */
-    GraphVO rebuildByRuleReason(String kgName, GraphVO graphVO, ReasoningReqInterface reasoningParam);
+    GraphReasoningDTO buildRuleReasonDto(String kgName, GraphVO graphVO, ReasoningReqInterface reasoningParam);
 
     /**
      * 推理规则生成

@@ -10,6 +10,8 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.domain.app.converter.GisConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
+import com.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
+import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
@@ -55,7 +57,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     public CommonBasicGraphExploreRsp exploreByKgQl(String kgName, ExploreByKgQlReq kgQlReq) {
         log.error("kgql:{}", kgQlReq.getKgQl());
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.traversalRule(KGUtil.dbName(kgName), kgQlReq.getEntityId(), kgQlReq.getKgQl()));
-        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, kgQlReq)).orElse(CommonBasicGraphExploreRsp.EMPTY);
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, new GraphRspDTO(graphVO, kgQlReq))).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
     @Override
@@ -96,17 +98,17 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
             return CommonBasicGraphExploreRsp.EMPTY;
         }
         //推理
-        GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), exploreReq);
-        return this.buildExploreRspWithConcept(kgName, graphVO, exploreReq);
+        GraphReasoningDTO reasoningDto = ruleReasoningService.buildRuleReasonDto(kgName, graphOpt.get(), exploreReq);
+        return this.buildExploreRspWithConcept(kgName, new GraphRspDTO(graphOpt.get(), exploreReq, reasoningDto));
     }
 
     private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, GraphReqAfterInterface graphReqAfter) {
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
-        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, graphReqAfter)).orElse(CommonBasicGraphExploreRsp.EMPTY);
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, new GraphRspDTO(graphOpt.get(), graphReqAfter))).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
-    private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphVO graph, GraphReqAfterInterface graphAfter) {
+    private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphRspDTO afterDTO) {
         Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
-        return GraphRspConverter.graphVoToCommonRsp(graph, conceptIdMap, graphAfter);
+        return GraphRspConverter.fillEntityAndEntity(conceptIdMap, afterDTO);
     }
 }

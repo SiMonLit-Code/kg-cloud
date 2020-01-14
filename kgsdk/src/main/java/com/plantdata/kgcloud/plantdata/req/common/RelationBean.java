@@ -15,7 +15,11 @@ public class RelationBean extends RelationMetaData {
     private String id;
     private Long from;
     private Long to;
-    private Integer attId;
+    private Long attId;
+    /**
+     * 0 普通关系 1推理
+     */
+    private int type;
     private String attName;
     private List<String> startTime;
     private List<String> endTime;
@@ -61,20 +65,6 @@ public class RelationBean extends RelationMetaData {
 
     public void setoRInfo(List<RelationInfoBean> oRInfo) {
         this.oRInfo = oRInfo;
-    }
-
-    public void addrObjectInfo(RelationInfoBean one) {
-        if (this.oRInfo == null) {
-            this.oRInfo = new ArrayList<>();
-        }
-        this.oRInfo.add(one);
-    }
-
-    public RelationBean(String id, Long from, Long to, Integer attId) {
-        this.id = id;
-        this.from = from;
-        this.to = to;
-        this.attId = attId;
     }
 
 

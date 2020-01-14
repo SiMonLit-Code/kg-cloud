@@ -21,11 +21,11 @@ public enum EntityTypeEnum {
     private String desc;
 
     public static EntityTypeEnum parseById(Integer entityType) {
-        if(entityType!=null){
+        if (entityType == null) {
             return ENTITY;
         }
         for (EntityTypeEnum dataTypeEnum : EntityTypeEnum.values()) {
-            if (dataTypeEnum.value.equals(entityType) ) {
+            if (dataTypeEnum.value.equals(entityType)) {
                 return dataTypeEnum;
             }
         }
