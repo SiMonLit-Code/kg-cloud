@@ -81,7 +81,7 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
                 expressions.add(cb.like(root.get("name"), "%" + baseReq.getName() + "%"));
             }
             if (baseReq.getTaskId() != null) {
-                expressions.add(cb.equal(root.get("task_id"), baseReq.getTaskId()));
+                expressions.add(cb.equal(root.get("taskId"), baseReq.getTaskId()));
             }
             return predicate;
         };
