@@ -16,6 +16,8 @@ public class AnnotationRsp {
 
     private Long id;
 
+    private Integer taskId;
+
     private String userId;
 
     private String kgName;
