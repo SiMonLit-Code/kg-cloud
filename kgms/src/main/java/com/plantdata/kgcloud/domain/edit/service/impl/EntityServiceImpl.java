@@ -24,6 +24,8 @@ import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.plantdata.graph.logging.core.ServiceEnum;
+import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
@@ -57,6 +59,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
+import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
@@ -119,6 +122,9 @@ public class EntityServiceImpl implements EntityService {
 
     @Value("${topic.kg.task}")
     private String topicKgTask;
+
+    @Autowired
+    private LogSender logSender;
 
     @Autowired
     private KafkaMessageProducer kafkaMessageProducer;
@@ -271,7 +277,7 @@ public class EntityServiceImpl implements EntityService {
         gisCoordinate.add(0, gisInfoModifyReq.getLongitude());
         gisCoordinate.add(1, gisInfoModifyReq.getLatitude());
         metadata.put(MetaDataInfo.GIS_COORDINATE.getFieldName(), gisCoordinate);
-        if (Objects.nonNull(gisInfoModifyReq.getAddress())){
+        if (Objects.nonNull(gisInfoModifyReq.getAddress())) {
             metadata.put(MetaDataInfo.GIS_ADDRESS.getFieldName(), gisInfoModifyReq.getAddress());
         }
         conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
@@ -439,6 +445,11 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
+        if (AttributeValueType.isNumeric(privateAttrDataReq.getType())) {
+            logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+        } else {
+            logSender.sendLog(kgName, ServiceEnum.RELATION_EDIT);
+        }
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
         return RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName), privateDataFrom))
@@ -447,6 +458,11 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void deletePrivateData(String kgName, DeletePrivateDataReq deletePrivateDataReq) {
+        if (AttributeValueType.isNumeric(deletePrivateDataReq.getType())) {
+            logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+        } else {
+            logSender.sendLog(kgName, ServiceEnum.RELATION_EDIT);
+        }
         RestRespConverter.convertVoid(conceptEntityApi.deletePrivateData(KGUtil.dbName(kgName),
                 deletePrivateDataReq.getType(),
                 deletePrivateDataReq.getEntityId(), deletePrivateDataReq.getTripleIds()));
@@ -519,7 +535,8 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean add,
                                                                 List<OpenBatchSaveEntityRsp> batchEntity) {
-        List<BatchEntityVO> entityList = BasicConverter.listToRsp(batchEntity, OpenEntityConverter::openBatchSaveEntityRspToVo);
+        List<BatchEntityVO> entityList = BasicConverter.listToRsp(batchEntity,
+                OpenEntityConverter::openBatchSaveEntityRspToVo);
 
         Optional<BatchResult<BatchEntityVO>> editOpt =
                 RestRespConverter.convert(batchApi.addEntities(KGUtil.dbName(kgName),
