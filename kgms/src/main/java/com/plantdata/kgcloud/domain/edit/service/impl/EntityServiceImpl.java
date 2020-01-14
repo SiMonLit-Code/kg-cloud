@@ -233,14 +233,24 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public void updateScoreSourceReliability(String kgName, Long entityId, SsrModifyReq ssrModifyReq) {
         Map<String, Object> metadata = new HashMap<>();
+        List<Integer> metaNo = new ArrayList<>(3);
         if (Objects.nonNull(ssrModifyReq.getScore())) {
             metadata.put(MetaDataInfo.SCORE.getFieldName(), ssrModifyReq.getScore());
+        } else {
+            metaNo.add(Integer.valueOf(MetaDataInfo.SCORE.getCode()));
         }
         if (Objects.nonNull(ssrModifyReq.getSource())) {
             metadata.put(MetaDataInfo.SOURCE.getFieldName(), ssrModifyReq.getSource());
+        } else {
+            metaNo.add(Integer.valueOf(MetaDataInfo.SOURCE.getCode()));
         }
         if (Objects.nonNull(ssrModifyReq.getReliability())) {
             metadata.put(MetaDataInfo.RELIABILITY.getFieldName(), ssrModifyReq.getReliability());
+        } else {
+            metaNo.add(Integer.valueOf(MetaDataInfo.RELIABILITY.getCode()));
+        }
+        if (!metaNo.isEmpty()) {
+            conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, metaNo);
         }
         conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
     }

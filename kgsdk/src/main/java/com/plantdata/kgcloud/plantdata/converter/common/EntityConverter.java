@@ -13,7 +13,6 @@ import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
-import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 
 import java.util.List;

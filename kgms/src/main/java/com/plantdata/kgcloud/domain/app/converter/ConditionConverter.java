@@ -1,7 +1,11 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.sdk.req.app.*;
+import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
+import com.plantdata.kgcloud.sdk.req.app.CompareFilterReq;
+import com.plantdata.kgcloud.sdk.req.app.DataAttrReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
+import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
