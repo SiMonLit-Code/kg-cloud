@@ -32,11 +32,14 @@ public class ReasoningBO {
     private Map<Long, GraphConfReasoning> dbConfigMap;
     private Map<Long, JsonNode> configMap;
     @Getter
+    private Map<Integer, Long> ruleIdCatchMap;
+    @Getter
     private List<RelationReasonRuleRsp> reasonRuleList;
 
     public ReasoningBO(List<GraphConfReasoning> reasoningList, Map<Long, Object> configMap) {
         this.dbConfigMap = CollectionUtils.isEmpty(reasoningList) ? Collections.emptyMap() : reasoningList.stream().collect(Collectors.toMap(GraphConfReasoning::getId, Function.identity()));
         this.configMap = Maps.newHashMap();
+        this.ruleIdCatchMap = Maps.newHashMap();
         configMap.forEach((key, value) -> {
             Optional<JsonNode> jsonNodeOpt = JsonUtils.parseJsonNode(JacksonUtils.writeValueAsString(value));
             jsonNodeOpt.ifPresent(v -> this.configMap.put(key, v));
@@ -45,6 +48,7 @@ public class ReasoningBO {
 
     public void replaceRuleInfo() {
         this.reasonRuleList = Lists.newArrayListWithCapacity(configMap.size());
+        int i = 1;
         for (Long ruleId : configMap.keySet()) {
             JsonNode ruleConfigObject = configMap.get(ruleId);
             GraphConfReasoning ruleBean = dbConfigMap.get(ruleId);
@@ -65,7 +69,9 @@ public class ReasoningBO {
             if (ruleObject == null) {
                 continue;
             }
-            ruleObject.setAttrId(ruleId.intValue());
+            //生成临时序号避免规则重复
+            ruleObject.setAttrId(i++);
+            this.ruleIdCatchMap.put(ruleObject.getAttrId(), ruleId);
             ruleObject.setName(ruleBean.getRuleName());
             reasonRuleList.add(ruleObject);
         }

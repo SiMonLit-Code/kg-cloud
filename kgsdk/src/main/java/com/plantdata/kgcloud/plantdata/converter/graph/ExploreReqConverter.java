@@ -214,7 +214,13 @@ public class ExploreReqConverter extends BasicConverter {
         link.setId(relationBean.getId());
         link.setFrom(relationBean.getFrom());
         link.setTo(relationBean.getTo());
-        link.setAttId(relationBean.getAttId());
+        consumerIfNoNull(relationBean.getAttId(),a->{
+            if(relationBean.getType()==1){
+              link.setReasonRuleId(a);
+            }else {
+                link.setAttId(a.intValue());
+            }
+        });
         link.setAttName(relationBean.getAttName());
         link.setBatch(relationBean.getBatch());
         link.setDirection(relationBean.getDirection());

@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.sdk.rsp.app.semantic;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+
+import java.util.List;
 
 /**
  * @author Administrator
@@ -22,8 +24,8 @@ public class QaAnswerDataRsp {
     private String type;
     private String text;
     private int count;
-    private ArrayNode array;
-    private ArrayNode word;
+    private List<Object> array;
+    private List<Object> word;
 
 
 }

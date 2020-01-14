@@ -60,8 +60,9 @@ public class AnnotationServiceImpl implements AnnotationService {
                         String field = entry.getKey();
                         double weight = entry.getValue();
                         String text = data.getOrDefault(field, "").toString().toLowerCase();
-                        if (text.contains(name)) {
-                            score += weight / totalWeight * (name.length() * 1.0 / text.length());
+                        String str = text.replaceAll(name, "");
+                        if (str.length() < text.length()) {
+                            score += weight / totalWeight * ((text.length() - str.length()) * 1.0 / text.length());
                         }
                     }
                     if (score > 0) {

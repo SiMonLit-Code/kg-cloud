@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.app.service;
 
 import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
@@ -90,6 +91,6 @@ public interface GraphHelperService {
      * @param <T>
      * @return
      */
-    <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, GraphVO graphVO, T pathAnalysisRsp, GraphReqAfterInterface graphAfter);
+    <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, T pathAnalysisRsp, GraphRspDTO graphAfter);
 
 }
