@@ -80,6 +80,9 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
             if (StringUtils.hasText(baseReq.getName())) {
                 expressions.add(cb.like(root.get("name"), "%" + baseReq.getName() + "%"));
             }
+            if (baseReq.getTaskId() != null) {
+                expressions.add(cb.equal(root.get("taskId"), baseReq.getTaskId()));
+            }
             return predicate;
         };
         Page<DataSetAnnotation> all = dataSetAnnotationRepository.findAll(specification, of);

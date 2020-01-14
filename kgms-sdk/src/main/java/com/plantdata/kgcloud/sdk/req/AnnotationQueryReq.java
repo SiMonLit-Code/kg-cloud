@@ -13,4 +13,6 @@ import lombok.Data;
 public class AnnotationQueryReq extends BaseReq {
     @ApiModelProperty("关键词")
     private String name;
+    @ApiModelProperty("任务ID")
+    private String taskId;
 }
