@@ -4,6 +4,8 @@ import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.resp.GraphVO;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
+import com.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
+import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphPathAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
@@ -47,7 +49,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), analysisRsp, analysisReq);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), analysisRsp, new GraphRspDTO(graphOpt.get(), analysisReq));
     }
 
     @Override
@@ -61,9 +63,9 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
             return analysisRsp;
         }
         //推理
-        GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), reasonReq);
+        GraphReasoningDTO reasoningDTO = ruleReasoningService.buildRuleReasonDto(kgName, graphOpt.get(), reasonReq);
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, reasonReq.getConfigList(), graphVO, analysisRsp, reasonReq);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, reasonReq.getConfigList(), analysisRsp, new GraphRspDTO(graphOpt.get(), reasonReq, reasoningDTO));
     }
 
     @Override
@@ -77,7 +79,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
             return analysisRsp;
         }
         //统计+组装结果
-        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), graphOpt.get(), new PathTimingAnalysisRsp(), analysisReq);
+        return graphHelperService.buildExploreRspWithStatistic(kgName, analysisReq.getConfigList(), new PathTimingAnalysisRsp(), new GraphRspDTO(graphOpt.get(), analysisReq));
     }
 
 

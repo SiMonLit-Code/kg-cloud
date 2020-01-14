@@ -102,7 +102,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
 
         if (PromptQaTypeEnum.END.equals(qaType)) {
-            entityRspList.addAll(queryAnswer(kgName, promptReq));
+            return BasicConverter.mergeList(entityRspList, queryAnswer(kgName, promptReq));
         }
         return entityRspList;
     }
@@ -240,12 +240,12 @@ public class GraphPromptServiceImpl implements GraphPromptService {
 
     private boolean checkConcept(List<Long> source, List<Long> target, String kgName) {
         Map<Long, List<Long>> sonOptMap = RestRespConverter.convert(graphApi.sons(KGUtil.dbName(kgName), source)).orElse(Collections.emptyMap());
-       List<Long> allSource=Lists.newArrayList(source);
+        List<Long> allSource = Lists.newArrayList(source);
         List<Long> son = source.stream()
                 .filter(sonOptMap::containsKey)
                 .map(conceptId -> sonOptMap.get(conceptId).stream().filter(t -> !t.equals(conceptId)).collect(Collectors.toList())
                 ).flatMap(Collection::stream).collect(Collectors.toList());
-        BasicConverter.consumerIfNoNull(son,allSource::addAll);
+        BasicConverter.consumerIfNoNull(son, allSource::addAll);
         return allSource.stream().anyMatch(target::contains);
     }
 
