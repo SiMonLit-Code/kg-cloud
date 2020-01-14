@@ -61,7 +61,7 @@ public class ReasoningBO {
                     ruleConfig = ruleConfig.replace(pattern, ruleConfigObject.get(key).toString());
                 }
             }
-            RelationReasonRuleRsp ruleObject = JacksonUtils.readValue(ruleConfig, RelationReasonRuleRsp.class);
+            RelationReasonRuleRsp ruleObject = JsonUtils.parseObj(ruleConfig, RelationReasonRuleRsp.class);
             if (ruleObject == null) {
                 continue;
             }
