@@ -108,11 +108,11 @@ public class BasicConverter {
         return toListNoNull(list, a -> listConvert(a, function));
     }
 
-    static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, Collection<R>> function) {
+      static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, Collection<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1).stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    protected static <T, R> Set<R> listToSetNoNull(List<T> list1, Function<List<T>, Set<R>> function) {
+    public static <T, R> Set<R> listToSetNoNull(List<T> list1, Function<List<T>, Set<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptySet() : function.apply(list1);
     }
 

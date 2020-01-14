@@ -19,6 +19,7 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
@@ -144,9 +145,7 @@ public class KgDataServiceImpl implements KgDataService {
     @Override
     public Object statisticRelation(String kgName, EdgeStatisticByConceptIdReq conceptIdReq) {
         RelationStatisticsBean statisticsBean = GraphStatisticConverter.conceptIdReqConceptStatisticsBean(conceptIdReq);
-        if (CollectionUtils.isEmpty(conceptIdReq.getTripleIds())) {
-            return new StatDataRsp();
-        }
+
         Optional<List<Map<String, Object>>> resultOpt = RestRespConverter.convert(statisticsApi.relationStatistics(KGUtil.dbName(kgName), statisticsBean));
         List<StatisticDTO> dataList = !resultOpt.isPresent() ? Collections.emptyList()
                 : JsonUtils.objToList(resultOpt.get(), StatisticDTO.class);
@@ -172,7 +171,7 @@ public class KgDataServiceImpl implements KgDataService {
                 dataList = JsonUtils.objToList(mapOpt.get(), StatisticDTO.class);
             }
         }
-        return buildStatisticResult(dataType, attrIdReq.getMerge(), dataList, attrIdReq.getDateType(), attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
+        return buildStatisticResult(dataType, attrIdReq.getMerge(), dataList, attrIdReq.getDataType(), attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
     }
 
     @Override
@@ -187,7 +186,8 @@ public class KgDataServiceImpl implements KgDataService {
             return RestData.empty();
         }
         DataSet dataSet = dataSetOpt.get();
-        return dataSetSearchService.readDataSetData(dataSet, pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getSort());
+        Set<String> fieldSet = BasicConverter.listToSetNoNull(nameReadReq.getFields(), Sets::newHashSet);
+        return dataSetSearchService.readDataSetData(dataSet, fieldSet, pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getSort());
     }
 
     private Optional<AttributeDefinition> getAttrDefById(String kgName, Integer attrId) {

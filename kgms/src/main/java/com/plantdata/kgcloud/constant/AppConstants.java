@@ -9,8 +9,5 @@ public class AppConstants {
     public static final Integer NER_NUMBER = 3;
     public static final Integer NER_ENTITY_NUMBER = 2;
     public static final int COUNT_MERGE_SIZE = 10;
-    /**
-     * es 默认type
-     */
-    public static final String ES_DEFAULT_TABLE = "_search";
+
 }

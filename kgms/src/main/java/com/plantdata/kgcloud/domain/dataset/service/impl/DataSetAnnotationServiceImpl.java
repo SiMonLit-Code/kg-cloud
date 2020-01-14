@@ -3,10 +3,12 @@ package com.plantdata.kgcloud.domain.dataset.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.Updates;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSetAnnotation;
@@ -26,9 +28,9 @@ import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -44,6 +46,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Updates.*;
 
 /**
  * @description:
@@ -68,11 +73,11 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
 
     @Override
     public Page<AnnotationRsp> findAll(String kgName, AnnotationQueryReq baseReq) {
-        PageRequest of = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), Sort.by(Sort.Direction.DESC,"createAt"));
+        PageRequest of = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), Sort.by(Sort.Direction.DESC, "createAt"));
         Specification<DataSetAnnotation> specification = (Specification<DataSetAnnotation>) (root, query, cb) -> {
             Predicate predicate = cb.conjunction();
             List<Expression<Boolean>> expressions = predicate.getExpressions();
-            expressions.add(cb.equal(root.get("kgName"),kgName));
+            expressions.add(cb.equal(root.get("kgName"), kgName));
             if (StringUtils.hasText(baseReq.getName())) {
                 expressions.add(cb.like(root.get("name"), "%" + baseReq.getName() + "%"));
             }
@@ -125,7 +130,7 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
         Long datasetId = request.getId();
         String objId = request.getObjId();
         Map<String, Object> objectMap = dataOptService.updateData(userId, datasetId, objId, request.getData());
-        ObjectNode objectNode = JacksonUtils.readValue(JacksonUtils.writeValueAsString(objectMap),ObjectNode.class );
+        ObjectNode objectNode = JacksonUtils.readValue(JacksonUtils.writeValueAsString(objectMap), ObjectNode.class);
         DataSetAnnotation one = findOne(annotationId);
         List<AnnotationConf> config = one.getConfig();
         Set<String> key = new HashSet<>();
@@ -140,15 +145,13 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
             for (String sss : key) {
                 JsonNode node = objectNode.get(sss);
                 if (node.isArray()) {
-                    for (JsonNode json : node) {
-                        long kgId = json.findValue("kgId").asLong();
-                        collection.deleteMany(new Document("entity_id", kgId).append("data_set_id", datasetId).append("source", 1));
-                    }
+                    Bson query = and(eq("data_set_id", datasetId), eq("data_id", objId),eq("source", 1));
+                    collection.deleteMany(query);
                     for (JsonNode m : node) {
                         long kgId = m.findValue("kgId").asLong();
-                        Document query = new Document("entity_id", kgId).append("data_set_id", datasetId).append("data_id", objId);
-                        Document replace = new Document("entity_id", kgId).append("data_set_id", datasetId).append("data_id", objId).append("score", 1).append("source", 1);
-                        collection.findOneAndReplace(query, replace, new FindOneAndReplaceOptions().upsert(true));
+                        Bson up = and(eq("entity_id", kgId), eq("data_set_id", datasetId), eq("data_id", objId));
+                        Bson replace = combine(set("score", 1),set("source", 1));
+                        collection.updateOne(up, replace, new UpdateOptions().upsert(true));
                     }
                 }
             }

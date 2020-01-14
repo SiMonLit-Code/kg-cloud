@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.config;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
@@ -51,7 +52,10 @@ public class StringToObjectGenericConverter implements GenericConverter {
         }
         ResolvableType resolvableType = targetType.getResolvableType();
         ObjectMapper instance = JacksonUtils.getInstance();
+        //兼容没有
         instance.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        //兼容单引号
+        instance.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         try {
             if (resolvableType.hasGenerics()) {
                 return instance.readValue(sourceStr, JacksonUtils.getInstance().constructType(resolvableType.getType()));

@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.sdk;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
@@ -170,7 +171,7 @@ public interface EditClient {
      * @param list   req
      * @return .
      */
-    @PatchMapping("attribute/relation/update/{kgName}")
+    @PutMapping("attribute/relation/update/{kgName}")
     ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
                                                        @RequestBody List<RelationUpdateReq> list);
 
@@ -179,20 +180,11 @@ public interface EditClient {
      * 实体查询
      *
      * @param kgName
-     * @param conceptId
-     * @param conceptKey
-     * @param query
-     * @param page
-     * @param size
+     * @param queryReq
      * @return
      */
-    @GetMapping("entity/{kgName}/list/search")
-    ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
-                                                   @RequestParam(value = "conceptId", required = false) Long conceptId,
-                                                   @RequestParam(value = "conceptKey", required = false) String conceptKey,
-                                                   @RequestParam(value = "query", required = false) String query,
-                                                   @RequestParam(value = "page", required = false) Integer page,
-                                                   @RequestParam(value = "size", required = false) Integer size);
+    @PostMapping("entity/{kgName}/list/search")
+    ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName, @RequestBody EntityQueryReq queryReq);
 
     /**
      * 批量新增实体

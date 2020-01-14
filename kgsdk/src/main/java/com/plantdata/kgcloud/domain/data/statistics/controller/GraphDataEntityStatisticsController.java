@@ -39,14 +39,14 @@ public class GraphDataEntityStatisticsController implements GraphDataStatisticsI
     }
 
     @ApiOperation("实例统计，统计实例数量，按概念分组")
-    @PostMapping("byConcept/{kgName}")
+    @PostMapping("concept/{kgName}")
     public ApiReturn byConcept(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                @RequestBody EntityStatisticGroupByConceptReq conceptReq) {
         return kgDataClient.statisticEntityGroupByConcept(kgName, conceptReq);
     }
 
     @ApiOperation("数值属性统计，统计数值属性的数量，按数值属性值分组")
-    @PostMapping("byAttrValue/{kgName}")
+    @PostMapping("attrValue/{kgName}")
     public ApiReturn byAttrValue(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                  @RequestBody @Valid EntityStatisticGroupByAttrIdReq attrIdReq) {
         return kgDataClient.statisticAttrGroupByConcept(kgName, attrIdReq);

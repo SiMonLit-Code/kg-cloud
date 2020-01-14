@@ -154,12 +154,9 @@ public class EntityConverter extends BasicConverter {
 
     public static SearchByAttributeFrom entityQueryReqToSearchByAttributeFrom(EntityQueryReq entityQueryReq) {
         SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
-        if (StringUtils.isNoneBlank(entityQueryReq.getQuery())) {
-            attributeFrom.setKvMap(JacksonUtils.readValue(entityQueryReq.getQuery(), new TypeReference<Map<String, Object>>() {
-            }));
-        }
         attributeFrom.setLimit(entityQueryReq.getLimit());
         attributeFrom.setSkip(entityQueryReq.getOffset());
+        consumerIfNoNull(entityQueryReq.getDataAttrFilters(),a-> attributeFrom.setKvMap(ConditionConverter.buildSearchMapByDataAttrReq(a)));
         consumerIfNoNull(entityQueryReq.getConceptId(), a -> attributeFrom.setConceptIds(Lists.newArrayList(a)));
         return attributeFrom;
     }

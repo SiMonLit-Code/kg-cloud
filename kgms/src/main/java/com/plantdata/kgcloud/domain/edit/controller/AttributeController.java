@@ -4,7 +4,6 @@ import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
-import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.ValidableList;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
@@ -261,7 +260,7 @@ public class AttributeController {
     }
 
     @ApiOperation("关系-批量修改关系")
-    @PatchMapping("relation/update/{kgName}")
+    @PutMapping("relation/update/{kgName}")
     @EditLogOperation(serviceEnum = ServiceEnum.SDK)
     public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
                                                               @RequestBody List<RelationUpdateReq> list) {

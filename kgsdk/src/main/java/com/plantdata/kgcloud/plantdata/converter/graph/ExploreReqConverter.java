@@ -60,9 +60,8 @@ public class ExploreReqConverter extends BasicConverter {
      */
     public static CommonExploreReq generalGraphParameterToCommonExploreReq(@NonNull GeneralGraphParameter param) {
         CommonExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonExploreReq());
-        PageReq pageReq = new PageReq(param.getPageNo(), param.getPageSize());
         exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
-        exploreReq.setPage(pageReq);
+        exploreReq.setPage(new PageReq(param.getPageNo(), param.getPageSize()));
         ///300新增exploreRsp.setDisAllowConcepts(Collections.emptyList());
         consumerIfNoNull(param.getGraphBean(), a -> exploreReq.setGraphReq(ExploreReqConverter.graphBeanToBasicGraphExploreRsp(a)));
         return exploreReq;
@@ -90,6 +89,7 @@ public class ExploreReqConverter extends BasicConverter {
      */
     public static CommonTimingExploreReq timeGeneralGraphParameterToCommonTimingExploreReq(TimeGeneralGraphParameter param) {
         CommonTimingExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonTimingExploreReq());
+        exploreReq.setPage(new PageReq(param.getPageNo(), param.getPageSize()));
         exploreReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(param));
         exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
         return exploreReq;
@@ -104,6 +104,7 @@ public class ExploreReqConverter extends BasicConverter {
     public static CommonReasoningExploreReq ruleGeneralGraphParameterToCommonReasoningExploreReq(RuleGeneralGraphParameter param) {
         CommonReasoningExploreReq exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonReasoningExploreReq());
         exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
+        exploreReq.setPage(new PageReq(param.getPageNo(), param.getPageSize()));
         consumerIfNoNull(param.getReasoningRuleConfigs(), a -> exploreReq.setReasoningRuleConfigs(ExploreCommonConverter.buildReasonConfig(a)));
         return exploreReq;
     }
@@ -316,7 +317,7 @@ public class ExploreReqConverter extends BasicConverter {
         entityRsp.setLabelStyle(entityBean.getLabelStyle());
         entityRsp.setScore(entityBean.getScore());
         entityRsp.setType(entityBean.getType());
-
+        entityRsp.setClassId(entityBean.getClassId());
         entityRsp.setTags(toListNoNull(entityBean.getTags(), ExploreReqConverter::tagToTagRsp));
         consumerIfNoNull(entityBean.getCreationTime(), a -> entityRsp.setEndTime(BasicConverter.stringToDate(a)));
         consumerIfNoNull(entityBean.getFromTime(), a -> entityRsp.setStartTime(BasicConverter.stringToDate(a)));

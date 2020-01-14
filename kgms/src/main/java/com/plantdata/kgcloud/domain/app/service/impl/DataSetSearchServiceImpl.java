@@ -33,13 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Administrator
@@ -55,7 +50,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     private DataSetRepository dataSetRepository;
 
     @Override
-    public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, int offset, int limit, String query, String sort) {
+    public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, Set<String> fields, int offset, int limit, String query, String sort) {
         DataOptConnect dataOptConnect = new DataOptConnect();
         dataOptConnect.setDatabase(dataSet.getDbName());
         dataOptConnect.setTable(dataSet.getTbName());
@@ -72,6 +67,12 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         } catch (Exception e) {
             e.printStackTrace();
             throw new BizException(AppErrorCodeEnum.ERROR_DATA_SET_QUERY);
+        }
+        //可优化数据库层面做
+        if (!CollectionUtils.isEmpty(fields) && !CollectionUtils.isEmpty(maps)) {
+            maps = BasicConverter.listToRsp(maps, a -> a.entrySet().stream()
+                    .filter(b -> fields.contains(b.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
         }
         return new RestData<>(maps, count);
     }
@@ -158,16 +159,17 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             if (CollectionUtils.isEmpty(myData)) {
                 continue;
             }
+            if (StringUtils.isEmpty(myData.get("dataTitle"))) {
+                continue;
+            }
             LinksRsp links = new LinksRsp();
+            links.setDataTitle(myData.get("dataTitle"));
             links.setDataId(dataId);
             BasicConverter.consumerIfNoNull(map1.get("score"), a -> links.setScore(Double.valueOf(a.toString())));
             BasicConverter.consumerIfNoNull(map1.get("source"), a -> links.setSource(Integer.valueOf(a.toString())));
-            BasicConverter.consumerIfNoNull(myData, data -> {
-                if (dataLink.getDataSetTitle() == null) {
-                    dataLink.setDataSetTitle(myData.get("dataSetTitle"));
-                }
-                links.setDataTitle(myData.get("dataTitle"));
-            });
+            if (dataLink.getDataSetTitle() == null) {
+                dataLink.setDataSetTitle(myData.get("dataSetTitle"));
+            }
             linkList.add(links);
         }
         dataLink.setLinks(linkList);
