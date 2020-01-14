@@ -295,7 +295,7 @@ public class DataSetServiceImpl implements DataSetService {
         target.setFields(transformFields(schema));
 
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
-        try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, type);) {
+        try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, type)) {
             provider.createTable(schema);
             target = dataSetRepository.save(target);
         } catch (Exception e) {
