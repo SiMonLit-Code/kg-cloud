@@ -456,9 +456,9 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
         if (AttributeValueType.isNumeric(privateAttrDataReq.getType())) {
-            logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+            logSender.sendLog(KGUtil.dbName(kgName), ServiceEnum.ENTITY_EDIT);
         } else {
-            logSender.sendLog(kgName, ServiceEnum.RELATION_EDIT);
+            logSender.sendLog(KGUtil.dbName(kgName), ServiceEnum.RELATION_EDIT);
         }
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
@@ -471,9 +471,9 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public void deletePrivateData(String kgName, DeletePrivateDataReq deletePrivateDataReq) {
         if (AttributeValueType.isNumeric(deletePrivateDataReq.getType())) {
-            logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+            logSender.sendLog(KGUtil.dbName(kgName), ServiceEnum.ENTITY_EDIT);
         } else {
-            logSender.sendLog(kgName, ServiceEnum.RELATION_EDIT);
+            logSender.sendLog(KGUtil.dbName(kgName), ServiceEnum.RELATION_EDIT);
         }
         RestRespConverter.convertVoid(conceptEntityApi.deletePrivateData(KGUtil.dbName(kgName),
                 deletePrivateDataReq.getType(),
