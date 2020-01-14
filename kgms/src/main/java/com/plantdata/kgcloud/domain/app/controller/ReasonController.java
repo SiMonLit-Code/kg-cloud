@@ -6,8 +6,9 @@ import ai.plantdata.kg.api.semantic.rsp.ReasoningResultRsp;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
-import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
+import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import io.swagger.annotations.ApiOperation;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -41,7 +43,9 @@ public class ReasonController implements SdkOpenApiInterface {
     public ApiReturn<GraphReasoningResultRsp> reasoning(@ApiParam(value = "图谱名称") @PathVariable("kgName") String kgName,
                                                         @RequestBody ReasoningReq reasoningReq) {
         RestResp<ReasoningResultRsp> reasoning = reasoningApi.reasoning(kgName, reasoningReq);
-        return ApiReturn.success(RestCopyConverter.copyRestRespResult(reasoning, new GraphReasoningResultRsp()));
+        Optional<ReasoningResultRsp> reasoningOpt = RestRespConverter.convert(reasoning);
+        return ApiReturn.success(reasoningOpt.isPresent() ? BasicConverter.copy(reasoningOpt.get(), GraphReasoningResultRsp.class)
+                : new GraphReasoningResultRsp());
     }
 
     @ApiOperation("推理规则生成")

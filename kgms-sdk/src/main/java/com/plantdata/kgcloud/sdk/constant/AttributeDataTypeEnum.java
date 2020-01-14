@@ -34,6 +34,7 @@ public enum AttributeDataTypeEnum {
     ATTACHMENT(93, "文件");
     public static final Set<AttributeDataTypeEnum> DATA_VALUE_SET = Sets.newHashSet(INTEGER, FLOAT);
     public static final Set<AttributeDataTypeEnum> DATE_SET = Sets.newHashSet(DATE, TIME, DATETIME);
+    public static final Set<Integer> FROM_TO_TIME_SET = Sets.newHashSet(-1, -2);
 
     AttributeDataTypeEnum(int value, String desc) {
         this.value = value;

@@ -46,12 +46,7 @@ import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.DateTypeReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
+import com.plantdata.kgcloud.sdk.req.app.statistic.*;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatDataRsp;
@@ -125,7 +120,9 @@ public class KgDataServiceImpl implements KgDataService {
         }
         List<StatisticDTO> dataList = JsonUtils.objToList(dataOpt.get(), StatisticDTO.class);
         AttributeDataTypeEnum dataType = GraphStatisticConverter.edgeAttrDataType(statisticReq.getSeqNo(), arrDefOpt.get());
-        return buildStatisticResult(dataType, statisticReq.getMerge(), dataList, statisticReq.getDateType(), statisticReq.getSort(), statisticBean.getLimit(), statisticReq.getReturnType());
+        boolean isFromToTime = AttributeDataTypeEnum.FROM_TO_TIME_SET.contains(statisticReq.getSeqNo());
+        return buildStatisticResult(dataType, dataList, statisticReq.getDateType(), isFromToTime, statisticReq.getMerge(),
+                statisticReq.getSort(), statisticBean.getLimit(), statisticReq.getReturnType());
     }
 
     @Override
@@ -171,7 +168,8 @@ public class KgDataServiceImpl implements KgDataService {
                 dataList = JsonUtils.objToList(mapOpt.get(), StatisticDTO.class);
             }
         }
-        return buildStatisticResult(dataType, attrIdReq.getMerge(), dataList, attrIdReq.getDataType(), attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
+        return buildStatisticResult(dataType, dataList, attrIdReq.getDataType(), false, attrIdReq.getMerge(),
+                attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
     }
 
     @Override
@@ -199,19 +197,21 @@ public class KgDataServiceImpl implements KgDataService {
     }
 
 
-    private Object buildStatisticResult(AttributeDataTypeEnum dataType, boolean merge, List<StatisticDTO> dataList, DateTypeReq dateType, int sort, int reSize, int returnType) {
+    private Object buildStatisticResult(AttributeDataTypeEnum dataType, List<StatisticDTO> dataList, DateTypeReq dateType,
+                                        boolean isFromToTime, boolean merge, int sort, int reSize, int returnType) {
         boolean isNum = AttributeDataTypeEnum.DATA_VALUE_SET.contains(dataType);
         boolean isDate = AttributeDataTypeEnum.DATE_SET.contains(dataType);
-        if (merge) {
-            if (isNum) {
-                dataList = GraphAttributeStatisticBO.countMerge(dataList, dataType, AppConstants.COUNT_MERGE_SIZE);
-            }
-            if (isDate) {
-                dataList = GraphAttributeStatisticBO.countMergeDate(dataList, dateType);
-            }
-            if (!CollectionUtils.isEmpty(dataList) && sort == -1) {
-                Collections.reverse(dataList);
-            }
+        //merge+数字类型
+        if (merge && isNum) {
+            dataList = GraphAttributeStatisticBO.countMerge(dataList, dataType, AppConstants.COUNT_MERGE_SIZE);
+        }
+        //merge/开始结束时间+时间类型
+        if ((merge || isFromToTime) && isDate) {
+            dataList = GraphAttributeStatisticBO.countMergeDate(dataList, dateType);
+        }
+        //merge+反序
+        if (merge && sort == -1 && !CollectionUtils.isEmpty(dataList)) {
+            Collections.reverse(dataList);
         }
         dataList = PageUtils.subList(NumberUtils.INTEGER_ZERO, reSize, dataList);
         return GraphStatisticConverter.statisticByType(dataList, returnType, StatisticResultTypeEnum.VALUE);
