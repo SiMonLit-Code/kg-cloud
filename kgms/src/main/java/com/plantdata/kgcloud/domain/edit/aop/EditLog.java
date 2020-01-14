@@ -49,6 +49,7 @@ public class EditLog {
                 e.printStackTrace();
             }
         }
+        logSender.remove();
         return proceed;
     }
 

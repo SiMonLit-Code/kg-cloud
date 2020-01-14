@@ -20,8 +20,8 @@ public class LogSender {
     @Value("${topic.kg.log}")
     private String topicKgLog;
 
-    @Value("${kg.log.enable}")
-    private boolean enableLog;
+//    @Value("${kg.log.enable}")
+    private boolean enableLog = false;
 
     @Autowired
     private KafkaTemplate kafkaTemplate;
@@ -32,8 +32,14 @@ public class LogSender {
 
     public void sendLog(String kgName, ServiceEnum serviceEnum) {
         if (enableLog) {
-            kafkaTemplate.send(topicKgLog, kgName, new GraphServiceLog(serviceEnum,ThreadLocalUtils.setBatchNo(),
+            ThreadLocalUtils.setBatchNo();
+            kafkaTemplate.send(topicKgLog, kgName, new GraphServiceLog(serviceEnum,ThreadLocalUtils.getBatchNo(),
                     SessionHolder.getUserId()));
+        }
+    }
+
+    public void remove(){
+        if (enableLog) {
             ThreadLocalUtils.remove();
         }
     }
