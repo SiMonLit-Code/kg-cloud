@@ -15,5 +15,8 @@ public class ApkFeignRequestInterceptor implements RequestInterceptor {
         if (!StringUtils.isEmpty(token)) {
             requestTemplate.header(WebUtils.KG_AUTHORIZATION, token);
         }
+        if (CurrentUser.isAdmin()) {
+            requestTemplate.header(WebUtils.ADMIN, "true");
+        }
     }
 }
