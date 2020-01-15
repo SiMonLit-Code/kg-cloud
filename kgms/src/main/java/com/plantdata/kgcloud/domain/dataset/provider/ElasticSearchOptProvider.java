@@ -197,6 +197,9 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     public long count(Map<String, Object> query) {
         String endpoint = "/" + database + "/" + type + "/_search?_source=false";
         Request request = new Request(POST, endpoint);
+        ObjectNode queryNode = buildQuery(null, null, query);
+        NStringEntity entity = new NStringEntity(JacksonUtils.writeValueAsString(queryNode), ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
         JsonNode node = readTree(result);
