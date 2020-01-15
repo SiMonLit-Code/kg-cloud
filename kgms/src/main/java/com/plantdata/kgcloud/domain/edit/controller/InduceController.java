@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
+import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.req.induce.AttrInduceReq;
 import com.plantdata.kgcloud.domain.edit.req.induce.AttrSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.induce.InduceConceptReq;
@@ -54,6 +56,7 @@ public class InduceController {
 
     @ApiOperation("执行属性公有化")
     @PostMapping("/{kgName}/public")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_GUIYUE)
     public ApiReturn inducePublic(@PathVariable("kgName") String kgName,
                                   @Valid @RequestBody InducePublicReq inducePublicReq) {
         induceService.inducePublic(kgName, inducePublicReq);
@@ -62,6 +65,7 @@ public class InduceController {
 
     @ApiOperation("执行属性对象化")
     @PostMapping("/{kgName}/object")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_GUIYUE)
     public ApiReturn induceObject(@PathVariable("kgName") String kgName,
                                   @Valid @RequestBody InduceObjectReq induceObjectReq) {
         induceService.induceObject(kgName, induceObjectReq);
@@ -70,6 +74,7 @@ public class InduceController {
 
     @ApiOperation("执行属性合并")
     @PostMapping("/{kgName}/merge")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_GUIYUE)
     public ApiReturn induceMerge(@PathVariable("kgName") String kgName,
                                  @Valid @RequestBody InduceMergeReq induceMergeReq) {
         induceService.induceMerge(kgName, induceMergeReq);
@@ -85,6 +90,7 @@ public class InduceController {
 
     @ApiOperation("执行概念规约")
     @PostMapping("/{kgName}/concept")
+    @EditLogOperation(serviceEnum = ServiceEnum.CONCEPT_GUIYUE)
     public ApiReturn induceConcept(@PathVariable("kgName") String kgName,
                                    @Valid @RequestBody InduceConceptReq induceConceptReq) {
         induceService.induceConcept(kgName, induceConceptReq);

@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.edit.aop;
 
 
 import com.plantdata.graph.logging.core.ServiceEnum;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -44,11 +45,12 @@ public class EditLog {
                 method = target.getClass().getMethod(msig.getName(), msig.getParameterTypes());
                 Annotation annotation = method.getAnnotation(EditLogOperation.class);
                 ServiceEnum serviceEnum = ((EditLogOperation) annotation).serviceEnum();
-                logSender.sendLog(kgName, serviceEnum);
+                logSender.sendLog(KGUtil.dbName(kgName), serviceEnum);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        logSender.remove();
         return proceed;
     }
 

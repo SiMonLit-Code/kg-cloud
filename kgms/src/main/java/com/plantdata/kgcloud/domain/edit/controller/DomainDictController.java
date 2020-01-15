@@ -1,8 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
-import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictReq;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictSearchReq;
 import com.plantdata.kgcloud.domain.edit.rsp.DictRsp;
@@ -36,7 +34,6 @@ public class DomainDictController {
 
     @ApiOperation("批量添加领域词")
     @PostMapping("/{kgName}/batch/add")
-    @EditLogOperation(serviceEnum = ServiceEnum.SDK)
     public ApiReturn batchInsert(@PathVariable("kgName") String kgName,
                                  @Valid @RequestBody List<DictReq> dictReqs) {
         domainDictService.batchInsert(kgName, dictReqs);
