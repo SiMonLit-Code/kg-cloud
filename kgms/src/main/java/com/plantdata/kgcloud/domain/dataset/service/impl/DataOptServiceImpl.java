@@ -366,6 +366,8 @@ public class DataOptServiceImpl implements DataOptService {
                         } else {
                             objects.add(e);
                         }
+                    }else {
+                        objects.add("");
                     }
                 }
                 resultList.add(objects);
