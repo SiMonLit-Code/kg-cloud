@@ -22,8 +22,8 @@ public class LogSender {
     @Value("${topic.kg.log}")
     private String topicKgLog;
 
-//    @Value("${kg.log.enable}")
-    private boolean enableLog = false;
+    @Value("${kg.log.enable}")
+    private boolean enableLog;
 
     @Autowired
     private KafkaTemplate kafkaTemplate;
