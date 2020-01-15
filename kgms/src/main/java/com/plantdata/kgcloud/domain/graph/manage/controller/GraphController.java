@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.manage.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
 import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
@@ -54,6 +55,12 @@ public class GraphController {
     public ApiReturn<GraphRsp> findById(@PathVariable("kgName") String kgName) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(graphService.findById(userId, kgName));
+    }
+
+    @ApiOperation("图谱根据kgName查找dbName")
+    @GetMapping("/kgName/{kgName}")
+    public ApiReturn<String> graphFindDbNameByKgName(@PathVariable("kgName") String kgName) {
+        return ApiReturn.success(KGUtil.dbName(kgName));
     }
 
     @ApiOperation("图谱创建")
