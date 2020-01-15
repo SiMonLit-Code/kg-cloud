@@ -44,13 +44,13 @@ public class DataSetStatisticController implements DataSetStatisticInterface {
     }
 
     @ApiOperation("统计数据二维/按表统计")
-    @PostMapping("2dByTable")
+    @PostMapping("2d/table")
     public ApiReturn<DataSetStatisticRsp> statistic2dByTable(@Valid @RequestBody TableStatisticByDimensionalReq twoDimensional) {
         return appClient.statistic2dByTable(twoDimensional);
     }
 
     @ApiOperation("统计数据三维/按表统计")
-    @PostMapping("3dByTable")
+    @PostMapping("3d/table")
     public ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid @RequestBody TableStatisticByDimensionalReq thirdDimensional) {
         return appClient.statistic3dByTable(thirdDimensional);
     }

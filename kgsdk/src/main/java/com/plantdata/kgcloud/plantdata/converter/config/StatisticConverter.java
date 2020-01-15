@@ -146,8 +146,8 @@ public class StatisticConverter extends BasicConverter {
 
     private static <R extends GraphConfStatisticalReq> R initStatisticalReq(InitStatisticalBean statisticalBean, R req) {
         req.setKgName(statisticalBean.getKgName());
-        req.setStatisRule(statisticalBean.getRule());
-        req.setStatisType(statisticalBean.getType());
+        req.setStatisticRule(statisticalBean.getRule());
+        req.setStatisticType(statisticalBean.getType());
         return req;
     }
 
@@ -155,8 +155,8 @@ public class StatisticConverter extends BasicConverter {
     public static GraphConfStatisticalReq initStatisticalBeanAddToGraphConfStatisticalReq(InitStatisticalBeanAdd beanAdd) {
         GraphConfStatisticalReq statisticalReq = new GraphConfStatisticalReq();
         statisticalReq.setKgName(beanAdd.getKgName());
-        statisticalReq.setStatisType(beanAdd.getType());
-        statisticalReq.setStatisRule(beanAdd.getRule());
+        statisticalReq.setStatisticType(beanAdd.getType());
+        statisticalReq.setStatisticRule(beanAdd.getRule());
         return statisticalReq;
     }
 
