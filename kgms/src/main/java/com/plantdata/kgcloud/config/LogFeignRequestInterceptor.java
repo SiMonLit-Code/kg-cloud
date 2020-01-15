@@ -12,7 +12,7 @@ public class LogFeignRequestInterceptor implements RequestInterceptor {
     public void apply(RequestTemplate requestTemplate) {
         String batchNo = ThreadLocalUtils.getBatchNo();
         if (!StringUtils.hasText(batchNo)) {
-            requestTemplate.header("batchNo", batchNo);
+            requestTemplate.header("actionId", batchNo);
         }
     }
 }
