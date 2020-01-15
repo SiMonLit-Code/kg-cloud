@@ -182,6 +182,10 @@ public interface KgmsClient {
     @GetMapping("/graph/{kgName}")
     ApiReturn<GraphRsp> graphFindById(@PathVariable("kgName") String kgName);
 
+    @ApiOperation("图谱根据kgName查找dbName")
+    @GetMapping("/graph/kgName/{kgName}")
+    ApiReturn<String> graphFindDbNameByKgName(@PathVariable("kgName") String kgName);
+
     @ApiOperation("图谱创建")
     @PostMapping("/graph/")
     ApiReturn<GraphRsp> graphInsert(@Valid @RequestBody GraphReq dictionaryReq);
