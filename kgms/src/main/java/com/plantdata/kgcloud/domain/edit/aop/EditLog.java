@@ -30,6 +30,7 @@ public class EditLog {
     @Around("@annotation(com.plantdata.kgcloud.domain.edit.aop.EditLogOperation)")
     public Object logOperation(ProceedingJoinPoint p) throws Throwable {
         Object[] args = p.getArgs();
+        logSender.setActionId();
         Object proceed = p.proceed();
         if (logSender.isEnableLog()) {
             String kgName = (String) args[0];
