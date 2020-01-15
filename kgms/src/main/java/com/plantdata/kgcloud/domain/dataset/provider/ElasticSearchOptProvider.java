@@ -309,7 +309,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     @Override
     public List<Map<String, Long>> statistics() {
         String smokeQuery = "_smoke";
-        String smokeMsgQuery = "_smokeMsg.msg.keyword";
+        String smokeMsgQuery = "_smokeMsg.msg";
         List<Map<String, Long>> maps = new ArrayList<>();
         Map<String, Long> smoke = statisticsSmoke(smokeQuery, smokeFun);
         Map<String, Long> smokeMsg = statisticsSmoke(smokeMsgQuery, smokeMsgFun);
