@@ -4,8 +4,11 @@ import com.plantdata.kgcloud.sdk.req.AnnotationCreateReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationDataReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationQueryReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationReq;
+import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.AnnotationRsp;
 import org.springframework.data.domain.Page;
+
+import java.util.Map;
 
 /**
  * @description:
@@ -67,4 +70,6 @@ public interface DataSetAnnotationService {
      * @param req
      */
     void annotation(String userId, String kgName, Long id, AnnotationDataReq req);
+
+    Page<Map<String, Object>> getData(String userId,String kgName, Long datasetId, DataOptQueryReq req);
 }
