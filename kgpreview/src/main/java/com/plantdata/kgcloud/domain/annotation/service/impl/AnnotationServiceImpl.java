@@ -71,6 +71,7 @@ public class AnnotationServiceImpl implements AnnotationService {
                         annotationRsp.setEntityName(name);
                         annotationRsp.setScore(score);
                         annotationRsp.setType(basic.getInteger("type"));
+                        annotationRsp.setId(data.get("_id").toString());
                         ls.add(annotationRsp);
                         if (ls.size() >= 10) {
                             break;
