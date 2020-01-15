@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.domain.graph.log.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
-import com.plantdata.kgcloud.domain.graph.log.entity.DataLogQueryReq;
+import com.plantdata.kgcloud.domain.graph.log.entity.DataLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogReq;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.service.GraphLogService;
@@ -12,6 +12,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @author xiezhenxiang 2020/1/15
@@ -34,10 +36,20 @@ public class GraphLogController {
 
     @GetMapping("/data/{kgName}/{batch}")
     @ApiOperation("根据批次号查询日志")
-    public ApiReturn dataLogList(@PathVariable("kgName") String kgName,
-                                 @ApiParam("批次号") @PathVariable("batch") String batch,
-                                 BaseReq req) {
-        BasePage page = graphLogService.dataLogList(kgName, batch, req);
+    public ApiReturn<BasePage<DataLogRsp>> dataLogList(@PathVariable("kgName") String kgName,
+                                                       @ApiParam("批次号") @PathVariable("batch") String batch,
+                                                       BaseReq req) {
+        BasePage<DataLogRsp> page = graphLogService.dataLogList(kgName, batch, req);
+        return ApiReturn.success(page);
+    }
+
+    @GetMapping("/{kgName}/entity/{id}")
+    @ApiOperation("实例编辑/概念定义 日志")
+    public ApiReturn<BasePage<DataLogRsp>> entityLogList(@PathVariable("kgName") String kgName,
+                                                         @ApiParam("实体ID") @PathVariable("id") Long id,
+                                                         @NotNull @ApiParam("实体类型") @RequestParam("type") Integer type,
+                                                         BaseReq req) {
+        BasePage<DataLogRsp> page = graphLogService.entityLogList(kgName, id, type, req);
         return ApiReturn.success(page);
     }
 }

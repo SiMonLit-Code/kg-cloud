@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.graph.log.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
@@ -12,13 +11,11 @@ import com.plantdata.graph.logging.core.GraphLogOperation;
 import com.plantdata.graph.logging.core.GraphLogScope;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
-import com.plantdata.kgcloud.domain.graph.log.entity.DataLogQueryReq;
 import com.plantdata.kgcloud.domain.graph.log.entity.DataLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogReq;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.service.GraphLogService;
 import com.plantdata.kgcloud.util.JacksonUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,16 +121,20 @@ public class GraphLogServiceImpl implements GraphLogService {
     }
 
     @Override
-    public BasePage dataLogList(String kgName, String batch, BaseReq req) {
+    public BasePage<DataLogRsp> dataLogList(String kgName, String batch, BaseReq req) {
 
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.eq("batch", batch);
+        return logList(kgName, query, page, req.getSize());
+    }
+
+    private BasePage<DataLogRsp> logList(String kgName, Bson query, Integer page, Integer size) {
 
         String dbName = kgName + LOG_DB_SUFFER;
         MongoCursor<Document> cursor = mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).find(query)
                 .sort(Sorts.descending("createTime"))
                 .skip(page)
-                .limit(req.getSize())
+                .limit(size)
                 .iterator();
 
         long count = mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).countDocuments(query);
@@ -144,5 +145,22 @@ public class GraphLogServiceImpl implements GraphLogService {
             ls.add(rsp);
         });
         return new BasePage<>(count, ls);
+    }
+
+    @Override
+    public BasePage<DataLogRsp> entityLogList(String kgName, Long id, Integer type, BaseReq req) {
+
+        int page = (req.getPage() - 1) * req.getSize();
+        Bson query;
+        if (type == 0) {
+            query = Filters.and(
+                    Filters.eq("scope", GraphLogScope.CONCEPT.name()),
+                    Filters.eq("newValue.id", id));
+        } else {
+            query = Filters.and(
+                    Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name())),
+                    Filters.eq("newValue.id", id));
+        }
+        return logList(kgName, query, page, req.getSize());
     }
 }
