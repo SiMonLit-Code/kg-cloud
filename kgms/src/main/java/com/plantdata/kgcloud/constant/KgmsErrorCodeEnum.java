@@ -66,6 +66,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     PRIVATE_RELATION_HAS_EXIST(120624, "私有关系已存在"),
     DOMAIN_WORD_NOT_EMPTY(120625, "领域词不能为空"),
     DOMAIN_CONCEPT_NOT_EMPTY(120626, "领域词相关概念不能为空"),
+    CONF_QUERYSETTING_ERROR(120627, "图谱关系配置错误"),
+
 
 
     WORD_NOT_EXISTS(120302, "词条不存在"),
