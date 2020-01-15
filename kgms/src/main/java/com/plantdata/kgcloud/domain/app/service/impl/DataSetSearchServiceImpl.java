@@ -141,6 +141,10 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
 
 
         for (Map<String, Object> map : opt.get()) {
+            //最多显示5条
+            if (dataLinks.size() >= 5) {
+                break;
+            }
             Long dataSetId = Long.valueOf(map.get("_id").toString());
             mongoQueryFrom.setQuery(buildTwoQuery(entityId, dataSetId));
             Optional<List<Map<String, Object>>> dataOpt = RestRespConverter.convert(mongoApi.postJson(mongoQueryFrom));

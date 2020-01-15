@@ -76,14 +76,15 @@ public class GraphCommonConverter extends BasicConverter {
         });
         //设置边属性筛选
         consumerIfNoNull(exploreReq.getEdgeAttrFilters(), a -> highLevelFilter.setEdgeFilter(Maps.newHashMap(ConditionConverter.relationAttrReqToMap(a))));
+        consumerIfNoNull(exploreReq.getAllowAttrs(), highLevelFilter::setAllowAttrs);
+        consumerIfNoNull(exploreReq.getAllowConcepts(), highLevelFilter::setAllowTypes);
+        consumerIfNoNull(exploreReq.getDisAllowConcepts(), highLevelFilter::setDisAllowTypes);
+        highLevelFilter.setInherit(exploreReq.isInherit());
         //层级通用
         graphFrom.setHighLevelFilter(highLevelFilter);
 
         consumerIfNoNull(exploreReq.getDistance(), graphFrom::setDistance);
-        graphFrom.setAllowAttrs(exploreReq.getAllowAttrs());
-        graphFrom.setAllowTypes(exploreReq.getAllowConcepts());
-        graphFrom.setInherit(exploreReq.isInherit());
-        graphFrom.setDisAllowTypes(exploreReq.getDisAllowConcepts());
+
 
         //读取元数据
         MetaData entityMetaData = new MetaData();
