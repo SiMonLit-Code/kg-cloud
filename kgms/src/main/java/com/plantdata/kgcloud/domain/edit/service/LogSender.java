@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +19,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogSender {
 
-//    @Value("${topic.kg.service.log}")
+    @Value("${topic.kg.service.log}")
     private String topicKgServiceLog;
 
-//    @Value("${kg.log.enable}")
+    @Value("${kg.log.enable}")
     private boolean enableLog;
 
     @Autowired
