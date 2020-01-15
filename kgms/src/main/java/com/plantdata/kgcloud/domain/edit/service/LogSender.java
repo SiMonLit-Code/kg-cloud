@@ -7,7 +7,6 @@ import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -19,10 +18,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogSender {
 
-    @Value("${topic.kg.log}")
-    private String topicKgLog;
+//    @Value("${topic.kg.service.log}")
+    private String topicKgServiceLog;
 
-    @Value("${kg.log.enable}")
+//    @Value("${kg.log.enable}")
     private boolean enableLog;
 
     @Autowired
@@ -34,14 +33,17 @@ public class LogSender {
 
     public void sendLog(String kgName, ServiceEnum serviceEnum) {
         if (enableLog) {
-            ThreadLocalUtils.setBatchNo();
-            kafkaTemplate.send(topicKgLog, KGUtil.dbName(kgName),
-                    JacksonUtils.writeValueAsString(new GraphServiceLog(serviceEnum,
-                    ThreadLocalUtils.getBatchNo(), SessionHolder.getUserId())));
+            kafkaTemplate.send(topicKgServiceLog, kgName,
+                    JacksonUtils.writeValueAsString(new GraphServiceLog(KGUtil.dbName(kgName), serviceEnum,
+                            ThreadLocalUtils.getBatchNo(), SessionHolder.getUserId())));
         }
     }
 
-    public void remove(){
+    public void setActionId(){
+        ThreadLocalUtils.setBatchNo();
+    }
+
+    public void remove() {
         if (enableLog) {
             ThreadLocalUtils.remove();
         }
