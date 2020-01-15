@@ -17,11 +17,9 @@ import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import io.swagger.annotations.ApiParam;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -133,12 +131,17 @@ public interface KgDataClient {
     /**
      * 根据概念查询属性定义
      *
-     * @param kgName   。
-     * @param queryReq 。
-     * @return 。
+     * @param kgName
+     * @param conceptId
+     * @param conceptKey
+     * @param inherit
+     * @return
      */
-    @PostMapping("/{kgName}/attribute/search")
-    ApiReturn<List<AttrDefinitionRsp>> searchAttrDefByConcept(@PathVariable("kgName") String kgName, @RequestBody AttrDefQueryReq queryReq);
+    @GetMapping("/{kgName}/attribute/search")
+    ApiReturn<List<AttrDefinitionRsp>> searchAttrDefByConcept(@PathVariable("kgName") String kgName,
+                                                              @RequestParam(value = "conceptId", required = false) Long conceptId,
+                                                              @RequestParam(value = "conceptKey", required = false) String conceptKey,
+                                                              @RequestParam(value = "inherit", defaultValue = "true") boolean inherit);
 
     @PostMapping("sparQl/query/{kgName}")
     ApiReturn<QueryResultRsp> sparQlQuery(@PathVariable("kgName") String kgName, @RequestBody SparQlReq sparQlReq);

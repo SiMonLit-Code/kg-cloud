@@ -33,7 +33,6 @@ import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.MergeClient;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
-import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
@@ -69,10 +68,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -112,7 +108,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "parentId", required = true, dataType = "long", paramType = "form", value = "所属父概念id"),
             @ApiImplicitParam(name = "name", required = true, dataType = "string", paramType = "form", value = "概念名称"),
             @ApiImplicitParam(name = "key", dataType = "string", paramType = "form", value = "概念唯一标识key"),
-            @ApiImplicitParam(name = "meaningTag", required = false, dataType = "string", paramType = "form", value = "唯一标识符")
+            @ApiImplicitParam(name = "meaningTag", dataType = "string", paramType = "form", value = "唯一标识符")
     })
     public RestResp<Long> insertConcept(@Valid @ApiIgnore InsertConceptParameter param) {
         Function<ConceptAddReq, ApiReturn<Long>> returnFunction = a -> kgDataClient.createConcept(param.getKgName(), a);
@@ -210,13 +206,12 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "isInherit", dataType = "boolean", paramType = "query", value = "是否继承展示父概念属性 默认继承")
     })
     public RestResp<List<AttributeDefinition>> attribute(@Valid @ApiIgnore AttributeParameter param) {
-        Function<AttrDefQueryReq, ApiReturn<List<AttrDefinitionRsp>>> returnFunction = a -> kgDataClient.searchAttrDefByConcept(param.getKgName(), a);
+        ApiReturn<List<AttrDefinitionRsp>> listApiReturn = kgDataClient.searchAttrDefByConcept(param.getKgName(), param.getConceptId(), param.getConceptKey(), param.getInherit());
         Function<List<AttrDefinitionRsp>, List<AttributeDefinition>> rspFunction = a -> BasicConverter.toListNoNull(a, AttrDefConverter::attrDefinitionRspToAttributeDefinition);
-        List<AttributeDefinition> attrDefList = returnFunction
-                .compose(AttrDefConverter::attributeParameterToAttrDefQueryReq)
-                .andThen(a -> BasicConverter.convert(a, rspFunction))
-                .apply(param);
-        return new RestResp<>(attrDefList);
+
+        Optional<List<AttrDefinitionRsp>> attrDefinitionRspOpt = BasicConverter.apiReturnData(listApiReturn);
+        return attrDefinitionRspOpt.map(attrDefinitionRspList ->
+                new RestResp<>(rspFunction.apply(attrDefinitionRspList))).orElseGet(() -> new RestResp<>(Collections.emptyList()));
     }
 
     @ApiOperation("KGQL查询")
@@ -312,7 +307,7 @@ public class GraphDataController implements SdkOldApiInterface {
     })
     public RestResp<List<ImportEntityBean>> entityByDataAttribute(@Valid @ApiIgnore EntityByDataAttributeParameter param) {
         EntityQueryReq entityQueryReq = EntityConverter.entityByDataAttributeParameterToEntityQueryReq(param);
-        ApiReturn<List<OpenEntityRsp>> apiReturn = editClient.queryEntityList(param.getKgName(),entityQueryReq);
+        ApiReturn<List<OpenEntityRsp>> apiReturn = editClient.queryEntityList(param.getKgName(), entityQueryReq);
         List<ImportEntityBean> entityBeanList = BasicConverter.convertList(apiReturn, EntityConverter::openEntityRspToImportEntityBean);
         return new RestResp<>(entityBeanList);
     }
