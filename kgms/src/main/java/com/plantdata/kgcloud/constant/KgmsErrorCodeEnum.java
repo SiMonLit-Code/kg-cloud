@@ -67,6 +67,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DOMAIN_WORD_NOT_EMPTY(120625, "领域词不能为空"),
     DOMAIN_CONCEPT_NOT_EMPTY(120626, "领域词相关概念不能为空"),
     CONF_QUERYSETTING_ERROR(120627, "图谱关系配置错误"),
+    CONF_RULENAME_ERROR(120628, "图谱关系名称要在64位以内"),
 
 
 
