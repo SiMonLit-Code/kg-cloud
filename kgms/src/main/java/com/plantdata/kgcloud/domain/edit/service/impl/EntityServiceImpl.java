@@ -455,6 +455,7 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public String addPrivateData(String kgName, PrivateAttrDataReq privateAttrDataReq) {
+        logSender.setActionId();
         if (AttributeValueType.isNumeric(privateAttrDataReq.getType())) {
             logSender.sendLog(KGUtil.dbName(kgName), ServiceEnum.ENTITY_EDIT);
         } else {
@@ -470,6 +471,7 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void deletePrivateData(String kgName, DeletePrivateDataReq deletePrivateDataReq) {
+        logSender.setActionId();
         if (AttributeValueType.isNumeric(deletePrivateDataReq.getType())) {
             logSender.sendLog(KGUtil.dbName(kgName), ServiceEnum.ENTITY_EDIT);
         } else {
