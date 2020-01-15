@@ -13,4 +13,7 @@ public class KgmsConstants {
         String JSON = ".json";
     }
 
+    public static final String LOG_DB_SUFFER = "_log";
+    public static final String LOG_SERVICE_TB = "service_log";
+    public static final String LOG_DATA_TB = "data_log";
 }
