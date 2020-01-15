@@ -10,17 +10,12 @@ import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -38,8 +33,35 @@ public class AttributeController implements GraphDataObtainInterface {
     @Autowired
     private KgDataClient kgDataClient;
 
+
+    @ApiOperation("属性定义-查询")
+    @GetMapping("{kgName}")
+    public ApiReturn<List<AttrDefinitionRsp>> attribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                        @ApiParam(value = "概念id，查询指定概念的属性 conceptId 和 conceptKey不能同时为空")
+                                                        @RequestParam(value = "conceptId", required = false) Long conceptId,
+                                                        @ApiParam("概念唯一标识key")
+                                                        @RequestParam(value = "conceptId", required = false) String conceptKey,
+                                                        @ApiParam("是否继承展示父概念属性 默认true")
+                                                        @RequestParam(value = "inherit", defaultValue = "true", required = false) boolean inherit) {
+        return kgDataClient.searchAttrDefByConcept(kgName, conceptId, conceptKey, inherit);
+    }
+
+    @ApiOperation("属性定义-修改")
+    @PutMapping("{kgName}")
+    public ApiReturn updateAttrDefinition(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                          @RequestBody AttrDefinitionModifyReq modifyReq) {
+        return editClient.updateAttrDefinition(kgName, modifyReq);
+    }
+
+    @ApiOperation("属性定义-批量新增")
+    @PostMapping("{kgName}/batch")
+    public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchInsertAttribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                                                   @RequestBody List<AttrDefinitionReq> attributeList) {
+        return editClient.batchAddAttrDefinition(kgName, attributeList);
+    }
+
     @ApiOperation("属性定义批量-修改")
-    @PutMapping("batchModify/{kgName}")
+    @PutMapping("{kgName}/batch")
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModify(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                           @RequestBody List<AttrDefinitionModifyReq> attributeList) {
         return editClient.batchModifyAttrDefinition(kgName, attributeList);
@@ -52,24 +74,4 @@ public class AttributeController implements GraphDataObtainInterface {
         return editClient.deleteAttrDefinition(kgName, id);
     }
 
-    @ApiOperation("属性定义-查询")
-    @GetMapping("{kgName}")
-    public ApiReturn<List<AttrDefinitionRsp>> attribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                        AttrDefQueryReq queryReq) {
-        return kgDataClient.searchAttrDefByConcept(kgName, queryReq);
-    }
-
-    @ApiOperation("属性定义-批量新增")
-    @PostMapping("{kgName}/batchAdd")
-    public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchInsertAttribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                                   @RequestBody List<AttrDefinitionReq> attributeList) {
-        return editClient.batchAddAttrDefinition(kgName, attributeList);
-    }
-
-    @ApiOperation("属性定义-修改")
-    @PostMapping("{kgName}/update")
-    public ApiReturn updateAttrDefinition(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                          @RequestBody AttrDefinitionModifyReq modifyReq) {
-        return editClient.updateAttrDefinition(kgName, modifyReq);
-    }
 }

@@ -106,9 +106,9 @@ public class GraphCommonConverter extends BasicConverter {
      */
     static List<GraphRelationRsp> simpleRelationToGraphRelationRsp(@NonNull List<SimpleRelation> simpleRelationList, boolean relationMerge) {
 
-        List<GraphRelationRsp> graphRelationRsps = listToRsp(simpleRelationList, GraphCommonConverter::simpleRelationToGraphRelationRsp);
+        List<GraphRelationRsp> graphRelationRspList = listToRsp(simpleRelationList, GraphCommonConverter::simpleRelationToGraphRelationRsp);
         if (relationMerge) {
-            Map<String, List<GraphRelationRsp>> rspMap = graphRelationRsps.stream().collect(Collectors.groupingBy(a -> a.getFrom() + "_" + a.getTo()));
+            Map<String, List<GraphRelationRsp>> rspMap = graphRelationRspList.stream().collect(Collectors.groupingBy(a -> a.getFrom()+"_"+a.getAttId() + "_" + a.getTo()));
             return rspMap.values().stream().map(a -> {
                 GraphRelationRsp one = a.get(0);
                 if (a.size() >= 2) {
@@ -117,7 +117,7 @@ public class GraphCommonConverter extends BasicConverter {
                 return one;
             }).collect(Collectors.toList());
         }
-        return graphRelationRsps;
+        return graphRelationRspList;
     }
 
 
@@ -133,7 +133,6 @@ public class GraphCommonConverter extends BasicConverter {
         relationRsp.setId(relation.getId());
         consumerIfNoNull(relation.getMetaData(), a -> MetaConverter.fillMetaWithNoNull(a, relationRsp));
         consumerIfNoNull(relation.getEdgeNumericAttr(), a -> relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(a)));
-        ///todo 等待浩哥返回实体名称
         consumerIfNoNull(relation.getEdgeObjAttr(), a -> relationRsp.setObjAttrs(edgeVoListToEdgeObjInfo(a)));
         return relationRsp;
     }

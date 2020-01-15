@@ -11,6 +11,8 @@ import lombok.Data;
 @Data
 public class AnnotationRsp {
 
+    @ApiModelProperty("数据id")
+    private String id;
     @ApiModelProperty("实体ID")
     private Long entityId;
     @ApiModelProperty("实体名称")

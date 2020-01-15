@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk.rsp.app;
 
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.OriginRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import io.swagger.annotations.ApiModelProperty;
@@ -140,5 +141,13 @@ public interface MetaDataInterface {
      */
     @ApiModelProperty(hidden = true)
     default void setReliability(Double reliability) {
+    }
+
+    /**
+     * 来源
+     * @param origin
+     */
+    @ApiModelProperty(hidden = true)
+    default void setOrigin(OriginRsp origin) {
     }
 }

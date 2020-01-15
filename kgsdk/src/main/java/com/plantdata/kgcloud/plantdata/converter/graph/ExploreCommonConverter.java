@@ -5,11 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.MongoQueryConverter;
-import com.plantdata.kgcloud.plantdata.req.common.Additional;
-import com.plantdata.kgcloud.plantdata.req.common.KVBean;
-import com.plantdata.kgcloud.plantdata.req.common.RelationBean;
-import com.plantdata.kgcloud.plantdata.req.common.RelationInfoBean;
-import com.plantdata.kgcloud.plantdata.req.common.Tag;
+import com.plantdata.kgcloud.plantdata.req.common.*;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.AbstrackGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.AttrScreeningBean;
@@ -178,6 +174,9 @@ public class ExploreCommonConverter extends BasicConverter {
         oldBean.setTo(newBean.getTo());
         oldBean.setDirection(newBean.getDirection());
         oldBean.setBatch(newBean.getBatch());
+        consumerIfNoNull(newBean.getOrigin(), a -> {
+            oldBean.setOrigin(new OriginBean(a.getSource(), a.getSourceReason()));
+        });
         oldBean.setAttName(newBean.getAttName());
         consumerIfNoNull(newBean.getStartTime(), oldBean::addStartTime);
         consumerIfNoNull(newBean.getEndTime(), oldBean::addEndTime);

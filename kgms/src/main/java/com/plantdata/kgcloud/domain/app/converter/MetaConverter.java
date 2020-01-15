@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.app.MetaDataInterface;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.OriginRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.util.DateUtils;
@@ -55,6 +56,12 @@ public class MetaConverter extends BasicConverter {
         }
         if (metaData.containsKey(MetaDataInfo.GIS_ADDRESS.getFieldName())) {
             metaDataImpl.setAddress((String) metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()));
+        }
+        if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName()) || metaData.containsKey(MetaDataInfo.SOURCE_REASON.getFieldName())) {
+            OriginRsp originRsp = new OriginRsp();
+            consumerIfNoNull(metaData.get(MetaDataInfo.SOURCE.getFieldName()), a -> originRsp.setSource(a.toString()));
+            consumerIfNoNull(metaData.get(MetaDataInfo.SOURCE_REASON.getFieldName()), a -> originRsp.setSourceReason(a.toString()));
+            metaDataImpl.setOrigin(originRsp);
         }
 
         if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
