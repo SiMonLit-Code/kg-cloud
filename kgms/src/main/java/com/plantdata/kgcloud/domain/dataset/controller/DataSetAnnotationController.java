@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.sdk.req.AnnotationCreateReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationDataReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationQueryReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationReq;
+import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.AnnotationRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 /**
  * @description:
@@ -85,8 +87,20 @@ public class DataSetAnnotationController {
         return ApiReturn.success(annotationService.update(kgName, id, req));
     }
 
+    @ApiOperation("数据集-标引-数据分页条件查询")
+    @GetMapping("/annotation/{kgName}/{datasetId}/data")
+    public ApiReturn<Page<Map<String, Object>>> annotation(
+            @PathVariable("kgName") String kgName,
+            @PathVariable("datasetId") Long datasetId,
+            DataOptQueryReq baseReq
+    ) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(annotationService.getData(userId,kgName, datasetId, baseReq));
+    }
 
-    @ApiOperation("数据集-标引-数据集数据")
+
+
+    @ApiOperation("数据集-标引-标引数据集数据")
     @PatchMapping("/annotation/{kgName}/{annotation_id}/data")
     public ApiReturn annotation(
             @PathVariable("kgName") String kgName,

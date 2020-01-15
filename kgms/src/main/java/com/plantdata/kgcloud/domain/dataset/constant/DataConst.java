@@ -18,7 +18,7 @@ public interface DataConst {
     String INDEX = "{\"type\": \"text\",\"analyzer\":\"ik_max_word\"}";
     JsonNode JSON_INDEX = JacksonUtils.readValue(INDEX, JsonNode.class);
 
-    String SMOKE_MSG = "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"keyword\"},\"category\":{\"type\":\"keyword\"},\"results\":{\"type\":\"object\"},\"msg\":{\"type\":\"keyword\"}}}";
+    String SMOKE_MSG = "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"keyword\"},\"category\":{\"type\":\"keyword\"},\"results\":{\"type\":\"boolean\"},\"msg\":{\"type\":\"keyword\"}}}";
     JsonNode JSON_SMOKE_MSG = JacksonUtils.readValue(SMOKE_MSG, JsonNode.class);
 
     String INTEGER = "{\"type\": \"integer\"}";

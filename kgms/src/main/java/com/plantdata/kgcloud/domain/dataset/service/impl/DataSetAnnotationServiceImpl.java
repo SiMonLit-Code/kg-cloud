@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
@@ -20,6 +21,7 @@ import com.plantdata.kgcloud.sdk.req.AnnotationCreateReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationDataReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationQueryReq;
 import com.plantdata.kgcloud.sdk.req.AnnotationReq;
+import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.AnnotationRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -79,6 +81,9 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
             expressions.add(cb.equal(root.get("kgName"), kgName));
             if (StringUtils.hasText(baseReq.getName())) {
                 expressions.add(cb.like(root.get("name"), "%" + baseReq.getName() + "%"));
+            }
+            if (baseReq.getTaskId() != null) {
+                expressions.add(cb.equal(root.get("taskId"), baseReq.getTaskId()));
             }
             return predicate;
         };
@@ -144,16 +149,34 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
             for (String sss : key) {
                 JsonNode node = objectNode.get(sss);
                 if (node.isArray()) {
-                    Bson query = and(eq("data_set_id", datasetId), eq("data_id", objId),eq("source", 1));
+                    Bson query = and(eq("data_set_id", datasetId), eq("data_id", objId), eq("source", 1));
                     collection.deleteMany(query);
                     for (JsonNode m : node) {
                         long kgId = m.findValue("kgId").asLong();
                         Bson up = and(eq("entity_id", kgId), eq("data_set_id", datasetId), eq("data_id", objId));
-                        Bson replace = combine(set("score", 1),set("source", 1));
+                        Bson replace = combine(set("score", 1), set("source", 1));
                         collection.updateOne(up, replace, new UpdateOptions().upsert(true));
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public Page<Map<String, Object>> getData(String userId, String kgName, Long datasetId, DataOptQueryReq req) {
+        Page<Map<String, Object>> data = dataOptService.getData(userId, datasetId, req);
+        MongoDatabase database = mongoClient.getDatabase(KGUtil.dbName(kgName));
+        MongoCollection<Document> collection = database.getCollection("entity_annotation");
+        data.map((a) -> {
+            Object id = a.get("_id");
+            MongoCursor<Document> iterator = collection.find(and(eq("data_set_id", datasetId), eq("data_id", id))).iterator();
+            if (iterator.hasNext()) {
+                a.put("isAnnotation", true);
+            } else {
+                a.put("isAnnotation", false);
+            }
+            return a;
+        });
+        return data;
     }
 }

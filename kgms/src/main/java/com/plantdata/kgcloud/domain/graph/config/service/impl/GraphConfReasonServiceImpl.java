@@ -48,6 +48,9 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
         BeanUtils.copyProperties(req, targe);
         String strRuleConfig = JacksonUtils.writeValueAsString(req.getRuleConfig());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strRuleConfig);
+        if (!jsonNode.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
+        }
         targe.setRuleConfig(jsonNode.get());
         targe.setKgName(kgName);
         targe.setId(kgKeyGenerator.getNextId());
@@ -93,6 +96,9 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
         BeanUtils.copyProperties(req, graphConfReasoning);
         String strRuleConfig = JacksonUtils.writeValueAsString(req.getRuleConfig());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strRuleConfig);
+        if (!jsonNode.isPresent()){
+            throw BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
+        }
         graphConfReasoning.setRuleConfig(jsonNode.get());
         GraphConfReasoning save = graphConfReasoningRepository.save(graphConfReasoning);
         GraphConfReasonRsp graphConfReasonRsp = GraphConfReasoningConverter.jsonNodeToMapConverter(save);

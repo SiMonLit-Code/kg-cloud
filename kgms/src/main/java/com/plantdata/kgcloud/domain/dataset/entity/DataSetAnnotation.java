@@ -55,6 +55,10 @@ public class DataSetAnnotation {
     private String kgName;
 
     @Basic
+    @Column(name = "task_id")
+    private Integer taskId;
+
+    @Basic
     @Column(name = "dataset_id")
     private Long dataId;
 
