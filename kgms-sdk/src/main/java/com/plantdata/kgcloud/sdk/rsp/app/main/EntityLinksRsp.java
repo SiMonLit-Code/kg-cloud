@@ -40,9 +40,10 @@ public class EntityLinksRsp extends BasicEntityRsp {
         private Object value;
         private Integer dataType;
 
-        public ExtraRsp(Integer attrId, String name, Integer dataType) {
+        public ExtraRsp(Integer attrId, String name, Long domainValue, Integer dataType) {
             this.attrId = attrId;
             this.name = name;
+            this.domainValue=domainValue;
             this.dataType = dataType;
         }
 

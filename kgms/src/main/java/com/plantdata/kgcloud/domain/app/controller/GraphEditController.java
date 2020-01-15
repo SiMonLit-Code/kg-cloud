@@ -17,11 +17,7 @@ import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -45,8 +41,8 @@ public class GraphEditController {
     }
 
     @ApiOperation("根据概念查询属性定义")
-    @PostMapping("/{kgName}/attribute/search")
-    public ApiReturn<List<AttrDefinitionRsp>> searchAttrDefByConcept(@PathVariable("kgName") String kgName, @Valid @RequestBody AttrDefQueryReq queryReq) {
+    @GetMapping("/{kgName}/attribute/search")
+    public ApiReturn<List<AttrDefinitionRsp>> searchAttrDefByConcept(@PathVariable("kgName") String kgName, @Valid AttrDefQueryReq queryReq) {
         graphHelperService.replaceByConceptKey(kgName, queryReq);
         List<AttrDefinitionRsp> resList = attributeService.getAttrDefinitionByConceptId(KGUtil.dbName(kgName),
                 AttrDefConverter.attrDefQueryReqToAttrDefinitionSearchReq(queryReq));

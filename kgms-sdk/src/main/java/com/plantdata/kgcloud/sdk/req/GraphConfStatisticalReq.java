@@ -19,8 +19,8 @@ public class GraphConfStatisticalReq {
     private String kgName;
 
     @ApiModelProperty(value = "统计类型")
-    private String statisType;
+    private String statisticType;
 
     @ApiModelProperty(value = "统计规则")
-    private Map<String,Object> statisRule;
+    private Map<String,Object> statisticRule;
 }

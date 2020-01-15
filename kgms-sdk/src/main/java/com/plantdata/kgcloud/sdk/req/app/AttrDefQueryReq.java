@@ -16,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AttrDefQueryReq implements ConceptKeyReqInterface {
-    @NonNull
+
     @ApiModelProperty("概念id，查询指定概念的属性 conceptId 和 conceptKey不能同时为空")
     private Long conceptId;
     @ApiModelProperty("概念唯一标识key,数据将为转换为conceptId参数")
