@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -154,7 +155,8 @@ public class ImportServiceImpl implements ImportService {
         }
         List<AttrDefinitionRsp> attrDefinitionRsps = attributeService.getAttrDefinitionByConceptId(kgName,
                 new AttrDefinitionSearchReq(conceptId));
-        attrDefinitionRsps.stream().filter(vo -> AttributeValueType.isNumeric(vo.getType()))
+        List<Integer> types = Arrays.asList(91, 92, 93);
+        attrDefinitionRsps.stream().filter(vo -> AttributeValueType.isNumeric(vo.getType()) && !types.contains(vo.getDataType()))
                 .forEach(vo -> header.add(Collections.singletonList(vo.getName() + "(" + vo.getId() + ")")));
         return header;
     }
