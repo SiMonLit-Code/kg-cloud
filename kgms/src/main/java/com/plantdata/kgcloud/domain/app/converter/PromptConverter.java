@@ -146,15 +146,6 @@ public class PromptConverter extends BasicConverter {
         from.setAttrId(String.valueOf(req.getAttrId()));
         from.setIsPrivate(NumberUtils.INTEGER_ZERO);
         from.setSearchOption(req.getSearchOption());
-        from.setSortDirection(SortTypeEnum.DESC.getValue());
-//        if (!CollectionUtils.isEmpty(req.getSorts()) && req.getSorts().size() > 0) {
-//            String sort = req.getSorts().get(0);
-//            String[] split = sort.split(":");
-//            if (split.length == 2) {
-//                Optional<SortTypeEnum> typeOpt = SortTypeEnum.parseByName(split[1]);
-//                typeOpt.ifPresent(sortTypeEnum -> from.setSortDirection(sortTypeEnum.getValue()));
-//            }
-//        }
         consumerIfNoNull(from.getSortDirection(), a -> SortTypeEnum.parseByValue(a).orElse(SortTypeEnum.DESC).getValue());
         return from;
     }

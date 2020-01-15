@@ -33,6 +33,9 @@ public enum SortTypeEnum {
     }
 
     public static Optional<SortTypeEnum> parseByValue(Integer value) {
+        if(value==null){
+            return  Optional.empty();
+        }
         for (SortTypeEnum type : SortTypeEnum.values()) {
             if (type.getValue().equals(value)) {
                 return Optional.of(type);
