@@ -136,6 +136,7 @@ public class KgLogListener {
                     updateById(kgName, segment.getId(), doc);
                 }
             } else {
+                segment =(EntitySegment)log.getOldValue();
                 deleteById(kgName, segment.getId());
             }
         }
