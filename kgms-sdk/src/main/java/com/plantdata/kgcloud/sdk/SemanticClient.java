@@ -67,17 +67,6 @@ public interface SemanticClient {
                                         @RequestParam(value = "size", defaultValue = "5") int size);
 
     /**
-     * 实体语义相关实体查询
-     *
-     * @param kgName
-     * @param listReq
-     * @return
-     */
-    @PostMapping("distance/list/{kgName}")
-    ApiReturn<List<DistanceEntityRsp>> semanticDistanceRelevance(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                 @RequestBody DistanceListReq listReq);
-
-    /**
      * 两个实体间语义距离查询
      *
      * @param kgName
