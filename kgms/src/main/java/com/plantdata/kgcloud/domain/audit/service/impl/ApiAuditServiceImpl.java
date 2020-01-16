@@ -366,7 +366,10 @@ public class ApiAuditServiceImpl implements ApiAuditService {
         } else if (Objects.equals(order, 3)) {
             rsps.sort(Comparator.comparing(ApiAuditTopRsp::getFail, Comparator.reverseOrder()));
         }
-        return rsps.subList(0, rsps.size() > 20 ? 20 : rsps.size() - 1);
+        if (rsps.size() > 20) {
+            rsps.subList(0, 20);
+        }
+        return rsps;
     }
 
 

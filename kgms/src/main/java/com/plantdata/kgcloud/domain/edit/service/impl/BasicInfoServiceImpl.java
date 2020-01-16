@@ -18,6 +18,7 @@ import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
 import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.BasicInfoType;
 import com.plantdata.kgcloud.constant.CountType;
@@ -35,6 +36,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
@@ -88,23 +90,37 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     @Autowired
     private GraphAttrGroupService graphAttrGroupService;
 
+    @Autowired
+    private LogSender logSender;
+
     @Override
     public Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq) {
+        logSender.setActionId();
+        if (BasicInfoType.isConcept(basicInfoReq.getType())) {
+            logSender.sendLog(kgName, ServiceEnum.CONCEPT_DEFINE);
+        } else {
+            logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+        }
         BasicInfoFrom basicInfoFrom = ConvertUtils.convert(BasicInfoFrom.class).apply(basicInfoReq);
         RestResp<Long> restResp = conceptEntityApi.add(KGUtil.dbName(kgName), basicInfoFrom);
-        return RestRespConverter.convert(restResp).get();
+        logSender.remove();
+        return RestRespConverter.convert(restResp).orElse(null);
     }
 
     @Override
     public void deleteBasicInfo(String kgName, Long id, Boolean force) {
+        this.sendLog(kgName, id);
         RestRespConverter.convertVoid(conceptEntityApi.delete(KGUtil.dbName(kgName), id, force));
+        logSender.remove();
     }
 
     @Override
     public void updateBasicInfo(String kgName, BasicInfoModifyReq basicInfoModifyReq) {
+        this.sendLog(kgName, basicInfoModifyReq.getId());
         UpdateBasicInfoFrom updateBasicInfoFrom =
                 ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(basicInfoModifyReq);
         RestRespConverter.convertVoid(conceptEntityApi.update(KGUtil.dbName(kgName), updateBasicInfoFrom));
+        logSender.remove();
     }
 
     @Override
@@ -144,9 +160,11 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public void updateAbstract(String kgName, AbstractModifyReq abstractModifyReq) {
+        this.sendLog(kgName, abstractModifyReq.getId());
         UpdateBasicInfoFrom updateBasicInfoFrom =
                 ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(abstractModifyReq);
         RestRespConverter.convertVoid(conceptEntityApi.update(KGUtil.dbName(kgName), updateBasicInfoFrom));
+        logSender.remove();
     }
 
     @Override
@@ -176,8 +194,20 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public void saveImageUrl(String kgName, ImageUrlReq imageUrlReq) {
+        sendLog(kgName, imageUrlReq.getId());
         UpdateBasicInfoFrom updateBasicInfoFrom = ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(imageUrlReq);
         RestRespConverter.convertVoid(conceptEntityApi.update(KGUtil.dbName(kgName), updateBasicInfoFrom));
+        logSender.remove();
+    }
+
+    private void sendLog(String kgName, Long id) {
+        logSender.setActionId();
+        Optional<Integer> optional = RestRespConverter.convert(conceptEntityApi.listBatch(KGUtil.dbName(kgName), id));
+        if (BasicInfoType.isConcept(optional.get())) {
+            logSender.sendLog(kgName, ServiceEnum.CONCEPT_DEFINE);
+        } else {
+            logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+        }
     }
 
     @Override
@@ -297,7 +327,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     public List<SimpleBasicRsp> listNames(String kgName, List<String> names) {
         BasicQuery basicQuery = new BasicQuery();
         basicQuery.setNames(names);
-        Optional<List<SimpleBasic>> optional = RestRespConverter.convert(conceptEntityApi.listBatch(KGUtil.dbName(kgName), basicQuery));
+        Optional<List<SimpleBasic>> optional =
+                RestRespConverter.convert(conceptEntityApi.listBatch(KGUtil.dbName(kgName), basicQuery));
 
         return optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(SimpleBasicRsp.class)).collect(Collectors.toList());
     }
