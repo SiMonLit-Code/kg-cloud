@@ -129,7 +129,7 @@ public class GraphCommonConverter extends BasicConverter {
         relationRsp.setAttName(relation.getAttrName());
         relationRsp.setDirection(relation.getDirection());
         relationRsp.setStartTime(relation.getAttrTimeFrom());
-        relationRsp.setEndTime(relation.getAttrTimeFrom());
+        relationRsp.setEndTime(relation.getAttrTimeTo());
         relationRsp.setId(relation.getId());
         consumerIfNoNull(relation.getMetaData(), a -> MetaConverter.fillMetaWithNoNull(a, relationRsp));
         consumerIfNoNull(relation.getEdgeNumericAttr(), a -> relationRsp.setDataValAttrs(edgeVoListToEdgeInfo(a)));
