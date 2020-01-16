@@ -138,7 +138,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             if (Objects.equals(entry.getKey(), "search")) {
                 Map<String, String> value = (Map<String, String>) entry.getValue();
                 for (Map.Entry<String, String> objectEntry : value.entrySet()) {
-                    String s = "{\"prefix\":{\"" + objectEntry.getKey() + "\":\"" + objectEntry.getValue() + "\"}}";
+                    String s = "{\"wildcard\":{\"" + objectEntry.getKey() + "\":{\"value\":\"*" + objectEntry.getValue() + "*\"}}}";
                     queryNode.putPOJO("query", JacksonUtils.readValue(s, JsonNode.class));
                 }
             }
