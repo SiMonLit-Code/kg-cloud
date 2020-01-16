@@ -84,7 +84,7 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
         GraphReasoningDTO reasoningDTO = new GraphReasoningDTO(reasoning.getRuleIdCatchMap());
         reasoningAndFill(kgName, graphVO, reasoningReq, reasoningDTO);
         if (reasoningParam.fetchDistance() != null && reasoningParam.fetchDistance() == 1) {
-            return null;
+            return reasoningDTO;
         }
         //二次推理
         Set<Long> realDomains = reasoning.getReasonRuleList().stream().map(RelationReasonRuleRsp::getDomain).collect(Collectors.toSet());
