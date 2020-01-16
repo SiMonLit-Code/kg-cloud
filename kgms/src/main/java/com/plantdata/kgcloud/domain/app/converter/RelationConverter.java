@@ -61,8 +61,8 @@ public class RelationConverter extends BasicConverter {
         relationRsp.setDirection(relation.getDirection());
         relationRsp.setFrom(relation.getFromId());
         relationRsp.setTo(relation.getToId());
-        relationRsp.setStartTime(relationRsp.getStartTime());
-        relationRsp.setEndTime(relationRsp.getEndTime());
+        relationRsp.setStartTime(relation.getStartTime());
+        relationRsp.setEndTime(relation.getEndTime());
         return relationRsp;
     }
 
