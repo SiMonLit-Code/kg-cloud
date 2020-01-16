@@ -39,6 +39,13 @@ public class ApiAuditController {
         return ApiReturn.success(apiAuditService.findAllKgName());
     }
 
+    @ApiOperation("查找所有url")
+    @GetMapping("/urls")
+    public ApiReturn<List<String>> findAllUrls() {
+        return ApiReturn.success(apiAuditService.findAllString());
+    }
+
+
     @ApiOperation("kgname分组")
     @PostMapping("/group/kgname")
     public ApiReturn<List<ApiAuditRsp>> groupByKgName(@RequestBody ApiAuditReq req) {

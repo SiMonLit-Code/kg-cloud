@@ -93,6 +93,26 @@ public class ApiAuditServiceImpl implements ApiAuditService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<String> findAllString() {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+        Root<ApiAudit> root = query.from(ApiAudit.class);
+        Predicate predicate = cb.conjunction();
+        Path<String> url = root.<String>get("url");
+        Selection<String> name = url.alias("name");
+        query.multiselect(name);
+        query.groupBy(url);
+        query.where(predicate);
+        TypedQuery<Tuple> typedQuery = entityManager.createQuery(query);
+        List<Tuple> resultList = typedQuery.getResultList();
+        List<String> auditRspList = new ArrayList<>();
+        for (Tuple tuple : resultList) {
+            auditRspList.add((String) tuple.get(0));
+        }
+        return auditRspList;
+    }
+
     /**
      * mybatis实现
      * <p>
@@ -429,7 +449,7 @@ public class ApiAuditServiceImpl implements ApiAuditService {
     private void setApiQuery(List<Expression<Boolean>> expressions, Root<ApiAudit> root, CriteriaBuilder cb, ApiAuditReq req) {
         expressions.add(cb.between(root.<Date>get("invokeAt"), req.getBeginTime(), req.getEndTime()));
         if (req.getUrls() != null && !req.getUrls().isEmpty()) {
-            expressions.add(cb.in(root.<String>get("url")).in(req.getUrls()));
+            expressions.add(root.<String>get("url").in(req.getUrls()));
         }
         if (StringUtils.hasText(req.getKgName())) {
             expressions.add(cb.equal(root.<String>get("kgName"), req.getKgName()));
