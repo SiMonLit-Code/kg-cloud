@@ -92,13 +92,4 @@ public class SemanticController implements SdkOpenApiInterface {
         return ApiReturn.success(distanceOpt.orElse(NumberUtils.DOUBLE_ZERO));
     }
 
-    @ApiOperation("实体语义相关实体查询")
-    @PostMapping("distance/list/{kgName}")
-    public ApiReturn<List<DistanceEntityRsp>> semanticDistanceRelevance(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                        @Valid @RequestBody DistanceListReq listReq) {
-
-        SemanticDistanceFrom distanceFrom = DistanceConverter.distanceListReqToSemanticDistanceFrom(listReq);
-        Optional<List<SemanticDistance>> distanceOpt = RestRespConverter.convert(semanticApi.distance(KGUtil.dbName(kgName), distanceFrom));
-        return ApiReturn.success();
-    }
 }
