@@ -26,7 +26,7 @@ public class GraphLogController {
     @Autowired
     private GraphLogService graphLogService;
 
-    @ApiOperation("业务层日志列表")
+    @ApiOperation("查询业务层日志")
     @PostMapping("/service/{kgName}")
     public ApiReturn<BasePage<ServiceLogRsp>> serviceLogList(@PathVariable("kgName") String kgName,
                                                              @RequestBody ServiceLogReq req) {
@@ -35,7 +35,7 @@ public class GraphLogController {
     }
 
     @GetMapping("/data/{kgName}/{batch}")
-    @ApiOperation("根据批次号查询日志")
+    @ApiOperation("查询数据层日志根据批次号")
     public ApiReturn<BasePage<DataLogRsp>> dataLogList(@PathVariable("kgName") String kgName,
                                                        @ApiParam("批次号") @PathVariable("batch") String batch,
                                                        BaseReq req) {
@@ -44,7 +44,7 @@ public class GraphLogController {
     }
 
     @GetMapping("/{kgName}/entity/{id}")
-    @ApiOperation("实例编辑/概念定义 日志")
+    @ApiOperation("查询实例编辑/概念编辑的数据层日志")
     public ApiReturn<BasePage<DataLogRsp>> entityLogList(@PathVariable("kgName") String kgName,
                                                          @ApiParam("实体ID") @PathVariable("id") Long id,
                                                          @NotNull @ApiParam("实体类型") @RequestParam("type") Integer type,
@@ -52,4 +52,24 @@ public class GraphLogController {
         BasePage<DataLogRsp> page = graphLogService.entityLogList(kgName, id, type, req);
         return ApiReturn.success(page);
     }
+
+    @GetMapping("/{kgName}/attr/{relationAttrId}/edge/define")
+    @ApiOperation("查询边属性定义的数据层日志")
+    public ApiReturn<BasePage<DataLogRsp>> entityLogList(@PathVariable("kgName") String kgName,
+                                                         @ApiParam("关系ID") @PathVariable("relationAttrId") Integer relationAttrId,
+                                                         BaseReq req) {
+        BasePage<DataLogRsp> page = graphLogService.edgeAttrLogList(kgName, relationAttrId, req);
+        return ApiReturn.success(page);
+    }
+
+    @GetMapping("/{kgName}/entity/{entityId}/attr/{relationId}")
+    @ApiOperation("查询关系编辑的数据层日志")
+    public ApiReturn<BasePage<DataLogRsp>> relationLogList(@PathVariable("kgName") String kgName,
+                                                         @ApiParam("实体ID") @PathVariable("entityId") Long entityId,
+                                                         @ApiParam("关系ID") @PathVariable("relationId") Integer relationId,
+                                                         BaseReq req) {
+        BasePage<DataLogRsp> page = graphLogService.relationLogList(kgName, entityId, relationId, req);
+        return ApiReturn.success(page);
+    }
+
 }

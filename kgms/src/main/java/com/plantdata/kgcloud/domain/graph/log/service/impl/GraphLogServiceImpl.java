@@ -155,12 +155,37 @@ public class GraphLogServiceImpl implements GraphLogService {
         if (type == 0) {
             query = Filters.and(
                     Filters.eq("scope", GraphLogScope.CONCEPT.name()),
-                    Filters.eq("newValue.id", id));
+                    Filters.eq("newValue.id", id)
+            );
         } else {
             query = Filters.and(
                     Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name())),
-                    Filters.eq("newValue.id", id));
+                    Filters.eq("newValue.id", id)
+            );
         }
+        return logList(kgName, query, page, req.getSize());
+    }
+
+    @Override
+    public BasePage<DataLogRsp> edgeAttrLogList(String kgName, Integer relationAttrId, BaseReq req) {
+
+        int page = (req.getPage() - 1) * req.getSize();
+        Bson query = Filters.and(
+                Filters.eq("scope", GraphLogScope.SIDE_ATTR_DEFINE),
+                Filters.eq("newValue.attrId", relationAttrId)
+        );
+        return logList(kgName, query, page, req.getSize());
+    }
+
+    @Override
+    public BasePage<DataLogRsp> relationLogList(String kgName, Long entityId, Integer relationId, BaseReq req) {
+
+        int page = (req.getPage() - 1) * req.getSize();
+        Bson query = Filters.and(
+                Filters.in("scope", GraphLogScope.RELATION, GraphLogScope.RELATION_OBJECT, GraphLogScope.RELATION_VALUE),
+                Filters.eq("newValue.entityId", entityId),
+                Filters.eq("newValue.attrId", relationId)
+        );
         return logList(kgName, query, page, req.getSize());
     }
 }
