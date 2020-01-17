@@ -23,7 +23,7 @@ public class DataOptProviderFactory {
                 provider = new ElasticSearchOptProvider(info);
                 break;
             case PD_DOCUMENT:
-                provider = new MongodbOptProvider(info);
+                provider = new PdDocumentOptProvider(info);
                 break;
             default:
                 provider = new NopProvider();

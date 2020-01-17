@@ -1,11 +1,24 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
+import com.plantdata.kgcloud.domain.dataset.converter.ApiReturnConverter;
+import com.plantdata.kgcloud.sdk.KgtextClient;
+import com.plantdata.kgcloud.sdk.req.CorpusSearchReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.CorpusRsp;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -14,6 +27,15 @@ import java.util.Map;
  **/
 public class PdDocumentOptProvider implements DataOptProvider {
 
+    private final String database;
+
+    public PdDocumentOptProvider(DataOptConnect info) {
+        database = info.getDatabase();
+    }
+
+    @Autowired
+    private KgtextClient kgtextClient;
+
     @Override
     public List<String> getFields() {
         return null;
@@ -21,11 +43,40 @@ public class PdDocumentOptProvider implements DataOptProvider {
 
     @Override
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
-        return null;
+        CorpusSearchReq corpusSearchReq = new CorpusSearchReq();
+        corpusSearchReq.setCpId(Long.parseLong(database));
+        corpusSearchReq.setPage(offset + 1);
+        corpusSearchReq.setSize(limit);
+        Optional<Page<CorpusRsp>> optional = ApiReturnConverter.convert(kgtextClient.listCorpuses(corpusSearchReq));
+        if (!optional.isPresent()) {
+            return null;
+        } else {
+            Page<CorpusRsp> corpusRsps = optional.get();
+            List<CorpusRsp> contents = corpusRsps.getContent();
+            return contents.stream().map(this::beanToMap).collect(Collectors.toList());
+        }
+    }
+
+    private Map<String, Object> beanToMap(CorpusRsp corpusRsp) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            BeanInfo b = Introspector.getBeanInfo(corpusRsp.getClass(), CorpusRsp.class);
+            PropertyDescriptor[] pds = b.getPropertyDescriptors();
+            for (PropertyDescriptor pd : pds) {
+                String propertyName = pd.getName();
+                Method m = pd.getReadMethod();
+                Object properValue = m.invoke(corpusRsp);
+                map.put(propertyName, properValue);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 
     @Override
-    public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
+    public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query,
+                                                  Map<String, Object> sort) {
         return null;
     }
 
@@ -36,7 +87,15 @@ public class PdDocumentOptProvider implements DataOptProvider {
 
     @Override
     public Map<String, Object> findOne(String id) {
-        return null;
+        Optional<CorpusRsp> optional = ApiReturnConverter.convert(kgtextClient.getDetails(Long.parseLong(database),
+                id));
+        if (!optional.isPresent()) {
+            return null;
+        } else {
+            CorpusRsp corpusRsp = optional.get();
+            return this.beanToMap(corpusRsp);
+        }
+
     }
 
     @Override
