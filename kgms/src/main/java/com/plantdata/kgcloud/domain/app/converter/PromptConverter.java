@@ -39,9 +39,9 @@ public class PromptConverter extends BasicConverter {
     public static SearchByAttributeFrom seniorPromptReqToSearchByAttributeFrom(@NonNull SeniorPromptReq promptReq, List<Map<String, Object>> queryMapList) {
         SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
         consumerIfNoNull(queryMapList, a -> attributeFrom.setKvMap(a.get(0)));
-        consumerIfNoNull(promptReq.getKw(),attributeFrom::setEntityName);
+        consumerIfNoNull(promptReq.getKw(), attributeFrom::setEntityName);
         attributeFrom.setInherit(true);
-        consumerIfNoNull(promptReq.getConceptId(),a-> attributeFrom.setConceptIds(Lists.newArrayList(a)));
+        consumerIfNoNull(promptReq.getConceptId(), a -> attributeFrom.setConceptIds(Lists.newArrayList(a)));
         return attributeFrom;
     }
 
@@ -56,9 +56,9 @@ public class PromptConverter extends BasicConverter {
         from.setText(req.getKw());
         Optional<PromptResultTypeEnum> enumObject = EnumUtils.getEnumObject(PromptResultTypeEnum.class, req.getType());
         PromptResultTypeEnum resultType = enumObject.orElse(PromptResultTypeEnum.ENTITY);
-        if(PromptResultTypeEnum.CONCEPT_ENTITY==resultType){
-            from.setTypes(Lists.newArrayList(PromptResultTypeEnum.CONCEPT.getId(),PromptResultTypeEnum.ENTITY.getId()));
-        }else{
+        if (PromptResultTypeEnum.CONCEPT_ENTITY == resultType) {
+            from.setTypes(Lists.newArrayList(PromptResultTypeEnum.CONCEPT.getId(), PromptResultTypeEnum.ENTITY.getId()));
+        } else {
             from.setTypes(Lists.newArrayList(resultType.getId()));
         }
         return from;
@@ -146,7 +146,8 @@ public class PromptConverter extends BasicConverter {
         from.setAttrId(String.valueOf(req.getAttrId()));
         from.setIsPrivate(NumberUtils.INTEGER_ZERO);
         from.setSearchOption(req.getSearchOption());
-        consumerIfNoNull(from.getSortDirection(), a -> SortTypeEnum.parseByValue(a).orElse(SortTypeEnum.DESC).getValue());
+        Integer sortDirection = SortTypeEnum.parseByValue(from.getSortDirection()).orElse(SortTypeEnum.DESC).getValue();
+        from.setSortDirection(sortDirection);
         return from;
     }
 }

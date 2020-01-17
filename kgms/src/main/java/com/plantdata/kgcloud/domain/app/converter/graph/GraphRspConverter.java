@@ -25,10 +25,7 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -87,33 +84,42 @@ public class GraphRspConverter extends BasicConverter {
         List<GraphStatisticRsp> statisticRspList = Lists.newArrayList();
         for (BasicStatisticReq config : configList) {
             //拿要计算的type, 构建待计算的entityList
+            GraphStatisticRsp graphStatisticRsp = new GraphStatisticRsp(config.getKey(), config.getConceptId(), config.getAttrIdList(), Collections.emptyList());
             List<SimpleEntity> entityRspList = conceptIdKeyMap.get(config.getConceptId());
             if (CollectionUtils.isEmpty(entityRspList)) {
+                statisticRspList.add(graphStatisticRsp);
                 continue;
             }
-            Set<Long> entityIdSet = entityRspList.stream().map(SimpleEntity::getId).collect(Collectors.toSet());
-            //在要计算的entityList中计算匹配的关系
-            List<Long> entityIds = Lists.newArrayList();
-            config.getAttrIdList().stream().filter(attrIdKeyMap::containsKey).forEach(a -> {
-                List<SimpleRelation> relationRspList = attrIdKeyMap.get(a);
-                relationRspList.forEach(rsp -> {
-                    if (entityIdSet.contains(rsp.getFrom())) {
-                        entityIds.add(rsp.getFrom());
-                    }
-                    if (entityIdSet.contains(rsp.getTo())) {
-                        entityIds.add(rsp.getTo());
-                    }
-                });
-            });
+            List<Long> entityIds = fetchEntityIds(entityRspList, attrIdKeyMap, config);
             if (CollectionUtils.isEmpty(entityIds)) {
+                statisticRspList.add(graphStatisticRsp);
                 continue;
             }
             Map<Long, Long> countMap = entityIds.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
             List<GraphStatisticRsp.GraphStatisticDetailRsp> detailList = countMap.entrySet().stream().map(entry -> new GraphStatisticRsp.GraphStatisticDetailRsp(entry.getKey(), entry.getValue().intValue())).collect(Collectors.toList());
             //将结果写回configBean
-            statisticRspList.add(new GraphStatisticRsp(config.getKey(), config.getConceptId(), config.getAttrIdList(), detailList));
+            graphStatisticRsp.setStatisticDetails(detailList);
+            statisticRspList.add(graphStatisticRsp);
         }
         return statisticRspList;
+    }
+
+    private static List<Long> fetchEntityIds( List<SimpleEntity> entityRspList, Map<Integer, List<SimpleRelation>> attrIdKeyMap ,BasicStatisticReq config){
+        Set<Long> entityIdSet = entityRspList.stream().map(SimpleEntity::getId).collect(Collectors.toSet());
+        //在要计算的entityList中计算匹配的关系
+        List<Long> entityIds = Lists.newArrayList();
+        config.getAttrIdList().stream().filter(attrIdKeyMap::containsKey).forEach(a -> {
+            List<SimpleRelation> relationRspList = attrIdKeyMap.get(a);
+            relationRspList.forEach(rsp -> {
+                if (entityIdSet.contains(rsp.getFrom())) {
+                    entityIds.add(rsp.getFrom());
+                }
+                if (entityIdSet.contains(rsp.getTo())) {
+                    entityIds.add(rsp.getTo());
+                }
+            });
+        });
+        return entityIds;
     }
 
     public static Optional<GraphInitRsp> rebuildGraphInitRsp(GraphConfFocus initGraphBean, GraphInitRsp graphInitRsp) {
