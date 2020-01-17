@@ -4,18 +4,23 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.share.entity.LinkShare;
 import com.plantdata.kgcloud.domain.share.repository.LinkShareRepository;
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
-import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
+
 import com.plantdata.kgcloud.domain.share.rsp.ShareRsp;
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
 import com.plantdata.kgcloud.sdk.UserClient;
+import com.plantdata.kgcloud.sdk.req.SelfSharedRsp;
+import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
+import com.plantdata.kgcloud.security.JwtClient;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -34,7 +39,8 @@ public class LinkShareServiceImpl implements LinkShareService {
 
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
-
+    @Autowired
+    private JwtClient jwtClient;
 
     @Override
     public LinkShareSpaRsp shareStatus(String userId, String kgName, String spaId) {
@@ -108,6 +114,7 @@ public class LinkShareServiceImpl implements LinkShareService {
     public ShareRsp shareLink(String userId, String kgName, String spaId) {
         LinkShare linkShare = getOne(kgName, spaId);
         linkShare.setShared(true);
+        linkShare.setUserId(userId);
         LinkShare save = linkShareRepository.save(linkShare);
         return ConvertUtils.convert(ShareRsp.class).apply(save);
     }
@@ -116,7 +123,34 @@ public class LinkShareServiceImpl implements LinkShareService {
     public ShareRsp shareCancel(String userId, String kgName, String spaId) {
         LinkShare linkShare = getOne(kgName, spaId);
         linkShare.setShared(false);
+        linkShare.setUserId(userId);
         LinkShare save = linkShareRepository.save(linkShare);
         return ConvertUtils.convert(ShareRsp.class).apply(save);
+    }
+
+    @Override
+    public SelfSharedRsp shareSpaStatus(String userId, String kgName, String spaId, String token) {
+        SelfSharedRsp selfSharedRsp = new SelfSharedRsp();
+        if (!StringUtils.hasText(token)) {
+            selfSharedRsp.setLogin(false);
+        }
+        String user = jwtClient.parseClaimUserId(token);
+        if (user == null) {
+            selfSharedRsp.setLogin(false);
+        } else {
+            selfSharedRsp.setLogin(true);
+        }
+        if (user != null && userId != null) {
+            if (Objects.equals(user, userId)) {
+                selfSharedRsp.setSelf(true);
+            } else {
+                selfSharedRsp.setSelf(false);
+            }
+        }
+        UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
+        selfSharedRsp.setSharePermission(data.getShareable());
+        LinkShare linkShare = getOne(kgName, spaId);
+        selfSharedRsp.setShareable(linkShare.getShared());
+        return selfSharedRsp;
     }
 }

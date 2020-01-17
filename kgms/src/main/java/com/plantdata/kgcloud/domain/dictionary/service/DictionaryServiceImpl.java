@@ -77,12 +77,13 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public DictionaryRsp insert(DictionaryReq req) {
+    public DictionaryRsp insert(String userId,DictionaryReq req) {
         Dictionary target = new Dictionary();
         BeanUtils.copyProperties(req, target);
         String dbName = SessionHolder.getUserId() + DictConst.DATABASE_SUFFIX;
         target.setDbName(dbName);
         target.setId(kgKeyGenerator.getNextId());
+        target.setUserId(userId);
         target = dictionaryRepository.save(target);
         DictionaryRsp apply = ConvertUtils.convert(DictionaryRsp.class).apply(target);
         return apply;

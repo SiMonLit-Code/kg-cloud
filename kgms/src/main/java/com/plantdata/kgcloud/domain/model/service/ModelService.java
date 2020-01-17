@@ -65,7 +65,7 @@ public interface ModelService {
      * @param r
      * @return
      */
-    ModelRsp insert(KgmsModelReq r);
+    ModelRsp insert(String userId,KgmsModelReq r);
 
     /**
      * 修改接口

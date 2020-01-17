@@ -38,7 +38,6 @@ import java.util.Date;
 public class Graph {
     @Id
     @Column(name = "user_id")
-    @CreatedBy
     private String userId;
 
     @Id

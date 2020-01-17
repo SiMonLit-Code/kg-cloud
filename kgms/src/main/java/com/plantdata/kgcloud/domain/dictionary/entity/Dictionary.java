@@ -42,7 +42,6 @@ public class Dictionary {
 
     @Basic
     @Column(name = "user_id")
-    @CreatedBy
     private String userId;
 
     @Basic

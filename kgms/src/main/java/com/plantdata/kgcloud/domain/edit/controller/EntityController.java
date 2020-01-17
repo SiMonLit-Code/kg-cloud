@@ -18,6 +18,9 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.ReliabilityModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.ScoreModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.SourceModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
@@ -113,7 +116,6 @@ public class EntityController {
 
     @ApiOperation("实体-删除-根据概念id删除实体")
     @PostMapping("/{kgName}/concept/delete")
-    @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
     public ApiReturn<Long> deleteByConceptId(@PathVariable("kgName") String kgName,
                                              @Valid @RequestBody EntityDeleteReq entityDeleteReq) {
         return ApiReturn.success(entityService.deleteByConceptId(kgName, entityDeleteReq));
@@ -144,6 +146,36 @@ public class EntityController {
                                                   @Valid @RequestBody SsrModifyReq ssrModifyReq) {
 
         entityService.updateScoreSourceReliability(kgName, entityId, ssrModifyReq);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("实体-修改-更新权重")
+    @PostMapping("/{kgName}/{entityId}/score")
+    @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
+    public ApiReturn updateScore(@PathVariable("kgName") String kgName,
+                                                  @PathVariable("entityId") Long entityId,
+                                                  @Valid @RequestBody ScoreModifyReq scoreModifyReq) {
+        entityService.updateScore(kgName, entityId, scoreModifyReq);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("实体-修改-更新来源")
+    @PostMapping("/{kgName}/{entityId}/source")
+    @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
+    public ApiReturn updateSource(@PathVariable("kgName") String kgName,
+                                                  @PathVariable("entityId") Long entityId,
+                                                  @Valid @RequestBody SourceModifyReq sourceModifyReq) {
+        entityService.updateSource(kgName, entityId, sourceModifyReq);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("实体-修改-更新可信度")
+    @PostMapping("/{kgName}/{entityId}/reliability")
+    @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
+    public ApiReturn updateReliability(@PathVariable("kgName") String kgName,
+                                                  @PathVariable("entityId") Long entityId,
+                                                  @Valid @RequestBody ReliabilityModifyReq reliabilityModifyReq) {
+        entityService.updateReliability(kgName, entityId, reliabilityModifyReq);
         return ApiReturn.success();
     }
 
