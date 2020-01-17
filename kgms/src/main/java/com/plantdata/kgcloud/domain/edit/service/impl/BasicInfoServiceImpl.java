@@ -54,6 +54,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -320,7 +321,18 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public Object executeQl(KgqlReq kgqlReq) {
-        return RestRespConverter.convert(qlApi.executeQl(kgqlReq.getQuery()));
+        String query = kgqlReq.getQuery();
+        if (StringUtils.hasText(query)){
+            try {
+                int s = query.indexOf("\"");
+                int e = query.indexOf("\"", s);
+                String kgName = query.substring(s, e);
+                query = query.replace(kgName,KGUtil.dbName(kgName));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return RestRespConverter.convert(qlApi.executeQl(query));
     }
 
     @Override
