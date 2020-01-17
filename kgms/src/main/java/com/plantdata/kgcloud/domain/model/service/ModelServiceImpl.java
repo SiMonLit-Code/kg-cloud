@@ -78,10 +78,11 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ModelRsp insert(KgmsModelReq req) {
+    public ModelRsp insert(String userId,KgmsModelReq req) {
         Model target = new Model();
         BeanUtils.copyProperties(req, target);
         target.setId(kgKeyGenerator.getNextId());
+        target.setUserId(userId);
         target = modelRepository.save(target);
         return ConvertUtils.convert(ModelRsp.class).apply(target);
     }

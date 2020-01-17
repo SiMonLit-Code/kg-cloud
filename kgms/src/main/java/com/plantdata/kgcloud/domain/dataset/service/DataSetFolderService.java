@@ -56,7 +56,7 @@ public interface DataSetFolderService {
      * @param req
      * @return
      */
-    FolderRsp folderInsert(FolderReq req);
+    FolderRsp folderInsert(String userId,FolderReq req);
 
     /**
      * 删除

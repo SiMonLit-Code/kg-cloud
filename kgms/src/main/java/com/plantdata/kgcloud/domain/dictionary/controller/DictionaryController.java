@@ -62,6 +62,7 @@ public class DictionaryController {
     @ApiOperation("词典创建")
     @PostMapping("/")
     public ApiReturn<DictionaryRsp> insert(@Valid @RequestBody DictionaryReq dictionaryReq) {
+        String userId = SessionHolder.getUserId();
         return ApiReturn.success(dictionaryService.insert(dictionaryReq));
     }
 

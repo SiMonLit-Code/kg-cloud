@@ -31,7 +31,6 @@ public class MenuFavor {
 
     @Id
     @Column(name = "user_id")
-    @CreatedBy
     private String userId;
 
     @Basic
