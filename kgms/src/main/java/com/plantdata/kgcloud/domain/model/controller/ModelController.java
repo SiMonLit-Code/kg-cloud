@@ -63,8 +63,8 @@ public class ModelController {
     @ApiOperation("模型创建")
     @PostMapping("/")
     public ApiReturn<ModelRsp> insert(@Valid @RequestBody KgmsModelReq modelReq) {
-
-        return ApiReturn.success(modelService.insert(modelReq));
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(modelService.insert(userId,modelReq));
     }
 
     @ApiOperation("模型编辑")
