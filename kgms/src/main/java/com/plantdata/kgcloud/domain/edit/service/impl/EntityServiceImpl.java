@@ -62,6 +62,7 @@ import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
+import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
@@ -217,6 +218,8 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public Long deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq) {
+        logSender.setActionId();
+        entityDeleteReq.setActionId(ThreadLocalUtils.getBatchNo());
         TaskGraphStatusReq taskGraphStatusReq = TaskGraphStatusReq.builder()
                 .kgName(kgName)
                 .status(TaskStatus.PROCESSING.getStatus())
@@ -227,6 +230,8 @@ public class EntityServiceImpl implements EntityService {
                 .build();
         TaskGraphStatus taskGraphStatus = taskGraphStatusService.create(taskGraphStatusReq);
         kafkaMessageProducer.sendMessage(topicKgTask, taskGraphStatus);
+        logSender.sendLog(kgName,ServiceEnum.ENTITY_EDIT);
+        logSender.remove();
         return taskGraphStatus.getId();
     }
 
