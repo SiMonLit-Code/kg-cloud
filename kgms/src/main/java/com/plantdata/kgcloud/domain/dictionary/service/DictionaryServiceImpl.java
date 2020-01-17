@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +56,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         Dictionary probe = Dictionary.builder()
                 .userId(userId)
                 .build();
-        Page<Dictionary> all = dictionaryRepository.findAll(Example.of(probe), PageRequest.of(baseReq.getPage() - 1, baseReq.getSize()));
+        Page<Dictionary> all = dictionaryRepository.findAll(Example.of(probe), PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), Sort.by(Sort.Direction.DESC,"createAt")));
         Page<DictionaryRsp> map = all.map(ConvertUtils.convert(DictionaryRsp.class));
         return map;
     }
