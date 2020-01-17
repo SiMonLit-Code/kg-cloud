@@ -60,7 +60,7 @@ public class ReasonServiceImpl implements ReasonService {
 
             Document matchDoc = null;
             if (type == 1) {
-                matchDoc = new Document("exec_id", taskId);
+                matchDoc = new Document("exec_id", taskId).append("status", new Document("$ne", 1));
             } else {
                 if (dataIdList != null && dataIdList.size() > 0) {
                     List<ObjectId> idList = new ArrayList<>();
