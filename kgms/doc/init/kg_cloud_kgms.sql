@@ -18,10 +18,6 @@ CREATE TABLE `api_audit`  (
   INDEX `idx_invoke_time`(`invoke_at`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin  COMMENT = '数据集管理' ROW_FORMAT = Dynamic;
 
-INSERT INTO api_audit ( id,url, kg_name, page,status, invoke_at) 
-SELECT id, url, kg_name, page, status, invoke_time
-FROM plantdata_manage.t_sdk;
-
 -- ----------------------------
 -- Table structure for data_set
 -- ----------------------------
@@ -52,12 +48,6 @@ CREATE TABLE `data_set`  (
   UNIQUE INDEX `uk_data_name`(`data_name`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '数据集管理' ROW_FORMAT = Dynamic;
 
-
-INSERT INTO data_set (id,user_id,data_name,title,is_private,is_editable,data_type,create_type,username,password,db_name,tb_name,create_way,fields,schema_config,mapper,skill_config,create_at,update_at,addr) 
-SELECT id,user_id, data_name,title,is_private,allow_edit,data_type,create_type,username,password,db_name,tb_name,create_way,fields,schema_config,mapper,skill_config,create_time,update_time,concat(ip,':',port)
-FROM plantdata_manage.t_my_data;
-
-
 -- ----------------------------
 -- Table structure for data_set_annotation
 -- ----------------------------
@@ -76,12 +66,6 @@ CREATE TABLE `data_set_annotation`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '手工标引表' ROW_FORMAT = Dynamic;
 
-
-INSERT INTO data_set_annotation ( id, user_id, kg_name, dataset_id, title, config, remark, create_at, update_at ) 
-SELECT id,user_id,kg_name,data_id,name,config,description,create_time,update_time 
-FROM plantdata_manage.t_annotation;
-
-
 -- ----------------------------
 -- Table structure for data_set_folder
 -- ----------------------------
@@ -95,15 +79,6 @@ CREATE TABLE `data_set_folder`  (
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '数据集文件夹' ROW_FORMAT = Dynamic;
-
-INSERT INTO data_set_folder (id,user_id,folder_name,is_defaulted,create_at,update_at) 
-SELECT id,user_id, file_name,type,create_time,update_time
-FROM plantdata_manage.t_file_manage;
-
-
-update data_set a1,plantdata_manage.t_data_file a2
-   set a1.folder_id = a2.file_id
- where a1.id=a2.data_id;
 
 -- ----------------------------
 -- Table structure for dictionary
@@ -139,10 +114,6 @@ CREATE TABLE `graph`  (
   PRIMARY KEY (`kg_name`, `user_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱管理' ROW_FORMAT = Dynamic;
 
-INSERT INTO graph (kg_name,db_name,user_id,title,icon,is_privately,is_editable,is_deleted,remark,create_at,update_at) 
-SELECT graph_name,'',user_id,title,icon,is_private,allow_edit,edit_view_type,remark,create_time,update_time
-FROM plantdata_manage.t_my_graph;
-
 -- ----------------------------
 -- Table structure for graph_attr_group
 -- ----------------------------
@@ -156,10 +127,6 @@ CREATE TABLE `graph_attr_group`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱属性分组表' ROW_FORMAT = Dynamic;
 
-
-INSERT INTO graph_attr_group ( id, kg_name, group_name, create_at, update_at ) 
-SELECT id, kg_name, name,create_time,update_time
-FROM plantdata_manage.t_attr_category;
 -- ----------------------------
 -- Table structure for graph_attr_group_details
 -- ----------------------------
@@ -171,10 +138,6 @@ CREATE TABLE `graph_attr_group_details`  (
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`attr_id`, `group_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱属性与属性分组关联表' ROW_FORMAT = Dynamic;
-
-INSERT INTO graph_attr_group_details (attr_id,group_id,create_at,update_at) 
-SELECT attr_id, category_id,create_time,update_time
-FROM plantdata_manage.t_attr_category_details;
 
 -- ----------------------------
 -- Table structure for graph_attr_template
@@ -214,10 +177,6 @@ CREATE TABLE `graph_conf_algorithm`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱业务算法配置' ROW_FORMAT = Dynamic;
 
-INSERT INTO graph_conf_algorithm (kg_name,algorithm_name,algorithm_url,remark,create_at,update_at) 
-SELECT kg_name,name,url,abs,create_time,update_time
-FROM plantdata_manage.t_graph_business_algorithm;
-
 -- ----------------------------
 -- Table structure for graph_conf_focus
 -- ----------------------------
@@ -231,12 +190,6 @@ CREATE TABLE `graph_conf_focus`  (
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`kg_name`, `focus_type`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱默认焦点配置' ROW_FORMAT = Dynamic;
-
-
-INSERT INTO graph_conf_focus (kg_name,focus_type,focus_entity,focus_config,create_at,update_at) 
-SELECT kg_name,type,entities,config,create_time,update_time
-FROM plantdata_manage.t_init_graph;
-
 
 -- ----------------------------
 -- Table structure for graph_conf_kgql
@@ -253,10 +206,6 @@ CREATE TABLE `graph_conf_kgql`  (
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图探索规则配置' ROW_FORMAT = Dynamic;
-
-INSERT INTO graph_conf_kgql (kg_name,rule_type,kgql_name,kgql,rule_settings,create_at,update_at) 
-SELECT kg_name,rule_type,rule_name,rule_kgql,rule_settings,create_time,update_time
-FROM plantdata_manage.t_graph_rule;
 
 -- ----------------------------
 -- Table structure for graph_conf_qa
@@ -275,10 +224,6 @@ CREATE TABLE `graph_conf_qa`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱qa问答模板' ROW_FORMAT = Dynamic;
 
-INSERT INTO graph_conf_qa (id,kg_name,qa_type,question,count,concept_ids,priority,create_at,update_at) 
-SELECT  id,kg_name,type,question,count,concept_ids,priority,create_time,update_time
-FROM plantdata_manage.t_qa_template;
-
 -- ----------------------------
 -- Table structure for graph_conf_reasoning
 -- ----------------------------
@@ -294,10 +239,6 @@ CREATE TABLE `graph_conf_reasoning`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱推理规则配置' ROW_FORMAT = Dynamic;
 
-INSERT INTO graph_conf_reasoning (id,kg_name,rule_name,rule_config,rule_settings,create_at,update_at) 
-SELECT  rule_id,kg_name,rule_name,rule_config,rule_settings,create_time,update_time
-FROM plantdata_manage.t_rule;
-
 -- ----------------------------
 -- Table structure for graph_conf_statistical
 -- ----------------------------
@@ -311,10 +252,6 @@ CREATE TABLE `graph_conf_statistical`  (
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱统计配置' ROW_FORMAT = Dynamic;
-
-INSERT INTO graph_conf_statistical (id,kg_name,statis_type,statis_rule,create_at,update_at) 
-SELECT  id,kg_name,type,rule,create_time,update_time
-FROM plantdata_manage.t_init_statistical;
 
 -- ----------------------------
 -- Table structure for link_share
@@ -336,10 +273,6 @@ CREATE TABLE `link_share`  (
   UNIQUE INDEX `idx_share_link`(`share_link`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '链接分享' ROW_FORMAT = Dynamic;
 
-INSERT INTO link_share (id,user_id,kg_name,spa_id,share_link,is_shared,total_scan,expire_at,create_at,update_at) 
-SELECT  id,user_id,kg_name,spa_id,share_link,is_share,total_scan,expire_time,create_time,update_time
-FROM plantdata_manage.t_user_share;
-
 -- ----------------------------
 -- Table structure for menu_favor
 -- ----------------------------
@@ -351,10 +284,6 @@ CREATE TABLE `menu_favor`  (
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`user_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '菜单订阅' ROW_FORMAT = Dynamic;
-
-INSERT INTO menu_favor (user_id,menu_id,create_at,update_at) 
-SELECT  user_id,menu_id,create_time,update_time
-FROM plantdata_manage.t_user_favor;
 
 -- ----------------------------
 -- Table structure for model
@@ -389,10 +318,6 @@ CREATE TABLE `task_graph_reasoning`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '推理任务配置' ROW_FORMAT = Dynamic;
 
-INSERT INTO task_graph_reasoning (id,kg_name,rule_config,task_id,status,create_at,update_at) 
-SELECT  rule_id,kg_name,rule_config,task_id,status,create_time,update_time
-FROM plantdata_manage.t_reasoning_rule;
-
 -- ----------------------------
 -- Table structure for task_graph_search
 -- ----------------------------
@@ -404,12 +329,6 @@ CREATE TABLE `task_graph_search`  (
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`kg_name`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '搜索任务配置' ROW_FORMAT = Dynamic;
-
-
-INSERT INTO task_graph_search (kg_name,task_id,create_at,update_at) 
-SELECT  kg_name,task_id,create_time,update_time
-FROM plantdata_manage.t_user_set;
-
 
 -- ----------------------------
 -- Table structure for task_graph_snapshot
@@ -428,10 +347,6 @@ CREATE TABLE `task_graph_snapshot`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '快照任务配置' ROW_FORMAT = Dynamic;
 
-
-INSERT INTO task_graph_snapshot (id,kg_name,user_id,name,file_size,status,restore_at,create_at,update_at)
-SELECT  id,kg_name,user_id,name,file_size,status,restore_time,create_time,update_time
-FROM plantdata_manage.t_snapshot;
 -- ----------------------------
 -- Table structure for task_graph_status
 -- ----------------------------
@@ -446,8 +361,6 @@ CREATE TABLE `task_graph_status`  (
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱任务状态' ROW_FORMAT = Dynamic;
-
-
 
 -- ----------------------------
 -- Table structure for task_template
