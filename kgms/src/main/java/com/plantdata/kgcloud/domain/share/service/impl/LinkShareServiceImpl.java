@@ -4,7 +4,6 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.share.entity.LinkShare;
 import com.plantdata.kgcloud.domain.share.repository.LinkShareRepository;
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
-
 import com.plantdata.kgcloud.domain.share.rsp.ShareRsp;
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
 import com.plantdata.kgcloud.sdk.UserClient;
@@ -134,7 +133,12 @@ public class LinkShareServiceImpl implements LinkShareService {
         if (!StringUtils.hasText(token)) {
             selfSharedRsp.setLogin(false);
         }
-        String user = jwtClient.parseClaimUserId(token);
+        String user = null;
+        try {
+            user = jwtClient.parseClaimUserId(token);
+        } catch (Exception e) {
+        }
+
         if (user == null) {
             selfSharedRsp.setLogin(false);
         } else {
@@ -143,14 +147,19 @@ public class LinkShareServiceImpl implements LinkShareService {
         if (user != null && userId != null) {
             if (Objects.equals(user, userId)) {
                 selfSharedRsp.setSelf(true);
-            } else {
-                selfSharedRsp.setSelf(false);
             }
+        } else {
+            selfSharedRsp.setSelf(false);
         }
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
         selfSharedRsp.setSharePermission(data.getShareable());
         LinkShare linkShare = getOne(kgName, spaId);
-        selfSharedRsp.setShareable(linkShare.getShared());
+        Boolean shared = linkShare.getShared();
+        if (shared != null) {
+            selfSharedRsp.setShareable(shared);
+        } else {
+            selfSharedRsp.setShareable(true);
+        }
         return selfSharedRsp;
     }
 }
