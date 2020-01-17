@@ -113,7 +113,6 @@ public class EntityController {
 
     @ApiOperation("实体-删除-根据概念id删除实体")
     @PostMapping("/{kgName}/concept/delete")
-    @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
     public ApiReturn<Long> deleteByConceptId(@PathVariable("kgName") String kgName,
                                              @Valid @RequestBody EntityDeleteReq entityDeleteReq) {
         return ApiReturn.success(entityService.deleteByConceptId(kgName, entityDeleteReq));

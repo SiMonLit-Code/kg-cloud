@@ -22,4 +22,6 @@ public class EntityDeleteReq {
     @ApiModelProperty(value = "是否继承")
     private boolean inherit = false;
 
+    @ApiModelProperty(hidden = true, value = "日志id")
+    private String actionId;
 }
