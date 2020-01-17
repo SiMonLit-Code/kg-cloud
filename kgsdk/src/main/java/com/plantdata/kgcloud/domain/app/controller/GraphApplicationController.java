@@ -95,4 +95,13 @@ public class GraphApplicationController implements GraphApplicationInterface {
                            @ApiParam(value = "spaId", required = true) @PathVariable("spaId") String spaId) {
         return kgmsClient.shareStatus(kgName, spaId);
     }
+
+    @ApiOperation("spa分享")
+    @GetMapping("share")
+    public ApiReturn shareSpaStatus(@ApiParam(value = "图谱名称", required = true) @RequestParam("kgName") String kgName,
+                           @ApiParam(value = "spaId", required = true) @RequestParam("spaId") String spaId,
+                           @ApiParam(value = "token") @RequestParam("token") String token) {
+        return kgmsClient.shareSpaStatus(kgName, spaId,token);
+    }
+
 }
