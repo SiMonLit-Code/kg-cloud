@@ -4,24 +4,26 @@ package com.plantdata.kgcloud.domain.task.service.impl;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.UpdateManyModel;
+import com.mongodb.client.model.UpdateOptions;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.task.dto.NodeBean;
 import com.plantdata.kgcloud.domain.task.dto.ReasonBean;
 import com.plantdata.kgcloud.domain.task.dto.TripleBean;
 import com.plantdata.kgcloud.domain.task.service.ReasonService;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import org.bson.BsonDocument;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanMap;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReasonServiceImpl implements ReasonService {
@@ -60,7 +62,7 @@ public class ReasonServiceImpl implements ReasonService {
 
             Document matchDoc = null;
             if (type == 1) {
-                matchDoc = new Document("exec_id", taskId);
+                matchDoc = new Document("exec_id", taskId).append("status", new Document("$ne", 1));
             } else {
                 if (dataIdList != null && dataIdList.size() > 0) {
                     List<ObjectId> idList = new ArrayList<>();
@@ -130,7 +132,12 @@ public class ReasonServiceImpl implements ReasonService {
                         if (summaryList.size() > 0) {
                             mongoClient.getDatabase(getDbName(kgName)).getCollection("attribute_summary").insertMany(summaryList);
                         }
-                        mongoClient.getDatabase(getDbName(kgName)).getCollection(collection).insertMany(attributeList);
+                        if ("attribute_private_data".equals(collection)) {
+                            upsertMany(mongoClient, "reasoning_store", kgName, attributeList, true, "entity_id", "attr_name");
+                        } else {
+                            mongoClient.getDatabase(getDbName(kgName)).getCollection(collection).insertMany(attributeList);
+                        }
+
                         mongoClient.getDatabase("reasoning_store").getCollection(kgName).updateMany(matchDoc, new Document("$set", new Document("status", 1)));
                     }
                 }
@@ -142,6 +149,28 @@ public class ReasonServiceImpl implements ReasonService {
             map.put("msg", "失败");
         }
         return map;
+    }
+
+    private void upsertMany(MongoClient client, String database, String collection, Collection<Document> ls, boolean upsert, String... fieldArr) {
+
+        if (ls == null || ls.isEmpty()) {
+            return;
+        }
+        List<UpdateManyModel<Document>> requests = ls.stream().map(s -> new UpdateManyModel<Document>(
+                new Bson() {
+                    @Override
+                    public <TDocument> BsonDocument toBsonDocument(Class<TDocument> aClass, CodecRegistry codecRegistry) {
+                        Document doc = new Document();
+                        for (String field : fieldArr) {
+                            doc.append(field, s.get(field));
+                        }
+                        return doc.toBsonDocument(aClass, codecRegistry);
+                    }
+                },
+                new Document("$set",s),
+                new UpdateOptions().upsert(upsert)
+        )).collect(Collectors.toList());
+        client.getDatabase(database).getCollection(collection).bulkWrite(requests);
     }
 
     private String getDbName(String kgName) {

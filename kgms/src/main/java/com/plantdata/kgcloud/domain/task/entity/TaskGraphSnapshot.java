@@ -48,7 +48,6 @@ public class TaskGraphSnapshot {
 
     @Basic
     @Column(name = "user_id")
-    @CreatedBy
     private String userId;
 
     @Basic

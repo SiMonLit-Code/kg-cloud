@@ -15,6 +15,9 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.ReliabilityModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.ScoreModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.SourceModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
@@ -93,7 +96,14 @@ public interface EntityService {
      * @param ssrModifyReq
      * @return
      */
+    @Deprecated
     void updateScoreSourceReliability(String kgName, Long entityId, SsrModifyReq ssrModifyReq);
+
+    void updateScore(String kgName, Long entityId, ScoreModifyReq scoreModifyReq);
+
+    void updateSource(String kgName, Long entityId, SourceModifyReq sourceModifyReq);
+
+    void updateReliability(String kgName, Long entityId, ReliabilityModifyReq reliabilityModifyReq);
 
     /**
      * 修改实体开始,截止时间

@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.share.service;
 
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
+
+import com.plantdata.kgcloud.sdk.req.SelfSharedRsp;
 import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.domain.share.rsp.ShareRsp;
 
@@ -18,5 +20,7 @@ public interface LinkShareService {
     ShareRsp shareLink(String userId, String kgName, String spaId);
 
     ShareRsp shareCancel(String userId, String kgName, String spaId);
+
+    SelfSharedRsp shareSpaStatus(String userId, String kgName, String spaId, String token);
 
 }

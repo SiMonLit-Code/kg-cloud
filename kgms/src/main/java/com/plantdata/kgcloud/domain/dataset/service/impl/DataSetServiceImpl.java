@@ -294,6 +294,7 @@ public class DataSetServiceImpl implements DataSetService {
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, type)) {
             provider.createTable(schema);
+            target.setUserId(userId);
             target = dataSetRepository.save(target);
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
@@ -336,7 +337,7 @@ public class DataSetServiceImpl implements DataSetService {
         target.setUserId(userId);
         target.setAddr(esProperties.getAddrs());
         target.setDbName(dataName);
-        target.setTbName("_doc");
+        target.setTbName("_pddoc");
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
         try {
             kgtextClient.getDetails(req.getPdId());

@@ -14,6 +14,7 @@ import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.req.KgmsCallReq;
+import com.plantdata.kgcloud.sdk.req.SelfSharedRsp;
 import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
 import com.plantdata.kgcloud.sdk.req.WordReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
@@ -201,6 +202,11 @@ public interface KgmsClient {
     @GetMapping("/share/status/{kgName}/{spaId}")
     @ApiOperation("SPA分享状态")
     ApiReturn<LinkShareSpaRsp> shareStatus(@PathVariable("kgName") String kgName, @PathVariable("spaId") String spaId);
+
+
+    @GetMapping("/share/status")
+    @ApiOperation("分享状态分享")
+    ApiReturn<SelfSharedRsp> shareSpaStatus(@RequestParam("kgName") String kgName, @RequestParam("spaId") String spaId, @RequestParam("token") String token);
 
     /**
      * 图谱配置-算法-新建
