@@ -54,6 +54,9 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.ReliabilityModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.ScoreModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.SourceModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
@@ -251,6 +254,51 @@ public class EntityServiceImpl implements EntityService {
         }
         if (Objects.nonNull(ssrModifyReq.getReliability())) {
             metadata.put(MetaDataInfo.RELIABILITY.getFieldName(), ssrModifyReq.getReliability());
+        } else {
+            metaNo.add(Integer.valueOf(MetaDataInfo.RELIABILITY.getCode()));
+        }
+        if (!metaNo.isEmpty()) {
+            conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, metaNo);
+        }
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
+    }
+
+    @Override
+    public void updateScore(String kgName, Long entityId, ScoreModifyReq scoreModifyReq) {
+        Map<String, Object> metadata = new HashMap<>();
+        List<Integer> metaNo = new ArrayList<>(1);
+        if (Objects.nonNull(scoreModifyReq.getScore())) {
+            metadata.put(MetaDataInfo.SCORE.getFieldName(), scoreModifyReq.getScore());
+        } else {
+            metaNo.add(Integer.valueOf(MetaDataInfo.SCORE.getCode()));
+        }
+        if (!metaNo.isEmpty()) {
+            conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, metaNo);
+        }
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
+    }
+
+    @Override
+    public void updateSource(String kgName, Long entityId, SourceModifyReq sourceModifyReq) {
+        Map<String, Object> metadata = new HashMap<>();
+        List<Integer> metaNo = new ArrayList<>(1);
+        if (Objects.nonNull(sourceModifyReq.getSource())) {
+            metadata.put(MetaDataInfo.SOURCE.getFieldName(), sourceModifyReq.getSource());
+        } else {
+            metaNo.add(Integer.valueOf(MetaDataInfo.SOURCE.getCode()));
+        }
+        if (!metaNo.isEmpty()) {
+            conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, metaNo);
+        }
+        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
+    }
+
+    @Override
+    public void updateReliability(String kgName, Long entityId, ReliabilityModifyReq reliabilityModifyReq) {
+        Map<String, Object> metadata = new HashMap<>();
+        List<Integer> metaNo = new ArrayList<>(1);
+        if (Objects.nonNull(reliabilityModifyReq.getReliability())) {
+            metadata.put(MetaDataInfo.RELIABILITY.getFieldName(), reliabilityModifyReq.getReliability());
         } else {
             metaNo.add(Integer.valueOf(MetaDataInfo.RELIABILITY.getCode()));
         }
