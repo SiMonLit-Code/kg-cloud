@@ -1,3 +1,7 @@
+CREATE database if NOT EXISTS `kg_cloud_kgms` default character set utf8mb4 collate utf8mb4_bin;
+use `kg_cloud_kgms`;
+
+
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 

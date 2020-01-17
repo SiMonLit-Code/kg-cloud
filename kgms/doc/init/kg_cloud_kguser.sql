@@ -1,3 +1,6 @@
+CREATE database if NOT EXISTS `kg_cloud_kguser` default character set utf8mb4 collate utf8mb4_bin;
+use `kg_cloud_kguser`;
+
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -13,8 +16,8 @@ CREATE TABLE `system_menu`  (
   `menu_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '类型',
   `rank` int(11) NULL DEFAULT NULL COMMENT '排序',
   `config` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '配置',
-  `create_at` datetime(3) NULL DEFAULT NULL,
-  `update_at` datetime(3) NULL DEFAULT NULL,
+  `create_at` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '系统菜单' ROW_FORMAT = Dynamic;
 
@@ -29,11 +32,11 @@ CREATE TABLE `system_param`  (
   `param_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '键',
   `param_value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '值',
   `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '键名称',
-  `create_at` datetime(3) NOT NULL COMMENT '创建时间',
+  `create_at` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_param_key`(`param_key`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '系统参数' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for user
@@ -104,7 +107,3 @@ CREATE TABLE `user_product`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '用户产品状态' ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
-
-
-
-
