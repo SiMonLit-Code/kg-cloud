@@ -137,9 +137,10 @@ public class WordServiceImpl implements WordService {
     @Override
     public WordRsp update(String userId, Long dictId, String id, WordReq r) {
         MongoCollection<Document> mdb = getMongodb(userId, dictId);
-        Document document = buildDoc(r);
+        Document value = buildDoc(r);
+        Document document = new Document("$set", value);
         mdb.updateOne(Filters.eq(CommonConstants.MongoConst.ID, new ObjectId(id)), document);
-        return buildWord(document);
+        return buildWord(value);
     }
 
     @Override
