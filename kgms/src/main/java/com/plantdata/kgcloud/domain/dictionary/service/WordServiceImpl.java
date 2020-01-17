@@ -62,7 +62,10 @@ public class WordServiceImpl implements WordService {
 
     private WordRsp buildWord(Document doc) {
         WordRsp rsp = new WordRsp();
-        rsp.setId(doc.getObjectId(CommonConstants.MongoConst.ID).toHexString());
+        ObjectId objectId = doc.getObjectId(CommonConstants.MongoConst.ID);
+        if (objectId != null) {
+            rsp.setId(objectId.toHexString());
+        }
         rsp.setNature(Nature.toShow(doc.getString(DictConst.NATURE)));
         rsp.setSyns(JacksonUtils.readValue(doc.getString(DictConst.SYNONYM), new TypeReference<List<String>>() {
         }));
