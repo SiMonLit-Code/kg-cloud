@@ -158,7 +158,7 @@ public class LinkShareServiceImpl implements LinkShareService {
         if (shared != null) {
             selfSharedRsp.setShareable(shared);
         } else {
-            selfSharedRsp.setShareable(true);
+            selfSharedRsp.setShareable(false);
         }
         return selfSharedRsp;
     }
