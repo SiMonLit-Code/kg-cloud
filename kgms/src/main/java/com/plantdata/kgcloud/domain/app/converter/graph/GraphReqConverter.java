@@ -144,12 +144,14 @@ public class GraphReqConverter extends BasicConverter {
 
     private static <T extends CommonFilter> void fillTimeFilters(TimeFilterExploreReq timeFilter, T commonFilter) {
         //实体时间筛选
-        if (timeFilter == null ) {
+        if (timeFilter == null) {
             return;
         }
-        consumerIfNoNull(timeFilter.getTimeFilterType(), a->{
+        consumerIfNoNull(timeFilter.getTimeFilterType(), a -> {
             commonFilter.getHighLevelFilter().setTimeFilterType(a);
             commonFilter.setTimeFilterType(a);
+            commonFilter.setQueryPrivate(false);
+            commonFilter.getHighLevelFilter().setQueryPrivate(false);
         });
         if (null == timeFilter.getFromTime() && null == timeFilter.getToTime()) {
             return;
