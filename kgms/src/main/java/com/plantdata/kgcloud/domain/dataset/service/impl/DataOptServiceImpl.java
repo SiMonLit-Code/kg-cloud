@@ -364,7 +364,11 @@ public class DataOptServiceImpl implements DataOptService {
                         if (code == FieldType.STRING_ARRAY || code == FieldType.OBJECT || code == FieldType.ARRAY || code == FieldType.NESTED) {
                             objects.add(JacksonUtils.writeValueAsString(e));
                         } else {
-                            objects.add(e);
+                            if(e.toString().length() > 10000){
+                                objects.add("数据过大,无法导出");
+                            }else {
+                                objects.add(e);
+                            }
                         }
                     }else {
                         objects.add("");
