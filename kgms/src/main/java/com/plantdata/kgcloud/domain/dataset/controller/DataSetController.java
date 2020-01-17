@@ -3,12 +3,15 @@ package com.plantdata.kgcloud.domain.dataset.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetFolderService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
+import com.plantdata.kgcloud.sdk.KgtextClient;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
+import com.plantdata.kgcloud.sdk.req.DataSetPdReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
 import com.plantdata.kgcloud.sdk.req.FolderReq;
+import com.plantdata.kgcloud.sdk.rsp.CorpusSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
 import com.plantdata.kgcloud.sdk.rsp.FolderRsp;
@@ -47,6 +50,9 @@ public class DataSetController {
     @Autowired
     private DataSetFolderService dataSetFolderService;
 
+    @Autowired
+    private KgtextClient kgtextClient;
+
     @ApiOperation("数据集-schema-查找所有")
     @GetMapping("/all")
     public ApiReturn<List<DataSetRsp>> findAll() {
@@ -75,6 +81,21 @@ public class DataSetController {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dataSetService.insert(userId, req));
     }
+
+    @ApiOperation("数据集-schema-文本数据集列表")
+    @GetMapping("/text/list")
+    public ApiReturn<List<CorpusSetRsp>> listAll() {
+        String userId = SessionHolder.getUserId();
+        return kgtextClient.listAll(userId);
+    }
+
+    @ApiOperation("数据集-schema-创建文本数据集")
+    @PostMapping("/create/text")
+    public ApiReturn<DataSetRsp> insert(@Valid @RequestBody DataSetPdReq req) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataSetService.insert(userId, req));
+    }
+
 
     @ApiOperation("数据集-schema-编辑")
     @PatchMapping("/{id}")

@@ -21,10 +21,12 @@ import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetFolderService;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.KgtextClient;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
+import com.plantdata.kgcloud.sdk.req.DataSetPdReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
@@ -32,6 +34,7 @@ import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -97,6 +100,8 @@ public class DataSetServiceImpl implements DataSetService {
     private KgKeyGenerator kgKeyGenerator;
     @Autowired
     private UserClient userClient;
+    @Autowired
+    private KgtextClient kgtextClient;
 
     private String genDataName(String userId, String key) {
         return userId + JOIN + DATA_PREFIX + JOIN + key;
@@ -253,16 +258,7 @@ public class DataSetServiceImpl implements DataSetService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public DataSetRsp insert(String userId, DataSetCreateReq req) {
-        UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
-        if (data != null) {
-            DataSet probe = new DataSet();
-            probe.setUserId(userId);
-            long count = dataSetRepository.count(Example.of(probe));
-            Integer datasetCount = data.getDatasetCount();
-            if (datasetCount != null && count >= datasetCount) {
-                throw BizException.of(KgmsErrorCodeEnum.GRAPH_OUT_LIMIT);
-            }
-        }
+        checkUserLimit(userId);
         DataSet target = new DataSet();
         BeanUtils.copyProperties(req, target);
         Set<Long> folderIds = dataSetFolderService.getFolderIds(userId);
@@ -277,6 +273,7 @@ public class DataSetServiceImpl implements DataSetService {
         }
 
         target.setId(kgKeyGenerator.getNextId());
+        target.setUserId(userId);
         target.setDataName(dataName);
         DataType type = DataType.findType(req.getDataType());
         target.setDataType(type);
@@ -302,6 +299,65 @@ public class DataSetServiceImpl implements DataSetService {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
         return dataSet2rsp.apply(target);
+    }
+
+    @Override
+    public DataSetRsp insert(String userId, DataSetPdReq req) {
+        checkUserLimit(userId);
+        String dataName = genDataName(userId, req.getKey());
+        Optional<DataSet> dataSet = dataSetRepository.findByDataName(dataName);
+        if (dataSet.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_KEY_EXISTS);
+        }
+        DataSet target = ConvertUtils.convert(DataSet.class).apply(req);
+        target.setDataType(DataType.PD_DOCUMENT);
+        List<DataSetSchema> dataSetSchemas = new ArrayList<>();
+        DataSetSchema idField = new DataSetSchema();
+        idField.setField("id");
+        idField.setType(FieldType.STRING.getCode());
+        idField.setIsIndex(0);
+        DataSetSchema titleField = new DataSetSchema();
+        titleField.setField("title");
+        titleField.setType(FieldType.STRING.getCode());
+        titleField.setIsIndex(0);
+        DataSetSchema labelField = new DataSetSchema();
+        labelField.setField("label");
+        labelField.setType(FieldType.ARRAY.getCode());
+        labelField.setIsIndex(0);
+        dataSetSchemas.add(idField);
+        dataSetSchemas.add(titleField);
+        dataSetSchemas.add(labelField);
+        target.setSchema(dataSetSchemas);
+        target.setDataName(req.getPdId() + "");
+        target.setEditable(true);
+        target.setPrivately(true);
+        target.setFields(transformFields(dataSetSchemas));
+        target.setId(kgKeyGenerator.getNextId());
+        target.setUserId(userId);
+        target.setAddr(esProperties.getAddrs());
+        target.setDbName(dataName);
+        target.setTbName("_doc");
+        DataOptConnect dataOptConnect = DataOptConnect.of(target);
+        try {
+            kgtextClient.getDetails(req.getPdId());
+            target = dataSetRepository.save(target);
+        }catch (Exception e){
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_PDTEXT_ERROR);
+        }
+        return dataSet2rsp.apply(target);
+    }
+
+    private void checkUserLimit(String userId){
+        UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
+        if (data != null) {
+            DataSet probe = new DataSet();
+            probe.setUserId(userId);
+            long count = dataSetRepository.count(Example.of(probe));
+            Integer datasetCount = data.getDatasetCount();
+            if (datasetCount != null && count >= datasetCount) {
+                throw BizException.of(KgmsErrorCodeEnum.GRAPH_OUT_LIMIT);
+            }
+        }
     }
 
     private List<String> transformFields(List<DataSetSchema> schema) {

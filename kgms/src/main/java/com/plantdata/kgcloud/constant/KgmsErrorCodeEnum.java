@@ -32,7 +32,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DATASET_ES_REQUEST_ERROR(120110, "es请求失败"),
     DATASET_ES_KEY_EXISTS(120111, "es唯一标识已存在"),
     TASK_STATUS_NOT_EXISTS(120112, "任务状态记录不存在"),
-
+    DATASET_CONNECT_PDTEXT_ERROR(120113, "连接文本数据集失败"),
     MODEL_NOT_EXISTS(120201, "模型不存在"),
     /**
      * app模块
