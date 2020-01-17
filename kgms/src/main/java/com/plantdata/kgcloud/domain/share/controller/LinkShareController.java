@@ -2,8 +2,9 @@ package com.plantdata.kgcloud.domain.share.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
-import com.plantdata.kgcloud.domain.share.rsp.SelfSharedRsp;
+
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
+import com.plantdata.kgcloud.sdk.req.SelfSharedRsp;
 import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
@@ -36,8 +37,8 @@ public class LinkShareController {
     }
 
     @GetMapping("/status")
-    @ApiOperation("分享状态列表")
-    public ApiReturn<SelfSharedRsp> shareSpaStatus(@RequestParam("kgName") String kgName,@RequestParam("spaId") String spaId,   @RequestParam("token") String token) {
+    @ApiOperation("分享状态分享")
+    public ApiReturn<SelfSharedRsp> shareSpaStatus(@RequestParam("kgName") String kgName, @RequestParam("spaId") String spaId, @RequestParam("token") String token) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(linkShareService.shareSpaStatus(userId, kgName,spaId,token));
     }

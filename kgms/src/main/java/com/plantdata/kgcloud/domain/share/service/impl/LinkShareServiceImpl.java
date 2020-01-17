@@ -4,10 +4,11 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.share.entity.LinkShare;
 import com.plantdata.kgcloud.domain.share.repository.LinkShareRepository;
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
-import com.plantdata.kgcloud.domain.share.rsp.SelfSharedRsp;
+
 import com.plantdata.kgcloud.domain.share.rsp.ShareRsp;
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
 import com.plantdata.kgcloud.sdk.UserClient;
+import com.plantdata.kgcloud.sdk.req.SelfSharedRsp;
 import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.JwtClient;
