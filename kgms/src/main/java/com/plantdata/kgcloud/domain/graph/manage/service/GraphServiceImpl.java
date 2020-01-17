@@ -147,6 +147,7 @@ public class GraphServiceImpl implements GraphService {
         RestRespConverter.convertVoid(graphApi.create(createGraphFrom));
         target.setKgName(kgName);
         target.setDbName(dbName);
+        target.setUserId(userId);
         target.setDeleted(false);
         target.setPrivately(true);
         target.setEditable(true);
@@ -169,6 +170,7 @@ public class GraphServiceImpl implements GraphService {
                     Graph target = new Graph();
                     target.setKgName(kgName);
                     target.setDbName(dbName);
+                    target.setUserId(userId);
                     target.setTitle("示例图谱");
                     target.setDeleted(false);
                     target.setPrivately(true);

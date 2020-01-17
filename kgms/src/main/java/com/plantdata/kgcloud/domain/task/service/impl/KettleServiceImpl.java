@@ -165,13 +165,18 @@ public class KettleServiceImpl implements KettleService {
         //转变成kettle文件
         String string = UUID.randomUUID().toString();
         String file = string + ".ktr";
+        File kettleXml = null;
         try {
-            File kettleXml = CreateKettleJob.getKettleXml(kettleReq, arrayList, file);
+            kettleXml = CreateKettleJob.getKettleXml(kettleReq, arrayList, file);
             StorePath ktr = storageClient.uploadFile(new FileInputStream(kettleXml), kettleXml.length(), "ktr", null);
             return "/" + ktr.getFullPath();
         } catch (IOException e) {
             log.warn("etl文件保存失败", e);
             throw BizException.of(KgmsErrorCodeEnum.KTR_SAVE_FAIL);
+        } finally {
+            if (kettleXml != null) {
+                kettleXml.delete();
+            }
         }
     }
 }
