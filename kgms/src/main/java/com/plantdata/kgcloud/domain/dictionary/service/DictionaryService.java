@@ -52,7 +52,7 @@ public interface DictionaryService {
      * @param r
      * @return
      */
-    DictionaryRsp insert(DictionaryReq r);
+    DictionaryRsp insert(String userId,DictionaryReq r);
 
     /**
      * 修改接口

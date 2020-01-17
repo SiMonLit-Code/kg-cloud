@@ -114,7 +114,8 @@ public class DataSetController {
     @ApiOperation("数据集-文件夹-创建")
     @PostMapping("/folder")
     public ApiReturn folderInsert(@Valid @RequestBody FolderReq req) {
-        return ApiReturn.success(dataSetFolderService.folderInsert(req));
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dataSetFolderService.folderInsert(userId,req));
     }
 
     @ApiOperation("数据集-文件夹-修改")

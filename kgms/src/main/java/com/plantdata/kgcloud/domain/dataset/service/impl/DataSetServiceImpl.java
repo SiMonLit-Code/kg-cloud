@@ -297,6 +297,7 @@ public class DataSetServiceImpl implements DataSetService {
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, type)) {
             provider.createTable(schema);
+            target.setUserId(userId);
             target = dataSetRepository.save(target);
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);

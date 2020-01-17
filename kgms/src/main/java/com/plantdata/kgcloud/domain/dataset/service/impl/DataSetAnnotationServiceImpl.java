@@ -125,6 +125,7 @@ public class DataSetAnnotationServiceImpl implements DataSetAnnotationService {
         BeanUtils.copyProperties(req, dataSetAnnotation);
         dataSetAnnotation.setId(kgKeyGenerator.getNextId());
         dataSetAnnotation.setKgName(kgName);
+        dataSetAnnotation.setUserId(userId);
         DataSetAnnotation save = dataSetAnnotationRepository.save(dataSetAnnotation);
         return ConvertUtils.convert(AnnotationRsp.class).apply(save);
     }

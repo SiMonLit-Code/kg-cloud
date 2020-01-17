@@ -113,6 +113,7 @@ public class LinkShareServiceImpl implements LinkShareService {
     public ShareRsp shareLink(String userId, String kgName, String spaId) {
         LinkShare linkShare = getOne(kgName, spaId);
         linkShare.setShared(true);
+        linkShare.setUserId(userId);
         LinkShare save = linkShareRepository.save(linkShare);
         return ConvertUtils.convert(ShareRsp.class).apply(save);
     }
@@ -121,6 +122,7 @@ public class LinkShareServiceImpl implements LinkShareService {
     public ShareRsp shareCancel(String userId, String kgName, String spaId) {
         LinkShare linkShare = getOne(kgName, spaId);
         linkShare.setShared(false);
+        linkShare.setUserId(userId);
         LinkShare save = linkShareRepository.save(linkShare);
         return ConvertUtils.convert(ShareRsp.class).apply(save);
     }
