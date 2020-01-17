@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.share.rsp;
+package com.plantdata.kgcloud.sdk.req;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
