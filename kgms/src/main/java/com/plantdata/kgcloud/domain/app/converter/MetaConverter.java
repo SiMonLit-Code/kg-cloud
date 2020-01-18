@@ -70,6 +70,7 @@ public class MetaConverter extends BasicConverter {
             if (null != additionalRsp) {
                 consumerIfNoNull(additionalRsp.getLabelStyle(), metaDataImpl::setLabelStyle);
                 consumerIfNoNull(additionalRsp.getNodeStyle(), metaDataImpl::setNodeStyle);
+                consumerIfNoNull(additionalRsp.getLinkStyle(), metaDataImpl::setLinkStyle);
             }
         }
         metaDataImpl.setTags(getTags(metaData));
