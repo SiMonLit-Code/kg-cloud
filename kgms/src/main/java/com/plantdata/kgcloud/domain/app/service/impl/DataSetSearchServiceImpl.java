@@ -236,7 +236,9 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, dataSet.getDataType())) {
                 String key = (String) schemaOpt.get().getSettings().get("key");
                 Map<String, Object> oneMap = provider.findOne(dataId);
-                dataTitle = (String) oneMap.get(key);
+                if(oneMap.containsKey(key)){
+                    dataTitle = String.valueOf(oneMap.get(key));
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
