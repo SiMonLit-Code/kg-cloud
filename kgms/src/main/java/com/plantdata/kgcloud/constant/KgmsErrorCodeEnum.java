@@ -71,7 +71,6 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     CONF_RULENAME_ERROR(120628, "图谱关系名称要在64位以内"),
 
 
-
     WORD_NOT_EXISTS(120302, "词条不存在"),
 
     GRAPH_NOT_EXISTS(120401, "图谱不存在"),
@@ -99,6 +98,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     ATTR_TEMPLATE_NOT_EXISTS(120508, "属性模板不存在"),
 
     PERMISSION_NOT_ENOUGH_ERROR(120509, "没有该图谱的编辑权限"),
+
+    RDF_EXPORT_ERROR(120510, "rdf导出错误"),
     ;
 
     private final int errorCode;
