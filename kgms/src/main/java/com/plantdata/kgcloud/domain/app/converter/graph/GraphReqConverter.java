@@ -125,7 +125,7 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.getHighLevelFilter().setSkip(page.getOffset());
         graphFrom.getHighLevelFilter().setLimit(page.getLimit());
         graphFrom.getHighLevelFilter().setDirection(common.getDirection());
-        graphFrom.getHighLevelFilter().setQueryPrivate(common.isPrivateAttRead());
+
         if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
             Map<String, Integer> edgeAttrQuery = ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts());
             graphFrom.getHighLevelFilter().setEdgeSort(edgeAttrQuery);
@@ -133,8 +133,10 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.setDirection(common.getDirection());
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
-        graphFrom.setQueryPrivate(common.isPrivateAttRead());
-
+        consumerIfNoNull(common.getPrivateAttRead(),a->{
+            graphFrom.setQueryPrivate(common.getPrivateAttRead());
+            graphFrom.getHighLevelFilter().setQueryPrivate(common.getPrivateAttRead());
+        });
         consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
 
     }

@@ -25,7 +25,7 @@ public class CommonFiltersReq {
     @ApiModelProperty("实体或概念名称,若id为空时此参数生效，kw和id不能同时为空")
     private String kw;
     @ApiModelProperty("是否读取私有属性，默认读取")
-    private boolean privateAttRead;
+    private Boolean privateAttRead;
     @ApiModelProperty("上下位关系的读取层数，0表示不读取，默认为0")
     @Min(value = 0, message = "hyponymyDistance最小值为0")
     @Max(value = 100, message = "hyponymyDistance最大值为100")
