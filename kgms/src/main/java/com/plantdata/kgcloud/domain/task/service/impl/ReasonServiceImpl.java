@@ -133,7 +133,7 @@ public class ReasonServiceImpl implements ReasonService {
                             mongoClient.getDatabase(getDbName(kgName)).getCollection("attribute_summary").insertMany(summaryList);
                         }
                         if ("attribute_private_data".equals(collection)) {
-                            upsertMany(mongoClient, "reasoning_store", kgName, attributeList, true, "entity_id", "attr_name");
+                            upsertMany(mongoClient, getDbName(kgName), collection, attributeList, "entity_id", "attr_name");
                         } else {
                             mongoClient.getDatabase(getDbName(kgName)).getCollection(collection).insertMany(attributeList);
                         }
@@ -151,7 +151,7 @@ public class ReasonServiceImpl implements ReasonService {
         return map;
     }
 
-    private void upsertMany(MongoClient client, String database, String collection, Collection<Document> ls, boolean upsert, String... fieldArr) {
+    private void upsertMany(MongoClient client, String database, String collection, Collection<Document> ls, String... fieldArr) {
 
         if (ls == null || ls.isEmpty()) {
             return;
@@ -167,8 +167,8 @@ public class ReasonServiceImpl implements ReasonService {
                         return doc.toBsonDocument(aClass, codecRegistry);
                     }
                 },
-                new Document("$set",s),
-                new UpdateOptions().upsert(upsert)
+                new Document("$set", s),
+                new UpdateOptions().upsert(true)
         )).collect(Collectors.toList());
         client.getDatabase(database).getCollection(collection).bulkWrite(requests);
     }
