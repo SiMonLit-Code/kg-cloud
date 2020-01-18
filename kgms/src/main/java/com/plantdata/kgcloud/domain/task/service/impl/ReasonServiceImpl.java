@@ -146,6 +146,7 @@ public class ReasonServiceImpl implements ReasonService {
             map.put("msg", "成功");
         } catch (Exception e) {
             map.put("status", 2);
+
             map.put("msg", "失败");
         }
         return map;
