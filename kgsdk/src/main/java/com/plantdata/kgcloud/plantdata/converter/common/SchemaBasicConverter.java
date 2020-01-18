@@ -78,7 +78,7 @@ public class SchemaBasicConverter extends BasicConverter {
         AttributeExtraInfoItem extraInfoItem = new AttributeExtraInfoItem();
         extraInfoItem.setDataType(attrExtraRsp.getDataType());
         extraInfoItem.setDataUnit(attrExtraRsp.getDataUnit());
-        extraInfoItem.setIndexed(attrExtraRsp.getIndexed());
+        consumerIfNoNull(attrExtraRsp.getIndexed(), extraInfoItem::setIndexed);
         extraInfoItem.setName(attrExtraRsp.getName());
         extraInfoItem.setObjRange(JacksonUtils.writeValueAsString(attrExtraRsp.getObjRange()));
         extraInfoItem.setSeqNo(attrExtraRsp.getSeqNo());
