@@ -108,6 +108,15 @@ public interface MetaDataInterface {
     }
 
     /**
+     * label 样式
+     *
+     * @param labelStyle .
+     */
+    @ApiModelProperty(hidden = true)
+    default void setLinkStyle(Map<String, Object> labelStyle) {
+    }
+
+    /**
      * 标签
      *
      * @param tagRspList .

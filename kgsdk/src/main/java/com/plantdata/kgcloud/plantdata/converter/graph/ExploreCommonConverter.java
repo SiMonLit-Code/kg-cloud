@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
  * @date 2019/12/24 10:59
  */
 public class ExploreCommonConverter extends BasicConverter {
+    private static final String RELATION_START_TIME_SSE_KEY = "开始时间";
+    private static final String RELATION_END_TIME_SSE_KEY = "结束时间";
 
     static <T extends GraphEntityRsp> EntityBean entityBeanToGraphEntityRsp(T newEntity) {
         EntityBean oldEntity = new EntityBean();
@@ -187,6 +189,11 @@ public class ExploreCommonConverter extends BasicConverter {
         } else {
             consumerIfNoNull(newBean.getAttId(), a -> oldBean.setAttId(a.longValue()));
         }
+        List<GraphRelationRsp> allRelation = Lists.newArrayList();
+        consumerIfNoNull(newBean.getSourceRelationList(), allRelation::addAll);
+        if (CollectionUtils.isEmpty(allRelation)) {
+            allRelation.add(newBean);
+        }
 
         //时间
         if (!CollectionUtils.isEmpty(newBean.getSourceRelationList())) {
@@ -198,11 +205,6 @@ public class ExploreCommonConverter extends BasicConverter {
             });
         }
 
-        List<GraphRelationRsp> allRelation = Lists.newArrayList();
-        consumerIfNoNull(newBean.getSourceRelationList(), allRelation::addAll);
-        if (CollectionUtils.isEmpty(allRelation)) {
-            allRelation.add(newBean);
-        }
         //边数值属性
         List<RelationInfoBean> numEdgeAttrInfoList = toListNoNull(allRelation,
                 a -> ExploreCommonConverter.edgeInfoToRelationInfoBean(a, entityConceptMap.get(a.getFrom())));
@@ -225,7 +227,9 @@ public class ExploreCommonConverter extends BasicConverter {
     private static RelationInfoBean edgeInfoToRelationInfoBean(GraphRelationRsp relationBean, Long conceptId) {
         RelationInfoBean infoBean = new RelationInfoBean();
         infoBean.setId(relationBean.getId());
-        infoBean.setKvs(toListNoNull(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId(), conceptId)));
+        consumerIfNoNull(toListNoNull(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId(), conceptId)),infoBean::setKvs);
+        consumerIfNoNull(relationBean.getStartTime(), a -> infoBean.addKv(RELATION_START_TIME_SSE_KEY, a));
+        consumerIfNoNull(relationBean.getEndTime(), a -> infoBean.addKv(RELATION_END_TIME_SSE_KEY, a));
         return infoBean;
     }
 
