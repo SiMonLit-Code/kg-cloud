@@ -59,6 +59,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     FILE_OUT_LIMIT(120619, "文件大小超出限制"),
     METADATA_TYPE_ERROR(120618, "metadata数据类型不正确"),
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
+    DICTIONARY_IMPORT_FAIL(120302, "词典导入失败"),
     CONF_FOCUS_ENTITIES_SIZE_ERROR(120620, "您至少设置两个节点"),
     CONF_IDORIDS_NOT_EXISTS(120621, "您输入的id不存在"),
     CONF_STATISTICALID_NOT_EXISTS(120622, "图谱统计ID不存在"),
