@@ -57,9 +57,9 @@ public class PromptConverter extends BasicConverter {
         Optional<PromptResultTypeEnum> enumObject = EnumUtils.getEnumObject(PromptResultTypeEnum.class, req.getType());
         PromptResultTypeEnum resultType = enumObject.orElse(PromptResultTypeEnum.ENTITY);
         if (PromptResultTypeEnum.CONCEPT_ENTITY == resultType) {
-            from.setTypes(Lists.newArrayList(PromptResultTypeEnum.CONCEPT.getId(), PromptResultTypeEnum.ENTITY.getId()));
+            from.setTypes(Lists.newArrayList(PromptResultTypeEnum.SYNONYM.getId(), PromptResultTypeEnum.CONCEPT.getId(), PromptResultTypeEnum.ENTITY.getId()));
         } else {
-            from.setTypes(Lists.newArrayList(resultType.getId()));
+            from.setTypes(Lists.newArrayList(PromptResultTypeEnum.SYNONYM.getId(), resultType.getId()));
         }
         return from;
     }
