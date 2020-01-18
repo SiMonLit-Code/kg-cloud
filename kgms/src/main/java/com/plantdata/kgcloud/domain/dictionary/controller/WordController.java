@@ -107,7 +107,7 @@ public class WordController {
         try {
             wordService.importWord(userId, id, file);
         } catch (Exception e) {
-            return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_IMPORT_FAIL);
+            return ApiReturn.fail(KgmsErrorCodeEnum.DICTIONARY_IMPORT_FAIL);
         }
         return ApiReturn.success();
     }
