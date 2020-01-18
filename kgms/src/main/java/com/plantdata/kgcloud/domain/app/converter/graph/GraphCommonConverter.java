@@ -79,14 +79,17 @@ public class GraphCommonConverter extends BasicConverter {
         consumerIfNoNull(exploreReq.getAllowAttrs(), highLevelFilter::setAllowAttrs);
         consumerIfNoNull(exploreReq.getAllowConcepts(), highLevelFilter::setAllowTypes);
         consumerIfNoNull(exploreReq.getDisAllowConcepts(), highLevelFilter::setDisAllowTypes);
+
         highLevelFilter.setInherit(exploreReq.isInherit());
         //层级通用
         graphFrom.setHighLevelFilter(highLevelFilter);
 
         consumerIfNoNull(exploreReq.getDistance(), graphFrom::setDistance);
 
-
-        //读取元数据
+        //默认读取私有关系
+        highLevelFilter.setQueryPrivate(true);
+        graphFrom.setQueryPrivate(true);
+        //默认读取元数据
         MetaData entityMetaData = new MetaData();
         entityMetaData.setRead(true);
         graphFrom.setEntityMeta(entityMetaData);
@@ -108,7 +111,7 @@ public class GraphCommonConverter extends BasicConverter {
 
         List<GraphRelationRsp> graphRelationRspList = listToRsp(simpleRelationList, GraphCommonConverter::simpleRelationToGraphRelationRsp);
         if (relationMerge) {
-            Map<String, List<GraphRelationRsp>> rspMap = graphRelationRspList.stream().collect(Collectors.groupingBy(a -> a.getFrom()+"_"+a.getAttId() + "_" + a.getTo()));
+            Map<String, List<GraphRelationRsp>> rspMap = graphRelationRspList.stream().collect(Collectors.groupingBy(a -> a.getFrom() + "_" + a.getAttId() + "_" + a.getTo()));
             return rspMap.values().stream().map(a -> {
                 GraphRelationRsp one = a.get(0);
                 if (a.size() >= 2) {
