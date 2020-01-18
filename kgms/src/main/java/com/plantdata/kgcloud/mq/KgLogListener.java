@@ -72,7 +72,7 @@ public class KgLogListener {
 
             for (Map.Entry<String, List<Document>> entry : dataMap.entrySet()) {
 
-                String dbName = entry.getKey() + LOG_DB_SUFFER;
+                String dbName = LOG_DB_PREFIX + entry.getKey();
                 mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).insertMany(entry.getValue());
             }
         } catch (Exception e) {
@@ -103,7 +103,7 @@ public class KgLogListener {
             });
 
             for (Map.Entry<String, List<Document>> entry : dataMap.entrySet()) {
-                String dbName = entry.getKey() + LOG_DB_SUFFER;
+                String dbName = LOG_DB_PREFIX + entry.getKey();
                 mongoClient.getDatabase(dbName).getCollection(LOG_SERVICE_TB).insertMany(entry.getValue());
             }
         } catch (Exception e) {

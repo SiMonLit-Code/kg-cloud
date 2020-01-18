@@ -51,7 +51,7 @@ public class GraphLogServiceImpl implements GraphLogService {
             query = Filters.and(query, Filters.lte("createTime", req.getEndTime()));
         }
 
-        String dbName = kgName + LOG_DB_SUFFER;
+        String dbName = LOG_DB_PREFIX + kgName;
         long count = mongoClient.getDatabase(dbName).getCollection(LOG_SERVICE_TB).countDocuments(query);
         MongoCursor<Document> cursor = mongoClient.getDatabase(dbName).getCollection(LOG_SERVICE_TB).find(query)
                 .sort(Sorts.descending("createTime"))
@@ -130,7 +130,7 @@ public class GraphLogServiceImpl implements GraphLogService {
 
     private BasePage<DataLogRsp> logList(String kgName, Bson query, Integer page, Integer size) {
 
-        String dbName = kgName + LOG_DB_SUFFER;
+        String dbName = LOG_DB_PREFIX + kgName;
         MongoCursor<Document> cursor = mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).find(query)
                 .sort(Sorts.descending("createTime"))
                 .skip(page)
