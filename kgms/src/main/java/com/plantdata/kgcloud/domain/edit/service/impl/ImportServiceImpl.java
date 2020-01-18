@@ -256,8 +256,18 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String exportRdf(String kgName, String format, Integer scope) {
-        return handleUploadError(rdfApi.exportRdf(KGUtil.dbName(kgName), scope,
-                RdfType.findByFormat(format).getType()));
+        ResponseEntity<byte[]> body = rdfApi.exportRdf(KGUtil.dbName(kgName), scope,
+                RdfType.findByFormat(format).getType());
+        if (!body.getStatusCode().equals(HttpStatus.CREATED)) {
+            throw BizException.of(KgmsErrorCodeEnum.RDF_EXPORT_ERROR);
+        }
+        List<String> hasError = body.getHeaders().get("HAS-ERROR");
+        if (!CollectionUtils.isEmpty(hasError)) {
+            throw BizException.of(KgmsErrorCodeEnum.RDF_EXPORT_ERROR);
+        }
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(Objects.requireNonNull(body.getBody()));
+        StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, format, null);
+        return "/" + storePath.getFullPath();
     }
 
     /**
