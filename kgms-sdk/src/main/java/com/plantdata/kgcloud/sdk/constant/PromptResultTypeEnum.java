@@ -17,6 +17,7 @@ public enum PromptResultTypeEnum implements BaseEnum {
      */
     ENTITY(1, "entity"),
     CONCEPT(0, "concept"),
+    SYNONYM(2, "synonym"),
     CONCEPT_ENTITY(10, "entity_concept");
     private int id;
     private String desc;
