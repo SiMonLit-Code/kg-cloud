@@ -5,12 +5,15 @@ import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.req.RelationFrom;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.constant.TimeFilterTypeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
+import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
@@ -122,7 +125,7 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.getHighLevelFilter().setSkip(page.getOffset());
         graphFrom.getHighLevelFilter().setLimit(page.getLimit());
         graphFrom.getHighLevelFilter().setDirection(common.getDirection());
-        graphFrom.getHighLevelFilter().setQueryPrivate(common.isPrivateAttRead());
+
         if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
             Map<String, Integer> edgeAttrQuery = ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts());
             graphFrom.getHighLevelFilter().setEdgeSort(edgeAttrQuery);
@@ -130,8 +133,10 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.setDirection(common.getDirection());
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
-        graphFrom.setQueryPrivate(common.isPrivateAttRead());
-
+        consumerIfNoNull(common.getPrivateAttRead(),a->{
+            graphFrom.setQueryPrivate(common.getPrivateAttRead());
+            graphFrom.getHighLevelFilter().setQueryPrivate(common.getPrivateAttRead());
+        });
         consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
 
     }
@@ -147,11 +152,17 @@ public class GraphReqConverter extends BasicConverter {
         if (timeFilter == null) {
             return;
         }
-        consumerIfNoNull(timeFilter.getTimeFilterType(), a -> {
-            commonFilter.getHighLevelFilter().setTimeFilterType(a);
-            commonFilter.setTimeFilterType(a);
-            commonFilter.setQueryPrivate(false);
-            commonFilter.getHighLevelFilter().setQueryPrivate(false);
+        Optional<TimeFilterTypeEnum> filterType = EnumUtils.parseById(TimeFilterTypeEnum.class, timeFilter.getTimeFilterType());
+        if (!filterType.isPresent()) {
+            return;
+        }
+        consumerIfNoNull(filterType.get(), a -> {
+            commonFilter.getHighLevelFilter().setTimeFilterType(a.fetchId());
+            commonFilter.setTimeFilterType(a.fetchId());
+            if (!TimeFilterTypeEnum.ENTITY.equals(a) && !TimeFilterTypeEnum.NO_FILTER.equals(a)) {
+                commonFilter.setQueryPrivate(false);
+                commonFilter.getHighLevelFilter().setQueryPrivate(false);
+            }
         });
         if (null == timeFilter.getFromTime() && null == timeFilter.getToTime()) {
             return;
@@ -169,9 +180,9 @@ public class GraphReqConverter extends BasicConverter {
             timeRangeMap.put("$lte", toTime);
         }
         //实体时间筛选参数
-        Map<Integer, Object> entityFromTimeMap = new HashMap<>(2);
+        Map<Integer, Object> entityFromTimeMap = Maps.newHashMapWithExpectedSize(2);
         //实体时间排序参数
-        Map<Integer, Integer> entityFromTimeSortMap = new HashMap<>(1);
+        Map<Integer, Integer> entityFromTimeSortMap =Maps.newHashMapWithExpectedSize(1);
         consumerIfNoNull(timeRangeMap, a -> entityFromTimeMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), a));
         consumerIfNoNull(timeFilter.getSort(), a -> {
             Optional<SortTypeEnum> sortTypeEnum = SortTypeEnum.parseByName(timeFilter.getSort());

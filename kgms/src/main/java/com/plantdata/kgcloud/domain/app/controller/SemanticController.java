@@ -56,7 +56,7 @@ public class SemanticController implements SdkOpenApiInterface {
     @ApiOperation("意图图谱生成")
     @GetMapping("qa/init/{kgName}")
     public ApiReturn kbQaiInit(@ApiParam("图谱名称") @PathVariable("kgName") String kgName) {
-        questionAnswersApi.create(KGUtil.dbName(kgName));
+        questionAnswersApi.create(kgName,KGUtil.dbName(kgName));
         return ApiReturn.success();
     }
 
@@ -64,7 +64,7 @@ public class SemanticController implements SdkOpenApiInterface {
     public ApiReturn<IntentDataBeanRsp> intent(@ApiParam("图谱名称") @RequestParam("kgName") String kgName,
                                                @ApiParam("自然语言输入") @RequestParam("query") String query,
                                                @RequestParam(value = "size", defaultValue = "5") int size) {
-        Optional<IntentDataBean> dataBean = RestRespConverter.convert(questionAnswersApi.intent(KGUtil.dbName(kgName), query, size));
+        Optional<IntentDataBean> dataBean = RestRespConverter.convert(questionAnswersApi.intent(kgName,KGUtil.dbName(kgName), query, size));
         if (!dataBean.isPresent()) {
             return ApiReturn.success(new IntentDataBeanRsp());
         }
@@ -76,7 +76,7 @@ public class SemanticController implements SdkOpenApiInterface {
     @PostMapping("qa/{kgName}")
     public ApiReturn<QaAnswerDataRsp> qaKbQa(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                              @RequestBody QueryReq queryReq) {
-        Optional<AnswerDataRsp> query = RestRespConverter.convert(questionAnswersApi.query(KGUtil.dbName(kgName), queryReq));
+        Optional<AnswerDataRsp> query = RestRespConverter.convert(questionAnswersApi.query(kgName,KGUtil.dbName(kgName), queryReq));
         if (!query.isPresent()) {
             return ApiReturn.success(new QaAnswerDataRsp());
         }
