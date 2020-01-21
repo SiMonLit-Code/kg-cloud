@@ -46,6 +46,7 @@ public class DataSetFolderServiceImpl implements DataSetFolderService {
             DataSetFolder folder = new DataSetFolder();
             folder.setId(kgKeyGenerator.getNextId());
             folder.setFolderName("默认文件夹");
+            folder.setUserId(userId);
             folder.setDefaulted(true);
             return dataSetFolderRepository.save(folder);
         });

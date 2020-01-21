@@ -60,9 +60,13 @@ public class AnnotationServiceImpl implements AnnotationService {
                         String field = entry.getKey();
                         double weight = entry.getValue();
                         String text = data.getOrDefault(field, "").toString().toLowerCase();
-                        String str = text.replaceAll(name, "");
-                        if (str.length() < text.length()) {
-                            score += weight / totalWeight * ((text.length() - str.length()) * 1.0 / text.length());
+                        try {
+                            String str = text.replaceAll(name, "");
+                            if (str.length() < text.length()) {
+                                score += weight / totalWeight * ((text.length() - str.length()) * 1.0 / text.length());
+                            }
+                        } catch (Exception e) {
+                            // pattern error
                         }
                     }
                     if (score > 0) {
@@ -84,6 +88,11 @@ public class AnnotationServiceImpl implements AnnotationService {
             }
         }
         return new BasePage<>(ls.size(), ls);
+    }
+
+    public static void main(String[] args) {
+        String str = "11123";
+        str.replaceAll("+生物素立体选择性全合成方法", "");
     }
 
     /**
