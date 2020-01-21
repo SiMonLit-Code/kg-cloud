@@ -67,7 +67,7 @@ public class EntityConverter extends BasicConverter {
         entity.setMeaningTag(entityVO.getMeaningTag());
         entity.setName(entityVO.getName());
         entity.setType(EntityTypeEnum.ENTITY.getValue());
-        MetaConverter.fillMetaWithNoNull(entityVO.getMetaData(), entity);
+        consumerIfNoNull(entityVO.getMetaData(),a->MetaConverter.fillMetaWithNoNull(a, entity));
         return entity;
     }
 
@@ -78,7 +78,7 @@ public class EntityConverter extends BasicConverter {
         entity.setMeaningTag(entityVO.getMeaningTag());
         entity.setName(entityVO.getName());
         entity.setType(EntityTypeEnum.ENTITY.getValue());
-        MetaConverter.fillMetaWithNoNull(entityVO.getMetaData(), entity);
+        consumerIfNoNull(entityVO.getMetaData(),a->MetaConverter.fillMetaWithNoNull(a, entity));
         return entity;
     }
 
