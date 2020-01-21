@@ -24,38 +24,45 @@ public class MetaConverter extends BasicConverter {
 
     public static void fillMetaWithNoNull(Map<String, Object> metaData, MetaDataInterface metaDataImpl) {
         if (metaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-            Object o = metaData.get(MetaDataInfo.SCORE.getFieldName());
-            consumerIfNoNull(o, a -> metaDataImpl.setScore(Double.parseDouble(a.toString())));
+            consumerIfNoNull(metaData.get(MetaDataInfo.SCORE.getFieldName()),
+                    a -> metaDataImpl.setScore(Double.parseDouble(a.toString())));
         }
         if (metaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-            Object o = metaData.get(MetaDataInfo.RELIABILITY.getFieldName());
-            consumerIfNoNull(o, a -> metaDataImpl.setReliability(Double.parseDouble(a.toString())));
+            consumerIfNoNull(metaData.get(MetaDataInfo.RELIABILITY.getFieldName()),
+                    a -> metaDataImpl.setReliability(Double.parseDouble(a.toString())));
         }
         if (metaData.containsKey(MetaDataInfo.BATCH_NO.getFieldName())) {
-            Object o = metaData.get(MetaDataInfo.BATCH_NO.getFieldName());
-            metaDataImpl.setBatch(o.toString());
+            consumerIfNoNull(metaData.get(MetaDataInfo.BATCH_NO.getFieldName()),
+                    a -> metaDataImpl.setBatch(a.toString()));
         }
         if (metaData.containsKey(MetaDataInfo.FROM_TIME.getFieldName())) {
-            Object o = metaData.get(MetaDataInfo.FROM_TIME.getFieldName());
-            metaDataImpl.setStartTime(parseDate(o.toString()));
+            consumerIfNoNull(metaData.get(MetaDataInfo.FROM_TIME.getFieldName()),
+                    a -> metaDataImpl.setStartTime(parseDate(a.toString())));
         }
         if (metaData.containsKey(MetaDataInfo.TO_TIME.getFieldName())) {
-            Object o = metaData.get(MetaDataInfo.TO_TIME.getFieldName());
-            metaDataImpl.setEndTime(parseDate(o.toString()));
+            consumerIfNoNull(metaData.get(MetaDataInfo.TO_TIME.getFieldName()),
+                    a -> metaDataImpl.setEndTime(parseDate(a.toString())));
         }
         if (metaData.containsKey(MetaDataInfo.ENTITY_LINK.getFieldName())) {
-            metaDataImpl.setEntityLinks(JsonUtils.objToList(metaData.get(MetaDataInfo.ENTITY_LINK.getFieldName()), EntityLinkVO.class));
+            consumerIfNoNull(metaData.get(MetaDataInfo.ENTITY_LINK.getFieldName()),
+                    a -> metaDataImpl.setEntityLinks(JsonUtils.objToList(a, EntityLinkVO.class)));
+
         }
         if (metaData.containsKey(MetaDataInfo.OPEN_GIS.getFieldName())) {
-            metaDataImpl.setOpenGis((Boolean) metaData.get(MetaDataInfo.OPEN_GIS.getFieldName()));
+            consumerIfNoNull(metaData.get(MetaDataInfo.OPEN_GIS.getFieldName()),
+                    a -> metaDataImpl.setOpenGis((Boolean) a));
         }
         if (metaData.containsKey(MetaDataInfo.GIS_COORDINATE.getFieldName())) {
-            List<Double> list = JsonUtils.objToList(metaData.get(MetaDataInfo.GIS_COORDINATE.getFieldName()), Double.class);
-            metaDataImpl.setLat(list.get(1));
-            metaDataImpl.setLng(list.get(0));
+            consumerIfNoNull(metaData.get(MetaDataInfo.GIS_COORDINATE.getFieldName()),
+                    a -> {
+                        List<Double> list = JsonUtils.objToList(a, Double.class);
+                        metaDataImpl.setLat(list.get(1));
+                        metaDataImpl.setLng(list.get(0));
+                    });
         }
         if (metaData.containsKey(MetaDataInfo.GIS_ADDRESS.getFieldName())) {
-            metaDataImpl.setAddress((String) metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()));
+            consumerIfNoNull(metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()),
+                    a -> metaDataImpl.setAddress((String) a));
         }
         if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName()) || metaData.containsKey(MetaDataInfo.SOURCE_REASON.getFieldName())) {
             OriginRsp originRsp = new OriginRsp();
@@ -65,13 +72,15 @@ public class MetaConverter extends BasicConverter {
         }
 
         if (metaData.containsKey(MetaDataInfo.ADDITIONAL.getFieldName())) {
-            AdditionalRsp additionalRsp = JsonUtils.objToNewObj(metaData.get(MetaDataInfo.ADDITIONAL.getFieldName()), AdditionalRsp.class);
-            metaDataImpl.setAdditional(additionalRsp);
-            if (null != additionalRsp) {
-                consumerIfNoNull(additionalRsp.getLabelStyle(), metaDataImpl::setLabelStyle);
-                consumerIfNoNull(additionalRsp.getNodeStyle(), metaDataImpl::setNodeStyle);
-                consumerIfNoNull(additionalRsp.getLinkStyle(), metaDataImpl::setLinkStyle);
-            }
+            consumerIfNoNull(metaData.get(MetaDataInfo.ADDITIONAL.getFieldName()), a -> {
+                AdditionalRsp additionalRsp = JsonUtils.objToNewObj(a, AdditionalRsp.class);
+                consumerIfNoNull(additionalRsp, b -> {
+                    metaDataImpl.setAdditional(additionalRsp);
+                    consumerIfNoNull(additionalRsp.getLabelStyle(), metaDataImpl::setLabelStyle);
+                    consumerIfNoNull(additionalRsp.getNodeStyle(), metaDataImpl::setNodeStyle);
+                    consumerIfNoNull(additionalRsp.getLinkStyle(), metaDataImpl::setLinkStyle);
+                });
+            });
         }
         metaDataImpl.setTags(getTags(metaData));
     }
