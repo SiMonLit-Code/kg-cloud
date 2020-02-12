@@ -144,7 +144,7 @@ public class GraphRspConverter extends BasicConverter {
 
     private static List<CommonEntityRsp> buildCommonEntityList(@NonNull List<SimpleEntity> simpleEntityList, Map<Long, BasicInfo> conceptMap, List<Long> replaceClassIds) {
         Set<Long> replaceClassIdsSet = listToSetNoNull(replaceClassIds, Sets::newHashSet);
-        return simpleEntityList.stream().map(a -> GraphCommonConverter.simpleToGraphEntityRsp(new CommonEntityRsp(), a, conceptMap, replaceClassIdsSet)).collect(Collectors.toList());
+        return simpleEntityList.stream().filter(Objects::nonNull).map(a -> GraphCommonConverter.simpleToGraphEntityRsp(new CommonEntityRsp(), a, conceptMap, replaceClassIdsSet)).collect(Collectors.toList());
     }
 
 
