@@ -142,16 +142,17 @@ public class DataSetOptController {
             String userId = SessionHolder.getUserId();
             dataOptService.exportData(userId, datasetId, response);
         } catch (Exception e) {
-            response.reset();
-            response.setContentType("application/json");
-            response.setCharacterEncoding("utf-8");
-            try {
-                ApiReturn fail = ApiReturn.fail(KgmsErrorCodeEnum.DATASET_EXPORT_FAIL);
-                String error = JacksonUtils.writeValueAsString(fail);
-                response.getWriter().println(error);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            e.printStackTrace();
+//            response.reset();
+//            response.setContentType("application/json");
+//            response.setCharacterEncoding("utf-8");
+//            try {
+//                ApiReturn fail = ApiReturn.fail(KgmsErrorCodeEnum.DATASET_EXPORT_FAIL);
+//                String error = JacksonUtils.writeValueAsString(fail);
+//                response.getWriter().println(error);
+//            } catch (IOException e1) {
+//                e1.printStackTrace();
+//            }
         }
     }
 
