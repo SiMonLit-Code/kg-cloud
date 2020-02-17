@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.data.obtain.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
+import com.plantdata.kgcloud.domain.component.ComponentStatisticController;
 import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
@@ -32,7 +33,6 @@ public class AttributeController implements GraphDataObtainInterface {
     private EditClient editClient;
     @Autowired
     private KgDataClient kgDataClient;
-
 
     @ApiOperation("属性定义-查询")
     @GetMapping("{kgName}")
