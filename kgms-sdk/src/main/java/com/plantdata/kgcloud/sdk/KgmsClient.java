@@ -53,7 +53,9 @@ public interface KgmsClient {
 
     @ApiOperation("数据集分页查找")
     @GetMapping("/dataset/")
-    ApiReturn<BasePage<DataSetRsp>> dataSetFindAll(@RequestParam("kw") String kw, @RequestParam("page") Integer page, @RequestParam("size") Integer size);
+    ApiReturn<BasePage<DataSetRsp>> dataSetFindAll(@RequestParam(value = "kw", required = false) String kw,
+                                                   @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
+                                                   @RequestParam(value = "size", defaultValue = "10", required = false) Integer size);
 
     @ApiOperation("数据集根据Id查找")
     @GetMapping("/dataset/{id}")

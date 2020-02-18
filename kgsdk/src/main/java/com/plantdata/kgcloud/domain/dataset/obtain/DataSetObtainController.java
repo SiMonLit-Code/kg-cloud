@@ -1,18 +1,19 @@
 package com.plantdata.kgcloud.domain.dataset.obtain;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.common.module.DataSetDataObtainInterface;
+import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
+import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,6 +27,16 @@ public class DataSetObtainController implements DataSetDataObtainInterface {
 
     @Autowired
     private KgDataClient kgDataClient;
+    @Autowired
+    private KgmsClient kgmsClient;
+
+    @ApiOperation("获取数据集列表")
+    @GetMapping("page")
+    public ApiReturn<BasePage<DataSetRsp>> dataSetList(@RequestParam(value = "kw",required = false) String kw,
+                                                       @RequestParam("page") Integer page, @RequestParam("size") Integer size) {
+        return kgmsClient.dataSetFindAll(kw, page, size);
+    }
+
 
     @ApiOperation("读数普通数据集的数据")
     @PostMapping("common")
