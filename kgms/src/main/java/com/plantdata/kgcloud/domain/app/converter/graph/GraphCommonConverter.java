@@ -86,9 +86,9 @@ public class GraphCommonConverter extends BasicConverter {
 
         consumerIfNoNull(exploreReq.getDistance(), graphFrom::setDistance);
 
-        //默认读取私有关系
-        highLevelFilter.setQueryPrivate(true);
-        graphFrom.setQueryPrivate(true);
+        //默认不读取私有关系
+        highLevelFilter.setQueryPrivate(false);
+        graphFrom.setQueryPrivate(false);
         //默认读取元数据
         MetaData entityMetaData = new MetaData();
         entityMetaData.setRead(true);

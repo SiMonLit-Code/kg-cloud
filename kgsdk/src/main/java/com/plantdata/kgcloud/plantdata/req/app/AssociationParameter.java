@@ -24,7 +24,7 @@ public class AssociationParameter {
     private Long entityId;
     @ChooseCheck(value = "[0,1,2]")
     private Integer direction = 1;
-    @NotNull
+
     private List<Integer> allowAtts;
     private List<String> allowAttsKey;
     @Min(0)
