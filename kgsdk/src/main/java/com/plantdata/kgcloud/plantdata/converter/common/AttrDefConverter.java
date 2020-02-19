@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import com.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
 import com.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
@@ -50,13 +51,13 @@ public class AttrDefConverter extends BasicConverter {
         attrDef.setCreateTime(attrDefRsp.getCreateTime());
         attrDef.setAlias(attrDefRsp.getAlias());
         attrDef.setIsFunctional(attrDefRsp.getFunctional());
-       // attrDef.setExtraInfoList();
+        // attrDef.setExtraInfoList();
         return attrDef;
     }
 
 
     private static <T extends AttrDefinitionReq> T attrConDefToAttrDefinitionReq(@NonNull AttributeConstraintDefinition attrDef, T req) {
-        consumerIfNoNull(attrDef.getRange(), a -> req.setRangeValue(JsonUtils.jsonToList(a, Long.class)));
+        consumerIfNoNull(attrDef.getRange(), a -> req.setRangeValue(Lists.newArrayList(Long.valueOf(a))));
         consumerIfNoNull(attrDef.getAdditionalInfo(), a -> req.setAdditionalInfo(JsonUtils.stringToMap(a)));
         consumerIfNoNull(attrDef.getType(), a -> req.setType(Integer.parseInt(a)));
         consumerIfNoNull(attrDef.getDomain(), a -> req.setDomainValue(Long.valueOf(a)));

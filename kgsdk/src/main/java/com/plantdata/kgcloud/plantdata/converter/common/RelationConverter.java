@@ -14,6 +14,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,15 +34,38 @@ public class RelationConverter extends BasicConverter {
         relationRsp.setAttrValueMeaningTag(relationBean.getEntityMeaningTag());
         relationRsp.setAttrValueName(relationBean.getAttrValueName());
         relationRsp.setEntityId(relationBean.getEntityId());
+        relationRsp.setEntityName(relationBean.getEntityName());
+        relationRsp.setEntityConcept(relationBean.getEntityConcept());
+        relationRsp.setEntityMeaningTag(relationBean.getEntityMeaningTag());
+        relationRsp.setMetaData(relationBean.getMetaData());
         consumerIfNoNull(relationBean.getExtraInfoMap(), a -> relationRsp.setExtraInfoMap(keyStringToInt(a)));
         return relationRsp;
     }
 
-    public static Map<String, Object> batchRelationResdultToMap(@NonNull OpenBatchResult<BatchRelationRsp> batchResult) {
-        Map<String, Object> resMap = Maps.newHashMap();
-        resMap.put("error", toListNoNull(batchResult.getSuccess(), BatchRelationRsp::getId));
-        resMap.put("success", toListNoNull(batchResult.getSuccess(), BatchRelationRsp::getId));
-        return resMap;
+    public static ImportRelationBean batchRelationRspToBatchRelationRsp(@NonNull BatchRelationRsp relationRsp) {
+        ImportRelationBean importRelationBean = new ImportRelationBean();
+        importRelationBean.setTripleId(relationRsp.getId());
+        importRelationBean.setEntityId(relationRsp.getEntityId());
+        importRelationBean.setEntityConcept(relationRsp.getEntityConcept());
+        importRelationBean.setEntityName(relationRsp.getEntityName());
+        importRelationBean.setEntityMeaningTag(relationRsp.getEntityMeaningTag());
+        BasicConverter.consumerIfNoNull(relationRsp.getExtraInfoMap(),
+                a -> importRelationBean.setExtraInfoMap(keyIntToStr(a)));
+        importRelationBean.setAttrTimeFrom(relationRsp.getAttrTimeFrom());
+        importRelationBean.setAttrTimeTo(relationRsp.getAttrTimeTo());
+        importRelationBean.setAttrValueId(relationRsp.getAttrValueId());
+        importRelationBean.setAttrValueMeaningTag(relationRsp.getAttrValueMeaningTag());
+        importRelationBean.setAttrValueName(relationRsp.getAttrValueName());
+        importRelationBean.setAttrValueConcept(relationRsp.getAttrValueConcept());
+        importRelationBean.setAttrId(relationRsp.getAttrId());
+        importRelationBean.setNote(relationRsp.getNote());
+        return importRelationBean;
+    }
+
+    public static OpenBatchResult<ImportRelationBean> batchRelationRspToOpenBatchResult(@NonNull OpenBatchResult<BatchRelationRsp> batchResult) {
+        List<ImportRelationBean> success = toListNoNull(batchResult.getSuccess(), RelationConverter::batchRelationRspToBatchRelationRsp);
+        List<ImportRelationBean> error = toListNoNull(batchResult.getError(), RelationConverter::batchRelationRspToBatchRelationRsp);
+        return new OpenBatchResult<>(success, error);
     }
 
 
@@ -63,8 +87,8 @@ public class RelationConverter extends BasicConverter {
         EdgeSearchReq searchReq = new EdgeSearchReq();
         searchReq.setAttrIds(param.getAttrIds());
         searchReq.setAttrKeys(param.getAttrKeys());
-        consumerIfNoNull(param.getAttrTimeFrom(),a-> searchReq. setAttrTimeFrom(JsonUtils.stringToMap(a)));
-        consumerIfNoNull(param.getAttrTimeTo(),a-> searchReq.setAttrTimeTo(JsonUtils.stringToMap(a)));
+        consumerIfNoNull(param.getAttrTimeFrom(), a -> searchReq.setAttrTimeFrom(JsonUtils.stringToMap(a)));
+        consumerIfNoNull(param.getAttrTimeTo(), a -> searchReq.setAttrTimeTo(JsonUtils.stringToMap(a)));
         searchReq.setPage(param.getPageNo());
         searchReq.setSize(param.getPageSize());
         searchReq.setAttrValueIds(param.getAttrValueIds());

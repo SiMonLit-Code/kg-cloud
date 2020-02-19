@@ -19,21 +19,6 @@ import java.util.stream.Collectors;
  */
 public class RestCopyConverter {
 
-    /**
-     * 要求 t和 e copy没问题
-     *
-     * @param rest
-     * @param result
-     * @param <T>
-     * @param <E>
-     * @return
-     */
-    public static <T, E> E copyRestRespResult(RestResp<T> rest, E result) {
-        Optional<T> opt = RestRespConverter.convert(rest);
-        opt.ifPresent(a -> BeanUtils.copyProperties(a, result));
-        return result;
-    }
-
 
     public static <T, R> OpenBatchResult<R> copyToBatchResult(BatchResult<T> batchResult, Class<R> clazz) {
         List<R> success = BasicConverter.listConvert(batchResult.getSuccess(), a -> BasicConverter.copy(a, clazz));

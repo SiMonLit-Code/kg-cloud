@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -77,6 +78,10 @@ public class BasicConverter {
         }
         List<R> rs = toListNoNull(pageData.getContent(), function);
         return new RestData<>(rs, pageData.getTotalElements());
+    }
+
+    public static <T, E> OpenBatchResult<E> convertToOpenBatchResult(@NonNull OpenBatchResult<T> old, @NonNull Function<T, E> convert) {
+        return new OpenBatchResult<>(toListNoNull(old.getSuccess(), convert), toListNoNull(old.getError(), convert));
     }
 
     static <T, R> R executeIfNoNull(T param, Function<T, R> function) {

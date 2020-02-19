@@ -29,7 +29,7 @@ public class EdgeAttrStatisticByAttrValueReq {
 
     private List<String> tripleIds;
     @ChooseCheck(value = "[0,1,-1]", name = "sort")
-    private Integer sort = 1;
+    private Integer sort = -1;
     private List<Object> allowValues;
     @ChooseCheck(value = "[0,1]", name = "returnType")
     private Integer returnType = 0;

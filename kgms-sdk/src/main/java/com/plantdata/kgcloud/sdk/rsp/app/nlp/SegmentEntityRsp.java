@@ -17,6 +17,6 @@ import java.util.List;
 @ToString
 public class SegmentEntityRsp extends BasicEntityRsp {
     private String word;
-    private Double score;
+    private double score;
     private List<String> synonym;
 }

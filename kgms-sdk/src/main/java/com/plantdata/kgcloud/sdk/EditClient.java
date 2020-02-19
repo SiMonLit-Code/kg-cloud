@@ -75,7 +75,7 @@ public interface EditClient {
                                    @PathVariable("id") Integer id);
 
     /**
-     * 批量新增属性定义
+     * 批量新增'属性定义
      *
      * @param kgName             图谱名称
      * @param attrDefinitionReqs 批量参数

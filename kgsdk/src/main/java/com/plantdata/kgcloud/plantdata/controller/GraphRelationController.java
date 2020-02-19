@@ -144,7 +144,7 @@ public class GraphRelationController implements SdkOldApiInterface {
     }
 
     @ApiOperation("直接关联关系")
-    @PostMapping("relation/direct")
+    @PostMapping("sdk/network/relation/direct")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "分析实例列表，json数组格式"),

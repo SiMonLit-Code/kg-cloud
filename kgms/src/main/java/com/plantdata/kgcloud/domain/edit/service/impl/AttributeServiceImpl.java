@@ -26,6 +26,7 @@ import ai.plantdata.kg.common.bean.ExtraInfo;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -64,6 +65,7 @@ import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -200,9 +202,10 @@ public class AttributeServiceImpl implements AttributeService {
                 attrDefinitionReqs.stream().map(
                         AttrConverterUtils::attrDefinitionReqConvert
                 ).collect(Collectors.toList());
-
-        return RestCopyConverter.copyRestRespResult(batchApi.updateAttributes(KGUtil.dbName(kgName), voList),
-                new OpenBatchResult<>());
+        Optional<BatchResult<AttributeDefinitionVO>> opt = RestRespConverter.convert(batchApi.updateAttributes(KGUtil.dbName(kgName), voList));
+        return opt.map(attributeDefinitionVOBatchResult ->
+                RestCopyConverter.copyToBatchResult(attributeDefinitionVOBatchResult, AttrDefinitionBatchRsp.class))
+                .orElseGet(OpenBatchResult::new);
     }
 
     @Override

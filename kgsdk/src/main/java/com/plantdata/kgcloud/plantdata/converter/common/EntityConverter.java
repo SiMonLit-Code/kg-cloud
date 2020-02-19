@@ -51,9 +51,9 @@ public class EntityConverter extends BasicConverter {
         return entityBean;
     }
 
-    public static  EntityQueryReq entityByDataAttributeParameterToEntityQueryReq(EntityByDataAttributeParameter parameter){
+    public static EntityQueryReq entityByDataAttributeParameterToEntityQueryReq(EntityByDataAttributeParameter parameter) {
         EntityQueryReq entityQueryReq = new EntityQueryReq();
-        consumerIfNoNull(parameter.getQuery(),a->{
+        consumerIfNoNull(parameter.getQuery(), a -> {
             List<DataAttrReq> dataAttrReqs = BasicConverter.toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityDataAttrReq);
             entityQueryReq.setDataAttrFilters(dataAttrReqs);
         });
@@ -62,6 +62,17 @@ public class EntityConverter extends BasicConverter {
         entityQueryReq.setPage(parameter.getPageNo());
         entityQueryReq.setSize(parameter.getPageSize());
         return entityQueryReq;
+    }
+
+    public static ImportEntityBean OpenBatchSaveEntityRspToImportEntityBean(@NonNull  OpenBatchSaveEntityRsp entityRsp) {
+        ImportEntityBean entityBean = copy(entityRsp, ImportEntityBean.class);
+        consumerIfNoNull(entityRsp.getAttributes(), a -> {
+            Map<String, Object> tempMap = Maps.newHashMap();
+            a.forEach((k, v) -> tempMap.put(String.valueOf(k), v));
+            entityBean.setAttributes(tempMap);
+        });
+        consumerIfNoNull(entityRsp.getPrivateAttributes(), entityBean::setPrivateAttributes);
+        return entityBean;
     }
 
     public static OpenBatchSaveEntityRsp importEntityBeanToOpenBatchSaveEntityRsp(@NonNull ImportEntityBean entityRsp) {
@@ -90,10 +101,4 @@ public class EntityConverter extends BasicConverter {
         return attrDeleteReq;
     }
 
-    public static Map<String, List<Long>> openBatchResultToMap(@NonNull OpenBatchResult<OpenBatchSaveEntityRsp> batchResult) {
-        Map<String, List<Long>> resMap = Maps.newHashMap();
-        resMap.put("error", toListNoNull(batchResult.getError(), OpenBatchSaveEntityRsp::getId));
-        resMap.put("success", toListNoNull(batchResult.getSuccess(), OpenBatchSaveEntityRsp::getId));
-        return resMap;
-    }
 }

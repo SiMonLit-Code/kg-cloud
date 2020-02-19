@@ -95,11 +95,11 @@ public class KgDataServiceImpl implements KgDataService {
     @Override
     public List<EdgeStatisticByEntityIdRsp> statisticCountEdgeByEntity(String kgName, EdgeStatisticByEntityIdReq statisticReq) {
         EntityRelationDegreeFrom degreeFrom = GraphRelationStatisticBO.buildDegreeFrom(statisticReq);
-        degreeFrom.setDistance(NumberUtils.INTEGER_ONE);
+        degreeFrom.setDirection(NumberUtils.INTEGER_ONE);
         Optional<Map<Integer, Integer>> countOneOpt = RestRespConverter.convert(graphApi.degree(KGUtil.dbName(kgName), degreeFrom));
-        degreeFrom.setDistance(NumberUtils.INTEGER_TWO);
+        degreeFrom.setDirection(NumberUtils.INTEGER_TWO);
         Optional<Map<Integer, Integer>> countTwoOpt = RestRespConverter.convert(graphApi.degree(KGUtil.dbName(kgName), degreeFrom));
-        degreeFrom.setDistance(NumberUtils.INTEGER_ZERO);
+        degreeFrom.setDirection(NumberUtils.INTEGER_ZERO);
         Optional<Map<Integer, Integer>> countZeroOpt = RestRespConverter.convert(graphApi.degree(KGUtil.dbName(kgName), degreeFrom));
         return GraphRelationStatisticBO.graphDegreeMapToList(countOneOpt.orElse(Collections.emptyMap()), countTwoOpt.orElse(Collections.emptyMap()), countZeroOpt.orElse(Collections.emptyMap()));
     }
