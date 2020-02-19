@@ -14,9 +14,9 @@ import java.util.Map;
 @Data
 @ApiModel("批量关系新建结果模型")
 public class BatchRelationRsp {
-    @ApiModelProperty(value = "属性定义id",required = true)
+    @ApiModelProperty(value = "属性定义id", required = true)
     private Integer attrId;
-    @ApiModelProperty(value = "实体id entityId/(entityName+entityMeaningTag)二选一必填",required = true)
+    @ApiModelProperty(value = "实体id entityId/(entityName+entityMeaningTag)二选一必填", required = true)
     private Long entityId;
     @ApiModelProperty("实体名称 不存在则新增实体")
     private String entityName;
@@ -40,6 +40,8 @@ public class BatchRelationRsp {
     private Map<Integer, Object> extraInfoMap;
     @ApiModelProperty("关系id")
     private String id;
+    @ApiModelProperty("元数据")
+    private Map<String, Object> metaData;
     @ApiModelProperty("错误信息 新增无需填写")
     private String note;
 }

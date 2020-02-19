@@ -178,11 +178,8 @@ public class GraphDataController implements SdkOldApiInterface {
     public RestResp<Object> updateAttribute(@Valid @ApiIgnore ImportAttributeParameter param) {
         List<AttrDefinitionModifyReq> modifyReqs = BasicConverter.toListNoNull(param.getData(), AttrDefConverter::importAttributeParameterToAttrDefinitionModifyReq);
         Optional<OpenBatchResult<AttrDefinitionBatchRsp>> batchResult = BasicConverter.apiReturnData(editClient.batchModifyAttrDefinition(param.getKgName(), modifyReqs));
-        if (!batchResult.isPresent() || CollectionUtils.isEmpty(batchResult.get().getSuccess())) {
-            return new RestResp<>(Collections.emptyList());
-        }
-        List<Integer> idList = batchResult.get().getSuccess().stream().map(AttrDefinitionBatchRsp::getId).collect(Collectors.toList());
-        return new RestResp<>(idList);
+        return batchResult.<RestResp<Object>>map(RestResp::new)
+                .orElseGet(() -> new RestResp<>(Collections.emptyList()));
     }
 
     @ApiOperation("删除属性定义")
@@ -220,8 +217,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "query", required = true, dataType = "long", paramType = "form", value = "查询语句"),
     })
-    public RestResp<Object> execQl(@ApiParam(required = false) @NotBlank @RequestParam("kgName") String kgName,
-                                   @ApiParam(required = true) @NotBlank @RequestParam("query") String query) {
+    public RestResp<Object> execQl(@ApiParam(required = true) @NotBlank @RequestParam("query") String query) {
         return new RestResp<>(editClient.executeQl(new KgqlReq(query)));
     }
 
@@ -232,12 +228,12 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "entityUpsert", dataType = "boolean", defaultValue = "false", paramType = "form", value = "关系的实体不存在是否新增"),
             @ApiImplicitParam(name = "data", required = true, dataType = "string", paramType = "form", value = "数据，是ImportRelationBean列表的JSON形式")
     })
-    public RestResp<Map<String, Object>> importRelation(@Valid @ApiIgnore ImportRelationParameter param) {
+    public RestResp<OpenBatchResult<ImportRelationBean>> importRelation(@Valid @ApiIgnore ImportRelationParameter param) {
         Function<List<BatchRelationRsp>, ApiReturn<OpenBatchResult<BatchRelationRsp>>> returnFunction = a -> editClient.importRelation(param.getKgName(), a);
         Function<List<ImportRelationBean>, List<BatchRelationRsp>> reqFunction = a -> BasicConverter.toListNoNull(a, RelationConverter::importRelationBeanToBatchRelationRsp);
-        Map<String, Object> resMap = returnFunction
+        OpenBatchResult<ImportRelationBean> resMap = returnFunction
                 .compose(reqFunction)
-                .andThen(a -> BasicConverter.convert(a, RelationConverter::batchRelationResdultToMap))
+                .andThen(a -> BasicConverter.convert(a, RelationConverter::batchRelationRspToOpenBatchResult))
                 .apply(param.getData());
         return new RestResp<>(resMap);
     }
@@ -321,17 +317,17 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "mode", dataType = "int", paramType = "form", value = "单个实体有部分错误信息时的处理方式，0 表示整条数据不导入，1 表示导入正确的部分"),
     })
 
-    public RestResp<Map<String, List<Long>>> importEntity(@Valid @ApiIgnore ImportEntityParameter param) {
-        //mode todo
+    public RestResp<OpenBatchResult<ImportEntityBean>> importEntity(@Valid @ApiIgnore ImportEntityParameter param) {
         Function<List<OpenBatchSaveEntityRsp>, ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>>>
                 returnFunction = a -> editClient.saveOrUpdate(param.getKgName(), param.getUpsert(), a);
-        Function<List<ImportEntityBean>, List<OpenBatchSaveEntityRsp>> rspFunction = a -> BasicConverter.toListNoNull(param.getData(), EntityConverter::importEntityBeanToOpenBatchSaveEntityRsp);
-
-        Map<String, List<Long>> resMap = returnFunction
-                .compose(rspFunction)
-                .andThen(a -> BasicConverter.convert(a, EntityConverter::openBatchResultToMap))
+        Function<List<ImportEntityBean>, List<OpenBatchSaveEntityRsp>> repFunction =
+                a -> BasicConverter.toListNoNull(param.getData(), EntityConverter::importEntityBeanToOpenBatchSaveEntityRsp);
+        Function<OpenBatchResult<OpenBatchSaveEntityRsp>, OpenBatchResult<ImportEntityBean>> rspFunction =
+                a -> BasicConverter.convertToOpenBatchResult(a, EntityConverter::OpenBatchSaveEntityRspToImportEntityBean);
+        OpenBatchResult<ImportEntityBean> resMap = returnFunction
+                .compose(repFunction)
+                .andThen(a -> BasicConverter.convert(a, rspFunction))
                 .apply(param.getData());
-
         return new RestResp<>(resMap);
     }
 
@@ -341,7 +337,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean"),
     })
-    public RestResp<Map<String, List<Long>>> entityInsert(@Valid @ApiIgnore EntityInsertParameter param) {
+    public RestResp<OpenBatchResult<ImportEntityBean>> entityInsert(@Valid @ApiIgnore EntityInsertParameter param) {
         ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), false, NumberUtils.INTEGER_ZERO);
         return importEntity(parameter);
     }
@@ -352,7 +348,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean 详细参数参照开放平台"),
     })
-    public RestResp<Map<String, List<Long>>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
+    public RestResp<OpenBatchResult<ImportEntityBean>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
         ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), true, NumberUtils.INTEGER_ZERO);
         return importEntity(parameter);
     }

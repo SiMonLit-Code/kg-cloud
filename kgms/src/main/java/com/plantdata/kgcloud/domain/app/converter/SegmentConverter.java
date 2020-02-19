@@ -34,7 +34,7 @@ public class SegmentConverter extends BasicConverter {
         return entityList.stream().map(a -> {
             SegmentEntityRsp entityDto = EntityConverter.entityVoToBasicEntityRsp(a, new SegmentEntityRsp());
             entityDto.setWord(wordMap.get(a.getId()));
-            entityDto.setScore(scoreMap.get(a.getId()));
+            BasicConverter.consumerIfNoNull(scoreMap.get(a.getId()), entityDto::setScore);
             entityDto.setSynonym(a.getSynonyms());
             return entityDto;
         }).collect(Collectors.toList());

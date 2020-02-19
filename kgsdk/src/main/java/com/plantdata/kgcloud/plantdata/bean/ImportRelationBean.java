@@ -42,4 +42,5 @@ public class ImportRelationBean implements MarkObject {
 
     private Map<String, Object> metaData;
 
+    private String note;
 }
