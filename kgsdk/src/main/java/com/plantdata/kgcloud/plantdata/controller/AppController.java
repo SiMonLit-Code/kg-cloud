@@ -32,11 +32,11 @@ import com.plantdata.kgcloud.plantdata.rsp.schema.SchemaBean;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
@@ -123,7 +123,7 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts为空时生效"),
     })
     public RestResp<List<EntityProfileBean>> infoBoxMore(@Valid @ApiIgnore InfoBoxParameterMore param) {
-        Function<BatchInfoBoxReq, ApiReturn<List<InfoBoxRsp>>> returnFunction = a -> appClient.listInfoBox(param.getKgName(), a);
+        Function<BatchInfoBoxReqList, ApiReturn<List<InfoBoxRsp>>> returnFunction = a -> appClient.listInfoBox(param.getKgName(), a);
         List<EntityProfileBean> beanList = returnFunction
                 .compose(InfoBoxConverter::infoBoxParameterMoreToBatchInfoBoxReq)
                 .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, InfoBoxConverter::infoBoxRspToEntityProfileBean)))
@@ -251,7 +251,7 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "form",value = "每个属性要显示的数量"),
     })
     public RestResp<List<KVBean<String, List<EntityBean>>>> association(@Valid @ApiIgnore AssociationParameter param) {
-        Function<KnowledgeRecommendReq, ApiReturn<List<ObjectAttributeRsp>>> returnFunction = a -> appClient.knowledgeRecommend(param.getKgName(), a);
+        Function<KnowledgeRecommendReqList, ApiReturn<List<ObjectAttributeRsp>>> returnFunction = a -> appClient.knowledgeRecommend(param.getKgName(), a);
         List<KVBean<String, List<EntityBean>>> kvBeanList = returnFunction
                 .compose(AppConverter::associationParameterToKnowledgeRecommendReq)
                 .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, AppConverter::infoBoxAttrRspToKvBean)))

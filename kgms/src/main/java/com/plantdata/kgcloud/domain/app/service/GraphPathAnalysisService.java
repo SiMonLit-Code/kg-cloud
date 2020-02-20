@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.app.service;
 
-import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
@@ -21,7 +21,7 @@ public interface GraphPathAnalysisService {
      * @param analysisReq req
      * @return 。。。
      */
-    PathAnalysisRsp path(String kgName, PathAnalysisReq analysisReq);
+    PathAnalysisRsp path(String kgName, PathAnalysisReqList analysisReq);
 
     /**
      * 路径+推理
@@ -30,7 +30,7 @@ public interface GraphPathAnalysisService {
      * @param reasonReq req
      * @return 。。。
      */
-    PathAnalysisReasonRsp pathRuleReason(String kgName, PathReasoningAnalysisReq reasonReq);
+    PathAnalysisReasonRsp pathRuleReason(String kgName, PathReasoningAnalysisReqList reasonReq);
 
     /**
      * 时序+路径+统计
@@ -39,5 +39,5 @@ public interface GraphPathAnalysisService {
      * @param pathAnalysisReq 参数
      * @return 。。。
      */
-    PathTimingAnalysisRsp pathTimingAnalysis(String kgName, PathTimingAnalysisReq pathAnalysisReq);
+    PathTimingAnalysisRsp pathTimingAnalysis(String kgName, PathTimingAnalysisReqList pathAnalysisReq);
 }

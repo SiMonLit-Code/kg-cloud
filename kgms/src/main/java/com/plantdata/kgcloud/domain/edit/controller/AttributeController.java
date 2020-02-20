@@ -25,7 +25,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.AttrConstraintsRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -275,7 +275,7 @@ public class AttributeController {
     @ApiOperation("关系-批量查询关系")
     @PostMapping("relation/search/{kgName}")
     public ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName,
-                                                              @RequestBody EdgeSearchReq queryReq) {
+                                                              @RequestBody @Valid EdgeSearchReqList queryReq) {
         return ApiReturn.success(attributeService.edgeSearch(kgName, queryReq));
     }
 }

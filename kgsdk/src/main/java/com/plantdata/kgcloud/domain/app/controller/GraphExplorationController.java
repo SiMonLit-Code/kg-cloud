@@ -7,9 +7,9 @@ import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
@@ -52,20 +52,20 @@ public class GraphExplorationController implements GraphApplicationInterface {
     @ApiOperation("普通图探索")
     @PostMapping("common/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                        @RequestBody CommonExploreReq exploreParam) {
+                                                                        @RequestBody CommonExploreReqList exploreParam) {
         return appClient.commonGraphExploration(kgName, exploreParam);
     }
 
     @ApiOperation("时序图探索")
     @PostMapping("timing/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> timingGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                        @RequestBody CommonTimingExploreReq exploreParam) {
+                                                                        @RequestBody CommonTimingExploreReqList exploreParam) {
         return appClient.timingGraphExploration(kgName, exploreParam);
     }
 
     @ApiOperation("推理图探索")
     @PostMapping("reasoning/{kgName}")
-    public ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@PathVariable("kgName") String kgName, @RequestBody CommonReasoningExploreReq exploreParam) {
+    public ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@PathVariable("kgName") String kgName, @RequestBody CommonReasoningExploreReqList exploreParam) {
         return appClient.reasoningGraphExploration(kgName, exploreParam);
     }
 

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app.explore;
 
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
@@ -23,7 +23,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("时序关联分析-参数")
-public class RelationTimingAnalysisReq extends BasicGraphExploreReq implements GraphRelationReqInterface, GraphTimingReqInterface {
+public class RelationTimingAnalysisReqList extends BasicGraphExploreReqList implements GraphRelationReqInterface, GraphTimingReqInterface {
 
     @NotNull
     @Valid

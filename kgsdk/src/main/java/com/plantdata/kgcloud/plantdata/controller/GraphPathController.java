@@ -9,8 +9,8 @@ import com.plantdata.kgcloud.plantdata.req.explore.common.GraphBean;
 import com.plantdata.kgcloud.plantdata.req.explore.path.PathGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.path.TimePathGraphParameter;
 import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
 import io.swagger.annotations.ApiImplicitParam;
@@ -63,7 +63,7 @@ public class GraphPathController implements SdkOldApiInterface {
     })
     public RestResp<GraphBean> path(@Valid @ApiIgnore PathGraphParameter generalGraphParameter) {
 
-        Function<PathAnalysisReq, ApiReturn<PathAnalysisRsp>> rspFunction = a -> appClient.path(generalGraphParameter.getKgName(), a);
+        Function<PathAnalysisReqList, ApiReturn<PathAnalysisRsp>> rspFunction = a -> appClient.path(generalGraphParameter.getKgName(), a);
 
         GraphBean apply = rspFunction
                 .compose(ExploreReqConverter::pathGraphParameterToPathAnalysisReq)
@@ -103,7 +103,7 @@ public class GraphPathController implements SdkOldApiInterface {
 
     })
     public RestResp<GraphBean> pathTiming(@Valid @ApiIgnore TimePathGraphParameter generalGraphParameter) {
-        Function<PathTimingAnalysisReq, ApiReturn<PathTimingAnalysisRsp>> returnFunction = a -> appClient.pathTimingAnalysis(generalGraphParameter.getKgName(), a);
+        Function<PathTimingAnalysisReqList, ApiReturn<PathTimingAnalysisRsp>> returnFunction = a -> appClient.pathTimingAnalysis(generalGraphParameter.getKgName(), a);
         GraphBean graphBean = returnFunction
                 .compose(ExploreReqConverter::timePathGraphParameterToPathTimingAnalysisReq)
                 .andThen(a -> BasicConverter.convert(a, ExploreRspConverter::statisticRspToGraphBean))

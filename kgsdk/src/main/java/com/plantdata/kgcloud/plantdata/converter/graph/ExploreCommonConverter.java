@@ -16,7 +16,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.path.PathGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.relation.RelationGraphParameter;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
@@ -103,7 +103,7 @@ public class ExploreCommonConverter extends BasicConverter {
         });
     }
 
-    static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReq> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {
+    static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReqList> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {
         rs.setDistance(to.getDistance());
         consumerIfNoNull(to.getAllowTypesKey(), rs::setAllowConceptsKey);
         consumerIfNoNull(to.getReplaceClassIds(), rs::setReplaceClassIds);

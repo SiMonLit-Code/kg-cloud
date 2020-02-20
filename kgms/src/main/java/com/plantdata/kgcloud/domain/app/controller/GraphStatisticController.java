@@ -43,28 +43,28 @@ public class GraphStatisticController implements SdkOpenApiInterface {
     @ApiOperation("统计实体根据概念分组")
     @PostMapping("{kgName}/entity/groupByConcept/")
     public ApiReturn<Object> statisticEntityGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                           @RequestBody EntityStatisticGroupByConceptReq statisticReq) {
+                                                           @RequestBody  @Valid EntityStatisticGroupByConceptReq statisticReq) {
         return ApiReturn.success(kgDataService.statEntityGroupByConcept(kgName, statisticReq));
     }
 
     @ApiOperation("实体属性值统计")
     @PostMapping("{kgName}/attr/value")
     public ApiReturn<Object> statisticAttrGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                         @RequestBody EntityStatisticGroupByAttrIdReq statisticReq) {
+                                                         @RequestBody  @Valid EntityStatisticGroupByAttrIdReq statisticReq) {
         return ApiReturn.success(kgDataService.statisticAttrGroupByConcept(kgName, statisticReq));
     }
 
     @ApiOperation("对象属性统计，统计对象属性的数量，按关系分组")
     @PostMapping("{kgName}/edge/groupByAttrName")
     public ApiReturn<Object> statisticRelation(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                               @RequestBody EdgeStatisticByConceptIdReq statisticReq) {
+                                               @RequestBody @Valid  EdgeStatisticByConceptIdReq statisticReq) {
         return ApiReturn.success(kgDataService.statisticRelation(kgName, statisticReq));
     }
 
     @ApiOperation("边数值属性统计，按数值属性值分组")
     @PostMapping("{kgName}/edgeAttr/groupByAttrValue")
     public ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                      @RequestBody EdgeAttrStatisticByAttrValueReq statisticReq) {
+                                                      @RequestBody  @Valid EdgeAttrStatisticByAttrValueReq statisticReq) {
         return ApiReturn.success(kgDataService.statEdgeGroupByEdgeValue(kgName, statisticReq));
     }
 

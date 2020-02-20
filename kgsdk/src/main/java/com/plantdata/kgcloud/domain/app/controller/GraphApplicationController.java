@@ -7,10 +7,10 @@ import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.KgmsClient;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
@@ -47,7 +47,7 @@ public class GraphApplicationController implements GraphApplicationInterface {
     @ApiOperation("知识推荐")
     @PostMapping("recommend/knowledge/{kgName}")
     public ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                  @RequestBody @Valid KnowledgeRecommendReq recommendParam) {
+                                                                  @RequestBody @Valid KnowledgeRecommendReqList recommendParam) {
         return appClient.knowledgeRecommend(kgName, recommendParam);
     }
 
@@ -78,7 +78,7 @@ public class GraphApplicationController implements GraphApplicationInterface {
     @ApiOperation("批量读取知识卡片")
     @PostMapping("infoBox/list/{kgName}")
     public ApiReturn<List<InfoBoxRsp>> listInfoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                   @RequestBody BatchInfoBoxReq batchInfoBoxReq) {
+                                                   @RequestBody BatchInfoBoxReqList batchInfoBoxReq) {
         return appClient.listInfoBox(kgName, batchInfoBoxReq);
     }
 

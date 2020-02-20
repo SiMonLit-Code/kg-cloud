@@ -2,6 +2,9 @@ package com.plantdata.kgcloud.domain.app.service.impl;
 
 import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -27,6 +30,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.LinksRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +51,7 @@ import java.util.stream.Collectors;
  * @author Administrator
  */
 @Service
+@Slf4j
 public class DataSetSearchServiceImpl implements DataSetSearchService {
 
     @Autowired
@@ -85,7 +90,8 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     }
 
     @Override
-    public RestData<Map<String, Object>> readEsDataSet(List<String> addressList, List<String> databases, List<String> tables, List<String> fields, String query, String sort, int start, int offset) {
+    public Map<String, Object> readEsDataSet(List<String> addressList, List<String> databases, List<String> tables, List<String> fields,
+                                                       String aggs, String query, String sort, int start, int offset) {
         Map<String, Object> requestData = Maps.newHashMap();
         if (Objects.nonNull(fields) && fields.size() > 0) {
             requestData.put("_source", fields);
@@ -98,34 +104,14 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         if (StringUtils.isNoneBlank(sort)) {
             requestData.put("sort", JacksonUtils.readValue(sort, Object.class));
         }
-        String rs = EsUtils.sendPost(EsUtils.buildEsQuery(addressList), databases, tables, JacksonUtils.writeValueAsString(requestData));
-        List<Map<String, Object>> rsList = new ArrayList<>(offset);
-        long rsCount = 0;
-        Optional<JsonNode> jsonObjOpt = JsonUtils.parseJsonNode(rs);
-        if (jsonObjOpt.isPresent()) {
-            JsonNode jsonNode = jsonObjOpt.get();
-            JsonNode hits = jsonNode.get("hits");
-            ArrayNode arr = (ArrayNode) hits.get("hits");
-            if (Objects.nonNull(arr)) {
-                rsCount = hits.get("total").longValue();
-                if (rsCount > 0) {
-                    for (int i = 0; i < arr.size(); i++) {
-                        JsonNode sourceNode = arr.get(i).get("_source");
-                        Map<String, Object> objectMap = Maps.newHashMap();
-                        Iterator<String> stringIterator = sourceNode.fieldNames();
-                        while (stringIterator.hasNext()) {
-                            String name = stringIterator.next();
-                            objectMap.put(name, sourceNode.get(name));
-                        }
-                        objectMap.put("_id", arr.get(i).get("_id"));
-                        objectMap.put("_type", arr.get(i).get("_type"));
-                        objectMap.put("_index", arr.get(i).get("_index"));
-                        rsList.add(objectMap);
-                    }
-                }
-            }
+
+        if (StringUtils.isNoneBlank(aggs)) {
+            requestData.put("aggs", JSON.parse(aggs));
         }
-        return new RestData<>(rsList, rsCount);
+        log.warn("es:" + JacksonUtils.writeValueAsString(requestData));
+        String rs = EsUtils.sendPost(EsUtils.buildEsQuery(addressList), databases, tables, JacksonUtils.writeValueAsString(requestData));
+        return JacksonUtils.readValue(rs, new TypeReference<Map<String, Object>>() {
+        });
     }
 
 
@@ -236,7 +222,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
             try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, dataSet.getDataType())) {
                 String key = (String) schemaOpt.get().getSettings().get("key");
                 Map<String, Object> oneMap = provider.findOne(dataId);
-                if(oneMap.containsKey(key)){
+                if (oneMap.containsKey(key)) {
                     dataTitle = String.valueOf(oneMap.get(key));
                 }
             } catch (Exception e) {

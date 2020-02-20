@@ -2,9 +2,9 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.service.GraphRelationAnalysisService;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
@@ -35,14 +35,14 @@ public class GraphRelationAnalysisController {
     @ApiOperation("关联分析")
     @PostMapping("{kgName}")
     public ApiReturn<RelationAnalysisRsp> relationAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                           @RequestBody @Valid RelationReqAnalysisReq analysisReq) {
+                                                           @RequestBody @Valid RelationReqAnalysisReqList analysisReq) {
         return ApiReturn.success(graphRelationAnalysisService.relationAnalysis(kgName, analysisReq));
     }
 
     @ApiOperation("直接关联关系")
     @PostMapping("direct/{kgName}")
     public ApiReturn<RelationAnalysisRsp> relationDirect(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                         @RequestBody @Valid RelationReqAnalysisReq analysisReq) {
+                                                         @RequestBody @Valid RelationReqAnalysisReqList analysisReq) {
         analysisReq.setDistance(NumberUtils.INTEGER_ONE);
         return ApiReturn.success(graphRelationAnalysisService.relationAnalysis(kgName, analysisReq));
     }
@@ -50,14 +50,14 @@ public class GraphRelationAnalysisController {
     @ApiOperation("时序关联分析")
     @PostMapping("timing/{kgName}")
     public ApiReturn<RelationTimingAnalysisRsp> relationTimingAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                       @RequestBody @Valid RelationTimingAnalysisReq analysisReq) {
+                                                                       @RequestBody @Valid RelationTimingAnalysisReqList analysisReq) {
         return ApiReturn.success(graphRelationAnalysisService.relationTimingAnalysis(kgName, analysisReq));
     }
 
     @ApiOperation("关联推理分析")
     @PostMapping("reasoning/{kgName}")
     public ApiReturn<RelationReasoningAnalysisRsp> relationReasoningAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                             @RequestBody @Valid RelationReasoningAnalysisReq analysisReq) {
+                                                                             @RequestBody @Valid RelationReasoningAnalysisReqList analysisReq) {
         return ApiReturn.success(graphRelationAnalysisService.relationReasoningAnalysis(kgName, analysisReq));
     }
 

@@ -9,21 +9,21 @@ import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
@@ -83,7 +83,7 @@ public interface AppClient {
      */
     @PostMapping("infoBox/list/{kgName}")
     ApiReturn<List<InfoBoxRsp>> listInfoBox(@PathVariable("kgName") String kgName,
-                                            @RequestBody BatchInfoBoxReq batchInfoBoxReq);
+                                            @RequestBody BatchInfoBoxReqList batchInfoBoxReq);
 
     /**
      * 读取知识卡片
@@ -119,7 +119,7 @@ public interface AppClient {
      * @return List
      */
     @PostMapping("knowledgeRecommend/{kgName}")
-    ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@PathVariable("kgName") String kgName, @RequestBody KnowledgeRecommendReq recommendParam);
+    ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@PathVariable("kgName") String kgName, @RequestBody KnowledgeRecommendReqList recommendParam);
 
     /**
      * 获取模型可视化数据
@@ -233,7 +233,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/common/{kgName}")
     ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@PathVariable("kgName") String kgName,
-                                                                 @RequestBody CommonExploreReq exploreParam);
+                                                                 @RequestBody CommonExploreReqList exploreParam);
 
     /**
      * 时序图探索
@@ -244,7 +244,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/timing/{kgName}")
     ApiReturn<CommonBasicGraphExploreRsp> timingGraphExploration(@PathVariable("kgName") String kgName,
-                                                                 @RequestBody CommonTimingExploreReq exploreParam);
+                                                                 @RequestBody CommonTimingExploreReqList exploreParam);
 
     /**
      * 推理图探索
@@ -254,7 +254,7 @@ public interface AppClient {
      * @return CommonBasicGraphExploreRsp
      */
     @PostMapping("graphExplore/reasoning/{kgName}")
-    ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@PathVariable("kgName") String kgName, @RequestBody CommonReasoningExploreReq exploreParam);
+    ApiReturn<CommonBasicGraphExploreRsp> reasoningGraphExploration(@PathVariable("kgName") String kgName, @RequestBody CommonReasoningExploreReqList exploreParam);
 
     /**
      * gis图探索
@@ -287,7 +287,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/path/{kgName}")
     ApiReturn<PathAnalysisRsp> path(@PathVariable("kgName") String kgName,
-                                    @RequestBody PathAnalysisReq analysisReq);
+                                    @RequestBody PathAnalysisReqList analysisReq);
 
     /**
      * 最短路径发现
@@ -298,7 +298,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/path/shortest/{kgName}")
     ApiReturn<PathAnalysisRsp> shortestPath(@PathVariable("kgName") String kgName,
-                                            @RequestBody PathAnalysisReq analysisReq);
+                                            @RequestBody PathAnalysisReqList analysisReq);
 
     /**
      * 路径分析推理
@@ -309,7 +309,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/path/reasoning/{kgName}")
     ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@PathVariable("kgName") String kgName,
-                                                    @RequestBody PathReasoningAnalysisReq analysisReq);
+                                                    @RequestBody PathReasoningAnalysisReqList analysisReq);
 
     /**
      * 时序路径分析
@@ -320,7 +320,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/path/timing/{kgName}")
     ApiReturn<PathTimingAnalysisRsp> pathTimingAnalysis(@PathVariable("kgName") String kgName,
-                                                        @RequestBody PathTimingAnalysisReq analysisReq);
+                                                        @RequestBody PathTimingAnalysisReqList analysisReq);
 
     /**
      * 关联分析
@@ -331,7 +331,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/relation/{kgName}")
     ApiReturn<RelationAnalysisRsp> relationAnalysis(@PathVariable("kgName") String kgName,
-                                                    @RequestBody RelationReqAnalysisReq analysisReq);
+                                                    @RequestBody RelationReqAnalysisReqList analysisReq);
 
     /**
      * 直接关联分析
@@ -342,7 +342,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/relation/direct/{kgName}")
     ApiReturn<RelationAnalysisRsp> relationDirect(@PathVariable("kgName") String kgName,
-                                                  @RequestBody RelationReqAnalysisReq analysisReq);
+                                                  @RequestBody RelationReqAnalysisReqList analysisReq);
 
     /**
      * 时序关联分析
@@ -353,7 +353,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/relation/timing/{kgName}")
     ApiReturn<RelationTimingAnalysisRsp> relationTimingAnalysis(@PathVariable("kgName") String kgName,
-                                                                @RequestBody RelationTimingAnalysisReq analysisReq);
+                                                                @RequestBody RelationTimingAnalysisReqList analysisReq);
 
     /**
      * 关联推理分析
@@ -364,7 +364,7 @@ public interface AppClient {
      */
     @PostMapping("graphExplore/relation/reasoning/{kgName}")
     ApiReturn<RelationReasoningAnalysisRsp> relationReasoningAnalysis(@PathVariable("kgName") String kgName,
-                                                                      @RequestBody RelationReasoningAnalysisReq analysisReq);
+                                                                      @RequestBody RelationReasoningAnalysisReqList analysisReq);
 
     /**
      * 图片导出

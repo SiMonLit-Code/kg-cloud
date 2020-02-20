@@ -49,7 +49,7 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticsBean.setLimit(reSize);
         statisticsBean.setSort(attrIdReq.getSort());
         statisticsBean.setAppendId(appendId);
-        statisticsBean.setAttributeId(attrIdReq.getAttrId());
+        statisticsBean.setAttributeId(attrIdReq.getAttrDefId());
         statisticsBean.setAllowValues(attrIdReq.getAllowValues());
         log.error("AttributeStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
@@ -58,7 +58,7 @@ public class GraphStatisticConverter extends BasicConverter {
     public static ConceptStatisticsBean entityReqConceptStatisticsBean(EntityStatisticGroupByConceptReq statisticReq) {
         Integer appendId = statisticReq.getEntityIds() == null || statisticReq.getEntityIds().isEmpty() ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
         ConceptStatisticsBean statisticsBean = new ConceptStatisticsBean();
-        statisticsBean.setAllowTypes(statisticReq.getAllowTypes());
+        statisticsBean.setAllowTypes(statisticReq.getAllowConcepts());
         statisticsBean.setAppendId(appendId);
         statisticsBean.setSort(statisticReq.getSort());
         statisticsBean.setEntityIds(statisticReq.getEntityIds());
@@ -71,7 +71,7 @@ public class GraphStatisticConverter extends BasicConverter {
     public static RelationStatisticsBean conceptIdReqConceptStatisticsBean(EdgeStatisticByConceptIdReq conceptIdReq) {
         RelationStatisticsBean statisticsBean = new RelationStatisticsBean();
         Integer appendId = CollectionUtils.isEmpty(conceptIdReq.getTripleIds()) ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
-        statisticsBean.setAllowAttrs(conceptIdReq.getAllowAtts());
+        statisticsBean.setAllowAttrs(conceptIdReq.getAllowAttrs());
         statisticsBean.setConceptId(conceptIdReq.getConceptId());
         statisticsBean.setAppendId(appendId);
         statisticsBean.setSort(conceptIdReq.getSort());

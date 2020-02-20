@@ -31,6 +31,7 @@ import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.GraphStatisticConverter;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
+import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
@@ -91,6 +92,8 @@ public class KgDataServiceImpl implements KgDataService {
     private DataSetService dataSetService;
     @Autowired
     private DataSetRepository dataSetRepository;
+    @Autowired
+    private GraphHelperService graphHelperService;
 
     @Override
     public List<EdgeStatisticByEntityIdRsp> statisticCountEdgeByEntity(String kgName, EdgeStatisticByEntityIdReq statisticReq) {
@@ -127,10 +130,9 @@ public class KgDataServiceImpl implements KgDataService {
 
     @Override
     public Object statEntityGroupByConcept(String kgName, EntityStatisticGroupByConceptReq statisticReq) {
+        graphHelperService.replaceByConceptKey(kgName, statisticReq);
         ConceptStatisticsBean statisticsBean = GraphStatisticConverter.entityReqConceptStatisticsBean(statisticReq);
-        if (CollectionUtils.isEmpty(statisticReq.getEntityIds())) {
-            return new StatDataRsp();
-        }
+
         Optional<List<Map<String, Object>>> resultOpt = RestRespConverter.convert(statisticsApi.conceptStatistics(KGUtil.dbName(kgName), statisticsBean));
         if (!resultOpt.isPresent()) {
             return new StatDataRsp();
@@ -141,8 +143,8 @@ public class KgDataServiceImpl implements KgDataService {
 
     @Override
     public Object statisticRelation(String kgName, EdgeStatisticByConceptIdReq conceptIdReq) {
+        graphHelperService.replaceByConceptKey(kgName, conceptIdReq);
         RelationStatisticsBean statisticsBean = GraphStatisticConverter.conceptIdReqConceptStatisticsBean(conceptIdReq);
-
         Optional<List<Map<String, Object>>> resultOpt = RestRespConverter.convert(statisticsApi.relationStatistics(KGUtil.dbName(kgName), statisticsBean));
         List<StatisticDTO> dataList = !resultOpt.isPresent() ? Collections.emptyList()
                 : JsonUtils.objToList(resultOpt.get(), StatisticDTO.class);
@@ -151,8 +153,8 @@ public class KgDataServiceImpl implements KgDataService {
 
     @Override
     public Object statisticAttrGroupByConcept(String kgName, EntityStatisticGroupByAttrIdReq attrIdReq) {
-
-        Optional<AttributeDefinition> attrDefOpt = getAttrDefById(kgName, attrIdReq.getAttrId());
+        graphHelperService.replaceByAttrKey(kgName, attrIdReq, true);
+        Optional<AttributeDefinition> attrDefOpt = getAttrDefById(kgName, attrIdReq.getAttrDefId());
         if (!attrDefOpt.isPresent()) {
             return GraphStatisticConverter.statisticByType(Collections.emptyList(), attrIdReq.getReturnType(), StatisticResultTypeEnum.VALUE);
         }

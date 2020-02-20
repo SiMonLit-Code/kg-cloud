@@ -15,7 +15,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("数据集数据新增-参数")
 public class DataSetAddReq {
@@ -24,6 +24,6 @@ public class DataSetAddReq {
     private List<Map<String, Object>> dataList;
     @NotBlank
     @ApiModelProperty("数据集唯一标识")
-    private String dataSetId;
+    private String dataSetName;
 
 }

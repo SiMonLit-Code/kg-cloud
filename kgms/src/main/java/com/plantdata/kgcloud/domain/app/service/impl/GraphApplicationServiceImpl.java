@@ -41,10 +41,10 @@ import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
@@ -127,7 +127,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     }
 
     @Override
-    public List<ObjectAttributeRsp> knowledgeRecommend(String kgName, KnowledgeRecommendReq knowledgeRecommendReq) {
+    public List<ObjectAttributeRsp> knowledgeRecommend(String kgName, KnowledgeRecommendReqList knowledgeRecommendReq) {
         if (CollectionUtils.isEmpty(knowledgeRecommendReq.getAllowAttrs()) && CollectionUtils.isEmpty(knowledgeRecommendReq.getAllowAttrsKey())) {
             return Collections.emptyList();
         }
@@ -214,7 +214,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
     @Override
     public InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq) throws IOException {
-        BatchInfoBoxReq batchInfoBoxReq = new BatchInfoBoxReq();
+        BatchInfoBoxReqList batchInfoBoxReq = new BatchInfoBoxReqList();
         batchInfoBoxReq.setAllowAttrs(infoBoxReq.getAllowAttrs());
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
         batchInfoBoxReq.setIds(Lists.newArrayList(infoBoxReq.getId()));
@@ -234,7 +234,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     }
 
     @Override
-    public List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReq req) {
+    public List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReqList req) {
         //实体
         graphHelperService.replaceByAttrKey(kgName, req);
         List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();

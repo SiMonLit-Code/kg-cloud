@@ -8,7 +8,7 @@ import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.util.DateUtils;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
  */
 public class RelationConverter extends BasicConverter {
 
-    public static BatchQueryRelationFrom edgeAttrSearch(EdgeSearchReq searchReq) {
+    public static BatchQueryRelationFrom edgeAttrSearch(EdgeSearchReqList searchReq) {
         BatchQueryRelationFrom queryRelationFrom = new BatchQueryRelationFrom();
         queryRelationFrom.setEntityIds(searchReq.getEntityIds());
-        queryRelationFrom.setAttrIds(searchReq.getAttrIds());
+        queryRelationFrom.setAttrIds(searchReq.getAllowAttrs());
         queryRelationFrom.setAttrValueIds(searchReq.getAttrValueIds());
         queryRelationFrom.setLimit(searchReq.getLimit());
         queryRelationFrom.setSkip(searchReq.getOffset());

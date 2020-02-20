@@ -116,9 +116,7 @@ public class GraphStatOpenRestApi {
             @ApiImplicitParam(name = "dateType", dataType = "string", paramType = "form", value = "时间合并时,类型{\"$lte\":,\"$gte\":,type:},type 1 按年, 2安季度，3按月 ,4按日,5按时，6按分，7按秒")
     })
     public RestResp statEntityGroupByAttrvalueByAttrId(@Valid @ApiIgnore StatEntityGroupByAttrvalueByAttrIdParameter param) {
-        if (param.getAttrId() == null) {
-            throw RestException.newInstance(57025);
-        }
+
         EntityStatisticGroupByAttrIdReq req = StatisticConverter.statEntityGroupByAttrvalueByAttrIdParameterToEntityStatisticGroupByAttrIdReq(param);
         Optional<Object> optional = BasicConverter.apiReturnData(kgDataClient.statisticAttrGroupByConcept(param.getKgName(), req));
         return new RestResp<>(optional.orElse(null));

@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app.explore;
 
 import com.google.common.collect.Sets;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphCommonReqInterface;
@@ -27,7 +27,7 @@ import java.util.Set;
 @ApiModel("时序图探索-参数")
 @Getter
 @Setter
-public class CommonTimingExploreReq extends BasicGraphExploreReq implements GraphCommonReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
+public class CommonTimingExploreReqList extends BasicGraphExploreReqList implements GraphCommonReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
     @NotNull
     @Valid
     @ApiModelProperty(value = "普通参数", required = true)

@@ -26,13 +26,13 @@ import ai.plantdata.kg.common.bean.ExtraInfo;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
+import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -56,7 +56,7 @@ import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.IdNameVO;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -65,7 +65,6 @@ import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -113,6 +112,8 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Autowired
     private BasicInfoService basicInfoService;
+    @Autowired
+    private GraphHelperService graphHelperService;
 
     @Override
     public AttrDefinitionVO getAttrDetails(String kgName, Integer id) {
@@ -380,7 +381,8 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq) {
+    public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReqList queryReq) {
+        graphHelperService.replaceByAttrKey(kgName,queryReq);
         BatchQueryRelationFrom relationFrom = RelationConverter.edgeAttrSearch(queryReq);
         Optional<List<BatchRelationVO>> resOpt = RestRespConverter.convert(batchApi.queryRelation(KGUtil.dbName(kgName),
                 relationFrom));

@@ -23,6 +23,7 @@ import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.PromptConverter;
 import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
+import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
@@ -83,9 +84,12 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     private EsProperties esProperties;
     @Autowired
     private GraphApi graphApi;
+    @Autowired
+    private GraphHelperService graphHelperService;
 
     @Override
     public List<PromptEntityRsp> prompt(String kgName, PromptReq promptReq) {
+        graphHelperService.replaceByConceptKey(kgName, promptReq);
         PromptQaTypeEnum qaType = PromptQaTypeEnum.parseWitDefault(promptReq.getPromptType());
         if (PromptQaTypeEnum.BEFORE.equals(qaType)) {
             return queryAnswer(kgName, promptReq);
@@ -103,6 +107,9 @@ public class GraphPromptServiceImpl implements GraphPromptService {
 
         if (PromptQaTypeEnum.END.equals(qaType)) {
             return BasicConverter.mergeList(entityRspList, queryAnswer(kgName, promptReq));
+        }
+        if (promptReq.getSort() == -1) {
+            Collections.reverse(entityRspList);
         }
         return entityRspList;
     }

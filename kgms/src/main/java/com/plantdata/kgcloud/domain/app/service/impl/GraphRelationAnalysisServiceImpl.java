@@ -11,9 +11,9 @@ import com.plantdata.kgcloud.domain.app.service.GraphRelationAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
@@ -40,7 +40,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
     private RuleReasoningService ruleReasoningService;
 
     @Override
-    public RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReq analysisReq) {
+    public RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReqList analysisReq) {
 
         analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
@@ -55,7 +55,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
     }
 
     @Override
-    public RelationTimingAnalysisRsp relationTimingAnalysis(String kgName, RelationTimingAnalysisReq analysisReq) {
+    public RelationTimingAnalysisRsp relationTimingAnalysis(String kgName, RelationTimingAnalysisReqList analysisReq) {
         analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationTimingAnalysisRsp analysisRsp = new RelationTimingAnalysisRsp();
@@ -69,7 +69,7 @@ public class GraphRelationAnalysisServiceImpl implements GraphRelationAnalysisSe
     }
 
     @Override
-    public RelationReasoningAnalysisRsp relationReasoningAnalysis(String kgName, RelationReasoningAnalysisReq analysisReq) {
+    public RelationReasoningAnalysisRsp relationReasoningAnalysis(String kgName, RelationReasoningAnalysisReqList analysisReq) {
         analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         RelationFrom relationFrom = GraphReqConverter.relationReqProxy(analysisReq);
         RelationReasoningAnalysisRsp analysisRsp = new RelationReasoningAnalysisRsp();

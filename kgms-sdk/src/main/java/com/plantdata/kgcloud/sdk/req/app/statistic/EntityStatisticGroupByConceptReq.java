@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.sdk.req.app.statistic;
 
 import com.plantdata.kgcloud.sdk.constant.StatisticConstants;
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,13 +17,14 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class EntityStatisticGroupByConceptReq {
+public class EntityStatisticGroupByConceptReq  implements ConceptKeyListReqInterface {
     private List<Long> entityIds;
+    @ChooseCheck(value = "[-1,1]", name = "sort")
     private Integer sort = -1;
-    private List<Long> allowTypes;
-    private List<String> allowTypesKey;
+    private List<Long> allowConcepts;
+    private List<String> allowConceptsKey;
     private Integer returnType = 0;
     @Max(StatisticConstants.STATISTIC_MAX_SIZE)
-    @Min(-1)
+    @Min(1)
     private Integer size = 10;
 }

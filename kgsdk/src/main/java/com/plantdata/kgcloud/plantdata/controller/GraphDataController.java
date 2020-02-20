@@ -32,7 +32,7 @@ import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.MergeClient;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
@@ -283,7 +283,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页数量默认10"),
     })
     public RestResp<List<RelationBeanScore>> queryRelation(@Valid @ApiIgnore QueryRelationParameter query) {
-        Function<EdgeSearchReq, ApiReturn<List<EdgeSearchRsp>>> returnFunction = a -> editClient.batchSearchRelation(query.getKgName(), a);
+        Function<EdgeSearchReqList, ApiReturn<List<EdgeSearchRsp>>> returnFunction = a -> editClient.batchSearchRelation(query.getKgName(), a);
         List<RelationBeanScore> scoreList = returnFunction
                 .compose(RelationConverter::queryRelationParameterToEdgeSearchReq)
                 .andThen(a -> BasicConverter.convertList(a, RelationConverter::edgeSearchRspToRelationBeanScore))

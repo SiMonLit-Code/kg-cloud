@@ -27,5 +27,5 @@ public interface DataSetSearchService {
 
     RestData<Map<String, Object>> readDataSetData(DataSet dataSet, Set<String> fields, int offset, int limit, String query, String sort);
 
-    RestData<Map<String, Object>> readEsDataSet(List<String> addressList, List<String> databases, List<String> tables, List<String> fields, String query, String sort, int start, int offset);
+    Map<String, Object> readEsDataSet(List<String> addressList, List<String> databases, List<String> tables, List<String> fields, String aggs, String query, String sort, int start, int offset);
 }

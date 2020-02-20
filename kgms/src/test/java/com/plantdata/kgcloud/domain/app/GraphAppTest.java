@@ -2,9 +2,9 @@ package com.plantdata.kgcloud.domain.app;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
@@ -46,7 +46,7 @@ public class GraphAppTest {
      */
     @Test
     public void knowledgeRecommendTest() {
-        KnowledgeRecommendReq knowledgeRecommendReq = new KnowledgeRecommendReq();
+        KnowledgeRecommendReqList knowledgeRecommendReq = new KnowledgeRecommendReqList();
 //        knowledgeRecommendReq.setAllowAttrsKey();
 //        knowledgeRecommendReq.setDirection();
 //
@@ -85,7 +85,7 @@ public class GraphAppTest {
      */
     @Test
     public void batchInfoBoxTest() {
-        BatchInfoBoxReq infoBoxReq = new BatchInfoBoxReq();
+        BatchInfoBoxReqList infoBoxReq = new BatchInfoBoxReqList();
         infoBoxReq.setIds(Lists.newArrayList(3L));
         List<InfoBoxRsp> infoBoxRspList = graphApplicationService.infoBox("dh3773_9r96hk5ii5cfkk11", infoBoxReq);
         System.out.println(JacksonUtils.writeValueAsString(infoBoxRspList));

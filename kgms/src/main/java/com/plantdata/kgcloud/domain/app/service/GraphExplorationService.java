@@ -1,11 +1,11 @@
 package com.plantdata.kgcloud.domain.app.service;
 
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
@@ -49,7 +49,7 @@ public interface GraphExplorationService {
      * @param exploreParam 图探索参数
      * @return 图探索结果
      */
-    CommonBasicGraphExploreRsp commonGraphExploration(String kgName, CommonExploreReq exploreParam);
+    CommonBasicGraphExploreRsp commonGraphExploration(String kgName, CommonExploreReqList exploreParam);
 
     /**
      * 时序图探索
@@ -58,7 +58,7 @@ public interface GraphExplorationService {
      * @param exploreParam 图探索参数
      * @return 图探索结果
      */
-    CommonBasicGraphExploreRsp timeGraphExploration(String kgName, CommonTimingExploreReq exploreParam);
+    CommonBasicGraphExploreRsp timeGraphExploration(String kgName, CommonTimingExploreReqList exploreParam);
 
     /**
      * 推理图探索
@@ -66,5 +66,5 @@ public interface GraphExplorationService {
      * @param exploreReq 图探索参数
      * @return 图探索结果
      */
-    CommonBasicGraphExploreRsp reasoningGraphExploration(String kgName, CommonReasoningExploreReq exploreReq);
+    CommonBasicGraphExploreRsp reasoningGraphExploration(String kgName, CommonReasoningExploreReqList exploreReq);
 }

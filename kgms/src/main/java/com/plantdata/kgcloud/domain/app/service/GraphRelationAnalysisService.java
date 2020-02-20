@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.app.service;
 
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
@@ -21,7 +21,7 @@ public interface GraphRelationAnalysisService {
      * @param analysisReq
      * @return
      */
-    RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReq analysisReq);
+    RelationAnalysisRsp relationAnalysis(String kgName, RelationReqAnalysisReqList analysisReq);
 
     /**
      * 时序关联分析
@@ -30,7 +30,7 @@ public interface GraphRelationAnalysisService {
      * @param analysisReq
      * @return
      */
-    RelationTimingAnalysisRsp relationTimingAnalysis(String kgName, RelationTimingAnalysisReq analysisReq);
+    RelationTimingAnalysisRsp relationTimingAnalysis(String kgName, RelationTimingAnalysisReqList analysisReq);
 
     /**
      * 推理关联分析
@@ -39,5 +39,5 @@ public interface GraphRelationAnalysisService {
      * @param analysisReq
      * @return
      */
-    RelationReasoningAnalysisRsp relationReasoningAnalysis(String kgName, RelationReasoningAnalysisReq analysisReq);
+    RelationReasoningAnalysisRsp relationReasoningAnalysis(String kgName, RelationReasoningAnalysisReqList analysisReq);
 }
