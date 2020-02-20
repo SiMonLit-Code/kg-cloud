@@ -11,9 +11,9 @@ import com.plantdata.kgcloud.domain.app.service.GraphPathAnalysisService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
@@ -38,7 +38,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
     private GraphHelperService graphHelperService;
 
     @Override
-    public PathAnalysisRsp path(String kgName, PathAnalysisReq analysisReq) {
+    public PathAnalysisRsp path(String kgName, PathAnalysisReqList analysisReq) {
 
         analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);
@@ -53,7 +53,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
     }
 
     @Override
-    public PathAnalysisReasonRsp pathRuleReason(String kgName, PathReasoningAnalysisReq reasonReq) {
+    public PathAnalysisReasonRsp pathRuleReason(String kgName, PathReasoningAnalysisReqList reasonReq) {
         PathAnalysisReasonRsp analysisRsp = new PathAnalysisReasonRsp();
         reasonReq = graphHelperService.keyToId(kgName, reasonReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(reasonReq);
@@ -69,7 +69,7 @@ public class GraphPathAnalysisServiceImpl implements GraphPathAnalysisService {
     }
 
     @Override
-    public PathTimingAnalysisRsp pathTimingAnalysis(String kgName, PathTimingAnalysisReq analysisReq) {
+    public PathTimingAnalysisRsp pathTimingAnalysis(String kgName, PathTimingAnalysisReqList analysisReq) {
         PathTimingAnalysisRsp analysisRsp = new PathTimingAnalysisRsp();
         analysisReq = graphHelperService.keyToId(kgName, analysisReq);
         PathFrom pathFrom = GraphReqConverter.pathReqProxy(analysisReq);

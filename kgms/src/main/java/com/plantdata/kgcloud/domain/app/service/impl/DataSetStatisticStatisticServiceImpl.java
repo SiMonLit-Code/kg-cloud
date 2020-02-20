@@ -8,7 +8,6 @@ import com.plantdata.kgcloud.domain.app.bo.DataSetStatisticBO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.DataSetStatisticService;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
-import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
 import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -17,15 +16,11 @@ import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
-import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetTwoDimStatisticReq;
-import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,33 +35,21 @@ public class DataSetStatisticStatisticServiceImpl implements DataSetStatisticSer
     @Autowired
     private DataSetRepository dataSetRepository;
     @Autowired
-    private DataOptService dataOptService;
-    @Autowired
     private DataSetSearchService dataSetSearchService;
     @Autowired
     private EsProperties esProperties;
 
-    @Override
-    public DataSetStatisticRsp dataSetStatistic(String userId, DataSetTwoDimStatisticReq statisticReq, DimensionEnum dimension) {
-        Optional<DataSet> dataOpt = dataSetRepository.findByDataName(statisticReq.getDataName());
-        if (!dataOpt.isPresent()) {
-            throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
-        }
-        DataSetStatisticBO statistic = new DataSetStatisticBO().init(statisticReq.getAggregation(), statisticReq.getQuery(), dimension, statisticReq.getReturnType());
-        List<Map<String, Object>> maps = Collections.emptyList();
-        try (DataOptProvider provider = dataOptService.getProvider(userId, dataOpt.get().getId())) {
-            maps = provider.find(0, Integer.MAX_VALUE - 1, statistic.getEsDTO().parseMap());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return statistic.postDealData(maps);
-    }
 
     @Override
     public DataSetStatisticRsp statisticByDimensionAndTable(String userId, TableStatisticByDimensionalReq dimensionalReq, DimensionEnum dimension) {
         DataSetStatisticBO statistic = new DataSetStatisticBO().init(dimensionalReq.getAggs(), dimensionalReq.getQuery(), dimension, dimensionalReq.getReturnType());
-        RestData<Map<String, Object>> mapRestData = dataSetSearchService.readEsDataSet(esProperties.getAddrs(), dimensionalReq.getDataBaseList(), dimensionalReq.getTableList(), Collections.emptyList(), dimensionalReq.getQuery(), null, 0, 0);
-        return statistic.postDealData(mapRestData.getRsData());
+        Map<String, Object> mapRestData = dataSetSearchService.readEsDataSet(esProperties.getAddrs(), dimensionalReq.getDataBaseList(), dimensionalReq.getTableList(), Collections.emptyList(), dimensionalReq.getAggs(), dimensionalReq.getQuery(), null, 0, dimensionalReq.getSize());
+        try {
+            return statistic.postDealData(mapRestData);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw BizException.of(AppErrorCodeEnum.ES_RULE_ERROR);
+        }
     }
 
     @Override

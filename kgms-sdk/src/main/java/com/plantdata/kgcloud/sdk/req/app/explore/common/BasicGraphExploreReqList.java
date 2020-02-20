@@ -4,7 +4,7 @@ package com.plantdata.kgcloud.sdk.req.app.explore.common;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
-import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.AttrDefListKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
@@ -24,7 +24,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class BasicGraphExploreReq implements AttrDefKeyReqInterface, ConceptKeyListReqInterface, GraphReqAfterInterface {
+public class BasicGraphExploreReqList implements AttrDefListKeyReqInterface, ConceptKeyListReqInterface, GraphReqAfterInterface {
 
 
     @ApiModelProperty("要替换的概念id")

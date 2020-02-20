@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app.explore;
 
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphRelationReqInterface;
@@ -23,7 +23,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ApiModel("关联推理分析-参数")
-public class RelationReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphRelationReqInterface {
+public class RelationReasoningAnalysisReqList extends BasicGraphExploreReqList implements ReasoningReqInterface, GraphRelationReqInterface {
     @ApiModelProperty(value = "关联搜索参数", required = true)
     @NotNull
     @Valid

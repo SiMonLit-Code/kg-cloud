@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
@@ -207,7 +207,7 @@ public interface EditClient {
      */
     @PostMapping("attribute/relation/search/{kgName}")
     ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName,
-                                                       @RequestBody EdgeSearchReq queryReq);
+                                                       @RequestBody EdgeSearchReqList queryReq);
 
     /**
      * 实体-私有属性-添加私有数值或对象属性值

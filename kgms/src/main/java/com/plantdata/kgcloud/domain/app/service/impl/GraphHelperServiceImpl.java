@@ -5,10 +5,10 @@ import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.RelationApi;
 import ai.plantdata.kg.api.pub.SchemaApi;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
-import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.bo.GraphCommonBO;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
@@ -22,19 +22,17 @@ import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
-import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
-import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.*;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -86,7 +84,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     }
 
     @Override
-    public <T extends BasicGraphExploreReq> T keyToId(String kgName, T exploreReq) {
+    public <T extends BasicGraphExploreReqList> T keyToId(String kgName, T exploreReq) {
 
         //replace attrKey
         replaceByAttrKey(kgName, exploreReq);
@@ -177,7 +175,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     }
 
     @Override
-    public void replaceByAttrKey(String kgName, AttrDefKeyReqInterface attrDefKeyReq) {
+    public void replaceByAttrKey(String kgName, AttrDefListKeyReqInterface attrDefKeyReq) {
         if (!CollectionUtils.isEmpty(attrDefKeyReq.getAllowAttrs()) || CollectionUtils.isEmpty(attrDefKeyReq.getAllowAttrsKey())) {
             return;
         }
@@ -186,6 +184,21 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             return;
         }
         attrDefKeyReq.setAllowAttrs(Lists.newArrayList(keyConvertOpt.get().values()));
+    }
+
+    @Override
+    public void replaceByAttrKey(String kgName, AttrDefKeyReqInterface attrDefKeyReq, boolean requireAny) {
+        if (requireAny && StringUtils.isEmpty(attrDefKeyReq.getAttrDefKey()) && attrDefKeyReq.getAttrDefId() == null) {
+            throw BizException.of(AppErrorCodeEnum.ATTR_DEF_ANY_NO_NULL);
+        }
+        if (StringUtils.isEmpty(attrDefKeyReq.getAttrDefKey()) || attrDefKeyReq.getAttrDefId() != null) {
+            return;
+        }
+        Optional<Map<String, Integer>> keyConvertOpt = RestRespConverter.convert(schemaApi.getAttrIdByKey(KGUtil.dbName(kgName), Lists.newArrayList(attrDefKeyReq.getAttrDefKey())));
+        if (!keyConvertOpt.isPresent()) {
+            return;
+        }
+        attrDefKeyReq.setAttrDefId(keyConvertOpt.get().get(attrDefKeyReq.getAttrDefKey()));
     }
 
 }

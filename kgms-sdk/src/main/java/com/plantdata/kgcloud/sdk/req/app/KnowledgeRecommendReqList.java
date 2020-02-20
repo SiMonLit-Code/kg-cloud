@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
-import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.AttrDefListKeyReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 @ApiModel("知识推荐参数")
 @Data
-public class KnowledgeRecommendReq extends PageReq implements AttrDefKeyReqInterface {
+public class KnowledgeRecommendReqList extends PageReq implements AttrDefListKeyReqInterface {
 
     @ApiModelProperty(value = "实例id", required = true)
     @NotNull

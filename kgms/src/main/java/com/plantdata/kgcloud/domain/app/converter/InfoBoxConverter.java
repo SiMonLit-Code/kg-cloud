@@ -14,7 +14,7 @@ import com.plantdata.kgcloud.sdk.constant.AttrDefinitionTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.FileRsp;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class InfoBoxConverter extends BasicConverter {
 
 
-    public static BasicDetailFilter batchInfoBoxReqToBasicDetailFilter(BatchInfoBoxReq boxReq) {
+    public static BasicDetailFilter batchInfoBoxReqToBasicDetailFilter(BatchInfoBoxReqList boxReq) {
         BasicDetailFilter detailFilter = new BasicDetailFilter();
         detailFilter.setIds(boxReq.getIds());
         detailFilter.setReadObj(boxReq.getRelationAttrs());

@@ -2,10 +2,9 @@ package com.plantdata.kgcloud.domain.app;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.service.GraphRelationAnalysisService;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
@@ -39,7 +38,7 @@ public class GraphRelationAnalysisTest {
 
     @Test
     public void relationAnalysisTest() {
-        RelationReqAnalysisReq analysisReq = new RelationReqAnalysisReq();
+        RelationReqAnalysisReqList analysisReq = new RelationReqAnalysisReqList();
         analysisReq.setRelation(commonRelationReq());
         RelationAnalysisRsp analysisRsp = graphRelationAnalysisService.relationAnalysis(KG_NAME, analysisReq);
         System.out.println(JacksonUtils.writeValueAsString(analysisRsp));
@@ -47,7 +46,7 @@ public class GraphRelationAnalysisTest {
 
     @Test
     public void relationTimingAnalysisTest() {
-        RelationTimingAnalysisReq analysisReq = new RelationTimingAnalysisReq();
+        RelationTimingAnalysisReqList analysisReq = new RelationTimingAnalysisReqList();
         analysisReq.setRelation(commonRelationReq());
         RelationTimingAnalysisRsp analysisRsp = graphRelationAnalysisService.relationTimingAnalysis(KG_NAME, analysisReq);
         System.out.println(JacksonUtils.writeValueAsString(analysisRsp));
@@ -55,7 +54,7 @@ public class GraphRelationAnalysisTest {
 
     @Test
     public void  relationReasoningAnalysisTest(){
-        RelationReasoningAnalysisReq analysisReq = new RelationReasoningAnalysisReq();
+        RelationReasoningAnalysisReqList analysisReq = new RelationReasoningAnalysisReqList();
         analysisReq.setRelation(commonRelationReq());
         RelationReasoningAnalysisRsp analysisRsp = graphRelationAnalysisService.relationReasoningAnalysis(KG_NAME, analysisReq);
         System.out.println(JacksonUtils.writeValueAsString(analysisRsp));

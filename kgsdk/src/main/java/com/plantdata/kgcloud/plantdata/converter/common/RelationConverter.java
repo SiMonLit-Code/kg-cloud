@@ -5,7 +5,7 @@ import com.plantdata.kgcloud.plantdata.bean.ImportRelationBean;
 import com.plantdata.kgcloud.plantdata.req.data.QueryRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.AttrScreeningBean;
 import com.plantdata.kgcloud.plantdata.rsp.data.RelationBeanScore;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
@@ -83,10 +83,11 @@ public class RelationConverter extends BasicConverter {
         return updateReq;
     }
 
-    public static EdgeSearchReq queryRelationParameterToEdgeSearchReq(@NonNull QueryRelationParameter param) {
-        EdgeSearchReq searchReq = new EdgeSearchReq();
-        searchReq.setAttrIds(param.getAttrIds());
-        searchReq.setAttrKeys(param.getAttrKeys());
+    public static EdgeSearchReqList queryRelationParameterToEdgeSearchReq(@NonNull QueryRelationParameter param) {
+        EdgeSearchReqList searchReq = new EdgeSearchReqList();
+        searchReq.setAllowAttrs(param.getAttrIds());
+        searchReq.setAllowAttrsKey(param.getAttrKeys());
+        searchReq.setDirection(param.getDirection());
         consumerIfNoNull(param.getAttrTimeFrom(), a -> searchReq.setAttrTimeFrom(JsonUtils.stringToMap(a)));
         consumerIfNoNull(param.getAttrTimeTo(), a -> searchReq.setAttrTimeTo(JsonUtils.stringToMap(a)));
         searchReq.setPage(param.getPageNo());

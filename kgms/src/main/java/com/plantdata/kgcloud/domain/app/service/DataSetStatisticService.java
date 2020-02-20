@@ -33,13 +33,4 @@ public interface DataSetStatisticService {
      */
     DataSetStatisticRsp statisticByDimension(String userId,StatisticByDimensionalReq dimensionalReq, String dataSetKey, DimensionEnum dimension);
 
-    /**
-     * es ...
-     *
-     * @param userId       用户id
-     * @param statisticReq req
-     * @param dimension    .
-     * @return .
-     */
-    DataSetStatisticRsp dataSetStatistic(String userId, DataSetTwoDimStatisticReq statisticReq, DimensionEnum dimension);
 }

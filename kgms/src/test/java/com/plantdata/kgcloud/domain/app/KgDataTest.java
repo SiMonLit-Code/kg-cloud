@@ -61,7 +61,7 @@ public class KgDataTest {
     public void statEntityGroupByConceptTest() {
         EntityStatisticGroupByConceptReq conceptReq = new EntityStatisticGroupByConceptReq();
         conceptReq.setEntityIds(Lists.newArrayList(3L,4L,13L,5L));
-        conceptReq.setAllowTypes(Lists.newArrayList(1L, 2L));
+        conceptReq.setAllowConcepts(Lists.newArrayList(1L, 2L));
         //conceptReq.setReturnType(1);
         Object obj = kgDataService.statEntityGroupByConcept(KG_NAME, conceptReq);
         System.out.println(JacksonUtils.writeValueAsString(obj));

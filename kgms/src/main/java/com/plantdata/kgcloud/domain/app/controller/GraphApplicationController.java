@@ -6,12 +6,12 @@ import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
 import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
@@ -63,7 +63,7 @@ public class GraphApplicationController implements GraphAppInterface {
     @ApiOperation("知识推荐")
     @PostMapping("knowledgeRecommend/{kgName}")
     public ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                  @RequestBody @Valid KnowledgeRecommendReq recommendParam) {
+                                                                  @RequestBody @Valid KnowledgeRecommendReqList recommendParam) {
         return ApiReturn.success(graphApplicationService.knowledgeRecommend(kgName, recommendParam));
     }
 
@@ -86,7 +86,7 @@ public class GraphApplicationController implements GraphAppInterface {
     @ApiOperation("批量读取知识卡片")
     @PostMapping("infoBox/list/{kgName}")
     public ApiReturn<List<InfoBoxRsp>> listInfoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                   @RequestBody @Valid BatchInfoBoxReq batchInfoBoxReq) {
+                                                   @RequestBody @Valid BatchInfoBoxReqList batchInfoBoxReq) {
         return ApiReturn.success(graphApplicationService.infoBox(kgName, batchInfoBoxReq));
     }
 

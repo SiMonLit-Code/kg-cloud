@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app.explore;
 
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
@@ -27,7 +27,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ApiModel("路径分析推理-参数")
-public class PathReasoningAnalysisReq extends BasicGraphExploreReq implements ReasoningReqInterface, GraphPathReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
+public class PathReasoningAnalysisReqList extends BasicGraphExploreReqList implements ReasoningReqInterface, GraphPathReqInterface, GraphTimingReqInterface, SecondaryScreeningInterface {
 
     @NotNull
     @Valid

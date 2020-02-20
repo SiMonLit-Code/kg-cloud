@@ -10,15 +10,9 @@ import java.util.List;
 public interface ConceptKeyListReqInterface {
 
 
-    default List<Long> getAllowConcepts() {
-        return null;
-    }
+    List<Long> getAllowConcepts();
 
-    default void setAllowConcepts(List<Long> allowConceptIds) {
+    void setAllowConcepts(List<Long> allowConceptIds);
 
-    }
-
-    default List<String> getAllowConceptsKey() {
-        return null;
-    }
+    List<String> getAllowConceptsKey();
 }

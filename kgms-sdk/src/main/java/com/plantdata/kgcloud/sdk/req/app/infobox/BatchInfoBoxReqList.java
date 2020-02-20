@@ -1,11 +1,10 @@
 package com.plantdata.kgcloud.sdk.req.app.infobox;
 
-import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.AttrDefListKeyReqInterface;
 import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
@@ -19,7 +18,7 @@ import java.util.List;
 @ApiModel("知识卡片-参数(批量)")
 @Getter
 @Setter
-public class BatchInfoBoxReq implements AttrDefKeyReqInterface {
+public class BatchInfoBoxReqList implements AttrDefListKeyReqInterface {
     @ApiModelProperty(value = "实体id、概念id", required = true)
     @NotNull
     private List<Long> ids;

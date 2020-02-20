@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.app.bo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.plantdata.kgcloud.domain.app.dto.AggsDTO;
@@ -10,6 +9,7 @@ import com.plantdata.kgcloud.domain.app.dto.EsDTO;
 import com.plantdata.kgcloud.sdk.constant.DataSetStatisticEnum;
 import com.plantdata.kgcloud.sdk.constant.DimensionEnum;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
@@ -59,52 +59,58 @@ public class DataSetStatisticBO {
      * @return 。。
      */
     public DataSetStatisticRsp postDealData(List<Map<String, Object>> data) {
+        JsonNode jsonObj = JacksonUtils.getInstance().valueToTree(data);
         return dimension.equals(DimensionEnum.TWO)
-                ? postDataDealByReturnType(data)
-                : postDataDealNoReturnType(data);
+                ? postDataDealByReturnType((ArrayNode) jsonObj)
+                : postDataDealNoReturnType((ArrayNode) jsonObj);
     }
 
-    private DataSetStatisticRsp postDataDealByReturnType(List<Map<String, Object>> data) {
+    public DataSetStatisticRsp postDealData(Map<String, Object> data) {
         ArrayNode arr = this.buildAttrArray(data);
+        return dimension.equals(DimensionEnum.TWO)
+                ? postDataDealByReturnType(arr)
+                : postDataDealNoReturnType(arr);
+    }
+
+    private DataSetStatisticRsp postDataDealByReturnType(ArrayNode arr) {
         DataSetStatisticRsp rsp = new DataSetStatisticRsp();
         List<String> xData = arr == null ? Collections.emptyList() : new ArrayList<>(arr.size());
         List<Double> sData = arr == null ? Collections.emptyList() : new ArrayList<>(arr.size());
         if (Objects.nonNull(arr)) {
             for (int i = 0; i < arr.size(); i++) {
                 JsonNode obj = arr.get(i);
-                String k = obj.get("key_as_string").toString();
-                k = Objects.isNull(k) ? obj.get("key").toString() : k;
-                long v = Long.parseLong(obj.get("doc_count").toString());
+                JsonNode k = obj.get("key_as_string");
+                String key = Objects.isNull(k) ? obj.get("key").textValue() : k.textValue();
+                long v = Long.parseLong(obj.get("doc_count").textValue());
                 if (DataSetStatisticEnum.KV.equals(setStatisticEnum)) {
-                    rsp.addData2Series(k, v);
+                    rsp.addData2Series(key, v);
                 } else {
-                    xData.add(k);
+                    xData.add(key);
                     sData.add((double) v);
                 }
             }
         }
         rsp.addData2xAxis(xData);
         rsp.addData2Series(StringUtils.EMPTY, sData);
-        return null;
+        return rsp;
     }
 
-    private DataSetStatisticRsp postDataDealNoReturnType(List<Map<String, Object>> data) {
-        ArrayNode arr = this.buildAttrArray(data);
+    private DataSetStatisticRsp postDataDealNoReturnType(ArrayNode arr) {
         DataSetStatisticRsp rsp = new DataSetStatisticRsp();
         Table<String, String, Double> rsTable = HashBasedTable.create();
         if (Objects.nonNull(arr)) {
             for (int i = 0; i < arr.size(); i++) {
                 JsonNode obj1 = arr.get(i);
-                String k1 = obj1.get("key_as_string").toString();
-                k1 = Objects.isNull(k1) ? obj1.get("key").toString() : k1;
+                JsonNode k1 = obj1.get("key_as_string");
+                String key = Objects.isNull(k1) ? obj1.get("key").textValue() : k1.textValue();
                 JsonNode byKey2 = obj1.get("by_key2");
                 ArrayNode arr2 = (ArrayNode) byKey2.get("buckets");
                 for (int j = 0; j < arr2.size(); j++) {
                     JsonNode obj2 = arr2.get(j);
-                    String k2 = obj2.get("key_as_string").toString();
-                    k2 = Objects.isNull(k2) ? obj2.get("key").toString() : k2;
-                    long v = Long.parseLong(obj2.get("doc_count").toString());
-                    rsTable.put(k1, k2, (double) v);
+                    JsonNode k2 = obj2.get("key_as_string");
+                    String key2 = Objects.isNull(k2) ? obj2.get("key").textValue() : k2.textValue();
+                    long v = obj2.get("doc_count").longValue();
+                    rsTable.put(key, key2, (double) v);
                 }
             }
         }
@@ -124,9 +130,9 @@ public class DataSetStatisticBO {
         return rsp;
     }
 
-    private ArrayNode buildAttrArray(List<Map<String, Object>> data) {
-        JsonNode jsonObj = JsonNodeFactory.instance.pojoNode(data);
-        JsonNode byKey = jsonObj.get("aggregations").get("by_key1");
+    private ArrayNode buildAttrArray(Map<String, Object> data) {
+        JsonNode jsonNode = JacksonUtils.getInstance().valueToTree(data.get("aggregations"));
+        JsonNode byKey = jsonNode.get("by_key1");
         JsonNode arrayNode = aggsDTO.getIsNested() ? byKey.get(aggsDTO.getNestedName()).get("buckets") : byKey.get("buckets");
         return (ArrayNode) arrayNode;
     }

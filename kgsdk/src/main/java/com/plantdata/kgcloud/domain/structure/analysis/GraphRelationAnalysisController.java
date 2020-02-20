@@ -3,9 +3,9 @@ package com.plantdata.kgcloud.domain.structure.analysis;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphStructureAnalysisInterface;
 import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
@@ -36,21 +36,21 @@ public class GraphRelationAnalysisController implements GraphStructureAnalysisIn
     @ApiOperation("关联分析")
     @PostMapping("{kgName}")
     public ApiReturn<RelationAnalysisRsp> relationAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                           @RequestBody @Validated RelationReqAnalysisReq analysisReq) {
+                                                           @RequestBody @Validated RelationReqAnalysisReqList analysisReq) {
         return appClient.relationAnalysis(kgName, analysisReq);
     }
 
     @ApiOperation("时序关联分析")
     @PostMapping("timing/{kgName}")
     public ApiReturn<RelationTimingAnalysisRsp> relationTimingAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                       @RequestBody @Valid RelationTimingAnalysisReq analysisReq) {
+                                                                       @RequestBody @Valid RelationTimingAnalysisReqList analysisReq) {
         return appClient.relationTimingAnalysis(kgName,analysisReq);
     }
 
     @ApiOperation("关联推理分析")
     @PostMapping("reasoning/{kgName}")
     public ApiReturn<RelationReasoningAnalysisRsp> relationReasoningAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                             @RequestBody @Valid RelationReasoningAnalysisReq analysisReq) {
+                                                                             @RequestBody @Valid RelationReasoningAnalysisReqList analysisReq) {
         return appClient.relationReasoningAnalysis(kgName,analysisReq);
     }
 }

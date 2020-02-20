@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app.statistic;
 
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +16,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class EdgeStatisticByConceptIdReq {
+public class EdgeStatisticByConceptIdReq implements ConceptKeyReqInterface {
 
 
     private Long conceptId;
@@ -23,18 +25,15 @@ public class EdgeStatisticByConceptIdReq {
 
     private List<String> tripleIds;
 
-    // @ChooseCheck(value = "[-1,1]", name = "sort")
+    @ChooseCheck(value = "[-1,1]", name = "sort")
     private Integer sort = -1;
-
-    //@AttrId("allowAtts")
-    private List<Integer> allowAtts;
-    // @AttrKey("allowAtts")
-    private List<String> allowAttsKey;
+    private List<Integer> allowAttrs;
+    private List<String> allowAttrsKey;
 
     private String fromTime;
     private String toTime;
 
-    //@ChooseCheck(value = "[0,1]", name = "returnType")
+    @ChooseCheck(value = "[0,1]", name = "returnType")
     private Integer returnType = 0;
     @Min(-1)
     @Max(1000)

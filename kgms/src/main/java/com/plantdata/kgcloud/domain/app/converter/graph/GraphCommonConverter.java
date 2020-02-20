@@ -14,7 +14,7 @@ import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
@@ -67,7 +67,7 @@ public class GraphCommonConverter extends BasicConverter {
      * @param <E>        子类
      * @return 。。。
      */
-    static <T extends BasicGraphExploreReq, E extends CommonFilter> E basicReqToRemote(T exploreReq, E graphFrom) {
+    static <T extends BasicGraphExploreReqList, E extends CommonFilter> E basicReqToRemote(T exploreReq, E graphFrom) {
         CommonFilter highLevelFilter = new GraphFrom();
         consumerIfNoNull(exploreReq.getEntityFilters(), a -> {
             EntityFilter entityFilter = new EntityFilter();

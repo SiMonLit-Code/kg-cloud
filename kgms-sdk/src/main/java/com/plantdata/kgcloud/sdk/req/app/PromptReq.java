@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk.req.app;
 
 
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import io.swagger.annotations.ApiModel;
@@ -20,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("实体提示参数")
-public class PromptReq extends PageReq implements PromptSearchInterface {
+public class PromptReq extends PageReq implements PromptSearchInterface, ConceptKeyListReqInterface {
 
     @ApiModelProperty("关键字")
     private String kw;
@@ -49,5 +50,23 @@ public class PromptReq extends PageReq implements PromptSearchInterface {
     @Override
     public Boolean getInherit() {
         return inherit;
+    }
+
+    @ApiModelProperty(hidden = true)
+    @Override
+    public List<Long> getAllowConcepts() {
+        return conceptIds;
+    }
+
+    @ApiModelProperty(hidden = true)
+    @Override
+    public void setAllowConcepts(List<Long> allowConceptIds) {
+        this.conceptIds = allowConceptIds;
+    }
+
+    @ApiModelProperty(hidden = true)
+    @Override
+    public List<String> getAllowConceptsKey() {
+        return conceptKeys;
     }
 }

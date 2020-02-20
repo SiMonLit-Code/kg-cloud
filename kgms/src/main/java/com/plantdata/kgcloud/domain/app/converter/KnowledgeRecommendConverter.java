@@ -5,7 +5,7 @@ import ai.plantdata.kg.api.pub.resp.EntityVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import lombok.NonNull;
@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class KnowledgeRecommendConverter extends BasicConverter{
 
-    public static EntityAttributesObjectFrom reqToFrom(KnowledgeRecommendReq req) {
+    public static EntityAttributesObjectFrom reqToFrom(KnowledgeRecommendReqList req) {
         EntityAttributesObjectFrom from = new EntityAttributesObjectFrom();
         from.setEntityId(req.getEntityId());
         from.setAttributeIds(req.getAllowAttrs());
-        consumerIfNoNull(req.getAllowAttrs(),a->{
+        consumerIfNoNull(req.getAllowAttrs(), a->{
             Map<Integer, Integer> directionMap = Maps.newHashMapWithExpectedSize(a.size());
             Map<Integer, Integer> sizeMap = Maps.newHashMapWithExpectedSize(a.size());
             for (int i = 0; i < a.size(); i++) {

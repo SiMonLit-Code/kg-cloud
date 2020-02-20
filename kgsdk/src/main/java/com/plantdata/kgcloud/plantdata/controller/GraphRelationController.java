@@ -11,8 +11,8 @@ import com.plantdata.kgcloud.plantdata.req.explore.relation.RelationGraphParamet
 import com.plantdata.kgcloud.plantdata.req.explore.relation.RuleRelationGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.relation.TimeRelationGraphParameter;
 import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationReasoningAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
 import io.swagger.annotations.ApiImplicitParam;
@@ -99,7 +99,7 @@ public class GraphRelationController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "timeFilterType", dataType = "int", paramType = "form", value = "时间筛选类型，0 不按时间不筛选, 1以节点的时间筛选,  2 以关系的时间筛选, 3 以关系与节点的时间筛选"),
     })
     public RestResp<GraphBean> relationTiming(@Valid @ApiIgnore TimeRelationGraphParameter generalGraphParameter) {
-        Function<RelationTimingAnalysisReq, ApiReturn<RelationTimingAnalysisRsp>> returnFunction = a -> appClient.relationTimingAnalysis(generalGraphParameter.getKgName(), a);
+        Function<RelationTimingAnalysisReqList, ApiReturn<RelationTimingAnalysisRsp>> returnFunction = a -> appClient.relationTimingAnalysis(generalGraphParameter.getKgName(), a);
         GraphBean graphBean = returnFunction.compose(
                 ExploreReqConverter::timeRelationGraphParameterToRelationTimingAnalysisReq)
                 .andThen(a -> BasicConverter.convert(a, ExploreRspConverter::statisticRspToGraphBean))
@@ -135,7 +135,7 @@ public class GraphRelationController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "timeFilterType", dataType = "int", paramType = "form", value = "时间筛选类型，0 不按时间不筛选, 1以节点的时间筛选,  2 以关系的时间筛选, 3 以关系与节点的时间筛选"),
     })
     public RestResp<GraphBean> relationRule(@Valid @ApiIgnore RuleRelationGraphParameter parameter) {
-        Function<RelationReasoningAnalysisReq, ApiReturn<RelationReasoningAnalysisRsp>> returnFunction = a -> appClient.relationReasoningAnalysis(parameter.getKgName(), a);
+        Function<RelationReasoningAnalysisReqList, ApiReturn<RelationReasoningAnalysisRsp>> returnFunction = a -> appClient.relationReasoningAnalysis(parameter.getKgName(), a);
         GraphBean graphBean = returnFunction
                 .compose(ExploreReqConverter::ruleRelationGraphParameterToRelationReasoningAnalysisReq)
                 .andThen(a -> BasicConverter.convert(a, ExploreRspConverter::statisticRspToGraphBean))

@@ -64,8 +64,8 @@ public class StatisticConverter extends BasicConverter {
         EdgeStatisticByConceptIdReq req = new EdgeStatisticByConceptIdReq();
         req.setConceptId(param.getConceptId());
         req.setConceptKey(param.getConceptKey());
-        req.setAllowAtts(param.getAllowAtts());
-        req.setAllowAttsKey(param.getAllowAttsKey());
+        req.setAllowAttrs(param.getAllowAtts());
+        req.setAllowAttrsKey(param.getAllowAttsKey());
         req.setFromTime(param.getFromTime());
         req.setReturnType(param.getReturnType());
         req.setSize(param.getSize());
@@ -100,8 +100,8 @@ public class StatisticConverter extends BasicConverter {
     public static EntityStatisticGroupByAttrIdReq statEntityGroupByAttrvalueByAttrIdParameterToEntityStatisticGroupByAttrIdReq(StatEntityGroupByAttrvalueByAttrIdParameter param) {
         EntityStatisticGroupByAttrIdReq req = new EntityStatisticGroupByAttrIdReq();
         req.setEntityIds(param.getEntityIds());
-        req.setAttrId(param.getAttrId());
-        req.setAttrKey(param.getAttrKey());
+        req.setAttrDefId(param.getAttrId());
+        req.setAttrDefKey(param.getAttrKey());
         consumerIfNoNull(param.getDateType(), a -> {
             DateTypeReq dateTypeReq = new DateTypeReq();
             BeanUtils.copyProperties(a, dateTypeReq);
@@ -117,8 +117,8 @@ public class StatisticConverter extends BasicConverter {
 
     public static EntityStatisticGroupByConceptReq statEntityGroupByConceptParameterToEntityStatisticGroupByConceptReq(StatEntityGroupByConceptParameter param) {
         EntityStatisticGroupByConceptReq conceptReq = new EntityStatisticGroupByConceptReq();
-        conceptReq.setAllowTypes(param.getAllowTypes());
-        conceptReq.setAllowTypesKey(param.getAllowTypesKey());
+        conceptReq.setAllowConcepts(param.getAllowTypes());
+        conceptReq.setAllowConceptsKey(param.getAllowTypesKey());
         consumerIfNoNull(param.getSort(), conceptReq::setSort);
         conceptReq.setEntityIds(param.getEntityIds());
         conceptReq.setReturnType(param.getReturnType());

@@ -1,15 +1,10 @@
 package com.plantdata.kgcloud.domain.app.service;
 
-import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
-import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
-import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
-import com.plantdata.kgcloud.sdk.req.app.function.SecondaryScreeningInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.*;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 
@@ -55,7 +50,9 @@ public interface GraphHelperService {
      * @param kgName        图谱名称
      * @param attrDefKeyReq req
      */
-    void replaceByAttrKey(String kgName, AttrDefKeyReqInterface attrDefKeyReq);
+    void replaceByAttrKey(String kgName, AttrDefListKeyReqInterface attrDefKeyReq);
+
+    void replaceByAttrKey(String kgName, AttrDefKeyReqInterface attrDefKeyReq,boolean requireAny);
 
     Map<Long, BasicInfo> getConceptIdMap(String kgName);
 
@@ -67,7 +64,7 @@ public interface GraphHelperService {
      * @param <T>
      * @return
      */
-    <T extends BasicGraphExploreReq> T keyToId(String kgName, T exploreReq);
+    <T extends BasicGraphExploreReqList> T keyToId(String kgName, T exploreReq);
 
     /**
      * 前置搜索
