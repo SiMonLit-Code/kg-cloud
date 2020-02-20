@@ -2,8 +2,6 @@ package com.plantdata.kgcloud.domain.app.bo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.plantdata.kgcloud.domain.app.dto.AggsDTO;
