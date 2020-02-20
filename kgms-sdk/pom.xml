@@ -5,8 +5,7 @@
     <parent>
         <groupId>com.plantdata</groupId>
         <artifactId>kg-cloud-kgms</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
-        <relativePath/>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
     <artifactId>kgms-sdk</artifactId>
     <name>kgms-sdk</name>
@@ -17,7 +16,6 @@
         <dependency>
             <groupId>com.plantdata</groupId>
             <artifactId>kg-cloud-web</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

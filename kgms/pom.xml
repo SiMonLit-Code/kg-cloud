@@ -5,8 +5,7 @@
     <parent>
         <artifactId>kg-cloud-kgms</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.0.0-SNAPSHOT</version>
-        <relativePath/>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,6 +15,11 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kgms-sdk</artifactId>
+        </dependency>
+
         <!--nlp-->
         <dependency>
             <groupId>com.hankcs</groupId>
@@ -166,93 +170,90 @@
             <artifactId>fastjson</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-persistence</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-web</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kgms-sdk</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.plantdata</groupId>
-            <artifactId>sparql-api</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-oss</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-mq-kafka</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-nosql-mongo</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-redis</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-elasticsearch</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
+
         <dependency>
             <groupId>com.plantdata.log</groupId>
             <artifactId>graph-logging</artifactId>
-            <version>3.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kgtext-sdk</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
         </dependency>
 
+
+        <!-- ******************* parent start ****************** -->
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-persistence</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-oss</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-mq-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-nosql-mongo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-elasticsearch</artifactId>
+        </dependency>
+        <!-- ******************* parent end ****************** -->
+
+
+        <!-- ******************* public-sdk start ****************** -->
         <dependency>
             <groupId>com.plantdata</groupId>
             <artifactId>kguser-sdk</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
         </dependency>
-        <!--底层edit-->
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>xxl-admin-sdk</artifactId>
+        </dependency>
+        <!-- ******************* public-sdk  end ****************** -->
+
+
+
+        <!-- ******************* kgtext-sdk  end ****************** -->
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kgtext-sdk</artifactId>
+        </dependency>
+        <!-- ******************* kgtext-sdk  end ****************** -->
+
+
+
+        <!-- ******************* 底层sdk start ****************** -->
         <dependency>
             <artifactId>edit-api</artifactId>
             <groupId>ai.plantdata</groupId>
-            <version>3.0.0-SNAPSHOT</version>
         </dependency>
-        <!--底层public-->
         <dependency>
             <artifactId>public-api</artifactId>
             <groupId>ai.plantdata</groupId>
-            <version>3.0.0-SNAPSHOT</version>
         </dependency>
-        <!--底层semantic-->
         <dependency>
             <artifactId>semantic-api</artifactId>
             <groupId>ai.plantdata</groupId>
-            <version>3.0.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>fastjson</artifactId>
@@ -260,6 +261,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- ******************* 底层sdk end ****************** -->
+
         <dependency>
             <groupId>ma.glasnost.orika</groupId>
             <artifactId>orika-core</artifactId>
@@ -276,11 +279,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>xxl-admin-sdk</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

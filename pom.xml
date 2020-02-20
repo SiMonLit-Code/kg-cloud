@@ -5,13 +5,13 @@
     <parent>
         <artifactId>kg-cloud-parent</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.0.1</version>
         <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.plantdata</groupId>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -20,6 +20,125 @@
         <module>kgsdk</module>
         <module>kgpreview</module>
     </modules>
+
+    <properties>
+        <kg-cloud-parent.version>3.0.1</kg-cloud-parent.version>
+        <kg-cloud-public.version>3.0.4</kg-cloud-public.version>
+        <kg-services-sdk.version>3.0.0-SNAPSHOT</kg-services-sdk.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+
+
+
+            <!-- ********** kgms 依赖 *************-->
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kgms-sdk</artifactId>
+                <version>${parent.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.plantdata.log</groupId>
+                <artifactId>graph-logging</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+
+            <!-- ********** parent 依赖 *************-->
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-persistence</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-web</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-nosql-mongo</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-redis</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-oss</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-elasticsearch</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-mq-kafka</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-common</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+
+            <!-- ********** public sdk *************-->
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kguser-sdk</artifactId>
+                <version>${kg-cloud-public.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>xxl-admin-sdk</artifactId>
+                <version>${kg-cloud-public.version}</version>
+            </dependency>
+
+
+            <!-- ********** kgcomponent sdk ************* -->
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kgcomponent-sdk</artifactId>
+                <version>3.0.0-SNAPSHOT</version>
+            </dependency>
+
+            <!-- ********** kgtext sdk ************* -->
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kgtext-sdk</artifactId>
+                <version>3.0.0-SNAPSHOT</version>
+            </dependency>
+
+
+            <!-- ********** 底层 sdk *************-->
+            <dependency>
+                <artifactId>edit-api</artifactId>
+                <groupId>ai.plantdata</groupId>
+                <version>${kg-services-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>public-api</artifactId>
+                <groupId>ai.plantdata</groupId>
+                <version>${kg-services-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>semantic-api</artifactId>
+                <groupId>ai.plantdata</groupId>
+                <version>${kg-services-sdk.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>fastjson</artifactId>
+                        <groupId>com.alibaba</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <distributionManagement>
         <repository>

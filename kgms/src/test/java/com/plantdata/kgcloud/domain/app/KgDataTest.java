@@ -1,16 +1,9 @@
 package com.plantdata.kgcloud.domain.app;
 
-import ai.plantdata.kg.api.ql.SparqlApi;
-import ai.plantdata.kg.api.ql.resp.QueryResultVO;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
-import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
+import com.plantdata.kgcloud.sdk.req.app.statistic.*;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -22,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author cjw
@@ -35,18 +27,6 @@ public class KgDataTest {
     private static final String KG_NAME = "dh3773_9r96hk5ii5cfkk11";
     @Autowired
     private KgDataService kgDataService;
-    @Autowired
-    private SparqlApi sparqlApi;
-
-    /**
-     * sparQl
-     */
-    @Test
-    public void sparQlTest() {
-        String sparQl = "PREFIXrdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>PREFIXowl:<http://www.w3.org/2002/07/owl#>PREFIXrdfs:<http://www.w3.org/2000/01/rdf-schema#>PREFIXxsd:<http://www.w3.org/TR/2003/PR-owl-guide-20031209/wine#>SELECT?s?p?oWHERE{?s?p?o}";
-        Optional<QueryResultVO> convert = RestRespConverter.convert(sparqlApi.query(KG_NAME, sparQl, 10));
-        System.out.println(JacksonUtils.writeValueAsString(convert.get()));
-    }
 
     @Test
     public void statisticCountEdgeByEntityTest() {
