@@ -245,7 +245,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，是ImportRelationBean列表的JSON形式"),
             @ApiImplicitParam(name = "mode", dataType = "int", paramType = "form", value = "0 ")
     })
-    public RestResp<List<Long>> updataRelation(@Valid @ApiIgnore UpdataRelationParameter param) {
+    public RestResp<String> updataRelation(@Valid @ApiIgnore UpdataRelationParameter param) {
         //mode todo
         Function<List<RelationUpdateReq>, ApiReturn<List<RelationUpdateReq>>> returnFunction = a -> editClient.updateRelations(param.getKgName(), a);
         Function<List<ImportRelationBean>, List<RelationUpdateReq>> reqFunction = a -> BasicConverter.toListNoNull(a, RelationConverter::importRelationBeanToRelationUpdateReq);
@@ -253,7 +253,8 @@ public class GraphDataController implements SdkOldApiInterface {
                 .compose(reqFunction)
                 .andThen(BasicConverter::apiReturnData)
                 .apply(param.getData());
-        return new RestResp<>(Collections.emptyList());
+
+        return new RestResp<>("成功");
     }
 
     @ApiOperation("批量关系删除")
