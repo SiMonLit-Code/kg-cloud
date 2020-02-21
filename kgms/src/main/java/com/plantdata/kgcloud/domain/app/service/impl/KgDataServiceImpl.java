@@ -109,9 +109,8 @@ public class KgDataServiceImpl implements KgDataService {
 
     @Override
     public Object statEdgeGroupByEdgeValue(String kgName, EdgeAttrStatisticByAttrValueReq statisticReq) {
-
-
-        Optional<AttributeDefinition> arrDefOpt = getAttrDefById(kgName, statisticReq.getAttrId());
+        graphHelperService.replaceByAttrKey(kgName, statisticReq, true);
+        Optional<AttributeDefinition> arrDefOpt = getAttrDefById(kgName, statisticReq.getAttrDefId());
 
         if (!arrDefOpt.isPresent()) {
             return new StatDataRsp();
@@ -143,6 +142,7 @@ public class KgDataServiceImpl implements KgDataService {
 
     @Override
     public Object statisticRelation(String kgName, EdgeStatisticByConceptIdReq conceptIdReq) {
+        graphHelperService.replaceByAttrKey(kgName, conceptIdReq);
         graphHelperService.replaceByConceptKey(kgName, conceptIdReq);
         RelationStatisticsBean statisticsBean = GraphStatisticConverter.conceptIdReqConceptStatisticsBean(conceptIdReq);
         Optional<List<Map<String, Object>>> resultOpt = RestRespConverter.convert(statisticsApi.relationStatistics(KGUtil.dbName(kgName), statisticsBean));

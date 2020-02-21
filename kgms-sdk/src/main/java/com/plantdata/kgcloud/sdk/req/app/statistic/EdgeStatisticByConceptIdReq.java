@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app.statistic;
 
+import com.plantdata.kgcloud.sdk.req.app.function.AttrDefListKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyReqInterface;
 import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class EdgeStatisticByConceptIdReq implements ConceptKeyReqInterface {
+public class EdgeStatisticByConceptIdReq implements ConceptKeyReqInterface, AttrDefListKeyReqInterface {
 
 
     private Long conceptId;

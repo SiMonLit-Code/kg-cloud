@@ -77,8 +77,8 @@ public class StatisticConverter extends BasicConverter {
 
     public static EdgeAttrStatisticByAttrValueReq statEdgeGroupByEdgeValueParameterToEdgeAttrStatisticByAttrValueReq(StatEdgeGroupByEdgeValueParameter param) {
         EdgeAttrStatisticByAttrValueReq req = new EdgeAttrStatisticByAttrValueReq();
-        req.setAttrId(param.getAttrId());
-        req.setAttrKey(param.getAttrKey());
+        req.setAttrDefId(param.getAttrId());
+        req.setAttrDefKey(param.getAttrKey());
         consumerIfNoNull(param.getDateType(), a -> {
             DateTypeReq dateTypeReq = new DateTypeReq();
             dateTypeReq.setType(a.getType());
@@ -87,7 +87,7 @@ public class StatisticConverter extends BasicConverter {
             req.setDateType(dateTypeReq);
         });
         req.setEntityIds(param.getEntityIds());
-        req.setAttrKey(param.getAttrKey());
+        req.setAttrDefKey(param.getAttrKey());
         req.setMerge(param.getIsMerge());
         req.setReturnType(param.getReturnType());
         req.setSeqNo(param.getSeqNo());

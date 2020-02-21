@@ -69,7 +69,7 @@ public class KgDataTest {
     @Test
     public void statEdgeGroupByEdgeValueTest() {
         EdgeAttrStatisticByAttrValueReq attrValueReq = new EdgeAttrStatisticByAttrValueReq();
-        attrValueReq.setAttrId(2);
+        attrValueReq.setAttrDefId(2);
         attrValueReq.setSeqNo(1);
         Object obj = kgDataService.statEdgeGroupByEdgeValue(KG_NAME, attrValueReq);
         System.out.println(JacksonUtils.writeValueAsString(obj));

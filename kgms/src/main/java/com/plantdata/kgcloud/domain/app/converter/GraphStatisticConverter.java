@@ -6,6 +6,7 @@ import ai.plantdata.kg.api.pub.req.statistics.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.statistics.RelationStatisticsBean;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.ExtraInfo;
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
@@ -88,8 +89,9 @@ public class GraphStatisticConverter extends BasicConverter {
         RelationExtraInfoStatisticBean statisticBean = new RelationExtraInfoStatisticBean();
         Integer appendId = CollectionUtils.isEmpty(attrValueReq.getTripleIds()) ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
         statisticBean.setAllowValues(attrValueReq.getAllowValues());
-        statisticBean.setAttributeId(attrValueReq.getAttrId());
+        statisticBean.setAttributeId(attrValueReq.getAttrDefId());
         statisticBean.setAppendId(appendId);
+        statisticBean.setEntityIds(Lists.newArrayList(attrValueReq.getEntityIds()));
         statisticBean.setSort(attrValueReq.getSort());
         statisticBean.setSeqNo(attrValueReq.getSeqNo());
         statisticBean.setTripleIds(attrValueReq.getTripleIds());
