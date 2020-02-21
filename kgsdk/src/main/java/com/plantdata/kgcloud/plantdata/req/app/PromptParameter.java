@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.plantdata.req.app;
 
 import ai.plantdata.kg.validator.group.Insert;
+import com.plantdata.kgcloud.plantdata.constant.SortEnum;
 import com.plantdata.kgcloud.plantdata.req.common.PageModel;
 import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.Data;
@@ -29,8 +30,8 @@ public class PromptParameter extends PageModel {
     private Boolean isCaseInsensitive = false;
     private Boolean isFuzzy;
     private Boolean openExportDate = true;
-    @ChooseCheck(value = "[0,1,-1]",isBlank = true)
-    private String sort;
+    @ChooseCheck(value = "[0,1,-1]", isBlank = true)
+    private Integer sort = -1;
 
 
 }

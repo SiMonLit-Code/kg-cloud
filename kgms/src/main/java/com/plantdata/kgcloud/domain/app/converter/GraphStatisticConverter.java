@@ -79,8 +79,8 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticsBean.setStartTime(conceptIdReq.getFromTime());
         statisticsBean.setEndTime(conceptIdReq.getToTime());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
-        consumerIfNoNull(conceptIdReq.getTripleIds(),statisticsBean::setTripleIds);
-        consumerIfNoNull(conceptIdReq.getSize(),a-> statisticsBean.setLimit(a==-1?Integer.MAX_VALUE-1:a));
+        consumerIfNoNull(conceptIdReq.getTripleIds(), statisticsBean::setTripleIds);
+        consumerIfNoNull(conceptIdReq.getSize(), a -> statisticsBean.setLimit(a == -1 ? Integer.MAX_VALUE - 1 : a));
         log.error("RelationStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
@@ -91,7 +91,7 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticBean.setAllowValues(attrValueReq.getAllowValues());
         statisticBean.setAttributeId(attrValueReq.getAttrDefId());
         statisticBean.setAppendId(appendId);
-        statisticBean.setEntityIds(Lists.newArrayList(attrValueReq.getEntityIds()));
+        statisticBean.setEntityIds(attrValueReq.getEntityIds());
         statisticBean.setSort(attrValueReq.getSort());
         statisticBean.setSeqNo(attrValueReq.getSeqNo());
         statisticBean.setTripleIds(attrValueReq.getTripleIds());
@@ -113,8 +113,8 @@ public class GraphStatisticConverter extends BasicConverter {
                 String value = StatisticResultTypeEnum.NAME.equals(resultType) ? s.getName() : s.getValue();
                 map.put("name", value);
                 map.put("value", s.getTotal());
-                BasicConverter.consumerIfNoNull(s.getRelation(),a->map.put("ids", a));
-                BasicConverter.consumerIfNoNull( s.getEntity(),a->map.put("ids", a));
+                BasicConverter.consumerIfNoNull(s.getRelation(), a -> map.put("ids", a));
+                BasicConverter.consumerIfNoNull(s.getEntity(), a -> map.put("ids", a));
                 return map;
             }).collect(Collectors.toList());
         }
@@ -142,7 +142,10 @@ public class GraphStatisticConverter extends BasicConverter {
         if (size != null && size.equals(NumberUtils.INTEGER_MINUS_ONE)) {
             return StatisticConstants.STATISTIC_MAX_SIZE;
         }
-        return PageUtils.DEFAULT_SIZE;
+        if (size == null) {
+            size = PageUtils.DEFAULT_SIZE;
+        }
+        return size;
     }
 
     public static AttributeDataTypeEnum edgeAttrDataType(int seqNo, AttributeDefinition attrDef) {

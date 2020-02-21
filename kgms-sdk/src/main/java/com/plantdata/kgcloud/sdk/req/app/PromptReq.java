@@ -43,7 +43,8 @@ public class PromptReq extends PageReq implements PromptSearchInterface, Concept
     private Boolean openExportDate = true;
     @ApiModelProperty("排序")
     @ChooseCheck(value = "[0,1,-1]", name = "sort", isBlank = true)
-    private Integer sort;
+    private Integer sort=-1;
+
 
 
     @ApiModelProperty(hidden = true)
