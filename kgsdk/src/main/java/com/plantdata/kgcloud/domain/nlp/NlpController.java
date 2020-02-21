@@ -67,7 +67,7 @@ public class NlpController implements NaturalLanguageProcessingInterface {
 
     @ApiOperation("中文命名实体识别")
     @PostMapping("ner/chinese")
-    public ApiReturn<Map<String, List<String>>> ner(@ApiParam(required = true) @RequestParam("input") String input) {
+    public ApiReturn<Map<String, List<String>>> ner(@ApiParam(required = true) @RequestBody String input) {
         return ApiReturn.success(hanLPService.ner(input));
     }
 
@@ -89,19 +89,19 @@ public class NlpController implements NaturalLanguageProcessingInterface {
 
     @ApiOperation("简体转换为繁体")
     @PostMapping("traditional/chinese")
-    public ApiReturn<String> toTraditionalChinese(@ApiParam(required = true) @RequestParam("input") String input) {
+    public ApiReturn<String> toTraditionalChinese(@ApiParam(required = true) @RequestBody String input) {
         return ApiReturn.success(hanLPService.toTraditionalChinese(input));
     }
 
     @ApiOperation("转换为简体中文")
     @PostMapping("simplified/chinese")
-    public ApiReturn<String> toSimplifiedChinese(@ApiParam(required = true) @RequestParam("input") String input) {
+    public ApiReturn<String> toSimplifiedChinese(@ApiParam(required = true) @RequestBody String input) {
         return ApiReturn.success(hanLPService.toSimplifiedChinese(input));
     }
 
     @ApiOperation("中文转换为拼音")
     @PostMapping("phonetic")
-    public ApiReturn<List<String>> phonetic(@ApiParam(required = true) @RequestParam("input") String input) {
+    public ApiReturn<List<String>> phonetic(@ApiParam(required = true) @RequestBody String input) {
         return ApiReturn.success(hanLPService.toPinyin(input));
     }
 
@@ -114,14 +114,14 @@ public class NlpController implements NaturalLanguageProcessingInterface {
 
     @ApiOperation("自动摘要")
     @PostMapping("summarize")
-    public ApiReturn<List<String>> summarize(@ApiParam(required = true) @RequestParam("input") String input,
+    public ApiReturn<List<String>> summarize(@ApiParam(required = true) @RequestBody String input,
                                              @ApiParam(required = true, value = " 句子个数") @RequestParam("size") Integer size) {
         return ApiReturn.success(hanLPService.summarize(input, size));
     }
 
     @ApiOperation("词性标注")
     @PostMapping("pos")
-    public ApiReturn<List<String>> pos(@ApiParam(required = true) @RequestParam("input") String input) {
+    public ApiReturn<List<String>> pos(@ApiParam(required = true) @RequestBody String input) {
         return ApiReturn.success(hanLPService.pos(input));
     }
 

@@ -143,34 +143,27 @@ public class GraphAttributeStatisticBO {
         if (dateTypeBean == null) {
             return list;
         }
-        Date maxTime = null;
+
         if (dateTypeBean.getType() == null || dateTypeBean.getType() == 0) {
             dateTypeBean.setType(1);
         }
 
-        if (dateTypeBean.get$lte() != null) {
-            maxTime = VeDateUtils.strToDateLong(dateTypeBean.get$lte());
-        }
-        Date minTime = null;
-        if (dateTypeBean.get$gte() != null) {
-            minTime = VeDateUtils.strToDateLong(dateTypeBean.get$gte());
-        }
-        Date finalMaxTime = maxTime;
-        Date finalMinTime = minTime;
+        final Date maxTime = dateTypeBean.get$lte() == null ? null : VeDateUtils.strToDateLong(dateTypeBean.get$lte());
+        final Date minTime = dateTypeBean.get$gte() == null ? null : VeDateUtils.strToDateLong(dateTypeBean.get$gte());
+
         List<StatisticDateDTO> dateList = list.stream().map(StatisticDateDTO::new).filter(s -> {
-            if (s.getDateValue() == null) {
+            if (s.getDateValue() == null && (maxTime != null || minTime != null)) {
                 return false;
             }
-            if (finalMaxTime == null && finalMinTime == null) {
-                return true;
-            }
-            if (finalMaxTime != null) {
-                if (s.getDateValue().compareTo(finalMaxTime) > 0) {
+            if (maxTime != null) {
+                if (s.getDateValue().compareTo(maxTime) > 0) {
                     return false;
                 }
             }
-            if (finalMinTime != null) {
-                return s.getDateValue().compareTo(finalMinTime) >= 0;
+            if (minTime != null) {
+                if (s.getDateValue().compareTo(minTime) < 0) {
+                    return false;
+                }
             }
             return true;
         }).collect(Collectors.toList());

@@ -30,7 +30,6 @@ public class OpenBatchSaveEntityRsp {
     private String imageUrl;
     @ApiModelProperty("实体id更新是必填")
     private Long id;
-    private String note;
     @ApiModelProperty("同义词")
     private List<String> synonyms;
     @ApiModelProperty("属性")
@@ -39,6 +38,8 @@ public class OpenBatchSaveEntityRsp {
     private Map<String, String> privateAttributes;
     @ApiModelProperty("元数据")
     private MetaDataReq metaData;
+    @ApiModelProperty("错误信息")
+    private String note;
 
     @ApiModel("元数据")
     @Getter
