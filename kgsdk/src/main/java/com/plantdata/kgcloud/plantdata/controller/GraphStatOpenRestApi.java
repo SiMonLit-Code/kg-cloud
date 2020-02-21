@@ -140,9 +140,7 @@ public class GraphStatOpenRestApi {
             @ApiImplicitParam(name = "seqNo", required = true, dataType = "int", paramType = "form", value = "边属性id")
     })
     public RestResp statEdgeGroupByEdgeValue(@Valid @ApiIgnore StatEdgeGroupByEdgeValueParameter param) {
-        if (param.getAttrId() == null) {
-            throw RestException.newInstance(57025);
-        }
+
         EdgeAttrStatisticByAttrValueReq req = StatisticConverter.statEdgeGroupByEdgeValueParameterToEdgeAttrStatisticByAttrValueReq(param);
         Optional<Object> optional = BasicConverter.apiReturnData(kgDataClient.statEdgeGroupByEdgeValue(param.getKgName(), req));
         return new RestResp<>(optional.orElse(null));

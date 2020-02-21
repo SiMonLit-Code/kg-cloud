@@ -180,8 +180,8 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             return;
         }
         Optional<Map<String, Integer>> keyConvertOpt = RestRespConverter.convert(schemaApi.getAttrIdByKey(KGUtil.dbName(kgName), attrDefKeyReq.getAllowAttrsKey()));
-        if (!keyConvertOpt.isPresent()) {
-            return;
+        if (!keyConvertOpt.isPresent()||CollectionUtils.isEmpty(keyConvertOpt.get())) {
+            throw BizException.of(AppErrorCodeEnum.ATTR_DEF_NOT_FOUNT);
         }
         attrDefKeyReq.setAllowAttrs(Lists.newArrayList(keyConvertOpt.get().values()));
     }

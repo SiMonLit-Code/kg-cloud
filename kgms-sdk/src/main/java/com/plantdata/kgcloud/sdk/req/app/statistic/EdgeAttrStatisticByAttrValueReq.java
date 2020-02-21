@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk.req.app.statistic;
 
 import com.plantdata.kgcloud.sdk.constant.StatisticConstants;
+import com.plantdata.kgcloud.sdk.req.app.function.AttrDefKeyReqInterface;
 import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.Getter;
 import lombok.NonNull;
@@ -8,6 +9,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 
@@ -18,11 +20,11 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class EdgeAttrStatisticByAttrValueReq {
+public class EdgeAttrStatisticByAttrValueReq implements AttrDefKeyReqInterface {
 
-    private Integer attrId;
-    private String attrKey;
-    @NonNull
+    private Integer attrDefId;
+    private String attrDefKey;
+    @NotNull
     private Integer seqNo;
 
     private Set<Long> entityIds;
@@ -36,6 +38,7 @@ public class EdgeAttrStatisticByAttrValueReq {
     @Min(-1)
     @Max(StatisticConstants.STATISTIC_MAX_SIZE)
     private Integer size = 10;
+    @NotNull
     private Boolean merge = false;
 
     private DateTypeReq dateType;
