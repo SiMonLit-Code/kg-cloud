@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class EntityStatisticGroupByConceptReq  implements ConceptKeyListReqInterface {
+public class EntityStatisticGroupByConceptReq implements ConceptKeyListReqInterface {
     private List<Long> entityIds;
     @ChooseCheck(value = "[-1,1]", name = "sort")
     private Integer sort = -1;
@@ -25,6 +25,6 @@ public class EntityStatisticGroupByConceptReq  implements ConceptKeyListReqInter
     private List<String> allowConceptsKey;
     private Integer returnType = 0;
     @Max(StatisticConstants.STATISTIC_MAX_SIZE)
-    @Min(1)
+    @Min(-1)
     private Integer size = 10;
 }

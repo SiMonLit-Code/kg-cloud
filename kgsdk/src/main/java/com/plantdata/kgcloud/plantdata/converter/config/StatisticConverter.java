@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.config;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.bean.RelationbyFilterBean;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
@@ -86,7 +87,8 @@ public class StatisticConverter extends BasicConverter {
             dateTypeReq.set$lte(a.get$lte());
             req.setDateType(dateTypeReq);
         });
-        req.setEntityIds(param.getEntityIds());
+        BasicConverter.consumerIfNoNull(param.getEntityIds(),
+                a->req.setEntityIds(Lists.newArrayList(a)));
         req.setAttrDefKey(param.getAttrKey());
         req.setMerge(param.getIsMerge());
         req.setReturnType(param.getReturnType());

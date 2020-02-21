@@ -27,7 +27,7 @@ public class EdgeAttrStatisticByAttrValueReq implements AttrDefKeyReqInterface {
     @NotNull
     private Integer seqNo;
 
-    private Set<Long> entityIds;
+    private List<Long> entityIds;
 
     private List<String> tripleIds;
     @ChooseCheck(value = "[0,1,-1]", name = "sort")
