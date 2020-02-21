@@ -46,6 +46,7 @@ public class PromptReq extends PageReq implements PromptSearchInterface, Concept
     private Integer sort=-1;
 
 
+
     @ApiModelProperty(hidden = true)
     @Override
     public Boolean getInherit() {
