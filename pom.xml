@@ -194,7 +194,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
                 <configuration>
-                    <newTag>v@{project.version}</newTag>
+                    <newTag>v${project.version}</newTag>
                 </configuration>
             </plugin>
             <plugin>
