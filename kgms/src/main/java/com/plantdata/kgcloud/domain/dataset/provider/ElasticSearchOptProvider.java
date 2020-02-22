@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
@@ -130,7 +131,11 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     private ObjectNode handleQuery(ObjectNode queryNode, Map<String, Object> query) {
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "sort")) {
-                queryNode.put("sort", DataConst.CREATE_AT);
+                if (entry.getValue() == null) {
+                    queryNode.put("sort", DataConst.CREATE_AT);
+                } else {
+                    queryNode.putPOJO("sort", entry.getValue());
+                }
             }
             if (Objects.equals(entry.getKey(), "query")) {
                 queryNode.putPOJO("query", entry.getValue());
@@ -167,7 +172,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     @Override
     public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
         if (!CollectionUtils.isEmpty(sort)) {
-            query.put("sort", sort);
+            query.put("sort", sort.get("sort"));
         }
 
         List<Map<String, Object>> mapList = new ArrayList<>();

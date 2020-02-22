@@ -70,8 +70,12 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         List<Map<String, Object>> maps;
         long count;
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, dataSet.getDataType())) {
+
             if (queryMap == null) {
                 queryMap = Maps.newHashMap();
+            }
+            if (sortMap == null) {
+                sortMap = Maps.newHashMap();
             }
             maps = provider.findWithSort(offset, limit, queryMap, sortMap);
             count = provider.count(queryMap);
