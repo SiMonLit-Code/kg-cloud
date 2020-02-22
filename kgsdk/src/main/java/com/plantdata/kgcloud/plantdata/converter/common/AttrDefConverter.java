@@ -24,7 +24,7 @@ public class AttrDefConverter extends BasicConverter {
         AttrDefQueryReq queryReq = new AttrDefQueryReq();
         queryReq.setConceptId(param.getConceptId());
         queryReq.setConceptKey(param.getConceptKey());
-        queryReq.setInherit(param.getInherit());
+        queryReq.setInherit(param.getIsInherit());
         return queryReq;
     }
 

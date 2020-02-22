@@ -203,7 +203,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "isInherit", dataType = "boolean", paramType = "query", value = "是否继承展示父概念属性 默认继承")
     })
     public RestResp<List<AttributeDefinition>> attribute(@Valid @ApiIgnore AttributeParameter param) {
-        ApiReturn<List<AttrDefinitionRsp>> listApiReturn = kgDataClient.searchAttrDefByConcept(param.getKgName(), param.getConceptId(), param.getConceptKey(), param.getInherit());
+        ApiReturn<List<AttrDefinitionRsp>> listApiReturn = kgDataClient.searchAttrDefByConcept(param.getKgName(), param.getConceptId(), param.getConceptKey(), param.getIsInherit());
         Function<List<AttrDefinitionRsp>, List<AttributeDefinition>> rspFunction = a -> BasicConverter.toListNoNull(a, AttrDefConverter::attrDefinitionRspToAttributeDefinition);
 
         Optional<List<AttrDefinitionRsp>> attrDefinitionRspOpt = BasicConverter.apiReturnData(listApiReturn);
