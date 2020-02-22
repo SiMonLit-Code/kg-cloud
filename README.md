@@ -1,4 +1,4 @@
-项目构建tag
+项目自动化构建tag
 
 在父项目中指定将要构建 tag 的版本号 next-tag.version  和 项目构建以后的开发版本号 next-develop.version
 
