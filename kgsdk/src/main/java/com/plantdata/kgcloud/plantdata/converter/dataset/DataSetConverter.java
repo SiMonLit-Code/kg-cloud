@@ -20,8 +20,8 @@ public class DataSetConverter extends BasicConverter {
         NameReadReq nameReadReq = new NameReadReq();
         nameReadReq.setDataName(param.getDataName());
         nameReadReq.setFields(param.getFields());
-        nameReadReq.setQuery(param.getQuery());
-        consumerIfNoNull(param.getSort(),a->{
+        consumerIfNoNull(param.getQuery(), a -> nameReadReq.setQuery(JsonUtils.stringToMap(a)));
+        consumerIfNoNull(param.getSort(), a -> {
             Map<String, Object> objectMap = JsonUtils.stringToMap(a);
             nameReadReq.setSort(objectMap);
         });
@@ -35,8 +35,8 @@ public class DataSetConverter extends BasicConverter {
         NameReadReq nameReadReq = new NameReadReq();
         nameReadReq.setDataName(param.getDataName());
         nameReadReq.setFields(param.getFields());
-        nameReadReq.setQuery(param.getQuery());
-        consumerIfNoNull(param.getSort(),a->{
+        consumerIfNoNull(param.getQuery(), a -> nameReadReq.setQuery(JsonUtils.stringToMap(a)));
+        consumerIfNoNull(param.getSort(), a -> {
             Map<String, Object> objectMap = JsonUtils.stringToMap(a);
             nameReadReq.setSort(objectMap);
         });
