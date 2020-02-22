@@ -7,11 +7,13 @@ package com.plantdata.kgcloud.domain.app.controller;
  */
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.AttrDefConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphEditService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
@@ -43,6 +45,9 @@ public class GraphEditController {
     @ApiOperation("根据概念查询属性定义")
     @GetMapping("/{kgName}/attribute/search")
     public ApiReturn<List<AttrDefinitionRsp>> searchAttrDefByConcept(@PathVariable("kgName") String kgName, @Valid AttrDefQueryReq queryReq) {
+        if (queryReq.getConceptId() == null && queryReq.getConceptKey() == null) {
+            throw BizException.of(AppErrorCodeEnum.NULL_CONCEPT_ID_AND_KEY);
+        }
         graphHelperService.replaceByConceptKey(kgName, queryReq);
         List<AttrDefinitionRsp> resList = attributeService.getAttrDefinitionByConceptId(KGUtil.dbName(kgName),
                 AttrDefConverter.attrDefQueryReqToAttrDefinitionSearchReq(queryReq));

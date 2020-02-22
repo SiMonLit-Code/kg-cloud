@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -19,5 +20,5 @@ public class BaseTableReq extends PageReq {
     @ApiModelProperty("要查询的字段")
     private List<String> fields;
     @ApiModelProperty("mongodb 语法")
-    private String sort;
+    private Map<String,Object> sort;
 }

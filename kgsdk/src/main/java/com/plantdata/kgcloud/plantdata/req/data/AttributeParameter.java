@@ -19,5 +19,5 @@ public class AttributeParameter {
     private String kgName;
     private Long conceptId;
     private String conceptKey;
-    private Boolean inherit = true;
+    private Boolean isInherit = true;
 }

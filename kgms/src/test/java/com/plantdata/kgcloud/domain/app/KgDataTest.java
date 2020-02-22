@@ -88,7 +88,7 @@ public class KgDataTest {
         NameReadReq nameReadReq = new NameReadReq();
         nameReadReq.setDataName("bj73pb33_dataset_shangchuande");
 
-        nameReadReq.setSort("{\"_oprTime\":{\"order\":\"desc\"}}");
+        //nameReadReq.setSort("{\"_oprTime\":{\"order\":\"desc\"}}");
         RestData<Map<String, Object>> dataSet = kgDataService.searchDataSet("bj73pb33", nameReadReq);
         System.out.println(JacksonUtils.writeValueAsString(dataSet));
     }
