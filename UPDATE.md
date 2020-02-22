@@ -33,4 +33,5 @@ mvn release:clean -B release:prepare -DdevelopmentVersion=x.x.x-SNAPSHOT release
 
 
 
-mvn versions:set -DnewVersion=${next-tag.version} versions:set-scm-tag versions:commit scm:checkin -Dmessage=build(tag):v${next-tag.version}
+mvn scm:update versions:set -DnewVersion=${next-tag.version} versions:set-scm-tag -DnewTag=v${next-tag.version} versions:commit scm:checkin -Dmessage=build(tag):v${next-tag.version} scm:tag  deploy  
+mvn scm:update versions:set -DnewVersion=${next-develop.version} versions:set-scm-tag -DnewTag=HEAD versions:commit scm:checkin -Dmessage=build(pom):version_change_to_${next-develop.version}
