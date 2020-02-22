@@ -62,7 +62,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     private DataSetRepository dataSetRepository;
 
     @Override
-    public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, Set<String> fields, int offset, int limit, String query, Map<String, Object> sortMap) {
+    public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, Set<String> fields, int offset, int limit, Map<String, Object> queryMap, Map<String, Object> sortMap) {
         DataOptConnect dataOptConnect = new DataOptConnect();
         dataOptConnect.setDatabase(dataSet.getDbName());
         dataOptConnect.setTable(dataSet.getTbName());
@@ -70,8 +70,13 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         List<Map<String, Object>> maps;
         long count;
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, dataSet.getDataType())) {
-            Map<String, Object> queryMap = JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
-            });
+
+            if (queryMap == null) {
+                queryMap = Maps.newHashMap();
+            }
+            if (sortMap == null) {
+                sortMap = Maps.newHashMap();
+            }
             maps = provider.findWithSort(offset, limit, queryMap, sortMap);
             count = provider.count(queryMap);
         } catch (Exception e) {
@@ -89,7 +94,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
 
     @Override
     public Map<String, Object> readEsDataSet(List<String> addressList, List<String> databases, List<String> tables, List<String> fields,
-                                                       String aggs, String query, String sort, int start, int offset) {
+                                             String aggs, String query, String sort, int start, int offset) {
         Map<String, Object> requestData = Maps.newHashMap();
         if (Objects.nonNull(fields) && fields.size() > 0) {
             requestData.put("_source", fields);
