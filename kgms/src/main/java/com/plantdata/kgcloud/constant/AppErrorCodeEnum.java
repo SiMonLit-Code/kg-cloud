@@ -46,7 +46,8 @@ public enum AppErrorCodeEnum implements ErrorCode {
     ALGORITHM_EXECUTE_ERROR(120619, "算法执行失败"),
     ES_RULE_ERROR(120620, "es语法错误"),
     ATTR_DEF_ANY_NO_NULL(120621, "属性id和key不能同时为空"),
-    ATTR_DEF_NOT_FOUNT(120622, "属性定义不存在");
+    ATTR_DEF_NOT_FOUNT(120622, "属性定义不存在"),
+    REASON_RULE_ERROR(120623, "推理规则错误");
     private final int errorCode;
 
     private final String message;

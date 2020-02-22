@@ -22,21 +22,7 @@ import java.util.Map;
  */
 public class ReasonConverter extends BasicConverter {
 
-    public static ReasoningReq inferenceParameterToReasoningReq(@NonNull InferenceParameter param) {
-        Map<String, Object> ruleConfig = Maps.newHashMap();
-        ruleConfig.put("pathRuleList", JSON.parse(param.getPathRuleList()));
-        ruleConfig.put("rangeList", param.getRangeList());
-        ruleConfig.put("domain", param.getDomain());
-        ruleConfig.put("type", param.getDomain());
-        consumerIfNoNull(param.getAttrId(), a -> ruleConfig.put("attrId", param.getAttrId()));
-        consumerIfNoNull(param.getName(), a -> ruleConfig.put("name", a));
-        ReasoningReq reasoningReq = new ReasoningReq();
-        reasoningReq.setIds(JsonUtils.jsonToList(param.getIds(), Long.class));
-        reasoningReq.setPos(param.getPageNo());
-        reasoningReq.setRuleConfig(JacksonUtils.writeValueAsString(Lists.newArrayList(ruleConfig)));
-        reasoningReq.setSize(param.getPageSize());
-        return reasoningReq;
-    }
+
 
     public static RuleBean graphConfReasonRspToRuleBean(@NonNull GraphConfReasonRsp reasonRsp) {
         RuleBean ruleBean = new RuleBean();

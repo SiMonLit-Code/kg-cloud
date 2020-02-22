@@ -6,11 +6,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import com.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
 import com.plantdata.kgcloud.plantdata.bean.ImportRelationBean;
-import com.plantdata.kgcloud.plantdata.converter.common.AttrDefConverter;
-import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
-import com.plantdata.kgcloud.plantdata.converter.common.ConceptConverter;
-import com.plantdata.kgcloud.plantdata.converter.common.EntityConverter;
-import com.plantdata.kgcloud.plantdata.converter.common.RelationConverter;
+import com.plantdata.kgcloud.plantdata.converter.common.*;
 import com.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.data.ConceptParameter;
 import com.plantdata.kgcloud.plantdata.req.data.DelectEntityParameter;
@@ -143,7 +139,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "conceptId", required = true, dataType = "long", paramType = "query", value = "概念id")
     })
     public RestResp deleteConcept(@Valid @ApiIgnore @RequestParam("kgName") String kgName, @RequestParam("conceptId") Long conceptId) {
-        editClient.deleteConcept(kgName, conceptId);
+        ApiReturnConverter.convert(editClient.deleteConcept(kgName, conceptId));
         return new RestResp();
     }
 
@@ -350,7 +346,7 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "data", dataType = "string", required = true, paramType = "form", value = "数据，ImportEntityBean 详细参数参照开放平台"),
     })
     public RestResp<OpenBatchResult<ImportEntityBean>> entityUpdate(@Valid @ApiIgnore EntityInsertParameter param) {
-        ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), true, NumberUtils.INTEGER_ZERO);
+        ImportEntityParameter parameter = new ImportEntityParameter(param.getKgName(), param.getData(), false, NumberUtils.INTEGER_ZERO);
         return importEntity(parameter);
     }
 
