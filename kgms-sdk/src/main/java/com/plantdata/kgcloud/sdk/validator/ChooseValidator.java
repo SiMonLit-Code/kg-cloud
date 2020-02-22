@@ -2,10 +2,7 @@ package com.plantdata.kgcloud.sdk.validator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.util.JacksonUtils;
-import jdk.internal.dynalink.support.TypeConverterFactory;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.util.NumberUtils;
 
 import javax.validation.ConstraintValidator;
@@ -21,6 +18,22 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
     private String name;
     private String value;
     private Class<?> type;
+
+    public static <T> T jsonToObj(String jsonString, TypeReference<T> tr) {
+        if (jsonString != null && !("".equals(jsonString))) {
+            try {
+                return JacksonUtils.getInstance().readValue(jsonString, tr);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static <T> List<T> jsonToList(String jsonString, Class<T> clazz) {
+        return jsonToObj(jsonString, new TypeReference<List<T>>() {
+        });
+    }
 
     @Override
     public void initialize(ChooseCheck constraintAnnotation) {
@@ -45,7 +58,7 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
                 msg = "参数" + name;
             }
             Class<? extends Number> numberClass = getNumberClass(type);
-            if (numberClass != null&& org.apache.commons.lang.math.NumberUtils.isNumber(value.toString())) {
+            if (numberClass != null && org.apache.commons.lang.math.NumberUtils.isNumber(value.toString())) {
                 value = NumberUtils.parseNumber(value.toString(), Integer.class);
             }
             List<?> list;
@@ -87,22 +100,6 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
         } else {
             return null;
         }
-    }
-
-    public static <T> T jsonToObj(String jsonString, TypeReference<T> tr) {
-        if (jsonString != null && !("".equals(jsonString))) {
-            try {
-                return JacksonUtils.getInstance().readValue(jsonString, tr);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    public static <T> List<T> jsonToList(String jsonString, Class<T> clazz) {
-        return jsonToObj(jsonString, new TypeReference<List<T>>() {
-        });
     }
 }
 
