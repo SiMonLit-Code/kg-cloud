@@ -62,7 +62,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
     private DataSetRepository dataSetRepository;
 
     @Override
-    public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, Set<String> fields, int offset, int limit, String query, String sort) {
+    public RestData<Map<String, Object>> readDataSetData(DataSet dataSet, Set<String> fields, int offset, int limit, String query, Map<String, Object> sortMap) {
         DataOptConnect dataOptConnect = new DataOptConnect();
         dataOptConnect.setDatabase(dataSet.getDbName());
         dataOptConnect.setTable(dataSet.getTbName());
@@ -71,8 +71,6 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         long count;
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, dataSet.getDataType())) {
             Map<String, Object> queryMap = JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
-            });
-            Map<String, Object> sortMap = JacksonUtils.readValue(sort, new TypeReference<Map<String, Object>>() {
             });
             maps = provider.findWithSort(offset, limit, queryMap, sortMap);
             count = provider.count(queryMap);

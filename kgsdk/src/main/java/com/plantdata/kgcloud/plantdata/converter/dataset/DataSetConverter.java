@@ -1,23 +1,31 @@
 package com.plantdata.kgcloud.plantdata.converter.dataset;
 
+import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.dataset.ReadParameter;
 import com.plantdata.kgcloud.plantdata.req.dataset.SearchParameter;
 import com.plantdata.kgcloud.plantdata.req.dataset.TwoDimensionalParameter;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
+import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
+
+import java.util.Map;
 
 /**
  * @author cjw
  */
-public class DataSetConverter {
+public class DataSetConverter extends BasicConverter {
 
     public static NameReadReq readParameterToNameReadReq(@NonNull ReadParameter param) {
         NameReadReq nameReadReq = new NameReadReq();
         nameReadReq.setDataName(param.getDataName());
         nameReadReq.setFields(param.getFields());
         nameReadReq.setQuery(param.getQuery());
-        nameReadReq.setSort(param.getSort());
+        consumerIfNoNull(param.getSort(),a->{
+            Map<String, Object> objectMap = JsonUtils.stringToMap(a);
+            nameReadReq.setSort(objectMap);
+        });
+
         nameReadReq.setPage(param.getPageNo());
         nameReadReq.setSize(param.getPageSize());
         return nameReadReq;
@@ -28,7 +36,10 @@ public class DataSetConverter {
         nameReadReq.setDataName(param.getDataName());
         nameReadReq.setFields(param.getFields());
         nameReadReq.setQuery(param.getQuery());
-        nameReadReq.setSort(param.getSort());
+        consumerIfNoNull(param.getSort(),a->{
+            Map<String, Object> objectMap = JsonUtils.stringToMap(a);
+            nameReadReq.setSort(objectMap);
+        });
         nameReadReq.setPage(param.getPageNo());
         nameReadReq.setSize(param.getPageSize());
         return nameReadReq;

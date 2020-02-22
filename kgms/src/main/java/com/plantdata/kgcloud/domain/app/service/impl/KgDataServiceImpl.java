@@ -163,12 +163,10 @@ public class KgDataServiceImpl implements KgDataService {
         int reSize = GraphStatisticConverter.reBuildResultSize(attrIdReq.getSize(), valueType, dataType);
 
         List<StatisticDTO> dataList = Collections.emptyList();
-        if (!CollectionUtils.isEmpty(attrIdReq.getEntityIds())) {
-            AttributeStatisticsBean statisticsBean = GraphStatisticConverter.attrReqToAttributeStatisticsBean(reSize, attrIdReq);
-            Optional<List<Map<String, Object>>> mapOpt = RestRespConverter.convert(statisticsApi.attributeStatistics(KGUtil.dbName(kgName), statisticsBean));
-            if (mapOpt.isPresent()) {
-                dataList = JsonUtils.objToList(mapOpt.get(), StatisticDTO.class);
-            }
+        AttributeStatisticsBean statisticsBean = GraphStatisticConverter.attrReqToAttributeStatisticsBean(reSize, attrIdReq);
+        Optional<List<Map<String, Object>>> mapOpt = RestRespConverter.convert(statisticsApi.attributeStatistics(KGUtil.dbName(kgName), statisticsBean));
+        if (mapOpt.isPresent()) {
+            dataList = JsonUtils.objToList(mapOpt.get(), StatisticDTO.class);
         }
         return buildStatisticResult(dataType, dataList, attrIdReq.getDataType(), false, attrIdReq.getMerge(),
                 attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
