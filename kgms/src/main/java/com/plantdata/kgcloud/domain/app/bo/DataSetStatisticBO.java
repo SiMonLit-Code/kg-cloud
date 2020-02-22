@@ -81,7 +81,8 @@ public class DataSetStatisticBO {
                 JsonNode obj = arr.get(i);
                 JsonNode k = obj.get("key_as_string");
                 String key = Objects.isNull(k) ? obj.get("key").textValue() : k.textValue();
-                long v = Long.parseLong(obj.get("doc_count").textValue());
+                JsonNode count = obj.get("doc_count");
+                long v = count == null ? 0 : count.longValue();
                 if (DataSetStatisticEnum.KV.equals(setStatisticEnum)) {
                     rsp.addData2Series(key, v);
                 } else {
