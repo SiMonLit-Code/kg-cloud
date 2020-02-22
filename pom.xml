@@ -200,6 +200,7 @@
                 <version>1.11.2</version>
                 <configuration>
                     <connectionType>connection</connectionType>
+                    <tagBase>http://192.168.4.1/kgcloud/kg-cloud-kgms/tags</tagBase>
                 </configuration>
             </plugin>
             <plugin>
