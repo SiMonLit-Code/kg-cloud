@@ -30,3 +30,7 @@ mvn release:clean -B release:prepare -DdevelopmentVersion=x.x.x-SNAPSHOT release
 比如 3.0.0-SNAPSHOT 升级到 3.1.0-SNAPSHOT
 
 会生成git 3.0.0 的tag 最终POM.xml版本为3.1.0-SNAPSHOT
+
+
+
+mvn versions:set -DnewVersion=${next-tag.version} versions:set-scm-tag versions:commit scm:checkin -Dmessage='release 'v${next-tag.version}
