@@ -100,11 +100,9 @@ public class KgDataServiceImpl implements KgDataService {
         EntityRelationDegreeFrom degreeFrom = GraphRelationStatisticBO.buildDegreeFrom(statisticReq);
         degreeFrom.setDirection(NumberUtils.INTEGER_ONE);
         Optional<Map<Integer, Integer>> countOneOpt = RestRespConverter.convert(graphApi.degree(KGUtil.dbName(kgName), degreeFrom));
-        degreeFrom.setDirection(NumberUtils.INTEGER_TWO);
+        degreeFrom.setDirection(NumberUtils.INTEGER_MINUS_ONE);
         Optional<Map<Integer, Integer>> countTwoOpt = RestRespConverter.convert(graphApi.degree(KGUtil.dbName(kgName), degreeFrom));
-        degreeFrom.setDirection(NumberUtils.INTEGER_ZERO);
-        Optional<Map<Integer, Integer>> countZeroOpt = RestRespConverter.convert(graphApi.degree(KGUtil.dbName(kgName), degreeFrom));
-        return GraphRelationStatisticBO.graphDegreeMapToList(countOneOpt.orElse(Collections.emptyMap()), countTwoOpt.orElse(Collections.emptyMap()), countZeroOpt.orElse(Collections.emptyMap()));
+        return GraphRelationStatisticBO.graphDegreeMapToList(countOneOpt.orElse(Collections.emptyMap()), countTwoOpt.orElse(Collections.emptyMap()));
     }
 
     @Override

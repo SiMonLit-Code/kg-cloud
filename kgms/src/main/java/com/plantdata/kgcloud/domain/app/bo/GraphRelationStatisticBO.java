@@ -33,7 +33,7 @@ public class GraphRelationStatisticBO {
         return degreeFrom;
     }
 
-    public static List<EdgeStatisticByEntityIdRsp> graphDegreeMapToList(Map<Integer, Integer> outDegree, Map<Integer, Integer> inDegree, Map<Integer, Integer> centrality) {
+    public static List<EdgeStatisticByEntityIdRsp> graphDegreeMapToList(Map<Integer, Integer> outDegree, Map<Integer, Integer> inDegree) {
         if (outDegree == null && inDegree == null) {
             return Collections.emptyList();
         }
@@ -52,12 +52,8 @@ public class GraphRelationStatisticBO {
                 map.put(k, rsp);
             });
         }
-        if (centrality != null) {
-            centrality.forEach((k, v) -> {
-                EdgeStatisticByEntityIdRsp rsp = map.getOrDefault(k, new EdgeStatisticByEntityIdRsp(k));
-                rsp.setDegree(v);
-                map.put(k, rsp);
-            });
+        if (CollectionUtils.isEmpty(map)) {
+            map.forEach((k,v)->v.setDegree(v.getInDegree()+v.getOutDegree()));
         }
         return Lists.newArrayList(map.values());
     }
