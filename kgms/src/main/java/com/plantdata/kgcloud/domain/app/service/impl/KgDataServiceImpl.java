@@ -46,6 +46,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.*;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
@@ -171,19 +172,39 @@ public class KgDataServiceImpl implements KgDataService {
     }
 
     @Override
+    public List<Object> readDataSetData(String userId, String dataName, DataSetOneFieldReq readReq) {
+        Optional<DataSet> dataSetOpt = searchDataSetByName(userId, dataName);
+        if (!dataSetOpt.isPresent()) {
+            return Collections.emptyList();
+        }
+        RestData<Map<String, Object>> mapRestData = dataSetSearchService.readDataSetData(dataSetOpt.get(), Sets.newHashSet(readReq.getField()), readReq.getOffset(), readReq.getLimit(), readReq.getQuery(), readReq.getSort());
+        return mapRestData.getRsData().stream()
+                .filter(a -> a.containsKey(readReq.getField()))
+                .map(a -> a.get(readReq.getField()))
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public RestData<Map<String, Object>> searchDataSet(String userId, NameReadReq nameReadReq) {
         PageUtils pageUtils = new PageUtils(nameReadReq.getPage(), nameReadReq.getSize());
-        List<Long> dataSetIds = dataSetService.findByDataNames(userId, Lists.newArrayList(nameReadReq.getDataName()));
-        if (CollectionUtils.isEmpty(dataSetIds)) {
-            throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
-        }
-        Optional<DataSet> dataSetOpt = dataSetRepository.findByUserIdAndId(userId, dataSetIds.get(0));
+        Optional<DataSet> dataSetOpt = searchDataSetByName(userId, nameReadReq.getDataName());
         if (!dataSetOpt.isPresent()) {
             return RestData.empty();
         }
         DataSet dataSet = dataSetOpt.get();
         Set<String> fieldSet = BasicConverter.listToSetNoNull(nameReadReq.getFields(), Sets::newHashSet);
         return dataSetSearchService.readDataSetData(dataSet, fieldSet, pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getSort());
+    }
+
+
+    private Optional<DataSet> searchDataSetByName(String userId, String dataName) {
+        List<Long> dataSetIds = dataSetService.findByDataNames(userId, Lists.newArrayList(dataName));
+        if (CollectionUtils.isEmpty(dataSetIds)) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
+        }
+        return dataSetRepository.findByUserIdAndId(userId, dataSetIds.get(0));
+
     }
 
     private Optional<AttributeDefinition> getAttrDefById(String kgName, Integer attrId) {

@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.service;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
@@ -32,6 +33,16 @@ public interface KgDataService {
      * @return 。
      */
     List<EdgeStatisticByEntityIdRsp> statisticCountEdgeByEntity(String kgName, EdgeStatisticByEntityIdReq statisticReq);
+
+    /**
+     * 读取数据集 按照单个字段
+     *
+     * @param userId ，
+     * @param dataName 。
+     * @param readReq 。
+     * @return
+     */
+    List<Object> readDataSetData(String userId, String dataName, DataSetOneFieldReq readReq);
 
     /**
      * 统计实体 根据概念分组
