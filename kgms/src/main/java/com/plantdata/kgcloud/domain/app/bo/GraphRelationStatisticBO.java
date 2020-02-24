@@ -52,7 +52,7 @@ public class GraphRelationStatisticBO {
                 map.put(k, rsp);
             });
         }
-        if (CollectionUtils.isEmpty(map)) {
+        if (!CollectionUtils.isEmpty(map)) {
             map.forEach((k,v)->v.setDegree(v.getInDegree()+v.getOutDegree()));
         }
         return Lists.newArrayList(map.values());
