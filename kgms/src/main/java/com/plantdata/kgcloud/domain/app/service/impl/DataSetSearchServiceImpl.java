@@ -141,7 +141,7 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
                 continue;
             }
             DataLinkRsp dataLinkRsp = buildDataLink(dataSetId, userId, dataOpt.get());
-            dataLinks.add(dataLinkRsp);
+            BasicConverter.consumerIfNoNull(dataLinkRsp, dataLinks::add);
         }
         return dataLinks;
     }
@@ -214,7 +214,12 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         if (!dataSetRepository.existsById(dataSetId)) {
             return Collections.emptyMap();
         }
-        DataSet dataSet = dataSetService.findOne(userId, dataSetId);
+        DataSet dataSet = null;
+        try {
+            dataSet = dataSetService.findOne(userId, dataSetId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (dataSet == null) {
             return Collections.emptyMap();
         }

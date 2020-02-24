@@ -54,11 +54,10 @@ public class MetaConverter extends BasicConverter {
         }
         if (metaData.containsKey(MetaDataInfo.GIS_COORDINATE.getFieldName())) {
             consumerIfNoNull(metaData.get(MetaDataInfo.GIS_COORDINATE.getFieldName()),
-                    a -> {
-                        List<Double> list = JsonUtils.objToList(a, Double.class);
+                    a -> BasicConverter.consumerIfNoNull(JsonUtils.objToList(a, Double.class), list -> {
                         metaDataImpl.setLat(list.get(1));
                         metaDataImpl.setLng(list.get(0));
-                    });
+                    }));
         }
         if (metaData.containsKey(MetaDataInfo.GIS_ADDRESS.getFieldName())) {
             consumerIfNoNull(metaData.get(MetaDataInfo.GIS_ADDRESS.getFieldName()),
