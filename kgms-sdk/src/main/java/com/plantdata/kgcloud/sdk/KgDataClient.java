@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
@@ -16,6 +17,7 @@ import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -109,6 +111,12 @@ public interface KgDataClient {
     ApiReturn<RestData<Map<String, Object>>> searchDataSet(@RequestBody NameReadReq nameReadReq);
 
     /**
+     * 读取数据集(单字段)
+     */
+    @PostMapping("read/{dataName}")
+    ApiReturn<List<Object>> searchDataSet(@PathVariable("dataName") String dataName, @RequestBody DataSetOneFieldReq fieldReq);
+
+    /**
      * 批量新增数据集
      *
      * @param addReq
@@ -116,6 +124,7 @@ public interface KgDataClient {
      */
     @PostMapping("dataset/name")
     ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq);
+
 
     /**
      * 查询概念
