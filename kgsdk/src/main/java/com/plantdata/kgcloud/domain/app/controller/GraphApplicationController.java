@@ -44,7 +44,7 @@ public class GraphApplicationController implements GraphApplicationInterface {
     @Autowired
     private AppClient appClient;
 
-    @ApiOperation("知识推荐")
+    @ApiOperation(value = "知识推荐",notes = "知识推荐，为实体进行特定多种关系的实体推荐。一般见于搜索引擎的右侧推荐区域。")
     @PostMapping("recommend/knowledge/{kgName}")
     public ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                   @RequestBody @Valid KnowledgeRecommendReqList recommendParam) {

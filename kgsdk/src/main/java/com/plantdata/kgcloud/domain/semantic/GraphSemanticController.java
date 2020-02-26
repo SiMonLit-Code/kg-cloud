@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.app.controller;
+package com.plantdata.kgcloud.domain.semantic;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphSemanticApplicationInterface;

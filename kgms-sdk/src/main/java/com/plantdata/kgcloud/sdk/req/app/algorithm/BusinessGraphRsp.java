@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app.algorithm;
 
+import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
+@ApiModel("复杂图算法参数")
 public class BusinessGraphRsp {
     private List<BusinessEntityBean> entityList;
     private List<BusinessRelationBean> relationList;
