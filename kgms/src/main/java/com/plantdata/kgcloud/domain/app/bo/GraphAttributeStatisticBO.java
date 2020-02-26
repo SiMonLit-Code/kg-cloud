@@ -152,7 +152,7 @@ public class GraphAttributeStatisticBO {
         final Date minTime = dateTypeBean.get$gte() == null ? null : VeDateUtils.strToDateLong(dateTypeBean.get$gte());
 
         List<StatisticDateDTO> dateList = list.stream().map(StatisticDateDTO::new).filter(s -> {
-            if (s.getDateValue() == null && (maxTime != null || minTime != null)) {
+            if (s.getDateValue() == null) {
                 return false;
             }
             if (maxTime != null) {
