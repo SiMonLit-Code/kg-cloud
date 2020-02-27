@@ -481,13 +481,13 @@ public class EntityServiceImpl implements EntityService {
         if (Objects.nonNull(updateRelationMetaReq.getScore())) {
             metaData.put(MetaDataInfo.SCORE.getFieldName(), updateRelationMetaReq.getScore());
         }
-        if (StringUtils.hasText(updateRelationMetaReq.getSource())) {
+        if (Objects.nonNull(updateRelationMetaReq.getSource())) {
             metaData.put(MetaDataInfo.SOURCE.getFieldName(), updateRelationMetaReq.getSource());
         }
         if (Objects.nonNull(updateRelationMetaReq.getReliability())) {
             metaData.put(MetaDataInfo.RELIABILITY.getFieldName(), updateRelationMetaReq.getReliability());
         }
-        if (StringUtils.hasText(updateRelationMetaReq.getSourceReason())) {
+        if (Objects.nonNull(updateRelationMetaReq.getSourceReason())) {
             metaData.put(MetaDataInfo.SOURCE_REASON.getFieldName(), updateRelationMetaReq.getSourceReason());
         }
         if (StringUtils.hasText(updateRelationMetaReq.getAttrTimeFrom()) && StringUtils.hasText(updateRelationMetaReq.getAttrTimeTo())

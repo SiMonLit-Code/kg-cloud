@@ -3,9 +3,13 @@ package com.plantdata.kgcloud.domain.dataset.statistic;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.DataSetStatisticInterface;
 import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.ComponentStatisticClient;
+import com.plantdata.kgcloud.sdk.req.DataSetCountReq;
+import com.plantdata.kgcloud.sdk.req.DataSetStatisticReq;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
+import com.plantdata.kgcloud.sdk.rsp.common.BasicValueRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,8 @@ public class DataSetStatisticController implements DataSetStatisticInterface {
 
     @Autowired
     private AppClient appClient;
+    @Autowired
+    private ComponentStatisticClient componentStatisticClient;
 
     @ApiOperation("统计数据二维(仅支持搜索数据集)")
     @PostMapping("2d/{dataName}")
@@ -53,6 +59,18 @@ public class DataSetStatisticController implements DataSetStatisticInterface {
     @PostMapping("3d/table")
     public ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid @RequestBody TableStatisticByDimensionalReq thirdDimensional) {
         return appClient.statistic3dByTable(thirdDimensional);
+    }
+
+    @ApiOperation("数据集统计")
+    @PostMapping("dataSet/{dataSetId}")
+    public ApiReturn<com.plantdata.kgcloud.sdk.rsp.DataSetStatisticRsp> dataSetStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetStatisticReq statisticReq) {
+        return componentStatisticClient.dataSetStatistic(dataSetId, statisticReq);
+    }
+
+    @ApiOperation("数据集数字统计")
+    @PostMapping("number/{dataSetId}")
+    public ApiReturn<BasicValueRsp> dataSetNumberStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetCountReq countReq) {
+        return componentStatisticClient.dataSetNumberStatistic(dataSetId, countReq);
     }
 
 }
