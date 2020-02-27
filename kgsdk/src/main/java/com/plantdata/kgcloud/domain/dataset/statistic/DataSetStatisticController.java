@@ -25,7 +25,7 @@ import javax.validation.Valid;
  * @author cjw 2019-11-04 14:49:07
  */
 @RestController
-@RequestMapping("v3/dataSet/statistic")
+@RequestMapping("v3/dataset/statistic")
 public class DataSetStatisticController implements DataSetStatisticInterface {
 
     @Autowired
@@ -62,7 +62,7 @@ public class DataSetStatisticController implements DataSetStatisticInterface {
     }
 
     @ApiOperation("数据集统计")
-    @PostMapping("dataSet/{dataSetId}")
+    @PostMapping("data/{dataSetId}")
     public ApiReturn<com.plantdata.kgcloud.sdk.rsp.DataSetStatisticRsp> dataSetStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetStatisticReq statisticReq) {
         return componentStatisticClient.dataSetStatistic(dataSetId, statisticReq);
     }
