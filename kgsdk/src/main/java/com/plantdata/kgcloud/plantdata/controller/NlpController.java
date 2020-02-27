@@ -106,7 +106,7 @@ public class NlpController implements SdkOldApiInterface {
         return new RestResp<>(entityBeans.orElse(Collections.emptyList()));
     }
 
-    @ApiOperation("语义标注")
+    @ApiOperation("文本语义标注")
     @PostMapping("annotation")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", dataType = "string", paramType = "query", value = "kgName"),

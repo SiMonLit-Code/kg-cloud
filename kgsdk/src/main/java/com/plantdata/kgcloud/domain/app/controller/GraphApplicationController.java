@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.config.CurrentUser;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.plantdata.converter.common.ApiReturnConverter;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
@@ -14,6 +15,7 @@ import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import io.swagger.annotations.ApiOperation;
@@ -44,7 +46,7 @@ public class GraphApplicationController implements GraphApplicationInterface {
     @Autowired
     private AppClient appClient;
 
-    @ApiOperation(value = "知识推荐",notes = "知识推荐，为实体进行特定多种关系的实体推荐。一般见于搜索引擎的右侧推荐区域。")
+    @ApiOperation(value = "知识推荐", notes = "知识推荐，为实体进行特定多种关系的实体推荐。一般见于搜索引擎的右侧推荐区域。")
     @PostMapping("recommend/knowledge/{kgName}")
     public ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                   @RequestBody @Valid KnowledgeRecommendReqList recommendParam) {
@@ -69,10 +71,12 @@ public class GraphApplicationController implements GraphApplicationInterface {
 
     @ApiOperation("获取模型可视化数据")
     @GetMapping("visualModels/{kgName}/{conceptId}")
-    public ApiReturn visualized(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                @ApiParam(value = "概念id", required = true) @PathVariable("conceptId") long conceptId,
-                                @ApiParam(value = "是否显示对象属性", defaultValue = "false") @RequestParam("display") boolean display) {
-        return ApiReturn.success(appClient.visualModels(kgName, conceptId, display));
+    public ApiReturn<BasicConceptTreeRsp> visualized(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                     @ApiParam(value = "概念id", required = true) @PathVariable("conceptId") long conceptId,
+                                                     @ApiParam(value = "是否显示对象属性", defaultValue = "false") @RequestParam("display") boolean display) {
+        ApiReturn<BasicConceptTreeRsp> apiReturn = appClient.visualModels(kgName, conceptId, display);
+        BasicConceptTreeRsp rsp = ApiReturnConverter.convert(apiReturn);
+        return ApiReturn.success(rsp);
     }
 
     @ApiOperation("批量读取知识卡片")
@@ -99,9 +103,9 @@ public class GraphApplicationController implements GraphApplicationInterface {
     @ApiOperation("spa分享")
     @GetMapping("share")
     public ApiReturn shareSpaStatus(@ApiParam(value = "图谱名称", required = true) @RequestParam("kgName") String kgName,
-                           @ApiParam(value = "spaId", required = true) @RequestParam("spaId") String spaId,
-                           @ApiParam(value = "token") @RequestParam("token") String token) {
-        return kgmsClient.shareSpaStatus(kgName, spaId,token);
+                                    @ApiParam(value = "spaId", required = true) @RequestParam("spaId") String spaId,
+                                    @ApiParam(value = "token") @RequestParam("token") String token) {
+        return kgmsClient.shareSpaStatus(kgName, spaId, token);
     }
 
 }

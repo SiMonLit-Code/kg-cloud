@@ -45,7 +45,7 @@ public class NlpController implements NaturalLanguageProcessingInterface {
 
     private HanLPService hanLPService = new HanLPService();
 
-    @ApiOperation("语义标注")
+    @ApiOperation("文本语义标注")
     @PostMapping("annotation/{kgName}")
     public ApiReturn<List<TaggingItemRsp>> tagging(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                    @RequestBody EntityLinkingReq linkingFrom) {
