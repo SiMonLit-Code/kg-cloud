@@ -4,12 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -29,10 +24,22 @@ public class DocJsonGenerate {
             "structure.analysis"
     );
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) {
+
+
+        WriteUtils writeUtils1 = new WriteUtils();
+        writeUtils1.appendWriteFile("class_dir.json",
+                JacksonUtils.writeValueAsString(classDirMap()), false);
+        writeUtils1.close();
+
+        WriteUtils writeUtils2 = new WriteUtils();
+        writeUtils2.appendWriteFile("class_dir.json",
+                JacksonUtils.writeValueAsString(classDirMap()), false);
+        writeUtils2.close();
+    }
+
+    private static Map<String, String> classDirMap() {
         Map<String, String> classDirMap = Maps.newHashMap();
-
-
         for (String name : PACKAGE_NAMES) {
             List<Class<?>> classFromPackage = ClassUtils.getClassFromPackage("com.plantdata.kgcloud.domain." + name);
             String dirName = name;
@@ -55,24 +62,50 @@ public class DocJsonGenerate {
             }
             classDirMap.put(tag, dirName);
         }
-        WriteUtils writeUtils = new WriteUtils();
-        writeUtils.appendWriteFile("class_dir.json",
-                JacksonUtils.writeValueAsString(classDirMap), false);
-        writeUtils.close();
+        return classDirMap;
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    private static class JsonClass {
-        private List<String> prefix;
-        private String dir;
-
-        public JsonClass(List<String> prefix, String dir) {
-            this.prefix = prefix;
-            this.dir = dir;
-        }
-    }
+//    private static Map<String, String> reqMap() {
+//
+//        List<Method> methods = PACKAGE_NAMES.stream()
+//                .map(a -> ClassUtils.getClassFromPackage("com.plantdata.kgcloud.domain." + a))
+//                .flatMap(Collection::stream)
+//                .map(b -> Arrays.asList(b.getDeclaredMethods()))
+//                .flatMap(Collection::stream)
+//                .collect(Collectors.toList());
+//
+//        Map<String, Object> queryParamMap = Maps.newHashMap();
+//        Map<String, Object> pathParamMap = Maps.newHashMap();
+//        Map<String, Object> bodyMap = Maps.newHashMap();
+//        for (Method method : methods) {
+//            Parameter[] parameters = method.getParameters();
+//            for (Parameter param : parameters) {
+//                RequestParam query = param.getAnnotation(RequestParam.class);
+//                if (query != null) {
+//                    queryParamMap.put(query.name(), query.defaultValue());
+//                }
+//                RequestBody body = param.getAnnotation(RequestBody.class);
+//                if (body != null) {
+//                    getStr(param.getType());
+//                }
+//                PathVariable path = param.getAnnotation(PathVariable.class);
+//                if (path != null) {
+//                    pathParamMap.put(path.name(), 1);
+//                }
+//            }
+//            Class<?> returnType = method.getReturnType();
+//            getStr(returnType);
+//        }
+//        return null;
+//    }
+//
+//    private static void getStr(Class<?> type) {
+//        try {
+//            log.error(JacksonUtils.writeValueAsString(type.newInstance()));
+//        } catch (InstantiationException | IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }
 

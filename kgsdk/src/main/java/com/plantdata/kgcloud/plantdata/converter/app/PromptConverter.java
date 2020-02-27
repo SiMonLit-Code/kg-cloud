@@ -56,7 +56,7 @@ public class PromptConverter extends BasicConverter {
         promptReq.setCaseInsensitive(promptParam.getIsCaseInsensitive());
         consumerIfNoNull(promptParam.getAllowTypes(), a -> promptReq.setConceptIds(toListNoNull(a, Long::valueOf)));
         promptReq.setConceptKeys(promptParam.getAllowTypesKey());
-        promptReq.setFuzzy(promptParam.getIsFuzzy() == null ? true : promptParam.getIsFuzzy());
+        promptReq.setFuzzy(promptParam.getIsFuzzy() == null ? false : promptParam.getIsFuzzy());
         promptReq.setInherit(promptParam.getIsInherit());
         promptReq.setKw(promptParam.getKw());
         promptReq.setOpenExportDate(promptParam.getOpenExportDate());
