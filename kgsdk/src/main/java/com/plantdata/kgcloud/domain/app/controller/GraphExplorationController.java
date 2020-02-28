@@ -42,7 +42,7 @@ public class GraphExplorationController implements GraphApplicationInterface {
         return appClient.initGraphExploration(kgName, type);
     }
 
-    @ApiOperation(value = "业务规则/kgQl语句图探索",notes="")
+    @ApiOperation(value = "业务规则/kgQl语句图探索")
     @PostMapping("byKgQl/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> exploreByKgQl(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                @RequestBody ExploreByKgQlReq kgQlReq) {
