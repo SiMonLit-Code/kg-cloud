@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel("普通图探索视图")
+@ApiModel("普通图探索实体视图")
 public class CommonEntityRsp extends GraphEntityRsp {
     @ApiModelProperty("标签信息")
     private List<TagRsp> tags;
