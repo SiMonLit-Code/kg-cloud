@@ -35,7 +35,7 @@ public class GraphExplorationController implements GraphApplicationInterface {
     @Autowired
     private AppClient appClient;
 
-    @ApiOperation("初始化图探索数据")
+    @ApiOperation(value = "图谱初始节点查询",notes = "知识图谱（或时序）的初始化节点，默认读取图谱中权重最高的实体。")
     @PostMapping("init/{kgName}")
     public ApiReturn<GraphInitRsp> initGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                         @ApiParam(value = "图类型", required = true) @RequestParam("type") String type) {
@@ -49,14 +49,14 @@ public class GraphExplorationController implements GraphApplicationInterface {
         return appClient.exploreByKgQl(kgName, kgQlReq);
     }
 
-    @ApiOperation(value = "普通图探索",notes="")
+    @ApiOperation(value = "普通图探索",notes="图探索（非时序），读取知识图谱的时序关系数据。支持节点类型、边类型过滤。")
     @PostMapping("common/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> commonGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                         @RequestBody CommonExploreReqList exploreParam) {
         return appClient.commonGraphExploration(kgName, exploreParam);
     }
 
-    @ApiOperation("时序图探索")
+    @ApiOperation(value = "时序图探索",notes = "时序图探索，读取知识图谱的时序关系数据。支持节点类型、边类型及边时间区间的过滤。")
     @PostMapping("timing/{kgName}")
     public ApiReturn<CommonBasicGraphExploreRsp> timingGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                         @RequestBody CommonTimingExploreReqList exploreParam) {
@@ -69,14 +69,14 @@ public class GraphExplorationController implements GraphApplicationInterface {
         return appClient.reasoningGraphExploration(kgName, exploreParam);
     }
 
-    @ApiOperation("gis图探索")
+    @ApiOperation(value = "gis图探索",notes = "按照地理位置条件进行图探索")
     @PostMapping("gis/{kgName}")
     public ApiReturn<GisGraphExploreRsp> gisGraphExploration(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                              @RequestBody GisGraphExploreReq exploreParam) {
         return appClient.gisGraphExploration(kgName, exploreParam);
     }
 
-    @ApiOperation("轨迹分析")
+    @ApiOperation(value = "轨迹分析",notes = "按照设置中的kgql规则和地理位置条件进行图探索")
     @PostMapping("gisLocus/{kgName}")
     public ApiReturn<GisLocusAnalysisRsp> graphLocusGis(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                         @RequestBody GisLocusReq locusGisParam) {

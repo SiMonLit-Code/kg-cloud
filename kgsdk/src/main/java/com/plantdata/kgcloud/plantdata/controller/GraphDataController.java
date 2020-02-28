@@ -207,15 +207,6 @@ public class GraphDataController implements SdkOldApiInterface {
                 new RestResp<>(rspFunction.apply(attrDefinitionRspList))).orElseGet(() -> new RestResp<>(Collections.emptyList()));
     }
 
-    @ApiOperation("KGQL查询")
-    @PostMapping("data/kgql")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "query", required = true, dataType = "long", paramType = "form", value = "查询语句"),
-    })
-    public RestResp<Object> execQl(@ApiParam(required = true) @NotBlank @RequestParam("query") String query) {
-        return new RestResp<>(editClient.executeQl(new KgqlReq(query)));
-    }
 
     @ApiOperation("批量关系新增")
     @PostMapping("data/relation/insert")
@@ -381,7 +372,7 @@ public class GraphDataController implements SdkOldApiInterface {
         return new RestResp<>(resList);
     }
 
-    @ApiOperation("融合候选集写入")
+    @ApiOperation(value = "融合候选集写入", notes = "添加实体到融合候选集")
     @PostMapping("data/entity/merge")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
@@ -412,4 +403,13 @@ public class GraphDataController implements SdkOldApiInterface {
         return new RestResp<>(entityBeanList);
     }
 
+    @ApiOperation(value = "KGQL查询", notes = "KGQL查询，PlantData知识图谱的查询语言查询数据。")
+    @PostMapping("data/kgql")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "query", required = true, dataType = "long", paramType = "form", value = "查询语句"),
+    })
+    public RestResp<Object> execQl(@ApiParam(required = true) @NotBlank @RequestParam("query") String query) {
+        return new RestResp<>(editClient.executeQl(new KgqlReq(query)));
+    }
 }

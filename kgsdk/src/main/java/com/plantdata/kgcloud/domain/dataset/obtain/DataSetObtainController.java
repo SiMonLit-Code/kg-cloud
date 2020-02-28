@@ -10,7 +10,6 @@ import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +31,7 @@ public class DataSetObtainController implements DataSetDataObtainInterface {
     @Autowired
     private KgmsClient kgmsClient;
 
-    @ApiOperation("获取数据集列表")
+    @ApiOperation(value = "获取数据集列表", notes = "获取当前用户的数据集列表")
     @GetMapping("page")
     public ApiReturn<BasePage<DataSetRsp>> dataSetList(@RequestParam(value = "kw", required = false) String kw,
                                                        @RequestParam("page") Integer page, @RequestParam("size") Integer size) {
@@ -40,7 +39,7 @@ public class DataSetObtainController implements DataSetDataObtainInterface {
     }
 
 
-    @ApiOperation("读数普通数据集的数据")
+    @ApiOperation(value = "读数普通数据集的数据", notes = "按条件读取普通数据集的数据。")
     @PostMapping("common")
     public ApiReturn<RestData<Map<String, Object>>> searchDataSet(@RequestBody NameReadReq nameReadReq) {
         return kgDataClient.searchDataSet(nameReadReq);
@@ -55,17 +54,15 @@ public class DataSetObtainController implements DataSetDataObtainInterface {
     }
 
 
-    @ApiOperation("读数搜索数据集的数据")
+    @ApiOperation(value = "读数搜索数据集的数据", notes = "按条件读取搜索数据集的数据。")
     @PostMapping("search")
     public ApiReturn<RestData<Map<String, Object>>> search(@RequestBody NameReadReq nameReadReq) {
         return kgDataClient.searchDataSet(nameReadReq);
     }
 
     @PostMapping("add")
-    @ApiOperation("数据集导入数据")
+    @ApiOperation(value = "数据集导入数据", notes = "根据数据集的schema，向数据集以json形式批量插入数据。")
     public ApiReturn interfaceUpload(@RequestBody DataSetAddReq addReq) {
         return kgDataClient.batchSaveDataSetByName(addReq);
     }
-
-
 }
