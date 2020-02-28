@@ -31,27 +31,27 @@ public class RelationController implements GraphDataObtainInterface {
     @Autowired
     private EditClient editClient;
 
-    @ApiOperation("关系-批量新增")
+    @ApiOperation(value = "批量关系新增",notes = "新增实体间关系及边上的数值属性。")
     @PostMapping("batch/insert/{kgName}")
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
                                                                        @RequestBody List<BatchRelationRsp> batchRelationList) {
         return editClient.importRelation(kgName, batchRelationList);
     }
 
-    @ApiOperation("关系-批量删除")
+    @ApiOperation(value = "批量关系删除",notes = "删除实体间的边关系。")
     @PostMapping("batch/delete/{kgName}")
     public ApiReturn deleteRelations(@PathVariable("kgName") String kgName,
                                      @RequestBody List<String> relationIds) {
         return editClient.deleteRelations(kgName, relationIds);
     }
 
-    @ApiOperation("关系-批量查询")
+    @ApiOperation(value = "批量关系查询",notes = "根据指定关系类型，批量读取边关系及边上数值属性。")
     @PostMapping("search/{kgName}")
     public ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName, @RequestBody EdgeSearchReqList queryReq) {
         return editClient.batchSearchRelation(kgName, queryReq);
     }
 
-    @ApiOperation("关系-批量修改")
+    @ApiOperation(value = "批量关系更新",notes = "更新关系边上的数值属性。")
     @PutMapping("batch/update/{kgName}")
     public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName, @RequestBody List<RelationUpdateReq> list) {
         return editClient.updateRelations(kgName, list);

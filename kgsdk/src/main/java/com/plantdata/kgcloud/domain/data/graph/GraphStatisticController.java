@@ -25,14 +25,14 @@ public class GraphStatisticController implements GraphDataStatisticsInterface {
     @Autowired
     private ComponentStatisticClient componentStatisticClient;
 
-    @ApiOperation("图统计")
+    @ApiOperation(value = "图统计",notes = "指定维度，目标，度量，筛选条件的类型和方式 得到图谱统计结果（二维）")
     @PostMapping("graph/{kgName}")
     public ApiReturn<EntityRelationStatisticRsp> kgStatistic(@PathVariable String kgName,
                                                              @RequestBody @Valid EntityRelationStatisticReq statisticReq) {
         return componentStatisticClient.kgStatistic(kgName, statisticReq);
     }
 
-    @ApiOperation("图数字统计")
+    @ApiOperation(value = "图数字统计",notes = "指定维度，目标，度量，筛选条件的类型和方式 进行计数和求和 得到图谱统计结果" )
     @PostMapping("graph/number/{kgName}")
     public ApiReturn<BasicValueRsp> kgNumberStatistic(@PathVariable String kgName, @RequestBody @Valid EntityRelationCountReq countReq) {
         return componentStatisticClient.kgNumberStatistic(kgName, countReq);

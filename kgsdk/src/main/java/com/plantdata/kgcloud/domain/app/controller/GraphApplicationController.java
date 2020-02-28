@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.plantdata.converter.common.ApiReturnConverter;
 import com.plantdata.kgcloud.sdk.AppClient;
+import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
@@ -53,13 +54,13 @@ public class GraphApplicationController implements GraphApplicationInterface {
         return appClient.knowledgeRecommend(kgName, recommendParam);
     }
 
-    @ApiOperation("获取当前图实体类型及属性类型的schema")
+    @ApiOperation(value = "schema查询", notes = "获取当前图谱的建模（Schema）包含实体类型、属性类型。")
     @GetMapping("schema/{kgName}")
     public ApiReturn<SchemaRsp> querySchema(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName) {
         return appClient.querySchema(kgName);
     }
 
-    @ApiOperation("获取所有图谱名称")
+    @ApiOperation(value = "获取图谱名称", notes = "获取所用图谱的kgName、title、apk")
     @GetMapping("kgName/all")
     public ApiReturn<PageRsp<ApkRsp>> getKgName(PageReq pageReq) {
 
@@ -79,21 +80,21 @@ public class GraphApplicationController implements GraphApplicationInterface {
         return ApiReturn.success(rsp);
     }
 
-    @ApiOperation("批量读取知识卡片")
+    @ApiOperation(value = "批量读取知识卡片", notes = "批量获取知识卡片，实体数值属性及关系构成的相关信息。一般用于搜索引擎或百科的实体卡片。")
     @PostMapping("infoBox/list/{kgName}")
     public ApiReturn<List<InfoBoxRsp>> listInfoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                    @RequestBody BatchInfoBoxReqList batchInfoBoxReq) {
         return appClient.listInfoBox(kgName, batchInfoBoxReq);
     }
 
-    @ApiOperation("读取知识卡片")
+    @ApiOperation(value = "读取知识卡片", notes = "知识卡片，实体数值属性及关系构成的相关信息。一般用于搜索引擎或百科的实体卡片。")
     @PostMapping("infoBox/{kgName}")
     public ApiReturn<InfoBoxRsp> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                          @RequestBody InfoBoxReq infoBoxReq) {
         return appClient.infoBox(kgName, infoBoxReq);
     }
 
-    @ApiOperation("spa分享")
+    @ApiOperation("spa分享-查看")
     @GetMapping("share/{kgName}/{spaId}")
     public ApiReturn share(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                            @ApiParam(value = "spaId", required = true) @PathVariable("spaId") String spaId) {

@@ -30,7 +30,7 @@ public class AttributeController implements GraphDataObtainInterface {
     @Autowired
     private KgDataClient kgDataClient;
 
-    @ApiOperation("属性定义-查询")
+    @ApiOperation(value = "获取属性定义",notes = "获取属性定义")
     @GetMapping("{kgName}")
     public ApiReturn<List<AttrDefinitionRsp>> attribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                         @ApiParam(value = "概念id，查询指定概念的属性 conceptId 和 conceptKey不能同时为空")
@@ -42,28 +42,28 @@ public class AttributeController implements GraphDataObtainInterface {
         return kgDataClient.searchAttrDefByConcept(kgName, conceptId, conceptKey, inherit);
     }
 
-    @ApiOperation("属性定义-修改")
+    @ApiOperation(value = "修改属性定义",notes = "修改属性定义")
     @PutMapping("{kgName}")
     public ApiReturn updateAttrDefinition(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                           @RequestBody AttrDefinitionModifyReq modifyReq) {
         return editClient.updateAttrDefinition(kgName, modifyReq);
     }
 
-    @ApiOperation("属性定义-批量新增")
+    @ApiOperation(value = "批量添加属性定义", notes = "批量添加属性定义")
     @PostMapping("{kgName}/batch")
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchInsertAttribute(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                                    @RequestBody List<AttrDefinitionReq> attributeList) {
         return editClient.batchAddAttrDefinition(kgName, attributeList);
     }
 
-    @ApiOperation("属性定义批量-修改")
+    @ApiOperation(value = "批量修改属性定义", notes = "批量修改属性定义")
     @PutMapping("{kgName}/batch")
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchModify(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                           @RequestBody List<AttrDefinitionModifyReq> attributeList) {
         return editClient.batchModifyAttrDefinition(kgName, attributeList);
     }
 
-    @ApiOperation("属性定义-删除")
+    @ApiOperation(value = "删除属性定义",notes = "删除属性定义")
     @DeleteMapping("{kgName}/{id}")
     public ApiReturn delete(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                             @ApiParam(value = "属性id", required = true) @PathVariable("id") Integer id) {
