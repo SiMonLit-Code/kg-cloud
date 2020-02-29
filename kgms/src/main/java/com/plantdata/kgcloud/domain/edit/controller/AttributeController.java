@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.ValidableList;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
@@ -265,7 +266,7 @@ public class AttributeController {
     public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
                                                               @RequestBody List<RelationUpdateReq> list) {
         List<UpdateEdgeVO> edgeList = RestCopyConverter.copyToNewList(list, UpdateEdgeVO.class);
-        Optional<BatchResult<UpdateEdgeVO>> edgeOpt = RestRespConverter.convert(batchApi.updateRelations(kgName,
+        Optional<BatchResult<UpdateEdgeVO>> edgeOpt = RestRespConverter.convert(batchApi.updateRelations(KGUtil.dbName(kgName),
                 edgeList));
         return edgeOpt.map(result -> ApiReturn.success(RestCopyConverter.copyToNewList(result.getSuccess(),
                 RelationUpdateReq.class)))
