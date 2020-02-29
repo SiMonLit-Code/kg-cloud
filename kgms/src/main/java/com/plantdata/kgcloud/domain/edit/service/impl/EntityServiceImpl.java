@@ -480,12 +480,16 @@ public class EntityServiceImpl implements EntityService {
         Map<String, Object> metaData = new HashMap<>();
         if (Objects.nonNull(updateRelationMetaReq.getScore())) {
             metaData.put(MetaDataInfo.SCORE.getFieldName(), updateRelationMetaReq.getScore());
+        }else {
+            metaData.put(MetaDataInfo.SCORE.getFieldName(), "");
         }
         if (Objects.nonNull(updateRelationMetaReq.getSource())) {
             metaData.put(MetaDataInfo.SOURCE.getFieldName(), updateRelationMetaReq.getSource());
         }
         if (Objects.nonNull(updateRelationMetaReq.getReliability())) {
             metaData.put(MetaDataInfo.RELIABILITY.getFieldName(), updateRelationMetaReq.getReliability());
+        }else {
+            metaData.put(MetaDataInfo.RELIABILITY.getFieldName(), "");
         }
         if (Objects.nonNull(updateRelationMetaReq.getSourceReason())) {
             metaData.put(MetaDataInfo.SOURCE_REASON.getFieldName(), updateRelationMetaReq.getSourceReason());
