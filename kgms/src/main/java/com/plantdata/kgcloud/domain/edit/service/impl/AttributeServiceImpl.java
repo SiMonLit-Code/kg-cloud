@@ -129,8 +129,9 @@ public class AttributeServiceImpl implements AttributeService {
                                                                 AttrDefinitionSearchReq attrDefinitionSearchReq) {
         List<Long> ids = attrDefinitionSearchReq.getIds();
         Long conceptId = attrDefinitionSearchReq.getConceptId();
+        String dbName = KGUtil.dbName(kgName);
         if (0L == conceptId) {
-            Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getAll(KGUtil.dbName(kgName)));
+            Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getAll(dbName));
             return optional.orElse(new ArrayList<>()).stream()
                     .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                     .collect(Collectors.toList());
@@ -139,7 +140,7 @@ public class AttributeServiceImpl implements AttributeService {
         AttrQueryFrom attrQueryFrom = ConvertUtils.convert(AttrQueryFrom.class).apply(attrDefinitionSearchReq);
         attrQueryFrom.setIds(ids);
         Optional<List<AttrDefVO>> optional = RestRespConverter
-                .convert(attributeApi.getByConceptIds(KGUtil.dbName(kgName), attrQueryFrom));
+                .convert(attributeApi.getByConceptIds(dbName, attrQueryFrom));
         return optional.orElse(new ArrayList<>()).stream()
                 .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());

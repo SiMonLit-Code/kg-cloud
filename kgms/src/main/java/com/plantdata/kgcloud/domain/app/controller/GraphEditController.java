@@ -49,7 +49,7 @@ public class GraphEditController {
             throw BizException.of(AppErrorCodeEnum.NULL_CONCEPT_ID_AND_KEY);
         }
         graphHelperService.replaceByConceptKey(kgName, queryReq);
-        List<AttrDefinitionRsp> resList = attributeService.getAttrDefinitionByConceptId(KGUtil.dbName(kgName),
+        List<AttrDefinitionRsp> resList = attributeService.getAttrDefinitionByConceptId(kgName,
                 AttrDefConverter.attrDefQueryReqToAttrDefinitionSearchReq(queryReq));
         return ApiReturn.success(resList);
     }
