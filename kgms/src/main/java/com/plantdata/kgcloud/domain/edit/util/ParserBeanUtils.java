@@ -17,6 +17,7 @@ import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +80,10 @@ public class ParserBeanUtils {
         try {
             if (Objects.nonNull(entityMetaData)) {
                 if (entityMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-                    basicInfoRsp.setScore(Double.valueOf(entityMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString()));
+                    String score = entityMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString();
+                    if (StringUtils.hasText(score)){
+                        basicInfoRsp.setScore(Double.valueOf(score));
+                    }
                 }
 
                 if (entityMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
@@ -99,7 +103,10 @@ public class ParserBeanUtils {
                 }
 
                 if (entityMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-                    basicInfoRsp.setReliability(Double.valueOf(entityMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString()));
+                    String reliability = entityMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString();
+                    if (StringUtils.hasText(reliability)){
+                        basicInfoRsp.setReliability(Double.valueOf(reliability));
+                    }
                 }
 
                 if (entityMetaData.containsKey(MetaDataInfo.UPDATE_TIME.getFieldName())) {
@@ -170,13 +177,19 @@ public class ParserBeanUtils {
         try {
             if (Objects.nonNull(relationMetaData)) {
                 if (relationMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-                    relationAttrValueVO.setScore((Double) relationMetaData.get(MetaDataInfo.SCORE.getFieldName()));
+                    String score = relationMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString();
+                    if (StringUtils.hasText(score)){
+                        relationAttrValueVO.setScore(Double.valueOf(score));
+                    }
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
                     relationAttrValueVO.setSource((String) relationMetaData.get(MetaDataInfo.SOURCE.getFieldName()));
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-                    relationAttrValueVO.setReliability((Double) relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()));
+                    String reliability = relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString();
+                    if (StringUtils.hasText(reliability)){
+                        relationAttrValueVO.setReliability(Double.valueOf(reliability));
+                    }
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE_REASON.getFieldName())) {
                     relationAttrValueVO.setSourceReason((String) relationMetaData.get(MetaDataInfo.SOURCE_REASON.getFieldName()));
