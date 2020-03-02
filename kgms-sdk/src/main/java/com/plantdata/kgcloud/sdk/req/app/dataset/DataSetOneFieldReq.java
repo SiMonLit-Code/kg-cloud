@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app.dataset;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@ApiModel("数据集数据读取单字段")
 public class DataSetOneFieldReq  extends PageReq{
     @ApiModelProperty("es query条件 例：{\"query\":{\"match_phrase\":{\"{field}\":\"{value}}\"}}}  field:数据集key; value: 数据集的值" +
             "mongo query条件 {\"query\":{\"{field}\":\"{value}}\"}}")
