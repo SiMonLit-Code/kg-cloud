@@ -113,7 +113,7 @@ public interface KgDataClient {
     /**
      * 读取数据集(单字段)
      */
-    @PostMapping("read/{dataName}")
+    @PostMapping("dataset/read/{dataName}")
     ApiReturn<List<Object>> searchDataSet(@PathVariable("dataName") String dataName, @RequestBody DataSetOneFieldReq fieldReq);
 
     /**
