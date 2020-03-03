@@ -62,7 +62,7 @@ public class GraphLogController {
         return ApiReturn.success(page);
     }
 
-    @GetMapping("/{kgName}/entity/{entityId}")
+    @GetMapping("/{kgName}/relation/entity/{entityId}")
     @ApiOperation("查询关系编辑的数据层日志")
     public ApiReturn<BasePage<DataLogRsp>> relationLogList(@PathVariable("kgName") String kgName,
                                                            @ApiParam("实体ID") @PathVariable("entityId") Long entityId,
