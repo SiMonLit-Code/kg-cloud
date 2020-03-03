@@ -72,6 +72,8 @@ public class GraphLogServiceImpl implements GraphLogService {
             } else if (actionCount > 1) {
                 isBatch = true;
                 s.put("message", getBatchMsg(dbName, batch));
+            } else {
+                s.put("message", "操作失败");
             }
             s.put("isBatch", isBatch);
             ServiceLogRsp rsp = JSONObject.parseObject(JacksonUtils.writeValueAsString(s), ServiceLogRsp.class);
