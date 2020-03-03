@@ -65,7 +65,6 @@ public class KgLogListener {
                     ls.add(Document.parse(JacksonUtils.writeValueAsString(log)));
                     String kgName = graphRepository.findByDbName(kgDbName).getKgName();
                     dataMap.put(kgName, ls);
-
                     pinyinSyn(kgName, log);
                 }
             });
