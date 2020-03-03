@@ -16,6 +16,7 @@ import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogReq;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.service.GraphLogService;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import static com.plantdata.kgcloud.constant.KgmsConstants.*;
 /**
  * @author xiezhenxiang 2020/1/15
  */
+@Slf4j
 @Service
 public class GraphLogServiceImpl implements GraphLogService {
 
@@ -171,7 +173,7 @@ public class GraphLogServiceImpl implements GraphLogService {
 
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.and(
-                Filters.eq("scope", GraphLogScope.SIDE_ATTR_DEFINE),
+                Filters.eq("scope", GraphLogScope.SIDE_ATTR_DEFINE.name()),
                 Filters.eq("newValue.attrId", relationAttrId)
         );
         return logList(kgName, query, page, req.getSize());
@@ -182,7 +184,7 @@ public class GraphLogServiceImpl implements GraphLogService {
 
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.and(
-                Filters.in("scope", GraphLogScope.RELATION, GraphLogScope.RELATION_OBJECT, GraphLogScope.RELATION_VALUE),
+                Filters.in("scope", GraphLogScope.RELATION.name(), GraphLogScope.RELATION_OBJECT.name(), GraphLogScope.RELATION_VALUE.name()),
                 Filters.eq("newValue.entityId", entityId),
                 Filters.eq("newValue.attrId", relationId)
         );
