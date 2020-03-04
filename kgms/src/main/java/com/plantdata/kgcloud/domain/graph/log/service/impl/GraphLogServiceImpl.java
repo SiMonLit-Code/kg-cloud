@@ -16,6 +16,7 @@ import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogReq;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.service.GraphLogService;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import static com.plantdata.kgcloud.constant.KgmsConstants.*;
 /**
  * @author xiezhenxiang 2020/1/15
  */
+@Slf4j
 @Service
 public class GraphLogServiceImpl implements GraphLogService {
 
@@ -70,6 +72,8 @@ public class GraphLogServiceImpl implements GraphLogService {
             } else if (actionCount > 1) {
                 isBatch = true;
                 s.put("message", getBatchMsg(dbName, batch));
+            } else {
+                s.put("message", "操作失败");
             }
             s.put("isBatch", isBatch);
             ServiceLogRsp rsp = JSONObject.parseObject(JacksonUtils.writeValueAsString(s), ServiceLogRsp.class);
@@ -159,10 +163,21 @@ public class GraphLogServiceImpl implements GraphLogService {
             );
         } else {
             query = Filters.and(
-                    Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name())),
-                    Filters.eq("newValue.id", id)
+                    Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name(), GraphLogScope.PRIVATE_ATTRIBUTE.name())),
+                    Filters.or(Filters.eq("newValue.id", id), Filters.eq("oldValue.id", id),
+                            Filters.eq("newValue.entityId", id), Filters.eq("oldValue.entityId", id))
             );
         }
+        return logList(kgName, query, page, req.getSize());
+    }
+
+    @Override
+    public BasePage<DataLogRsp> attrDefineLogList(String kgName, Integer attrId, BaseReq req) {
+        int page = (req.getPage() - 1) * req.getSize();
+        Bson query = Filters.and(
+                Filters.eq("scope", GraphLogScope.ATTRIBUTE_DEFINE.name()),
+                Filters.or(Filters.eq("newValue.id", attrId), Filters.eq("oldValue.id", attrId))
+        );
         return logList(kgName, query, page, req.getSize());
     }
 
@@ -171,20 +186,19 @@ public class GraphLogServiceImpl implements GraphLogService {
 
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.and(
-                Filters.eq("scope", GraphLogScope.SIDE_ATTR_DEFINE),
-                Filters.eq("newValue.attrId", relationAttrId)
+                Filters.eq("scope", GraphLogScope.SIDE_ATTR_DEFINE.name()),
+                Filters.or(Filters.eq("newValue.attrId", relationAttrId), Filters.eq("oldValue.attrId", relationAttrId))
         );
         return logList(kgName, query, page, req.getSize());
     }
 
     @Override
-    public BasePage<DataLogRsp> relationLogList(String kgName, Long entityId, Integer relationId, BaseReq req) {
+    public BasePage<DataLogRsp> relationLogList(String kgName, Long entityId, BaseReq req) {
 
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.and(
-                Filters.in("scope", GraphLogScope.RELATION, GraphLogScope.RELATION_OBJECT, GraphLogScope.RELATION_VALUE),
-                Filters.eq("newValue.entityId", entityId),
-                Filters.eq("newValue.attrId", relationId)
+                Filters.in("scope", GraphLogScope.RELATION.name(), GraphLogScope.RELATION_OBJECT.name(), GraphLogScope.RELATION_VALUE.name()),
+                Filters.or(Filters.eq("newValue.entityId", entityId), Filters.eq("oldValue.entityId", entityId))
         );
         return logList(kgName, query, page, req.getSize());
     }
