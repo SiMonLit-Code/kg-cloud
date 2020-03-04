@@ -163,11 +163,21 @@ public class GraphLogServiceImpl implements GraphLogService {
             );
         } else {
             query = Filters.and(
-                    Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name())),
+                    Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name(), GraphLogScope.PRIVATE_ATTRIBUTE.name())),
                     Filters.or(Filters.eq("newValue.id", id), Filters.eq("oldValue.id", id),
                             Filters.eq("newValue.entityId", id), Filters.eq("oldValue.entityId", id))
             );
         }
+        return logList(kgName, query, page, req.getSize());
+    }
+
+    @Override
+    public BasePage<DataLogRsp> attrDefineLogList(String kgName, Integer attrId, BaseReq req) {
+        int page = (req.getPage() - 1) * req.getSize();
+        Bson query = Filters.and(
+                Filters.eq("scope", GraphLogScope.ATTRIBUTE_DEFINE.name()),
+                Filters.or(Filters.eq("newValue.id", attrId), Filters.eq("oldValue.id", attrId))
+        );
         return logList(kgName, query, page, req.getSize());
     }
 

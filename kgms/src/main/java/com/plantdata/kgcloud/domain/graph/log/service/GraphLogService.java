@@ -20,4 +20,6 @@ public interface GraphLogService {
     BasePage<DataLogRsp> edgeAttrLogList(String kgName, Integer relationAttrId, BaseReq req);
 
     BasePage<DataLogRsp> relationLogList(String kgName, Long entityId, BaseReq req);
+
+    BasePage<DataLogRsp> attrDefineLogList(String kgName, Integer attrId, BaseReq req);
 }

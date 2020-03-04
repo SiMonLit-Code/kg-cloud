@@ -53,6 +53,15 @@ public class GraphLogController {
         return ApiReturn.success(page);
     }
 
+    @GetMapping("/{kgName}/schema/attr/{attrId}")
+    @ApiOperation("查询属性定义的数据层日志")
+    public ApiReturn<BasePage<DataLogRsp>> attrDefineLogList(@PathVariable("kgName") String kgName,
+                                                             @ApiParam("属性ID") @PathVariable("attrId") Integer attrId,
+                                                             BaseReq req) {
+        BasePage<DataLogRsp> page = graphLogService.attrDefineLogList(kgName, attrId, req);
+        return ApiReturn.success(page);
+    }
+
     @GetMapping("/{kgName}/attr/{relationAttrId}/edge/define")
     @ApiOperation("查询边属性定义的数据层日志")
     public ApiReturn<BasePage<DataLogRsp>> entityLogList(@PathVariable("kgName") String kgName,
