@@ -159,7 +159,7 @@ public class GraphLogServiceImpl implements GraphLogService {
         if (type == 0) {
             query = Filters.and(
                     Filters.eq("scope", GraphLogScope.CONCEPT.name()),
-                    Filters.eq("newValue.id", id)
+                    Filters.or(Filters.eq("newValue.id", id), Filters.eq("oldValue.id", id))
             );
         } else {
             query = Filters.and(
