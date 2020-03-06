@@ -159,7 +159,7 @@ public class GraphLogServiceImpl implements GraphLogService {
         if (type == 0) {
             query = Filters.and(
                     Filters.eq("scope", GraphLogScope.CONCEPT.name()),
-                    Filters.eq("newValue.id", id)
+                    Filters.or(Filters.eq("newValue.id", id), Filters.eq("oldValue.id", id))
             );
         } else {
             query = Filters.and(
@@ -197,7 +197,8 @@ public class GraphLogServiceImpl implements GraphLogService {
 
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.and(
-                Filters.in("scope", GraphLogScope.RELATION.name(), GraphLogScope.RELATION_OBJECT.name(), GraphLogScope.RELATION_VALUE.name()),
+                Filters.in("scope", GraphLogScope.RELATION.name(), GraphLogScope.RELATION_OBJECT.name()
+                        , GraphLogScope.RELATION_VALUE.name(), GraphLogScope.PRIVATE_RELATION.name()),
                 Filters.or(Filters.eq("newValue.entityId", entityId), Filters.eq("oldValue.entityId", entityId))
         );
         return logList(kgName, query, page, req.getSize());
