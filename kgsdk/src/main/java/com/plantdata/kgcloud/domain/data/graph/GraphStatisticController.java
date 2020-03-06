@@ -43,7 +43,7 @@ public class GraphStatisticController implements GraphDataStatisticsInterface {
     @ApiOperation(value = "KGQL图统计", notes = "按照kgql语句规则 进行计数和求和 得到图谱统计结果")
     @PostMapping({"kgql/{kgName}"})
     public ApiReturn<KgStatisticRsp<MultiMeasureStatisticResultRsp>> kgKGQLStatistic(@PathVariable String kgName, @RequestBody String kgQl) {
-        return ApiReturn.success();
+        return componentStatisticClient.kgKGQLStatistic(kgName,kgQl);
     }
 
 
