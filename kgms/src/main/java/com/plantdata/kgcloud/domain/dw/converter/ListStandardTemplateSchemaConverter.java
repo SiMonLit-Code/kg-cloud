@@ -1,0 +1,21 @@
+package com.plantdata.kgcloud.domain.dw.converter;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.plantdata.kgcloud.domain.dw.rsp.StandardTemplateSchema;
+import com.plantdata.kgcloud.util.JacksonUtils;
+
+import javax.persistence.AttributeConverter;
+import java.util.List;
+
+public class ListStandardTemplateSchemaConverter implements AttributeConverter<List<StandardTemplateSchema>, String> {
+    @Override
+    public String convertToDatabaseColumn(List<StandardTemplateSchema> standardTemplateSchemas) {
+        return JacksonUtils.writeValueAsString(standardTemplateSchemas);
+    }
+
+    @Override
+    public List<StandardTemplateSchema> convertToEntityAttribute(String value) {
+        return JacksonUtils.readValue(value, new TypeReference<List<StandardTemplateSchema>>() {
+        });
+    }
+}

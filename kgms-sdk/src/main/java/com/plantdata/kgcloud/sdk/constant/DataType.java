@@ -13,7 +13,10 @@ public enum DataType {
     MYSQL(0),
     MONGO(1),
     ELASTIC(2),
-    PD_DOCUMENT(3);
+    PD_DOCUMENT(3),
+    ORACLE(4),
+    HIVE(5),
+    ;
 
     private final int dataType;
 

@@ -100,6 +100,20 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     PERMISSION_NOT_ENOUGH_ERROR(120509, "没有该图谱的编辑权限"),
 
     RDF_EXPORT_ERROR(120510, "rdf导出错误"),
+
+    STANDARD_TEMPLATE_NOT_EXIST(120601, "行业标准模板不存在"),
+
+    PRE_BUILD_MODEL_NOT_EXIST(120602, "预构建模式不存在"),
+
+    DW_DATABASE_NOT_EXIST(120701, "数仓数据库不存在"),
+
+    DW_TABLE_CREATE_ERROR(120702, "数仓数据表生成失败"),
+
+    DW_TABLE_NOT_EXIST(120703, "数仓数据表不存在"),
+
+    YAML_PARSE_ERROR(120704, "yaml文件解析错误"),
+
+    REMOTE_TABLE_FIND_ERROR(120705, "获取远程表错误"),
     ;
 
     private final int errorCode;

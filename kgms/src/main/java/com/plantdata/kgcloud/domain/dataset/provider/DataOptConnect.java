@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
+import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
