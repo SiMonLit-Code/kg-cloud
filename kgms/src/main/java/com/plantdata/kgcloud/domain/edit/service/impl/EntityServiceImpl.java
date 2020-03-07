@@ -173,9 +173,13 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public List<EntityAttrValueVO> listRelations(String kgName, EntityAttrReq entityAttrReq){
         RelationListFrom relationListFrom = ConvertUtils.convert(RelationListFrom.class).apply(entityAttrReq);
+        Integer size = entityAttrReq.getSize();
+        Integer skip = (entityAttrReq.getPage() - 1) * size;
+        relationListFrom.setSkip(skip);
+        relationListFrom.setLimit(size + 1);
         RestResp<List<EntityAttributeValueVO>> restResp = conceptEntityApi.relationList(KGUtil.dbName(kgName), relationListFrom);
         Optional<List<EntityAttributeValueVO>> optional = RestRespConverter.convert(restResp);
-        return optional.orElse(Collections.emptyList()).stream().map(ParserBeanUtils::parserEntityAttrValue)
+        return optional.orElse(Collections.emptyList()).stream().map(vo -> ParserBeanUtils.parserEntityAttrValue(vo,size))
                 .collect(Collectors.toList());
 
     }

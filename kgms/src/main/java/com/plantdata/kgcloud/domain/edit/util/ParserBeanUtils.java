@@ -173,10 +173,14 @@ public class ParserBeanUtils {
      * @param vo
      * @return
      */
-    public static EntityAttrValueVO parserEntityAttrValue(EntityAttributeValueVO vo) {
+    public static EntityAttrValueVO parserEntityAttrValue(EntityAttributeValueVO vo, int size) {
         EntityAttrValueVO entityAttrValueVO = MapperUtils.map(vo, EntityAttrValueVO.class);
         List<ObjectAttrValueVO> objectValues = entityAttrValueVO.getObjectValues();
         if (Objects.nonNull(objectValues) && !objectValues.isEmpty()) {
+            if (objectValues.size() > size){
+                entityAttrValueVO.setHasNext(true);
+                objectValues.remove(size);
+            }
             List<ObjectAttrValueVO> relationAttrValues = objectValues.stream()
                     .map(ParserBeanUtils::parserRelationValue).collect(Collectors.toList());
             entityAttrValueVO.setObjectValues(relationAttrValues);

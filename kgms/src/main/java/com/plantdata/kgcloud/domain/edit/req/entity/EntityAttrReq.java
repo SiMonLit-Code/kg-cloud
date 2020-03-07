@@ -17,6 +17,6 @@ public class EntityAttrReq {
     private Long conceptId;
     @NotNull
     private Long entityId;
-    private Integer skip = 0;
-    private Integer limit = 10;
+    private Integer page = 0;
+    private Integer size = 10;
 }

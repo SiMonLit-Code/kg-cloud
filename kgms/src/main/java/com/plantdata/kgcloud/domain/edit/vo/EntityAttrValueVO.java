@@ -24,4 +24,7 @@ public class EntityAttrValueVO extends AttrDefinitionVO {
 
     @ApiModelProperty(value = "对象属性值")
     private List<ObjectAttrValueVO> objectValues;
+
+    @ApiModelProperty(value = "是否还有下一页")
+    private Boolean hasNext = false;
 }
