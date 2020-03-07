@@ -10,6 +10,8 @@ import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
 import com.plantdata.kgcloud.sdk.rsp.common.BasicValueRsp;
+import com.plantdata.kgcloud.sdk.rsp.common.KgStatisticRsp;
+import com.plantdata.kgcloud.sdk.rsp.common.MultiMeasureStatisticResultRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +65,7 @@ public class DataSetStatisticController implements DataSetStatisticInterface {
 
     @ApiOperation(value = "数据集统计",notes = "按照数据集指定字段进行统计支持筛选和模糊搜索")
     @PostMapping("data/{dataSetId}")
-    public ApiReturn<com.plantdata.kgcloud.sdk.rsp.DataSetStatisticRsp> dataSetStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetStatisticReq statisticReq) {
+    public     ApiReturn<KgStatisticRsp<MultiMeasureStatisticResultRsp>>  dataSetStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetStatisticReq statisticReq) {
         return componentStatisticClient.dataSetStatistic(dataSetId, statisticReq);
     }
 

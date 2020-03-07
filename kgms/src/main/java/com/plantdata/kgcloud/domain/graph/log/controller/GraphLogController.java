@@ -53,6 +53,15 @@ public class GraphLogController {
         return ApiReturn.success(page);
     }
 
+    @GetMapping("/{kgName}/schema/attr/{attrId}")
+    @ApiOperation("查询属性定义的数据层日志")
+    public ApiReturn<BasePage<DataLogRsp>> attrDefineLogList(@PathVariable("kgName") String kgName,
+                                                             @ApiParam("属性ID") @PathVariable("attrId") Integer attrId,
+                                                             BaseReq req) {
+        BasePage<DataLogRsp> page = graphLogService.attrDefineLogList(kgName, attrId, req);
+        return ApiReturn.success(page);
+    }
+
     @GetMapping("/{kgName}/attr/{relationAttrId}/edge/define")
     @ApiOperation("查询边属性定义的数据层日志")
     public ApiReturn<BasePage<DataLogRsp>> entityLogList(@PathVariable("kgName") String kgName,
@@ -62,13 +71,12 @@ public class GraphLogController {
         return ApiReturn.success(page);
     }
 
-    @GetMapping("/{kgName}/entity/{entityId}/attr/{relationId}")
+    @GetMapping("/{kgName}/relation/entity/{entityId}")
     @ApiOperation("查询关系编辑的数据层日志")
     public ApiReturn<BasePage<DataLogRsp>> relationLogList(@PathVariable("kgName") String kgName,
-                                                         @ApiParam("实体ID") @PathVariable("entityId") Long entityId,
-                                                         @ApiParam("关系ID") @PathVariable("relationId") Integer relationId,
-                                                         BaseReq req) {
-        BasePage<DataLogRsp> page = graphLogService.relationLogList(kgName, entityId, relationId, req);
+                                                           @ApiParam("实体ID") @PathVariable("entityId") Long entityId,
+                                                           BaseReq req) {
+        BasePage<DataLogRsp> page = graphLogService.relationLogList(kgName, entityId, req);
         return ApiReturn.success(page);
     }
 

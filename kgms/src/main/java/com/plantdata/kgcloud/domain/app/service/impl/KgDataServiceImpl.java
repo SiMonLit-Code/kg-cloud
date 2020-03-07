@@ -279,7 +279,7 @@ public class KgDataServiceImpl implements KgDataService {
             return Collections.emptyList();
         }
         Set<Long> entityIdSet = entityIdListOpt.get().values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
-        KgServiceEntityFrom entityFrom = EntityConverter.buildIdsQuery(entityIdSet);
+        KgServiceEntityFrom entityFrom = EntityConverter.buildIdsQuery(entityIdSet,true);
         Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(kgName, entityFrom));
         if (!entityOpt.isPresent()) {
             return Collections.emptyList();
