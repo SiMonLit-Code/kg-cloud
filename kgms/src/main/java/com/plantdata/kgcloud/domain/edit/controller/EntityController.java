@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.EntityAttrReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
@@ -26,6 +27,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
+import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -136,6 +138,13 @@ public class EntityController {
                                                       BasicInfoListReq basicInfoListReq,
                                                       @RequestBody BasicInfoListBodyReq bodyReq) {
         return ApiReturn.success(entityService.listEntities(kgName, basicInfoListReq, bodyReq));
+    }
+
+    @ApiOperation("实体-查询-关系列表")
+    @PostMapping("/{kgName}/list/relation")
+    public ApiReturn<List<EntityAttrValueVO>> listRelation(@PathVariable("kgName") String kgName,
+                                                           @RequestBody EntityAttrReq entityAttrReq) {
+        return ApiReturn.success(entityService.listRelations(kgName, entityAttrReq));
     }
 
     @ApiOperation("实体-修改-更新权重,来源,可信度")

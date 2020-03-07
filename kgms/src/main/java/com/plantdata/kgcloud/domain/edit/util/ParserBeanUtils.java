@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.util;
 
+import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.RelationVO;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -81,7 +82,7 @@ public class ParserBeanUtils {
             if (Objects.nonNull(entityMetaData)) {
                 if (entityMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
                     String score = entityMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString();
-                    if (StringUtils.hasText(score)){
+                    if (StringUtils.hasText(score)) {
                         basicInfoRsp.setScore(Double.valueOf(score));
                     }
                 }
@@ -104,7 +105,7 @@ public class ParserBeanUtils {
 
                 if (entityMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
                     String reliability = entityMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString();
-                    if (StringUtils.hasText(reliability)){
+                    if (StringUtils.hasText(reliability)) {
                         basicInfoRsp.setReliability(Double.valueOf(reliability));
                     }
                 }
@@ -167,6 +168,23 @@ public class ParserBeanUtils {
     }
 
     /**
+     * 解析实体关系
+     *
+     * @param vo
+     * @return
+     */
+    public static EntityAttrValueVO parserEntityAttrValue(EntityAttributeValueVO vo) {
+        EntityAttrValueVO entityAttrValueVO = MapperUtils.map(vo, EntityAttrValueVO.class);
+        List<ObjectAttrValueVO> objectValues = entityAttrValueVO.getObjectValues();
+        if (Objects.nonNull(objectValues) && !objectValues.isEmpty()) {
+            List<ObjectAttrValueVO> relationAttrValues = objectValues.stream()
+                    .map(ParserBeanUtils::parserRelationValue).collect(Collectors.toList());
+            entityAttrValueVO.setObjectValues(relationAttrValues);
+        }
+        return entityAttrValueVO;
+    }
+
+    /**
      * 解析关系的metadata
      *
      * @param relationAttrValueVO
@@ -178,7 +196,7 @@ public class ParserBeanUtils {
             if (Objects.nonNull(relationMetaData)) {
                 if (relationMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
                     String score = relationMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString();
-                    if (StringUtils.hasText(score)){
+                    if (StringUtils.hasText(score)) {
                         relationAttrValueVO.setScore(Double.valueOf(score));
                     }
                 }
@@ -187,7 +205,7 @@ public class ParserBeanUtils {
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
                     String reliability = relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString();
-                    if (StringUtils.hasText(reliability)){
+                    if (StringUtils.hasText(reliability)) {
                         relationAttrValueVO.setReliability(Double.valueOf(reliability));
                     }
                 }

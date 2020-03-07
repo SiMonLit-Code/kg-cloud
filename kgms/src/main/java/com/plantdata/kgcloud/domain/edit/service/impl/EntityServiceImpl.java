@@ -12,11 +12,13 @@ import ai.plantdata.kg.api.edit.req.EntityPrivateRelationFrom;
 import ai.plantdata.kg.api.edit.req.EntityRelationFrom;
 import ai.plantdata.kg.api.edit.req.MetaDataOptionFrom;
 import ai.plantdata.kg.api.edit.req.ObjectAttributeValueFrom;
+import ai.plantdata.kg.api.edit.req.RelationListFrom;
 import ai.plantdata.kg.api.edit.req.UpdateRelationFrom;
 import ai.plantdata.kg.api.edit.resp.BatchDeleteAttrValueVO;
 import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
 import ai.plantdata.kg.api.edit.resp.BatchEntityVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
+import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityTagFrom;
@@ -47,6 +49,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.EntityAttrReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
@@ -66,6 +69,7 @@ import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
+import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
@@ -166,6 +170,15 @@ public class EntityServiceImpl implements EntityService {
         return new PageImpl<>(basicInfoRspList, PageRequest.of(basicInfoListReq.getPage() - 1, size), count);
     }
 
+    @Override
+    public List<EntityAttrValueVO> listRelations(String kgName, EntityAttrReq entityAttrReq){
+        RelationListFrom relationListFrom = ConvertUtils.convert(RelationListFrom.class).apply(entityAttrReq);
+        RestResp<List<EntityAttributeValueVO>> restResp = conceptEntityApi.relationList(KGUtil.dbName(kgName), relationListFrom);
+        Optional<List<EntityAttributeValueVO>> optional = RestRespConverter.convert(restResp);
+        return optional.orElse(Collections.emptyList()).stream().map(ParserBeanUtils::parserEntityAttrValue)
+                .collect(Collectors.toList());
+
+    }
 
     /**
      * 解析来源,置信度,批次号,标签,过滤

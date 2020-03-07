@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.EntityAttrReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
@@ -21,6 +22,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.SourceModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
+import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -68,6 +70,14 @@ public interface EntityService {
      * @return
      */
     Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq, BasicInfoListBodyReq bodyReq);
+
+    /**
+     * 实体关系列表
+     * @param kgName
+     * @param entityAttrReq
+     * @return
+     */
+    List<EntityAttrValueVO> listRelations(String kgName, EntityAttrReq entityAttrReq);
 
     /**
      * 批量删除实体
@@ -285,7 +295,8 @@ public interface EntityService {
 
     List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq);
 
-    OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity);
+    OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update,
+                                                         List<OpenBatchSaveEntityRsp> batchEntity);
 
     void batchDeleteEntityAttr(String kgName, BatchEntityAttrDeleteReq deleteReq);
 }
