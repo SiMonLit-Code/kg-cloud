@@ -43,12 +43,14 @@ public class EntityConverter extends BasicConverter {
     };
 
 
-    public static KgServiceEntityFrom buildIdsQuery(@NonNull Collection<Long> entityIdList) {
+    public static KgServiceEntityFrom buildIdsQuery(@NonNull Collection<Long> entityIdList, boolean simple) {
         KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();
         entityFrom.setIds(Lists.newArrayList(entityIdList));
-        entityFrom.setReadObjectAttribute(true);
         entityFrom.setReadMetaData(true);
-        entityFrom.setReadReverseObjectAttribute(false);
+        if (!simple) {
+            entityFrom.setReadObjectAttribute(true);
+            entityFrom.setReadReverseObjectAttribute(false);
+        }
         return entityFrom;
     }
 
@@ -67,7 +69,7 @@ public class EntityConverter extends BasicConverter {
         entity.setMeaningTag(entityVO.getMeaningTag());
         entity.setName(entityVO.getName());
         entity.setType(EntityTypeEnum.ENTITY.getValue());
-        consumerIfNoNull(entityVO.getMetaData(),a->MetaConverter.fillMetaWithNoNull(a, entity));
+        consumerIfNoNull(entityVO.getMetaData(), a -> MetaConverter.fillMetaWithNoNull(a, entity));
         return entity;
     }
 
@@ -78,7 +80,7 @@ public class EntityConverter extends BasicConverter {
         entity.setMeaningTag(entityVO.getMeaningTag());
         entity.setName(entityVO.getName());
         entity.setType(EntityTypeEnum.ENTITY.getValue());
-        consumerIfNoNull(entityVO.getMetaData(),a->MetaConverter.fillMetaWithNoNull(a, entity));
+        consumerIfNoNull(entityVO.getMetaData(), a -> MetaConverter.fillMetaWithNoNull(a, entity));
         return entity;
     }
 
@@ -153,7 +155,7 @@ public class EntityConverter extends BasicConverter {
         SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
         attributeFrom.setLimit(entityQueryReq.getLimit());
         attributeFrom.setSkip(entityQueryReq.getOffset());
-        consumerIfNoNull(entityQueryReq.getDataAttrFilters(),a-> attributeFrom.setKvMap(ConditionConverter.buildSearchMapByDataAttrReq(a)));
+        consumerIfNoNull(entityQueryReq.getDataAttrFilters(), a -> attributeFrom.setKvMap(ConditionConverter.buildSearchMapByDataAttrReq(a)));
         consumerIfNoNull(entityQueryReq.getConceptId(), a -> attributeFrom.setConceptIds(Lists.newArrayList(a)));
         return attributeFrom;
     }
