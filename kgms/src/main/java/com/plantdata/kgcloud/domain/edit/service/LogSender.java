@@ -1,11 +1,13 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import com.plantdata.graph.logging.core.GraphLog;
 import com.plantdata.graph.logging.core.GraphServiceLog;
 import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -21,6 +23,8 @@ public class LogSender {
 
     @Value("${topic.kg.service.log}")
     private String topicKgServiceLog;
+    @Value("${topic.kg.log}")
+    private String topicKgDataLog;
 
     @Value("${kg.log.enable}")
     private boolean enableLog;
@@ -37,6 +41,13 @@ public class LogSender {
             kafkaTemplate.send(topicKgServiceLog, kgName,
                     JacksonUtils.writeValueAsString(new GraphServiceLog(KGUtil.dbName(kgName), serviceEnum,
                             ThreadLocalUtils.getBatchNo(), SessionHolder.getUserId())));
+        }
+    }
+
+    public void sendDataLog(String kgDbName, GraphLog log) {
+        if (enableLog) {
+            ProducerRecord<String, String> record  = new ProducerRecord<>(topicKgDataLog, kgDbName, JacksonUtils.writeValueAsString(log));
+            kafkaTemplate.send(record);
         }
     }
 
