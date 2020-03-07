@@ -310,21 +310,19 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public void updateEntityTime(String kgName, Long entityId, EntityTimeModifyReq entityTimeModifyReq) {
-        BasicInfoRsp details = basicInfoService.getDetails(kgName, new BasicReq(entityId, true));
-
         Map<String, Object> metadata = new HashMap<>();
         String fromTime = entityTimeModifyReq.getFromTime();
         if (StringUtils.hasText(fromTime)) {
             metadata.put(MetaDataInfo.FROM_TIME.getFieldName(), fromTime);
-        } else {
-            fromTime = details.getFromTime();
+        } else if ("".equals(fromTime)){
+            conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, Collections.singletonList(19));
         }
 
         String toTime = entityTimeModifyReq.getToTime();
         if (StringUtils.hasText(toTime)) {
             metadata.put(MetaDataInfo.TO_TIME.getFieldName(), toTime);
-        } else {
-            toTime = details.getToTime();
+        } else if ("".equals(toTime)){
+            conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, Collections.singletonList(20));
         }
         if (StringUtils.hasText(fromTime) && StringUtils.hasText(toTime) && fromTime.compareTo(toTime) > 0) {
             throw BizException.of(KgmsErrorCodeEnum.TIME_FORM_MORE_THAN_TO);
