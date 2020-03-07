@@ -17,6 +17,7 @@ import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.service.GraphLogService;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,12 +73,12 @@ public class GraphLogServiceImpl implements GraphLogService {
             } else if (actionCount > 1) {
                 isBatch = true;
                 s.put("message", getBatchMsg(dbName, batch));
-            } else {
-                s.put("message", "操作失败");
             }
             s.put("isBatch", isBatch);
-            ServiceLogRsp rsp = JSONObject.parseObject(JacksonUtils.writeValueAsString(s), ServiceLogRsp.class);
-            ls.add(rsp);
+            if (StringUtils.isNotBlank(s.getString("message"))) {
+                ServiceLogRsp rsp = JSONObject.parseObject(JacksonUtils.writeValueAsString(s), ServiceLogRsp.class);
+                ls.add(rsp);
+            }
         });
 
         return new BasePage<>(count, ls);
