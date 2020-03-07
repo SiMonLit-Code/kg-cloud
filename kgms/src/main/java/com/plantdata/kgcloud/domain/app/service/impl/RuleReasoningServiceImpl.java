@@ -133,7 +133,7 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
         if (idList.isEmpty() || !newEntity) {
             return;
         }
-        Optional<List<EntityVO>> entityBeans = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(idList)));
+        Optional<List<EntityVO>> entityBeans = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(idList,true)));
         if (!entityBeans.isPresent() || CollectionUtils.isEmpty(entityBeans.get())) {
             return;
         }
