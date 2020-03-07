@@ -11,7 +11,7 @@ import java.util.List;
 public class StandardTemplateRsp {
 
     @ApiModelProperty("行业标准id")
-    private Integer id;
+    private Long id;
 
     @ApiModelProperty("ktr文件")
     private String ktr;

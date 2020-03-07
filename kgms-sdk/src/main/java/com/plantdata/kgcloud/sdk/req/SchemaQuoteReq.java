@@ -15,6 +15,9 @@ public class SchemaQuoteReq {
     @ApiModelProperty("引入的模式id")
     private Integer modelId;
 
+    @ApiModelProperty("引入原模式概念id")
+    private Integer modelConceptId;
+
     @ApiModelProperty("引入的模式中概念名称")
     private String entityName;
 

@@ -18,4 +18,7 @@ public interface DWPrebuildAttrRepository extends JpaRepository<DWPrebuildAttr, 
 
     @Query(value = "select * from dw_prebuild_attr where model_id = :modelId and `concept_id` in (:conceptIds)",nativeQuery = true)
     List<DWPrebuildAttr> findByModelAndConceptIds(@Param("modelId") Integer modelId, @Param("conceptIds") List<Integer> conceptIds);
+
+    @Query(value = "select * from dw_prebuild_attr where `concept_id` in (:conceptIds)",nativeQuery = true)
+    List<DWPrebuildAttr> findByConceptIds(@Param("conceptIds") List<Integer> conceptIds);
 }

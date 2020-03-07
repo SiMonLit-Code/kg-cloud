@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
+import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
@@ -149,8 +150,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
 
+        megerSchemaQuote(req.getSchemaQuoteReqList(),getGraphMap(userId,req.getKgName()));
 
-        List<DWPrebuildConcept> concepts = prebuildConceptRepository.findByModelAndConceptIds(req.getModelId(),req.getConceptIds());
+
+        List<DWPrebuildConcept> concepts = prebuildConceptRepository.findByModelAndConceptIds(req.getModelId(),req.getFindAttrConceptIds());
 
         if(concepts == null || concepts.isEmpty()){
             return new ArrayList<>();
@@ -163,7 +166,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             modelConceptNameMap.put(concept.getId(), concept.getName());
         }
 
-        List<DWPrebuildAttr> attrs = prebuildAttrRepository.findByModelAndConceptIds(req.getModelId(),req.getConceptIds());
+        List<DWPrebuildAttr> attrs = prebuildAttrRepository.findByConceptIds(req.getFindAttrConceptIds());
         if(attrs == null || attrs.isEmpty()){
             return new ArrayList<>();
         }
@@ -173,12 +176,19 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         List<SchemaQuoteReq> dataMapReqList = req.getSchemaQuoteReqList();
 
+        Map<Integer, Long> modelKgConceptIdMap = new HashMap<>();
 
         //已引入的shcema概念名称-属性名称-属性类型映射
         Map<String,SchemaQuoteReq> conceptQuoteMap = new HashMap<>();
         Map<String,Map<String,SchemaQuoteAttrReq>> conceptAttrQuoteMap = new HashMap<>();
         if(dataMapReqList != null) {
             for (SchemaQuoteReq schemaQuoteReq : dataMapReqList) {
+
+                if(!req.getConceptIds().contains(schemaQuoteReq.getModelConceptId())){
+                    req.getConceptIds().add(schemaQuoteReq.getModelConceptId());
+                }
+
+                modelKgConceptIdMap.put(schemaQuoteReq.getModelConceptId(),schemaQuoteReq.getConceptId());
 
                 conceptQuoteMap.put(schemaQuoteReq.getModelId()+"_"+schemaQuoteReq.getEntityName(),schemaQuoteReq);
 
@@ -198,7 +208,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             matchAttrRsp.setConceptName(modelConceptNameMap.get(matchAttrRsp.getConceptId()));
 
-            String status = null;
+            String status;
             String key = matchAttrRsp.getModelId()+"_"+modelConceptNameMap.get(matchAttrRsp.getConceptId());
             if(!conceptQuoteMap.containsKey(key)){
                 //概念还未引入，不能引入属性
@@ -235,13 +245,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         status = "数值属性类型冲突";
                     }
                 }else{
-                    //都为对象属性
-                    if(quoteAttrReq.getRangeName().equals(matchAttrRsp.getRangeName())){
-                        if(quoteAttrReq.getAttrId() == null){
-                            status = "可引入";
-                        }else{
-                            status = "已存在";
-                        }
+                    //都为对象属性,值域一样
+                    if(quoteAttrReq.getModelRange().equals(matchAttrRsp.getRange())){
+                        status = "已存在";
                     }else{
                         status = "对象属性值域冲突";
                     }
@@ -265,10 +271,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 }else{
 
                     //值域概念已经引入 判断是否在已经定义的值域值内
-                    if( conceptQuoteMap.containsKey(matchAttrRsp.getModelId()+"_"+matchAttrRsp.getRangeName())){
+                    if( req.getConceptIds().contains(matchAttrRsp.getRange())){
 
                         List<Long> ranges = attrGraph.getRangeValue();
-                        if(ranges.contains(conceptQuoteMap.get(matchAttrRsp.getModelId()+"_"+matchAttrRsp.getRangeName()).getConceptId())){
+
+                        //已经引入的概念在图谱中的id是在改对象属性的值域内
+                        if(ranges.contains(modelKgConceptIdMap.get(matchAttrRsp.getRange()))){
                             status = "已存在";
                         }else{
                             status = "对象属性值域冲突";
@@ -280,15 +288,112 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             }else if(matchAttrRsp.getAttrType().equals(1)){
                 //已引入的概念没有同名属性 如果是对象属性需要判断值域
 
-                if(conceptQuoteMap.containsKey(matchAttrRsp.getModelId()+"_"+matchAttrRsp.getRangeName())){
+                if(req.getConceptIds().contains(matchAttrRsp.getRange())){
                     status = "可引入";
                 }else{
                     status = matchAttrRsp.getRangeName()+"概念未引入";
                 }
             }else{
-
                 //没有同名的数值属性
                 status = "可引入";
+            }
+
+            if(matchAttrRsp.getAttrType().equals(1) && ("可引入".equals(status) ||"已存在".equals(status))){
+                //可引入/已存在的对象属性，看边属性状态
+
+                List<DWPrebuildRelationAttr> relationAttrList = prebuildRelationAttrRepository.findAll(Example.of(DWPrebuildRelationAttr.builder().attrId(matchAttrRsp.getId()).build()));
+                if(relationAttrList != null){
+
+                    List<PreBuilderRelationAttrRsp> matchRelationAttrList = new ArrayList<>();
+                    if("可引入".equals(status)){
+
+                        for(DWPrebuildRelationAttr relationAttr : relationAttrList){
+
+                            PreBuilderRelationAttrRsp relationAttrRsp = new PreBuilderRelationAttrRsp();
+                            BeanUtils.copyProperties(relationAttrRsp,relationAttr);
+                            relationAttrRsp.setAttrMatchStatus("可引入");
+                            matchRelationAttrList.add(relationAttrRsp);
+
+                        }
+
+                    }else{
+
+                        SchemaQuoteAttrReq quoteAttrReq = conceptAttrQuoteMap.get(quoteConcept.getConceptName()) != null ? conceptAttrQuoteMap.get(quoteConcept.getConceptName()).get(matchAttrRsp.getName()) : null;
+                        AttributeDefinitionRsp attributeDefinitionRsp = conceptAttrMap.get(conceptName) != null ? conceptAttrMap.get(conceptName).get(matchAttrRsp.getName()) : null;
+
+
+                        if(quoteAttrReq != null && quoteAttrReq.getRelationAttrs() != null && !quoteAttrReq.getRelationAttrs().isEmpty()){
+
+                            Map<String,SchemaQuoteRelationAttrReq> quoteRelationAttrReqMap = new HashMap<>();
+                            for(SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq : quoteAttrReq.getRelationAttrs()){
+                                quoteRelationAttrReqMap.put(schemaQuoteRelationAttrReq.getName(),schemaQuoteRelationAttrReq);
+                            }
+
+                            for(DWPrebuildRelationAttr relationAttr : relationAttrList){
+                                PreBuilderRelationAttrRsp relationAttrRsp = new PreBuilderRelationAttrRsp();
+                                BeanUtils.copyProperties(relationAttrRsp,relationAttr);
+
+                                if(quoteRelationAttrReqMap.containsKey(relationAttr.getName())){
+
+                                    if(quoteRelationAttrReqMap.get(relationAttr.getName()).getDataType().equals(relationAttr.getDataType())){
+                                        relationAttrRsp.setAttrMatchStatus("已存在");
+                                    }else{
+                                        relationAttrRsp.setAttrMatchStatus("属性类型冲突");
+                                    }
+
+                                }else{
+                                    relationAttrRsp.setAttrMatchStatus("可引入");
+                                }
+
+                                matchRelationAttrList.add(relationAttrRsp);
+
+
+                            }
+
+                        }else  if(attributeDefinitionRsp != null && attributeDefinitionRsp.getExtraInfos() != null && !attributeDefinitionRsp.getExtraInfos().isEmpty()){
+
+                            Map<String, AttrExtraRsp> relationAttrReqMap = new HashMap<>();
+                            for(AttrExtraRsp attrExtraRsp : attributeDefinitionRsp.getExtraInfos()){
+                                relationAttrReqMap.put(attrExtraRsp.getName(),attrExtraRsp);
+                            }
+
+
+                            for(DWPrebuildRelationAttr relationAttr : relationAttrList){
+                                PreBuilderRelationAttrRsp relationAttrRsp = new PreBuilderRelationAttrRsp();
+                                BeanUtils.copyProperties(relationAttrRsp,relationAttr);
+
+                                if(relationAttrReqMap.containsKey(relationAttr.getName())){
+
+                                    if(relationAttrReqMap.get(relationAttr.getName()).getDataType().equals(relationAttr.getDataType()) && relationAttrReqMap.get(relationAttr.getName()).getType().equals(0)){
+                                        relationAttrRsp.setAttrMatchStatus("已存在");
+                                    }else{
+                                        relationAttrRsp.setAttrMatchStatus("属性类型冲突");
+                                    }
+
+                                }else{
+                                    relationAttrRsp.setAttrMatchStatus("可引入");
+                                }
+
+                                matchRelationAttrList.add(relationAttrRsp);
+
+                            }
+
+                        }else{
+
+                            for(DWPrebuildRelationAttr relationAttr : relationAttrList){
+                                PreBuilderRelationAttrRsp relationAttrRsp = new PreBuilderRelationAttrRsp();
+                                BeanUtils.copyProperties(relationAttrRsp,relationAttr);
+                                relationAttrRsp.setAttrMatchStatus("可引入");
+                                matchRelationAttrList.add(relationAttrRsp);
+
+                            }
+                        }
+
+
+                    }
+
+                }
+
             }
 
 
@@ -519,6 +624,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         Long rangeId = attrReq.getRange();
                         if(rangeId == null){
                             rangeId = conceptNameIdMap.get(attrReq.getRangeName());
+                            attrReq.setRange(rangeId);
                         }
                         attrDefinitionReq.setRangeValue(Lists.newArrayList(rangeId));
                         attrDefinitionReq.setDirection(0);

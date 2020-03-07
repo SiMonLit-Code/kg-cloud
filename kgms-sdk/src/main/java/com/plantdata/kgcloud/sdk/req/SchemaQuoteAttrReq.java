@@ -15,6 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 public class SchemaQuoteAttrReq {
 
+    @ApiModelProperty("原模式属性id")
+    private Integer modelAttrId;
+
     @ApiModelProperty("属性id")
     private Integer attrId;
 
@@ -29,6 +32,9 @@ public class SchemaQuoteAttrReq {
 
     @ApiModelProperty("数值属性类型")
     private Integer dataType;
+
+    @ApiModelProperty("原模式对象属性值域id")
+    private Integer modelRange;
 
     @ApiModelProperty("对象属性值域id")
     private Long range;

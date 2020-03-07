@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class PreBuilderMatchAttrRsp {
 
-    @ApiModelProperty("属性名称")
+    @ApiModelProperty("模式库属性id")
     private Integer id;
 
     @ApiModelProperty("属性名称")

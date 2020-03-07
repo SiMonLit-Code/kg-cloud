@@ -218,19 +218,24 @@ public class DWServiceImpl implements DWService {
         List<DataSetSchema> schemas = null;
         String tableName = null;
 
-        //文件上传 如果table没有创建，先创建
-        Optional<DWTable> tableOptional = tableRepository.findById(tableId);
-        if(!tableOptional.isPresent()){
+        if(tableId != null){
+            Optional<DWTable> tableOptional = tableRepository.findById(tableId);
+            if(tableOptional.isPresent()){
+                DWTable table = tableOptional.get();
+                schemas = table.getSchema();
+                tableName = table.getTableName();
+            }
+        }
+
+        if(tableName == null){
             schemas = schemaResolve(file);
             DWTableRsp tableRsp = createTable(userId,DWTableReq.builder().dwDatabaseId(databaseId).schemas(schemas).build());
-            tableId = tableRsp.getId();
             tableName = tableRsp.getTableName();
-        }else{
-
-            DWTable table = tableOptional.get();
-            schemas = table.getSchema();
-            tableName = table.getTableName();
         }
+
+
+        //文件上传 如果table没有创建，先创建
+
 
         //文件上传 本地库
         DWDatabase database = getDetail(databaseId);
@@ -341,7 +346,7 @@ public class DWServiceImpl implements DWService {
                 if(opt.isPresent()){
                     DWTable table = opt.get();
                     table.setTableName(req.getTableName());
-                    tableRepository.save(table);
+                    tableRepository.updateByTableName(req.getTableName(),table.getTbName(),databaseId);
 
                     ids.add(table.getId());
 

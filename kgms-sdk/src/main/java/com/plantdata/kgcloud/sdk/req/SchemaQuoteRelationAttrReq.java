@@ -14,6 +14,9 @@ import java.util.Date;
 @NoArgsConstructor
 public class SchemaQuoteRelationAttrReq {
 
+    @ApiModelProperty("原模式边属性id")
+    private Integer modelAttrId;
+
     @ApiModelProperty("边属性id")
     private Integer attrId;
 

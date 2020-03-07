@@ -14,8 +14,11 @@ public class PreBuilderMatchAttrReq {
     @ApiModelProperty("要引入的模式id")
     private Integer modelId;
 
-    @ApiModelProperty("要引入的概念id集合")
+    @ApiModelProperty("已经引入的概念id集合")
     private List<Integer> conceptIds;
+
+    @ApiModelProperty("要查看属性的概念id")
+    private List<Integer> findAttrConceptIds;
 
     @ApiModelProperty("引用的概念属性映射")
     private List<SchemaQuoteReq> schemaQuoteReqList;
