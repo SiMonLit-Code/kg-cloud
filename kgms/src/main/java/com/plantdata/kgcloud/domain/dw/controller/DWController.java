@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dw.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dw.req.DWDatabaseQueryReq;
 import com.plantdata.kgcloud.domain.dw.req.DWTableCronReq;
 import com.plantdata.kgcloud.domain.dw.req.RemoteTableAddReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
@@ -15,6 +16,7 @@ import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -81,6 +83,13 @@ public class DWController {
         return ApiReturn.success(dwServince.findAll(userId));
     }
 
+    @ApiOperation("数仓-查询指定类型的数据库")
+    @PostMapping("/database/list")
+    public ApiReturn<Page<DWDatabaseRsp>> list(@RequestBody DWDatabaseQueryReq req) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dwServince.list(userId, req));
+    }
+
     @ApiOperation("数仓-查询数据库表")
     @GetMapping("/{databaseId}/table/all")
     public ApiReturn<List<DWTableRsp>> findTableAll(@PathVariable("databaseId") Long databaseId) {
@@ -115,10 +124,10 @@ public class DWController {
     }
 
     @ApiOperation("数仓-文件上传")
-    @PostMapping("/{databaseId}/{tableId}/upload")
+    @PostMapping("/{databaseId}/upload")
     public ApiReturn D(
             @PathVariable("databaseId") Long databaseId,
-            @PathVariable("tableId") Long tableId,
+            Long tableId,
             @RequestParam(value = "file") MultipartFile file) {
         long size = file.getSize();
         if (size > 1024 * 1024) {

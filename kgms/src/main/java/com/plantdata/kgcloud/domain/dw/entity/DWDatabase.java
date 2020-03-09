@@ -81,6 +81,10 @@ public class DWDatabase {
     private String yamlContent;
 
     @Basic
+    @Column(name = "yaml_file")
+    private String yamlFile;
+
+    @Basic
     @Column(name = "create_at")
     @CreatedDate
     private Date createAt;

@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dw.service;
 
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
+import com.plantdata.kgcloud.domain.dw.req.DWDatabaseQueryReq;
 import com.plantdata.kgcloud.domain.dw.req.DWTableCronReq;
 import com.plantdata.kgcloud.domain.dw.req.RemoteTableAddReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
@@ -10,6 +11,7 @@ import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -43,4 +45,6 @@ public interface DWService {
     List<DWTable> getTableByIds(List<Long> tableIds);
 
     void setTableCron(String userId, DWTableCronReq req);
+
+    Page<DWDatabaseRsp> list(String userId, DWDatabaseQueryReq req);
 }

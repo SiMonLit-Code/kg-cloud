@@ -16,9 +16,11 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dataset.provider.MongodbOptProvider;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
+import com.plantdata.kgcloud.domain.dw.req.DWDatabaseQueryReq;
 import com.plantdata.kgcloud.domain.dw.req.DWTableCronReq;
 import com.plantdata.kgcloud.domain.dw.req.RemoteTableAddReq;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
@@ -34,6 +36,7 @@ import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.security.SessionHolder;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.UUIDUtils;
@@ -42,12 +45,19 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -168,6 +178,7 @@ public class DWServiceImpl implements DWService {
             List<PreBuilderConceptRsp> preBuilderConceptRspList = PaserYaml2SchemaUtil.parserYaml2Schema(json);
             database.setYamlContent(result);
 
+            database.setYamlFile(file.getOriginalFilename());
             dwRepository.save(database);
 
             preBuilderService.createModelByYaml(database,preBuilderConceptRspList);
@@ -451,6 +462,34 @@ public class DWServiceImpl implements DWService {
         table.setIsAll(req.getIsAll());
 
         tableRepository.save(table);
+    }
+
+    @Override
+    public Page<DWDatabaseRsp> list(String userId,  DWDatabaseQueryReq req) {
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+
+
+        Specification<DWDatabase> specification = new Specification<DWDatabase>() {
+            @Override
+            public Predicate toPredicate(Root<DWDatabase> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+
+                List<Predicate> predicates = new ArrayList<>();
+
+                if (req.getCreateWay() != null) {
+
+                    Predicate databaseId = criteriaBuilder.equal(root.get("createWay").as(Integer.class), req.getCreateWay());
+                    predicates.add(databaseId);
+                }
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            }
+        };
+
+        Page<DWDatabase> all = dwRepository.findAll(specification,pageable);
+
+
+        Page<DWDatabaseRsp> map = all.map(ConvertUtils.convert(DWDatabaseRsp.class));
+        return map;
     }
 
     public List<DataSetSchema> getTableSchema(DWDatabase dwDatabase,String tbName) {

@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderAttrRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderRelationAttrRsp;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
@@ -30,21 +31,31 @@ public class PaserYaml2SchemaUtil {
     public static void main(String[] args) {
         //yaml转json
         Yaml yaml = new Yaml();
-        String document = "tables:\n" +
-                "  - student: 学生表\n" +
-                "student:\n" +
-                "  relation:\n" +
-                "    - 学生 > 选课 > 课程\n" +
-                "  columns:\n" +
-                "    - name: { tag: 学生.名称, type: string }\n" +
-                "    - age: { tag: 学生.年龄, type: int }\n" +
-                "    - class: { tag: 课程.名称, type: string }\n" +
-                "    - time: { tag: <选课>.时间, type: string }";
+        String document = "types:\n" +
+                "  - 学生\n" +
+                "  - 课程\n" +
+                "  - 老师\n" +
+                "学生:\n" +
+                "  relations:\n" +
+                "    选课: \n" +
+                "      range: \n" +
+                "        - 课程\n" +
+                "      attrs:\n" +
+                "        选课时间: { type: dete }\n" +
+                "  attrs:\n" +
+                "    年龄: { unit: 岁, type: int }\n" +
+                "    体重: { unit: 公斤, type: int }\n" +
+                "老师:\n" +
+                "  relations:\n" +
+                "    讲课:\n" +
+                "      range:\n" +
+                "        - 课程";
         Map a = (Map<String, Object>) yaml.load(document);
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.putAll(a);
+        System.out.println(JacksonUtils.writeValueAsString(a));
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.putAll(a);
 
-        System.out.println(JSON.toJSONString(parserYaml2Schema(jsonObject)));
+//        System.out.println(JSON.toJSONString(parserYaml2Schema(jsonObject)));
     }
 
     public static List<PreBuilderConceptRsp> parserYaml2Schema(JSONObject json){

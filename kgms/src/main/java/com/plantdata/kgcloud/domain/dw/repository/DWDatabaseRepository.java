@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.domain.dw.repository;
 
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -10,4 +13,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  **/
 
 public interface DWDatabaseRepository extends JpaRepository<DWDatabase, Long> {
+
+    Page<DWDatabase> findAll(Specification<DWDatabase> spec, Pageable pageable);
 }
