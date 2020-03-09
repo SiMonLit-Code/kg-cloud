@@ -127,7 +127,7 @@ public class EntityController {
 
     @ApiOperation("实体-删除-根据来源 ,批次号删除实体")
     @PostMapping("/{kgName}/delete/meta")
-    @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
+    @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_TRACE)
     public ApiReturn deleteByMeta(@PathVariable("kgName") String kgName,
                                   @Valid @RequestBody EntityMetaDeleteReq entityMetaDeleteReq) {
         entityService.deleteByMeta(kgName, entityMetaDeleteReq);
