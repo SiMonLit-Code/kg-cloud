@@ -22,7 +22,7 @@
     </modules>
 
     <properties>
-        <next-tag.version>3.0.18.Log</next-tag.version>
+        <next-tag.version>3.0.20.Log</next-tag.version>
         <next-develop.version>3.0.17-SNAPSHOT</next-develop.version>
         <kg-cloud-parent.version>3.0.2</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>com.plantdata.log</groupId>
                 <artifactId>graph-logging</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
             </dependency>
 
             <dependency>
