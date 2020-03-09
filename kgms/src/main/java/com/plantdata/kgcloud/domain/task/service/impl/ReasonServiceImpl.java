@@ -10,6 +10,7 @@ import com.plantdata.graph.logging.core.GraphLog;
 import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.graph.logging.core.segment.*;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.kgcloud.domain.task.dto.NodeBean;
@@ -66,7 +67,7 @@ public class ReasonServiceImpl implements ReasonService {
         Map<String, Object> map = new HashMap<>(2);
         logSender.setActionId();
         String logId = ThreadLocalUtils.getBatchNo();
-        String kgDbName = getDbName(kgName);
+        String dbName = KGUtil.dbName(kgName);
         try {
             List<TripleBean> tripleList = new ArrayList<>();
 
@@ -140,7 +141,7 @@ public class ReasonServiceImpl implements ReasonService {
 
                     if (attributeList.size() > 0 && collection != null) {
                         if (summaryList.size() > 0) {
-                            upsertMany(mongoClient, kgDbName, "attribute_summary", summaryList, "entity_id", "attr_id");
+                            upsertMany(mongoClient, dbName, "attribute_summary", summaryList, "entity_id", "attr_id");
                         }
                         String[] fields;
                         if (collection.contains("private")) {
@@ -148,7 +149,7 @@ public class ReasonServiceImpl implements ReasonService {
                         } else {
                             fields = new String[]{"entity_id", "attr_id"};
                         }
-                        upsertMany(mongoClient, kgDbName, collection, attributeList, fields);
+                        upsertMany(mongoClient, dbName, collection, attributeList, fields);
                         Segment segment = null;
                         for (Document attr : attributeList) {
                             if ("attribute_private_object".equals(collection)) {
@@ -161,7 +162,7 @@ public class ReasonServiceImpl implements ReasonService {
                                 segment = AttributeSegment.ofBson(attr);
                             }
                             GraphLog kgLog = GraphLog.create(segment, null, logId);
-                            logSender.sendDataLog(kgDbName, kgLog);
+                            logSender.sendDataLog(dbName, kgLog);
                         }
                         logSender.sendLog(kgName, ServiceEnum.SCRIPT_REASON);
                         mongoClient.getDatabase("reasoning_store").getCollection(kgName).updateMany(matchDoc, new Document("$set", new Document("status", 1)));
@@ -198,16 +199,6 @@ public class ReasonServiceImpl implements ReasonService {
                 new UpdateOptions().upsert(true)
         )).collect(Collectors.toList());
         client.getDatabase(database).getCollection(collection).bulkWrite(requests);
-    }
-
-    private String getDbName(String kgName) {
-        MongoCursor<Document> iterator = mongoClient.getDatabase("kg_attribute_definition").getCollection("kg_db_name").find(new Document("kg_name", kgName)).iterator();
-        if (iterator.hasNext()) {
-            Document document = iterator.next();
-            return document.getString("db_name");
-        } else {
-            return kgName;
-        }
     }
 
     private String getCollection(int dataType) {
