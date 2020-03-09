@@ -52,6 +52,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -104,16 +105,17 @@ public class EntityController {
 
     @ApiOperation("实体-查询-根据实体Ids批量查询")
     @PostMapping("/{kgName}/entities")
-    public ApiReturn<List<BasicInfoRsp>> batchEntityDetails(@PathVariable("kgName") String kgName, @RequestBody List<Long> ids) {
+    public ApiReturn<List<BasicInfoRsp>> batchEntityDetails(@PathVariable("kgName") String kgName,
+                                                            @RequestBody List<Long> ids) {
         return ApiReturn.success(basicInfoService.listByIds(kgName, ids));
     }
 
     @ApiOperation("实体-删除-根据实体ids批量删除")
     @PostMapping("/{kgName}/batch/delete")
-    @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
     public ApiReturn<List<DeleteResult>> batchDeleteEntities(@PathVariable("kgName") String kgName,
+                                                             @RequestParam(value = "isTrace",defaultValue = "false") Boolean isTrace,
                                                              @RequestBody List<Long> ids) {
-        return ApiReturn.success(entityService.deleteByIds(kgName, ids));
+        return ApiReturn.success(entityService.deleteByIds(kgName, isTrace, ids));
     }
 
     @ApiOperation("实体-删除-根据概念id删除实体")
@@ -162,8 +164,8 @@ public class EntityController {
     @PostMapping("/{kgName}/{entityId}/score")
     @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
     public ApiReturn updateScore(@PathVariable("kgName") String kgName,
-                                                  @PathVariable("entityId") Long entityId,
-                                                  @Valid @RequestBody ScoreModifyReq scoreModifyReq) {
+                                 @PathVariable("entityId") Long entityId,
+                                 @Valid @RequestBody ScoreModifyReq scoreModifyReq) {
         entityService.updateScore(kgName, entityId, scoreModifyReq);
         return ApiReturn.success();
     }
@@ -172,8 +174,8 @@ public class EntityController {
     @PostMapping("/{kgName}/{entityId}/source")
     @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
     public ApiReturn updateSource(@PathVariable("kgName") String kgName,
-                                                  @PathVariable("entityId") Long entityId,
-                                                  @Valid @RequestBody SourceModifyReq sourceModifyReq) {
+                                  @PathVariable("entityId") Long entityId,
+                                  @Valid @RequestBody SourceModifyReq sourceModifyReq) {
         entityService.updateSource(kgName, entityId, sourceModifyReq);
         return ApiReturn.success();
     }
@@ -182,8 +184,8 @@ public class EntityController {
     @PostMapping("/{kgName}/{entityId}/reliability")
     @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
     public ApiReturn updateReliability(@PathVariable("kgName") String kgName,
-                                                  @PathVariable("entityId") Long entityId,
-                                                  @Valid @RequestBody ReliabilityModifyReq reliabilityModifyReq) {
+                                       @PathVariable("entityId") Long entityId,
+                                       @Valid @RequestBody ReliabilityModifyReq reliabilityModifyReq) {
         entityService.updateReliability(kgName, entityId, reliabilityModifyReq);
         return ApiReturn.success();
     }
@@ -353,7 +355,8 @@ public class EntityController {
 
     @ApiOperation("实体-标签-实体标签搜索")
     @GetMapping("/{kgName}/entity/tag/prompt")
-    public ApiReturn<List<String>> tagSearch(@PathVariable("kgName") String kgName, EntityTagSearchReq entityTagSearchReq) {
+    public ApiReturn<List<String>> tagSearch(@PathVariable("kgName") String kgName,
+                                             EntityTagSearchReq entityTagSearchReq) {
         return ApiReturn.success(entityService.tagSearch(kgName, entityTagSearchReq));
     }
 
@@ -361,7 +364,7 @@ public class EntityController {
     @ApiOperation("实体-查询-实体查询")
     @PostMapping("/{kgName}/list/search")
     public ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
-                                                          @RequestBody  EntityQueryReq entityQueryReq) {
+                                                          @RequestBody EntityQueryReq entityQueryReq) {
         return ApiReturn.success(entityService.queryEntityList(kgName, entityQueryReq));
     }
 
@@ -369,8 +372,10 @@ public class EntityController {
     @ApiOperation("实体-实体-批量新增或更新实体")
     @PostMapping("/{kgName}")
     @EditLogOperation(serviceEnum = ServiceEnum.SDK)
-    public ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName, @ApiParam(
-            "是否只是更新，默认不是") boolean add, @RequestBody List<OpenBatchSaveEntityRsp> batchEntity) {
+    public ApiReturn<OpenBatchResult<OpenBatchSaveEntityRsp>> saveOrUpdate(@PathVariable("kgName") String kgName,
+                                                                           @ApiParam(
+                                                                                   "是否只是更新，默认不是") boolean add,
+                                                                           @RequestBody List<OpenBatchSaveEntityRsp> batchEntity) {
         return ApiReturn.success(entityService.saveOrUpdate(kgName, add, batchEntity));
     }
 
