@@ -5,6 +5,8 @@ import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Facet;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.plantdata.graph.logging.core.GraphLogOperation;
@@ -17,7 +19,6 @@ import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.service.GraphLogService;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ public class GraphLogServiceImpl implements GraphLogService {
     private MongoClient mongoClient;
 
     @Override
+    @SuppressWarnings("unchecked")
     public BasePage<ServiceLogRsp> serviceLogList(String kgName, ServiceLogReq req) {
 
         List<ServiceLogRsp> ls = new ArrayList<>();
@@ -55,32 +57,41 @@ public class GraphLogServiceImpl implements GraphLogService {
         }
 
         String dbName = LOG_DB_PREFIX + kgName;
-        long count = mongoClient.getDatabase(dbName).getCollection(LOG_SERVICE_TB).countDocuments(query);
-        MongoCursor<Document> cursor = mongoClient.getDatabase(dbName).getCollection(LOG_SERVICE_TB).find(query)
-                .sort(Sorts.descending("createTime"))
-                .skip(page).limit(req.getSize()).iterator();
+        List<Bson> aggQuery = new ArrayList<>();
+        aggQuery.add(Aggregates.match(query));
+        aggQuery.add(Aggregates.sort(Sorts.descending("createTime")));
+        aggQuery.add(Aggregates.lookup(LOG_DATA_TB, "batch", "batch", "data"));
+        aggQuery.add(Aggregates.match(Filters.exists("data.0")));
+        aggQuery.add(Aggregates.facet(
+                new Facet("meta", Aggregates.count()),
+                new Facet("data", Aggregates.skip(page), Aggregates.limit(req.getSize()))));
 
-        cursor.forEachRemaining(s -> {
-            boolean isBatch = false;
-            s.append("id", s.get("_id").toString());
-            String batch = s.getString("batch");
-            long actionCount = mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).countDocuments(Filters.eq("batch", batch));
-
-            if (actionCount == 1) {
-                // 单条日志
-                Document doc = mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).find(Filters.eq("batch", batch)).first();
-                s.putAll(doc);
-            } else if (actionCount > 1) {
-                isBatch = true;
-                s.put("message", getBatchMsg(dbName, batch));
+        long count = 0;
+        MongoCursor<Document> cursor = mongoClient.getDatabase(dbName).getCollection(LOG_SERVICE_TB).aggregate(aggQuery).iterator();
+        if (cursor.hasNext()) {
+            Document result = cursor.next();
+            List<Document> meta = (List<Document>)result.get("meta");
+            List<Document> dataLs = (List<Document>)result.get("data");
+            if (!meta.isEmpty()) {
+                count = Integer.parseInt(meta.get(0).get("count").toString());
             }
-            s.put("isBatch", isBatch);
-            if (StringUtils.isNotBlank(s.getString("message"))) {
-                ServiceLogRsp rsp = JSONObject.parseObject(JacksonUtils.writeValueAsString(s), ServiceLogRsp.class);
+            for (Document data: dataLs) {
+                boolean isBatch = false;
+                String batch = data.getString("batch");
+                data.append("id", data.get("_id").toString());
+                List<Document> dataLogs = (List<Document>) data.get("data");
+                if (dataLogs.size() == 1) {
+                    data.put("message", dataLogs.get(0).getString("message"));
+                }
+                if (dataLogs.size() > 1) {
+                    isBatch = true;
+                    data.put("message", getBatchMsg(dbName, batch));
+                }
+                data.put("isBatch", isBatch);
+                ServiceLogRsp rsp = JSONObject.parseObject(JacksonUtils.writeValueAsString(data), ServiceLogRsp.class);
                 ls.add(rsp);
             }
-        });
-
+        }
         return new BasePage<>(count, ls);
     }
 
