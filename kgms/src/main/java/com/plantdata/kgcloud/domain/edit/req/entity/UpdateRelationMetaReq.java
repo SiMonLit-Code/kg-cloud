@@ -23,7 +23,7 @@ public class UpdateRelationMetaReq {
     private String tripleId;
 
     @ApiModelProperty(value = "关系权重")
-    private Double score;
+    private String score;
 
     @ApiModelProperty(value = "关系来源")
     private String source;
@@ -32,7 +32,7 @@ public class UpdateRelationMetaReq {
     private String sourceReason;
 
     @ApiModelProperty(value = "关系置信度")
-    private Double reliability;
+    private String reliability;
 
     @ApiModelProperty(value = "关系开始时间")
     private String attrTimeFrom;

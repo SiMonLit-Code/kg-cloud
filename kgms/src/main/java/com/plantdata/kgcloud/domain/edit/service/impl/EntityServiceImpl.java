@@ -12,11 +12,13 @@ import ai.plantdata.kg.api.edit.req.EntityPrivateRelationFrom;
 import ai.plantdata.kg.api.edit.req.EntityRelationFrom;
 import ai.plantdata.kg.api.edit.req.MetaDataOptionFrom;
 import ai.plantdata.kg.api.edit.req.ObjectAttributeValueFrom;
+import ai.plantdata.kg.api.edit.req.RelationListFrom;
 import ai.plantdata.kg.api.edit.req.UpdateRelationFrom;
 import ai.plantdata.kg.api.edit.resp.BatchDeleteAttrValueVO;
 import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
 import ai.plantdata.kg.api.edit.resp.BatchEntityVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
+import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityTagFrom;
@@ -47,6 +49,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.EntityAttrReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
@@ -66,6 +69,7 @@ import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
+import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
@@ -166,6 +170,21 @@ public class EntityServiceImpl implements EntityService {
         return new PageImpl<>(basicInfoRspList, PageRequest.of(basicInfoListReq.getPage() - 1, size), count);
     }
 
+    @Override
+    public List<EntityAttrValueVO> listRelations(String kgName, EntityAttrReq entityAttrReq) {
+        RelationListFrom relationListFrom = ConvertUtils.convert(RelationListFrom.class).apply(entityAttrReq);
+        Integer size = entityAttrReq.getSize();
+        Integer skip = (entityAttrReq.getPage() - 1) * size;
+        relationListFrom.setSkip(skip);
+        relationListFrom.setLimit(size + 1);
+        RestResp<List<EntityAttributeValueVO>> restResp = conceptEntityApi.relationList(KGUtil.dbName(kgName),
+                relationListFrom);
+        Optional<List<EntityAttributeValueVO>> optional = RestRespConverter.convert(restResp);
+        return optional.orElse(Collections.emptyList()).stream().map(vo -> ParserBeanUtils.parserEntityAttrValue(vo,
+                size))
+                .collect(Collectors.toList());
+
+    }
 
     /**
      * 解析来源,置信度,批次号,标签,过滤
@@ -314,14 +333,14 @@ public class EntityServiceImpl implements EntityService {
         String fromTime = entityTimeModifyReq.getFromTime();
         if (StringUtils.hasText(fromTime)) {
             metadata.put(MetaDataInfo.FROM_TIME.getFieldName(), fromTime);
-        } else if ("".equals(fromTime)){
+        } else if ("".equals(fromTime)) {
             conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, Collections.singletonList(19));
         }
 
         String toTime = entityTimeModifyReq.getToTime();
         if (StringUtils.hasText(toTime)) {
             metadata.put(MetaDataInfo.TO_TIME.getFieldName(), toTime);
-        } else if ("".equals(toTime)){
+        } else if ("".equals(toTime)) {
             conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, Collections.singletonList(20));
         }
         if (StringUtils.hasText(fromTime) && StringUtils.hasText(toTime) && fromTime.compareTo(toTime) > 0) {
@@ -476,18 +495,18 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public void updateRelationMeta(String kgName, UpdateRelationMetaReq updateRelationMetaReq) {
         Map<String, Object> metaData = new HashMap<>();
-        if (Objects.nonNull(updateRelationMetaReq.getScore())) {
-            metaData.put(MetaDataInfo.SCORE.getFieldName(), updateRelationMetaReq.getScore());
-        }else {
-            metaData.put(MetaDataInfo.SCORE.getFieldName(), "");
+        String score = updateRelationMetaReq.getScore();
+        if (Objects.nonNull(score)) {
+            metaData.put(MetaDataInfo.SCORE.getFieldName(),
+                    "".equals(score) ? "" : Double.parseDouble(updateRelationMetaReq.getScore()));
         }
         if (Objects.nonNull(updateRelationMetaReq.getSource())) {
             metaData.put(MetaDataInfo.SOURCE.getFieldName(), updateRelationMetaReq.getSource());
         }
-        if (Objects.nonNull(updateRelationMetaReq.getReliability())) {
-            metaData.put(MetaDataInfo.RELIABILITY.getFieldName(), updateRelationMetaReq.getReliability());
-        }else {
-            metaData.put(MetaDataInfo.RELIABILITY.getFieldName(), "");
+        String reliability = updateRelationMetaReq.getReliability();
+        if (Objects.nonNull(reliability)) {
+            metaData.put(MetaDataInfo.RELIABILITY.getFieldName(),
+                   "".equals(reliability)? "" : Double.parseDouble(reliability));
         }
         if (Objects.nonNull(updateRelationMetaReq.getSourceReason())) {
             metaData.put(MetaDataInfo.SOURCE_REASON.getFieldName(), updateRelationMetaReq.getSourceReason());
