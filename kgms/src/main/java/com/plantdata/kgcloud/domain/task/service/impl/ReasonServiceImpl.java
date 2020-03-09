@@ -8,10 +8,7 @@ import com.mongodb.client.model.UpdateManyModel;
 import com.mongodb.client.model.UpdateOptions;
 import com.plantdata.graph.logging.core.GraphLog;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import com.plantdata.graph.logging.core.segment.PrivateAttributeSegment;
-import com.plantdata.graph.logging.core.segment.PrivateRelationSegment;
-import com.plantdata.graph.logging.core.segment.RelationSegment;
-import com.plantdata.graph.logging.core.segment.Segment;
+import com.plantdata.graph.logging.core.segment.*;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
@@ -20,19 +17,20 @@ import com.plantdata.kgcloud.domain.task.dto.ReasonBean;
 import com.plantdata.kgcloud.domain.task.dto.TripleBean;
 import com.plantdata.kgcloud.domain.task.service.ReasonService;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.beans.BeanMap;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ReasonServiceImpl implements ReasonService {
 
@@ -142,13 +140,15 @@ public class ReasonServiceImpl implements ReasonService {
 
                     if (attributeList.size() > 0 && collection != null) {
                         if (summaryList.size() > 0) {
-                            mongoClient.getDatabase(kgDbName).getCollection("attribute_summary").insertMany(summaryList);
+                            upsertMany(mongoClient, kgDbName, "attribute_summary", summaryList, "entity_id", "attr_id");
                         }
-                        if ("attribute_private_data".equals(collection)) {
-                            upsertMany(mongoClient, kgDbName, collection, attributeList, "entity_id", "attr_name");
+                        String[] fields;
+                        if (collection.contains("private")) {
+                            fields = new String[]{"entity_id", "attr_name"};
                         } else {
-                            mongoClient.getDatabase(kgDbName).getCollection(collection).insertMany(attributeList);
+                            fields = new String[]{"entity_id", "attr_id"};
                         }
+                        upsertMany(mongoClient, kgDbName, collection, attributeList, fields);
                         Segment segment = null;
                         for (Document attr : attributeList) {
                             if ("attribute_private_object".equals(collection)) {
@@ -157,11 +157,11 @@ public class ReasonServiceImpl implements ReasonService {
                                 segment = RelationSegment.ofBson(attr);
                             } else if ("attribute_private_data".equals(collection)) {
                                 segment = PrivateAttributeSegment.ofBson(attr);
+                            } else {
+                                segment = AttributeSegment.ofBson(attr);
                             }
-                            if (segment != null) {
-                                GraphLog log = GraphLog.create(segment, null, logId);
-                                logSender.sendDataLog(kgDbName, log);
-                            }
+                            GraphLog kgLog = GraphLog.create(segment, null, logId);
+                            logSender.sendDataLog(kgDbName, kgLog);
                         }
                         logSender.sendLog(kgName, ServiceEnum.SCRIPT_REASON);
                         mongoClient.getDatabase("reasoning_store").getCollection(kgName).updateMany(matchDoc, new Document("$set", new Document("status", 1)));
