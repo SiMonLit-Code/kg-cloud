@@ -165,7 +165,7 @@ public interface AttributeService {
      * @param kgName
      * @param tripleIds
      */
-    void deleteRelations(String kgName, List<String> tripleIds);
+    void deleteRelations(String kgName,Boolean isTrace, List<String> tripleIds);
 
     /**
      * 根据meta删除关系

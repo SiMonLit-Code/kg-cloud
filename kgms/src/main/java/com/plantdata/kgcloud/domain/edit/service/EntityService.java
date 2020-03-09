@@ -86,7 +86,7 @@ public interface EntityService {
      * @param ids
      * @return
      */
-    List<DeleteResult> deleteByIds(String kgName, List<Long> ids);
+    List<DeleteResult> deleteByIds(String kgName, Boolean isTrace, List<Long> ids);
 
 
     /**

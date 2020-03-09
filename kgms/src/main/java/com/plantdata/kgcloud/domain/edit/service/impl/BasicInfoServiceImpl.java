@@ -110,7 +110,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public void deleteBasicInfo(String kgName, Long id, Boolean force) {
-        this.sendLog(kgName, id);
+        sendLog(kgName, id);
         RestRespConverter.convertVoid(conceptEntityApi.delete(KGUtil.dbName(kgName), id, force));
         logSender.remove();
     }
@@ -322,13 +322,13 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     @Override
     public Object executeQl(KgqlReq kgqlReq) {
         String query = kgqlReq.getQuery();
-        if (StringUtils.hasText(query)){
+        if (StringUtils.hasText(query)) {
             try {
                 int s = query.indexOf("\"");
                 int e = query.indexOf("\"", s);
                 String kgName = query.substring(s, e);
-                query = query.replace(kgName,KGUtil.dbName(kgName));
-            }catch (Exception e){
+                query = query.replace(kgName, KGUtil.dbName(kgName));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
