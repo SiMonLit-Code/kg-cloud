@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.req.entity;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -17,6 +18,14 @@ public class EntityAttrReq {
     private Long conceptId;
     @NotNull
     private Long entityId;
-    private Integer page = 0;
+
+    @ApiModelProperty("关系属性id")
+    private Integer attrId;
+
+    @ApiModelProperty("关系属性私有属性名称")
+    private String attrName;
+
+    private Integer page = 1;
+
     private Integer size = 10;
 }
