@@ -354,7 +354,9 @@ public class EntityServiceImpl implements EntityService {
         if (StringUtils.hasText(fromTime) && StringUtils.hasText(toTime) && fromTime.compareTo(toTime) > 0) {
             throw BizException.of(KgmsErrorCodeEnum.TIME_FORM_MORE_THAN_TO);
         }
-        conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
+        if (!CollectionUtils.isEmpty(metadata)){
+            conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
+        }
     }
 
     @Override

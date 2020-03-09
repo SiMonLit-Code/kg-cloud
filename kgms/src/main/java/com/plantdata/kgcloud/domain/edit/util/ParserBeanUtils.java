@@ -239,13 +239,19 @@ public class ParserBeanUtils {
         try {
             if (Objects.nonNull(relationMetaData)) {
                 if (relationMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-                    relationRsp.setScore((Double) relationMetaData.get(MetaDataInfo.SCORE.getFieldName()));
+                    String score = relationMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString();
+                    if (StringUtils.hasText(score)){
+                        relationRsp.setScore(Double.valueOf(score));
+                    }
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
                     relationRsp.setSource((String) relationMetaData.get(MetaDataInfo.SOURCE.getFieldName()));
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-                    relationRsp.setReliability((Double) relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()));
+                    String reliability = relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString();
+                    if (StringUtils.hasText(reliability)){
+                        relationRsp.setReliability(Double.valueOf(reliability));
+                    }
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.BATCH_NO.getFieldName())) {
                     relationRsp.setBatch(relationMetaData.get(MetaDataInfo.BATCH_NO.getFieldName()).toString());
