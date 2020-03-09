@@ -229,9 +229,17 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public List<DeleteResult> deleteByIds(String kgName, List<Long> ids) {
+    public List<DeleteResult> deleteByIds(String kgName, Boolean isTrace, List<Long> ids) {
+        logSender.setActionId();
+        if (isTrace){
+            logSender.sendLog(kgName, ServiceEnum.ENTITY_TRACE);
+        }else {
+            logSender.sendLog(kgName,ServiceEnum.ENTITY_EDIT);
+        }
         Optional<List<BatchDeleteResult>> optional =
                 RestRespConverter.convert(batchApi.deleteEntities(KGUtil.dbName(kgName), ids));
+
+        logSender.remove();
         if (!optional.isPresent() || CollectionUtils.isEmpty(optional.get())) {
             return Collections.emptyList();
         }

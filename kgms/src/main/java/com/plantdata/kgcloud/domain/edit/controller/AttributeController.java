@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -111,7 +112,7 @@ public class AttributeController {
     @PostMapping("/{kgName}/definition/batch")
     @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
-                                                                          @Valid @RequestBody ValidableList<AttrDefinitionReq> attrDefinitionReqs) {
+                                                                                     @Valid @RequestBody ValidableList<AttrDefinitionReq> attrDefinitionReqs) {
         return ApiReturn.success(attributeService.batchAddAttrDefinition(kgName, attrDefinitionReqs));
     }
 
@@ -190,10 +191,10 @@ public class AttributeController {
 
     @ApiOperation("关系-批量删除")
     @PostMapping("/{kgName}/batch/relation/delete")
-    @EditLogOperation(serviceEnum = ServiceEnum.RELATION_EDIT)
     public ApiReturn deleteRelations(@PathVariable("kgName") String kgName,
+                                     @RequestParam(value = "isTrace", defaultValue = "false") Boolean isTrace,
                                      @RequestBody List<String> tripleIds) {
-        attributeService.deleteRelations(kgName, tripleIds);
+        attributeService.deleteRelations(kgName, isTrace, tripleIds);
         return ApiReturn.success();
     }
 
@@ -251,12 +252,15 @@ public class AttributeController {
     @EditLogOperation(serviceEnum = ServiceEnum.SDK)
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
                                                                        @RequestBody List<BatchRelationRsp> relationList) {
-        List<BatchRelationVO> collect = BasicConverter.listConvert(relationList, a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
-        Optional<BatchResult<BatchRelationVO>> resultRestResp = RestRespConverter.convert(batchApi.addRelations(KGUtil.dbName(kgName), collect));
+        List<BatchRelationVO> collect = BasicConverter.listConvert(relationList,
+                a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
+        Optional<BatchResult<BatchRelationVO>> resultRestResp =
+                RestRespConverter.convert(batchApi.addRelations(KGUtil.dbName(kgName), collect));
         if (!resultRestResp.isPresent()) {
             return ApiReturn.success(OpenBatchResult.empty());
         }
-        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyToBatchResult(resultRestResp.get(), BatchRelationRsp.class);
+        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyToBatchResult(resultRestResp.get(),
+                BatchRelationRsp.class);
         return ApiReturn.success(relationRsp);
     }
 
@@ -266,8 +270,9 @@ public class AttributeController {
     public ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
                                                               @RequestBody List<RelationUpdateReq> list) {
         List<UpdateEdgeVO> edgeList = RestCopyConverter.copyToNewList(list, UpdateEdgeVO.class);
-        Optional<BatchResult<UpdateEdgeVO>> edgeOpt = RestRespConverter.convert(batchApi.updateRelations(KGUtil.dbName(kgName),
-                edgeList));
+        Optional<BatchResult<UpdateEdgeVO>> edgeOpt =
+                RestRespConverter.convert(batchApi.updateRelations(KGUtil.dbName(kgName),
+                        edgeList));
         return edgeOpt.map(result -> ApiReturn.success(RestCopyConverter.copyToNewList(result.getSuccess(),
                 RelationUpdateReq.class)))
                 .orElseGet(() -> ApiReturn.success(Collections.emptyList()));

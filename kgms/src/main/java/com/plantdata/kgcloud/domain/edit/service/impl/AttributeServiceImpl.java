@@ -26,6 +26,7 @@ import ai.plantdata.kg.common.bean.ExtraInfo;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -51,6 +52,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.AttrConverterUtils;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
@@ -114,6 +116,9 @@ public class AttributeServiceImpl implements AttributeService {
     private BasicInfoService basicInfoService;
     @Autowired
     private GraphHelperService graphHelperService;
+
+    @Autowired
+    private LogSender logSender;
 
     @Override
     public AttrDefinitionVO getAttrDetails(String kgName, Integer id) {
@@ -315,8 +320,15 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public void deleteRelations(String kgName, List<String> tripleIds) {
+    public void deleteRelations(String kgName,Boolean isTrace, List<String> tripleIds) {
+        logSender.setActionId();
+        if (isTrace){
+            logSender.sendLog(kgName, ServiceEnum.RELATION_TRACE);
+        }else {
+            logSender.sendLog(kgName,ServiceEnum.RELATION_EDIT);
+        }
         RestRespConverter.convertVoid(batchApi.deleteRelations(KGUtil.dbName(kgName), null, tripleIds));
+        logSender.remove();
     }
 
     @Override
