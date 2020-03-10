@@ -5,7 +5,7 @@
     <parent>
         <artifactId>kg-cloud-kgms</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.0.24.Log</version>
+        <version>3.0.25.Log</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kgsdk</artifactId>
