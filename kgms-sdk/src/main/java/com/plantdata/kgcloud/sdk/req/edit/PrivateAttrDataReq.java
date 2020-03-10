@@ -8,6 +8,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @Author: LinHo
@@ -18,7 +19,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("私有数值属性值添加模型")
 public class PrivateAttrDataReq {
     @ApiModelProperty(value = "私有关系id")
-    private String objId;
+    private List<String> objIds;
 
     @NotNull
     @ApiModelProperty(value = "实体id")
