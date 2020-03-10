@@ -17,6 +17,8 @@ import javax.validation.constraints.NotNull;
 @Data
 @ApiModel("私有数值属性值添加模型")
 public class PrivateAttrDataReq {
+    @ApiModelProperty(value = "私有关系id")
+    private String objId;
 
     @NotNull
     @ApiModelProperty(value = "实体id")
