@@ -295,7 +295,7 @@ public class EntityController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体-私有属性-添加私有数值或对象属性值")
+    @ApiOperation("实体-私有属性-添加或更新私有数值或对象属性值")
     @PostMapping("/{kgName}/private/data")
     public ApiReturn addPrivateData(@PathVariable("kgName") String kgName,
                                     @Valid @RequestBody PrivateAttrDataReq privateAttrDataReq) {
