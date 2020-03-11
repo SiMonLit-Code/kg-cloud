@@ -251,7 +251,7 @@ public class EntityServiceImpl implements EntityService {
         logSender.setActionId();
         entityDeleteReq.setActionId(ThreadLocalUtils.getBatchNo());
         TaskGraphStatusReq taskGraphStatusReq = TaskGraphStatusReq.builder()
-                .kgName(kgName)
+                .kgName(KGUtil.dbName(kgName))
                 .status(TaskStatus.PROCESSING.getStatus())
                 .type(TaskType.CLEAR_ENTITY.getType())
                 .params(JacksonUtils.readValue(JacksonUtils.writeValueAsString(entityDeleteReq),
