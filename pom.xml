@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.plantdata</groupId>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.0.17-SNAPSHOT</version>
+    <version>3.0.34-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -22,8 +22,8 @@
     </modules>
 
     <properties>
-        <next-tag.version>3.0.28.Log</next-tag.version>
-        <next-develop.version>3.0.17-SNAPSHOT</next-develop.version>
+        <next-tag.version>3.0.34</next-tag.version>
+        <next-develop.version>3.0.34-SNAPSHOT</next-develop.version>
         <kg-cloud-parent.version>3.0.2</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
         <kg-services-sdk.version>3.0.0-SNAPSHOT</kg-services-sdk.version>
@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>com.plantdata.log</groupId>
                 <artifactId>graph-logging</artifactId>
-                <version>3.0.13</version>
+                <version>3.0.17</version>
             </dependency>
 
             <dependency>
