@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
@@ -33,13 +34,23 @@ public interface BasicInfoService {
     Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq);
 
     /**
+     * 通用建模库
+     *
+     * @param kgName
+     * @param basicInfoReq
+     * @param serviceEnum
+     * @return
+     */
+    Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq, ServiceEnum serviceEnum);
+
+    /**
      * 删除概念或实体
      *
      * @param kgName
      * @param id
      * @return
      */
-    void deleteBasicInfo(String kgName, Long id,Boolean force);
+    void deleteBasicInfo(String kgName, Long id, Boolean force);
 
     /**
      * 更新概念或实体名称,消歧标识,唯一标示

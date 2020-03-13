@@ -108,6 +108,15 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         return RestRespConverter.convert(restResp).orElse(null);
     }
 
+    public Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq, ServiceEnum serviceEnum) {
+        logSender.setActionId();
+        logSender.sendLog(kgName, ServiceEnum.SCHEMA_REPO);
+        BasicInfoFrom basicInfoFrom = ConvertUtils.convert(BasicInfoFrom.class).apply(basicInfoReq);
+        RestResp<Long> restResp = conceptEntityApi.add(KGUtil.dbName(kgName), basicInfoFrom);
+        logSender.remove();
+        return RestRespConverter.convert(restResp).orElse(null);
+    }
+
     @Override
     public void deleteBasicInfo(String kgName, Long id, Boolean force) {
         sendLog(kgName, id);
