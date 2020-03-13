@@ -209,7 +209,8 @@ public class AttributeServiceImpl implements AttributeService {
                 attrDefinitionReqs.stream().map(
                         AttrConverterUtils::attrDefinitionReqConvert
                 ).collect(Collectors.toList());
-        Optional<BatchResult<AttributeDefinitionVO>> opt = RestRespConverter.convert(batchApi.updateAttributes(KGUtil.dbName(kgName), voList));
+        Optional<BatchResult<AttributeDefinitionVO>> opt =
+                RestRespConverter.convert(batchApi.updateAttributes(KGUtil.dbName(kgName), voList));
         return opt.map(attributeDefinitionVOBatchResult ->
                 RestCopyConverter.copyToBatchResult(attributeDefinitionVOBatchResult, AttrDefinitionBatchRsp.class))
                 .orElseGet(OpenBatchResult::new);
@@ -263,7 +264,7 @@ public class AttributeServiceImpl implements AttributeService {
         Map<String, Long> idNameMap = Maps.newHashMap();
         rangeNames.forEach(name -> {
             Long conceptId = basicInfoService.createBasicInfo(KGUtil.dbName(kgName),
-                    BasicInfoReq.builder().conceptId(0L).type(0).name(name).build());
+                    BasicInfoReq.builder().conceptId(0L).type(0).name(name).build(), ServiceEnum.SCHEMA_REPO);
             idNameMap.put(name, conceptId);
         });
         attrTemplateReqs.stream().filter(attrTemplateReq -> AttributeValueType.isObject(attrTemplateReq.getType()))
@@ -281,7 +282,10 @@ public class AttributeServiceImpl implements AttributeService {
                     attrDefinitionReq.setRangeValue(attrTemplateReq.getRange().stream().map(IdNameVO::getId).collect(Collectors.toList()));
                     return attrDefinitionReq;
                 }).collect(Collectors.toList());
+        logSender.setActionId();
+        logSender.sendLog(kgName, ServiceEnum.SCHEMA_REPO);
         this.batchAddAttrDefinition(kgName, attrDefinitionReqs);
+        logSender.remove();
     }
 
     @Override
@@ -320,12 +324,12 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public void deleteRelations(String kgName,Boolean isTrace, List<String> tripleIds) {
+    public void deleteRelations(String kgName, Boolean isTrace, List<String> tripleIds) {
         logSender.setActionId();
-        if (isTrace){
+        if (isTrace) {
             logSender.sendLog(kgName, ServiceEnum.RELATION_TRACE);
-        }else {
-            logSender.sendLog(kgName,ServiceEnum.RELATION_EDIT);
+        } else {
+            logSender.sendLog(kgName, ServiceEnum.RELATION_EDIT);
         }
         RestRespConverter.convertVoid(batchApi.deleteRelations(KGUtil.dbName(kgName), null, tripleIds));
         logSender.remove();
@@ -395,7 +399,7 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Override
     public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReqList queryReq) {
-        graphHelperService.replaceByAttrKey(kgName,queryReq);
+        graphHelperService.replaceByAttrKey(kgName, queryReq);
         BatchQueryRelationFrom relationFrom = RelationConverter.edgeAttrSearch(queryReq);
         Optional<List<BatchRelationVO>> resOpt = RestRespConverter.convert(batchApi.queryRelation(KGUtil.dbName(kgName),
                 relationFrom));
