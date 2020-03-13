@@ -61,7 +61,9 @@ public class KgLogListener {
                 Class segmentClass = GraphLogScope.valueOf(scope).segmentClass();
                 JavaType javaType = JacksonUtils.getInstance().getTypeFactory().constructParametricType(GraphLog.class, segmentClass);
                 GraphLog log = JacksonUtils.readValue(record.value(), javaType);
-                GraphLogMessage.appendMessage(mongoClient, kgDbName, log);
+                GraphLog tmpLog = JacksonUtils.readValue(record.value(), javaType);
+                GraphLogMessage.appendMessage(mongoClient, kgDbName, tmpLog);
+                log.setMessage(tmpLog.getMessage());
 
                 if (StringUtils.isNotBlank(log.getBatch()) && StringUtils.isNotBlank(log.getMessage())) {
                     List<Document> ls = dataMap.getOrDefault(kgDbName, new ArrayList<>());
