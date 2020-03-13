@@ -281,7 +281,10 @@ public class AttributeServiceImpl implements AttributeService {
                     attrDefinitionReq.setRangeValue(attrTemplateReq.getRange().stream().map(IdNameVO::getId).collect(Collectors.toList()));
                     return attrDefinitionReq;
                 }).collect(Collectors.toList());
+        logSender.setActionId();
+        logSender.sendLog(kgName, ServiceEnum.SCHEMA_REPO);
         this.batchAddAttrDefinition(kgName, attrDefinitionReqs);
+        logSender.remove();
     }
 
     @Override
