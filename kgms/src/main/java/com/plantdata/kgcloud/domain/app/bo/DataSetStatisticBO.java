@@ -80,7 +80,7 @@ public class DataSetStatisticBO {
             for (int i = 0; i < arr.size(); i++) {
                 JsonNode obj = arr.get(i);
                 JsonNode k = obj.get("key_as_string");
-                String key = Objects.isNull(k) ? obj.get("key").textValue() : k.textValue();
+                String key = Objects.isNull(k) ? obj.get("key").asText() : k.asText();
                 JsonNode count = obj.get("doc_count");
                 long v = count == null ? 0 : count.longValue();
                 if (DataSetStatisticEnum.KV.equals(setStatisticEnum)) {
@@ -103,13 +103,13 @@ public class DataSetStatisticBO {
             for (int i = 0; i < arr.size(); i++) {
                 JsonNode obj1 = arr.get(i);
                 JsonNode k1 = obj1.get("key_as_string");
-                String key = Objects.isNull(k1) ? obj1.get("key").textValue() : k1.textValue();
+                String key = Objects.isNull(k1) ? obj1.get("key").asText() : k1.asText();
                 JsonNode byKey2 = obj1.get("by_key2");
                 ArrayNode arr2 = (ArrayNode) byKey2.get("buckets");
                 for (int j = 0; j < arr2.size(); j++) {
                     JsonNode obj2 = arr2.get(j);
                     JsonNode k2 = obj2.get("key_as_string");
-                    String key2 = Objects.isNull(k2) ? obj2.get("key").textValue() : k2.textValue();
+                    String key2 = Objects.isNull(k2) ? obj2.get("key").asText() : k2.asText();
                     long v = obj2.get("doc_count").longValue();
                     rsTable.put(key, key2, (double) v);
                 }
