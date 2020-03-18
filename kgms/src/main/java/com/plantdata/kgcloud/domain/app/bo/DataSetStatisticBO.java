@@ -52,18 +52,6 @@ public class DataSetStatisticBO {
         return this;
     }
 
-    /**
-     * 后置数据处理
-     *
-     * @param data es数据
-     * @return 。。
-     */
-    public DataSetStatisticRsp postDealData(List<Map<String, Object>> data) {
-        JsonNode jsonObj = JacksonUtils.getInstance().valueToTree(data);
-        return dimension.equals(DimensionEnum.TWO)
-                ? postDataDealByReturnType((ArrayNode) jsonObj)
-                : postDataDealNoReturnType((ArrayNode) jsonObj);
-    }
 
     public DataSetStatisticRsp postDealData(Map<String, Object> data) {
         ArrayNode arr = this.buildAttrArray(data);

@@ -48,7 +48,7 @@ public class PromptConverter extends BasicConverter {
     public static PromptListFrom promptReqReqToPromptListFrom(PromptReq req) {
         PromptListFrom from = new PromptListFrom();
         from.setConceptIds(req.getConceptIds());
-        from.setCaseInsensitive(req.getCaseInsensitive() == null ? false : req.getCaseInsensitive());
+        from.setCaseInsensitive(req.getCaseInsensitive() == null ? true : req.getCaseInsensitive());
         from.setFuzzy(req.isFuzzy());
         from.setSkip(req.getOffset());
         from.setLimit(req.getLimit());
