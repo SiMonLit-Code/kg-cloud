@@ -51,4 +51,8 @@ public class SchemaQuoteAttrReq {
     @ApiModelProperty("边属性")
     private List<SchemaQuoteRelationAttrReq> relationAttrs;
 
+
+    @ApiModelProperty("映射的表名")
+    private List<String> tables;
+
 }

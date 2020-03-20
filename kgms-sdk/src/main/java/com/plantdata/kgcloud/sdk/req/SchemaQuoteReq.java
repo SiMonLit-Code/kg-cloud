@@ -33,6 +33,9 @@ public class SchemaQuoteReq {
     @ApiModelProperty("映射的图谱父概念id")
     private Long pConceptId;
 
+    @ApiModelProperty("映射的表名")
+    private List<String> tables;
+
     @ApiModelProperty("引入的属性")
     private List<SchemaQuoteAttrReq> attrs;
 }

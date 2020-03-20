@@ -16,6 +16,7 @@ public enum DataType {
     PD_DOCUMENT(3),
     ORACLE(4),
     HIVE(5),
+    DM(6),
     ;
 
     private final int dataType;

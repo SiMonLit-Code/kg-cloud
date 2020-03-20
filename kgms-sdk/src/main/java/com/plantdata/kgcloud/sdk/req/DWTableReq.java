@@ -21,11 +21,18 @@ public class DWTableReq {
     @ApiModelProperty("访问周期")
     private String cron;
 
+    @ApiModelProperty("KTR")
+    private String ktr;
+
     @ApiModelProperty("数仓数据库id")
     private Long dwDatabaseId;
+
+    private String tableName;
 
     @ApiModelProperty("数据schema")
     private List<DataSetSchema> schemas;
 
+    @ApiModelProperty("创建方式 1远程 2本地")
+    private Integer createWay;
 
 }
