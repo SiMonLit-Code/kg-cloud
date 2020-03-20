@@ -2,14 +2,18 @@ package com.plantdata.kgcloud.domain.dw.rsp;
 
 import com.plantdata.kgcloud.sdk.constant.DataType;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PreBuilderAttrRsp {
 
     @ApiModelProperty("属性id")
@@ -47,4 +51,7 @@ public class PreBuilderAttrRsp {
 
     @ApiModelProperty("修改时间")
     private Date updateAt;
+
+    @ApiModelProperty("属性映射数仓表")
+    private List<String> tables;
 }

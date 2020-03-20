@@ -38,4 +38,7 @@ public class PreBuilderConceptRsp {
 
     @ApiModelProperty("修改时间")
     private Date updateAt;
+
+    @ApiModelProperty("概念映射数仓表")
+    private List<String> tables;
 }

@@ -18,6 +18,7 @@ import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -57,7 +58,7 @@ public class MongodbOptProvider implements DataOptProvider {
                 .connectionsPerHost(10)
                 .maxWaitTime(60000)
                 .build();
-        if (info.getUsername() != null && info.getPassword() != null) {
+        if (StringUtils.isNotEmpty(info.getUsername()) && StringUtils.isNotEmpty(info.getPassword())) {
             MongoCredential credential = MongoCredential.createCredential(info.getUsername(), "admin", info.getPassword().toCharArray());
             this.client = new MongoClient(addressList, credential, clientOptions);
         } else {

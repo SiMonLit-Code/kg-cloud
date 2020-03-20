@@ -1,5 +1,11 @@
 package com.plantdata.kgcloud.domain.dw.entity;
 
+import com.plantdata.kgcloud.domain.common.converter.StringListConverter;
+import com.plantdata.kgcloud.domain.dw.converter.ListStandardTemplateSchemaConverter;
+import com.plantdata.kgcloud.domain.dw.converter.MoldSchemaConfigConverter;
+import com.plantdata.kgcloud.domain.dw.converter.TableKtrConverter;
+import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.TableKtrRsp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +18,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -23,7 +30,6 @@ import java.util.Date;
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
 public class DWPrebuildModel {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,10 +49,6 @@ public class DWPrebuildModel {
     private String modelType;
 
     @Basic
-    @Column(name = "model_tag")
-    private String modelTag;
-
-    @Basic
     @Column(name = "user_id")
     private String userId;
 
@@ -63,8 +65,8 @@ public class DWPrebuildModel {
     private Integer permission;
 
     @Basic
-    @Column(name = "standard_template_id")
-    private Long standardTemplateId;
+    @Column(name = "is_standard_template")
+    private Integer isStandardTemplate;
 
     @Basic
     @Column(name = "database_id")
@@ -79,4 +81,28 @@ public class DWPrebuildModel {
     @Column(name = "update_at")
     @LastModifiedDate
     private Date updateAt;
+
+
+    @Basic
+    @Column(name = "ktr")
+    @Convert(converter = TableKtrConverter.class)
+    private List<TableKtrRsp> ktr;
+
+    @Basic
+    @Column(name = "yaml_content")
+    private String yamlContent;
+
+    @Basic
+    @Column(name = "file_content")
+    private String fileContent;
+
+    @Basic
+    @Column(name = "tag_json")
+    @Convert(converter = MoldSchemaConfigConverter.class)
+    private ModelSchemaConfigRsp tagJson;
+
+    @Basic
+    @Column(name = "schemas")
+    @Convert(converter = ListStandardTemplateSchemaConverter.class)
+    private String schemas;
 }

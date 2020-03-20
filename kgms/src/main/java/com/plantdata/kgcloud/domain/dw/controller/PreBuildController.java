@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderMatchAttrReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
@@ -47,7 +48,6 @@ public class PreBuildController {
         return ApiReturn.success(preBuilderService.matchAttr(userId,preBuilderMatchAttrReq));
     }
 
-
     @ApiOperation("预构建模式-引入模式配置保存")
     @PostMapping("/save/graph/map")
     public ApiReturn saveGraphMap(@RequestBody PreBuilderGraphMapReq preBuilderGraphMapReq) {
@@ -55,13 +55,20 @@ public class PreBuildController {
         return ApiReturn.success(preBuilderService.saveGraphMap(userId,preBuilderGraphMapReq));
     }
 
-
     @ApiOperation("预构建模式-查询图谱的映射配置")
     @GetMapping("/get/{kgName}/map")
     public ApiReturn<List<SchemaQuoteReq>> getGraphMap(@PathVariable("kgName") String kgName) {
 
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.getGraphMap(userId,kgName));
+    }
+
+    @ApiOperation("预构建模式-查询分类")
+    @GetMapping("/get/types")
+    public ApiReturn<List<String>> getTypes() {
+
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(preBuilderService.getTypes(userId));
     }
 
 }

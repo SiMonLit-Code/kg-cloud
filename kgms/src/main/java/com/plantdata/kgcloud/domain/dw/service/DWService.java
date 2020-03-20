@@ -4,9 +4,12 @@ import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.req.DWDatabaseQueryReq;
 import com.plantdata.kgcloud.domain.dw.req.DWTableCronReq;
+import com.plantdata.kgcloud.domain.dw.req.DWTableSchedulingReq;
 import com.plantdata.kgcloud.domain.dw.req.RemoteTableAddReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
@@ -22,7 +25,7 @@ public interface DWService {
 
     DWDatabaseRsp createDatabase(String userId, DWDatabaseReq req);
 
-    void yamlUpload(String userId, Long databaseId, MultipartFile file);
+    void yamlUpload(Long databaseId, MultipartFile file);
 
     List<DWDatabaseRsp> findAll(String userId);
 
@@ -38,7 +41,7 @@ public interface DWService {
 
     List<String> getRemoteTables(String userId, Long databaseId);
 
-    List<Long> addRemoteTables(String userId, Long databaseId, List<RemoteTableAddReq> reqList);
+    void addRemoteTables(String userId, Long databaseId, List<RemoteTableAddReq> reqList);
 
     Object testConnect(DWConnceReq req);
 
@@ -47,4 +50,12 @@ public interface DWService {
     void setTableCron(String userId, DWTableCronReq req);
 
     Page<DWDatabaseRsp> list(String userId, DWDatabaseQueryReq req);
+
+    void tagUpload(Long databaseId, MultipartFile file);
+
+    void push(String userId, Long id,String modelType);
+
+    void setTableScheduling(String userId, DWTableSchedulingReq req);
+
+    ModelSchemaConfigRsp getModel(String userId, Long id);
 }

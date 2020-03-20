@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.access.util;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
+import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.task.req.KettleReq;
 import com.plantdata.kgcloud.domain.task.util.KettleXml;
 import com.plantdata.kgcloud.exception.BizException;
@@ -28,16 +29,7 @@ public class CreateKtrFile {
      * @return
      * @throws IOException
      */
-    public static String getKettleXmlPath(DWDatabase database, DWTable table,String kafkaServers,String ktrPath) {
-
-        try {
-           File f = new File(ktrPath);
-           if(!f.exists()){
-               f.mkdirs();
-           }
-        }catch (Exception e){}
-
-        String targetFile = ktrPath + UUIDUtils.getShortString()+".ktr";
+    public static String getKettleXmlPath(DWDatabase database, DWTableRsp table, String kafkaServers) {
 
         String xml = KtrXml.xml;
         String connectionXml = KtrXml.mysqlConnectionxml;
@@ -69,18 +61,9 @@ public class CreateKtrFile {
 
         kafkaxml = changeKafkaConnection(kafkaxml, kafkaServers);
 
-        String data = xml + connectionXml + jsonxml + kafkaxml + sqlXml;
+        String data = xml + connectionXml + jsonxml + jsonFieldxml + kafkaxml + sqlXml;
         // 创建临时路径
-        File file = new File(targetFile);
-
-        try (FileWriter fileWriter = new FileWriter(file);
-             BufferedWriter bw = new BufferedWriter(fileWriter)) {
-            bw.write(data);
-            bw.flush();
-        }catch (Exception e){
-            throw BizException.of(KgmsErrorCodeEnum.KTR_SAVE_FAIL);
-        }
-        return targetFile;
+        return data;
     }
 
     private static String changeJsonField(String jsonFieldxml,List<String> fields) {
@@ -99,14 +82,19 @@ public class CreateKtrFile {
         return kafkaxml.replace("kafkaQAQ", kafkaServers);
     }
 
-    private static String getTableSql(DWTable table) {
+    private static String getTableSql(DWTableRsp table) {
 
         StringBuilder sql = new StringBuilder();
 
-        sql.append("SELECT ")
-                .append(StringUtils.join(table.getFields(),","))
-                .append(" FROM ")
-                .append(table.getTbName());
+        sql.append("SELECT ");
+
+        for(String field : table.getFields()){
+            sql.append("`").append(field).append("`").append(",");
+
+        }
+        sql = sql.deleteCharAt(sql.length()-1);
+        sql.append(" FROM ")
+        .append(table.getTbName());
 
         if(table.getIsAll() != null && table.getIsAll().equals(2)){
 

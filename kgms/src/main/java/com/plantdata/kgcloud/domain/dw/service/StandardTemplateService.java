@@ -7,5 +7,5 @@ import java.util.List;
 public interface StandardTemplateService {
     List<StandardTemplateRsp> findAll(String userId);
 
-    StandardTemplateRsp findOne(String userId, Long standardTemplateId);
+    StandardTemplateRsp findOne(String userId, Integer standardTemplateId);
 }

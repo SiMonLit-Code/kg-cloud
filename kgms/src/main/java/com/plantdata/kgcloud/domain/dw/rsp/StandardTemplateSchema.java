@@ -8,7 +8,9 @@ import java.util.List;
 @Data
 public class StandardTemplateSchema {
 
-    private String tbName;
+    private String tableName;
+
+    private String title;
 
     private List<DataSetSchema> schemas;
 }

@@ -114,6 +114,12 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     YAML_PARSE_ERROR(120704, "yaml文件解析错误"),
 
     REMOTE_TABLE_FIND_ERROR(120705, "获取远程表错误"),
+
+    TABLE_CREATE_WAY_ERROR(120706, "表创建方式不适用该功能"),
+
+    DATABASE_DATAFORMAT_ERROR(120707, "数据库创建类型不适用该功能"),
+
+    TAG_JSON_PASER_ERROR(120708, "数据库TAG_JSON解析错误"),
     ;
 
     private final int errorCode;

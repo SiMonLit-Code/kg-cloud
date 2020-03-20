@@ -23,9 +23,6 @@ public class PreBuilderSearchRsp {
     @ApiModelProperty("模式类型")
     private String modelType;
 
-    @ApiModelProperty("模式标签")
-    private String modelTag;
-
     @ApiModelProperty("所属用户id")
     private String userId;
 
@@ -34,6 +31,9 @@ public class PreBuilderSearchRsp {
 
     @ApiModelProperty("描述")
     private String description;
+
+    @ApiModelProperty("数仓id")
+    private Long databaseId;
 
     @ApiModelProperty("权限")
     private Integer permission;

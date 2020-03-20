@@ -11,22 +11,22 @@ import com.plantdata.kgcloud.domain.access.repository.DWTaskRepository;
 import com.plantdata.kgcloud.domain.access.repository.EtlTaskRepository;
 import com.plantdata.kgcloud.domain.access.repository.KgTaskRepository;
 import com.plantdata.kgcloud.domain.access.req.EtlConfigReq;
+import com.plantdata.kgcloud.domain.access.req.IndexConfigReq;
 import com.plantdata.kgcloud.domain.access.req.KgConfigReq;
 import com.plantdata.kgcloud.domain.access.req.ResourceReq;
+import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.CreateKtrFile;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWGraphMap;
-import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
+import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
-import com.plantdata.kgcloud.domain.dw.util.YamlColumn;
 import com.plantdata.kgcloud.sdk.req.DataAccessTaskConfigReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.UUIDUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,9 +53,6 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
     @Value("${kafka.servers}")
     private String kafkaServers;
-
-    @Value("${ktr.path:}")
-    private String ktrDirectoryPath;
 
     @Autowired
     private DWGraphMapRepository graphMapRepository;
@@ -109,9 +106,9 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public void run(String userId,List<DataAccessTaskConfigReq> reqs) {
+    public Integer run(String userId,List<DataAccessTaskConfigReq> reqs,Integer taskId) {
         if(reqs == null){
-            return;
+            return null;
         }
 
         Map<String,String> taskId2TypeMap = new HashMap<>();
@@ -127,11 +124,28 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
 
         DWTask task = new DWTask();
+
+        if(taskId != null){
+            task.setId(taskId);
+        }
+
         task.setConfig(JacksonUtils.writeValueAsString(resourceReqList));
         task.setName("数据接入任务");
         task.setUserId(SessionHolder.getUserId());
-        taskRepository.save(task);
+        task = taskRepository.save(task);
 
+        return task.getId();
+    }
+
+    @Override
+    public DWTaskRsp getTask(Integer id) {
+        Optional<DWTask> task = taskRepository.findById(id);
+
+        DWTaskRsp rsp = new DWTaskRsp();
+
+        BeanUtils.copyProperties(task.get(),rsp);
+
+        return rsp;
     }
 
     private List<ResourceReq> transformConfig(DataAccessTaskConfigReq config,Map<String,String> taskId2TypeMap) {
@@ -149,16 +163,21 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                 Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
 
 
-                List<DWTable> tables = dwService.getTableByIds(etlConfigReq.getTableIds());
+                List<DWTableRsp> tables = dwService.findTableAll(SessionHolder.getUserId(),etlConfigReq.getDatabaseId());
 
-                for(DWTable table : tables){
+                for(DWTableRsp table : tables){
 
-                    String name = database.getCreateWay() == 1? table.getTbName(): table.getTableName();
+                    String name;
+                    if(table.getCreateType().equals(1)){
+                        name = table.getTbName();
+                    }else{
+                        name = table.getTableName();
+                    }
 
                     //数仓有打标文件，生成打标任务
                     ResourceReq tranfResourceReq = new ResourceReq();
                     tranfResourceReq.setResourceName(config.getId()+"_transfer"+ UUIDUtils.getShortString().substring(0,5));
-                    tranfResourceReq.setResoutceType("transfer");
+                    tranfResourceReq.setResourceType("transfer");
 
                     List<String> nextTasks = new ArrayList<>();
                     List<String> saveOriginalData = new ArrayList<>();
@@ -172,6 +191,24 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                         }
                     }
 
+                    ResourceReq dwResourceReq = new ResourceReq();
+                    dwResourceReq.setResourceName(config.getId()+"_dw_"+table.getId());
+                    dwResourceReq.setResourceType("dw");
+
+                    JSONObject dwConfig = new JSONObject();
+                    dwConfig.put("dbName",database.getDataName());
+                    dwConfig.put("tbName", table.getTableName());
+
+                    JSONObject dwJson = new JSONObject();
+                    dwJson.put("dwType","mongo");
+                    dwJson.put("dwConfig",dwConfig);
+
+                    dwResourceReq.setConfig(dwJson);
+                    dwResourceReq.setOutputs(Lists.newArrayList());
+                    saveOriginalData.add(dwResourceReq.getResourceName());
+
+
+
                     JSONObject transferJson = new JSONObject();
                     transferJson.put("saveOriginalData",saveOriginalData);
                     transferJson.put("transferType","d2r");
@@ -179,7 +216,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                     tranfResourceReq.setConfig(transferJson);
 
                     //更新下一个任务
-                    tranfResourceReq.setOutptes(nextTasks);
+                    tranfResourceReq.setOutputs(nextTasks);
 
 
                     JSONObject configJson = new JSONObject();
@@ -188,17 +225,18 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                     configJson.put("isScheduled",1);
 
                       //生成ktr文件
-                    String ktrPath = CreateKtrFile.getKettleXmlPath(database, table,kafkaServers,ktrDirectoryPath);
-                    configJson.put("filename",ktrPath);
+                    String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaServers);
+                    configJson.put("fileText",ktrTxt);
 
                     ResourceReq etlResourceReq = new ResourceReq();
                     etlResourceReq.setResourceName(config.getId()+"_"+table.getId());
-                    etlResourceReq.setResoutceType("ktr");
+                    etlResourceReq.setResourceType("ktr");
                     etlResourceReq.setConfig(configJson);
-                    etlResourceReq.setOutptes(Lists.newArrayList(tranfResourceReq.getResourceName()));
+                    etlResourceReq.setOutputs(Lists.newArrayList(tranfResourceReq.getResourceName()));
 
                     list.add(etlResourceReq);
                     list.add(tranfResourceReq);
+                    list.add(dwResourceReq);
                 }
 
                 break;
@@ -214,11 +252,32 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
                 ResourceReq kgResourceReq = new ResourceReq();
                 kgResourceReq.setResourceName(config.getId());
-                kgResourceReq.setResoutceType("kg");
+                kgResourceReq.setResourceType("kg");
                 kgResourceReq.setConfig(kgConfig);
-                kgResourceReq.setOutptes(config.getOutputs());
+                kgResourceReq.setOutputs(config.getOutputs() == null? new ArrayList<>():config.getOutputs());
 
                 list.add(kgResourceReq);
+                break;
+
+            case "index":
+
+                IndexConfigReq indexConfigReq = JacksonUtils.readValue(config.getConfig(), IndexConfigReq.class);
+
+                JSONObject indexConfig = new JSONObject();
+                indexConfig.put("mapping",indexConfigReq.getSetting());
+
+                JSONObject esConfig = new JSONObject();
+                esConfig.put("index",indexConfigReq.getIndex());
+                esConfig.put("type",indexConfigReq.getType());
+                indexConfig.put("esConfig",esConfig);
+
+                ResourceReq indexResourceReq = new ResourceReq();
+                indexResourceReq.setResourceName(config.getId());
+                indexResourceReq.setResourceType("index");
+                indexResourceReq.setConfig(indexConfig);
+                indexResourceReq.setOutputs(config.getOutputs() == null? new ArrayList<>():config.getOutputs());
+
+                list.add(indexResourceReq);
                 break;
             default:
                 break;

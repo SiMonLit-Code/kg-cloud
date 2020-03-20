@@ -21,9 +21,7 @@ public class DWTableRsp {
 
     private List<DataSetSchema> schema;
 
-    private String mapper;
-
-    private String createType;
+    private Integer createType;
 
     private Long dwDataBaseId;
 
@@ -32,6 +30,8 @@ public class DWTableRsp {
     private String cron;
 
     private Integer isAll;
+
+    private Integer schedulingSwitch;
 
     private Date createAt;
 

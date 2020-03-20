@@ -4,10 +4,13 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.req.DWDatabaseQueryReq;
 import com.plantdata.kgcloud.domain.dw.req.DWTableCronReq;
+import com.plantdata.kgcloud.domain.dw.req.DWTableSchedulingReq;
 import com.plantdata.kgcloud.domain.dw.req.RemoteTableAddReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
+import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
@@ -61,6 +64,14 @@ public class DWController {
         return ApiReturn.success();
     }
 
+    @ApiOperation("数仓-设置表调度开关")
+    @PostMapping("/set/table/scheduling")
+    public ApiReturn setTableScheduling(@Valid @RequestBody DWTableSchedulingReq req) {
+        String userId = SessionHolder.getUserId();
+        dwServince.setTableScheduling(userId, req);
+        return ApiReturn.success();
+    }
+
     @ApiOperation("数仓-读取远程数据库表信息")
     @GetMapping("/get/remote/{databaseId}/tables")
     public ApiReturn<List<String>> getRemoteTables(@PathVariable("databaseId") Long databaseId) {
@@ -70,10 +81,11 @@ public class DWController {
 
     @ApiOperation("数仓-添加远程库数据表")
     @PostMapping("/add/remote/{databaseId}/table")
-    public ApiReturn<List<Long>> addRemoteTables(@PathVariable("databaseId") Long databaseId,
+    public ApiReturn addRemoteTables(@PathVariable("databaseId") Long databaseId,
                                      @RequestBody List<RemoteTableAddReq> reqList) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(dwServince.addRemoteTables(userId, databaseId,reqList));
+        dwServince.addRemoteTables(userId, databaseId,reqList);
+        return ApiReturn.success();
     }
 
     @ApiOperation("数仓-查找所有数据库")
@@ -99,33 +111,60 @@ public class DWController {
 
     @ApiOperation("数仓-yaml上传")
     @PostMapping("/{databaseId}/yaml/upload")
-    public ApiReturn yamlUpload(
+    public ApiReturn<FilePathRsp> yamlUpload(
             @PathVariable("databaseId") Long databaseId,
             @RequestParam(value = "file") MultipartFile file) {
         long size = file.getSize();
         if (size > 1024 * 1024) {
             return ApiReturn.fail(KgmsErrorCodeEnum.FILE_OUT_LIMIT);
         }
-        try {
-            String userId = SessionHolder.getUserId();
-            dwServince.yamlUpload(userId, databaseId, file);
-            return ApiReturn.success();
-        } catch (Exception e) {
-            return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_IMPORT_FAIL);
+        dwServince.yamlUpload(databaseId, file);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数仓-tagJson上传")
+    @PostMapping("/{databaseId}/tag/upload")
+    public ApiReturn<FilePathRsp> tagUpload(
+            @PathVariable("databaseId") Long databaseId,
+            @RequestParam(value = "file") MultipartFile file) {
+
+        long size = file.getSize();
+        if (size > 1024 * 1024) {
+            return ApiReturn.fail(KgmsErrorCodeEnum.FILE_OUT_LIMIT);
         }
 
+        dwServince.tagUpload(databaseId, file);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数仓-模式发布")
+    @PatchMapping("/model/push/{id}")
+    public ApiReturn push(@PathVariable("id") Long id,String modelType) {
+
+        String userId = SessionHolder.getUserId();
+        dwServince.push(userId, id,modelType);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数仓-查看模式")
+    @PatchMapping("/model/get/{id}")
+    public ApiReturn<ModelSchemaConfigRsp> getModel(@PathVariable("id") Long id) {
+
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dwServince.getModel(userId, id));
     }
 
     @ApiOperation("数仓-创建表")
     @PostMapping("/create/table")
     public ApiReturn<DWTableRsp> createTable(@Valid @RequestBody DWTableReq req) {
         String userId = SessionHolder.getUserId();
+        req.setCreateWay(2);
         return ApiReturn.success(dwServince.createTable(userId, req));
     }
 
     @ApiOperation("数仓-文件上传")
     @PostMapping("/{databaseId}/upload")
-    public ApiReturn D(
+    public ApiReturn upload(
             @PathVariable("databaseId") Long databaseId,
             Long tableId,
             @RequestParam(value = "file") MultipartFile file) {

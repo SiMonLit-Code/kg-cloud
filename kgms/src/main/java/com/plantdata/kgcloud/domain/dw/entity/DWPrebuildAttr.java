@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.entity;
 
+import com.plantdata.kgcloud.domain.common.converter.StringListConverter;
 import com.plantdata.kgcloud.domain.dataset.converter.DataTypeConverter;
 import com.plantdata.kgcloud.sdk.constant.DataType;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -70,6 +72,11 @@ public class DWPrebuildAttr {
     @Basic
     @Column(name = "unit")
     private String unit;
+
+    @Basic
+    @Column(name = "tables")
+    @Convert(converter = StringListConverter.class)
+    private List<String> tables;
 
     @Basic
     @Column(name = "create_at")

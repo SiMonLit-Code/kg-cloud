@@ -60,10 +60,6 @@ public class DWTable {
     private String mapper;
 
     @Basic
-    @Column(name = "create_type")
-    private String createType;
-
-    @Basic
     @Column(name = "dw_database_id")
     private Long dwDatabaseId;
 
@@ -80,6 +76,10 @@ public class DWTable {
     private Integer isAll;
 
     @Basic
+    @Column(name = "scheduling_switch")
+    private Integer schedulingSwitch;
+
+    @Basic
     @Column(name = "create_at")
     @CreatedDate
     private Date createAt;
@@ -88,5 +88,14 @@ public class DWTable {
     @Column(name = "update_at")
     @LastModifiedDate
     private Date updateAt;
+
+    @Basic
+    @Column(name = "create_way")
+    private Integer createWay;
+
+    @Basic
+    @Column(name = "ktr")
+    private String ktr;
+
 
 }

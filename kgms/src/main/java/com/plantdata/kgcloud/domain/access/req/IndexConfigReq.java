@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.access.req;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
@@ -7,11 +8,11 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EtlConfigReq {
+public class IndexConfigReq {
 
-    private String taskId;
+    private String index;
 
-    private Long databaseId;
+    private String type;
 
-    private List<Long> tableIds;
+    private List<JSONObject> setting;
 }

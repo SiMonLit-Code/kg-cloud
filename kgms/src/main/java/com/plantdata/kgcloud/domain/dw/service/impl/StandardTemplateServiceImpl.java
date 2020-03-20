@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.dw.service.impl;
 
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.dw.entity.DWStandardTemplate;
-import com.plantdata.kgcloud.domain.dw.repository.StandardTemplateRepository;
+import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
+import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.rsp.StandardTemplateRsp;
 import com.plantdata.kgcloud.domain.dw.service.StandardTemplateService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 public class StandardTemplateServiceImpl implements StandardTemplateService {
 
     @Autowired
-    private StandardTemplateRepository standardTemplateRepository;
+    private DWPrebuildModelRepository modelRepository;
 
-    private final Function<DWStandardTemplate, StandardTemplateRsp> st2rsp = (s) -> {
+    private final Function<DWPrebuildModel, StandardTemplateRsp> st2rsp = (s) -> {
         StandardTemplateRsp stRsp = new StandardTemplateRsp();
         BeanUtils.copyProperties(s, stRsp);
         return stRsp;
@@ -30,15 +30,15 @@ public class StandardTemplateServiceImpl implements StandardTemplateService {
     @Override
     public List<StandardTemplateRsp> findAll(String userId) {
 
-        List<DWStandardTemplate> standardTemplateList = standardTemplateRepository.findAll();
+        List<DWPrebuildModel> standardTemplateList = modelRepository.findStandardTemplate();
 
         return standardTemplateList.stream().map(st2rsp).collect(Collectors.toList());
     }
 
     @Override
-    public StandardTemplateRsp findOne(String userId, Long standardTemplateId) {
+    public StandardTemplateRsp findOne(String userId, Integer standardTemplateId) {
 
-        Optional<DWStandardTemplate> byId = standardTemplateRepository.findById(standardTemplateId);
+        Optional<DWPrebuildModel> byId = modelRepository.findById(standardTemplateId);
 
         if(!byId.isPresent()){
             throw BizException.of(KgmsErrorCodeEnum.STANDARD_TEMPLATE_NOT_EXIST);

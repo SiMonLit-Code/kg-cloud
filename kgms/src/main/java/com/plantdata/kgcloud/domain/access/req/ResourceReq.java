@@ -9,9 +9,9 @@ public class ResourceReq {
 
     private String resourceName;
 
-    private String resoutceType;
+    private String resourceType;
 
-    private List<String> outptes;
+    private List<String> outputs;
 
     private Object config;
 }

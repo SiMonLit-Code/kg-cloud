@@ -11,10 +11,7 @@ import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -42,14 +39,17 @@ public class AccessTaskController {
     }
 
     @ApiOperation("运行任务")
-
     @PostMapping("/run/task")
-    public ApiReturn runTask(@Valid @RequestBody List<DataAccessTaskConfigReq> reqs) {
+    public ApiReturn runTask(@Valid @RequestBody List<DataAccessTaskConfigReq> reqs,Integer taskId) {
         String userId = SessionHolder.getUserId();
-        accessTaskService.run(userId,reqs);
-        return ApiReturn.success();
+        return ApiReturn.success(accessTaskService.run(userId,reqs,taskId));
     }
 
+    @ApiOperation("查看任务")
+    @PatchMapping("/get/task/{id}")
+    public ApiReturn getTask(@PathVariable("id")Integer id) {
+        return ApiReturn.success(accessTaskService.getTask(id));
+    }
 
     @ApiOperation("停止任务")
     @PostMapping("/stop/task")

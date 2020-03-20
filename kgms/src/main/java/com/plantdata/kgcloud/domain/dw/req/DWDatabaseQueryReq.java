@@ -8,7 +8,7 @@ import lombok.Data;
 @ApiModel("数据库查询")
 public class DWDatabaseQueryReq extends BaseReq {
 
-
+    private Integer dataFormat;
 
     private Integer createWay;
 

@@ -14,5 +14,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DWDatabaseRepository extends JpaRepository<DWDatabase, Long> {
 
+
+    /**
+    * @Description:  根据查询条件跟分页条件查询数据
+    * @Param:
+    * @return:
+    * @Author: czj
+    * @Date: 2020/3/13
+    */
     Page<DWDatabase> findAll(Specification<DWDatabase> spec, Pageable pageable);
 }

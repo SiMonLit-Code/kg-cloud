@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.entity;
 
+import com.plantdata.kgcloud.domain.common.converter.StringListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -44,6 +46,11 @@ public class DWPrebuildConcept {
     @Basic
     @Column(name = "image")
     private String image;
+
+    @Basic
+    @Column(name = "tables")
+    @Convert(converter = StringListConverter.class)
+    private List<String> tables;
 
     @Basic
     @Column(name = "parent_id")

@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @create: 2019-11-04 18:45
  **/
 
-public interface DWTaskRepository extends JpaRepository<DWTask, Long> {
+public interface DWTaskRepository extends JpaRepository<DWTask, Integer> {
 }

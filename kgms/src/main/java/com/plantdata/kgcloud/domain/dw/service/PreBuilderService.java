@@ -1,9 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.sdk.req.*;
 import org.springframework.data.domain.Page;
 
@@ -16,9 +14,18 @@ public interface PreBuilderService {
 
     Integer saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq);
 
-    void createModelByYaml(DWDatabase database, List<PreBuilderConceptRsp> preBuilderConceptRspList);
-
     List<SchemaQuoteReq> getGraphMap(String userId, String kgName);
 
     PreBuilderSearchRsp databaseDetail(String userId, Long databaseId);
+
+    Page<PreBuilderSearchRsp> listManage(String userId, PreBuilderSearchReq preBuilderSearchReq);
+
+    void delete(String userId, Integer id);
+
+    void update(String userId, Integer id, String status);
+
+    void createModel(DWDatabase database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType,String yamlContent);
+
+    List<String> getTypes(String userId);
+
 }
