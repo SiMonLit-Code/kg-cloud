@@ -6,7 +6,6 @@ import com.plantdata.kgcloud.sdk.KgtextClient;
 import com.plantdata.kgcloud.sdk.req.CorpusSearchReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.CorpusDataRsp;
-import com.plantdata.kgcloud.sdk.rsp.CorpusRsp;
 import com.plantdata.kgcloud.util.SpringContextUtils;
 
 import java.beans.BeanInfo;
@@ -65,7 +64,7 @@ public class PdDocumentOptProvider implements DataOptProvider {
     private Map<String, Object> beanToMap(CorpusDataRsp corpusRsp) {
         Map<String, Object> map = new HashMap<>();
         try {
-            BeanInfo b = Introspector.getBeanInfo(corpusRsp.getClass(), CorpusRsp.class);
+            BeanInfo b = Introspector.getBeanInfo(corpusRsp.getClass(), CorpusDataRsp.class);
             PropertyDescriptor[] pds = b.getPropertyDescriptors();
             for (PropertyDescriptor pd : pds) {
                 String propertyName = pd.getName();
