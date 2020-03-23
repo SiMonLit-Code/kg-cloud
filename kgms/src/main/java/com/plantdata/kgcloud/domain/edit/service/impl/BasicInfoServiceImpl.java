@@ -18,13 +18,18 @@ import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
 import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.BasicInfoType;
 import com.plantdata.kgcloud.constant.CountType;
+import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
@@ -50,6 +55,7 @@ import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import org.bson.Document;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -93,6 +99,9 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Autowired
     private LogSender logSender;
+
+    @Autowired
+    private MongoClient mongoClient;
 
     @Override
     public Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq) {
@@ -142,7 +151,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
             throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
         }
         BasicInfoRsp basicInfoRsp = ParserBeanUtils.parserEntityVO(optional.get());
-
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
+        MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
         if (CollectionUtils.isEmpty(attrValue) || BasicInfoType.isConcept(basicInfoRsp.getType())) {
             return basicInfoRsp;
@@ -168,6 +178,12 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         }
     }
 
+    private List<MultiModal> listMultiModels(String kgName,Long entityId){
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
+        MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
+
+        return null;
+    }
     @Override
     public void updateAbstract(String kgName, AbstractModifyReq abstractModifyReq) {
         this.sendLog(kgName, abstractModifyReq.getId());
