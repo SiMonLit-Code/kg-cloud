@@ -385,3 +385,41 @@ INSERT INTO `task_template` VALUES (3, '网页数据解析-入图-标引', '[\"w
 INSERT INTO `task_template` VALUES (4, '数据接入-网页数据解析-D2R', '[\"etl\",\"wrapper\",\"d2r\"]', now(), now());
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- Table structure for graph_quality
+-- ----------------------------
+DROP TABLE IF EXISTS `graph_quality`;
+CREATE TABLE `graph_quality` (
+  `id` bigint(20) NOT NULL COMMENT '概念id',
+  `self_id` bigint(20) DEFAULT NULL COMMENT '当前概念id',
+  `name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '概念名称',
+  `kg_name` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '图谱kgName',
+  `concept_id` bigint(20) DEFAULT NULL COMMENT '父概念id',
+  `entity_count` bigint(20) DEFAULT NULL COMMENT '实体数量(当前概念下的实体)',
+  `entity_total` bigint(20) DEFAULT NULL COMMENT '实体总数(包含子概念下的实体)',
+  `attr_definition_count` int(11) DEFAULT NULL COMMENT '属性定义数量',
+  `schema_integrity` double(11,2) DEFAULT NULL COMMENT '模式完整度',
+  `reliability` double(11,2) DEFAULT NULL COMMENT '知识质量置信度',
+  `create_at` datetime(3) DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(3) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `kg_name_id` (`self_id`,`kg_name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='图谱质量统计';
+
+-- ----------------------------
+-- Table structure for graph_attr_quality
+-- ----------------------------
+DROP TABLE IF EXISTS `graph_quality`;
+CREATE TABLE `graph_attr_quality` (
+  `id` bigint(20) NOT NULL,
+  `kg_name` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '图谱kgName',
+  `self_id` bigint(11) DEFAULT NULL COMMENT '概念id',
+  `attr_name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '属性名称',
+  `attr_count` int(11) DEFAULT NULL COMMENT '属性值数量',
+  `attr_integrity` double(11,2) DEFAULT NULL COMMENT '属性模式完整度',
+  `attr_reliability` double(11,2) DEFAULT NULL COMMENT '属性置信度',
+  `create_at` datetime(3) DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(3) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='图谱质量属性统计';
