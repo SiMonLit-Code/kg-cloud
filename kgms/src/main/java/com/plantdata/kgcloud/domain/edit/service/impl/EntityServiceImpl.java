@@ -50,6 +50,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.MultiModalRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
@@ -146,11 +147,12 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public void addMultiModal(String kgName, MultiModalReq multiModalReq) {
+    public MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq) {
         Document document = documentConverter.toDocument(multiModalReq);
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         mongoCollection.insertOne(document);
+        return documentConverter.toBean(document, MultiModalRsp.class);
     }
 
     @Override
@@ -233,10 +235,10 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public List<DeleteResult> deleteByIds(String kgName, Boolean isTrace, List<Long> ids) {
         logSender.setActionId();
-        if (isTrace){
+        if (isTrace) {
             logSender.sendLog(kgName, ServiceEnum.ENTITY_TRACE);
-        }else {
-            logSender.sendLog(kgName,ServiceEnum.ENTITY_EDIT);
+        } else {
+            logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
         }
         Optional<List<BatchDeleteResult>> optional =
                 RestRespConverter.convert(batchApi.deleteEntities(KGUtil.dbName(kgName), ids));
@@ -356,7 +358,7 @@ public class EntityServiceImpl implements EntityService {
         if (StringUtils.hasText(fromTime) && StringUtils.hasText(toTime) && fromTime.compareTo(toTime) > 0) {
             throw BizException.of(KgmsErrorCodeEnum.TIME_FORM_MORE_THAN_TO);
         }
-        if (!CollectionUtils.isEmpty(metadata)){
+        if (!CollectionUtils.isEmpty(metadata)) {
             conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
         }
     }
@@ -518,7 +520,7 @@ public class EntityServiceImpl implements EntityService {
         String reliability = updateRelationMetaReq.getReliability();
         if (Objects.nonNull(reliability)) {
             metaData.put(MetaDataInfo.RELIABILITY.getFieldName(),
-                   "".equals(reliability)? "" : Double.parseDouble(reliability));
+                    "".equals(reliability) ? "" : Double.parseDouble(reliability));
         }
         if (Objects.nonNull(updateRelationMetaReq.getSourceReason())) {
             metaData.put(MetaDataInfo.SOURCE_REASON.getFieldName(), updateRelationMetaReq.getSourceReason());

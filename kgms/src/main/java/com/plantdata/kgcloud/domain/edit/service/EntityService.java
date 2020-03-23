@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.MultiModalRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
@@ -50,7 +51,7 @@ public interface EntityService {
      * @param kgName
      * @param multiModalReq
      */
-    void addMultiModal(String kgName, MultiModalReq multiModalReq);
+    MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq);
 
     /**
      * 实体列表

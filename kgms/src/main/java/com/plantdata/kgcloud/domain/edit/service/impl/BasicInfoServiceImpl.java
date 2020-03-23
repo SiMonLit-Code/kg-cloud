@@ -21,6 +21,7 @@ import cn.hiboot.mcn.core.model.result.RestResp;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.BasicInfoType;
@@ -181,7 +182,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     private List<MultiModal> listMultiModels(String kgName,Long entityId){
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
-
+        collection.find(Filters.eq("entity_id", entityId));
         return null;
     }
     @Override
