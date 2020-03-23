@@ -7,7 +7,7 @@ import com.plantdata.kgcloud.sdk.req.CorpusSearchReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.CorpusDataRsp;
 import com.plantdata.kgcloud.sdk.rsp.CorpusRsp;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.plantdata.kgcloud.util.SpringContextUtils;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -30,12 +30,13 @@ public class PdDocumentOptProvider implements DataOptProvider {
 
     private final String database;
 
+    private KgtextClient kgtextClient;
+
     public PdDocumentOptProvider(DataOptConnect info) {
         database = info.getDatabase();
+        kgtextClient = SpringContextUtils.getBean(KgtextClient.class);
     }
 
-    @Autowired
-    private KgtextClient kgtextClient;
 
     @Override
     public List<String> getFields() {
@@ -49,8 +50,9 @@ public class PdDocumentOptProvider implements DataOptProvider {
         corpusSearchReq.setCpId(cpId);
         corpusSearchReq.setPage(offset + 1);
         corpusSearchReq.setSize(limit);
-        Optional<BasePage<CorpusDataRsp>> optional = ApiReturnConverter.convert(kgtextClient.listDataCorpuses(cpId,offset + 1
-                ,limit,null,null,null,null,null,null,null,null));
+        Optional<BasePage<CorpusDataRsp>> optional = ApiReturnConverter.convert(kgtextClient.listDataCorpuses(cpId,
+                offset + 1
+                , limit, null, null, null, null, null, null, null, null));
         if (!optional.isPresent()) {
             return null;
         } else {
@@ -90,8 +92,9 @@ public class PdDocumentOptProvider implements DataOptProvider {
 
     @Override
     public Map<String, Object> findOne(String id) {
-        Optional<CorpusDataRsp> optional = ApiReturnConverter.convert(kgtextClient.getDataDetails(Long.parseLong(database),
-                id));
+        Optional<CorpusDataRsp> optional =
+                ApiReturnConverter.convert(kgtextClient.getDataDetails(Long.parseLong(database),
+                        id));
         if (!optional.isPresent()) {
             return null;
         } else {
