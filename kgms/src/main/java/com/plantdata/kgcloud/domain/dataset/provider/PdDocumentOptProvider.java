@@ -1,12 +1,13 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.dataset.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.sdk.KgtextClient;
 import com.plantdata.kgcloud.sdk.req.CorpusSearchReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.CorpusDataRsp;
 import com.plantdata.kgcloud.sdk.rsp.CorpusRsp;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -44,20 +45,22 @@ public class PdDocumentOptProvider implements DataOptProvider {
     @Override
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
         CorpusSearchReq corpusSearchReq = new CorpusSearchReq();
-        corpusSearchReq.setCpId(Long.parseLong(database));
+        Long cpId = Long.parseLong(database);
+        corpusSearchReq.setCpId(cpId);
         corpusSearchReq.setPage(offset + 1);
         corpusSearchReq.setSize(limit);
-        Optional<Page<CorpusRsp>> optional = ApiReturnConverter.convert(kgtextClient.listCorpuses(corpusSearchReq));
+        Optional<BasePage<CorpusDataRsp>> optional = ApiReturnConverter.convert(kgtextClient.listDataCorpuses(cpId,offset + 1
+                ,limit,null,null,null,null,null,null,null,null));
         if (!optional.isPresent()) {
             return null;
         } else {
-            Page<CorpusRsp> corpusRsps = optional.get();
-            List<CorpusRsp> contents = corpusRsps.getContent();
+            BasePage<CorpusDataRsp> corpusRsps = optional.get();
+            List<CorpusDataRsp> contents = corpusRsps.getContent();
             return contents.stream().map(this::beanToMap).collect(Collectors.toList());
         }
     }
 
-    private Map<String, Object> beanToMap(CorpusRsp corpusRsp) {
+    private Map<String, Object> beanToMap(CorpusDataRsp corpusRsp) {
         Map<String, Object> map = new HashMap<>();
         try {
             BeanInfo b = Introspector.getBeanInfo(corpusRsp.getClass(), CorpusRsp.class);
@@ -87,12 +90,12 @@ public class PdDocumentOptProvider implements DataOptProvider {
 
     @Override
     public Map<String, Object> findOne(String id) {
-        Optional<CorpusRsp> optional = ApiReturnConverter.convert(kgtextClient.getDetails(Long.parseLong(database),
+        Optional<CorpusDataRsp> optional = ApiReturnConverter.convert(kgtextClient.getDataDetails(Long.parseLong(database),
                 id));
         if (!optional.isPresent()) {
             return null;
         } else {
-            CorpusRsp corpusRsp = optional.get();
+            CorpusDataRsp corpusRsp = optional.get();
             return this.beanToMap(corpusRsp);
         }
 

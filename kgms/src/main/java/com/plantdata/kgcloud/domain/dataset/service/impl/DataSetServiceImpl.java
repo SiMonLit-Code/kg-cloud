@@ -328,14 +328,14 @@ public class DataSetServiceImpl implements DataSetService {
         dataSetSchemas.add(titleField);
         dataSetSchemas.add(labelField);
         target.setSchema(dataSetSchemas);
-        target.setDataName(req.getPdId() + "");
+        target.setDataName(dataName);
         target.setEditable(true);
         target.setPrivately(true);
         target.setFields(transformFields(dataSetSchemas));
         target.setId(kgKeyGenerator.getNextId());
         target.setUserId(userId);
         target.setAddr(esProperties.getAddrs());
-        target.setDbName(dataName);
+        target.setDbName(req.getPdId() + "");
         target.setTbName("_pddoc");
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
         try {
