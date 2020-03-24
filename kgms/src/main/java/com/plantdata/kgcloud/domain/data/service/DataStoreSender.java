@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -23,10 +24,17 @@ public class DataStoreSender {
     @Autowired
     private KafkaTemplate kafkaTemplate;
 
-    public void sendMsg(String resourceName, DataStoreBO bo){
+    public void sendMsg(DataStoreBO bo) {
         Random rand = new Random();
-        ProducerRecord<String,String> record = new ProducerRecord<>(topicChannelTransfer,rand.nextInt(10),
-                resourceName, JacksonUtils.writeValueAsString(bo));
+        ProducerRecord<String, String> record = new ProducerRecord<>(topicChannelTransfer, rand.nextInt(10),
+                bo.getResourceName(), JacksonUtils.writeValueAsString(bo));
+        kafkaTemplate.send(record);
+    }
+
+    public void sendMsg(List<DataStoreBO> bos) {
+        for (DataStoreBO bo : bos) {
+            this.sendMsg(bo);
+        }
     }
 
 }

@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class DataStoreBO {
+
     private String data;
 
     private String resourceName;
