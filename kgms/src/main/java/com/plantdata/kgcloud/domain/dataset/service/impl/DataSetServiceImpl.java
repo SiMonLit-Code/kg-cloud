@@ -337,12 +337,10 @@ public class DataSetServiceImpl implements DataSetService {
         target.setId(kgKeyGenerator.getNextId());
         target.setUserId(userId);
         target.setAddr(Arrays.asList(mongoProperties.getAddrs()));
-        target.setDbName(req.getPdId() + "");
-        target.setTbName("_pddoc");
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
         try {
             CorpusSetInfoRsp rsp = ApiReturnConverter.convert(kgtextClient.csInfo(req.getPdId()));
-            target.setDataName(rsp.getDbName());
+            target.setDbName(rsp.getDbName());
             target.setTbName(rsp.getTbName());
             target = dataSetRepository.save(target);
 
