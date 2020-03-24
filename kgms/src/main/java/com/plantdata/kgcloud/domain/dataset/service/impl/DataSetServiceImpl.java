@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
@@ -30,6 +31,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetPdReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
+import com.plantdata.kgcloud.sdk.rsp.CorpusSetInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
@@ -334,13 +336,16 @@ public class DataSetServiceImpl implements DataSetService {
         target.setFields(transformFields(dataSetSchemas));
         target.setId(kgKeyGenerator.getNextId());
         target.setUserId(userId);
-        target.setAddr(esProperties.getAddrs());
+        target.setAddr(Arrays.asList(mongoProperties.getAddrs()));
         target.setDbName(req.getPdId() + "");
         target.setTbName("_pddoc");
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
         try {
-            kgtextClient.getDetails(req.getPdId());
+            CorpusSetInfoRsp rsp = ApiReturnConverter.convert(kgtextClient.csInfo(req.getPdId()));
+            target.setDataName(rsp.getDbName());
+            target.setTbName(rsp.getTbName());
             target = dataSetRepository.save(target);
+
         }catch (Exception e){
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_PDTEXT_ERROR);
         }

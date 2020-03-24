@@ -3,22 +3,14 @@ package com.plantdata.kgcloud.domain.dataset.provider;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.dataset.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.sdk.KgtextClient;
-import com.plantdata.kgcloud.sdk.req.CorpusSearchReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.sdk.rsp.CorpusDataRsp;
 import com.plantdata.kgcloud.util.SpringContextUtils;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -27,12 +19,12 @@ import java.util.stream.Collectors;
  **/
 public class PdDocumentOptProvider implements DataOptProvider {
 
-    private final String database;
+    private final String table;
 
     private KgtextClient kgtextClient;
 
     public PdDocumentOptProvider(DataOptConnect info) {
-        database = info.getDatabase();
+        table = info.getTable();
         kgtextClient = SpringContextUtils.getBean(KgtextClient.class);
     }
 
@@ -44,38 +36,22 @@ public class PdDocumentOptProvider implements DataOptProvider {
 
     @Override
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
-        CorpusSearchReq corpusSearchReq = new CorpusSearchReq();
-        Long cpId = Long.parseLong(database);
-        corpusSearchReq.setCpId(cpId);
-        corpusSearchReq.setPage(offset + 1);
-        corpusSearchReq.setSize(limit);
-        Optional<BasePage<CorpusDataRsp>> optional = ApiReturnConverter.convert(kgtextClient.listDataCorpuses(cpId,
+        Long cpId = resolvingCorpus();
+        Optional<BasePage<Map<String,Object>>> optional = ApiReturnConverter.convert(kgtextClient.listDataCorpuses(cpId,
                 offset + 1
                 , limit, null, null, null, null, null, null, null, null));
         if (!optional.isPresent()) {
             return null;
         } else {
-            BasePage<CorpusDataRsp> corpusRsps = optional.get();
-            List<CorpusDataRsp> contents = corpusRsps.getContent();
-            return contents.stream().map(this::beanToMap).collect(Collectors.toList());
+            BasePage<Map<String,Object>> corpusRsps = optional.get();
+            return corpusRsps.getContent();
         }
     }
 
-    private Map<String, Object> beanToMap(CorpusDataRsp corpusRsp) {
-        Map<String, Object> map = new HashMap<>();
-        try {
-            BeanInfo b = Introspector.getBeanInfo(corpusRsp.getClass(), CorpusDataRsp.class);
-            PropertyDescriptor[] pds = b.getPropertyDescriptors();
-            for (PropertyDescriptor pd : pds) {
-                String propertyName = pd.getName();
-                Method m = pd.getReadMethod();
-                Object properValue = m.invoke(corpusRsp);
-                map.put(propertyName, properValue);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return map;
+    private Long resolvingCorpus(){
+        int indexOf = table.indexOf("_");
+        String corpusId = table.substring(0, indexOf);
+        return Long.parseLong(corpusId);
     }
 
     @Override
@@ -91,16 +67,9 @@ public class PdDocumentOptProvider implements DataOptProvider {
 
     @Override
     public Map<String, Object> findOne(String id) {
-        Optional<CorpusDataRsp> optional =
-                ApiReturnConverter.convert(kgtextClient.getDataDetails(Long.parseLong(database),
-                        id));
-        if (!optional.isPresent()) {
-            return null;
-        } else {
-            CorpusDataRsp corpusRsp = optional.get();
-            return this.beanToMap(corpusRsp);
-        }
-
+        Optional<Map<String,Object>> optional =
+                ApiReturnConverter.convert(kgtextClient.getDataDetails(resolvingCorpus(), id));
+        return optional.orElse(null);
     }
 
     @Override
