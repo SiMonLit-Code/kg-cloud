@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
@@ -30,6 +31,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetPdReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
+import com.plantdata.kgcloud.sdk.rsp.CorpusSetInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
@@ -328,19 +330,20 @@ public class DataSetServiceImpl implements DataSetService {
         dataSetSchemas.add(titleField);
         dataSetSchemas.add(labelField);
         target.setSchema(dataSetSchemas);
-        target.setDataName(req.getPdId() + "");
-        target.setEditable(true);
-        target.setPrivately(true);
+        target.setDataName(dataName);
+        target.setEditable(false);
+        target.setPrivately(false);
         target.setFields(transformFields(dataSetSchemas));
         target.setId(kgKeyGenerator.getNextId());
         target.setUserId(userId);
-        target.setAddr(esProperties.getAddrs());
-        target.setDbName(dataName);
-        target.setTbName("_pddoc");
+        target.setAddr(Arrays.asList(mongoProperties.getAddrs()));
         DataOptConnect dataOptConnect = DataOptConnect.of(target);
         try {
-            kgtextClient.getDetails(req.getPdId());
+            CorpusSetInfoRsp rsp = ApiReturnConverter.convert(kgtextClient.csInfo(req.getPdId()));
+            target.setDbName(rsp.getDbName());
+            target.setTbName(rsp.getTbName());
             target = dataSetRepository.save(target);
+
         }catch (Exception e){
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_PDTEXT_ERROR);
         }

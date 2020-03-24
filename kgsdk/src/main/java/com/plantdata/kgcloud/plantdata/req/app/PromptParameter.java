@@ -27,7 +27,7 @@ public class PromptParameter extends PageModel {
     private List<String> allowTypesKey = new ArrayList<>();
     private Integer promptType = 0;
     private Boolean isInherit = false;
-    private Boolean isCaseInsensitive = false;
+    private Boolean isCaseInsensitive = true;
     private Boolean isFuzzy;
     private Boolean openExportDate = true;
     @ChooseCheck(value = "[0,1,-1]", isBlank = true)

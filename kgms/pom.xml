@@ -5,7 +5,7 @@
     <parent>
         <artifactId>kg-cloud-kgms</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.0.36-SNAPSHOT</version>
+        <version>3.0.39-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -239,6 +239,7 @@
         <dependency>
             <groupId>com.plantdata</groupId>
             <artifactId>kgtext-sdk</artifactId>
+            <version>3.0.11-SNAPSHOT</version>
         </dependency>
         <!-- ******************* kgtext-sdk  end ****************** -->
 
