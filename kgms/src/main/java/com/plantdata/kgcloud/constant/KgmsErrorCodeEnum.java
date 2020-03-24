@@ -100,7 +100,10 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     PERMISSION_NOT_ENOUGH_ERROR(120509, "没有该图谱的编辑权限"),
 
     RDF_EXPORT_ERROR(120510, "rdf导出错误"),
-    ;
+
+    GRAPH_QUALITY_NOT_EXIST(120511, "图谱质量不存在"),
+
+    ILLEGAL_PARAM(120512, "参数不合法");
 
     private final int errorCode;
 
