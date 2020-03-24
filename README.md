@@ -11,3 +11,4 @@ mvn clean package deploy -Dmaven.test.skip=true
 
 mvn scm:update versions:set -DnewVersion=${next-develop.version} versions:set-scm-tag -DnewTag=HEAD versions:commit scm:checkin -Dmessage="build(pom): pom.xml version change to ${next-develop.version}"
 ```
+
