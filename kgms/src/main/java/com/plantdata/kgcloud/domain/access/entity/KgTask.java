@@ -33,19 +33,25 @@ public class KgTask {
     private Long id;
 
     @Basic
-    @Column(name = "kg_map_id")
-    private Integer kgMapId;
+    @Column(name = "kg_name")
+    private String kgName;
 
 
     @Basic
     @Column(name = "status")
     private Integer status;
 
-
     @Basic
     @Column(name = "task_id")
-    private String taskId;
+    private Integer taskId;
 
+    @Basic
+    @Column(name = "name")
+    private String name;
+
+    @Basic
+    @Column(name = "config")
+    private String config;
 
     @Basic
     @Column(name = "create_at")

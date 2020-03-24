@@ -22,7 +22,7 @@ public class SchemaQuoteAttrReq {
     private Integer attrId;
 
     @ApiModelProperty("属性名")
-    private String name;
+    private String attrName;
 
     @ApiModelProperty("属性唯一标识")
     private String attrKey;

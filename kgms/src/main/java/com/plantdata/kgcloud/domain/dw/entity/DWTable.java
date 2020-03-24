@@ -76,6 +76,10 @@ public class DWTable {
     private Integer isAll;
 
     @Basic
+    @Column(name = "is_write_dw")
+    private Integer isWriteDW;
+
+    @Basic
     @Column(name = "scheduling_switch")
     private Integer schedulingSwitch;
 

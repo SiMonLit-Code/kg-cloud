@@ -23,7 +23,11 @@ public enum DWDataFormat {
     /**
      * 自定义
      */
-    CUSTOM(3);
+    CUSTOM(3),
+
+    RDF_OWL(4),
+
+    FILE(5);
 
     private Integer type;
 
@@ -43,4 +47,12 @@ public enum DWDataFormat {
     public static boolean isStandard(Integer type){
         return STANDARD.getType().equals(type);
     }
+
+    public static boolean isPDdoc(Integer type){
+        return PDDOC.getType().equals(type);
+    }
+
+
+
+
 }

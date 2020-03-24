@@ -5,7 +5,6 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
-import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderMatchAttrReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
@@ -52,7 +51,8 @@ public class PreBuildController {
     @PostMapping("/save/graph/map")
     public ApiReturn saveGraphMap(@RequestBody PreBuilderGraphMapReq preBuilderGraphMapReq) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(preBuilderService.saveGraphMap(userId,preBuilderGraphMapReq));
+        preBuilderService.saveGraphMap(userId,preBuilderGraphMapReq);
+        return ApiReturn.success();
     }
 
     @ApiOperation("预构建模式-查询图谱的映射配置")

@@ -1,7 +1,5 @@
 package com.plantdata.kgcloud.domain.access.entity;
 
-
-import com.plantdata.kgcloud.domain.common.converter.StringListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,53 +12,46 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Entity
-@Table(name = "dw_task")
 @Builder
+@Table(name = "access_transfer_task")
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamicInsert
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
-public class DWTask {
+public class TransferTask {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
     @Basic
-    @Column(name = "user_id")
-    private String userId;
+    @Column(name = "database_id")
+    private Long databaseId;
 
     @Basic
-    @Column(name = "name")
-    private String name;
-
-    @Basic
-    @Column(name = "task_type")
-    private String taskType;
-
-    @Basic
-    @Column(name = "config")
-    private String config;
+    @Column(name = "table_id")
+    private Long tableId;
 
     @Basic
     @Column(name = "status")
     private Integer status;
 
     @Basic
-    @Column(name = "outputs")
-    @Convert(converter = StringListConverter.class)
-    private List<String> outputs;
+    @Column(name = "task_id")
+    private Integer taskId;
 
     @Basic
-    @Column(name = "distribute_original_data")
-    @Convert(converter = StringListConverter.class)
-    private List<String> distributeOriginalData;
+    @Column(name = "name")
+    private String name;
+
+    @Basic
+    @Column(name = "config")
+    private String config;
 
     @Basic
     @Column(name = "create_at")
@@ -71,5 +62,4 @@ public class DWTask {
     @Column(name = "update_at")
     @LastModifiedDate
     private Date updateAt;
-
 }

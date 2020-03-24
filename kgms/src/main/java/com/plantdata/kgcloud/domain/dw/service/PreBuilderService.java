@@ -1,8 +1,13 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
-import com.plantdata.kgcloud.domain.dw.rsp.*;
-import com.plantdata.kgcloud.sdk.req.*;
+import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
+import com.plantdata.kgcloud.sdk.req.PreBuilderGraphMapReq;
+import com.plantdata.kgcloud.sdk.req.PreBuilderMatchAttrReq;
+import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
+import com.plantdata.kgcloud.sdk.req.SchemaQuoteReq;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -12,7 +17,7 @@ public interface PreBuilderService {
 
     List<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq);
 
-    Integer saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq);
+    void saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq);
 
     List<SchemaQuoteReq> getGraphMap(String userId, String kgName);
 

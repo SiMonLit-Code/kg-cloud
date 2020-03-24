@@ -23,4 +23,9 @@ public class DWTableCronReq {
 
     @ApiModelProperty("是否全量更新 1全量 2增量")
     private Integer isAll;
+
+    @ApiModelProperty("是否写入数仓")
+    private Integer isWriteDW;
+
+
 }

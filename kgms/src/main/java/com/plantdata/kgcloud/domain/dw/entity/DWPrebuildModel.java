@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.dw.entity;
 
-import com.plantdata.kgcloud.domain.common.converter.StringListConverter;
 import com.plantdata.kgcloud.domain.dw.converter.ListStandardTemplateSchemaConverter;
 import com.plantdata.kgcloud.domain.dw.converter.MoldSchemaConfigConverter;
 import com.plantdata.kgcloud.domain.dw.converter.TableKtrConverter;
@@ -99,7 +98,7 @@ public class DWPrebuildModel {
     @Basic
     @Column(name = "tag_json")
     @Convert(converter = MoldSchemaConfigConverter.class)
-    private ModelSchemaConfigRsp tagJson;
+    private List<ModelSchemaConfigRsp> tagJson;
 
     @Basic
     @Column(name = "schemas")

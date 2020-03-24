@@ -438,7 +438,7 @@ public class KtrXml {
                 "  <notepads>\n" +
                 "  </notepads>\n";
 
-        static String mysqlConnectionxml = "  <connection>\n" +
+        static String connectionXml = "  <connection>\n" +
                 "    <name>access</name>\n" +
                 "    <server>ipQAQ</server>\n" +
                 "    <type>typeQAQ</type>\n" +
@@ -494,7 +494,7 @@ public class KtrXml {
                 "    </attributes>\n" +
                 "  </connection>\n";
 
-        static String jsonxml = "<order>\n" +
+        static String orderXml = "<order>\n" +
                 "    <hop>\n" +
                 "      <from>JSON output</from>\n" +
                 "      <to>JavaScript代码</to>\n" +
@@ -506,7 +506,7 @@ public class KtrXml {
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
-                "      <from>dc</from>\n" +
+                "      <from>input</from>\n" +
                 "      <to>JSON output</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
@@ -515,8 +515,8 @@ public class KtrXml {
                 "      <to>Kafka producer</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
-                "  </order>\n" +
-                "  <step>\n" +
+                "  </order>\n";
+        static String defaultStepXml = "  <step>\n" +
                 "    <name>JSON output</name>\n" +
                 "    <type>JsonOutput</type>\n" +
                 "    <description/>\n" +
@@ -546,14 +546,9 @@ public class KtrXml {
                 "      <DoNotOpenNewFileInit>N</DoNotOpenNewFileInit>\n" +
                 "      <servlet_output>N</servlet_output>\n" +
                 "    </file>\n" +
-                "    <fields>\n";
-
-        static String jsonFieldxml = "<field>\n" +
-                "        <name>fieldQAQ</name>\n" +
-                "        <element>fieldQAQ</element>\n" +
-                "      </field>\n";
-
-        static String kafkaxml = " </fields>\n" +
+                "    <fields>\n" +
+                "     fieldsQAQ" +
+                "    </fields>\n" +
                 "    <attributes/>\n" +
                 "    <cluster_schema/>\n" +
                 "    <remotesteps>\n" +
@@ -569,6 +564,84 @@ public class KtrXml {
                 "    </GUI>\n" +
                 "  </step>\n" +
                 "  <step>\n" +
+                "    <name>获取变量</name>\n" +
+                "    <type>GetVariable</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>Y</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>resourceName</name>\n" +
+                "        <variable>${resourceName}</variable>\n" +
+                "        <type>String</type>\n" +
+                "        <format/>\n" +
+                "        <currency/>\n" +
+                "        <decimal/>\n" +
+                "        <group/>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <trim_type>none</trim_type>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>759</xloc>\n" +
+                "      <yloc>118</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n";
+
+        static String jsonFieldxml = "<field>\n" +
+                "        <name>fieldQAQ</name>\n" +
+                "        <element>fieldQAQ</element>\n" +
+                "      </field>\n";
+
+        static String mysqlInputXml = "<step>\n" +
+                "    <name>input</name>\n" +
+                "    <type>TableInput</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>Y</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <connection>access</connection>\n" +
+                "    <sql>queryQAQ</sql>\n" +
+                "    <limit>0</limit>\n" +
+                "    <lookup/>\n" +
+                "    <execute_each_row>N</execute_each_row>\n" +
+                "    <variables_active>N</variables_active>\n" +
+                "    <lazy_conversion_active>N</lazy_conversion_active>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>343</xloc>\n" +
+                "      <yloc>118</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" ;
+
+        static String kafkaxml = "  <step>\n" +
                 "    <name>JavaScript代码</name>\n" +
                 "    <type>ScriptValueMod</type>\n" +
                 "    <description/>\n" +
@@ -660,77 +733,6 @@ public class KtrXml {
                 "      <yloc>118</yloc>\n" +
                 "      <draw>Y</draw>\n" +
                 "    </GUI>\n" +
-                "  </step>\n";
-        static String sqlxml = "<step>\n" +
-                "    <name>dc</name>\n" +
-                "    <type>TableInput</type>\n" +
-                "    <description/>\n" +
-                "    <distribute>Y</distribute>\n" +
-                "    <custom_distribution/>\n" +
-                "    <copies>1</copies>\n" +
-                "    <partitioning>\n" +
-                "      <method>none</method>\n" +
-                "      <schema_name/>\n" +
-                "    </partitioning>\n" +
-                "    <connection>access</connection>\n" +
-                "    <sql>select * from test</sql>\n" +
-                "    <limit>0</limit>\n" +
-                "    <lookup/>\n" +
-                "    <execute_each_row>N</execute_each_row>\n" +
-                "    <variables_active>N</variables_active>\n" +
-                "    <lazy_conversion_active>N</lazy_conversion_active>\n" +
-                "    <attributes/>\n" +
-                "    <cluster_schema/>\n" +
-                "    <remotesteps>\n" +
-                "      <input>\n" +
-                "      </input>\n" +
-                "      <output>\n" +
-                "      </output>\n" +
-                "    </remotesteps>\n" +
-                "    <GUI>\n" +
-                "      <xloc>343</xloc>\n" +
-                "      <yloc>118</yloc>\n" +
-                "      <draw>Y</draw>\n" +
-                "    </GUI>\n" +
-                "  </step>\n" +
-                "  <step>\n" +
-                "    <name>获取变量</name>\n" +
-                "    <type>GetVariable</type>\n" +
-                "    <description/>\n" +
-                "    <distribute>Y</distribute>\n" +
-                "    <custom_distribution/>\n" +
-                "    <copies>1</copies>\n" +
-                "    <partitioning>\n" +
-                "      <method>none</method>\n" +
-                "      <schema_name/>\n" +
-                "    </partitioning>\n" +
-                "    <fields>\n" +
-                "      <field>\n" +
-                "        <name>resourceName</name>\n" +
-                "        <variable>${resourceName}</variable>\n" +
-                "        <type>String</type>\n" +
-                "        <format/>\n" +
-                "        <currency/>\n" +
-                "        <decimal/>\n" +
-                "        <group/>\n" +
-                "        <length>-1</length>\n" +
-                "        <precision>-1</precision>\n" +
-                "        <trim_type>none</trim_type>\n" +
-                "      </field>\n" +
-                "    </fields>\n" +
-                "    <attributes/>\n" +
-                "    <cluster_schema/>\n" +
-                "    <remotesteps>\n" +
-                "      <input>\n" +
-                "      </input>\n" +
-                "      <output>\n" +
-                "      </output>\n" +
-                "    </remotesteps>\n" +
-                "    <GUI>\n" +
-                "      <xloc>759</xloc>\n" +
-                "      <yloc>118</yloc>\n" +
-                "      <draw>Y</draw>\n" +
-                "    </GUI>\n" +
                 "  </step>\n" +
                 "  <step_error_handling>\n" +
                 "  </step_error_handling>\n" +
@@ -740,9 +742,9 @@ public class KtrXml {
                 "  <attributes/>\n" +
                 "</transformation>\n";
 
-        static String mongoxml = "  <step>\n" +
-                "    <name>MongoDB output</name>\n" +
-                "    <type>MongoDbOutput</type>\n" +
+        static String mongoInputXml = "<step>\n" +
+                "    <name>input</name>\n" +
+                "    <type>MongoDbInput</type>\n" +
                 "    <description/>\n" +
                 "    <distribute>Y</distribute>\n" +
                 "    <custom_distribution/>\n" +
@@ -751,30 +753,27 @@ public class KtrXml {
                 "      <method>none</method>\n" +
                 "      <schema_name/>\n" +
                 "    </partitioning>\n" +
-                "    <mongo_host>192.168.4.11</mongo_host>\n" +
-                "    <mongo_port>19130</mongo_port>\n" +
+                "    <hostname>ipQAQ</hostname>\n" +
+                "    <port>postQAQ</port>\n" +
                 "    <use_all_replica_members>N</use_all_replica_members>\n" +
+                "    <db_name>dbnameQAQ</db_name>\n" +
+                "    <fields_name/>\n" +
+                "    <collection>tbNameQAQ</collection>\n" +
+                "    <json_field_name>json</json_field_name>\n" +
+                "    <json_query>queryQAQ</json_query>\n" +
+                "    <auth_database/>\n" +
+                "    <auth_user>usernameQAQ<ayth_user>\n" +
+                "    <auth_password>passwordQAQ</auth_password>\n" +
                 "    <auth_mech/>\n" +
                 "    <auth_kerberos>N</auth_kerberos>\n" +
-                "    <mongo_db>zdss_test</mongo_db>\n" +
-                "    <mongo_collection>test4</mongo_collection>\n" +
-                "    <batch_insert_size>1000</batch_insert_size>\n" +
                 "    <connect_timeout/>\n" +
                 "    <socket_timeout/>\n" +
                 "    <use_ssl_socket_factory>N</use_ssl_socket_factory>\n" +
                 "    <read_preference>primary</read_preference>\n" +
-                "    <write_concern/>\n" +
-                "    <w_timeout/>\n" +
-                "    <journaled_writes>N</journaled_writes>\n" +
-                "    <truncate>N</truncate>\n" +
-                "    <update>N</update>\n" +
-                "    <upsert>N</upsert>\n" +
-                "    <multi>N</multi>\n" +
-                "    <modifier_update>N</modifier_update>\n" +
-                "    <write_retries>5</write_retries>\n" +
-                "    <write_retry_delay>10</write_retry_delay>\n" +
-                "    <mongo_fields>\n" +
-                "    </mongo_fields>\n" +
+                "    <output_json>Y</output_json>\n" +
+                "    <query_is_pipeline>N</query_is_pipeline>\n" +
+                "    <execute_for_each_row>N</execute_for_each_row>\n" +
+                "    <mongo_fields/>\n" +
                 "    <attributes/>\n" +
                 "    <cluster_schema/>\n" +
                 "    <remotesteps>\n" +
@@ -784,18 +783,18 @@ public class KtrXml {
                 "      </output>\n" +
                 "    </remotesteps>\n" +
                 "    <GUI>\n" +
-                "      <xloc>400</xloc>\n" +
-                "      <yloc>128</yloc>\n" +
+                "      <xloc>96</xloc>\n" +
+                "      <yloc>144</yloc>\n" +
                 "      <draw>Y</draw>\n" +
                 "    </GUI>\n" +
-                "  </step>\n" +
-                "  <step_error_handling>\n" +
-                "  </step_error_handling>\n" +
-                "  <slave-step-copy-partition-distribution>\n" +
-                "  </slave-step-copy-partition-distribution>\n" +
-                "  <slave_transformation>N</slave_transformation>\n" +
-                "  <attributes/>\n" +
-                "</transformation>";
+                "  </step>";
+
+        static String mongoTimeQueryXMl = "{\n" +
+                "    \"${timeField}\": {\n" +
+                "        \"$gte\": \"${StartTime}\",\n" +
+                "        \"$lte\": \"${StopTime}\"\n" +
+                "    }\n" +
+                "}\n";
     }
 
 

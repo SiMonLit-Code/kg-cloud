@@ -6,10 +6,12 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.hiekn.pddocument.bean.PdDocument;
 import com.plantdata.kgcloud.config.MongoProperties;
+import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
@@ -30,8 +32,6 @@ import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.dw.service.StandardTemplateService;
 import com.plantdata.kgcloud.domain.dw.util.PaserYaml2SchemaUtil;
-import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
-import com.plantdata.kgcloud.domain.edit.service.FileUploadService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.DWDataFormat;
 import com.plantdata.kgcloud.sdk.constant.DataType;
@@ -63,6 +63,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -95,7 +96,7 @@ public class DWServiceImpl implements DWService {
     private DataSetService dataSetService;
 
     @Autowired
-    private FileUploadService fileUploadService;
+    private AccessTaskService accessTaskService;
 
     @Autowired
     private MongoProperties mongoProperties;
@@ -188,7 +189,7 @@ public class DWServiceImpl implements DWService {
                 Map<String, ModelSchemaConfigRsp.RelationBean> map = new HashMap<>();
 
                 for (ModelSchemaConfigRsp.RelationBean relation : modelSchema.getRelation()) {
-                    map.put(relation.getDomain() + relation.getName(), relation);
+                    map.put(relation.getDomain() +"-"+ relation.getName(), relation);
                 }
 
                 for (ModelSchemaConfigRsp.RelationBean relation : tagJson.getRelation()) {
@@ -205,6 +206,9 @@ public class DWServiceImpl implements DWService {
                         if (relation.getAttrs() != null && !relation.getAttrs().isEmpty()) {
                             rela.getAttrs().addAll(relation.getAttrs());
                         }
+                    }else{
+                        map.put(relation.getDomain()  +"-"+  relation.getName(), relation);
+                        modelSchema.getRelation().add(relation);
                     }
                 }
             }
@@ -326,17 +330,16 @@ public class DWServiceImpl implements DWService {
             }
         }
 
-        if (tableName == null) {
-            //文件上传 如果table没有创建，先创建
-            schemas = schemaResolve(file);
-            DWTableRsp tableRsp = createTable(userId, DWTableReq.builder().dwDatabaseId(databaseId).createWay(2).schemas(schemas).build());
-            tableName = tableRsp.getTableName();
-        }
-
-
         //文件上传 本地库
         DWDatabase database = getDetail(databaseId);
-//        database.setCreateWay(2);
+
+
+        if (tableName == null) {
+            //文件上传 如果table没有创建，先创建
+            schemas = schemaResolve(file,database.getDataFormat());
+            DWTableRsp tableRsp = createTable(userId, DWTableReq.builder().dwDatabaseId(databaseId).schemas(schemas).build());
+            tableName = tableRsp.getTableName();
+        }
 
         //写入数据
 
@@ -344,6 +347,7 @@ public class DWServiceImpl implements DWService {
         for (DataSetSchema o : schemas) {
             schemaMap.put(o.getField(), o);
         }
+
         try (DataOptProvider provider = getProvider(database.getDataName(), tableName)) {
             String filename = file.getOriginalFilename();
             if (filename != null) {
@@ -378,15 +382,23 @@ public class DWServiceImpl implements DWService {
         target.setTableName(req.getTableName() != null ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5));
 
         //本地库创建结构
-        List<DataSetSchema> schema = req.getSchemas();
+        List<DataSetSchema> schema;
+        if(DWDataFormat.isPDdoc(dwDatabase.getDataFormat())){
+            schema = schemaResolve(null,dwDatabase.getDataFormat() );
+        }else{
+            schema = req.getSchemas();
+        }
         target.setFields(transformFields(schema));
         target.setSchema(schema);
         target.setKtr(req.getKtr());
-        target.setCreateWay(req.getCreateWay());
-        try (DataOptProvider provider = new MongodbOptProvider(getDefaultOpt(dwDatabase.getDataName(), target.getTableName()))) {
-            provider.createTable(schema);
-        } catch (Exception e) {
-            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+        target.setCreateWay(2);
+
+        if(schema != null && !schema.isEmpty()){
+            try (DataOptProvider provider = new MongodbOptProvider(getDefaultOpt(dwDatabase.getDataName(), target.getTableName()))) {
+                provider.createTable(schema);
+            } catch (Exception e) {
+                throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+            }
         }
 
         target = tableRepository.save(target);
@@ -396,8 +408,32 @@ public class DWServiceImpl implements DWService {
 
 
     @Override
-    public List<DataSetSchema> schemaResolve(MultipartFile file) {
+    public List<DataSetSchema> schemaResolve(MultipartFile file,Integer dataFormat) {
+
+        if(DWDataFormat.isPDdoc(dataFormat)){
+            return pddocSchema();
+        }
+
+
         return dataSetService.schemaResolve(null, file);
+    }
+
+    private List<DataSetSchema> pddocSchema() {
+
+        Field[] fields = PdDocument.class.getDeclaredFields();
+
+        List<DataSetSchema> schemas = new ArrayList<>();
+        for(int i = 0; i < fields.length; i++){
+
+            Field field = fields[i];
+
+            String name = field.getName();
+            DataSetSchema schema = new DataSetSchema();
+            schema.setField(name);
+            schemas.add(schema);
+
+        }
+        return schemas;
     }
 
     @Override
@@ -413,22 +449,28 @@ public class DWServiceImpl implements DWService {
 
         DWDatabase dwDatabase = getDetail(databaseId);
 
-        if (!dwDatabase.getCreateWay().equals(1)) {
+        if (dwDatabase.getAddr() == null || dwDatabase.getAddr().isEmpty()) {
             return new ArrayList<>();
         }
 
         DataSource dataSource = getDataSource(dwDatabase);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        String sql = "show tables;";
-        if (DataType.findType(dwDatabase.getDataType()).equals(DataType.DM)) {
-            sql = "select t.table_name tableName from user_tables t;";
-        }
+        String sql = getQueryTableSql(dwDatabase.getDataType());
 
         try {
             return jdbcTemplate.queryForList(sql, String.class);
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
+        }
+    }
+
+    private String getQueryTableSql(Integer dataType) {
+
+        if(DataType.DM.equals(DataType.findType(dataType))){
+            return "select t.table_name tableName from user_tables t;";
+        }else{
+            return "show tables;";
         }
     }
 
@@ -551,24 +593,33 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public void setTableCron(String userId, DWTableCronReq req) {
+    public void setTableCron(String userId, List<DWTableCronReq> reqs) {
 
-        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().dwDatabaseId(req.getDatabaseId()).id(req.getTableId()).build()));
-
-        if (!tableOpt.isPresent()) {
-
-            throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+        if(reqs == null || reqs.isEmpty()){
+            return;
         }
 
-        DWTable table = tableOpt.get();
+        for(DWTableCronReq req : reqs){
 
-        table.setQueryField(req.getField());
-        table.setCron(req.getCron());
-        table.setIsAll(req.getIsAll());
+            Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().dwDatabaseId(req.getDatabaseId()).id(req.getTableId()).build()));
 
-        tableRepository.save(table);
+            if (!tableOpt.isPresent()) {
 
-        //更新任务配置
+                throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+            }
+
+            DWTable table = tableOpt.get();
+
+            table.setQueryField(req.getField());
+            table.setCron(req.getCron());
+            table.setIsAll(req.getIsAll());
+            table.setSchedulingSwitch(1);
+
+            tableRepository.save(table);
+
+
+        }
+
     }
 
     @Override
@@ -680,8 +731,16 @@ public class DWServiceImpl implements DWService {
         table.setSchedulingSwitch(req.getSchedulingSwitch());
 
         tableRepository.save(table);
+        String dwTaskName = AccessTaskType.DW.getDisplayName()+"_"+table.getDwDatabaseId()+"_"+table.getTableName();
+        List<String> diss = new ArrayList<>();
+        if(table.getIsWriteDW() != null && table.getIsWriteDW().equals(1)){
+            diss.add(dwTaskName);
+            accessTaskService.createDwTask(table.getTableName(),table.getDwDatabaseId());
+        }
 
-        //更新任务配置
+        //生成任务配置
+        accessTaskService.createKtrTask(table.getTableName(),table.getDwDatabaseId(),table.getTableName());
+        accessTaskService.createTransfer(table.getTableName(),table.getDwDatabaseId(),null,diss,table.getTableName());
     }
 
     @Override
@@ -693,6 +752,14 @@ public class DWServiceImpl implements DWService {
         }
 
         return mergeModel(database.getTagJson());
+    }
+
+    @Override
+    public DWTableRsp findTableByTableName(String userId, Long databaseId, String tableName) {
+
+        Optional<DWTable> dwTable = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
+
+        return ConvertUtils.convert(DWTableRsp.class).apply(dwTable.get());
     }
 
 
@@ -855,6 +922,10 @@ public class DWServiceImpl implements DWService {
     }
 
     private List<String> transformFields(List<DataSetSchema> schema) {
+
+        if(schema == null || schema.isEmpty()){
+            return  new ArrayList<>();
+        }
         LinkedHashSet<String> fields = new LinkedHashSet<>();
         for (DataSetSchema dataSetSchema : schema) {
             fields.add(dataSetSchema.getField());

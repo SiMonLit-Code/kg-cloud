@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum AccessTaskType {
 
-    ETL(0, "etl"),
+    KTR(0, "ktr"),
     KG(1, "kg"),
     DW(2, "dw"),
     SEARCH(3, "index"),

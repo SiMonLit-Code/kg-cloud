@@ -2,8 +2,6 @@ package com.plantdata.kgcloud.domain.access.controller;
 
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.access.req.EtlConfigReq;
-import com.plantdata.kgcloud.domain.access.req.KgConfigReq;
 import com.plantdata.kgcloud.domain.access.req.RunTaskReq;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.sdk.req.DataAccessTaskConfigReq;
@@ -24,19 +22,6 @@ public class AccessTaskController {
     @Autowired
     private AccessTaskService accessTaskService;
 
-    @ApiOperation("保存接入任务配置")
-    @PostMapping("/save/etl/task")
-    public ApiReturn<String> saveTask(@Valid @RequestBody EtlConfigReq req) {
-        String userId = SessionHolder.getUserId();
-        return ApiReturn.success(accessTaskService.saveEtlTask(userId, req));
-    }
-
-    @ApiOperation("保存入图任务配置")
-    @PostMapping("/save/kg/task")
-    public ApiReturn<String> saveTask(@Valid @RequestBody KgConfigReq req) {
-        String userId = SessionHolder.getUserId();
-        return ApiReturn.success(accessTaskService.saveKgTask(userId, req));
-    }
 
     @ApiOperation("运行任务")
     @PostMapping("/run/task")

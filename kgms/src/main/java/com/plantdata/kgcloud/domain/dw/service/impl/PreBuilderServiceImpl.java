@@ -2,6 +2,10 @@ package com.plantdata.kgcloud.domain.dw.service.impl;
 
 import com.alibaba.excel.util.StringUtils;
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.constant.AccessTaskType;
+import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
+import com.plantdata.kgcloud.domain.access.rsp.KgConfigRsp;
+import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphEditService;
 import com.plantdata.kgcloud.domain.dw.entity.*;
@@ -21,6 +25,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -28,7 +33,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -65,9 +69,17 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Autowired
     private AttributeService attributeService;
 
+    @Autowired
+    private DWGraphMapRelationAttrRepository graphMapRelationAttrRepository;
 
     @Autowired
     private UserClient userClient;
+
+    @Autowired
+    private AccessTaskService accessTaskService;
+
+    @Autowired
+    private DWTableRepository tableRepository;
 
     private UserDetailRsp getUserDetail(){
         return userClient.getCurrentUserDetail().getData();
@@ -237,7 +249,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 if (schemaQuoteReq.getAttrs() != null) {
                     for (SchemaQuoteAttrReq quoteAttrReq : schemaQuoteReq.getAttrs()) {
-                        quoteAttrReqMap.put(quoteAttrReq.getName(), quoteAttrReq);
+                        quoteAttrReqMap.put(quoteAttrReq.getAttrName(), quoteAttrReq);
                     }
                 }
 
@@ -443,7 +455,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             }
 
-
             matchAttrRsp.setAttrMatchStatus(status);
 
         }
@@ -452,32 +463,165 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public Integer saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq) {
+    public void saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq) {
+
+        if(preBuilderGraphMapReq.getQuoteConfigs() == null || preBuilderGraphMapReq.getQuoteConfigs().isEmpty()){
+            return ;
+        }
 
         List<SchemaQuoteReq> quoteReqList = importToGraph(preBuilderGraphMapReq.getKgName(), preBuilderGraphMapReq.getQuoteConfigs());
 
-        Optional<DWGraphMap> graphMapOptional = graphMapRepository.findOne(Example.of(DWGraphMap.builder().kgName(preBuilderGraphMapReq.getKgName()).build()));
 
-        DWGraphMap graphMap;
-        if (!graphMapOptional.isPresent()) {
-            graphMap = DWGraphMap.builder()
-                    .kgName(preBuilderGraphMapReq.getKgName())
-                    .mapConfig(quoteReqList)
-                    .build();
-        } else {
-            graphMap = graphMapOptional.get();
+        Map<Integer,Long> modelDataBaseIdMap = new HashMap<>();
+        List<DWGraphMap> graphMapList = new ArrayList<>();
+        List<DWGraphMapRelationAttr> graphMapRelationAttrList = new ArrayList<>();
+        for(SchemaQuoteReq schemaQuoteReq : quoteReqList){
 
-            //把之前引用的模式合并
-            megerSchemaQuote(graphMap.getMapConfig(), quoteReqList);
+            Long modelDataBaseId;
+            if(modelDataBaseIdMap.containsKey(schemaQuoteReq.getModelId())){
+                modelDataBaseId = modelDataBaseIdMap.get(schemaQuoteReq.getModelId());
+            }else{
+                DWPrebuildModel model = prebuildModelRepository.getOne(schemaQuoteReq.getModelId());
+                modelDataBaseId = model.getDatabaseId();
+                modelDataBaseIdMap.put(model.getId(),modelDataBaseId);
+            }
+
+            //非数仓模式不保存映射关系
+            if(modelDataBaseId == null){
+                continue;
+            }
+
+            DWPrebuildConcept modelConcept = prebuildConceptRepository.getOne(schemaQuoteReq.getModelConceptId());
+
+            List<String> conceptTableName = modelConcept.getTables();
+
+
+            for(String tableName : conceptTableName){
+                DWGraphMap graphMap = new DWGraphMap();
+                BeanUtils.copyProperties(schemaQuoteReq, graphMap);
+                graphMap.setTableName(tableName);
+                graphMap.setDataBaseId(modelDataBaseId);
+                graphMap.setSchedulingSwitch(0);
+                graphMapList.add(graphMap);
+            }
+
+            List<SchemaQuoteAttrReq> schemaQuoteAttrReqList = schemaQuoteReq.getAttrs();
+
+            if(schemaQuoteAttrReqList == null || schemaQuoteAttrReqList.isEmpty()){
+                continue;
+            }
+
+            for(SchemaQuoteAttrReq schemaQuoteAttrReq : schemaQuoteAttrReqList){
+
+                DWPrebuildAttr prebuildAttr = prebuildAttrRepository.getOne(schemaQuoteAttrReq.getModelAttrId());
+
+                List<String> tables = prebuildAttr.getTables();
+
+                for(String tableName : tables){
+                    DWGraphMap graphMap = new DWGraphMap();
+                    BeanUtils.copyProperties(schemaQuoteReq, graphMap);
+                    BeanUtils.copyProperties(schemaQuoteAttrReq,graphMap);
+                    graphMap.setTableName(tableName);
+                    graphMap.setDataBaseId(modelDataBaseId);
+                    graphMap.setSchedulingSwitch(0);
+                    graphMapList.add(graphMap);
+                }
+
+                if(!schemaQuoteAttrReq.getAttrType().equals(1) && schemaQuoteAttrReq.getRelationAttrs() != null && !schemaQuoteAttrReq.getRelationAttrs().isEmpty()){
+                    continue;
+                }
+
+                List<SchemaQuoteRelationAttrReq> schemaQuoteRelationAttrReqs = schemaQuoteAttrReq.getRelationAttrs();
+
+                for(SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq : schemaQuoteRelationAttrReqs){
+
+                    DWPrebuildRelationAttr relationAttr = prebuildRelationAttrRepository.getOne(schemaQuoteRelationAttrReq.getModelAttrId());
+                    List<String> tableNames = relationAttr.getTables();
+
+                    for(String tableName : tableNames){
+
+                        DWGraphMapRelationAttr graphMapRelationAttr = new DWGraphMapRelationAttr();
+                        BeanUtils.copyProperties(schemaQuoteRelationAttrReq,graphMapRelationAttr);
+                        graphMapRelationAttr.setTableName(tableName);
+                        graphMapRelationAttr.setDataBaseId(modelDataBaseId);
+                        graphMapRelationAttr.setSchedulingSwitch(0);
+                        graphMapRelationAttrList.add(graphMapRelationAttr);
+
+                    }
+
+                }
+
+            }
+
         }
 
+        graphMapRepository.saveAll(graphMapList);
+        graphMapRelationAttrRepository.saveAll(graphMapRelationAttrList);
 
-        List<DataMapReq> dataMapReqList = quote2DataMap(graphMap.getMapConfig());
-        graphMap.setMapJson(dataMapReqList);
+        //生成订阅任务
+        createSchedulingConfig(preBuilderGraphMapReq.getKgName());
+        return ;
+    }
 
-        graphMap = graphMapRepository.save(graphMap);
+    private void createSchedulingConfig(String kgName) {
 
-        return graphMap.getId();
+        List<SchemaQuoteReq> schemaQuoteReqList = getGraphMap(SessionHolder.getUserId(),kgName);
+
+        if(schemaQuoteReqList == null || schemaQuoteReqList.isEmpty()){
+            return;
+        }
+
+        Map<Integer, List<SchemaQuoteReq>> schemaModelMap = new HashMap<>();
+        for(SchemaQuoteReq schemaQuoteReq : schemaQuoteReqList){
+            if(schemaModelMap.containsKey(schemaQuoteReq.getModelId())){
+                schemaModelMap.get(schemaQuoteReq.getModelId()).add(schemaQuoteReq);
+            }else{
+                List<SchemaQuoteReq> schemaQuoteReqs = new ArrayList<>();
+                schemaModelMap.put(schemaQuoteReq.getModelId(),schemaQuoteReqs);
+            }
+        }
+
+        List<Integer> existModelTaskList = new ArrayList<>();
+
+
+        for(SchemaQuoteReq schemaQuoteReq : schemaQuoteReqList){
+            Integer modelId = schemaQuoteReq.getModelId();
+            if(existModelTaskList.contains(modelId)){
+                continue;
+            }
+
+            DWPrebuildModel model = prebuildModelRepository.getOne(modelId);
+
+            List<String> tableNames =schemaQuoteReq.getTables();
+            String kgTaskName = AccessTaskType.KG.getDisplayName()+"_"+kgName+"_"+modelId;
+
+            for(String tableName : tableNames){
+                accessTaskService.createKtrTask(tableName,model.getDatabaseId(),kgName);
+                accessTaskService.createTransfer(tableName,model.getDatabaseId(),Lists.newArrayList(kgTaskName),null,kgName);
+            }
+
+            List<DataMapReq> dataMapReqList = quote2DataMap(schemaModelMap.get(modelId));
+            existModelTaskList.add(modelId);
+
+            DWTaskRsp kgTaskRsp = accessTaskService.getByTaskName(kgTaskName);
+
+            if(kgTaskRsp == null){
+                kgTaskRsp = new DWTaskRsp();
+                kgTaskRsp.setName(kgTaskName);
+                kgTaskRsp.setTaskType(AccessTaskType.KG.getDisplayName());
+                kgTaskRsp.setUserId(SessionHolder.getUserId());
+                kgTaskRsp.setStatus(0);
+                kgTaskRsp.setOutputs(new ArrayList<>());
+            }
+
+            KgConfigRsp config = new KgConfigRsp();
+            config.setKgName(kgName);
+            config.setDataMapping(dataMapReqList);
+            config.setIsScheduled(0);
+            kgTaskRsp.setConfig(JacksonUtils.writeValueAsString(config));
+
+            accessTaskService.saveTask(kgTaskRsp);
+        }
     }
 
     private List<DataMapReq> quote2DataMap(List<SchemaQuoteReq> mapConfig) {
@@ -505,18 +649,18 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     if (attrReq.getAttrType().equals(0)) {
                         //数值
                         AttributesMapReq attr = new AttributesMapReq();
-                        attr.setAttrName(attrReq.getName());
+                        attr.setAttrName(attrReq.getAttrName());
                         attr.setKgAttrId(attrReq.getAttrId());
-                        attr.setKgAttrName(attrReq.getName());
+                        attr.setKgAttrName(attrReq.getAttrName());
 
                         attributes.add(attr);
                     } else {
                         //对象
 
                         RelationsMapReq rela = new RelationsMapReq();
-                        rela.setRelationName(attrReq.getName());
+                        rela.setRelationName(attrReq.getAttrName());
                         rela.setKgRelationId(attrReq.getAttrId());
-                        rela.setKgRelationName(attrReq.getName());
+                        rela.setKgRelationName(attrReq.getAttrName());
 
 
                         List<SchemaQuoteRelationAttrReq> relationAttrReqs = attrReq.getRelationAttrs();
@@ -653,7 +797,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     attrId = attrReq.getAttrId();
                 } else {
                     AttrDefinitionReq attrDefinitionReq = new AttrDefinitionReq();
-                    attrDefinitionReq.setName(attrReq.getName());
+                    attrDefinitionReq.setName(attrReq.getAttrName());
                     attrDefinitionReq.setType(attrReq.getAttrType());
 
                     if (!StringUtils.isEmpty(attrReq.getAttrKey())) {
@@ -759,6 +903,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 .permission(0)
                 .yamlContent(yamlContent)
                 .userId(SessionHolder.getUserId())
+                .username(getUserDetail().getUsername())
                 .modelType(modelType)
                 .isStandardTemplate(0)
                 .status("1")
@@ -786,12 +931,84 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Override
     public List<SchemaQuoteReq> getGraphMap(String userId, String kgName) {
 
-        Optional<DWGraphMap> graphMapOptional = graphMapRepository.findOne(Example.of(DWGraphMap.builder().kgName(kgName).build()));
+        List<DWGraphMap> dwGraphMapList = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).build()));
 
-        if (!graphMapOptional.isPresent()) {
+        if(dwGraphMapList == null || dwGraphMapList.isEmpty()){
             return new ArrayList<>();
         }
-        return graphMapOptional.get().getMapConfig();
+
+        Map<String,SchemaQuoteReq> schemaQuoteReqMap = new HashMap<>();
+        Map<String,Map<String,SchemaQuoteAttrReq>> schemaQuoteAttrMap = new HashMap<>();
+        Map<String,Map<String,List<String>>> schemaAuoteRelationAttrMap = new HashMap<>();
+
+        for(DWGraphMap graphMap : dwGraphMapList){
+
+            SchemaQuoteReq schemaQuoteReq;
+            String conceptKey = graphMap.getEntityName()+graphMap.getConceptName()+graphMap.getModelId();
+
+            if(schemaQuoteReqMap.containsKey(conceptKey)){
+
+                schemaQuoteReq = schemaQuoteReqMap.get(conceptKey);
+            }else{
+
+                schemaQuoteReq = new SchemaQuoteReq();
+                BeanUtils.copyProperties(graphMap,schemaQuoteReq);
+
+                schemaQuoteReq.setAttrs(new ArrayList<>());
+                schemaQuoteAttrMap.put(conceptKey,new HashMap<>());
+                schemaQuoteReqMap.put(conceptKey,schemaQuoteReq);
+            }
+
+            if(graphMap.getAttrId() == null){
+                //概念映射 没有属性
+                continue;
+            }
+
+            //设置属性
+            SchemaQuoteAttrReq schemaQuoteAttrReq;
+
+            if(!schemaQuoteAttrMap.get(conceptKey).containsKey(graphMap.getAttrName())){
+                schemaQuoteAttrReq = new SchemaQuoteAttrReq();
+                BeanUtils.copyProperties(graphMap,schemaQuoteAttrReq);
+
+                if(schemaQuoteAttrReq.getAttrType().equals(1)){
+                    schemaQuoteAttrReq.setRelationAttrs(new ArrayList<>());
+                }
+
+                schemaQuoteReq.getAttrs().add(schemaQuoteAttrReq);
+                schemaQuoteAttrMap.get(conceptKey).put(graphMap.getAttrName(),schemaQuoteAttrReq);
+            }else{
+                schemaQuoteAttrReq =  schemaQuoteAttrMap.get(conceptKey).get(graphMap.getAttrName());
+            }
+
+            //不是对象属性，不查边属性
+            if(!schemaQuoteAttrReq.getAttrType().equals(1)){
+                continue;
+            }
+
+            List<DWGraphMapRelationAttr> graphMapRelationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().attrId(schemaQuoteAttrReq.getAttrId()).kgName(kgName).modelId(schemaQuoteReq.getModelId()).build()));
+            if(graphMapRelationAttrList == null || graphMapRelationAttrList.isEmpty()){
+                continue;
+            }
+
+            for(DWGraphMapRelationAttr graphMapRelationAttr : graphMapRelationAttrList){
+
+                if(schemaAuoteRelationAttrMap.containsKey(conceptKey)
+                        && schemaAuoteRelationAttrMap.get(conceptKey).containsKey(schemaQuoteAttrReq.getAttrName())
+                        && schemaAuoteRelationAttrMap.get(conceptKey).get(schemaQuoteAttrReq.getAttrName()).contains(graphMapRelationAttr.getName())){
+                    continue;
+                }else{
+
+                    SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq = new SchemaQuoteRelationAttrReq();
+                    BeanUtils.copyProperties(graphMapRelationAttr,schemaQuoteRelationAttrReq);
+                    schemaQuoteAttrReq.getRelationAttrs().add(schemaQuoteRelationAttrReq);
+                }
+
+            }
+
+        }
+
+        return Lists.newArrayList(schemaQuoteReqMap.values());
     }
 
     @Override

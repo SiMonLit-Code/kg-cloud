@@ -18,6 +18,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -58,9 +59,9 @@ public class DWController {
 
     @ApiOperation("数仓-设置表更新频率")
     @PostMapping("/set/table/cron")
-    public ApiReturn setTableCron(@Valid @RequestBody DWTableCronReq req) {
+    public ApiReturn setTableCron(@Valid @RequestBody List<DWTableCronReq> reqs) {
         String userId = SessionHolder.getUserId();
-        dwServince.setTableCron(userId, req);
+        dwServince.setTableCron(userId, reqs);
         return ApiReturn.success();
     }
 
@@ -139,7 +140,7 @@ public class DWController {
 
     @ApiOperation("数仓-模式发布")
     @PatchMapping("/model/push/{id}")
-    public ApiReturn push(@PathVariable("id") Long id,String modelType) {
+    public ApiReturn push(@PathVariable("id") Long id,@ApiParam("模式所属行业") String modelType) {
 
         String userId = SessionHolder.getUserId();
         dwServince.push(userId, id,modelType);
@@ -158,7 +159,6 @@ public class DWController {
     @PostMapping("/create/table")
     public ApiReturn<DWTableRsp> createTable(@Valid @RequestBody DWTableReq req) {
         String userId = SessionHolder.getUserId();
-        req.setCreateWay(2);
         return ApiReturn.success(dwServince.createTable(userId, req));
     }
 
@@ -185,6 +185,6 @@ public class DWController {
     @ApiOperation("数仓-schema-识别")
     @PostMapping("/schema")
     public ApiReturn<List<DataSetSchema>> resolve(@RequestParam(value = "file") MultipartFile file) {
-        return ApiReturn.success(dwServince.schemaResolve(file));
+        return ApiReturn.success(dwServince.schemaResolve(file,null));
     }
 }

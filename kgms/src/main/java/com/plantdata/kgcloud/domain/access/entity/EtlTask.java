@@ -36,20 +36,25 @@ public class EtlTask {
     private Long databaseId;
 
     @Basic
-    @Column(name = "table_ids")
-    @Convert(converter = StringListConverter.class)
-    private List<String> tableIds;
+    @Column(name = "table_id")
+    private Long tableId;
 
 
     @Basic
     @Column(name = "status")
     private Integer status;
 
-
     @Basic
     @Column(name = "task_id")
-    private String taskId;
+    private Integer taskId;
 
+    @Basic
+    @Column(name = "name")
+    private String name;
+
+    @Basic
+    @Column(name = "config")
+    private String config;
 
     @Basic
     @Column(name = "create_at")

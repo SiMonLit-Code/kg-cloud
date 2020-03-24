@@ -35,7 +35,7 @@ public interface DWService {
 
     DWTableRsp createTable(String userId, DWTableReq req);
 
-    List<DataSetSchema> schemaResolve(MultipartFile file);
+    List<DataSetSchema> schemaResolve(MultipartFile file,Integer dataForamt);
 
     List<DWTableRsp> findTableAll(String userId, Long databaseId);
 
@@ -47,7 +47,7 @@ public interface DWService {
 
     List<DWTable> getTableByIds(List<Long> tableIds);
 
-    void setTableCron(String userId, DWTableCronReq req);
+    void setTableCron(String userId, List<DWTableCronReq> req);
 
     Page<DWDatabaseRsp> list(String userId, DWDatabaseQueryReq req);
 
@@ -58,4 +58,6 @@ public interface DWService {
     void setTableScheduling(String userId, DWTableSchedulingReq req);
 
     ModelSchemaConfigRsp getModel(String userId, Long id);
+
+    DWTableRsp findTableByTableName(String userId, Long databaseId, String tableName);
 }

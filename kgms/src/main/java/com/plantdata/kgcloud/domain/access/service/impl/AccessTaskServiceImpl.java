@@ -1,35 +1,40 @@
 
 package com.plantdata.kgcloud.domain.access.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.config.KafkaProperties;
+import com.plantdata.kgcloud.config.MongoProperties;
+import com.plantdata.kgcloud.constant.AccessTaskType;
+import com.plantdata.kgcloud.constant.ChannelRedisEnum;
 import com.plantdata.kgcloud.domain.access.entity.DWTask;
-import com.plantdata.kgcloud.domain.access.entity.EtlTask;
-import com.plantdata.kgcloud.domain.access.entity.KgTask;
 import com.plantdata.kgcloud.domain.access.repository.DWTaskRepository;
-import com.plantdata.kgcloud.domain.access.repository.EtlTaskRepository;
-import com.plantdata.kgcloud.domain.access.repository.KgTaskRepository;
 import com.plantdata.kgcloud.domain.access.req.EtlConfigReq;
 import com.plantdata.kgcloud.domain.access.req.IndexConfigReq;
 import com.plantdata.kgcloud.domain.access.req.KgConfigReq;
 import com.plantdata.kgcloud.domain.access.req.ResourceReq;
+import com.plantdata.kgcloud.domain.access.rsp.ChannelRedisArrangeRsp;
 import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.CreateKtrFile;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWGraphMap;
+import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
+import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.sdk.req.DataAccessTaskConfigReq;
 import com.plantdata.kgcloud.security.SessionHolder;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.UUIDUtils;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
@@ -38,72 +43,27 @@ import java.util.*;
 @Service
 public class AccessTaskServiceImpl implements AccessTaskService {
 
-
-    @Autowired
-    private EtlTaskRepository etlTaskRepository;
-
-    @Autowired
-    private KgTaskRepository kgTaskRepository;
-
     @Autowired
     private DWService dwService;
 
     @Autowired
     private DWTaskRepository taskRepository;
 
-    @Value("${kafka.servers}")
-    private String kafkaServers;
+    @Autowired
+    private MongoProperties mongoProperties;
+
+    @Autowired
+    private KafkaProperties kafkaProperties;
 
     @Autowired
     private DWGraphMapRepository graphMapRepository;
 
-    @Override
-    public String saveEtlTask(String userId, EtlConfigReq req) {
+    @Autowired
+    private RedissonClient redissonClient;
 
+    @Autowired
+    private DWTableRepository tableRepository;
 
-        EtlTask etlTask = new EtlTask();
-        BeanUtils.copyProperties(req,etlTask);
-
-        if(req.getTaskId() != null){
-
-            String taskId = UUID.randomUUID().toString().replaceAll("-","");
-            etlTask.setTaskId(taskId);
-
-        }else{
-
-           Optional<EtlTask> opt = etlTaskRepository.findOne(Example.of(EtlTask.builder().taskId(req.getTaskId()).build()));
-
-           if(opt.isPresent()){
-               etlTask.setId(opt.get().getId());
-           }
-        }
-
-        etlTaskRepository.save(etlTask);
-        return etlTask.getTaskId();
-    }
-
-    @Override
-    public String saveKgTask(String userId, KgConfigReq req) {
-        KgTask kgTask = new KgTask();
-        BeanUtils.copyProperties(req,kgTask);
-
-        if(req.getTaskId() != null){
-
-            String taskId = UUID.randomUUID().toString().replaceAll("-","");
-            kgTask.setTaskId(taskId);
-
-        }else{
-
-            Optional<KgTask> opt = kgTaskRepository.findOne(Example.of(KgTask.builder().taskId(req.getTaskId()).build()));
-
-            if(opt.isPresent()){
-                kgTask.setId(opt.get().getId());
-            }
-        }
-
-        kgTaskRepository.save(kgTask);
-        return kgTask.getTaskId();
-    }
 
     @Override
     public Integer run(String userId,List<DataAccessTaskConfigReq> reqs,Integer taskId) {
@@ -148,6 +108,249 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         return rsp;
     }
 
+    @Override
+    public DWTaskRsp getByTaskName(String taskName) {
+        Optional<DWTask> task = taskRepository.findOne(Example.of(DWTask.builder().name(taskName).build()));
+        if(task.isPresent()){
+            return ConvertUtils.convert(DWTaskRsp.class).apply(task.get());
+        }
+        return null;
+    }
+
+    @Override
+    public void saveTask(DWTaskRsp taskRsp) {
+        saveTask(taskRsp,null);
+    }
+
+    @Override
+    public void saveTask(DWTaskRsp taskRsp,Long timeout) {
+        taskRepository.save(ConvertUtils.convert(DWTask.class).apply(taskRsp));
+
+        ChannelRedisArrangeRsp arrangeRsp = new ChannelRedisArrangeRsp();
+        arrangeRsp.setResourceName(taskRsp.getName());
+        arrangeRsp.setResourceType(taskRsp.getTaskType());
+        arrangeRsp.setOutputs(taskRsp.getOutputs());
+        arrangeRsp.setDistributeOriginalData(taskRsp.getDistributeOriginalData());
+
+        if(taskRsp.getTaskType().equals(AccessTaskType.KTR.getDisplayName())){
+            redissonClient.getMap(ChannelRedisEnum.KTR_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());
+        }else{
+            redissonClient.getMap(ChannelRedisEnum.CONFIG_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());
+        }
+        redissonClient.getMap(ChannelRedisEnum.ARRANGE_KEY.getType()).put(taskRsp.getName(),JSON.toJSONString(arrangeRsp));
+
+    }
+
+    @Override
+    public String getKtrConfig(Long databaseId, String tableName) {
+
+        DWDatabase database = dwService.getDetail(databaseId);
+
+        DWTableRsp table = dwService.findTableByTableName(SessionHolder.getUserId(),databaseId,tableName);
+
+        JSONObject configJson = new JSONObject();
+
+        String taskKey;
+
+        if(table.getIsAll().equals(1)){
+            //全量的接入每次都新生成一个
+            taskKey = databaseId+"_"+tableName + "_isAll_";
+        }else{
+            //调度的接入，如果之前已经还该表的任务，在outputs中进行补充
+            taskKey = databaseId+"_"+tableName;
+        }
+
+        String ktrTaskName = AccessTaskType.KTR.getDisplayName()+"_"+taskKey;
+        String transferTaskName = AccessTaskType.TRANSFER.getDisplayName()+"_"+taskKey;
+
+        //生成ktr文件
+        String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword());
+        configJson.put("fileText",ktrTxt);
+        configJson.put("updateTime",System.currentTimeMillis());
+        if(table.getCreateWay().equals(1)){
+            //远程表
+            configJson.put("cron",table.getCron());
+            configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
+        }else{
+            //本地表
+            configJson.put("isAll",1);
+        }
+
+        configJson.put("resourceName",ktrTaskName);
+        configJson.put("outputs",Lists.newArrayList(transferTaskName));
+        configJson.put("isScheduled ",table.getSchedulingSwitch());
+
+        return configJson.toString();
+    }
+
+    @Override
+    public String getDwConfig(Long databaseId, DWTable table,Integer isScheduled) {
+
+        DWDatabase database = dwService.getDetail(databaseId);
+
+        JSONObject dwJson = new JSONObject();
+
+        JSONObject dwTbJson = new JSONObject();
+        dwTbJson.put("tbName",table.getTableName());
+        dwTbJson.put("dbName",database.getDbName());
+
+        dwJson.put("dwType", "mongo");
+        dwJson.put("dwConfig", dwTbJson);
+        dwJson.put("isScheduled", isScheduled);
+        return dwJson.toJSONString();
+    }
+
+    @Override
+    public String getTransferConfig(Long databaseId, String tableName,Integer isScheduled) {
+
+        DWDatabase database = dwService.getDetail(databaseId);
+
+        JSONObject transferJson = new JSONObject();
+        transferJson.put("isScheduled",isScheduled);
+
+        //自定义
+        if(database.getDataFormat().equals(3)){
+            String yamlContent = database.getYamlContent();
+            Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
+            JSONArray tableTransfer = yamlTagMap.get(tableName);
+            transferJson.put("transferConfig", tableTransfer);
+        }
+
+        if(transferJson.getString("transferConfig") != null){
+            transferJson.put("transferType","d2r");
+        }
+
+        return transferJson.toJSONString();
+    }
+
+    @Override
+    public String createKtrTask(String tableName,Long databaseId,String isAllKey) {
+        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
+        if(!tableOpt.isPresent()){
+            return null;
+        }
+
+        DWTable table = tableOpt.get();
+
+        String taskKey;
+
+        Long timeout = null;
+        if(table.getCreateWay().equals(2) || table.getIsAll() == null || table.getIsAll().equals(1)){
+            //全量的接入每次都新生成一个
+            taskKey = databaseId+"_"+tableName + "_isAll_"+isAllKey;
+            timeout = 600L;
+        }else{
+            //调度的接入，如果之前已经还该表的任务，在outputs中进行补充
+            taskKey = databaseId+"_"+tableName;
+        }
+
+        String ktrTaskName = AccessTaskType.KTR.getDisplayName()+"_"+taskKey;
+        String transferTaskName = AccessTaskType.TRANSFER.getDisplayName()+"_"+taskKey;
+
+        DWTaskRsp ktrTaskRsp = getByTaskName(ktrTaskName);
+
+        if(ktrTaskRsp == null){
+            ktrTaskRsp = new DWTaskRsp();
+            ktrTaskRsp.setTaskType(AccessTaskType.KTR.getDisplayName());
+            ktrTaskRsp.setName(ktrTaskName);
+            ktrTaskRsp.setOutputs(Lists.newArrayList(transferTaskName));
+            ktrTaskRsp.setUserId(SessionHolder.getUserId());
+        }
+        ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName));
+        ktrTaskRsp.setStatus(table.getSchedulingSwitch());
+
+        saveTask(ktrTaskRsp,timeout);
+
+        return ktrTaskName;
+    }
+
+    @Override
+    public String createTransfer(String tableName, Long databaseId, List<String> outputs,List<String>distributeOriginalData,String isAllKey) {
+
+        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
+        if(!tableOpt.isPresent()){
+            return null;
+        }
+
+        DWTable table = tableOpt.get();
+
+        String taskKey;
+        Long timeout = null;
+        if(table.getIsAll().equals(1)){
+            //全量的接入每次都新生成一个
+            taskKey = databaseId+"_"+tableName + "_isAll_"+isAllKey;
+            timeout = 600L;
+        }else{
+            //调度的接入，如果之前已经还该表的任务，在outputs中进行补充
+            taskKey = databaseId+"_"+tableName;
+        }
+
+        String transferTaskName = AccessTaskType.TRANSFER.getDisplayName()+"_"+taskKey;
+
+        DWTaskRsp transferRsp = getByTaskName(transferTaskName);
+        if(transferRsp == null){
+            transferRsp = new DWTaskRsp();
+            transferRsp.setTaskType(AccessTaskType.TRANSFER.getDisplayName());
+            transferRsp.setName(transferTaskName);
+            transferRsp.setConfig(getTransferConfig(databaseId,tableName,1));
+            transferRsp.setUserId(SessionHolder.getUserId());
+            transferRsp.setOutputs(new ArrayList<>());
+            transferRsp.setDistributeOriginalData(new ArrayList<>());
+            transferRsp.setStatus(1);
+        }
+        List<String> outs = transferRsp.getOutputs();
+
+        if(outputs != null && !outputs.isEmpty()){
+
+            for(String output : outputs){
+                if(!outs.contains(output)){
+                    outs.add(output);
+                }
+            }
+        }
+        List<String> distributeOriginals = transferRsp.getDistributeOriginalData();
+
+        if(distributeOriginalData != null && !distributeOriginalData.isEmpty()){
+
+            for(String dis : distributeOriginalData){
+                if(!distributeOriginals.contains(dis)){
+                    distributeOriginals.add(dis);
+                }
+            }
+        }
+
+        saveTask(transferRsp,timeout);
+
+        return transferTaskName;
+    }
+
+    @Override
+    public String createDwTask(String tableName,Long databaseId) {
+
+        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
+        if(!tableOpt.isPresent()){
+            return null;
+        }
+
+        DWTable table = tableOpt.get();
+
+        String dwTaskName = AccessTaskType.DW.getDisplayName()+"_"+databaseId+"_"+tableName;
+
+        DWTaskRsp dwRsp = getByTaskName(dwTaskName);
+        if(dwRsp == null){
+            dwRsp = new DWTaskRsp();
+            dwRsp.setTaskType(AccessTaskType.DW.getDisplayName());
+            dwRsp.setName(dwTaskName);
+            dwRsp.setOutputs(new ArrayList<>());
+
+        }
+        dwRsp.setConfig(getDwConfig(databaseId,table,table.getSchedulingSwitch()));
+        dwRsp.setStatus(table.getSchedulingSwitch());
+
+        saveTask(dwRsp);
+        return dwTaskName;
+    }
+
     private List<ResourceReq> transformConfig(DataAccessTaskConfigReq config,Map<String,String> taskId2TypeMap) {
 
         List<ResourceReq> list = new ArrayList<>();
@@ -168,7 +371,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                 for(DWTableRsp table : tables){
 
                     String name;
-                    if(table.getCreateType().equals(1)){
+                    if(table.getCreateWay().equals(1)){
                         name = table.getTbName();
                     }else{
                         name = table.getTableName();
@@ -225,12 +428,12 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                     configJson.put("isScheduled",1);
 
                       //生成ktr文件
-                    String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaServers);
+                    String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword());
                     configJson.put("fileText",ktrTxt);
 
                     ResourceReq etlResourceReq = new ResourceReq();
                     etlResourceReq.setResourceName(config.getId()+"_"+table.getId());
-                    etlResourceReq.setResourceType("ktr");
+                    etlResourceReq.setResourceType(AccessTaskType.KTR.getDisplayName());
                     etlResourceReq.setConfig(configJson);
                     etlResourceReq.setOutputs(Lists.newArrayList(tranfResourceReq.getResourceName()));
 
@@ -248,11 +451,10 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
                 JSONObject kgConfig = new JSONObject();
                 kgConfig.put("kgName",graphMap.getKgName());
-                kgConfig.put("dataMapping",graphMap.getMapJson());
 
                 ResourceReq kgResourceReq = new ResourceReq();
                 kgResourceReq.setResourceName(config.getId());
-                kgResourceReq.setResourceType("kg");
+                kgResourceReq.setResourceType(AccessTaskType.KG.getDisplayName());
                 kgResourceReq.setConfig(kgConfig);
                 kgResourceReq.setOutputs(config.getOutputs() == null? new ArrayList<>():config.getOutputs());
 
@@ -273,7 +475,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
                 ResourceReq indexResourceReq = new ResourceReq();
                 indexResourceReq.setResourceName(config.getId());
-                indexResourceReq.setResourceType("index");
+                indexResourceReq.setResourceType(AccessTaskType.SEARCH.getDisplayName());
                 indexResourceReq.setConfig(indexConfig);
                 indexResourceReq.setOutputs(config.getOutputs() == null? new ArrayList<>():config.getOutputs());
 

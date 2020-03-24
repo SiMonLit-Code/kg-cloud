@@ -21,7 +21,7 @@ public class DWTableRsp {
 
     private List<DataSetSchema> schema;
 
-    private Integer createType;
+    private Integer createWay;
 
     private Long dwDataBaseId;
 
