@@ -332,7 +332,7 @@ public class DataSetServiceImpl implements DataSetService {
         target.setSchema(dataSetSchemas);
         target.setDataName(dataName);
         target.setEditable(false);
-        target.setPrivately(true);
+        target.setPrivately(false);
         target.setFields(transformFields(dataSetSchemas));
         target.setId(kgKeyGenerator.getNextId());
         target.setUserId(userId);
