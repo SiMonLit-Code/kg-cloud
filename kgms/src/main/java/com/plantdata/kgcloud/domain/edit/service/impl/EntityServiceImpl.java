@@ -156,6 +156,13 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
+    public void deleteMultiModal(String kgName, String modalId) {
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
+        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
+        mongoCollection.deleteOne(documentConverter.buildObjectId(modalId));
+    }
+
+    @Override
     public Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq,
                                            BasicInfoListBodyReq bodyReq) {
         BasicInfoListFrom basicInfoListFrom = MapperUtils.map(basicInfoListReq, BasicInfoListFrom.class);

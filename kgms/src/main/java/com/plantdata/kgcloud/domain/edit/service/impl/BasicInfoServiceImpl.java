@@ -19,6 +19,7 @@ import ai.plantdata.kg.api.pub.StatisticsApi;
 import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -29,8 +30,8 @@ import com.plantdata.kgcloud.constant.CountType;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
+import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
@@ -40,6 +41,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.StatisticsReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.MultiModalRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
@@ -104,6 +106,9 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     @Autowired
     private MongoClient mongoClient;
 
+    @Autowired
+    private DocumentConverter documentConverter;
+
     @Override
     public Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq) {
         logSender.setActionId();
@@ -152,6 +157,9 @@ public class BasicInfoServiceImpl implements BasicInfoService {
             throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
         }
         BasicInfoRsp basicInfoRsp = ParserBeanUtils.parserEntityVO(optional.get());
+        if (basicReq.getIsEntity()) {
+            basicInfoRsp.setMultiModals(this.listMultiModels(kgName, basicReq.getId()));
+        }
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
@@ -179,12 +187,20 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         }
     }
 
-    private List<MultiModal> listMultiModels(String kgName,Long entityId){
+    /**
+     * 获取多模态数据信息
+     *
+     * @param kgName
+     * @param entityId
+     * @return
+     */
+    private List<MultiModalRsp> listMultiModels(String kgName, Long entityId) {
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
-        collection.find(Filters.eq("entity_id", entityId));
-        return null;
+        FindIterable<Document> findIterable = collection.find(Filters.eq("entity_id", entityId));
+        return documentConverter.toBeans(findIterable, MultiModalRsp.class);
     }
+
     @Override
     public void updateAbstract(String kgName, AbstractModifyReq abstractModifyReq) {
         this.sendLog(kgName, abstractModifyReq.getId());

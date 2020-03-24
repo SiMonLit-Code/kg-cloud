@@ -54,6 +54,15 @@ public interface EntityService {
     MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq);
 
     /**
+     * 删除多模态数据
+     *
+     * @param kgName
+     * @param modalId
+     * @return
+     */
+    void deleteMultiModal(String kgName, String modalId);
+
+    /**
      * 实体列表
      *
      * @param kgName

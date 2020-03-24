@@ -110,7 +110,7 @@ public class DocumentConverter {
             e.printStackTrace();
         }
         if (document.size() == 0 && query instanceof Map) {
-            throw BizException.of(TextErrorCode.ILLEGAL_PARAM);
+            throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
         }
         return document;
     }

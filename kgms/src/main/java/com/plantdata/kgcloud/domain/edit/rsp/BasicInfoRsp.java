@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.rsp;
 
 
-import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
@@ -92,5 +91,5 @@ public class BasicInfoRsp extends BasicInfoVO {
     private List<GraphAttrGroupRsp> attrGroup;
 
     @ApiModelProperty(value = "多模态数据")
-    private List<MultiModal> multiModals;
+    private List<MultiModalRsp> multiModals;
 }
