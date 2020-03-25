@@ -103,7 +103,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     GRAPH_QUALITY_NOT_EXIST(120511, "图谱质量不存在"),
 
-    ILLEGAL_PARAM(120512, "参数不合法");
+    ILLEGAL_PARAM(120512, "参数不合法"),
 
     STANDARD_TEMPLATE_NOT_EXIST(120601, "行业标准模板不存在"),
 
