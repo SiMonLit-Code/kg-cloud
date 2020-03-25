@@ -1,0 +1,54 @@
+package com.plantdata.kgcloud.domain.dw.controller;
+
+import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
+import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
+import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
+import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
+import com.plantdata.kgcloud.security.SessionHolder;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * @program: kg-cloud-kgms
+ * @description: 订阅检测
+ * @author: czj
+ * @create: 2020-03-24 14:55
+ **/
+
+@Api(tags = "订阅检测")
+@RestController
+@RequestMapping("/subscription")
+public class SubscriptionController {
+
+    @Autowired
+    private GraphMapService graphMapService;
+
+    @ApiOperation("订阅检测-列表")
+    @PostMapping("/list")
+    public ApiReturn<List<GraphMapRsp>> list(@RequestBody GraphMapReq graphMapReq) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(graphMapService.list(userId,graphMapReq));
+    }
+
+
+    @ApiOperation("订阅检测-开启/关闭订阅")
+    @PatchMapping("/schedule/{id}/{status}")
+    public ApiReturn scheduleSwitch(@PathVariable("id")Integer id,@PathVariable("status")Integer status) {
+        graphMapService.scheduleSwitch(id,status);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("订阅检测-删除订阅")
+    @PatchMapping("/delete/schedule/{id}")
+    public ApiReturn deleteSchedule(@PathVariable("id")Integer id) {
+        graphMapService.deleteSchedule(id);
+        return ApiReturn.success();
+    }
+}

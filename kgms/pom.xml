@@ -282,6 +282,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.18</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>4.1.0</version>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -311,12 +322,6 @@
                                 org.projectlombok,
                                 io.springfox
                             </excludeGroupIds>
-                            <excludes>
-                                <exclude>
-                                    <groupId>com.plantdata</groupId>
-                                    <artifactId>kg-cloud-swagger</artifactId>
-                                </exclude>
-                            </excludes>
                         </configuration>
                     </plugin>
                 </plugins>
