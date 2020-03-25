@@ -32,9 +32,9 @@ import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.UUIDUtils;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
@@ -59,10 +59,10 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     private DWGraphMapRepository graphMapRepository;
 
     @Autowired
-    private RedissonClient redissonClient;
+    private DWTableRepository tableRepository;
 
     @Autowired
-    private DWTableRepository tableRepository;
+    private CacheManager cacheManager;
 
 
     @Override
@@ -133,16 +133,17 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         arrangeRsp.setDistributeOriginalData(taskRsp.getDistributeOriginalData());
 
         if(taskRsp.getTaskType().equals(AccessTaskType.KTR.getDisplayName())){
-            redissonClient.getMap(ChannelRedisEnum.KTR_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());
+            cacheManager.getCache(ChannelRedisEnum.KTR_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());
         }else{
-            redissonClient.getMap(ChannelRedisEnum.CONFIG_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());
+            cacheManager.getCache(ChannelRedisEnum.CONFIG_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());
         }
-        redissonClient.getMap(ChannelRedisEnum.ARRANGE_KEY.getType()).put(taskRsp.getName(),JSON.toJSONString(arrangeRsp));
+
+        cacheManager.getCache(ChannelRedisEnum.ARRANGE_KEY.getType()).put(taskRsp.getName(), JSON.parseObject(JSON.toJSONString(arrangeRsp)));
 
     }
 
     @Override
-    public String getKtrConfig(Long databaseId, String tableName) {
+    public String getKtrConfig(Long databaseId, String tableName,String isAllKey) {
 
         DWDatabase database = dwService.getDetail(databaseId);
 
@@ -152,11 +153,11 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         String taskKey;
 
-        if(table.getIsAll().equals(1)){
+        if(table.getIsAll() == null || table.getIsAll().equals(1)){
             //全量的接入每次都新生成一个
-            taskKey = databaseId+"_"+tableName + "_isAll_";
+            taskKey = databaseId+"_"+tableName + "_isAll_"+isAllKey;
         }else{
-            //调度的接入，如果之前已经还该表的任务，在outputs中进行补充
+            //增量的接入，如果之前已经有该表的任务，在outputs中进行补充
             taskKey = databaseId+"_"+tableName;
         }
 
@@ -164,12 +165,12 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         String transferTaskName = AccessTaskType.TRANSFER.getDisplayName()+"_"+taskKey;
 
         //生成ktr文件
-        String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword());
+        String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
         configJson.put("fileText",ktrTxt);
         configJson.put("updateTime",System.currentTimeMillis());
+        configJson.put("cron",table.getCron());
         if(table.getCreateWay().equals(1)){
             //远程表
-            configJson.put("cron",table.getCron());
             configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
         }else{
             //本地表
@@ -192,7 +193,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         JSONObject dwTbJson = new JSONObject();
         dwTbJson.put("tbName",table.getTableName());
-        dwTbJson.put("dbName",database.getDbName());
+        dwTbJson.put("dbName",database.getDataName());
 
         dwJson.put("dwType", "mongo");
         dwJson.put("dwConfig", dwTbJson);
@@ -216,15 +217,18 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             transferJson.put("transferConfig", tableTransfer);
         }
 
-        if(transferJson.getString("transferConfig") != null){
+        if(transferJson.containsKey("transferConfig") && transferJson.getString("transferConfig") != null){
             transferJson.put("transferType","d2r");
+        }else{
+            transferJson.put("transferType","");
+            transferJson.put("transferConfig","");
         }
 
         return transferJson.toJSONString();
     }
 
     @Override
-    public String createKtrTask(String tableName,Long databaseId,String isAllKey) {
+    public String createKtrTask(String tableName,Long databaseId,String isAllKey,Integer isSchedue) {
         Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
             return null;
@@ -235,7 +239,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         String taskKey;
 
         Long timeout = null;
-        if(table.getCreateWay().equals(2) || table.getIsAll() == null || table.getIsAll().equals(1)){
+        if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null || table.getIsAll().equals(1)){
             //全量的接入每次都新生成一个
             taskKey = databaseId+"_"+tableName + "_isAll_"+isAllKey;
             timeout = 600L;
@@ -256,8 +260,17 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             ktrTaskRsp.setOutputs(Lists.newArrayList(transferTaskName));
             ktrTaskRsp.setUserId(SessionHolder.getUserId());
         }
-        ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName));
-        ktrTaskRsp.setStatus(table.getSchedulingSwitch());
+        ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName,isAllKey));
+
+        if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null ||table.getIsAll().equals(1)){
+
+            //本地库或者全量按指定
+            ktrTaskRsp.setStatus(isSchedue);
+        }else{
+
+            //增量的调度跟表一起
+            ktrTaskRsp.setStatus(table.getSchedulingSwitch());
+        }
 
         saveTask(ktrTaskRsp,timeout);
 
@@ -265,7 +278,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public String createTransfer(String tableName, Long databaseId, List<String> outputs,List<String>distributeOriginalData,String isAllKey) {
+    public String createTransfer(String tableName, Long databaseId, List<String> outputs,List<String>distributeOriginalData,List<String> deleteOutputs,List<String> deleteDistributeOriginalData,String isAllKey) {
 
         Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
@@ -276,7 +289,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         String taskKey;
         Long timeout = null;
-        if(table.getIsAll().equals(1)){
+        if(table.getIsAll() == null || table.getIsAll().equals(1)){
             //全量的接入每次都新生成一个
             taskKey = databaseId+"_"+tableName + "_isAll_"+isAllKey;
             timeout = 600L;
@@ -292,12 +305,12 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             transferRsp = new DWTaskRsp();
             transferRsp.setTaskType(AccessTaskType.TRANSFER.getDisplayName());
             transferRsp.setName(transferTaskName);
-            transferRsp.setConfig(getTransferConfig(databaseId,tableName,1));
             transferRsp.setUserId(SessionHolder.getUserId());
             transferRsp.setOutputs(new ArrayList<>());
             transferRsp.setDistributeOriginalData(new ArrayList<>());
-            transferRsp.setStatus(1);
         }
+        transferRsp.setStatus(1);
+        transferRsp.setConfig(getTransferConfig(databaseId,tableName,1));
         List<String> outs = transferRsp.getOutputs();
 
         if(outputs != null && !outputs.isEmpty()){
@@ -308,6 +321,15 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                 }
             }
         }
+
+        if(deleteOutputs != null && !deleteOutputs.isEmpty()){
+            outputs.removeAll(deleteOutputs);
+        }
+
+        if(deleteDistributeOriginalData != null && !deleteDistributeOriginalData.isEmpty()){
+            distributeOriginalData.removeAll(deleteDistributeOriginalData);
+        }
+
         List<String> distributeOriginals = transferRsp.getDistributeOriginalData();
 
         if(distributeOriginalData != null && !distributeOriginalData.isEmpty()){
@@ -428,7 +450,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                     configJson.put("isScheduled",1);
 
                       //生成ktr文件
-                    String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword());
+                    String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
                     configJson.put("fileText",ktrTxt);
 
                     ResourceReq etlResourceReq = new ResourceReq();

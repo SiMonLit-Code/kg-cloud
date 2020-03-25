@@ -65,6 +65,15 @@ public class DWController {
         return ApiReturn.success();
     }
 
+
+    @ApiOperation("数仓-统一调度")
+    @PostMapping("/unified/scheduling")
+    public ApiReturn unifiedScheduling(@Valid @RequestBody DWTableCronReq req) {
+        String userId = SessionHolder.getUserId();
+        dwServince.unifiedScheduling(userId, req);
+        return ApiReturn.success();
+    }
+
     @ApiOperation("数仓-设置表调度开关")
     @PostMapping("/set/table/scheduling")
     public ApiReturn setTableScheduling(@Valid @RequestBody DWTableSchedulingReq req) {
@@ -110,21 +119,8 @@ public class DWController {
         return ApiReturn.success(dwServince.findTableAll(userId,databaseId));
     }
 
-    @ApiOperation("数仓-yaml上传")
-    @PostMapping("/{databaseId}/yaml/upload")
-    public ApiReturn<FilePathRsp> yamlUpload(
-            @PathVariable("databaseId") Long databaseId,
-            @RequestParam(value = "file") MultipartFile file) {
-        long size = file.getSize();
-        if (size > 1024 * 1024) {
-            return ApiReturn.fail(KgmsErrorCodeEnum.FILE_OUT_LIMIT);
-        }
-        dwServince.yamlUpload(databaseId, file);
-        return ApiReturn.success();
-    }
-
-    @ApiOperation("数仓-tagJson上传")
-    @PostMapping("/{databaseId}/tag/upload")
+    @ApiOperation("数仓-模式上传")
+    @PostMapping("/{databaseId}/model/upload")
     public ApiReturn<FilePathRsp> tagUpload(
             @PathVariable("databaseId") Long databaseId,
             @RequestParam(value = "file") MultipartFile file) {
@@ -134,13 +130,13 @@ public class DWController {
             return ApiReturn.fail(KgmsErrorCodeEnum.FILE_OUT_LIMIT);
         }
 
-        dwServince.tagUpload(databaseId, file);
+        dwServince.modelUpload(databaseId, file);
         return ApiReturn.success();
     }
 
     @ApiOperation("数仓-模式发布")
-    @PatchMapping("/model/push/{id}")
-    public ApiReturn push(@PathVariable("id") Long id,@ApiParam("模式所属行业") String modelType) {
+    @PatchMapping("/model/push/{id}/{modelType}")
+    public ApiReturn push(@PathVariable("id") Long id,@ApiParam("模式所属行业")@PathVariable("modelType") String modelType) {
 
         String userId = SessionHolder.getUserId();
         dwServince.push(userId, id,modelType);
@@ -169,7 +165,7 @@ public class DWController {
             Long tableId,
             @RequestParam(value = "file") MultipartFile file) {
         long size = file.getSize();
-        if (size > 1024 * 1024) {
+        if (size > 10 * 1024 * 1024) {
             return ApiReturn.fail(KgmsErrorCodeEnum.FILE_OUT_LIMIT);
         }
         try {

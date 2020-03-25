@@ -1,13 +1,14 @@
 package com.plantdata.kgcloud.domain.access.util;
 
-public class KtrXml {
+public class IndustryKtrXml {
         static String xml = "<transformation>\n" +
                 "  <info>\n" +
-                "    <name>dc</name>\n" +
+                "    <name>ktr</name>\n" +
                 "    <description/>\n" +
                 "    <extended_description/>\n" +
                 "    <trans_version/>\n" +
                 "    <trans_type>Normal</trans_type>\n" +
+                "    <trans_status>0</trans_status>\n" +
                 "    <directory>/</directory>\n" +
                 "    <parameters>\n" +
                 "    </parameters>\n" +
@@ -429,9 +430,9 @@ public class KtrXml {
                 "    <clusterschemas>\n" +
                 "    </clusterschemas>\n" +
                 "    <created_user>-</created_user>\n" +
-                "    <created_date>2020/03/06 01:55:55.531</created_date>\n" +
+                "    <created_date>2020/03/05 19:28:04.593</created_date>\n" +
                 "    <modified_user>-</modified_user>\n" +
-                "    <modified_date>2020/03/06 01:55:55.531</modified_date>\n" +
+                "    <modified_date>2020/03/05 19:28:04.593</modified_date>\n" +
                 "    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>\n" +
                 "    <is_key_private>N</is_key_private>\n" +
                 "  </info>\n" +
@@ -496,28 +497,38 @@ public class KtrXml {
 
         static String orderXml = "<order>\n" +
                 "    <hop>\n" +
-                "      <from>JSON output</from>\n" +
-                "      <to>JavaScript代码</to>\n" +
+                "      <from>数据转换</from>\n" +
+                "      <to>过滤记录</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
-                "      <from>JavaScript代码</from>\n" +
-                "      <to>获取变量</to>\n" +
+                "      <from>过滤记录</from>\n" +
+                "      <to>Kafka producer</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
                 "      <from>input</from>\n" +
-                "      <to>JSON output</to>\n" +
+                "      <to>获取变量</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
                 "      <from>获取变量</from>\n" +
-                "      <to>Kafka producer</to>\n" +
+                "      <to>JSON</to>\n" +
+                "      <enabled>Y</enabled>\n" +
+                "    </hop>\n" +
+                "    <hop>\n" +
+                "      <from>JSON</from>\n" +
+                "      <to>数据转换</to>\n" +
+                "      <enabled>Y</enabled>\n" +
+                "    </hop>\n" +
+                "    <hop>\n" +
+                "      <from>过滤记录</from>\n" +
+                "      <to>Kafka producer err</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "  </order>\n";
         static String defaultStepXml = "  <step>\n" +
-                "    <name>JSON output</name>\n" +
+                "    <name>JSON</name>\n" +
                 "    <type>JsonOutput</type>\n" +
                 "    <description/>\n" +
                 "    <distribute>Y</distribute>\n" +
@@ -547,45 +558,17 @@ public class KtrXml {
                 "      <servlet_output>N</servlet_output>\n" +
                 "    </file>\n" +
                 "    <fields>\n" +
-                "     fieldsQAQ" +
-                "    </fields>\n" +
-                "    <attributes/>\n" +
-                "    <cluster_schema/>\n" +
-                "    <remotesteps>\n" +
-                "      <input>\n" +
-                "      </input>\n" +
-                "      <output>\n" +
-                "      </output>\n" +
-                "    </remotesteps>\n" +
-                "    <GUI>\n" +
-                "      <xloc>471</xloc>\n" +
-                "      <yloc>118</yloc>\n" +
-                "      <draw>Y</draw>\n" +
-                "    </GUI>\n" +
-                "  </step>\n" +
-                "  <step>\n" +
-                "    <name>获取变量</name>\n" +
-                "    <type>GetVariable</type>\n" +
-                "    <description/>\n" +
-                "    <distribute>Y</distribute>\n" +
-                "    <custom_distribution/>\n" +
-                "    <copies>1</copies>\n" +
-                "    <partitioning>\n" +
-                "      <method>none</method>\n" +
-                "      <schema_name/>\n" +
-                "    </partitioning>\n" +
-                "    <fields>\n" +
                 "      <field>\n" +
-                "        <name>resourceName</name>\n" +
-                "        <variable>${resourceName}</variable>\n" +
-                "        <type>String</type>\n" +
-                "        <format/>\n" +
-                "        <currency/>\n" +
-                "        <decimal/>\n" +
-                "        <group/>\n" +
-                "        <length>-1</length>\n" +
-                "        <precision>-1</precision>\n" +
-                "        <trim_type>none</trim_type>\n" +
+                "        <name>json</name>\n" +
+                "        <element>json</element>\n" +
+                "      </field>\n" +
+                "      <field>\n" +
+                "        <name>db</name>\n" +
+                "        <element>db</element>\n" +
+                "      </field>\n" +
+                "      <field>\n" +
+                "        <name>tb</name>\n" +
+                "        <element>tb</element>\n" +
                 "      </field>\n" +
                 "    </fields>\n" +
                 "    <attributes/>\n" +
@@ -597,60 +580,8 @@ public class KtrXml {
                 "      </output>\n" +
                 "    </remotesteps>\n" +
                 "    <GUI>\n" +
-                "      <xloc>759</xloc>\n" +
-                "      <yloc>118</yloc>\n" +
-                "      <draw>Y</draw>\n" +
-                "    </GUI>\n" +
-                "  </step>\n"+
-                "  <step>\n" +
-                "    <name>JavaScript代码</name>\n" +
-                "    <type>ScriptValueMod</type>\n" +
-                "    <description/>\n" +
-                "    <distribute>Y</distribute>\n" +
-                "    <custom_distribution/>\n" +
-                "    <copies>1</copies>\n" +
-                "    <partitioning>\n" +
-                "      <method>none</method>\n" +
-                "      <schema_name/>\n" +
-                "    </partitioning>\n" +
-                "    <compatible>N</compatible>\n" +
-                "    <optimizationLevel>9</optimizationLevel>\n" +
-                "    <jsScripts>\n" +
-                "      <jsScript>\n" +
-                "        <jsScript_type>0</jsScript_type>\n" +
-                "        <jsScript_name>Script 1</jsScript_name>\n" +
-                "        <jsScript_script>//Script here\n" +
-                "\n" +
-                "\n" +
-                "var re={\n" +
-                "\"data\":JSON. parse(data)[\"data\"][0],\n" +
-                "\"operationType\":\"ADD\"\n" +
-                "}\n" +
-                "\n" +
-                "var value=JSON.stringify(re)</jsScript_script>\n" +
-                "      </jsScript>\n" +
-                "    </jsScripts>\n" +
-                "    <fields>\n" +
-                "      <field>\n" +
-                "        <name>value</name>\n" +
-                "        <rename>value</rename>\n" +
-                "        <type>String</type>\n" +
-                "        <length>-1</length>\n" +
-                "        <precision>-1</precision>\n" +
-                "        <replace>N</replace>\n" +
-                "      </field>\n" +
-                "    </fields>\n" +
-                "    <attributes/>\n" +
-                "    <cluster_schema/>\n" +
-                "    <remotesteps>\n" +
-                "      <input>\n" +
-                "      </input>\n" +
-                "      <output>\n" +
-                "      </output>\n" +
-                "    </remotesteps>\n" +
-                "    <GUI>\n" +
-                "      <xloc>599</xloc>\n" +
-                "      <yloc>118</yloc>\n" +
+                "      <xloc>352</xloc>\n" +
+                "      <yloc>144</yloc>\n" +
                 "      <draw>Y</draw>\n" +
                 "    </GUI>\n" +
                 "  </step>\n";
@@ -693,7 +624,7 @@ public class KtrXml {
                 "    </GUI>\n" +
                 "  </step>\n" ;
 
-        static String kafkaxml = "  <step>\n" +
+        static String kafkaTrueXml = "<step>\n" +
                 "    <name>Kafka producer</name>\n" +
                 "    <type>KafkaProducerOutput</type>\n" +
                 "    <description/>\n" +
@@ -710,7 +641,7 @@ public class KtrXml {
                 "    <topic>channel_transfer</topic>\n" +
                 "    <clientId/>\n" +
                 "    <keyField>resourceName</keyField>\n" +
-                "    <messageField>value</messageField>\n" +
+                "    <messageField>kg_data</messageField>\n" +
                 "    <advancedConfig>\n" +
                 "      <option property=\"compression.type\" value=\"none\"/>\n" +
                 "      <option property=\"ssl.key.password\" value=\"\"/>\n" +
@@ -729,18 +660,53 @@ public class KtrXml {
                 "      </output>\n" +
                 "    </remotesteps>\n" +
                 "    <GUI>\n" +
-                "      <xloc>935</xloc>\n" +
-                "      <yloc>118</yloc>\n" +
+                "      <xloc>1136</xloc>\n" +
+                "      <yloc>112</yloc>\n" +
                 "      <draw>Y</draw>\n" +
                 "    </GUI>\n" +
-                "  </step>\n" +
-                "  <step_error_handling>\n" +
-                "  </step_error_handling>\n" +
-                "  <slave-step-copy-partition-distribution>\n" +
-                "  </slave-step-copy-partition-distribution>\n" +
-                "  <slave_transformation>N</slave_transformation>\n" +
-                "  <attributes/>\n" +
-                "</transformation>\n";
+                "  </step>\n";
+
+        static String kafkaErrorXml = "  <step>\n" +
+                "    <name>Kafka producer err</name>\n" +
+                "    <type>KafkaProducerOutput</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>Y</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <connectionType>DIRECT</connectionType>\n" +
+                "    <directBootstrapServers>kafkaQAQ</directBootstrapServers>\n" +
+                "    <clusterName/>\n" +
+                "    <topic>channel_low</topic>\n" +
+                "    <clientId/>\n" +
+                "    <keyField>resourceName</keyField>\n" +
+                "    <messageField>kg_data</messageField>\n" +
+                "    <advancedConfig>\n" +
+                "      <option property=\"compression.type\" value=\"none\"/>\n" +
+                "      <option property=\"ssl.key.password\" value=\"\"/>\n" +
+                "      <option property=\"ssl.keystore.location\" value=\"\"/>\n" +
+                "      <option property=\"ssl.keystore.password\" value=\"\"/>\n" +
+                "      <option property=\"ssl.truststore.location\" value=\"\"/>\n" +
+                "      <option property=\"ssl.truststore.password\" value=\"\"/>\n" +
+                "      <option property=\"partitioner.class\" value=\"com.hiekn.partitioner.ChannelPartitioner\"/>\n" +
+                "    </advancedConfig>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>1152</xloc>\n" +
+                "      <yloc>192</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n";
 
         static String mongoInputXml = "<step>\n" +
                 "    <name>input</name>\n" +
@@ -795,6 +761,202 @@ public class KtrXml {
                 "        \"$lte\": \"${StopTime}\"\n" +
                 "    }\n" +
                 "}\n";
+
+        static String paramAndFilterXml = "<step>\n" +
+                "    <name>获取变量</name>\n" +
+                "    <type>GetVariable</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>Y</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>resourceName</name>\n" +
+                "        <variable>${resourceName}</variable>\n" +
+                "        <type>String</type>\n" +
+                "        <format/>\n" +
+                "        <currency/>\n" +
+                "        <decimal/>\n" +
+                "        <group/>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <trim_type>none</trim_type>\n" +
+                "      </field>\n" +
+                "      <field>\n" +
+                "        <name>userId</name>\n" +
+                "        <variable>${userId}</variable>\n" +
+                "        <type>String</type>\n" +
+                "        <format/>\n" +
+                "        <currency/>\n" +
+                "        <decimal/>\n" +
+                "        <group/>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <trim_type>none</trim_type>\n" +
+                "      </field>\n" +
+                "      <field>\n" +
+                "        <name>db</name>\n" +
+                "        <variable>${db}</variable>\n" +
+                "        <type>String</type>\n" +
+                "        <format/>\n" +
+                "        <currency/>\n" +
+                "        <decimal/>\n" +
+                "        <group/>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <trim_type>none</trim_type>\n" +
+                "      </field>\n" +
+                "      <field>\n" +
+                "        <name>tb</name>\n" +
+                "        <variable>${tb}</variable>\n" +
+                "        <type>String</type>\n" +
+                "        <format/>\n" +
+                "        <currency/>\n" +
+                "        <decimal/>\n" +
+                "        <group/>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <trim_type>none</trim_type>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>208</xloc>\n" +
+                "      <yloc>144</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" +
+                "  <step>\n" +
+                "    <name>过滤记录</name>\n" +
+                "    <type>FilterRows</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>Y</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <send_true_to>Kafka producer</send_true_to>\n" +
+                "    <send_false_to>Kafka producer err</send_false_to>\n" +
+                "    <compare>\n" +
+                "      <condition>\n" +
+                "        <negated>N</negated>\n" +
+                "        <leftvalue>KtState</leftvalue>\n" +
+                "        <function>=</function>\n" +
+                "        <rightvalue/>\n" +
+                "        <value>\n" +
+                "          <name>constant</name>\n" +
+                "          <type>Boolean</type>\n" +
+                "          <text>Y</text>\n" +
+                "          <length>-1</length>\n" +
+                "          <precision>-1</precision>\n" +
+                "          <isnull>N</isnull>\n" +
+                "          <mask/>\n" +
+                "        </value>\n" +
+                "      </condition>\n" +
+                "    </compare>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>640</xloc>\n" +
+                "      <yloc>160</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" +
+                "  <step_error_handling>\n" +
+                "    <error>\n" +
+                "      <source_step>数据转换</source_step>\n" +
+                "      <target_step/>\n" +
+                "      <is_enabled>N</is_enabled>\n" +
+                "      <nr_valuename/>\n" +
+                "      <descriptions_valuename/>\n" +
+                "      <fields_valuename/>\n" +
+                "      <codes_valuename/>\n" +
+                "      <max_errors/>\n" +
+                "      <max_pct_errors/>\n" +
+                "      <min_pct_rows/>\n" +
+                "    </error>\n" +
+                "  </step_error_handling>\n" +
+                "  <slave-step-copy-partition-distribution>\n" +
+                "  </slave-step-copy-partition-distribution>\n" +
+                "  <slave_transformation>N</slave_transformation>\n" +
+                "  <attributes/>\n" +
+                "</transformation>";
+
+        static String customizationXml = "<step>\n" +
+                "    <name>数据转换</name>\n" +
+                "    <type>UserDefinedJavaClass</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>Y</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <definitions>\n" +
+                "      <definition>\n" +
+                "        <class_type>TRANSFORM_CLASS</class_type>\n" +
+                "        <class_name>Processor</class_name>\n" +
+                "        <class_source>${code}</class_source>\n" +
+                "      </definition>\n" +
+                "    </definitions>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <field_name>kg_data</field_name>\n" +
+                "        <field_type>String</field_type>\n" +
+                "        <field_length>-1</field_length>\n" +
+                "        <field_precision>-1</field_precision>\n" +
+                "      </field>\n" +
+                "      <field>\n" +
+                "        <field_name>KtState</field_name>\n" +
+                "        <field_type>Boolean</field_type>\n" +
+                "        <field_length>-1</field_length>\n" +
+                "        <field_precision>-1</field_precision>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <clear_result_fields>N</clear_result_fields>\n" +
+                "    <info_steps/>\n" +
+                "    <target_steps/>\n" +
+                "    <usage_parameters>\n" +
+                "      <usage_parameter>\n" +
+                "        <parameter_tag>resourceName</parameter_tag>\n" +
+                "        <parameter_value>aaa</parameter_value>\n" +
+                "        <parameter_description/>\n" +
+                "      </usage_parameter>\n" +
+                "    </usage_parameters>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>496</xloc>\n" +
+                "      <yloc>160</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>";
     }
 
 

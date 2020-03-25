@@ -79,7 +79,6 @@ public class DWGraphMap {
     @Column(name = "table_name")
     private String tableName;
 
-
     @Basic
     @Column(name = "data_base_id")
     private Long dataBaseId;

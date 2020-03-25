@@ -12,6 +12,5 @@ import lombok.Data;
 public class TableKtrRsp {
 
     private String tableName;
-
     private String ktr;
 }

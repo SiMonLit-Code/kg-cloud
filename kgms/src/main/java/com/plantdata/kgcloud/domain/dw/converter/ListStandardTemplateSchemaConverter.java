@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.StandardTemplateSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 
 import javax.persistence.AttributeConverter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListStandardTemplateSchemaConverter implements AttributeConverter<List<StandardTemplateSchema>, String> {
@@ -15,6 +16,10 @@ public class ListStandardTemplateSchemaConverter implements AttributeConverter<L
 
     @Override
     public List<StandardTemplateSchema> convertToEntityAttribute(String value) {
+        if(value == null){
+            return new ArrayList<>();
+        }
+
         return JacksonUtils.readValue(value, new TypeReference<List<StandardTemplateSchema>>() {
         });
     }

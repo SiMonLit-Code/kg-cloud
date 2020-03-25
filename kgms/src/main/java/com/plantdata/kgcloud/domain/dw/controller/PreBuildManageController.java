@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
@@ -10,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -50,6 +53,24 @@ public class PreBuildManageController {
         String userId = SessionHolder.getUserId();
         preBuilderService.update(userId,id,status);
         return ApiReturn.success();
+    }
+
+
+    @ApiOperation("预构建模式管理-模式上传")
+    @PostMapping("/create")
+    public ApiReturn create(@RequestBody PreBuilderCreateReq req,
+            @RequestParam(value = "file") MultipartFile file) {
+        long size = file.getSize();
+        if (size > 20 * 1024 * 1024) {
+            return ApiReturn.fail(KgmsErrorCodeEnum.FILE_OUT_LIMIT);
+        }
+        try {
+            preBuilderService.create(req, file);
+            return ApiReturn.success();
+        } catch (Exception e) {
+            return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_IMPORT_FAIL);
+        }
+
     }
 
 }

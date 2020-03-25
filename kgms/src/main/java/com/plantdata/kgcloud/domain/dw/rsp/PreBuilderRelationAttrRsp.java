@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -31,8 +32,12 @@ public class PreBuilderRelationAttrRsp {
     @ApiModelProperty("边属性类型")
     private Integer dataType;
 
+    @ApiModelProperty("表")
+    private List<String> tables;
+
     @ApiModelProperty("添加时间")
     private Date createAt;
+
 
     @ApiModelProperty("更新时间")
     private Date updateAt;

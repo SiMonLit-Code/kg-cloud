@@ -1,19 +1,28 @@
 package com.plantdata.kgcloud.domain.dw.service.impl;
 
+import ai.plantdata.kg.common.bean.BasicInfo;
+import ai.plantdata.kg.common.bean.ParentSon;
+import cn.hiboot.mcn.core.exception.ErrorMsg;
+import cn.hiboot.mcn.core.exception.ServiceException;
 import com.alibaba.excel.util.StringUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AccessTaskType;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
 import com.plantdata.kgcloud.domain.access.rsp.KgConfigRsp;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphEditService;
 import com.plantdata.kgcloud.domain.dw.entity.*;
+import com.plantdata.kgcloud.domain.dw.parser.ExcelParser;
 import com.plantdata.kgcloud.domain.dw.repository.*;
+import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -26,6 +35,9 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -33,11 +45,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -502,6 +516,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 graphMap.setTableName(tableName);
                 graphMap.setDataBaseId(modelDataBaseId);
                 graphMap.setSchedulingSwitch(0);
+                graphMap.setKgName(preBuilderGraphMapReq.getKgName());
                 graphMapList.add(graphMap);
             }
 
@@ -524,6 +539,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     graphMap.setTableName(tableName);
                     graphMap.setDataBaseId(modelDataBaseId);
                     graphMap.setSchedulingSwitch(0);
+                    graphMap.setKgName(preBuilderGraphMapReq.getKgName());
                     graphMapList.add(graphMap);
                 }
 
@@ -545,6 +561,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         graphMapRelationAttr.setTableName(tableName);
                         graphMapRelationAttr.setDataBaseId(modelDataBaseId);
                         graphMapRelationAttr.setSchedulingSwitch(0);
+                        graphMapRelationAttr.setKgName(preBuilderGraphMapReq.getKgName());
+                        graphMapRelationAttr.setModelId(schemaQuoteReq.getModelId());
                         graphMapRelationAttrList.add(graphMapRelationAttr);
 
                     }
@@ -596,8 +614,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             String kgTaskName = AccessTaskType.KG.getDisplayName()+"_"+kgName+"_"+modelId;
 
             for(String tableName : tableNames){
-                accessTaskService.createKtrTask(tableName,model.getDatabaseId(),kgName);
-                accessTaskService.createTransfer(tableName,model.getDatabaseId(),Lists.newArrayList(kgTaskName),null,kgName);
+                accessTaskService.createKtrTask(tableName,model.getDatabaseId(),kgName,0);
+                accessTaskService.createTransfer(tableName,model.getDatabaseId(),Lists.newArrayList(),null,null,null,kgName);
             }
 
             List<DataMapReq> dataMapReqList = quote2DataMap(schemaModelMap.get(modelId));
@@ -610,14 +628,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 kgTaskRsp.setName(kgTaskName);
                 kgTaskRsp.setTaskType(AccessTaskType.KG.getDisplayName());
                 kgTaskRsp.setUserId(SessionHolder.getUserId());
-                kgTaskRsp.setStatus(0);
+                kgTaskRsp.setStatus(1);
                 kgTaskRsp.setOutputs(new ArrayList<>());
             }
 
             KgConfigRsp config = new KgConfigRsp();
             config.setKgName(kgName);
             config.setDataMapping(dataMapReqList);
-            config.setIsScheduled(0);
+            config.setIsScheduled(1);
             kgTaskRsp.setConfig(JacksonUtils.writeValueAsString(config));
 
             accessTaskService.saveTask(kgTaskRsp);
@@ -929,6 +947,79 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
+    public void create(PreBuilderCreateReq req, MultipartFile file) {
+
+        UserDetailRsp userDetailRsp = getUserDetail();
+        if(!"admin".equals(userDetailRsp.getUsername())){
+            throw BizException.of(KgmsErrorCodeEnum.PERMISSION_NOT_MODEL_UPLOAD_ERROR);
+        }
+
+        if (file == null || !file.getOriginalFilename().endsWith(".xls") || !file.getOriginalFilename().endsWith(".xlsx") || !file.getOriginalFilename().endsWith(".zip")) {
+            throw BizException.of(KgmsErrorCodeEnum.FILE_TYPE_ERROR);
+        }
+
+        try {
+
+            String result = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
+
+            if(file.getOriginalFilename().endsWith(".xls") || file.getOriginalFilename().endsWith(".xlsx")){
+                //纯模式
+                addModelByExcel(file);
+
+            }else{
+                //行业标准
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+        }
+        return ;
+
+    }
+
+    private void addModelByExcel(MultipartFile file) {
+
+        try {
+            ExcelParser excelParser = new ExcelParser(file.getInputStream(), file.getOriginalFilename());
+
+            Sheet sheet = excelParser.wb.getSheetAt(0);
+            excelParser.checkTitle(sheet.getRow(0),ExcelParser.CONCEPT);
+            int rows = sheet.getPhysicalNumberOfRows();
+            List<PreBuilderConceptRsp> conceptRspList = Lists.newArrayList();
+
+            Map<String,PreBuilderConceptRsp> conceptMap = new HashMap<>();
+            for (int i = 1; i <= rows; i++) {
+                Row row = sheet.getRow(i);
+                if (row != null) {
+                    String parentName = excelParser.getCellValue(row.getCell(0));
+                    String parentMeaningTag = excelParser.getCellValue(row.getCell(1));
+                    String sonName = excelParser.getCellValue(row.getCell(2));
+                    String sonMeaningTag = excelParser.getCellValue(row.getCell(3));
+                    if (!org.springframework.util.StringUtils.hasText(parentName)) {
+                        throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+                    }
+                    if (!org.springframework.util.StringUtils.hasText(sonName)) {
+                        throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+                    }
+                    if (Objects.equals(parentMeaningTag, sonMeaningTag) && parentName.equals(sonMeaningTag)) {
+                        throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+                    }
+
+                }
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+        }
+
+
+    }
+
+    @Override
     public List<SchemaQuoteReq> getGraphMap(String userId, String kgName) {
 
         List<DWGraphMap> dwGraphMapList = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).build()));
@@ -949,15 +1040,20 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             if(schemaQuoteReqMap.containsKey(conceptKey)){
 
                 schemaQuoteReq = schemaQuoteReqMap.get(conceptKey);
+
+                if(!schemaQuoteReq.getTables().contains(graphMap.getTableName())){
+                    schemaQuoteReq.getTables().add(graphMap.getTableName());
+                }
             }else{
 
                 schemaQuoteReq = new SchemaQuoteReq();
                 BeanUtils.copyProperties(graphMap,schemaQuoteReq);
 
                 schemaQuoteReq.setAttrs(new ArrayList<>());
+                schemaQuoteReq.setTables(Lists.newArrayList(graphMap.getTableName()));
                 schemaQuoteAttrMap.put(conceptKey,new HashMap<>());
                 schemaQuoteReqMap.put(conceptKey,schemaQuoteReq);
-            }
+        }
 
             if(graphMap.getAttrId() == null){
                 //概念映射 没有属性
@@ -975,10 +1071,16 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     schemaQuoteAttrReq.setRelationAttrs(new ArrayList<>());
                 }
 
+                schemaQuoteAttrReq.setTables(Lists.newArrayList(graphMap.getTableName()));
+
                 schemaQuoteReq.getAttrs().add(schemaQuoteAttrReq);
                 schemaQuoteAttrMap.get(conceptKey).put(graphMap.getAttrName(),schemaQuoteAttrReq);
             }else{
                 schemaQuoteAttrReq =  schemaQuoteAttrMap.get(conceptKey).get(graphMap.getAttrName());
+
+                if(!schemaQuoteAttrReq.getTables().contains(graphMap.getTableName())){
+                    schemaQuoteAttrReq.getTables().add(graphMap.getTableName());
+                }
             }
 
             //不是对象属性，不查边属性
@@ -1001,6 +1103,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                     SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq = new SchemaQuoteRelationAttrReq();
                     BeanUtils.copyProperties(graphMapRelationAttr,schemaQuoteRelationAttrReq);
+                    schemaQuoteRelationAttrReq.setTables(Lists.newArrayList(graphMap.getTableName()));
                     schemaQuoteAttrReq.getRelationAttrs().add(schemaQuoteRelationAttrReq);
                 }
 
@@ -1182,11 +1285,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             concept.setModelId(modelId);
 
             prebuildConceptRepository.save(concept);
-
-           /* List<PreBuilderAttrRsp> attrsList = conceptRsp.getAttrs();
-            if(attrsList == null || attrsList.isEmpty()){
-                continue;
-            }*/
 
             conceptMap.put(concept.getName(), concept.getId());
         }

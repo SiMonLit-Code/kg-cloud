@@ -20,4 +20,6 @@ public class ChannelRedisArrangeRsp {
     private List<String> outputs;
 
     private List<String> distributeOriginalData;
+
+
 }

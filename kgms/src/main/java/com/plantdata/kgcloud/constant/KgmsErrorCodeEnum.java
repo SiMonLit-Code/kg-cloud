@@ -105,6 +105,12 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     PRE_BUILD_MODEL_NOT_EXIST(120602, "预构建模式不存在"),
 
+    PERMISSION_NOT_MODEL_UPLOAD_ERROR(120603, "没有模式上传权限"),
+
+    MODEL_PARSER_ERROR(120604, "模式解析错误"),
+
+    CYCLE_CONCEPT_EXIST(120605, "模式存在循环概念"),
+
     DW_DATABASE_NOT_EXIST(120701, "数仓数据库不存在"),
 
     DW_TABLE_CREATE_ERROR(120702, "数仓数据表生成失败"),

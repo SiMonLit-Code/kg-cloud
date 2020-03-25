@@ -4,6 +4,7 @@ import com.plantdata.kgcloud.domain.dw.converter.ListStandardTemplateSchemaConve
 import com.plantdata.kgcloud.domain.dw.converter.MoldSchemaConfigConverter;
 import com.plantdata.kgcloud.domain.dw.converter.TableKtrConverter;
 import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.StandardTemplateSchema;
 import com.plantdata.kgcloud.domain.dw.rsp.TableKtrRsp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -103,5 +104,5 @@ public class DWPrebuildModel {
     @Basic
     @Column(name = "schemas")
     @Convert(converter = ListStandardTemplateSchemaConverter.class)
-    private String schemas;
+    private List<StandardTemplateSchema> schemas;
 }

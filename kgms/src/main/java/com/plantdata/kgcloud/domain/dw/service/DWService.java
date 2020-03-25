@@ -60,4 +60,8 @@ public interface DWService {
     ModelSchemaConfigRsp getModel(String userId, Long id);
 
     DWTableRsp findTableByTableName(String userId, Long databaseId, String tableName);
+
+    void unifiedScheduling(String userId, DWTableCronReq req);
+
+    void modelUpload(Long databaseId, MultipartFile file);
 }
