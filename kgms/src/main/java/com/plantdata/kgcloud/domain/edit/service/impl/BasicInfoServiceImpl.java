@@ -41,7 +41,6 @@ import com.plantdata.kgcloud.domain.edit.req.basic.StatisticsReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.MultiModalRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
@@ -56,6 +55,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.bson.Document;
@@ -68,6 +68,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -160,8 +161,6 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         if (basicReq.getIsEntity()) {
             basicInfoRsp.setMultiModals(this.listMultiModels(kgName, basicReq.getId()));
         }
-        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
-        MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
         if (CollectionUtils.isEmpty(attrValue) || BasicInfoType.isConcept(basicInfoRsp.getType())) {
             return basicInfoRsp;
@@ -194,11 +193,21 @@ public class BasicInfoServiceImpl implements BasicInfoService {
      * @param entityId
      * @return
      */
-    private List<MultiModalRsp> listMultiModels(String kgName, Long entityId) {
+    @Override
+    public List<MultiModalRsp> listMultiModels(String kgName, Long entityId) {
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         FindIterable<Document> findIterable = collection.find(Filters.eq("entity_id", entityId));
         return documentConverter.toBeans(findIterable, MultiModalRsp.class);
+    }
+
+    @Override
+    public Map<Long, List<MultiModalRsp>> listMultiModels(String kgName, List<Long> entityIds) {
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
+        MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
+        FindIterable<Document> findIterable = collection.find(Filters.in("entity_id", entityIds));
+        List<MultiModalRsp> multiModalRsps = documentConverter.toBeans(findIterable, MultiModalRsp.class);
+        return multiModalRsps.stream().filter(Objects::nonNull).collect(Collectors.groupingBy(MultiModalRsp::getEntityId));
     }
 
     @Override

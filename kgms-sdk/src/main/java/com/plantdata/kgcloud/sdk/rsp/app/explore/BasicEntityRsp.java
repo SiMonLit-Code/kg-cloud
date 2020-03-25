@@ -1,11 +1,13 @@
 package com.plantdata.kgcloud.sdk.rsp.app.explore;
 
 import com.plantdata.kgcloud.sdk.rsp.app.MetaDataInterface;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author cjw
@@ -34,4 +36,6 @@ public class BasicEntityRsp implements MetaDataInterface {
     private Date endTime;
     @ApiModelProperty("创建时间")
     private String creationTime;
+    @ApiModelProperty(value = "多模态数据")
+    private List<MultiModalRsp> multiModals;
 }

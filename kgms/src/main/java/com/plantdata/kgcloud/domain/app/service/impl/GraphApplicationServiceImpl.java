@@ -30,6 +30,7 @@ import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
@@ -55,6 +56,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +66,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -107,6 +110,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private ConceptService conceptService;
     @Autowired
     private DataSetSearchService dataSetSearchService;
+    @Autowired
+    private BasicInfoService basicInfoService;
 
     @Override
     public SchemaRsp querySchema(String kgName) {
@@ -243,14 +248,20 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         detailFilter.setEntity(true);
         //概念
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
+
         detailFilter.setEntity(false);
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> conceptListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
+        List<Long> entityIds = new ArrayList<>();
         entityListOpt.ifPresent(entityList ->
         {
             BasicConverter.consumerIfNoNull(req.getAllowAttrs(), allowAttrIds -> entityList.forEach(entity -> {
-                BasicConverter.consumerIfNoNull(entity.getAttrValue(), a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
+                entityIds.add(entity.getId());
+                BasicConverter.consumerIfNoNull(entity.getAttrValue(),
+                        a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
-            BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList, InfoBoxConverter::entityToInfoBoxRsp), infoBoxRspList::addAll);
+            Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(KGUtil.dbName(kgName), entityIds);
+            BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
+                    a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()))), infoBoxRspList::addAll);
 
         });
         conceptListOpt.ifPresent(conceptList ->

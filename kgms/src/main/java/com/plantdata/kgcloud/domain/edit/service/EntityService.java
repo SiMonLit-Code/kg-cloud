@@ -4,7 +4,6 @@ import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.MultiModalRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
@@ -16,6 +15,7 @@ import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
