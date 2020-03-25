@@ -215,10 +215,16 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
             JSONArray tableTransfer = yamlTagMap.get(tableName);
             transferJson.put("transferConfig", tableTransfer);
-        }
-
-        if(transferJson.containsKey("transferConfig") && transferJson.getString("transferConfig") != null){
-            transferJson.put("transferType","d2r");
+            if(tableTransfer != null){
+                transferJson.put("transferType","d2r");
+            }else{
+                transferJson.put("transferType","");
+                transferJson.put("transferConfig","");
+            }
+        }else if(database.getDataFormat().equals(1)){
+            //行业标准
+            transferJson.put("transferType","industry");
+            transferJson.put("transferConfig","");
         }else{
             transferJson.put("transferType","");
             transferJson.put("transferConfig","");
