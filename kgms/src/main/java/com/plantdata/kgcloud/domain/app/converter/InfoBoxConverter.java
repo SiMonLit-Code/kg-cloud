@@ -23,6 +23,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -78,13 +79,13 @@ public class InfoBoxConverter extends BasicConverter {
 
     public static InfoBoxRsp conceptToInfoBoxRsp(EntityVO entity) {
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
-        infoBoxRsp.setSelf(voToSelf(entity, Collections.emptyList()));
+        infoBoxRsp.setSelf(voToSelf(entity, Collections.emptyList(), Collections.emptyList()));
         infoBoxRsp.setParents(listToRsp(entity.getParent(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         return infoBoxRsp;
     }
 
-    public static InfoBoxRsp entityToInfoBoxRsp(EntityVO entity) {
+    public static InfoBoxRsp entityToInfoBoxRsp(EntityVO entity, List<MultiModalRsp> modalRsps) {
         List<EntityAttributeValueVO> objAttrList = Lists.newArrayList();
         List<EntityAttributeValueVO> resObjAttrList = Lists.newArrayList();
         List<EntityAttributeValueVO> otherDataAttrList = Lists.newArrayList();
@@ -119,7 +120,7 @@ public class InfoBoxConverter extends BasicConverter {
         //设置子概念
         infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //基本字段
-        infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList));
+        infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList, modalRsps));
         // 正向对象属性
         consumerIfNoNull(objAttrList, a -> infoBoxRsp.setAttrs(listToRsp(a, InfoBoxConverter::attrValToInfoBoxAttrRsp)));
         // 反向对象属性
@@ -127,7 +128,7 @@ public class InfoBoxConverter extends BasicConverter {
         return infoBoxRsp;
     }
 
-    private static EntityLinksRsp voToSelf(EntityVO entity, List<EntityAttributeValueVO> dataAttrList) {
+    private static EntityLinksRsp voToSelf(EntityVO entity, List<EntityAttributeValueVO> dataAttrList,List<MultiModalRsp> modalRsps) {
         EntityLinksRsp self = EntityConverter.entityVoToBasicEntityRsp(entity, new EntityLinksRsp());
         if (StringUtils.isNotEmpty(entity.getImageUrl())) {
             self.setImgUrl(entity.getImageUrl());
@@ -147,6 +148,9 @@ public class InfoBoxConverter extends BasicConverter {
         //设置数值,私有属性
         consumerIfNoNull(dataAttrList, a -> fillAttr(extraList, a));
         self.setExtraList(extraList);
+        if (!CollectionUtils.isEmpty(modalRsps)){
+            self.setMultiModals(modalRsps);
+        }
         return self;
     }
 

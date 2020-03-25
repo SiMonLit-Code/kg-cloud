@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

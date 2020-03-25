@@ -14,6 +14,8 @@ import lombok.Setter;
 @ApiModel("数仓数据")
 public class DataStore {
 
+    private String id;
+
     private String dbName;
 
     private String dbTable;

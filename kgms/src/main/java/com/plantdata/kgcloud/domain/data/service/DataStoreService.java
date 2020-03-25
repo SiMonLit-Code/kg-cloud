@@ -3,7 +3,9 @@ package com.plantdata.kgcloud.domain.data.service;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.data.req.DataStoreModifyReq;
 import com.plantdata.kgcloud.domain.data.req.DataStoreScreenReq;
+import com.plantdata.kgcloud.domain.data.req.DtReq;
 import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
+import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 
 import java.util.List;
 
@@ -13,6 +15,15 @@ import java.util.List;
  * @Description:
  */
 public interface DataStoreService {
+
+    /**
+     * 数据库与表列表
+     *
+     * @param dtReq
+     * @return
+     */
+    List<DbAndTableRsp> listAll(DtReq dtReq);
+
     /**
      * 数仓列表
      *

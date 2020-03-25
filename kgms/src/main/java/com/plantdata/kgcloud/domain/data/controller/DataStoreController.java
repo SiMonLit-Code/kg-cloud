@@ -4,7 +4,9 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.data.req.DataStoreModifyReq;
 import com.plantdata.kgcloud.domain.data.req.DataStoreScreenReq;
+import com.plantdata.kgcloud.domain.data.req.DtReq;
 import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
+import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 import com.plantdata.kgcloud.domain.data.service.DataStoreService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +33,12 @@ public class DataStoreController {
 
     @Autowired
     private DataStoreService dataStoreService;
+
+    @ApiOperation("数据库与表列表")
+    @GetMapping("/dt")
+    public ApiReturn<List<DbAndTableRsp>> listDataStore(DtReq req) {
+        return ApiReturn.success(dataStoreService.listAll(req));
+    }
 
     @ApiOperation("数仓列表")
     @GetMapping("/list")
