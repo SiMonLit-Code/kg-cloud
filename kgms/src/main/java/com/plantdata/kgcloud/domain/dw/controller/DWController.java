@@ -27,6 +27,7 @@ import java.util.List;
 @Api(tags = "数仓")
 @RestController
 @RequestMapping("/dw")
+@CrossOrigin
 public class DWController {
 
     @Autowired
