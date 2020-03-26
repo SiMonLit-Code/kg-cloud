@@ -583,26 +583,30 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 List<SchemaQuoteRelationAttrReq> schemaQuoteRelationAttrReqs = schemaQuoteAttrReq.getRelationAttrs();
 
-                for(SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq : schemaQuoteRelationAttrReqs){
 
-                    DWPrebuildRelationAttr relationAttr = prebuildRelationAttrRepository.getOne(schemaQuoteRelationAttrReq.getModelAttrId());
-                    List<String> tableNames = relationAttr.getTables();
+                if(schemaQuoteRelationAttrReqs != null&& !schemaQuoteRelationAttrReqs.isEmpty()){
 
-                    if(tableNames != null && !tableNames.isEmpty()){
-                        for(String tableName : tableNames){
+                    for(SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq : schemaQuoteRelationAttrReqs){
 
-                            DWGraphMapRelationAttr graphMapRelationAttr = new DWGraphMapRelationAttr();
-                            BeanUtils.copyProperties(schemaQuoteRelationAttrReq,graphMapRelationAttr);
-                            graphMapRelationAttr.setTableName(tableName);
-                            graphMapRelationAttr.setDataBaseId(modelDataBaseId);
-                            graphMapRelationAttr.setSchedulingSwitch(0);
-                            graphMapRelationAttr.setKgName(preBuilderGraphMapReq.getKgName());
-                            graphMapRelationAttr.setModelId(schemaQuoteReq.getModelId());
-                            graphMapRelationAttrList.add(graphMapRelationAttr);
+                        DWPrebuildRelationAttr relationAttr = prebuildRelationAttrRepository.getOne(schemaQuoteRelationAttrReq.getModelAttrId());
+                        List<String> tableNames = relationAttr.getTables();
 
+                        if(tableNames != null && !tableNames.isEmpty()){
+                            for(String tableName : tableNames){
+
+                                DWGraphMapRelationAttr graphMapRelationAttr = new DWGraphMapRelationAttr();
+                                BeanUtils.copyProperties(schemaQuoteRelationAttrReq,graphMapRelationAttr);
+                                graphMapRelationAttr.setTableName(tableName);
+                                graphMapRelationAttr.setDataBaseId(modelDataBaseId);
+                                graphMapRelationAttr.setSchedulingSwitch(0);
+                                graphMapRelationAttr.setKgName(preBuilderGraphMapReq.getKgName());
+                                graphMapRelationAttr.setModelId(schemaQuoteReq.getModelId());
+                                graphMapRelationAttrList.add(graphMapRelationAttr);
+
+                            }
                         }
-                    }
 
+                    }
                 }
 
             }
