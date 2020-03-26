@@ -102,6 +102,14 @@ public class DWController {
         return ApiReturn.success(dwServince.findAll(userId));
     }
 
+    @ApiOperation("数仓-查找所有数据库与表")
+    @GetMapping("/database/table/list")
+    public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dwServince.databaseTableList(userId));
+    }
+
+
     @ApiOperation("数仓-查询指定类型的数据库")
     @PostMapping("/database/list")
     public ApiReturn<Page<DWDatabaseRsp>> list(@RequestBody DWDatabaseQueryReq req) {

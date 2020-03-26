@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@JsonIgnoreProperties({"ktr"})
+@JsonIgnoreProperties({"ktr","schema"})
 public class DWTableRsp {
 
     private Long id;

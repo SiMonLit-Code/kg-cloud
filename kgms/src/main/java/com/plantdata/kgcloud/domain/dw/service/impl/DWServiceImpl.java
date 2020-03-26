@@ -544,7 +544,7 @@ public class DWServiceImpl implements DWService {
         for (RemoteTableAddReq req : reqList) {
 
 
-            if (req.getTableName() != null) {
+            if (req.getTableName() != null && req.getTableName().isEmpty()) {
                 Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDatabaseId(databaseId).tableName(req.getTableName()).build()));
 
                 DWTable table;
@@ -553,7 +553,7 @@ public class DWServiceImpl implements DWService {
 
                     table = DWTable.builder()
                             .dwDatabaseId(databaseId)
-                            .tableName(req.getTableName() != null ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5))
+                            .tableName(req.getTableName() != null && !req.getTableName().isEmpty() ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5))
                             .schema(schemaList)
                             .tbName(req.getTbName())
                             .title(req.getTbName())
@@ -579,7 +579,7 @@ public class DWServiceImpl implements DWService {
 
                     DWTable table = DWTable.builder()
                             .dwDatabaseId(databaseId)
-                            .tableName(req.getTableName() != null ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5))
+                            .tableName(req.getTableName() != null && !req.getTableName().isEmpty() ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5))
                             .schema(schemaList)
                             .tbName(req.getTbName())
                             .title(req.getTbName())
@@ -951,6 +951,21 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
+    }
+
+    @Override
+    public List<DWDatabaseRsp> databaseTableList(String userId) {
+
+        List<DWDatabaseRsp> databases = findAll(userId);
+        if(databases == null || databases.isEmpty()){
+            return new ArrayList<>();
+        }
+
+        for(DWDatabaseRsp databaseRsp : databases){
+            List<DWTableRsp>tableRsps = findTableAll(userId,databaseRsp.getId());
+            databaseRsp.setTables(tableRsps);
+        }
+        return databases;
     }
 
 

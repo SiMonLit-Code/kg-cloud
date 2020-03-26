@@ -64,4 +64,6 @@ public interface DWService {
     void unifiedScheduling(String userId, DWTableCronReq req);
 
     void modelUpload(Long databaseId, MultipartFile file);
+
+    List<DWDatabaseRsp> databaseTableList(String userId);
 }
