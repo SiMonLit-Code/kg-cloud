@@ -312,12 +312,14 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         DWTaskRsp transferRsp = getByTaskName(transferTaskName);
         if(transferRsp == null){
+
             transferRsp = new DWTaskRsp();
             transferRsp.setTaskType(AccessTaskType.TRANSFER.getDisplayName());
             transferRsp.setName(transferTaskName);
             transferRsp.setUserId(SessionHolder.getUserId());
             transferRsp.setOutputs(new ArrayList<>());
             transferRsp.setDistributeOriginalData(new ArrayList<>());
+
         }
         transferRsp.setStatus(1);
         transferRsp.setConfig(getTransferConfig(databaseId,tableName,1));
