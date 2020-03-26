@@ -64,6 +64,16 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     @Autowired
     private CacheManager cacheManager;
 
+    private static Map<String,String> cronMap = new HashMap<>();
+
+    static {
+        cronMap.put("每分钟","0 * * * * ? ");
+        cronMap.put("每10分钟","0 0/10 * * * ? ");
+        cronMap.put("每小时","0 0 * * * ? ");
+        cronMap.put("每天","0 0 0 * * ? ");
+
+    }
+
 
     @Override
     public Integer run(String userId,List<DataAccessTaskConfigReq> reqs,Integer taskId) {
@@ -168,7 +178,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
         configJson.put("fileText",ktrTxt);
         configJson.put("updateTime",System.currentTimeMillis());
-        configJson.put("cron",table.getCron());
+        configJson.put("cron",cronMap.get(table.getCron()));
         if(table.getCreateWay().equals(1)){
             //远程表
             configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
@@ -457,7 +467,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
 
                     JSONObject configJson = new JSONObject();
-                    configJson.put("cron",table.getCron());
+                    configJson.put("cron",cronMap.get(table.getCron()));
                     configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
                     configJson.put("isScheduled",1);
 
