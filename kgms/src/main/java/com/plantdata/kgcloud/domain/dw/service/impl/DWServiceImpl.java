@@ -386,7 +386,7 @@ public class DWServiceImpl implements DWService {
         DWDatabase dwDatabase = getDetail(req.getDwDatabaseId());
 
         target.setTableName(req.getTableName() != null && !req.getTableName().isEmpty() ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5));
-
+        target.setTitle(target.getTableName());
         //本地库创建结构
         List<DataSetSchema> schema;
         if(DWDataFormat.isPDdoc(dwDatabase.getDataFormat())){

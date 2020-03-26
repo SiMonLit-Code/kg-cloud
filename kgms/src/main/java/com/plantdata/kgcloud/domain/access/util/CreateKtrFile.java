@@ -297,7 +297,7 @@ public class CreateKtrFile {
         StringBuilder sql = new StringBuilder();
 
 
-        if(DataType.MONGO.equals(DataType.findType(dataType))){
+        if(dataType == null || DataType.MONGO.equals(DataType.findType(dataType))){
 
             if(table.getIsAll() == null || table.getIsAll().equals(1)){
                 return sql.toString();
