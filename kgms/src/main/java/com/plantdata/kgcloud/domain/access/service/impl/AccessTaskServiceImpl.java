@@ -235,7 +235,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             //行业标准
             transferJson.put("transferType","industry");
             transferJson.put("transferConfig","");
-        }if(database.getDataFormat().equals(2)){
+        }else if(database.getDataFormat().equals(2)){
             //pddoc
             transferJson.put("transferType","pddoc");
             transferJson.put("transferConfig","");

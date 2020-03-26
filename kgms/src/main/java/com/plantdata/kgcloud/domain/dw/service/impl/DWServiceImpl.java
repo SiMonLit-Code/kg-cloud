@@ -929,10 +929,7 @@ public class DWServiceImpl implements DWService {
 
         String ktrTaskName = AccessTaskType.KTR.getDisplayName()+"_"+dwDataBaseId+"_"+tableName;
 
-//        List<> accessTaskService.findAllTableKtrTask(ktrTaskName);
-
-
-
+//        accessTaskService.updateTableSchedulingConfig(ktrTaskName,cron,isAll,field);
     }
 
     @Override
