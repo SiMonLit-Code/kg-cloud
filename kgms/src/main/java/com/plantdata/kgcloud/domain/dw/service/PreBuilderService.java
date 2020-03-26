@@ -36,4 +36,6 @@ public interface PreBuilderService {
     List<String> getTypes(String userId);
 
     void create(PreBuilderCreateReq req);
+
+    void createSchedulingConfig(String kgName,boolean isCreateKtr);
 }

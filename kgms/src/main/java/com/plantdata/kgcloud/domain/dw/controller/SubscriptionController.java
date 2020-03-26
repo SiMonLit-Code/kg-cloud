@@ -37,7 +37,6 @@ public class SubscriptionController {
         return ApiReturn.success(graphMapService.list(userId,graphMapReq));
     }
 
-
     @ApiOperation("订阅检测-开启/关闭订阅")
     @PatchMapping("/schedule/{id}/{status}")
     public ApiReturn scheduleSwitch(@PathVariable("id")Integer id,@PathVariable("status")Integer status) {

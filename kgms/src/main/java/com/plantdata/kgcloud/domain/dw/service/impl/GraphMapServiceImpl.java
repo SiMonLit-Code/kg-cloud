@@ -14,6 +14,7 @@ import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
 import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
+import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -48,6 +49,9 @@ public class GraphMapServiceImpl implements GraphMapService {
 
     @Autowired
     private AccessTaskService accessTaskService;
+
+    @Autowired
+    private PreBuilderService preBuilderService;
 
     @Override
     public List<GraphMapRsp> list(String userId, GraphMapReq graphMapReq) {
@@ -116,17 +120,24 @@ public class GraphMapServiceImpl implements GraphMapService {
                 accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), Lists.newArrayList(),null, Lists.newArrayList(kgTaskName),null,graphMap.getKgName());
             }
         }
+
+        //更新订阅任务
+        preBuilderService.createSchedulingConfig(graphMap.getKgName(),false);
     }
 
     @Override
     public void deleteSchedule(Integer id) {
 
         DWGraphMap graphMap = graphMapRepository.getOne(id);
-        String kgTaskName = AccessTaskType.KG.getDisplayName()+"_"+graphMap.getKgName()+"_"+graphMap.getModelId();
-        accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), Lists.newArrayList(),null,Lists.newArrayList(kgTaskName),null,graphMap.getKgName());
+        String kgName = graphMap.getKgName();
+//        String kgTaskName = AccessTaskType.KG.getDisplayName()+"_"+graphMap.getKgName()+"_"+graphMap.getModelId();
+//        accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), Lists.newArrayList(),null,Lists.newArrayList(kgTaskName),null,graphMap.getKgName());
 
 
         graphMapRepository.deleteById(id);
+
+        //更新订阅任务
+        preBuilderService.createSchedulingConfig(kgName,false);
     }
 
     private List<GraphMapRsp> graphMap2Rsp(List<DWGraphMap> graphMapList) {

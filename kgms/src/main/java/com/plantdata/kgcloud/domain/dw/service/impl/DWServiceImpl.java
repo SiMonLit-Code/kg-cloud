@@ -11,6 +11,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoIterable;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.KgmsConstants;
@@ -337,7 +338,11 @@ public class DWServiceImpl implements DWService {
 
         if (tableName == null) {
             //文件上传 如果table没有创建，先创建
-            schemas = schemaResolve(file,database.getDataFormat());
+            try {
+                schemas = schemaResolve(file,database.getDataFormat());
+            }catch (Exception e){
+                throw BizException.of(KgmsErrorCodeEnum.FILE_SCHEMAPASER_ERROR);
+            }
             DWTableRsp tableRsp = createTable(userId, DWTableReq.builder().dwDatabaseId(databaseId).schemas(schemas).build());
             tableName = tableRsp.getTableName();
         }
@@ -508,6 +513,12 @@ public class DWServiceImpl implements DWService {
             return colls;
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
+        }finally {
+            if (mongoClient != null){
+                try {
+                    mongoClient.close();
+                }catch (Exception e){}
+            }
         }
     }
 
@@ -645,7 +656,7 @@ public class DWServiceImpl implements DWService {
             //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
             //ServerAddress()两个参数分别为 服务器地址 和 端口
             ServerAddress serverAddress = new ServerAddress(req.getAddr().get(0).split(":")[0],Integer.parseInt(req.getAddr().get(0).split(":")[1]));
-            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+            List<ServerAddress> addrs = new ArrayList<>();
             addrs.add(serverAddress);
 
             //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
@@ -663,6 +674,10 @@ public class DWServiceImpl implements DWService {
             // 连接到数据库
             MongoDatabase mongoDatabase = mongoClient.getDatabase(req.getDbName());
 
+            Iterable<String> it = mongoDatabase.listCollectionNames();
+
+            List<String> colls = new ArrayList<>();
+            it.forEach(coll -> colls.add(coll));
             s = "连接测试成功!";
             map.put("status", "success");
         } catch (Exception e) {

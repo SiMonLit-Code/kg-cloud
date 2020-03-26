@@ -38,6 +38,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -108,6 +109,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     @Autowired
     private DWService dwService;
+
+    @Autowired
+    private GraphApplicationService getGraphApplicationService;
 
     private final static String JSON_START = "{";
     private final static String ARRAY_START = "[";
@@ -234,8 +238,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             }
         }
 
-
-        megerSchemaQuote(req.getSchemaQuoteReqList(), getGraphMap(userId, req.getKgName()));
+        List<SchemaQuoteReq> dataMapReqList = req.getSchemaQuoteReqList();
+        megerSchemaQuote(dataMapReqList, getGraphMap(userId, req.getKgName()));
 
 
         List<DWPrebuildConcept> concepts = prebuildConceptRepository.findByModelAndConceptIds(req.getModelId(), req.getFindAttrConceptIds());
@@ -259,7 +263,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         List<PreBuilderMatchAttrRsp> matchAttrRspList = attrs.stream().map(ConvertUtils.convert(PreBuilderMatchAttrRsp.class))
                 .collect(Collectors.toList());
 
-        List<SchemaQuoteReq> dataMapReqList = req.getSchemaQuoteReqList();
+
 
         Map<Integer, Long> modelKgConceptIdMap = new HashMap<>();
 
@@ -518,10 +522,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 modelDataBaseIdMap.put(model.getId(),modelDataBaseId);
             }
 
-            //非数仓模式不保存映射关系
+            /*//非数仓模式不保存映射关系
             if(modelDataBaseId == null){
                 continue;
-            }
+            }*/
 
             DWPrebuildConcept modelConcept = prebuildConceptRepository.getOne(schemaQuoteReq.getModelConceptId());
 
@@ -614,13 +618,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         //生成订阅任务
-        if(!graphMapList.isEmpty() || !graphMapRelationAttrList.isEmpty()){
-            createSchedulingConfig(preBuilderGraphMapReq.getKgName());
-        }
+        createSchedulingConfig(preBuilderGraphMapReq.getKgName(),true);
         return ;
     }
 
-    private void createSchedulingConfig(String kgName) {
+    @Override
+    public void createSchedulingConfig(String kgName,boolean isCreateKtr) {
 
         List<SchemaQuoteReq> schemaQuoteReqList = getGraphMap(SessionHolder.getUserId(),kgName);
 
@@ -634,6 +637,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 schemaModelMap.get(schemaQuoteReq.getModelId()).add(schemaQuoteReq);
             }else{
                 List<SchemaQuoteReq> schemaQuoteReqs = new ArrayList<>();
+                schemaQuoteReqs.add(schemaQuoteReq);
                 schemaModelMap.put(schemaQuoteReq.getModelId(),schemaQuoteReqs);
             }
         }
@@ -652,13 +656,16 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             List<String> tableNames =schemaQuoteReq.getTables();
             String kgTaskName = AccessTaskType.KG.getDisplayName()+"_"+kgName+"_"+modelId;
 
+
             if(tableNames== null || tableNames.isEmpty()){
                 continue;
             }
 
-            for(String tableName : tableNames){
-                accessTaskService.createKtrTask(tableName,model.getDatabaseId(),kgName,0);
-                accessTaskService.createTransfer(tableName,model.getDatabaseId(),null,null,null,null,kgName);
+            if(isCreateKtr){
+                for(String tableName : tableNames){
+                    accessTaskService.createKtrTask(tableName,model.getDatabaseId(),kgName,0);
+                    accessTaskService.createTransfer(tableName,model.getDatabaseId(),null,null,null,null,kgName);
+                }
             }
 
             List<DataMapReq> dataMapReqList = quote2DataMap(schemaModelMap.get(modelId));
@@ -807,10 +814,15 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             return new ArrayList<>();
         }
 
+        List<BasicInfoVO> basicInfoVOS = getGraphApplicationService.conceptTree(kgName, null, null);
+
+        Map<String, Long> conceptNameIdMap = new HashMap<>();
+        if(basicInfoVOS != null && !basicInfoVOS.isEmpty()){
+            basicInfoVOS.forEach(info -> conceptNameIdMap.put(info.getName(),info.getConceptId()));
+        }
 
         List<SchemaQuoteReq> needAddConcepts = new ArrayList<>();
 
-        Map<String, Long> conceptNameIdMap = new HashMap<>();
         for (SchemaQuoteReq schemaQuoteReq : quoteConfigs) {
 
             if (schemaQuoteReq.getConceptId() == null) {
@@ -823,6 +835,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 } else {
 
                     if (conceptNameIdMap.containsKey(schemaQuoteReq.getConceptName())) {
+                        schemaQuoteReq.setConceptId(conceptNameIdMap.get(schemaQuoteReq.getConceptName()));
+                        schemaQuoteReq.setPConceptId(conceptNameIdMap.get(schemaQuoteReq.getPConceptName()));
                         continue;
                     }
                     ConceptAddReq conceptAddReq = new ConceptAddReq();
@@ -831,6 +845,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                     Long conceptId = graphEditService.createConcept(kgName, conceptAddReq);
                     schemaQuoteReq.setConceptId(conceptId);
+                    schemaQuoteReq.setPConceptId(conceptNameIdMap.get(schemaQuoteReq.getPConceptName()));
                     conceptNameIdMap.put(schemaQuoteReq.getConceptName(), conceptId);
                 }
             } else {
@@ -935,6 +950,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             SchemaQuoteReq concept = it.next();
 
             if (conceptNameIdMap.containsKey(concept.getConceptName())) {
+                concept.setConceptId(conceptNameIdMap.get(concept.getConceptName()));
+                concept.setPConceptId(conceptNameIdMap.get(concept.getPConceptName()));
                 it.remove();
             }
             if (conceptNameIdMap.containsKey(concept.getPConceptName())) {
