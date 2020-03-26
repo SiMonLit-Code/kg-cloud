@@ -113,21 +113,21 @@ public class DWGraphMap {
     private List<Integer> modelRange;
 
     @Basic
-    @Column(name = "range")
+    @Column(name = "`range`")
     @Convert(converter = LongListConverter.class)
     private List<Long> range;
 
     @Basic
-    @Column(name = "rangeName")
+    @Column(name = "`rangeName`")
     @Convert(converter = StringListConverter.class)
     private List<String> rangeName;
 
     @Basic
-    @Column(name = "alias")
+    @Column(name = "`alias`")
     private String alias;
 
     @Basic
-    @Column(name = "unit")
+    @Column(name = "`unit`")
     private String unit;
 
     @Basic
