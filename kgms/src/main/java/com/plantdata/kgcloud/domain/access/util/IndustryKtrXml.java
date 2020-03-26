@@ -558,10 +558,7 @@ public class IndustryKtrXml {
                 "      <servlet_output>N</servlet_output>\n" +
                 "    </file>\n" +
                 "    <fields>\n" +
-                "      <field>\n" +
-                "        <name>json</name>\n" +
-                "        <element>json</element>\n" +
-                "      </field>\n" +
+                "      fieldsQAQ\n" +
                 "      <field>\n" +
                 "        <name>db</name>\n" +
                 "        <element>db</element>\n" +

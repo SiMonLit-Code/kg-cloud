@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.access.util;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
@@ -94,7 +95,7 @@ public class CreateKtrFile {
 
             if(DataType.MONGO.equals(DataType.findType(database.getDataType()))){
                 connXml = "";
-                jsonFieldxml = "";
+                jsonFieldxml = IndustryKtrXml.jsonFieldxml;
                 inputXml = IndustryKtrXml.mongoInputXml;
             }else{
                 connXml = IndustryKtrXml.connectionXml;
@@ -119,12 +120,17 @@ public class CreateKtrFile {
 
             connXml ="";
 
-            jsonFieldxml = "";
+            jsonFieldxml = IndustryKtrXml.jsonFieldxml;
 
             inputXml = IndustryKtrXml.mongoInputXml;
 
         }
 
+        boolean isMongo = true;
+
+        if(database.getDataType() != null && !database.getDataType().equals(1)){
+            isMongo = false;
+        }
         // 查询语句
         String queryXml = getTableSql(database.getDataType(),table,tableName);
 
@@ -134,7 +140,7 @@ public class CreateKtrFile {
 
         inputXml = changeDBConnection(inputXml, ip, port, dbName,tableName, username, password, type);
 
-        jsonFieldxml = changeJsonField(jsonFieldxml,table.getFields());
+        jsonFieldxml = changeJsonField(jsonFieldxml,table.getFields(),isMongo);
 
         defaultXml = changeDefaultXmlField(defaultXml,jsonFieldxml);
 
@@ -220,7 +226,7 @@ public class CreateKtrFile {
 
             if(DataType.MONGO.equals(DataType.findType(database.getDataType()))){
                 connXml = "";
-                jsonFieldxml = "";
+                jsonFieldxml = KtrXml.jsonFieldxml;
                 inputXml = KtrXml.mongoInputXml;
             }else{
                 connXml = KtrXml.connectionXml;
@@ -245,12 +251,18 @@ public class CreateKtrFile {
 
             connXml ="";
 
-            jsonFieldxml = "";
+            jsonFieldxml = KtrXml.jsonFieldxml;
 
             inputXml = KtrXml.mongoInputXml;
 
         }
 
+
+        boolean isMongo = true;
+
+        if(database.getDataType() != null && !database.getDataType().equals(1)){
+            isMongo = false;
+        }
 
         // 查询语句
         String queryXml = getTableSql(database.getDataType(),table,tableName);
@@ -261,7 +273,7 @@ public class CreateKtrFile {
 
         inputXml = changeDBConnection(inputXml, ip, port, dbName,tableName, username, password, type);
 
-        jsonFieldxml = changeJsonField(jsonFieldxml,table.getFields());
+        jsonFieldxml = changeJsonField(jsonFieldxml,table.getFields(),isMongo);
 
         defaultXml = changeDefaultXmlField(defaultXml,jsonFieldxml);
 
@@ -276,8 +288,11 @@ public class CreateKtrFile {
         return defaultXml.replaceAll("fieldsQAQ",jsonFieldxml);
     }
 
-    private static String changeJsonField(String jsonFieldxml,List<String> fields) {
+    private static String changeJsonField(String jsonFieldxml,List<String> fields,boolean isMongo) {
 
+        if(isMongo){
+            fields = Lists.newArrayList("json");
+        }
 
         StringBuilder jsonFieldStr = new StringBuilder();
         for(String field : fields){
