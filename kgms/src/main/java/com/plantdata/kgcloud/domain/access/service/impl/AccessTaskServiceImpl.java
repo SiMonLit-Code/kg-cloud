@@ -179,7 +179,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         configJson.put("resourceName",ktrTaskName);
         configJson.put("outputs",Lists.newArrayList(transferTaskName));
-        configJson.put("isScheduled ",table.getSchedulingSwitch());
+        configJson.put("isScheduled",table.getSchedulingSwitch());
 
         return configJson.toString();
     }

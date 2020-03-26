@@ -385,7 +385,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabase dwDatabase = getDetail(req.getDwDatabaseId());
 
-        target.setTableName(req.getTableName() != null ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5));
+        target.setTableName(req.getTableName() != null && !req.getTableName().isEmpty() ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5));
 
         //本地库创建结构
         List<DataSetSchema> schema;
@@ -544,7 +544,7 @@ public class DWServiceImpl implements DWService {
         for (RemoteTableAddReq req : reqList) {
 
 
-            if (req.getTableName() != null && req.getTableName().isEmpty()) {
+            if (req.getTableName() != null && !req.getTableName().isEmpty()) {
                 Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDatabaseId(databaseId).tableName(req.getTableName()).build()));
 
                 DWTable table;
@@ -725,6 +725,7 @@ public class DWServiceImpl implements DWService {
             table.setCron(req.getCron());
             table.setIsAll(req.getIsAll());
             table.setSchedulingSwitch(req.getSchedulingSwitch());
+            table.setIsWriteDW(req.getIsWriteDW());
 
             tableRepository.save(table);
 
