@@ -946,7 +946,7 @@ public class DWServiceImpl implements DWService {
         //不是PDDOC类型数据库不用上传tagjson
         if(database.getDataFormat().equals(2) && file.getOriginalFilename().endsWith(".json")){
             tagUpload(databaseId,file);
-        }else if(database.getDataFormat().equals(2) && file.getOriginalFilename().endsWith(".json")){
+        }else if(database.getDataFormat().equals(3) && file.getOriginalFilename().endsWith(".yaml")){
             yamlUpload(databaseId,file);
         }else{
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
