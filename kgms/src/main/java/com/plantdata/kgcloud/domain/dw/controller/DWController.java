@@ -2,10 +2,7 @@ package com.plantdata.kgcloud.domain.dw.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.dw.req.DWDatabaseQueryReq;
-import com.plantdata.kgcloud.domain.dw.req.DWTableCronReq;
-import com.plantdata.kgcloud.domain.dw.req.DWTableSchedulingReq;
-import com.plantdata.kgcloud.domain.dw.req.RemoteTableAddReq;
+import com.plantdata.kgcloud.domain.dw.req.*;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
@@ -135,11 +132,11 @@ public class DWController {
     }
 
     @ApiOperation("数仓-模式发布")
-    @PatchMapping("/model/push/{id}/{modelType}")
-    public ApiReturn push(@PathVariable("id") Long id,@ApiParam("模式所属行业")@PathVariable("modelType") String modelType) {
+    @PostMapping("/model/push")
+    public ApiReturn push(@RequestBody ModelPushReq req) {
 
         String userId = SessionHolder.getUserId();
-        dwServince.push(userId, id,modelType);
+        dwServince.push(userId, req);
         return ApiReturn.success();
     }
 

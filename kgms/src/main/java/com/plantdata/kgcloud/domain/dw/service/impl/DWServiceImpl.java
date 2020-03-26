@@ -27,10 +27,7 @@ import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
-import com.plantdata.kgcloud.domain.dw.req.DWDatabaseQueryReq;
-import com.plantdata.kgcloud.domain.dw.req.DWTableCronReq;
-import com.plantdata.kgcloud.domain.dw.req.DWTableSchedulingReq;
-import com.plantdata.kgcloud.domain.dw.req.RemoteTableAddReq;
+import com.plantdata.kgcloud.domain.dw.req.*;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
@@ -786,9 +783,9 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public void push(String userId, Long id,String modelType) {
+    public void push(String userId, ModelPushReq req) {
 
-        DWDatabase database = getDetail(id);
+        DWDatabase database = getDetail(req.getId());
         if(!database.getUserId().equals(userId)){
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
@@ -800,7 +797,7 @@ public class DWServiceImpl implements DWService {
 
             preBuilderConceptRspList = modelSchema2PreBuilder(modelSchemaConfigRsp);
 
-            preBuilderService.createModel(database, preBuilderConceptRspList,modelType,null);
+            preBuilderService.createModel(database, preBuilderConceptRspList,req.getModelType(),null);
 
         }else if(database.getDataFormat().equals(3)){
             //自定义
@@ -813,7 +810,7 @@ public class DWServiceImpl implements DWService {
 
             preBuilderConceptRspList = PaserYaml2SchemaUtil.parserYaml2Schema(json);
 
-            preBuilderService.createModel(database, preBuilderConceptRspList,modelType,yamlContent);
+            preBuilderService.createModel(database, preBuilderConceptRspList,req.getModelType(),yamlContent);
         }
 
     }
@@ -900,6 +897,8 @@ public class DWServiceImpl implements DWService {
             tableRsp.setCron(cron);
             tableRsp.setSchedulingSwitch(req.getSchedulingSwitch());
 
+            updateSchedulingConfig(tableRsp.getDwDataBaseId(),tableRsp.getTableName(),req.getCron(),req.getIsAll(),req.getField());
+
             DWTable table = ConvertUtils.convert(DWTable.class).apply(tableRsp);
 
             tableRepository.save(table);
@@ -907,6 +906,16 @@ public class DWServiceImpl implements DWService {
             createTableSchedulingConfig(table);
 
         }
+
+    }
+
+    private void updateSchedulingConfig(Long dwDataBaseId, String tableName, String cron, Integer isAll, String field) {
+
+        String ktrTaskName = AccessTaskType.KTR.getDisplayName()+"_"+dwDataBaseId+"_"+tableName;
+
+//        List<> accessTaskService.findAllTableKtrTask(ktrTaskName);
+
+
 
     }
 
@@ -930,7 +939,8 @@ public class DWServiceImpl implements DWService {
     }
 
 
-    private List<PreBuilderConceptRsp> modelSchema2PreBuilder(List<ModelSchemaConfigRsp> modelSchemaConfig) {
+    @Override
+    public List<PreBuilderConceptRsp> modelSchema2PreBuilder(List<ModelSchemaConfigRsp> modelSchemaConfig) {
         Map<String, PreBuilderConceptRsp> conceptRspMap = new HashMap<>();
 
         for(ModelSchemaConfigRsp schema : modelSchemaConfig){

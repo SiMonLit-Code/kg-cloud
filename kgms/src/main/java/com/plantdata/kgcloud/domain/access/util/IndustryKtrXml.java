@@ -538,8 +538,8 @@ public class IndustryKtrXml {
                 "      <method>none</method>\n" +
                 "      <schema_name/>\n" +
                 "    </partitioning>\n" +
-                "    <outputValue>data</outputValue>\n" +
-                "    <jsonBloc>data</jsonBloc>\n" +
+                "    <outputValue>ktdata</outputValue>\n" +
+                "    <jsonBloc>ktdata</jsonBloc>\n" +
                 "    <nrRowsInBloc>1</nrRowsInBloc>\n" +
                 "    <operation_type>outputvalue</operation_type>\n" +
                 "    <compatibility_mode>N</compatibility_mode>\n" +
@@ -901,62 +901,7 @@ public class IndustryKtrXml {
                 "  <attributes/>\n" +
                 "</transformation>";
 
-        static String customizationXml = "<step>\n" +
-                "    <name>数据转换</name>\n" +
-                "    <type>UserDefinedJavaClass</type>\n" +
-                "    <description/>\n" +
-                "    <distribute>Y</distribute>\n" +
-                "    <custom_distribution/>\n" +
-                "    <copies>1</copies>\n" +
-                "    <partitioning>\n" +
-                "      <method>none</method>\n" +
-                "      <schema_name/>\n" +
-                "    </partitioning>\n" +
-                "    <definitions>\n" +
-                "      <definition>\n" +
-                "        <class_type>TRANSFORM_CLASS</class_type>\n" +
-                "        <class_name>Processor</class_name>\n" +
-                "        <class_source>${code}</class_source>\n" +
-                "      </definition>\n" +
-                "    </definitions>\n" +
-                "    <fields>\n" +
-                "      <field>\n" +
-                "        <field_name>kg_data</field_name>\n" +
-                "        <field_type>String</field_type>\n" +
-                "        <field_length>-1</field_length>\n" +
-                "        <field_precision>-1</field_precision>\n" +
-                "      </field>\n" +
-                "      <field>\n" +
-                "        <field_name>KtState</field_name>\n" +
-                "        <field_type>Boolean</field_type>\n" +
-                "        <field_length>-1</field_length>\n" +
-                "        <field_precision>-1</field_precision>\n" +
-                "      </field>\n" +
-                "    </fields>\n" +
-                "    <clear_result_fields>N</clear_result_fields>\n" +
-                "    <info_steps/>\n" +
-                "    <target_steps/>\n" +
-                "    <usage_parameters>\n" +
-                "      <usage_parameter>\n" +
-                "        <parameter_tag>resourceName</parameter_tag>\n" +
-                "        <parameter_value>aaa</parameter_value>\n" +
-                "        <parameter_description/>\n" +
-                "      </usage_parameter>\n" +
-                "    </usage_parameters>\n" +
-                "    <attributes/>\n" +
-                "    <cluster_schema/>\n" +
-                "    <remotesteps>\n" +
-                "      <input>\n" +
-                "      </input>\n" +
-                "      <output>\n" +
-                "      </output>\n" +
-                "    </remotesteps>\n" +
-                "    <GUI>\n" +
-                "      <xloc>496</xloc>\n" +
-                "      <yloc>160</yloc>\n" +
-                "      <draw>Y</draw>\n" +
-                "    </GUI>\n" +
-                "  </step>";
+        static String customizationXml = "${code}";
     }
 
 

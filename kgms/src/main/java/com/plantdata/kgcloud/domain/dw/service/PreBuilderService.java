@@ -35,5 +35,5 @@ public interface PreBuilderService {
 
     List<String> getTypes(String userId);
 
-    void create(PreBuilderCreateReq req, MultipartFile file);
+    void create(PreBuilderCreateReq req);
 }

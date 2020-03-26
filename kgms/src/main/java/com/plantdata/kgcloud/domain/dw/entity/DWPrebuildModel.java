@@ -102,7 +102,7 @@ public class DWPrebuildModel {
     private List<ModelSchemaConfigRsp> tagJson;
 
     @Basic
-    @Column(name = "schemas")
+    @Column(name = "`schemas`")
     @Convert(converter = ListStandardTemplateSchemaConverter.class)
     private List<StandardTemplateSchema> schemas;
 }

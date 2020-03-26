@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -58,19 +59,9 @@ public class PreBuildManageController {
 
     @ApiOperation("预构建模式管理-模式上传")
     @PostMapping("/create")
-    public ApiReturn create(@RequestBody PreBuilderCreateReq req,
-            @RequestParam(value = "file") MultipartFile file) {
-        long size = file.getSize();
-        if (size > 20 * 1024 * 1024) {
-            return ApiReturn.fail(KgmsErrorCodeEnum.FILE_OUT_LIMIT);
-        }
-        try {
-            preBuilderService.create(req, file);
-            return ApiReturn.success();
-        } catch (Exception e) {
-            return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_IMPORT_FAIL);
-        }
-
+    public ApiReturn create(@RequestBody PreBuilderCreateReq req) {
+        preBuilderService.create(req);
+        return ApiReturn.success();
     }
 
 }

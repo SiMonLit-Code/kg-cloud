@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@JsonIgnoreProperties({"stSchemas","ktr"})
+@JsonIgnoreProperties({"schemas","ktr"})
 public class StandardTemplateRsp {
 
     @ApiModelProperty("行业标准id")

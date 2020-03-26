@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.domain.dw.rsp;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @program: kg-cloud-kgms
@@ -9,6 +12,9 @@ import lombok.Data;
  * @create: 2020-03-13 16:30
  **/
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TableKtrRsp {
 
     private String tableName;

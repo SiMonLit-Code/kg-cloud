@@ -86,6 +86,8 @@ public class GraphMapServiceImpl implements GraphMapService {
             return ;
         }
 
+        DWDatabase database = databaseRepository.getOne(graphMap.getDataBaseId());
+
         List<DWGraphMap> tabs = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMap.getKgName()).tableName(graphMap.getTableName()).build()));
 
         if(tabs == null || tabs.isEmpty()){
@@ -100,10 +102,19 @@ public class GraphMapServiceImpl implements GraphMapService {
         if(status.equals(1)){
 
             accessTaskService.createKtrTask(graphMap.getTableName(),graphMap.getDataBaseId(),graphMap.getKgName(),1);
-            accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), Lists.newArrayList(kgTaskName),null,null,null,graphMap.getKgName());
+            if(database.getDataFormat().equals(1)){
+                accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), null,Lists.newArrayList(kgTaskName),null,null,graphMap.getKgName());
+            }else{
+                accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), Lists.newArrayList(kgTaskName),null,null,null,graphMap.getKgName());
+            }
         }else{
             accessTaskService.createKtrTask(graphMap.getTableName(),graphMap.getDataBaseId(),graphMap.getKgName(),0);
-            accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), Lists.newArrayList(),null, Lists.newArrayList(kgTaskName),null,graphMap.getKgName());
+
+            if(database.getDataFormat().equals(1)){
+                accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), Lists.newArrayList(),null, null,Lists.newArrayList(kgTaskName),graphMap.getKgName());
+            }else{
+                accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), Lists.newArrayList(),null, Lists.newArrayList(kgTaskName),null,graphMap.getKgName());
+            }
         }
     }
 

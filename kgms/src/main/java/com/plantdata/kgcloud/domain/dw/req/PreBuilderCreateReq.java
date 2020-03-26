@@ -20,4 +20,7 @@ public class PreBuilderCreateReq {
 
     @ApiModelProperty("描述")
     private String desc;
+
+    @ApiModelProperty("filePath")
+    private String filePath;
 }

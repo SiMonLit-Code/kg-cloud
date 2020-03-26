@@ -2,13 +2,11 @@ package com.plantdata.kgcloud.domain.dw.service;
 
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
-import com.plantdata.kgcloud.domain.dw.req.DWDatabaseQueryReq;
-import com.plantdata.kgcloud.domain.dw.req.DWTableCronReq;
-import com.plantdata.kgcloud.domain.dw.req.DWTableSchedulingReq;
-import com.plantdata.kgcloud.domain.dw.req.RemoteTableAddReq;
+import com.plantdata.kgcloud.domain.dw.req.*;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
@@ -47,13 +45,15 @@ public interface DWService {
 
     List<DWTable> getTableByIds(List<Long> tableIds);
 
+    List<PreBuilderConceptRsp> modelSchema2PreBuilder(List<ModelSchemaConfigRsp> modelSchemaConfig);
+
     void setTableCron(String userId, List<DWTableCronReq> req);
 
     Page<DWDatabaseRsp> list(String userId, DWDatabaseQueryReq req);
 
     void tagUpload(Long databaseId, MultipartFile file);
 
-    void push(String userId, Long id,String modelType);
+    void push(String userId, ModelPushReq req);
 
     void setTableScheduling(String userId, DWTableSchedulingReq req);
 
