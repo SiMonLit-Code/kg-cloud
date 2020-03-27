@@ -181,7 +181,9 @@ public class DWServiceImpl implements DWService {
 
         for(ModelSchemaConfigRsp tagJson : tagJsons){
 
-
+            if(tagJson == null ){
+                continue;
+            }
             if (tagJson.getEntity() != null) {
                 modelSchema.getEntity().addAll(tagJson.getEntity());
             }
@@ -972,6 +974,9 @@ public class DWServiceImpl implements DWService {
         Map<String, PreBuilderConceptRsp> conceptRspMap = new HashMap<>();
 
         for(ModelSchemaConfigRsp schema : modelSchemaConfig){
+            if(schema == null){
+                continue;
+            }
             Set<String> entities = schema.getEntity();
 
             for(String entity : entities){

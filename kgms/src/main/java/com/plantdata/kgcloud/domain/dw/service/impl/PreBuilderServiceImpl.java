@@ -588,7 +588,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                     for(SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq : schemaQuoteRelationAttrReqs){
 
-                        DWPrebuildRelationAttr relationAttr = prebuildRelationAttrRepository.getOne(schemaQuoteRelationAttrReq.getModelAttrId());
+                        DWPrebuildRelationAttr relationAttr = prebuildRelationAttrRepository.getOne(schemaQuoteRelationAttrReq.getId());
                         List<String> tableNames = relationAttr.getTables();
 
                         if(tableNames != null && !tableNames.isEmpty()){
