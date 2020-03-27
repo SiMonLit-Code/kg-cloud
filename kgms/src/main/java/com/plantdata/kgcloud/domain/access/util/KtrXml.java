@@ -848,7 +848,7 @@ public class KtrXml {
                 "  </step>";
 
         static String mongoTimeQueryXMl = "{\n" +
-                "    \"${timeField}\": {\n" +
+                "    \"timeFieldQAQ\": {\n" +
                 "        \"$gte\": \"${StartTime}\",\n" +
                 "        \"$lte\": \"${StopTime}\"\n" +
                 "    }\n" +

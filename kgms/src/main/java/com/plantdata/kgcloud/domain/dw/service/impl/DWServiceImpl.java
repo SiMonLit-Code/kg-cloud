@@ -16,6 +16,7 @@ import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
@@ -25,8 +26,10 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dataset.provider.MongodbOptProvider;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
+import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.*;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
@@ -103,6 +106,9 @@ public class DWServiceImpl implements DWService {
     @Autowired
     private MongoProperties mongoProperties;
 
+    @Autowired
+    private DWPrebuildModelRepository modelRepository;
+
     private final Function<DWDatabase, DWDatabaseRsp> dw2rsp = (s) -> {
         DWDatabaseRsp dwRsp = new DWDatabaseRsp();
         BeanUtils.copyProperties(s, dwRsp);
@@ -120,7 +126,6 @@ public class DWServiceImpl implements DWService {
 
         DWDatabase dw = saveDatabase(req);
 
-        //如果是行业标准  创建好对应tables
         List<DWTableRsp> tables = new ArrayList<>();
         if (DWDataFormat.isStandard(req.getDataFormat())) {
 
@@ -129,9 +134,8 @@ public class DWServiceImpl implements DWService {
             for (Integer stId : req.getStandardTemplateId()) {
                 StandardTemplateRsp standardTemplateRsp = standardTemplateService.findOne(userId, stId);
 
-                Map<String,String> ktrMap = standardTemplateRsp.getKtr().stream().collect(Collectors.toMap(TableKtrRsp::getTableName,TableKtrRsp::getKtr));
+                /*Map<String,String> ktrMap = standardTemplateRsp.getKtr().stream().collect(Collectors.toMap(TableKtrRsp::getTableName,TableKtrRsp::getKtr));
 
-                //createTable;
                 List<StandardTemplateSchema> stSchemas = standardTemplateRsp.getSchemas();
 
                 for (StandardTemplateSchema schema : stSchemas) {
@@ -144,10 +148,9 @@ public class DWServiceImpl implements DWService {
                             .build());
 
                     tables.add(table);
-                }
+                }*/
 
                 modelSchemas.addAll(standardTemplateRsp.getTagJson());
-//                mergeModel(modelSchema, standardTemplateRsp.getTagJson());
             }
 
             dw.setTagJson(modelSchemas);
@@ -224,6 +227,78 @@ public class DWServiceImpl implements DWService {
         }
 
         return modelSchema;
+    }
+
+    private List<DataSetSchema> getIndustryTableSchema(Long databaseId, String tableName){
+
+        DWDatabase database = getDetail(databaseId);
+
+        List<Integer> templateIds = database.getStandardTemplateId();
+
+        if(templateIds == null ||templateIds.isEmpty()){
+            return null;
+        }
+
+        List<DWPrebuildModel> models = modelRepository.findAllById(templateIds);
+
+        if(models == null || models.isEmpty()){
+            return null;
+        }
+
+        for(DWPrebuildModel model : models){
+
+            List<StandardTemplateSchema> schemas = model.getSchemas();
+
+            if(schemas == null ||schemas.isEmpty()){
+                continue;
+            }
+
+            for(StandardTemplateSchema schema : schemas){
+                if(schema.getTableName().equals(tableName)){
+                    return schema.getSchemas();
+                }
+            }
+
+        }
+
+        return null;
+
+    }
+
+    private String getIndustryTableKtr(Long databaseId, String tableName){
+
+        DWDatabase database = getDetail(databaseId);
+
+        List<Integer> templateIds = database.getStandardTemplateId();
+
+        if(templateIds == null ||templateIds.isEmpty()){
+            return null;
+        }
+
+        List<DWPrebuildModel> models = modelRepository.findAllById(templateIds);
+
+        if(models == null || models.isEmpty()){
+            return null;
+        }
+
+        for(DWPrebuildModel model : models){
+
+            List<TableKtrRsp> ktrs = model.getKtr();
+
+            if(ktrs == null ||ktrs.isEmpty()){
+                continue;
+            }
+
+            for(TableKtrRsp ktr : ktrs){
+                if(ktr.getTableName().equals(tableName)){
+                    return ktr.getKtr();
+                }
+            }
+
+        }
+
+        return null;
+
     }
 
     private DWDatabase saveDatabase(DWDatabaseReq req) {
@@ -387,11 +462,14 @@ public class DWServiceImpl implements DWService {
 
         DWDatabase dwDatabase = getDetail(req.getDwDatabaseId());
 
-        target.setTableName(req.getTableName() != null && !req.getTableName().isEmpty() ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5));
+        target.setTableName(StringUtils.hasText(req.getTableName()) ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5));
         target.setTitle(target.getTableName());
         //本地库创建结构
         List<DataSetSchema> schema;
-        if(DWDataFormat.isPDdoc(dwDatabase.getDataFormat())){
+        if(StringUtils.hasText(req.getTableName())){
+            schema = getIndustryTableSchema(req.getDwDatabaseId(),req.getTableName());
+            target.setKtr(getIndustryTableKtr(req.getDwDatabaseId(),req.getTableName()));
+        }else if(DWDataFormat.isPDdoc(dwDatabase.getDataFormat())){
             schema = schemaResolve(null,dwDatabase.getDataFormat() );
         }else{
             schema = req.getSchemas();
@@ -447,7 +525,7 @@ public class DWServiceImpl implements DWService {
     @Override
     public List<DWTableRsp> findTableAll(String userId, Long databaseId) {
 
-        List<DWTable> dwTableList = tableRepository.findAll(Example.of(DWTable.builder().dwDatabaseId(databaseId).build()));
+        List<DWTable> dwTableList = tableRepository.findAll(Example.of(DWTable.builder().dwDataBaseId(databaseId).build()));
 
         return dwTableList.stream().map(table2rsp).collect(Collectors.toList());
     }
@@ -546,19 +624,24 @@ public class DWServiceImpl implements DWService {
         for (RemoteTableAddReq req : reqList) {
 
 
-            if (req.getTableName() != null && !req.getTableName().isEmpty()) {
-                Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDatabaseId(databaseId).tableName(req.getTableName()).build()));
+            //行业表映射
+            if (StringUtils.hasText(req.getTableName())) {
+                Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tableName(req.getTableName()).build()));
 
                 DWTable table;
                 if (!opt.isPresent()) {
-                    List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
+                    List<DataSetSchema> schemaList = getIndustryTableSchema(databaseId,req.getTableName());
+                    if(schemaList == null){
+                        schemaList = getTableSchema(database, req.getTbName());
+                    }
 
                     table = DWTable.builder()
-                            .dwDatabaseId(databaseId)
-                            .tableName(req.getTableName() != null && !req.getTableName().isEmpty() ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5))
+                            .dwDataBaseId(databaseId)
+                            .tableName(req.getTableName())
                             .schema(schemaList)
                             .tbName(req.getTbName())
                             .title(req.getTbName())
+                            .ktr(getIndustryTableKtr(databaseId,req.getTableName()))
                             .createWay(1)
                             .fields(transformFields(schemaList))
                             .build();
@@ -571,7 +654,7 @@ public class DWServiceImpl implements DWService {
                 tableRepository.save(table);
             } else {
 
-                Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDatabaseId(databaseId).tbName(req.getTbName()).build()));
+                Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tbName(req.getTbName()).build()));
 
                 if (opt.isPresent()) {
                     continue;
@@ -580,8 +663,8 @@ public class DWServiceImpl implements DWService {
                     List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
 
                     DWTable table = DWTable.builder()
-                            .dwDatabaseId(databaseId)
-                            .tableName(req.getTableName() != null && !req.getTableName().isEmpty() ? req.getTableName() : TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5))
+                            .dwDataBaseId(databaseId)
+                            .tableName(TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5))
                             .schema(schemaList)
                             .tbName(req.getTbName())
                             .title(req.getTbName())
@@ -712,9 +795,11 @@ public class DWServiceImpl implements DWService {
             return;
         }
 
+        DWDatabase database = dwRepository.getOne(reqs.get(0).getDatabaseId());
+
         for(DWTableCronReq req : reqs){
 
-            Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().dwDatabaseId(req.getDatabaseId()).id(req.getTableId()).build()));
+            Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDatabaseId()).id(req.getTableId()).build()));
 
             if (!tableOpt.isPresent()) {
 
@@ -722,12 +807,16 @@ public class DWServiceImpl implements DWService {
             }
 
             DWTable table = tableOpt.get();
+            DWTableRsp tableRsp = ConvertUtils.convert(DWTableRsp.class).apply(table);
 
             table.setQueryField(req.getField());
             table.setCron(req.getCron());
             table.setIsAll(req.getIsAll());
             table.setSchedulingSwitch(req.getSchedulingSwitch());
             table.setIsWriteDW(req.getIsWriteDW());
+
+            updateSchedulingConfig(database,tableRsp,tableRsp.getDwDataBaseId(),tableRsp.getTableName(),req.getCron(),req.getIsAll(),req.getField());
+
 
             tableRepository.save(table);
 
@@ -835,7 +924,7 @@ public class DWServiceImpl implements DWService {
 
     @Override
     public void setTableScheduling(String userId, DWTableSchedulingReq req) {
-        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().dwDatabaseId(req.getDatabaseId()).id(req.getTableId()).build()));
+        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDatabaseId()).id(req.getTableId()).build()));
 
         if (!tableOpt.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
@@ -853,22 +942,22 @@ public class DWServiceImpl implements DWService {
 
     private void createTableSchedulingConfig(DWTable table) {
 
-        String dwTaskName = AccessTaskType.DW.getDisplayName()+"_"+table.getDwDatabaseId()+"_"+table.getTableName();
+        String dwTaskName = AccessTaskType.DW.getDisplayName()+"_"+table.getDwDataBaseId()+"_"+table.getTableName();
         List<String> diss = new ArrayList<>();
         if(table.getIsWriteDW() != null && table.getIsWriteDW().equals(1)){
             diss.add(dwTaskName);
-            accessTaskService.createDwTask(table.getTableName(),table.getDwDatabaseId());
+            accessTaskService.createDwTask(table.getTableName(),table.getDwDataBaseId());
         }
 
         if(table.getSchedulingSwitch().equals(1)){
 
             //生成任务配置
-            accessTaskService.createKtrTask(table.getTableName(),table.getDwDatabaseId(),table.getTableName(),1);
-            accessTaskService.createTransfer(table.getTableName(),table.getDwDatabaseId(),null,diss,null,null,table.getTableName());
+            accessTaskService.createKtrTask(table.getTableName(),table.getDwDataBaseId(),table.getTableName(),1);
+            accessTaskService.createTransfer(table.getTableName(),table.getDwDataBaseId(),null,diss,null,null,table.getTableName());
         }else{
             //生成任务配置
-            accessTaskService.createKtrTask(table.getTableName(),table.getDwDatabaseId(),table.getTableName(),0);
-            accessTaskService.createTransfer(table.getTableName(),table.getDwDatabaseId(),null,null,null,diss,table.getTableName());
+            accessTaskService.createKtrTask(table.getTableName(),table.getDwDataBaseId(),table.getTableName(),0);
+            accessTaskService.createTransfer(table.getTableName(),table.getDwDataBaseId(),null,null,null,diss,table.getTableName());
         }
     }
 
@@ -887,7 +976,7 @@ public class DWServiceImpl implements DWService {
     @Override
     public DWTableRsp findTableByTableName(String userId, Long databaseId, String tableName) {
 
-        Optional<DWTable> dwTable = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
+        Optional<DWTable> dwTable = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
 
         return ConvertUtils.convert(DWTableRsp.class).apply(dwTable.get());
     }
@@ -899,6 +988,8 @@ public class DWServiceImpl implements DWService {
         if(tableRspList == null ||tableRspList.isEmpty()){
             return;
         }
+
+        DWDatabase database = dwRepository.getOne(req.getDatabaseId());
 
         for(DWTableRsp tableRsp : tableRspList){
 
@@ -915,7 +1006,7 @@ public class DWServiceImpl implements DWService {
             tableRsp.setCron(cron);
             tableRsp.setSchedulingSwitch(req.getSchedulingSwitch());
 
-            updateSchedulingConfig(tableRsp.getDwDataBaseId(),tableRsp.getTableName(),req.getCron(),req.getIsAll(),req.getField());
+            updateSchedulingConfig(database,tableRsp,tableRsp.getDwDataBaseId(),tableRsp.getTableName(),req.getCron(),req.getIsAll(),req.getField());
 
             DWTable table = ConvertUtils.convert(DWTable.class).apply(tableRsp);
 
@@ -927,11 +1018,11 @@ public class DWServiceImpl implements DWService {
 
     }
 
-    private void updateSchedulingConfig(Long dwDataBaseId, String tableName, String cron, Integer isAll, String field) {
+    private void updateSchedulingConfig(DWDatabase database , DWTableRsp tableRsp,Long dwDataBaseId, String tableName, String cron, Integer isAll, String field) {
 
         String ktrTaskName = AccessTaskType.KTR.getDisplayName()+"_"+dwDataBaseId+"_"+tableName;
 
-//        accessTaskService.updateTableSchedulingConfig(ktrTaskName,cron,isAll,field);
+        accessTaskService.updateTableSchedulingConfig(database,tableRsp,ktrTaskName,cron,isAll,field);
     }
 
     @Override
@@ -966,6 +1057,31 @@ public class DWServiceImpl implements DWService {
             databaseRsp.setTables(tableRsps);
         }
         return databases;
+    }
+
+    @Override
+    public List<String> getDatabaseMappingTable(String userId, Long databaseId) {
+
+        DWDatabase database = dwRepository.getOne(databaseId);
+
+        if(database == null || !database.getDataFormat().equals(1) || database.getTagJson() == null ||database.getTagJson().isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<String> tables = database.getTagJson().stream().map(ModelSchemaConfigRsp::getTableName).collect(Collectors.toList());
+
+        List<DWTableRsp> tableRsps = findTableAll(userId,databaseId);
+        if(tableRsps != null && !tableRsps.isEmpty()){
+
+            for(DWTableRsp tableRsp : tableRsps){
+                if(tables.contains(tableRsp.getTableName())){
+                    tables.remove(tableRsp.getTableName());
+                }
+            }
+
+        }
+
+        return tables;
     }
 
 

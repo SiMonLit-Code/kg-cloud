@@ -61,7 +61,7 @@ public class DWTable {
 
     @Basic
     @Column(name = "dw_database_id")
-    private Long dwDatabaseId;
+    private Long dwDataBaseId;
 
     @Basic
     @Column(name = "query_field")

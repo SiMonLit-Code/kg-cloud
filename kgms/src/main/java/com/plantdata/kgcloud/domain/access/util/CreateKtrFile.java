@@ -317,7 +317,7 @@ public class CreateKtrFile {
             if(table.getIsAll() == null || table.getIsAll().equals(1)){
                 return sql.toString();
             }else{
-                return KtrXml.mongoTimeQueryXMl.replaceAll("timeField",table.getQueryField());
+                return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
             }
 
         }else{

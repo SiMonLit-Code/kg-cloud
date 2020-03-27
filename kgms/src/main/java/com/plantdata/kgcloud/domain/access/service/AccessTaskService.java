@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.access.service;
 
 import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
+import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
+import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.req.DataAccessTaskConfigReq;
 
 import java.util.List;
@@ -29,4 +31,6 @@ public interface AccessTaskService {
     String createTransfer(String tableName,Long databaseId,List<String> outputs,List<String> distributeOriginalData,List<String> deleteOutputs,List<String> deleteDistributeOriginalData,String isAllKey);
 
     String createDwTask(String tableName,Long databaseId);
+
+    void updateTableSchedulingConfig(DWDatabase database, DWTableRsp table,String ktrTaskName, String cron, Integer isAll, String field);
 }

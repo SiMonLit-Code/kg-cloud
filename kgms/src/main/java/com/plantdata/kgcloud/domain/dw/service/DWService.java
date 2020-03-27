@@ -66,4 +66,6 @@ public interface DWService {
     void modelUpload(Long databaseId, MultipartFile file);
 
     List<DWDatabaseRsp> databaseTableList(String userId);
+
+    List<String> getDatabaseMappingTable(String userId, Long databaseId);
 }
