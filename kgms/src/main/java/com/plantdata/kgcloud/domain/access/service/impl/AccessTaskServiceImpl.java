@@ -222,10 +222,13 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         //自定义
         if(database.getDataFormat().equals(3)){
             String yamlContent = database.getYamlContent();
-            Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
-            JSONArray tableTransfer = yamlTagMap.get(tableName);
-            transferJson.put("transferConfig", tableTransfer);
-            if(tableTransfer != null){
+            if(yamlContent != null && !yamlContent.isEmpty()){
+                Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
+                JSONArray tableTransfer = yamlTagMap.get(tableName);
+                transferJson.put("transferConfig", tableTransfer);
+            }
+
+            if(transferJson.containsKey("transferConfig") && transferJson.getJSONArray("transferConfig") != null && !transferJson.getJSONArray("transferConfig").isEmpty()){
                 transferJson.put("transferType","d2r");
             }else{
                 transferJson.put("transferType","");

@@ -18,7 +18,7 @@ public class YamlTransFunc {
     public static Map<String, JSONArray> tranTagConfig(String yamlStr) {
         //yaml转json
 
-        JSONObject jsonObject = new JSONObject((Map<String, Object>) yaml.load(yamlStr));
+        JSONObject jsonObject = new JSONObject(yaml.load(yamlStr));
 
         HashMap<String, String> tbtagMap = new HashMap<>();
 

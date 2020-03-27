@@ -1049,7 +1049,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 DWPrebuildModel model = addModelByZip(req);
 
-                System.out.println(JacksonUtils.writeValueAsString(model));
                 prebuildModelRepository.save(model);
 
                 createSchemaModel(model.getId(),dwService.modelSchema2PreBuilder(model.getTagJson()));
@@ -1840,6 +1839,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                         relationAttr.setAttrId(attr.getId());
                         relationAttr.setModelId(modelId);
+                        if(relationAttr.getName() == null || relationAttr.getName().isEmpty()){
+                            continue;
+                        }
                         prebuildRelationAttrRepository.save(relationAttr);
                     }
                 }

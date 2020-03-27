@@ -497,9 +497,14 @@ public class KtrXml {
         static String orderXml = "<order>\n" +
                 "    <hop>\n" +
                 "      <from>JSON output</from>\n" +
-                "      <to>JavaScript代码</to>\n" +
+                "      <to>JavaScript代码 2</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
+                "    <hop>\n" +
+                "      <from>JavaScript代码 2</from>\n" +
+                "      <to>JavaScript代码</to>\n" +
+                "      <enabled>Y</enabled>\n" +
+                "    </hop>" +
                 "    <hop>\n" +
                 "      <from>JavaScript代码</from>\n" +
                 "      <to>获取变量</to>\n" +
@@ -520,15 +525,15 @@ public class KtrXml {
                 "    <name>JSON output</name>\n" +
                 "    <type>JsonOutput</type>\n" +
                 "    <description/>\n" +
-                "    <distribute>Y</distribute>\n" +
+                "    <distribute>N</distribute>\n" +
                 "    <custom_distribution/>\n" +
                 "    <copies>1</copies>\n" +
                 "    <partitioning>\n" +
                 "      <method>none</method>\n" +
                 "      <schema_name/>\n" +
                 "    </partitioning>\n" +
-                "    <outputValue>data</outputValue>\n" +
-                "    <jsonBloc>data</jsonBloc>\n" +
+                "    <outputValue>data_json</outputValue>\n" +
+                "    <jsonBloc>data_json</jsonBloc>\n" +
                 "    <nrRowsInBloc>1</nrRowsInBloc>\n" +
                 "    <operation_type>outputvalue</operation_type>\n" +
                 "    <compatibility_mode>N</compatibility_mode>\n" +
@@ -547,7 +552,7 @@ public class KtrXml {
                 "      <servlet_output>N</servlet_output>\n" +
                 "    </file>\n" +
                 "    <fields>\n" +
-                "     fieldsQAQ" +
+                "       fieldsQAQ" +
                 "    </fields>\n" +
                 "    <attributes/>\n" +
                 "    <cluster_schema/>\n" +
@@ -558,8 +563,113 @@ public class KtrXml {
                 "      </output>\n" +
                 "    </remotesteps>\n" +
                 "    <GUI>\n" +
-                "      <xloc>471</xloc>\n" +
-                "      <yloc>118</yloc>\n" +
+                "      <xloc>304</xloc>\n" +
+                "      <yloc>128</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" +
+                "  <step>\n" +
+                "    <name>JavaScript代码</name>\n" +
+                "    <type>ScriptValueMod</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>N</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <compatible>N</compatible>\n" +
+                "    <optimizationLevel>9</optimizationLevel>\n" +
+                "    <jsScripts>\n" +
+                "      <jsScript>\n" +
+                "        <jsScript_type>0</jsScript_type>\n" +
+                "        <jsScript_name>Script 1</jsScript_name>\n" +
+                "        <jsScript_script>//Script here\n" +
+                "\n" +
+                "\n" +
+                "var re = {\n" +
+                "\"data\" : JSON.parse(data_input),\n" +
+                "\"operationType\":\"ADD\"\n" +
+                "}\n" +
+                "\n" +
+                "var value=JSON.stringify(re)</jsScript_script>\n" +
+                "      </jsScript>\n" +
+                "    </jsScripts>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>value</name>\n" +
+                "        <rename>value</rename>\n" +
+                "        <type>String</type>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <replace>N</replace>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>656</xloc>\n" +
+                "      <yloc>128</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" +
+                "  <step>\n" +
+                "    <name>JavaScript代码 2</name>\n" +
+                "    <type>ScriptValueMod</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>N</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <compatible>N</compatible>\n" +
+                "    <optimizationLevel>9</optimizationLevel>\n" +
+                "    <jsScripts>\n" +
+                "      <jsScript>\n" +
+                "        <jsScript_type>0</jsScript_type>\n" +
+                "        <jsScript_name>Script 1</jsScript_name>\n" +
+                "        <jsScript_script>var data_input = JSON.parse(data_json)[\"data_json\"][0]\n" +
+                "\n" +
+                "if ( data_input[\"json\"] !=null ) {\n" +
+                "    data_input = data_input[\"json\"]\n" +
+                "}else{\n" +
+                "data_input=JSON.stringify(data_input)\n" +
+                "\n" +
+                "}\n" +
+                "\n" +
+                "</jsScript_script>\n" +
+                "      </jsScript>\n" +
+                "    </jsScripts>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>data_input</name>\n" +
+                "        <rename>data_input</rename>\n" +
+                "        <type>String</type>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <replace>N</replace>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>400</xloc>\n" +
+                "      <yloc>128</yloc>\n" +
                 "      <draw>Y</draw>\n" +
                 "    </GUI>\n" +
                 "  </step>\n" +
@@ -598,58 +708,6 @@ public class KtrXml {
                 "    </remotesteps>\n" +
                 "    <GUI>\n" +
                 "      <xloc>759</xloc>\n" +
-                "      <yloc>118</yloc>\n" +
-                "      <draw>Y</draw>\n" +
-                "    </GUI>\n" +
-                "  </step>\n"+
-                "  <step>\n" +
-                "    <name>JavaScript代码</name>\n" +
-                "    <type>ScriptValueMod</type>\n" +
-                "    <description/>\n" +
-                "    <distribute>Y</distribute>\n" +
-                "    <custom_distribution/>\n" +
-                "    <copies>1</copies>\n" +
-                "    <partitioning>\n" +
-                "      <method>none</method>\n" +
-                "      <schema_name/>\n" +
-                "    </partitioning>\n" +
-                "    <compatible>N</compatible>\n" +
-                "    <optimizationLevel>9</optimizationLevel>\n" +
-                "    <jsScripts>\n" +
-                "      <jsScript>\n" +
-                "        <jsScript_type>0</jsScript_type>\n" +
-                "        <jsScript_name>Script 1</jsScript_name>\n" +
-                "        <jsScript_script>//Script here\n" +
-                "\n" +
-                "\n" +
-                "var re={\n" +
-                "\"data\":JSON. parse(data)[\"data\"][0],\n" +
-                "\"operationType\":\"ADD\"\n" +
-                "}\n" +
-                "\n" +
-                "var value=JSON.stringify(re)</jsScript_script>\n" +
-                "      </jsScript>\n" +
-                "    </jsScripts>\n" +
-                "    <fields>\n" +
-                "      <field>\n" +
-                "        <name>value</name>\n" +
-                "        <rename>value</rename>\n" +
-                "        <type>String</type>\n" +
-                "        <length>-1</length>\n" +
-                "        <precision>-1</precision>\n" +
-                "        <replace>N</replace>\n" +
-                "      </field>\n" +
-                "    </fields>\n" +
-                "    <attributes/>\n" +
-                "    <cluster_schema/>\n" +
-                "    <remotesteps>\n" +
-                "      <input>\n" +
-                "      </input>\n" +
-                "      <output>\n" +
-                "      </output>\n" +
-                "    </remotesteps>\n" +
-                "    <GUI>\n" +
-                "      <xloc>599</xloc>\n" +
                 "      <yloc>118</yloc>\n" +
                 "      <draw>Y</draw>\n" +
                 "    </GUI>\n" +
