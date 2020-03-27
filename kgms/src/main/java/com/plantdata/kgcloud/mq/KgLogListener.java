@@ -24,17 +24,14 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.plantdata.kgcloud.constant.KgmsConstants.*;
 
 /**
  * @author xiezhenxiang 2020/1/15
  */
-@Component
+//@Component
 @Slf4j
 public class KgLogListener {
 
@@ -49,7 +46,7 @@ public class KgLogListener {
      * 数据层日志监听
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"}, groupId = "log")
+//    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"}, groupId = "ttt")
     public void logListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -61,11 +58,9 @@ public class KgLogListener {
                 Class segmentClass = GraphLogScope.valueOf(scope).segmentClass();
                 JavaType javaType = JacksonUtils.getInstance().getTypeFactory().constructParametricType(GraphLog.class, segmentClass);
                 GraphLog log = JacksonUtils.readValue(record.value(), javaType);
-                GraphLog tmpLog = JacksonUtils.readValue(record.value(), javaType);
-                GraphLogMessage.appendMessage(mongoClient, kgDbName, tmpLog);
-                log.setMessage(tmpLog.getMessage());
+                GraphLogMessage.appendMessage(mongoClient, kgDbName, log);
 
-                if (StringUtils.isNotBlank(log.getBatch()) && StringUtils.isNotBlank(log.getMessage())) {
+                if (StringUtils.isNotBlank(log.getBatch())) {
                     List<Document> ls = dataMap.getOrDefault(kgDbName, new ArrayList<>());
                     ls.add(Document.parse(JacksonUtils.writeValueAsString(log)));
                     String kgName = graphRepository.findByDbName(kgDbName).getKgName();
@@ -91,7 +86,7 @@ public class KgLogListener {
      * 业务层日志监听
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.service.log}"}, groupId = "log")
+//    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.service.log}"}, groupId = "ttt")
     public void serviceLogListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {

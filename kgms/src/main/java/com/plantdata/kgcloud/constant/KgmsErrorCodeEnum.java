@@ -103,7 +103,36 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     GRAPH_QUALITY_NOT_EXIST(120511, "图谱质量不存在"),
 
-    ILLEGAL_PARAM(120512, "参数不合法");
+    ILLEGAL_PARAM(120512, "参数不合法"),
+
+    STANDARD_TEMPLATE_NOT_EXIST(120601, "行业标准模板不存在"),
+
+    PRE_BUILD_MODEL_NOT_EXIST(120602, "预构建模式不存在"),
+
+    PERMISSION_NOT_MODEL_UPLOAD_ERROR(120603, "没有模式上传权限"),
+
+    MODEL_PARSER_ERROR(120604, "模式解析错误"),
+
+    CYCLE_CONCEPT_EXIST(120605, "模式存在循环概念"),
+
+    DW_DATABASE_NOT_EXIST(120701, "数仓数据库不存在"),
+
+    DW_TABLE_CREATE_ERROR(120702, "数仓数据表生成失败"),
+
+    DW_TABLE_NOT_EXIST(120703, "数仓数据表不存在"),
+
+    YAML_PARSE_ERROR(120704, "yaml文件解析错误"),
+
+    REMOTE_TABLE_FIND_ERROR(120705, "获取远程表错误"),
+
+    TABLE_CREATE_WAY_ERROR(120706, "表创建方式不适用该功能"),
+
+    DATABASE_DATAFORMAT_ERROR(120707, "数据库创建类型不适用该功能"),
+
+    TAG_JSON_PASER_ERROR(120708, "数据库TAG_JSON解析错误"),
+
+    FILE_SCHEMAPASER_ERROR(120709, "文件schema解析错误");
+    ;
 
     private final int errorCode;
 
