@@ -57,7 +57,7 @@ public class KnowledgeRecommendConverter extends BasicConverter{
                 if (entityVO == null) {
                     continue;
                 }
-                rspList.add(new PromptEntityRsp(entityVO.getId(), entityVO.getName(), entityVO.getMeaningTag(), entityVO.getConceptId(), EntityTypeEnum.ENTITY));
+                rspList.add(new PromptEntityRsp(entityVO.getId(), entityVO.getName(), entityVO.getMeaningTag(), entityVO.getConceptId(), EntityTypeEnum.ENTITY,entityVO.getImageUrl()));
             }
             attributeRspList.add(new ObjectAttributeRsp(entry.getKey(), rspList));
         }

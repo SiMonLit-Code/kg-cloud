@@ -56,4 +56,12 @@ public class PromptEntityRsp {
         this.conceptId = conceptId;
         this.type = type;
     }
+    public PromptEntityRsp(Long id, String name, String meaningTag, Long conceptId, EntityTypeEnum type,String imageUrl) {
+        this.id = id;
+        this.name = name;
+        this.meaningTag = meaningTag;
+        this.conceptId = conceptId;
+        this.type = type;
+        this.imageUrl = imageUrl;
+    }
 }
