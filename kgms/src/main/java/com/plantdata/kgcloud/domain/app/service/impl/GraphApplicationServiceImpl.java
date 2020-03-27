@@ -254,8 +254,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         List<Long> entityIds = new ArrayList<>();
         entityListOpt.ifPresent(entityList ->
         {
+            entityList.forEach(entity ->entityIds.add(entity.getId()));
             BasicConverter.consumerIfNoNull(req.getAllowAttrs(), allowAttrIds -> entityList.forEach(entity -> {
-                entityIds.add(entity.getId());
                 BasicConverter.consumerIfNoNull(entity.getAttrValue(),
                         a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));

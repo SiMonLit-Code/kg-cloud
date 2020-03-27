@@ -45,6 +45,7 @@ import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.OpenEntityConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
@@ -148,7 +149,8 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq) {
-        Document document = documentConverter.toDocument(multiModalReq);
+        MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(multiModalReq);
+        Document document = documentConverter.toDocument(multiModal);
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         mongoCollection.insertOne(document);
