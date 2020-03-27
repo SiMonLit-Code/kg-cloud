@@ -283,6 +283,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             ktrTaskRsp.setOutputs(Lists.newArrayList(transferTaskName));
             ktrTaskRsp.setUserId(SessionHolder.getUserId());
         }
+
         ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName,isAllKey));
 
         if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null ||table.getIsAll().equals(1)){

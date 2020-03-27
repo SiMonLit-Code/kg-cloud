@@ -63,6 +63,7 @@ import javax.persistence.criteria.Root;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -110,8 +111,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Autowired
     private DWService dwService;
 
-    @Autowired
-    private GraphApplicationService getGraphApplicationService;
 
     private final static String JSON_START = "{";
     private final static String ARRAY_START = "[";
@@ -335,7 +334,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     }
                 } else {
                     //都为对象属性,值域一样
-                    if (quoteAttrReq.getModelRange().equals(matchAttrRsp.getRange())) {
+                    if (quoteAttrReq.getModelRange().equals(matchAttrRsp.getRange()) || req.getConceptIds().contains(matchAttrRsp.getRange())) {
                         if (quoteAttrReq.getAttrId() == null) {
                             status = "可引入";
                         } else {
@@ -522,10 +521,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 modelDataBaseIdMap.put(model.getId(),modelDataBaseId);
             }
 
-            /*//非数仓模式不保存映射关系
+            //非数仓模式不保存映射关系
             if(modelDataBaseId == null){
                 continue;
-            }*/
+            }
 
             DWPrebuildConcept modelConcept = prebuildConceptRepository.getOne(schemaQuoteReq.getModelConceptId());
 
@@ -818,13 +817,17 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             return new ArrayList<>();
         }
 
-        List<BasicInfoVO> basicInfoVOS = getGraphApplicationService.conceptTree(kgName, null, null);
+        SchemaRsp schemaRsp = graphApplicationService.querySchema(kgName);
 
         Map<String, Long> conceptNameIdMap = new HashMap<>();
-        if(basicInfoVOS != null && !basicInfoVOS.isEmpty()){
-            basicInfoVOS.forEach(info -> conceptNameIdMap.put(info.getName(),info.getConceptId()));
+        if(schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()){
+            conceptNameIdMap = schemaRsp.getTypes().stream().collect(Collectors.toMap(BaseConceptRsp::getName,BaseConceptRsp::getId));
         }
 
+        Map<String, AttributeDefinitionRsp> attrMap = new HashMap<>();
+        if(schemaRsp.getAttrs() != null && !schemaRsp.getAttrs().isEmpty()) {
+            schemaRsp.getAttrs().forEach(attr -> attrMap.put(attr.getName()+attr.getDomainValue(),attr));
+        }
         List<SchemaQuoteReq> needAddConcepts = new ArrayList<>();
 
         for (SchemaQuoteReq schemaQuoteReq : quoteConfigs) {
@@ -874,8 +877,31 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 Integer attrId;
 
                 if (attrReq.getAttrId() != null) {
+
                     attrId = attrReq.getAttrId();
-                } else {
+
+                } else if(attrMap.containsKey(attrReq.getAttrName()+schemaQuoteReq.getConceptId())){
+
+                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName()+schemaQuoteReq.getConceptId());
+
+                    if(!a.getType().equals(attrReq.getAttrType())){
+                        continue;
+                    }
+
+                    if(a.getType().equals(0)){
+                        if(!a.getDataType().equals(attrReq.getDataType())){
+                            continue;
+                        }
+                    }else{
+                        if(!a.getRangeValue().contains(attrReq.getRange())){
+                            continue;
+                        }
+                    }
+
+                    attrId = a.getId();
+
+                }else{
+
                     AttrDefinitionReq attrDefinitionReq = new AttrDefinitionReq();
                     attrDefinitionReq.setName(attrReq.getAttrName());
                     attrDefinitionReq.setType(attrReq.getAttrType());
@@ -905,7 +931,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         attrDefinitionReq.setDirection(0);
                         attrDefinitionReq.setDataType(0);
                     }
-
                     attrId = attributeService.addAttrDefinition(kgName, attrDefinitionReq);
                 }
 
@@ -913,10 +938,29 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 if (attrReq.getAttrType().equals(1) && attrReq.getRelationAttrs() != null) {
 
+                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName()+schemaQuoteReq.getConceptId());
+
+                    Map<String, AttrExtraRsp> relaAMap = new HashMap<>();
+                    if(a != null && a.getExtraInfos() != null ){
+                        a.getExtraInfos().forEach(attr -> relaAMap.put(attr.getName(),attr));
+                    }
+
                     for (SchemaQuoteRelationAttrReq relationAttrReq : attrReq.getRelationAttrs()) {
 
                         Integer relaAttrId;
-                        if (relationAttrReq.getAttrId() == null) {
+                        if(relationAttrReq.getAttrId() != null){
+
+                            continue;
+
+                        }else if(relaAMap.containsKey(relationAttrReq.getName())){
+
+                            AttrExtraRsp graphRelaAtt = relaAMap.get(relationAttrReq.getName());
+                            if(graphRelaAtt.getType().equals(1) || !graphRelaAtt.getDataType().equals(relationAttrReq.getDataType())){
+                                continue;
+                            }
+
+                            relaAttrId = graphRelaAtt.getSeqNo();
+                        }else {
 
                             EdgeAttrDefinitionReq edgeAttrDefinitionReq = new EdgeAttrDefinitionReq();
                             edgeAttrDefinitionReq.setDataType(relationAttrReq.getDataType());
@@ -924,10 +968,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             edgeAttrDefinitionReq.setDataUnit(relationAttrReq.getUnit());
                             edgeAttrDefinitionReq.setType(0);
                             relaAttrId = attributeService.addEdgeAttr(kgName, attrId, edgeAttrDefinitionReq);
-
-                        } else {
-
-                            relaAttrId = relationAttrReq.getAttrId();
 
                         }
 
