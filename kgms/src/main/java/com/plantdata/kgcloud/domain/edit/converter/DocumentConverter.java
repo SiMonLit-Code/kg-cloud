@@ -1,13 +1,11 @@
 package com.plantdata.kgcloud.domain.edit.converter;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.bson.Document;
@@ -33,9 +31,6 @@ public class DocumentConverter {
 
     private static final Map<Class<?>, List<FieldMethod>> METHOD_CACHE = new ConcurrentHashMap<>();
 
-
-    private ObjectMapper objectMapper = JacksonUtils.getInstance();
-
     public <T> List<T> toBeans(FindIterable<Document> documents, Class<T> clazz) {
         List<T> list = Lists.newArrayList();
         for (Document document : documents) {
@@ -50,7 +45,7 @@ public class DocumentConverter {
         }
         try {
             objId2String(document);
-            return MapperUtils.map(document, clazz);
+            return JacksonUtils.readValue(JacksonUtils.writeValueAsString(document),clazz);
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.DATA_CONVERSION_ERROR);
         }
@@ -114,5 +109,4 @@ public class DocumentConverter {
         }
         return document;
     }
-
 }

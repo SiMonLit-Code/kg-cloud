@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,15 +14,18 @@ import lombok.Setter;
 @Getter
 public class MultiModal {
     @ApiModelProperty("实体id")
+    @JsonAlias("entity_id")
     private Long entityId;
 
     @ApiModelProperty("文件名称")
     private String name;
 
     @ApiModelProperty("数据连接")
+    @JsonAlias("data_href")
     private String dataHref;
 
     @ApiModelProperty("缩略图路径")
+    @JsonAlias("thumb_path")
     private String thumbPath;
 
     @ApiModelProperty("文件类型")
