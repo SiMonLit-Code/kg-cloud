@@ -943,7 +943,13 @@ public class DWServiceImpl implements DWService {
             //行业标准 or pddoc
             List<ModelSchemaConfigRsp> modelSchemaConfigRsp = getDatabseModelSchema(userId,req.getId());
 
+
             preBuilderConceptRspList = modelSchema2PreBuilder(modelSchemaConfigRsp);
+
+            if(preBuilderConceptRspList == null || preBuilderConceptRspList.isEmpty()){
+                throw BizException.of(KgmsErrorCodeEnum.EMTRY_MODEL_PUDH_ERROR);
+            }
+
 
             preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), null);
 
@@ -957,6 +963,10 @@ public class DWServiceImpl implements DWService {
             JSONObject json = JacksonUtils.readValue(JacksonUtils.writeValueAsString(value), JSONObject.class);
 
             preBuilderConceptRspList = PaserYaml2SchemaUtil.parserYaml2Schema(json);
+
+            if(preBuilderConceptRspList == null || preBuilderConceptRspList.isEmpty()){
+                throw BizException.of(KgmsErrorCodeEnum.EMTRY_MODEL_PUDH_ERROR);
+            }
 
             preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), yamlContent);
         }

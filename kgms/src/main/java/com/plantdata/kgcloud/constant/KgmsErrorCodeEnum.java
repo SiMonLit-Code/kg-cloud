@@ -131,7 +131,9 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     TAG_JSON_PASER_ERROR(120708, "数据库TAG_JSON解析错误"),
 
-    FILE_SCHEMAPASER_ERROR(120709, "文件schema解析错误");
+    FILE_SCHEMAPASER_ERROR(120709, "文件schema解析错误"),
+
+    EMTRY_MODEL_PUDH_ERROR(120710, "空模式不能发布"),
     ;
 
     private final int errorCode;
