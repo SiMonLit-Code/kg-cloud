@@ -1136,6 +1136,10 @@ public class DWServiceImpl implements DWService {
     public List<PreBuilderConceptRsp> modelSchema2PreBuilder(List<ModelSchemaConfigRsp> modelSchemaConfig) {
         Map<String, PreBuilderConceptRsp> conceptRspMap = new HashMap<>();
 
+        if(modelSchemaConfig == null || modelSchemaConfig.isEmpty()){
+            return new ArrayList<>();
+        }
+
         for (ModelSchemaConfigRsp schema : modelSchemaConfig) {
             if (schema == null) {
                 continue;
