@@ -40,7 +40,7 @@ public class DWController {
     }
 
     @ApiOperation("数仓-查询行业数据库需要映射的表")
-    @GetMapping("/get/{databaseId}/mapping/table")
+    @PatchMapping("/get/{databaseId}/mapping/table")
     public ApiReturn<List<String>> getDatabaseMappingTable(@PathVariable("databaseId")Long databaseId) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dwServince.getDatabaseMappingTable(userId, databaseId));
