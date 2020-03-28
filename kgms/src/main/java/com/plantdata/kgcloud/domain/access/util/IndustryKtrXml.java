@@ -792,7 +792,7 @@ public class IndustryKtrXml {
                 "    <connectionType>DIRECT</connectionType>\n" +
                 "    <directBootstrapServers>kafkaQAQ</directBootstrapServers>\n" +
                 "    <clusterName/>\n" +
-                "    <topic>channel_low</topic>\n" +
+                "    <topic>channel_check</topic>\n" +
                 "    <clientId/>\n" +
                 "    <keyField>resourceName</keyField>\n" +
                 "    <messageField>kg_data</messageField>\n" +

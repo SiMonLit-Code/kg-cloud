@@ -150,7 +150,7 @@ public class GraphMapServiceImpl implements GraphMapService {
 
         Map<Integer,String> modelMap = new HashMap<>();
         Map<Integer,String> attrMap = new HashMap<>();
-        Map<Long,String> databaseMap = new HashMap<>();
+        Map<Long,DWDatabase> databaseMap = new HashMap<>();
 
         for(DWGraphMap graphMap : graphMapList){
 
@@ -161,10 +161,14 @@ public class GraphMapServiceImpl implements GraphMapService {
                 if(database == null){
                     databaseMap.put(graphMap.getDataBaseId(),null);
                 }else{
-                    databaseMap.put(graphMap.getDataBaseId(),database.getTitle());
+                    databaseMap.put(graphMap.getDataBaseId(),database);
                 }
             }
-            rsp.setDatabaseName(databaseMap.get(graphMap.getDataBaseId()));
+
+            if(databaseMap.get(graphMap.getDataBaseId()) != null){
+                rsp.setDatabaseName(databaseMap.get(graphMap.getDataBaseId()).getTitle());
+                rsp.setDataName(databaseMap.get(graphMap.getDataBaseId()).getDataName());
+            }
 
 
             if(!modelMap.containsKey(graphMap.getModelId())){
