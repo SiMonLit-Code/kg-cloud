@@ -470,6 +470,13 @@ public class DWServiceImpl implements DWService {
         DWDatabase dwDatabase = getDetail(req.getDwDataBaseId());
 
         if (StringUtils.hasText(req.getTableName())) {
+
+            Optional<DWTable> optTb = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDwDataBaseId()).mapper(req.getTableName()).build()));
+
+            if(optTb.isPresent()){
+                throw BizException.of(KgmsErrorCodeEnum.MAP_TABLE_EXIST);
+            }
+
             target.setTableName(TABLE_PREFIX + JOIN + req.getTableName() + JOIN + UUIDUtils.getShortString().substring(0, 5));
             target.setMapper(req.getTableName());
         } else {
@@ -636,8 +643,22 @@ public class DWServiceImpl implements DWService {
 
         for (RemoteTableAddReq req : reqList) {
 
+            Optional<DWTable> optTb = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tbName(req.getTbName()).build()));
+
+            if(optTb.isPresent()){
+                throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_EXIST);
+            }
+
+
             //行业表映射
             if (StringUtils.hasText(req.getTableName())) {
+
+                Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).mapper(req.getTableName()).build()));
+
+                if(opt.isPresent()){
+                    throw BizException.of(KgmsErrorCodeEnum.MAP_TABLE_EXIST);
+                }
+
                 List<DataSetSchema> schemaList = getIndustryTableSchema(databaseId, req.getTableName());
                 if (schemaList == null) {
                     schemaList = getTableSchema(database, req.getTbName());
@@ -658,26 +679,19 @@ public class DWServiceImpl implements DWService {
                 tableRepository.save(table);
             } else {
 
-                Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tbName(req.getTbName()).build()));
+                List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
 
-                if (opt.isPresent()) {
-                    continue;
-                } else {
+                DWTable table = DWTable.builder()
+                        .dwDataBaseId(databaseId)
+                        .tableName(req.getTbName())
+                        .schema(schemaList)
+                        .tbName(req.getTbName())
+                        .title(req.getTbName())
+                        .createWay(1)
+                        .fields(transformFields(schemaList))
+                        .build();
 
-                    List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
-
-                    DWTable table = DWTable.builder()
-                            .dwDataBaseId(databaseId)
-                            .tableName(req.getTbName())
-                            .schema(schemaList)
-                            .tbName(req.getTbName())
-                            .title(req.getTbName())
-                            .createWay(1)
-                            .fields(transformFields(schemaList))
-                            .build();
-
-                    tableRepository.save(table);
-                }
+                tableRepository.save(table);
 
             }
 
@@ -909,7 +923,11 @@ public class DWServiceImpl implements DWService {
                 return Lists.newArrayList();
             }
 
-            Map<String,String> tableMappings = tables.stream().collect(Collectors.toMap(DWTableRsp::getMapper,DWTableRsp::getTableName));
+
+            Map<String,String> tableMappings = new HashMap<>();
+            for(DWTableRsp tableRsp : tables){
+                tableMappings.put(tableRsp.getMapper(),tableRsp.getTableName());
+            }
 
             if (tableMappings == null || tableMappings.isEmpty()) {
                 return Lists.newArrayList();
@@ -1121,8 +1139,11 @@ public class DWServiceImpl implements DWService {
         if (tableRsps != null && !tableRsps.isEmpty()) {
 
             for (DWTableRsp tableRsp : tableRsps) {
-                if (tables.contains(tableRsp.getTableName())) {
-                    tables.remove(tableRsp.getTableName());
+                if(tableRsp.getMapper() == null){
+                    continue;
+                }
+                if (tables.contains(tableRsp.getMapper())) {
+                    tables.remove(tableRsp.getMapper());
                 }
             }
 

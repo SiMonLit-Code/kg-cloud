@@ -134,6 +134,10 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     FILE_SCHEMAPASER_ERROR(120709, "文件schema解析错误"),
 
     EMTRY_MODEL_PUDH_ERROR(120710, "空模式不能发布"),
+
+    MAP_TABLE_EXIST(120711, "映射的行业表以存在"),
+
+    REMOTE_TABLE_EXIST(120712, "该远程表已存在"),
     ;
 
     private final int errorCode;
