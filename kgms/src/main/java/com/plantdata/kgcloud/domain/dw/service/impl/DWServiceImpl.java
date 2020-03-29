@@ -57,6 +57,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -364,7 +365,7 @@ public class DWServiceImpl implements DWService {
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
-        List<DWDatabase> all = dwRepository.findAll(Example.of(probe));
+        List<DWDatabase> all = dwRepository.findAll(Example.of(probe), Sort.by(Sort.Order.desc("createAt")));
         return all.stream().map(dw2rsp).collect(Collectors.toList());
     }
 
@@ -544,7 +545,7 @@ public class DWServiceImpl implements DWService {
     @Override
     public List<DWTableRsp> findTableAll(String userId, Long databaseId) {
 
-        List<DWTable> dwTableList = tableRepository.findAll(Example.of(DWTable.builder().dwDataBaseId(databaseId).build()));
+        List<DWTable> dwTableList = tableRepository.findAll(Example.of(DWTable.builder().dwDataBaseId(databaseId).build()), Sort.by(Sort.Order.desc("createAt")));
 
         return dwTableList.stream().map(table2rsp).collect(Collectors.toList());
     }
