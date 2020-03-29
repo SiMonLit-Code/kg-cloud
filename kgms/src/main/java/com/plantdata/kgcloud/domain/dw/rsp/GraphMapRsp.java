@@ -55,4 +55,12 @@ public class GraphMapRsp {
 
     @ApiModelProperty("订阅开关")
     private Integer schedulingSwitch;
+
+    @ApiModelProperty("数仓名称")
+    private Long dataBaseId;
+
+    @ApiModelProperty("数仓数据最后一次入库日期")
+    private String lastDate;
+    @ApiModelProperty("数仓数据最后一次入库日的数量")
+    private Long lastDateCount;
 }
