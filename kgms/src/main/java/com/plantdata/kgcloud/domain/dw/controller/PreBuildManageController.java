@@ -54,7 +54,7 @@ public class PreBuildManageController {
         String userId = SessionHolder.getUserId();
         preBuilderService.update(userId,id,status);
         return ApiReturn.success();
-    }
+}
 
 
     @ApiOperation("预构建模式管理-模式上传")

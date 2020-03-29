@@ -470,6 +470,12 @@ public class DWServiceImpl implements DWService {
 
         DWDatabase dwDatabase = getDetail(req.getDwDataBaseId());
 
+        Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDwDataBaseId()).tableName(req.getTitle()).build()));
+
+        if(opt.isPresent()){
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_NAME_EXIST);
+        }
+
         if (StringUtils.hasText(req.getTableName())) {
 
             Optional<DWTable> optTb = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDwDataBaseId()).mapper(req.getTableName()).build()));
@@ -478,12 +484,12 @@ public class DWServiceImpl implements DWService {
                 throw BizException.of(KgmsErrorCodeEnum.MAP_TABLE_EXIST);
             }
 
-            target.setTableName(TABLE_PREFIX + JOIN + req.getTableName() + JOIN + UUIDUtils.getShortString().substring(0, 5));
+            target.setTableName(req.getTitle());
             target.setMapper(req.getTableName());
         } else {
-            target.setTableName(TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5));
+            target.setTableName(req.getTitle());
         }
-        target.setTitle(target.getTableName());
+        target.setTitle(req.getTitle());
         //本地库创建结构
         List<DataSetSchema> schema;
         if (StringUtils.hasText(req.getTableName())) {
@@ -555,7 +561,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabase dwDatabase = getDetail(databaseId);
 
-        if (dwDatabase.getAddr() == null || dwDatabase.getAddr().isEmpty()) {
+        if (dwDatabase.getAddr() == null || dwDatabase.getAddr().isEmpty() || (dwDatabase.getAddr().size() == 1 && StringUtils.hasText(dwDatabase.getAddr().get(0)))) {
             return new ArrayList<>();
         }
 

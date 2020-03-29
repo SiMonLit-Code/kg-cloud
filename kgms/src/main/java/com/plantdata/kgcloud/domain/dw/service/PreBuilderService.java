@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
@@ -38,4 +39,6 @@ public interface PreBuilderService {
     void create(PreBuilderCreateReq req);
 
     void createSchedulingConfig(String kgName,boolean isCreateKtr);
+
+    void pushGraphModel(String userId, ModelPushReq req);
 }

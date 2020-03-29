@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dw.controller;
 
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
@@ -69,6 +70,15 @@ public class PreBuildController {
 
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.getTypes(userId));
+    }
+
+    @ApiOperation("预构建模式-发布图谱模式")
+    @PostMapping("/push/graph/model")
+    public ApiReturn pushGraphModel(@RequestBody ModelPushReq req) {
+
+        String userId = SessionHolder.getUserId();
+        preBuilderService.pushGraphModel(userId,req);
+        return ApiReturn.success();
     }
 
 }

@@ -138,6 +138,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     MAP_TABLE_EXIST(120711, "映射的行业表以存在"),
 
     REMOTE_TABLE_EXIST(120712, "该远程表已存在"),
+
+    TABLE_NAME_EXIST(120713, "该表名已存在"),
     ;
 
     private final int errorCode;
