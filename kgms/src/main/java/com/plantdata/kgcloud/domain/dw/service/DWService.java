@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.req.*;
@@ -67,5 +68,5 @@ public interface DWService {
 
     List<DWDatabaseRsp> databaseTableList(String userId);
 
-    List<String> getDatabaseMappingTable(String userId, Long databaseId);
+    List<JSONObject> getDatabaseMappingTable(String userId, Long databaseId);
 }

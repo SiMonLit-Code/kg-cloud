@@ -1126,7 +1126,7 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public List<String> getDatabaseMappingTable(String userId, Long databaseId) {
+    public List<JSONObject> getDatabaseMappingTable(String userId, Long databaseId) {
 
         DWDatabase database = dwRepository.getOne(databaseId);
 
@@ -1136,21 +1136,37 @@ public class DWServiceImpl implements DWService {
 
         List<String> tables = database.getTagJson().stream().map(ModelSchemaConfigRsp::getTableName).collect(Collectors.toList());
 
-        List<DWTableRsp> tableRsps = findTableAll(userId, databaseId);
-        if (tableRsps != null && !tableRsps.isEmpty()) {
+        List<JSONObject>rs=Lists.newArrayList();
 
-            for (DWTableRsp tableRsp : tableRsps) {
-                if(tableRsp.getMapper() == null){
-                    continue;
+        if (tables != null && !tables.isEmpty()) {
+            List<DWTableRsp> tableRsps = findTableAll(userId, databaseId);
+            List<String> t = Lists.newArrayList();
+            if (tableRsps !=null && !tableRsps.isEmpty()){
+                for (DWTableRsp tableRsp : tableRsps) {
+
+                    if(tableRsp.getMapper() == null){
+                        continue;
+                    }
+                    t.add(tableRsp.getMapper());
                 }
-                if (tables.contains(tableRsp.getMapper())) {
-                    tables.remove(tableRsp.getMapper());
+
+
+            }
+
+            for (String table : tables){
+                JSONObject json = new JSONObject();
+                json.put("tableName",table);
+                if (t.contains(table)){
+                    json.put("status",1);
+                }else{
+                    json.put("status",0);
                 }
+                rs.add(json);
             }
 
         }
 
-        return tables;
+        return rs;
     }
 
 
