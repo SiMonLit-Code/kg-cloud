@@ -50,6 +50,9 @@ public class GraphMapRsp {
     @ApiModelProperty("订阅库名")
     private String databaseName;
 
+    @ApiModelProperty("原库名")
+    private String dbName;
+
     @ApiModelProperty("订阅库标识")
     private String dataName;
 

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.DataTypeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
@@ -718,19 +719,110 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         model = prebuildModelRepository.save(model);
 
-        List<PreBuilderConceptRsp> preBuilderConceptRspList = tranferSchema2PreBuilder(schemaRsp);
-
-        createSchemaModel(model.getId(), preBuilderConceptRspList);
+        addSchema2PreBuilder(schemaRsp,model.getId());
 
     }
 
-    private List<PreBuilderConceptRsp> tranferSchema2PreBuilder(SchemaRsp schemaRsp) {
+    private void addSchema2PreBuilder(SchemaRsp schemaRsp,Integer modelId) {
 
         List<BaseConceptRsp> conceptRsps = schemaRsp.getTypes();
 
-        for(BaseConceptRsp conceptRsp : conceptRsps){
+        Map<String,Integer> conceptMap = Maps.newHashMap();
+        Map<Long, String> conceptNameMap = conceptRsps.stream().collect(Collectors.toMap(BaseConceptRsp::getId,BaseConceptRsp::getName));
+
+
+        //递归添加概念
+        addConceptReturn(conceptRsps,modelId,conceptMap,conceptNameMap);
+
+        List<AttributeDefinitionRsp> attrs = schemaRsp.getAttrs();
+
+        if(attrs == null || attrs.isEmpty()){
+            return ;
         }
-        return null;
+
+        for(AttributeDefinitionRsp attrRsp : attrs){
+
+
+            DWPrebuildAttr attr = new DWPrebuildAttr();
+            BeanUtils.copyProperties(attrRsp, attr);
+            attr.setAttrKey(attrRsp.getKey());
+            attr.setAttrType(attrRsp.getType());
+
+            attr.setConceptId(conceptMap.get(conceptNameMap.get(attrRsp.getDomainValue())));
+            attr.setModelId(modelId);
+            if (attrRsp.getType().equals(1)) {
+                attr.setRange(conceptMap.get(conceptNameMap.get(attrRsp.getRangeValue().get(0))));
+            }
+
+            attr = prebuildAttrRepository.save(attr);
+
+            if (attrRsp.getType().equals(1) && attrRsp.getExtraInfos() != null && !attrRsp.getExtraInfos().isEmpty()) {
+
+                for (AttrExtraRsp relationAttrRsp : attrRsp.getExtraInfos()) {
+                    DWPrebuildRelationAttr relationAttr = new DWPrebuildRelationAttr();
+                    BeanUtils.copyProperties(relationAttrRsp, relationAttr);
+                    relationAttr.setUnit(relationAttrRsp.getDataUnit());
+
+                    relationAttr.setAttrId(attr.getId());
+                    relationAttr.setModelId(modelId);
+                    if(relationAttr.getName() == null || relationAttr.getName().isEmpty()){
+                        continue;
+                    }
+                    prebuildRelationAttrRepository.save(relationAttr);
+                }
+            }
+
+        }
+
+
+        return ;
+    }
+
+    private void addConceptReturn(List<BaseConceptRsp> neadAddConcept, Integer modelId, Map<String, Integer> conceptMap, Map<Long, String> conceptNameMap) {
+
+        if(neadAddConcept == null || neadAddConcept.isEmpty()){
+            return;
+        }
+
+        for (Iterator<BaseConceptRsp> it = neadAddConcept.iterator(); it.hasNext(); ){
+
+            BaseConceptRsp concept = it.next();
+
+            if(concept.getParentId().equals(0l)){
+                PreBuilderConceptRsp conceptRsp = new PreBuilderConceptRsp();
+                conceptRsp.setName(concept.getName());
+                conceptRsp.setImage(concept.getImg());
+                conceptRsp.setConceptKey(concept.getKey());
+                addPreBuilderConcept(conceptRsp,modelId,conceptMap);
+                it.remove();
+            }else if(conceptNameMap.containsKey(concept.getParentId()) && conceptMap.containsKey(conceptNameMap.get(concept.getParentId()))){
+                PreBuilderConceptRsp conceptRsp = new PreBuilderConceptRsp();
+                conceptRsp.setName(concept.getName());
+                conceptRsp.setImage(concept.getImg());
+                conceptRsp.setConceptKey(concept.getKey());
+                conceptRsp.setParentId(conceptMap.get(conceptNameMap.get(concept.getParentId())));
+                addPreBuilderConcept(conceptRsp,modelId,conceptMap);
+                it.remove();
+            }
+        }
+
+        if(!neadAddConcept.isEmpty()){
+            addConceptReturn(neadAddConcept,modelId,conceptMap,conceptNameMap);
+        }
+
+    }
+
+    private void addPreBuilderConcept(PreBuilderConceptRsp conceptRsp,Integer modelId,Map<String,Integer> conceptMap){
+
+        DWPrebuildConcept concept = new DWPrebuildConcept();
+        BeanUtils.copyProperties(conceptRsp, concept);
+
+        concept.setModelId(modelId);
+
+        prebuildConceptRepository.save(concept);
+
+        conceptMap.put(concept.getName(), concept.getId());
+
     }
 
     private List<DataMapReq> quote2DataMap(List<SchemaQuoteReq> mapConfig) {

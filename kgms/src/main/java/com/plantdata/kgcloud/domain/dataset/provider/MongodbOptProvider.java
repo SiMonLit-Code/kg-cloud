@@ -163,7 +163,11 @@ public class MongodbOptProvider implements DataOptProvider {
         for (Document document : findIterable) {
             Map<String, Object> map = new HashMap<>(size);
             map.putAll(document);
-            map.put(MONGO_ID, document.getObjectId(MONGO_ID).toHexString());
+            try {
+                map.put(MONGO_ID, document.getObjectId(MONGO_ID).toHexString());
+            }catch (ClassCastException e){
+                map.put(MONGO_ID, document.getString(MONGO_ID));
+            }
             mapList.add(map);
         }
         return mapList;
@@ -180,12 +184,22 @@ public class MongodbOptProvider implements DataOptProvider {
 
     @Override
     public Map<String, Object> findOne(String id) {
-        Document first = getCollection().find(Filters.eq(MONGO_ID, new ObjectId(id))).first();
-        if (first == null) {
-            return new HashMap<>();
+        try {
+            Document first = getCollection().find(Filters.eq(MONGO_ID, new ObjectId(id))).first();
+            if (first == null) {
+                return new HashMap<>();
+            }
+            first.put(MONGO_ID, first.getObjectId(MONGO_ID).toHexString());
+            return first;
+        }catch (IllegalArgumentException e){
+            Document first = getCollection().find(Filters.eq(MONGO_ID, id)).first();
+            if (first == null) {
+                return new HashMap<>();
+            }
+            first.put(MONGO_ID, first.getString(MONGO_ID));
+            return first;
         }
-        first.put(MONGO_ID, first.getObjectId(MONGO_ID).toHexString());
-        return first;
+
     }
 
     @Override

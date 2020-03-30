@@ -1,7 +1,6 @@
 
 package com.plantdata.kgcloud.domain.access.service.impl;
 
-import com.alibaba.excel.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -23,7 +22,6 @@ import com.plantdata.kgcloud.domain.access.util.CreateKtrFile;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWGraphMap;
-import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
@@ -38,7 +36,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -169,15 +166,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         JSONObject configJson = new JSONObject();
 
-        String taskKey;
-
-        if(table.getIsAll() == null || table.getIsAll().equals(1)){
-            //全量的接入每次都新生成一个
-            taskKey = databaseId+"_"+tableName + "_isAll_"+isAllKey;
-        }else{
-            //增量的接入，如果之前已经有该表的任务，在outputs中进行补充
-            taskKey = databaseId+"_"+tableName;
-        }
+        String taskKey= databaseId+"_"+tableName + "_"+isAllKey;
 
         String ktrTaskName = AccessTaskType.KTR.getDisplayName()+"_"+taskKey;
         String transferTaskName = AccessTaskType.TRANSFER.getDisplayName()+"_"+taskKey;
@@ -187,13 +176,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         configJson.put("fileText",ktrTxt);
         configJson.put("updateTime",System.currentTimeMillis());
         configJson.put("cron",cronMap.get(table.getCron()));
-//        if(table.getCreateWay().equals(1)){
-//            //远程表
         configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
-//        }else{
-//            //本地表
-//            configJson.put("isAll",1);
-//        }
 
         configJson.put("resourceName",ktrTaskName);
         configJson.put("outputs",Lists.newArrayList(transferTaskName));
@@ -267,17 +250,9 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         DWTable table = tableOpt.get();
 
-        String taskKey;
+        String taskKey= databaseId+"_"+tableName + "_" +isAllKey;
 
-        Long timeout = null;
-        if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null || table.getIsAll().equals(1)){
-            //全量的接入每次都新生成一个
-            taskKey = databaseId+"_"+tableName + "_isAll_"+isAllKey;
-            timeout = 600L;
-        }else{
-            //调度的接入，如果之前已经还该表的任务，在outputs中进行补充
-            taskKey = databaseId+"_"+tableName;
-        }
+        Long timeout = 600L;
 
         String ktrTaskName = AccessTaskType.KTR.getDisplayName()+"_"+taskKey;
         String transferTaskName = AccessTaskType.TRANSFER.getDisplayName()+"_"+taskKey;
@@ -298,6 +273,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
             //本地库或者全量按指定
             ktrTaskRsp.setStatus(isSchedue);
+
         }else{
 
             //增量的调度跟表一起
@@ -317,18 +293,8 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             return null;
         }
 
-        DWTable table = tableOpt.get();
-
-        String taskKey;
-        Long timeout = null;
-        if(table.getIsAll() == null || table.getIsAll().equals(1)){
-            //全量的接入每次都新生成一个
-            taskKey = databaseId+"_"+tableName + "_isAll_"+isAllKey;
-            timeout = 600L;
-        }else{
-            //调度的接入，如果之前已经还该表的任务，在outputs中进行补充
-            taskKey = databaseId+"_"+tableName;
-        }
+        String taskKey = databaseId+"_"+tableName + "_"+isAllKey;
+        Long timeout = 600L;
 
         String transferTaskName = AccessTaskType.TRANSFER.getDisplayName()+"_"+taskKey;
 

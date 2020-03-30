@@ -4,14 +4,8 @@ import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
-import com.plantdata.kgcloud.domain.dw.entity.DWGraphMap;
-import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildAttr;
-import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
-import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
-import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
-import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildAttrRepository;
-import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
+import com.plantdata.kgcloud.domain.dw.entity.*;
+import com.plantdata.kgcloud.domain.dw.repository.*;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
 import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
@@ -21,11 +15,9 @@ import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @program: kg-cloud-kgms
@@ -55,6 +47,9 @@ public class GraphMapServiceImpl implements GraphMapService {
     private PreBuilderService preBuilderService;
     @Autowired
     private KettleLogStatisticService kettleLogStatisticService;
+
+    @Autowired
+    private DWTableRepository tableRepository;
 
     @Override
     public List<GraphMapRsp> list(String userId, GraphMapReq graphMapReq) {
@@ -143,6 +138,52 @@ public class GraphMapServiceImpl implements GraphMapService {
         preBuilderService.createSchedulingConfig(kgName, false);
     }
 
+    @Override
+    public void scheduleSwitchByKgName(String kgName, Integer status) {
+        List<DWGraphMap> graphMaps = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).build()));
+        if (graphMaps == null || graphMaps.isEmpty()) {
+            return;
+        }
+
+        graphMaps.forEach(t -> t.setSchedulingSwitch(status));
+
+        graphMapRepository.saveAll(graphMaps);
+
+        List<String> exists = Lists.newArrayList();
+        for(DWGraphMap graphMap : graphMaps){
+
+            if(exists.contains(graphMap.getDataBaseId()+graphMap.getTableName())){
+                continue;
+            }
+
+            exists.add(graphMap.getDataBaseId()+graphMap.getTableName());
+            DWDatabase database = databaseRepository.getOne(graphMap.getDataBaseId());
+
+            String kgTaskName = AccessTaskType.KG.getDisplayName() + "_" + graphMap.getKgName() + "_" + graphMap.getModelId();
+            if (status.equals(1)) {
+
+                accessTaskService.createKtrTask(graphMap.getTableName(), graphMap.getDataBaseId(), graphMap.getKgName(), 1);
+                if (database.getDataFormat().equals(1)) {
+                    accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), null, Lists.newArrayList(kgTaskName), null, null, graphMap.getKgName());
+                } else {
+                    accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(kgTaskName), null, null, null, graphMap.getKgName());
+                }
+            } else {
+                accessTaskService.createKtrTask(graphMap.getTableName(), graphMap.getDataBaseId(), graphMap.getKgName(), 0);
+
+                if (database.getDataFormat().equals(1)) {
+                    accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, null, Lists.newArrayList(kgTaskName), graphMap.getKgName());
+                } else {
+                    accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, Lists.newArrayList(kgTaskName), null, graphMap.getKgName());
+                }
+            }
+
+            //更新订阅任务
+        }
+        preBuilderService.createSchedulingConfig(kgName, false);
+
+    }
+
     private List<GraphMapRsp> graphMap2Rsp(List<DWGraphMap> graphMapList) {
 
         if (graphMapList == null || graphMapList.isEmpty()) {
@@ -154,6 +195,7 @@ public class GraphMapServiceImpl implements GraphMapService {
         Map<Integer, String> modelMap = new HashMap<>();
         Map<Integer, String> attrMap = new HashMap<>();
         Map<Long, DWDatabase> databaseMap = new HashMap<>();
+        Map<String, DWTable> tableMap = new HashMap<>();
 
         for (DWGraphMap graphMap : graphMapList) {
 
@@ -161,10 +203,22 @@ public class GraphMapServiceImpl implements GraphMapService {
 
             if (!databaseMap.containsKey(graphMap.getDataBaseId())) {
                 DWDatabase database = databaseRepository.getOne(graphMap.getDataBaseId());
+
                 if (database == null) {
                     databaseMap.put(graphMap.getDataBaseId(), null);
                 } else {
                     databaseMap.put(graphMap.getDataBaseId(), database);
+                }
+
+
+            }
+
+            if(!tableMap.containsKey(graphMap.getTableName()+graphMap.getDataBaseId())){
+                if(StringUtils.hasText(graphMap.getTableName())){
+                    Optional<DWTable> table = tableRepository.findOne(Example.of(DWTable.builder().tableName(graphMap.getTableName()).dwDataBaseId(graphMap.getDataBaseId()).build()));
+                    if(table.isPresent()){
+                        tableMap.put(table.get().getTableName()+graphMap.getDataBaseId(),table.get());
+                    }
                 }
             }
 
@@ -172,6 +226,12 @@ public class GraphMapServiceImpl implements GraphMapService {
                 rsp.setDataBaseId(graphMap.getDataBaseId());
                 rsp.setDatabaseName(databaseMap.get(graphMap.getDataBaseId()).getTitle());
                 rsp.setDataName(databaseMap.get(graphMap.getDataBaseId()).getDataName());
+
+                DWTable tab = tableMap.get(graphMap.getTableName()+graphMap.getDataBaseId());
+                if(tab != null && StringUtils.hasText(tab.getMapper())){
+                    rsp.setDbName(databaseMap.get(graphMap.getDataBaseId()).getDbName());
+                }
+
             }
 
 

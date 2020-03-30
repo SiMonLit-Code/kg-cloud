@@ -69,4 +69,6 @@ public interface DWService {
     List<DWDatabaseRsp> databaseTableList(String userId);
 
     List<JSONObject> getDatabaseMappingTable(String userId, Long databaseId);
+
+    DWDatabaseRsp getDatabase(String userId, Long id);
 }

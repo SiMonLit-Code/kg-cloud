@@ -44,6 +44,14 @@ public class SubscriptionController {
         return ApiReturn.success();
     }
 
+
+    @ApiOperation("订阅检测-按图谱全量开启/关闭订阅")
+    @PatchMapping("/schedule/kg/{kgName}/{status}")
+    public ApiReturn scheduleSwitch(@PathVariable("kgName")String kgName,@PathVariable("status")Integer status) {
+        graphMapService.scheduleSwitchByKgName(kgName,status);
+        return ApiReturn.success();
+    }
+
     @ApiOperation("订阅检测-删除订阅")
     @PatchMapping("/delete/schedule/{id}")
     public ApiReturn deleteSchedule(@PathVariable("id")Integer id) {

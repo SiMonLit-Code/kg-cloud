@@ -6,18 +6,15 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.hiekn.pddocument.bean.PdDocument;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoIterable;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
@@ -84,7 +81,6 @@ import java.util.stream.Collectors;
 public class DWServiceImpl implements DWService {
 
     private final static String DW_PREFIX = "dw_db";
-    private final static String TABLE_PREFIX = "dw_tb";
     private final static String JOIN = "_";
 
     @Autowired
@@ -1008,11 +1004,14 @@ public class DWServiceImpl implements DWService {
 
         DWTable table = tableOpt.get();
 
-        table.setSchedulingSwitch(req.getSchedulingSwitch());
+        if(StringUtils.hasText(table.getTableName())){
+            table.setSchedulingSwitch(req.getSchedulingSwitch());
 
-        tableRepository.save(table);
+            tableRepository.save(table);
 
-        createTableSchedulingConfig(table);
+            createTableSchedulingConfig(table);
+
+        }
 
     }
 
@@ -1181,6 +1180,16 @@ public class DWServiceImpl implements DWService {
         }
 
         return rs;
+    }
+
+    @Override
+    public DWDatabaseRsp getDatabase(String userId, Long id) {
+
+        Optional<DWDatabase> database = dwRepository.findOne(Example.of(DWDatabase.builder().userId(userId).id(id).build()));
+        if(!database.isPresent()){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+        return ConvertUtils.convert(DWDatabaseRsp.class).apply(database.get());
     }
 
 

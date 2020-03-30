@@ -140,6 +140,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     REMOTE_TABLE_EXIST(120712, "该远程表已存在"),
 
     TABLE_NAME_EXIST(120713, "该表名已存在"),
+
+    TABLE_CONNECT_ERROR(120714, "表连接失败"),
     ;
 
     private final int errorCode;
