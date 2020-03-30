@@ -15,6 +15,9 @@ public class ModelPushReq {
     @ApiModelProperty("id")
     private Long id;
 
-    @ApiModelProperty("modelType")
+    @ApiModelProperty("行业")
     private String modelType;
+
+    @ApiModelProperty("图谱名")
+    private String kgName;
 }

@@ -22,6 +22,7 @@ import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dw.entity.*;
 import com.plantdata.kgcloud.domain.dw.parser.ExcelParser;
 import com.plantdata.kgcloud.domain.dw.repository.*;
+import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
@@ -51,6 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
@@ -693,6 +695,42 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             accessTaskService.saveTask(kgTaskRsp);
         }
+    }
+
+    @Override
+    public void pushGraphModel(String userId, ModelPushReq req) {
+
+        SchemaRsp schemaRsp = graphApplicationService.querySchema(req.getKgName());
+
+        if(schemaRsp == null || schemaRsp.getTypes() == null || schemaRsp.getTypes().isEmpty()){
+            throw  BizException.of(KgmsErrorCodeEnum.EMTRY_MODEL_PUDH_ERROR);
+        }
+
+        DWPrebuildModel model = DWPrebuildModel.builder()
+                .name(schemaRsp.getKgTitle())
+                .permission(0)
+                .userId(SessionHolder.getUserId())
+                .username(getUserDetail().getUsername())
+                .modelType(req.getModelType())
+                .isStandardTemplate(0)
+                .status("1")
+                .build();
+
+        model = prebuildModelRepository.save(model);
+
+        List<PreBuilderConceptRsp> preBuilderConceptRspList = tranferSchema2PreBuilder(schemaRsp);
+
+        createSchemaModel(model.getId(), preBuilderConceptRspList);
+
+    }
+
+    private List<PreBuilderConceptRsp> tranferSchema2PreBuilder(SchemaRsp schemaRsp) {
+
+        List<BaseConceptRsp> conceptRsps = schemaRsp.getTypes();
+
+        for(BaseConceptRsp conceptRsp : conceptRsps){
+        }
+        return null;
     }
 
     private List<DataMapReq> quote2DataMap(List<SchemaQuoteReq> mapConfig) {
@@ -1537,11 +1575,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 if (!org.springframework.util.StringUtils.hasText(sonName)) {
                     throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
                 }
-                if (Objects.equals(parentMeaningTag, sonMeaningTag) && parentName.equals(sonMeaningTag)) {
+                if (Objects.equals(parentMeaningTag, sonMeaningTag) && Objects.equals(sonName, parentName)) {
                     throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
                 }
 
-                ModelExcelRsp concept = null;
                 /*if(!org.springframework.util.StringUtils.hasText(parentName) || name.equals(parentName)){
                     //顶层概念
                 }else if(conceptMap.containsKey(parentName+parentMeaningTag)){
@@ -1691,7 +1728,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     @Override
     public Page<PreBuilderSearchRsp> listManage(String userId, PreBuilderSearchReq req) {
-        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(), Sort.by(Sort.Order.desc("createAt")));
 
 
         if(!req.isGraph() && req.isManage() && !req.isUser() && !req.isDw()){

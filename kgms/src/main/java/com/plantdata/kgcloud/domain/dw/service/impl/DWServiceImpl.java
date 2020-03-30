@@ -57,6 +57,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -364,7 +365,7 @@ public class DWServiceImpl implements DWService {
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
-        List<DWDatabase> all = dwRepository.findAll(Example.of(probe));
+        List<DWDatabase> all = dwRepository.findAll(Example.of(probe), Sort.by(Sort.Order.desc("createAt")));
         return all.stream().map(dw2rsp).collect(Collectors.toList());
     }
 
@@ -469,13 +470,26 @@ public class DWServiceImpl implements DWService {
 
         DWDatabase dwDatabase = getDetail(req.getDwDataBaseId());
 
+        Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDwDataBaseId()).tableName(req.getTitle()).build()));
+
+        if(opt.isPresent()){
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_NAME_EXIST);
+        }
+
         if (StringUtils.hasText(req.getTableName())) {
-            target.setTableName(TABLE_PREFIX + JOIN + req.getTableName() + JOIN + UUIDUtils.getShortString().substring(0, 5));
+
+            Optional<DWTable> optTb = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDwDataBaseId()).mapper(req.getTableName()).build()));
+
+            if(optTb.isPresent()){
+                throw BizException.of(KgmsErrorCodeEnum.MAP_TABLE_EXIST);
+            }
+
+            target.setTableName(req.getTitle());
             target.setMapper(req.getTableName());
         } else {
-            target.setTableName(TABLE_PREFIX + JOIN + UUIDUtils.getShortString().substring(0, 5));
+            target.setTableName(req.getTitle());
         }
-        target.setTitle(target.getTableName());
+        target.setTitle(req.getTitle());
         //本地库创建结构
         List<DataSetSchema> schema;
         if (StringUtils.hasText(req.getTableName())) {
@@ -537,7 +551,7 @@ public class DWServiceImpl implements DWService {
     @Override
     public List<DWTableRsp> findTableAll(String userId, Long databaseId) {
 
-        List<DWTable> dwTableList = tableRepository.findAll(Example.of(DWTable.builder().dwDataBaseId(databaseId).build()));
+        List<DWTable> dwTableList = tableRepository.findAll(Example.of(DWTable.builder().dwDataBaseId(databaseId).build()), Sort.by(Sort.Order.desc("createAt")));
 
         return dwTableList.stream().map(table2rsp).collect(Collectors.toList());
     }
@@ -547,7 +561,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabase dwDatabase = getDetail(databaseId);
 
-        if (dwDatabase.getAddr() == null || dwDatabase.getAddr().isEmpty()) {
+        if (dwDatabase.getAddr() == null || dwDatabase.getAddr().isEmpty() || (dwDatabase.getAddr().size() == 1 && StringUtils.hasText(dwDatabase.getAddr().get(0)))) {
             return new ArrayList<>();
         }
 
@@ -636,8 +650,22 @@ public class DWServiceImpl implements DWService {
 
         for (RemoteTableAddReq req : reqList) {
 
+            Optional<DWTable> optTb = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tbName(req.getTbName()).build()));
+
+            if(optTb.isPresent()){
+                throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_EXIST);
+            }
+
+
             //行业表映射
             if (StringUtils.hasText(req.getTableName())) {
+
+                Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).mapper(req.getTableName()).build()));
+
+                if(opt.isPresent()){
+                    throw BizException.of(KgmsErrorCodeEnum.MAP_TABLE_EXIST);
+                }
+
                 List<DataSetSchema> schemaList = getIndustryTableSchema(databaseId, req.getTableName());
                 if (schemaList == null) {
                     schemaList = getTableSchema(database, req.getTbName());
@@ -658,26 +686,19 @@ public class DWServiceImpl implements DWService {
                 tableRepository.save(table);
             } else {
 
-                Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tbName(req.getTbName()).build()));
+                List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
 
-                if (opt.isPresent()) {
-                    continue;
-                } else {
+                DWTable table = DWTable.builder()
+                        .dwDataBaseId(databaseId)
+                        .tableName(req.getTbName())
+                        .schema(schemaList)
+                        .tbName(req.getTbName())
+                        .title(req.getTbName())
+                        .createWay(1)
+                        .fields(transformFields(schemaList))
+                        .build();
 
-                    List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
-
-                    DWTable table = DWTable.builder()
-                            .dwDataBaseId(databaseId)
-                            .tableName(req.getTbName())
-                            .schema(schemaList)
-                            .tbName(req.getTbName())
-                            .title(req.getTbName())
-                            .createWay(1)
-                            .fields(transformFields(schemaList))
-                            .build();
-
-                    tableRepository.save(table);
-                }
+                tableRepository.save(table);
 
             }
 
@@ -909,7 +930,11 @@ public class DWServiceImpl implements DWService {
                 return Lists.newArrayList();
             }
 
-            Map<String,String> tableMappings = tables.stream().collect(Collectors.toMap(DWTableRsp::getMapper,DWTableRsp::getTableName));
+
+            Map<String,String> tableMappings = new HashMap<>();
+            for(DWTableRsp tableRsp : tables){
+                tableMappings.put(tableRsp.getMapper(),tableRsp.getTableName());
+            }
 
             if (tableMappings == null || tableMappings.isEmpty()) {
                 return Lists.newArrayList();
@@ -1107,7 +1132,7 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public List<String> getDatabaseMappingTable(String userId, Long databaseId) {
+    public List<JSONObject> getDatabaseMappingTable(String userId, Long databaseId) {
 
         DWDatabase database = dwRepository.getOne(databaseId);
 
@@ -1117,18 +1142,37 @@ public class DWServiceImpl implements DWService {
 
         List<String> tables = database.getTagJson().stream().map(ModelSchemaConfigRsp::getTableName).collect(Collectors.toList());
 
-        List<DWTableRsp> tableRsps = findTableAll(userId, databaseId);
-        if (tableRsps != null && !tableRsps.isEmpty()) {
+        List<JSONObject>rs=Lists.newArrayList();
 
-            for (DWTableRsp tableRsp : tableRsps) {
-                if (tables.contains(tableRsp.getTableName())) {
-                    tables.remove(tableRsp.getTableName());
+        if (tables != null && !tables.isEmpty()) {
+            List<DWTableRsp> tableRsps = findTableAll(userId, databaseId);
+            List<String> t = Lists.newArrayList();
+            if (tableRsps !=null && !tableRsps.isEmpty()){
+                for (DWTableRsp tableRsp : tableRsps) {
+
+                    if(tableRsp.getMapper() == null){
+                        continue;
+                    }
+                    t.add(tableRsp.getMapper());
                 }
+
+
+            }
+
+            for (String table : tables){
+                JSONObject json = new JSONObject();
+                json.put("tableName",table);
+                if (t.contains(table)){
+                    json.put("status",1);
+                }else{
+                    json.put("status",0);
+                }
+                rs.add(json);
             }
 
         }
 
-        return tables;
+        return rs;
     }
 
 
