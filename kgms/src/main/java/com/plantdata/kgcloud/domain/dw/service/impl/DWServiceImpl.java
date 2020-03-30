@@ -561,7 +561,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabase dwDatabase = getDetail(databaseId);
 
-        if (dwDatabase.getAddr() == null || dwDatabase.getAddr().isEmpty() || (dwDatabase.getAddr().size() == 1 && StringUtils.hasText(dwDatabase.getAddr().get(0)))) {
+        if (dwDatabase.getAddr() == null || dwDatabase.getAddr().isEmpty() || (dwDatabase.getAddr().size() == 1 && !StringUtils.hasText(dwDatabase.getAddr().get(0)))) {
             return new ArrayList<>();
         }
 
