@@ -322,10 +322,10 @@
                                 io.springfox
                             </excludeGroupIds>
                             <excludes>
-                                <exclude>
+                             <!--   <exclude>
                                     <groupId>com.plantdata</groupId>
                                     <artifactId>kg-cloud-swagger</artifactId>
-                                </exclude>
+                                </exclude>-->
                             </excludes>
                         </configuration>
                     </plugin>
