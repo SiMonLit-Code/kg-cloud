@@ -13,7 +13,7 @@ import lombok.Data;
 public class KettleLogAggResultDTO {
 
     private IdClass _id;
-    private Long W;
+    private Long sum;
 
     @Data
     @AllArgsConstructor
@@ -28,13 +28,5 @@ public class KettleLogAggResultDTO {
 
     public void set_id(IdClass _id) {
         this._id = _id;
-    }
-
-    public Long getW() {
-        return W;
-    }
-
-    public void setW(Long w) {
-        W = w;
     }
 }

@@ -5,6 +5,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
+import com.plantdata.kgcloud.constant.KettleLogStatisticTypeEnum;
 import com.plantdata.kgcloud.domain.dw.req.KettleLogStatisticReq;
 import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.KettleLogStatisticRsp;
@@ -20,6 +21,8 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.mongodb.client.model.Filters.eq;
 
 /**
  * @author Administrator
@@ -48,18 +51,13 @@ public class KettleLogStatisticServiceImpl implements KettleLogStatisticService 
     public void fillGraphMapRspCount(List<GraphMapRsp> mapRspList) {
         Map<Long, List<GraphMapRsp>> collect = mapRspList.stream()
                 .collect(Collectors.groupingBy(GraphMapRsp::getDataBaseId));
-
         collect.forEach((k, v) -> {
-
             FindIterable<Document> projection = KettleLogDeal.getCollection(mongoClient)
-                    .find(Filters.regex("resourceName", Pattern.compile("[ktr_" + k + "%]")))
+                    .find(Filters.and(Filters.regex("resourceName", Pattern.compile("[ktr_" + k + "%]")),
+                            eq("time_flag", KettleLogStatisticTypeEnum.DAY.getLowerCase())))
                     .sort(Sorts.descending("logTimeStamp"))
                     .projection(new Document("resourceName", 1L).append("logTimeStamp", 1L).append("W", 1L));
-            try {
-                fillCount(projection, v);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-            }
+            fillCount(projection, v);
         });
     }
 
@@ -79,7 +77,7 @@ public class KettleLogStatisticServiceImpl implements KettleLogStatisticService 
             }
             String logTimeStamp = countByTable.get(tableName);
 
-            String formatDate = next.getString("logTimeStamp").substring(0, 10);
+            String formatDate = next.getString("logTimeStamp");
             if (logTimeStamp == null) {
                 countByTable.put(tableName, formatDate);
                 statisticMap.put(tableName, next.getLong("W"));
