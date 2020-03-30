@@ -1,6 +1,7 @@
 
 package com.plantdata.kgcloud.domain.access.service.impl;
 
+import com.alibaba.excel.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -22,6 +23,7 @@ import com.plantdata.kgcloud.domain.access.util.CreateKtrFile;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWGraphMap;
+import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
@@ -36,8 +38,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 
 @Service
@@ -179,13 +187,13 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         configJson.put("fileText",ktrTxt);
         configJson.put("updateTime",System.currentTimeMillis());
         configJson.put("cron",cronMap.get(table.getCron()));
-        if(table.getCreateWay().equals(1)){
-            //远程表
-            configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
-        }else{
-            //本地表
-            configJson.put("isAll",1);
-        }
+//        if(table.getCreateWay().equals(1)){
+//            //远程表
+        configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
+//        }else{
+//            //本地表
+//            configJson.put("isAll",1);
+//        }
 
         configJson.put("resourceName",ktrTaskName);
         configJson.put("outputs",Lists.newArrayList(transferTaskName));
@@ -222,10 +230,13 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         //自定义
         if(database.getDataFormat().equals(3)){
             String yamlContent = database.getYamlContent();
-            Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
-            JSONArray tableTransfer = yamlTagMap.get(tableName);
-            transferJson.put("transferConfig", tableTransfer);
-            if(tableTransfer != null){
+            if(yamlContent != null && !yamlContent.isEmpty()){
+                Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
+                JSONArray tableTransfer = yamlTagMap.get(tableName);
+                transferJson.put("transferConfig", tableTransfer);
+            }
+
+            if(transferJson.containsKey("transferConfig") && transferJson.getJSONArray("transferConfig") != null && !transferJson.getJSONArray("transferConfig").isEmpty()){
                 transferJson.put("transferType","d2r");
             }else{
                 transferJson.put("transferType","");
@@ -249,7 +260,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
     @Override
     public String createKtrTask(String tableName,Long databaseId,String isAllKey,Integer isSchedue) {
-        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
+        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
             return null;
         }
@@ -280,6 +291,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             ktrTaskRsp.setOutputs(Lists.newArrayList(transferTaskName));
             ktrTaskRsp.setUserId(SessionHolder.getUserId());
         }
+
         ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName,isAllKey));
 
         if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null ||table.getIsAll().equals(1)){
@@ -300,7 +312,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     @Override
     public String createTransfer(String tableName, Long databaseId, List<String> outputs,List<String>distributeOriginalData,List<String> deleteOutputs,List<String> deleteDistributeOriginalData,String isAllKey) {
 
-        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
+        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
             return null;
         }
@@ -344,11 +356,11 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             }
         }
 
-        if(deleteOutputs != null && !deleteOutputs.isEmpty()){
+        if(deleteOutputs != null && !deleteOutputs.isEmpty() && outputs != null){
             outputs.removeAll(deleteOutputs);
         }
 
-        if(deleteDistributeOriginalData != null && !deleteDistributeOriginalData.isEmpty()){
+        if(deleteDistributeOriginalData != null && !deleteDistributeOriginalData.isEmpty() && distributeOriginalData != null){
             distributeOriginalData.removeAll(deleteDistributeOriginalData);
         }
 
@@ -371,7 +383,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     @Override
     public String createDwTask(String tableName,Long databaseId) {
 
-        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDatabaseId(databaseId).build()));
+        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
             return null;
         }
@@ -393,6 +405,53 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         saveTask(dwRsp);
         return dwTaskName;
+    }
+
+    @Override
+    public void updateTableSchedulingConfig(DWDatabase database, DWTableRsp table,String ktrTaskName, String cron, Integer isAll, String field) {
+
+        Specification<DWTask> specification = new Specification<DWTask>() {
+            @Override
+            public Predicate toPredicate(Root<DWTask> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+
+                List<Predicate> predicates = new ArrayList<>();
+
+                Predicate likename = criteriaBuilder.like(root.get("name").as(String.class), ktrTaskName + "%");
+                predicates.add(likename);
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            }
+        };
+
+        List<DWTask> all = taskRepository.findAll(specification);
+
+        if(all == null || all.isEmpty()){
+            return;
+        }
+
+        for(DWTask task : all){
+
+            DWTaskRsp taskRsp = ConvertUtils.convert(DWTaskRsp.class).apply(task);
+
+            JSONObject configJson = JSON.parseObject(taskRsp.getConfig());
+            String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
+            configJson.put("fileText",ktrTxt);
+            configJson.put("updateTime",System.currentTimeMillis());
+            configJson.put("cron",cronMap.get(table.getCron()));
+//            if(table.getCreateWay().equals(1)){
+//                //远程表
+            configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
+//            }else{
+//                //本地表
+//                configJson.put("isAll",1);
+//            }
+
+            taskRsp.setConfig(configJson.toJSONString());
+
+            saveTask(taskRsp);
+
+        }
+
     }
 
     private List<ResourceReq> transformConfig(DataAccessTaskConfigReq config,Map<String,String> taskId2TypeMap) {

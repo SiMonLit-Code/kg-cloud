@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.req.*;
@@ -39,8 +40,15 @@ public class DWController {
         return ApiReturn.success(dwServince.createDatabase(userId, req));
     }
 
+    @ApiOperation("数仓-查询行业数据库需要映射的表")
+    @PatchMapping("/get/{databaseId}/mapping/table")
+    public ApiReturn<List<JSONObject>> getDatabaseMappingTable(@PathVariable("databaseId")Long databaseId) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(dwServince.getDatabaseMappingTable(userId, databaseId));
+    }
+
     @PostMapping("/test/connect")
-    @ApiOperation("connect测试")
+    @ApiOperation("数仓-connect测试")
     public ApiReturn testConnect(@RequestBody DWConnceReq req) {
         return ApiReturn.success(dwServince.testConnect(req));
     }

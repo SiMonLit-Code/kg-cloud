@@ -16,7 +16,7 @@ import java.util.List;
 public class SchemaQuoteRelationAttrReq {
 
     @ApiModelProperty("原模式边属性id")
-    private Integer modelAttrId;
+    private Integer id;
 
     @ApiModelProperty("边属性id")
     private Integer attrId;

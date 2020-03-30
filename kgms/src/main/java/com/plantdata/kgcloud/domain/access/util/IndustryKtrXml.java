@@ -513,14 +513,24 @@ public class IndustryKtrXml {
                 "    </hop>\n" +
                 "    <hop>\n" +
                 "      <from>获取变量</from>\n" +
-                "      <to>JSON</to>\n" +
+                "      <to>JSON output</to>\n" +
+                "      <enabled>Y</enabled>\n" +
+                "    </hop>\n" +
+                "     <hop>\n" +
+                "      <from>JSON output</from>\n" +
+                "      <to>JavaScript代码 2</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
-                "      <from>JSON</from>\n" +
-                "      <to>数据转换</to>\n" +
+                "      <from>JavaScript代码 2</from>\n" +
+                "      <to>JavaScript代码</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
+                "    <hop>\n" +
+                "      <from>JavaScript代码</from>\n" +
+                "      <to>数据转换</to>\n" +
+                "      <enabled>Y</enabled>\n" +
+                "    </hop>"+
                 "    <hop>\n" +
                 "      <from>过滤记录</from>\n" +
                 "      <to>Kafka producer err</to>\n" +
@@ -528,18 +538,18 @@ public class IndustryKtrXml {
                 "    </hop>\n" +
                 "  </order>\n";
         static String defaultStepXml = "  <step>\n" +
-                "    <name>JSON</name>\n" +
+                "    <name>JSON output</name>\n" +
                 "    <type>JsonOutput</type>\n" +
                 "    <description/>\n" +
-                "    <distribute>Y</distribute>\n" +
+                "    <distribute>N</distribute>\n" +
                 "    <custom_distribution/>\n" +
                 "    <copies>1</copies>\n" +
                 "    <partitioning>\n" +
                 "      <method>none</method>\n" +
                 "      <schema_name/>\n" +
                 "    </partitioning>\n" +
-                "    <outputValue>ktdata</outputValue>\n" +
-                "    <jsonBloc>ktdata</jsonBloc>\n" +
+                "    <outputValue>data_json</outputValue>\n" +
+                "    <jsonBloc>data_json</jsonBloc>\n" +
                 "    <nrRowsInBloc>1</nrRowsInBloc>\n" +
                 "    <operation_type>outputvalue</operation_type>\n" +
                 "    <compatibility_mode>N</compatibility_mode>\n" +
@@ -558,7 +568,7 @@ public class IndustryKtrXml {
                 "      <servlet_output>N</servlet_output>\n" +
                 "    </file>\n" +
                 "    <fields>\n" +
-                "      fieldsQAQ\n" +
+                "fieldsQAQ" +
                 "      <field>\n" +
                 "        <name>db</name>\n" +
                 "        <element>db</element>\n" +
@@ -577,8 +587,113 @@ public class IndustryKtrXml {
                 "      </output>\n" +
                 "    </remotesteps>\n" +
                 "    <GUI>\n" +
-                "      <xloc>352</xloc>\n" +
-                "      <yloc>144</yloc>\n" +
+                "      <xloc>304</xloc>\n" +
+                "      <yloc>128</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" +
+                "  <step>\n" +
+                "    <name>JavaScript代码</name>\n" +
+                "    <type>ScriptValueMod</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>N</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <compatible>N</compatible>\n" +
+                "    <optimizationLevel>9</optimizationLevel>\n" +
+                "    <jsScripts>\n" +
+                "      <jsScript>\n" +
+                "        <jsScript_type>0</jsScript_type>\n" +
+                "        <jsScript_name>Script 1</jsScript_name>\n" +
+                "        <jsScript_script>//Script here\n" +
+                "\n" +
+                "\n" +
+                "var re = {\n" +
+                "\"data\" : JSON.parse(data_input),\n" +
+                "\"operationType\":\"ADD\"\n" +
+                "}\n" +
+                "\n" +
+                "var value=JSON.stringify(re)</jsScript_script>\n" +
+                "      </jsScript>\n" +
+                "    </jsScripts>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>value</name>\n" +
+                "        <rename>value</rename>\n" +
+                "        <type>String</type>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <replace>N</replace>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>656</xloc>\n" +
+                "      <yloc>128</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" +
+                "  <step>\n" +
+                "    <name>JavaScript代码 2</name>\n" +
+                "    <type>ScriptValueMod</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>N</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <compatible>N</compatible>\n" +
+                "    <optimizationLevel>9</optimizationLevel>\n" +
+                "    <jsScripts>\n" +
+                "      <jsScript>\n" +
+                "        <jsScript_type>0</jsScript_type>\n" +
+                "        <jsScript_name>Script 1</jsScript_name>\n" +
+                "        <jsScript_script>var data_input = JSON.parse(data_json)[\"data_json\"][0]\n" +
+                "\n" +
+                "if ( data_input[\"json\"] !=null ) {\n" +
+                "    data_input = data_input[\"json\"]\n" +
+                "}else{\n" +
+                "data_input=JSON.stringify(data_input)\n" +
+                "\n" +
+                "}\n" +
+                "\n" +
+                "</jsScript_script>\n" +
+                "      </jsScript>\n" +
+                "    </jsScripts>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>data_input</name>\n" +
+                "        <rename>data_input</rename>\n" +
+                "        <type>String</type>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <replace>N</replace>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>400</xloc>\n" +
+                "      <yloc>128</yloc>\n" +
                 "      <draw>Y</draw>\n" +
                 "    </GUI>\n" +
                 "  </step>\n";
@@ -677,7 +792,7 @@ public class IndustryKtrXml {
                 "    <connectionType>DIRECT</connectionType>\n" +
                 "    <directBootstrapServers>kafkaQAQ</directBootstrapServers>\n" +
                 "    <clusterName/>\n" +
-                "    <topic>channel_low</topic>\n" +
+                "    <topic>channel_check</topic>\n" +
                 "    <clientId/>\n" +
                 "    <keyField>resourceName</keyField>\n" +
                 "    <messageField>kg_data</messageField>\n" +
@@ -753,7 +868,7 @@ public class IndustryKtrXml {
                 "  </step>";
 
         static String mongoTimeQueryXMl = "{\n" +
-                "    \"${timeField}\": {\n" +
+                "    \"timeFieldQAQ\": {\n" +
                 "        \"$gte\": \"${StartTime}\",\n" +
                 "        \"$lte\": \"${StopTime}\"\n" +
                 "    }\n" +

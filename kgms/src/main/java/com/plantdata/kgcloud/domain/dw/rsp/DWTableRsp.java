@@ -29,6 +29,8 @@ public class DWTableRsp {
 
     private String queryField;
 
+    private String mapper;
+
     private String cron;
 
     private Integer isAll;

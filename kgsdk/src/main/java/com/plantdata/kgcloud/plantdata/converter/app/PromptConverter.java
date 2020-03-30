@@ -96,6 +96,7 @@ public class PromptConverter extends BasicConverter {
         entityBean.setConceptId(newEntity.getConceptId());
         entityBean.setClassIdList(Lists.newArrayList(newEntity.getConceptId()));
         entityBean.setId(newEntity.getId());
+        entityBean.setImg(newEntity.getImageUrl());
         consumerIfNoNull(newEntity.isQa(), entityBean::setQa);
         entityBean.setScore(newEntity.getScore());
         consumerIfNoNull(newEntity.getType(), a -> entityBean.setType(a.getValue()));

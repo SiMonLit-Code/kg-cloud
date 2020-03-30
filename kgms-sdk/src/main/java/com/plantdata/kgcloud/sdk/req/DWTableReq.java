@@ -17,7 +17,7 @@ public class DWTableReq {
     private String title;
 
     @ApiModelProperty("数仓数据库id")
-    private Long dwDatabaseId;
+    private Long dwDataBaseId;
 
     private String tableName;
 

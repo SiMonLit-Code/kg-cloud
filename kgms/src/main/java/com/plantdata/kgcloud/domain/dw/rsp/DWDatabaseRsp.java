@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@JsonIgnoreProperties({"username","password","addr","yamlContent"})
+@JsonIgnoreProperties({"yamlContent"})
 public class DWDatabaseRsp {
 
     private Long id;
