@@ -83,17 +83,18 @@ public class KettleLogDeal {
         LinkedHashMap<String, List<KettleLogStatisticRsp.MeasureRsp>> map = new LinkedHashMap<>();
         groupDataMap.entrySet()
                 .forEach(entry -> {
-                            Map<String, List<KettleLogAggResultDTO>> nameGroupMap = entry.getValue().stream().collect(Collectors.groupingBy(a -> getTableName(a.get_id().getResourceName())));
-                            List<KettleLogStatisticRsp.MeasureRsp> collect = nameGroupMap.entrySet().stream()
-                                    .map(a -> {
-                                        long sum = a.getValue().stream().mapToLong(KettleLogAggResultDTO::getSum).sum();
-                                        return new KettleLogStatisticRsp.MeasureRsp(a.getKey(), sum);
-                                    })
-                                    .collect(Collectors.toList());
-                            map.put(entry.getKey(), collect);
+                    Map<String, List<KettleLogAggResultDTO>> nameGroupMap = entry.getValue().stream()
+                            .collect(Collectors.groupingBy(a -> getTableName(a.get_id().getResourceName())));
+                    List<KettleLogStatisticRsp.MeasureRsp> collect = tableNames.stream().map(a -> {
+                        List<KettleLogAggResultDTO> resultDTOList = nameGroupMap.get(a);
+                        if (resultDTOList == null) {
+                            return new KettleLogStatisticRsp.MeasureRsp(a, 0L);
                         }
-                );
-
+                        long sum = resultDTOList.stream().mapToLong(KettleLogAggResultDTO::getSum).sum();
+                        return new KettleLogStatisticRsp.MeasureRsp(a, sum);
+                    }).collect(Collectors.toList());
+                    map.put(entry.getKey(), collect);
+                });
         return new KettleLogStatisticRsp(map);
     }
 
