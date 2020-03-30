@@ -1029,11 +1029,19 @@ public class DWServiceImpl implements DWService {
 
             //生成任务配置
             accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), table.getTableName(), 1);
-            accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), null, diss, null, null, table.getTableName());
+            if(StringUtils.hasText(table.getMapper())){
+                accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), diss,null, null, null, table.getTableName());
+            }else{
+                accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), null, diss, null, null, table.getTableName());
+            }
         } else {
             //生成任务配置
             accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), table.getTableName(), 0);
-            accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), null, null, null, diss, table.getTableName());
+            if(StringUtils.hasText(table.getMapper())){
+                accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), null, null, diss,null, table.getTableName());
+            }else{
+                accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), null, null, null, diss, table.getTableName());
+            }
         }
     }
 
