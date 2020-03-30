@@ -162,7 +162,15 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         DWDatabase database = dwService.getDetail(databaseId);
 
+        if(database == null){
+            return null;
+        }
+
         DWTableRsp table = dwService.findTableByTableName(SessionHolder.getUserId(),databaseId,tableName);
+
+        if(table == null){
+            return null;
+        }
 
         JSONObject configJson = new JSONObject();
 
@@ -190,6 +198,10 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         DWDatabase database = dwService.getDetail(databaseId);
 
+        if(database == null){
+            return null;
+        }
+
         JSONObject dwJson = new JSONObject();
 
         JSONObject dwTbJson = new JSONObject();
@@ -206,6 +218,9 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     public String getTransferConfig(Long databaseId, String tableName,Integer isScheduled) {
 
         DWDatabase database = dwService.getDetail(databaseId);
+        if(database == null){
+            return null;
+        }
 
         JSONObject transferJson = new JSONObject();
         transferJson.put("isScheduled",isScheduled);

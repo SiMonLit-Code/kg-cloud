@@ -509,11 +509,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         List<SchemaQuoteReq> quoteReqList = importToGraph(preBuilderGraphMapReq.getKgName(), preBuilderGraphMapReq.getQuoteConfigs());
 
-
         Map<Integer,Long> modelDataBaseIdMap = new HashMap<>();
         List<DWGraphMap> graphMapList = new ArrayList<>();
         List<DWGraphMapRelationAttr> graphMapRelationAttrList = new ArrayList<>();
         for(SchemaQuoteReq schemaQuoteReq : quoteReqList){
+
+            if(schemaQuoteReq.getConceptId().equals(0L)){
+                continue;
+            }
 
             Long modelDataBaseId;
             if(modelDataBaseIdMap.containsKey(schemaQuoteReq.getModelId())){

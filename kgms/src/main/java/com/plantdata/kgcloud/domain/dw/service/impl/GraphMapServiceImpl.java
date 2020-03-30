@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.domain.dw.entity.*;
 import com.plantdata.kgcloud.domain.dw.repository.*;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
 import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
+import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.kettle.service.KettleLogStatisticService;
@@ -32,9 +33,6 @@ public class GraphMapServiceImpl implements GraphMapService {
     private DWGraphMapRepository graphMapRepository;
 
     @Autowired
-    private DWDatabaseRepository databaseRepository;
-
-    @Autowired
     private DWPrebuildAttrRepository attrRepository;
 
     @Autowired
@@ -51,6 +49,8 @@ public class GraphMapServiceImpl implements GraphMapService {
     @Autowired
     private DWTableRepository tableRepository;
 
+    @Autowired
+    private DWService dwService;
     @Override
     public List<GraphMapRsp> list(String userId, GraphMapReq graphMapReq) {
 
@@ -88,7 +88,11 @@ public class GraphMapServiceImpl implements GraphMapService {
             return;
         }
 
-        DWDatabase database = databaseRepository.getOne(graphMap.getDataBaseId());
+        DWDatabase database = dwService.getDetail(graphMap.getDataBaseId());
+
+        if(database == null){
+            return ;
+        }
 
         List<DWGraphMap> tabs = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMap.getKgName()).tableName(graphMap.getTableName()).build()));
 
@@ -157,7 +161,11 @@ public class GraphMapServiceImpl implements GraphMapService {
             }
 
             exists.add(graphMap.getDataBaseId()+graphMap.getTableName());
-            DWDatabase database = databaseRepository.getOne(graphMap.getDataBaseId());
+            DWDatabase database = dwService.getDetail(graphMap.getDataBaseId());
+
+            if(database == null){
+                continue;
+            }
 
             String kgTaskName = AccessTaskType.KG.getDisplayName() + "_" + graphMap.getKgName() + "_" + graphMap.getModelId();
             if (status.equals(1)) {
@@ -202,7 +210,7 @@ public class GraphMapServiceImpl implements GraphMapService {
             GraphMapRsp rsp = ConvertUtils.convert(GraphMapRsp.class).apply(graphMap);
 
             if (!databaseMap.containsKey(graphMap.getDataBaseId())) {
-                DWDatabase database = databaseRepository.getOne(graphMap.getDataBaseId());
+                DWDatabase database = dwService.getDetail(graphMap.getDataBaseId());
 
                 if (database == null) {
                     databaseMap.put(graphMap.getDataBaseId(), null);

@@ -8,27 +8,42 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
+import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
+import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
+import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
+import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
+import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
+import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.TableDataService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.security.SessionHolder;
+import com.plantdata.kgcloud.template.FastdfsTemplate;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @program: kg-cloud-kgms
@@ -40,14 +55,16 @@ import java.util.Objects;
 public class TableDataServiceImpl implements TableDataService {
 
     @Autowired
-    private DWDatabaseRepository databaseRepository;
-
-    @Autowired
-    private DWTableRepository tableRepository;
+    private DWService dwService;
 
     @Autowired
     private MongoProperties mongoProperties;
 
+    @Autowired
+    private FastdfsTemplate fastdfsTemplate;
+
+    @Autowired
+    private DWFileTableRepository fileTableRepository;
 
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId,Long tableId, DataOptQueryReq baseReq) {
@@ -71,9 +88,16 @@ public class TableDataServiceImpl implements TableDataService {
 
     private DataOptProvider getProvider(String userId, Long datasetId, Long tableId,MongoProperties mongoProperties) {
 
-        DWDatabase database = databaseRepository.getOne(datasetId);
-        DWTable table = tableRepository.getOne(tableId);
+        DWDatabase database = dwService.getDetail(datasetId);
 
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
+        DWTable table = dwService.getTableDetail(tableId);
+        if(table == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+        }
 
         DataOptConnect connect = DataOptConnect.of(database,table,mongoProperties);
         return DataOptProviderFactory.createProvider(connect);
@@ -83,7 +107,10 @@ public class TableDataServiceImpl implements TableDataService {
     public Map<String, Object> getDataById(String userId, Long datasetId,Long tableId, String dataId) {
         try (DataOptProvider provider = getProvider(userId, datasetId,tableId,mongoProperties)) {
             Map<String, Object> one = provider.findOne(dataId);
-            DWTable table = tableRepository.getOne(tableId);
+            DWTable table = dwService.getTableDetail(tableId);
+            if(table == null){
+                throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+            }
             List<DataSetSchema> schema = table.getSchema();
             Map<String, DataSetSchema> schemaMap = new HashMap<>();
             for (DataSetSchema o : schema) {
@@ -114,5 +141,75 @@ public class TableDataServiceImpl implements TableDataService {
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
+    }
+
+    @Override
+    public void fileAdd(DWFileTableReq req) {
+
+        byte[] bytes = fastdfsTemplate.downloadFile(req.getPath());
+
+        DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(req);
+        fileTable.setFileSize(new Long(bytes.length));
+        fileTable.setUserId(SessionHolder.getUserId());
+        fileTable.setType(req.getPath().substring(req.getPath().lastIndexOf(".")));
+        fileTable.setDataBaseId(req.getDataBaseId());
+
+        fileTableRepository.save(fileTable);
+    }
+
+    @Override
+    public Page<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq) {
+
+        PageRequest pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), Sort.by(Sort.Order.desc("createAt")));
+
+        Specification<DWFileTable> specification = new Specification<DWFileTable>() {
+            @Override
+            public Predicate toPredicate(Root<DWFileTable> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+
+                List<Predicate> predicates = new ArrayList<>();
+
+                if (!com.alibaba.excel.util.StringUtils.isEmpty(baseReq.getKw())) {
+
+                    Predicate likename = criteriaBuilder.like(root.get("name").as(String.class), "%" + baseReq.getKw() + "%");
+                    predicates.add(likename);
+                }
+
+                Predicate databaseIdPre = criteriaBuilder.equal(root.get("dataBaseId").as(Long.class), databaseId);
+                predicates.add(databaseIdPre);
+
+                Predicate tableIdPre = criteriaBuilder.equal(root.get("tableId").as(Long.class), tableId);
+                predicates.add(tableIdPre);
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            }
+        };
+
+        Page<DWFileTable> all = fileTableRepository.findAll(specification, pageable);
+
+        Page<DWFileTableRsp> map = all.map(ConvertUtils.convert(DWFileTableRsp.class));
+
+        return map;
+    }
+
+    @Override
+    public void fileUpdate(DWFileTableUpdateReq fileTableReq) {
+
+        Optional<DWFileTable> opt = fileTableRepository.findById(fileTableReq.getId());
+
+        if(opt.isPresent()){
+
+            DWFileTable fileTable = opt.get();
+            fileTable.setName(fileTableReq.getName());
+            fileTable.setOwner(fileTableReq.getOwner());
+            fileTable.setKeyword(fileTableReq.getKeyword());
+            fileTable.setDescription(fileTableReq.getDescription());
+            fileTableRepository.save(fileTable);
+        }
+
+    }
+
+    @Override
+    public void fileDelete(Integer id) {
+        fileTableRepository.deleteById(id);
     }
 }

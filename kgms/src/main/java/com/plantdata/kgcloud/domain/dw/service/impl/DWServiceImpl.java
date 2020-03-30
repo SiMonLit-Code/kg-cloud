@@ -24,9 +24,11 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dataset.provider.MongodbOptProvider;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
 import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
+import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.*;
@@ -103,6 +105,9 @@ public class DWServiceImpl implements DWService {
 
     @Autowired
     private MongoProperties mongoProperties;
+
+    @Autowired
+    private DWFileTableRepository fileTableRepository;
 
     @Autowired
     private DWPrebuildModelRepository modelRepository;
@@ -383,9 +388,19 @@ public class DWServiceImpl implements DWService {
         Optional<DWDatabase> dwDatabase = dwRepository.findById(dwDatabaseId);
 
         if (!dwDatabase.isPresent()) {
-            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+            return null;
         }
         return dwDatabase.get();
+    }
+
+    @Override
+    public DWTable getTableDetail(Long tableId) {
+        Optional<DWTable> table = tableRepository.findById(tableId);
+
+        if (!table.isPresent()) {
+            return null;
+        }
+        return table.get();
     }
 
     @Override
@@ -816,7 +831,11 @@ public class DWServiceImpl implements DWService {
             return;
         }
 
-        DWDatabase database = dwRepository.getOne(reqs.get(0).getDatabaseId());
+        DWDatabase database = getDetail(reqs.get(0).getDatabaseId());
+
+        if(database == null){
+            return;
+        }
 
         for (DWTableCronReq req : reqs) {
 
@@ -1068,7 +1087,10 @@ public class DWServiceImpl implements DWService {
             return;
         }
 
-        DWDatabase database = dwRepository.getOne(req.getDatabaseId());
+        DWDatabase database = getDetail(req.getDatabaseId());
+        if(database == null){
+            return ;
+        }
 
         for (DWTableRsp tableRsp : tableRspList) {
 
@@ -1141,7 +1163,7 @@ public class DWServiceImpl implements DWService {
     @Override
     public List<JSONObject> getDatabaseMappingTable(String userId, Long databaseId) {
 
-        DWDatabase database = dwRepository.getOne(databaseId);
+        DWDatabase database = getDetail(databaseId);
 
         if (database == null || !database.getDataFormat().equals(1) || database.getTagJson() == null || database.getTagJson().isEmpty()) {
             return Lists.newArrayList();
@@ -1190,6 +1212,59 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
         return ConvertUtils.convert(DWDatabaseRsp.class).apply(database.get());
+    }
+
+    @Override
+    public void deteleDatabase(String userId, Long id) {
+        Optional<DWDatabase> dwOpt = dwRepository.findOne(Example.of(DWDatabase.builder().userId(userId).id(id).build()));
+        if(!dwOpt.isPresent()){
+            return ;
+        }
+
+        if(dwOpt.get().getDataFormat().equals(5)){
+            //文件系统
+            List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().dataBaseId(id).build()));
+            if(files != null && !files.isEmpty()){
+
+                for(DWFileTable file : files){
+                    fileTableRepository.deleteById(file.getId());
+                }
+            }
+        }
+
+        dwRepository.deleteById(id);
+
+        tableRepository.delete(DWTable.builder().dwDataBaseId(id).build());
+
+
+    }
+
+    @Override
+    public void deleteTable(String userId,  Long databaseId,Long tableId) {
+
+        Optional<DWDatabase> dwOpt = dwRepository.findOne(Example.of(DWDatabase.builder().userId(userId).id(databaseId).build()));
+        if(!dwOpt.isPresent()){
+            return ;
+        }
+
+        if(dwOpt.get().getDataFormat().equals(5)){
+            //文件系统
+
+            List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().tableId(tableId).build()));
+            if(files != null && !files.isEmpty()){
+
+                for(DWFileTable file : files){
+                    fileTableRepository.deleteById(file.getId());
+                }
+            }
+        }
+
+
+        Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).id(tableId).build()));
+        if (opt.isPresent()){
+            tableRepository.deleteById(tableId);
+        }
+
     }
 
 

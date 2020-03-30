@@ -71,4 +71,10 @@ public interface DWService {
     List<JSONObject> getDatabaseMappingTable(String userId, Long databaseId);
 
     DWDatabaseRsp getDatabase(String userId, Long id);
+
+    void deteleDatabase(String userId, Long id);
+
+    void deleteTable(String userId, Long databaseId,Long tableId);
+
+    DWTable getTableDetail(Long tableId);
 }
