@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.constant;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -8,13 +10,17 @@ import lombok.Getter;
  * @data 2020-03-29 11:16
  **/
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum KettleLogStatisticTypeEnum {
     /**
      * 按日期统计
      */
-    DAY,
+    DAY("day"),
     /**
      * 按小时统计
      */
-    HOUR
+    HOUR("hour");
+
+    private String lowerCase;
+
 }
