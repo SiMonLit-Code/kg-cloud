@@ -1043,7 +1043,7 @@ public class DWServiceImpl implements DWService {
             accessTaskService.createDwTask(table.getTableName(), table.getDwDataBaseId());
         }
 
-        if (table.getSchedulingSwitch().equals(1)) {
+        if (table != null && table.getSchedulingSwitch().equals(1)) {
 
             //生成任务配置
             accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), table.getTableName(), 1);
