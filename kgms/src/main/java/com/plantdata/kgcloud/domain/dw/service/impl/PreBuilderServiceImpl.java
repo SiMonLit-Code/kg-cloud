@@ -1693,7 +1693,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     sonConcept.setRelations(new ArrayList<>());
                     conceptMap.put(sonName+sonMeaningTag,sonConcept);
 
-                    if(org.springframework.util.StringUtils.hasText(parentName) && !name.equals(parentName)){
+                    if(org.springframework.util.StringUtils.hasText(parentName) && !name.equals(parentName) && !"root".equals(parentMeaningTag)){
                         sonConcept.setParentName(parentName);
                         sonConcept.setMeaningTag(sonMeaningTag);
                     }
