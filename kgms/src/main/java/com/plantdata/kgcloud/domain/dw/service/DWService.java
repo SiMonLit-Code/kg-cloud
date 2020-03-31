@@ -77,4 +77,6 @@ public interface DWService {
     void deleteTable(String userId, Long databaseId,Long tableId);
 
     DWTable getTableDetail(Long tableId);
+
+    void batchCreateTable(String userId, List<DWTableReq> reqs);
 }

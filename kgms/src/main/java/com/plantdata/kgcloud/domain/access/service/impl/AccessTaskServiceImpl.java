@@ -263,8 +263,6 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             return null;
         }
 
-        DWTable table = tableOpt.get();
-
         String taskKey= databaseId+"_"+tableName + "_" +isAllKey;
 
         Long timeout = 600L;
@@ -284,16 +282,17 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName,isAllKey));
 
-        if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null ||table.getIsAll().equals(1)){
+        ktrTaskRsp.setStatus(isSchedue == null? 0 : isSchedue);
+        /*if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null ||table.getIsAll().equals(1)){
 
             //本地库或者全量按指定
-            ktrTaskRsp.setStatus(isSchedue);
+
 
         }else{
 
             //增量的调度跟表一起
             ktrTaskRsp.setStatus(table.getSchedulingSwitch());
-        }
+        }*/
 
         saveTask(ktrTaskRsp,timeout);
 

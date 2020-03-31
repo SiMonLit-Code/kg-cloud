@@ -627,12 +627,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         //生成订阅任务
-        createSchedulingConfig(preBuilderGraphMapReq.getKgName(),true);
+        createSchedulingConfig(preBuilderGraphMapReq.getKgName(),true,0);
         return ;
     }
 
     @Override
-    public void createSchedulingConfig(String kgName,boolean isCreateKtr) {
+    public void createSchedulingConfig(String kgName,boolean isCreateKtr,Integer status) {
 
         List<SchemaQuoteReq> schemaQuoteReqList = getGraphMap(SessionHolder.getUserId(),kgName);
 
@@ -660,7 +660,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 continue;
             }
 
-            DWPrebuildModel model = prebuildModelRepository.getOne(modelId);
+            Optional<DWPrebuildModel> modelOpt = prebuildModelRepository.findById(modelId);
+            if(!modelOpt.isPresent()){
+                continue;
+            }
+
+            DWPrebuildModel model = modelOpt.get();
 
             List<String> tableNames =schemaQuoteReq.getTables();
             String kgTaskName = AccessTaskType.KG.getDisplayName()+"_"+kgName+"_"+modelId;
@@ -687,14 +692,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 kgTaskRsp.setName(kgTaskName);
                 kgTaskRsp.setTaskType(AccessTaskType.KG.getDisplayName());
                 kgTaskRsp.setUserId(SessionHolder.getUserId());
-                kgTaskRsp.setStatus(1);
+                kgTaskRsp.setStatus(status);
                 kgTaskRsp.setOutputs(new ArrayList<>());
             }
 
             KgConfigRsp config = new KgConfigRsp();
             config.setKgName(kgName);
             config.setDataMapping(dataMapReqList);
-            config.setIsScheduled(1);
+            config.setIsScheduled(status);
             kgTaskRsp.setConfig(JacksonUtils.writeValueAsString(config));
 
             accessTaskService.saveTask(kgTaskRsp);

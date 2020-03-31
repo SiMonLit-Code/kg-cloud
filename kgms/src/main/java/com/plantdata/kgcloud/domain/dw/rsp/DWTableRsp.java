@@ -41,6 +41,8 @@ public class DWTableRsp {
 
     private Integer isWriteDW;
 
+    private Integer modelId;
+
     private Date createAt;
 
     private Date updateAt;

@@ -83,10 +83,12 @@ public class GraphMapServiceImpl implements GraphMapService {
     @Override
     public void scheduleSwitch(Integer id, Integer status) {
 
-        DWGraphMap graphMap = graphMapRepository.getOne(id);
-        if (graphMap == null) {
+        Optional<DWGraphMap> graphMapOpt = graphMapRepository.findById(id);
+        if (!graphMapOpt.isPresent()) {
             return;
         }
+
+        DWGraphMap graphMap = graphMapOpt.get();
 
         DWDatabase database = dwService.getDetail(graphMap.getDataBaseId());
 
@@ -124,7 +126,7 @@ public class GraphMapServiceImpl implements GraphMapService {
         }
 
         //更新订阅任务
-        preBuilderService.createSchedulingConfig(graphMap.getKgName(), false);
+        preBuilderService.createSchedulingConfig(graphMap.getKgName(), false,status);
     }
 
     @Override
@@ -139,7 +141,7 @@ public class GraphMapServiceImpl implements GraphMapService {
         graphMapRepository.deleteById(id);
 
         //更新订阅任务
-        preBuilderService.createSchedulingConfig(kgName, false);
+        preBuilderService.createSchedulingConfig(kgName, false,0);
     }
 
     @Override
@@ -188,7 +190,7 @@ public class GraphMapServiceImpl implements GraphMapService {
 
             //更新订阅任务
         }
-        preBuilderService.createSchedulingConfig(kgName, false);
+        preBuilderService.createSchedulingConfig(kgName, false,status);
 
     }
 

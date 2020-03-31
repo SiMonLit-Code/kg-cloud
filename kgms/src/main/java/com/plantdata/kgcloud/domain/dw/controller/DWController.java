@@ -195,6 +195,14 @@ public class DWController {
         return ApiReturn.success(dwServince.createTable(userId, req));
     }
 
+    @ApiOperation("数仓-创建表")
+    @PostMapping("/batch/create/table")
+    public ApiReturn batchCreateTable(@Valid @RequestBody List<DWTableReq> reqs) {
+        String userId = SessionHolder.getUserId();
+        dwServince.batchCreateTable(userId, reqs);
+        return ApiReturn.success();
+    }
+
     @ApiOperation("数仓-文件上传")
     @PostMapping("/{databaseId}/upload")
     public ApiReturn upload(
