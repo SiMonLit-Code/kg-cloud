@@ -597,7 +597,24 @@ public class DWServiceImpl implements DWService {
 
         List<DWTable> dwTableList = tableRepository.findAll(Example.of(DWTable.builder().dwDataBaseId(databaseId).build()), Sort.by(Sort.Order.desc("createAt")));
 
-        return dwTableList.stream().map(table2rsp).collect(Collectors.toList());
+        List<DWTableRsp> tableRsps = dwTableList.stream().map(table2rsp).collect(Collectors.toList());
+        if(tableRsps == null ||tableRsps.isEmpty()){
+            return tableRsps;
+        }
+
+        DWDatabase database = getDetail(databaseId);
+        if(database == null){
+            return tableRsps;
+        }
+
+        if(database.getDataFormat().equals(5)){
+            //文件系统，增加文件夹拥有文件数量
+            for(DWTableRsp tableRsp : tableRsps){
+                tableRsp.setFileCount(setTableFileCount(tableRsp.getId(),database.getId()));
+            }
+        }
+
+        return tableRsps;
     }
 
     @Override
@@ -1254,8 +1271,20 @@ public class DWServiceImpl implements DWService {
         for (DWDatabaseRsp databaseRsp : databases) {
             List<DWTableRsp> tableRsps = findTableAll(userId, databaseRsp.getId());
             databaseRsp.setTables(tableRsps);
+            if(databaseRsp.getDataFormat().equals(5)){
+                //文件系统，增加文件夹拥有文件数量
+                for(DWTableRsp tableRsp : tableRsps){
+                    tableRsp.setFileCount(setTableFileCount(tableRsp.getId(),databaseRsp.getId()));
+                }
+            }
         }
         return databases;
+    }
+
+    private Long setTableFileCount(Long tbId, Long dbId) {
+
+        return fileTableRepository.count(Example.of(DWFileTable.builder().tableId(tbId).dataBaseId(dbId).build()));
+
     }
 
     @Override

@@ -238,7 +238,7 @@ public class GraphMapServiceImpl implements GraphMapService {
                 rsp.setDataName(databaseMap.get(graphMap.getDataBaseId()).getDataName());
 
                 DWTable tab = tableMap.get(graphMap.getTableName()+graphMap.getDataBaseId());
-                if(tab != null && StringUtils.hasText(tab.getMapper())){
+                if(tab != null && StringUtils.hasText(tab.getTbName())){
                     rsp.setDbName(databaseMap.get(graphMap.getDataBaseId()).getDbName());
                 }
 

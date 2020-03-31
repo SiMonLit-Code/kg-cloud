@@ -47,4 +47,5 @@ public class DWTableRsp {
 
     private Date updateAt;
 
+    private Long fileCount;
 }

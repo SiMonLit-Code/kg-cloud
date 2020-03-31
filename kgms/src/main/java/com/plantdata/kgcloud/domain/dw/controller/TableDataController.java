@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dw.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
@@ -61,6 +62,16 @@ public class TableDataController {
             @RequestBody DWFileTableReq fileTableReq) {
 
         tableDataService.fileAdd(fileTableReq);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("文件数仓-文件批量上传")
+    @PostMapping("/file/add/batch")
+    public ApiReturn<FilePathRsp> fileAddBatch(
+            DWFileTableBatchReq fileTableReq,
+            MultipartFile[] files) {
+
+        tableDataService.fileAddBatch(fileTableReq,files);
         return ApiReturn.success();
     }
 
