@@ -420,6 +420,18 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
+    public void updateDatabaseName(String userId, DWDatabaseNameReq req) {
+
+        DWDatabase database = getDetail(req.getDataBaseId());
+
+        if(Objects.equals(database.getUserId(),userId)){
+            database.setTitle(req.getName());
+            dwRepository.save(database);
+        }
+
+    }
+
+    @Override
     public void upload(String userId, Long databaseId, Long tableId, MultipartFile file) {
 
         List<DataSetSchema> schemas = null;
@@ -589,7 +601,7 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public List<String> getRemoteTables(String userId, Long databaseId) {
+    public List<JSONObject> getRemoteTables(String userId, Long databaseId) {
 
         DWDatabase dwDatabase = getDetail(databaseId);
 
@@ -597,32 +609,67 @@ public class DWServiceImpl implements DWService {
             return new ArrayList<>();
         }
 
+        List<String> tables;
         if (dwDatabase.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
-                return getMongoCollection(dwDatabase);
+                tables = getMongoCollection(dwDatabase);
             } catch (Exception e) {
                 throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
             }
-        }
+        }else{
 
-        DataSource dataSource = getDataSource(dwDatabase);
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        String sql = getQueryTableSql(dwDatabase.getDataType());
+            DataSource dataSource = getDataSource(dwDatabase);
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        try {
-            return jdbcTemplate.queryForList(sql, String.class);
-        } catch (Exception e) {
-            throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
-        }finally {
+            String sql = getQueryTableSql(dwDatabase.getDataType());
+
             try {
-                if(dataSource != null && dataSource.getConnection() != null){
-                    dataSource.getConnection().close();
+                tables = jdbcTemplate.queryForList(sql, String.class);
+            } catch (Exception e) {
+                throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
+            }finally {
+                try {
+                    if(dataSource != null && dataSource.getConnection() != null){
+                        dataSource.getConnection().close();
+                    }
+                }catch (Exception e){
                 }
-            }catch (Exception e){
             }
+
         }
+
+
+        List<JSONObject> tabList = Lists.newArrayList();
+        if(tables != null && !tables.isEmpty()){
+
+            List<DWTableRsp> tableRsps = findTableAll(userId,databaseId);
+            List<String> existList = Lists.newArrayList();
+            if(tableRsps != null && !tableRsps.isEmpty()){
+                tableRsps.forEach(rsp -> {
+                    if(StringUtils.hasText(rsp.getTbName())){
+                        existList.add(rsp.getTbName());
+                    }
+                });
+            }
+
+            for(String t : tables){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("tableName",t);
+                if(existList.contains(t)){
+                    jsonObject.put("status",1);
+                }else{
+                    jsonObject.put("status",0);
+                }
+
+                tabList.add(jsonObject);
+
+            }
+
+        }
+
+        return tabList;
     }
 
     private List<String> getMongoCollection(DWDatabase dwDatabase) {

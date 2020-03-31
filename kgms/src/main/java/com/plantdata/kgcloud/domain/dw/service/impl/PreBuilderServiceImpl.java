@@ -244,7 +244,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         megerSchemaQuote(dataMapReqList, getGraphMap(userId, req.getKgName()));
 
 
-        List<DWPrebuildConcept> concepts = prebuildConceptRepository.findByModelAndConceptIds(req.getModelId(), req.getFindAttrConceptIds());
+        List<DWPrebuildConcept> concepts;
+        if(req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()){
+            concepts = prebuildConceptRepository.findByModelAndConceptIds(req.getModelId(), req.getFindAttrConceptIds());
+        }else{
+            concepts = prebuildConceptRepository.findAll(Example.of(DWPrebuildConcept.builder().modelId(req.getModelId()).build()));
+        }
 
         if (concepts == null || concepts.isEmpty()) {
             return new ArrayList<>();

@@ -106,7 +106,7 @@ public class DWController {
 
     @ApiOperation("数仓-读取远程数据库表信息")
     @GetMapping("/get/remote/{databaseId}/tables")
-    public ApiReturn<List<String>> getRemoteTables(@PathVariable("databaseId") Long databaseId) {
+    public ApiReturn<List<JSONObject>> getRemoteTables(@PathVariable("databaseId") Long databaseId) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dwServince.getRemoteTables(userId, databaseId));
     }
@@ -117,6 +117,14 @@ public class DWController {
                                      @RequestBody List<RemoteTableAddReq> reqList) {
         String userId = SessionHolder.getUserId();
         dwServince.addRemoteTables(userId, databaseId,reqList);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数仓-更新数仓名")
+    @PostMapping("/update/database/name")
+    public ApiReturn updateDatabaseName(@RequestBody DWDatabaseNameReq req) {
+        String userId = SessionHolder.getUserId();
+        dwServince.updateDatabaseName(userId, req);
         return ApiReturn.success();
     }
 

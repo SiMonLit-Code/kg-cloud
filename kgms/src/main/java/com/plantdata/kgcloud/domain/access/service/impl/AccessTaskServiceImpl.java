@@ -146,6 +146,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         arrangeRsp.setResourceType(taskRsp.getTaskType());
         arrangeRsp.setOutputs(taskRsp.getOutputs());
         arrangeRsp.setDistributeOriginalData(taskRsp.getDistributeOriginalData());
+        arrangeRsp.setUpdateTime(System.currentTimeMillis());
 
         if(taskRsp.getTaskType().equals(AccessTaskType.KTR.getDisplayName())){
             cacheManager.getCache(ChannelRedisEnum.KTR_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());

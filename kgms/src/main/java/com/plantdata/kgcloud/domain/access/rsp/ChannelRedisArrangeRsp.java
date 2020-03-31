@@ -21,5 +21,7 @@ public class ChannelRedisArrangeRsp {
 
     private List<String> distributeOriginalData;
 
+    private Long updateTime;
+
 
 }
