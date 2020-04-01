@@ -21,6 +21,9 @@ public class DWTableReq {
 
     private String tableName;
 
+    @ApiModelProperty("映射的模式id")
+    private Integer modelId;
+
     private String ktr;
 
     @ApiModelProperty("数据schema")

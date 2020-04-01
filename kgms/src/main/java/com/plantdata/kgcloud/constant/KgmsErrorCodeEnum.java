@@ -142,6 +142,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     TABLE_NAME_EXIST(120713, "该表名已存在"),
 
     TABLE_CONNECT_ERROR(120714, "表连接失败"),
+
+    EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR(120715, "请先建表再上传模式"),
     ;
 
     private final int errorCode;

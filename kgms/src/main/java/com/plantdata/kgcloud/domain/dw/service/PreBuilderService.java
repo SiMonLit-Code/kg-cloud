@@ -38,7 +38,7 @@ public interface PreBuilderService {
 
     void create(PreBuilderCreateReq req);
 
-    void createSchedulingConfig(String kgName,boolean isCreateKtr);
+    void createSchedulingConfig(String kgName,boolean isCreateKtr,Integer status);
 
     void pushGraphModel(String userId, ModelPushReq req);
 }

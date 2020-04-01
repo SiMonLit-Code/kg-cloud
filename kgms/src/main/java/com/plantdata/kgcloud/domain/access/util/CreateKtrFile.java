@@ -160,7 +160,7 @@ public class CreateKtrFile {
 
     private static String changeCustomizationXml(String customizationXml, DWTableRsp table) {
 
-        return customizationXml.replace("${code}",table.getKtr());
+        return customizationXml.replace("${code}",table.getKtr() == null ? "":table.getKtr());
     }
 
     private static String changeParamAndFilterXml(String paramAndFilterXml, DWDatabase database, DWTableRsp table,String userId) {

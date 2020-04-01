@@ -38,7 +38,7 @@ public interface DWService {
 
     List<DWTableRsp> findTableAll(String userId, Long databaseId);
 
-    List<String> getRemoteTables(String userId, Long databaseId);
+    List<JSONObject> getRemoteTables(String userId, Long databaseId);
 
     void addRemoteTables(String userId, Long databaseId, List<RemoteTableAddReq> reqList);
 
@@ -77,4 +77,8 @@ public interface DWService {
     void deleteTable(String userId, Long databaseId,Long tableId);
 
     DWTable getTableDetail(Long tableId);
+
+    void batchCreateTable(String userId, List<DWTableReq> reqs);
+
+    void updateDatabaseName(String userId, DWDatabaseNameReq req);
 }

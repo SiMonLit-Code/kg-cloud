@@ -70,7 +70,8 @@ public class DataStoreServiceImpl implements DataStoreService {
         } else {
             findIterable = collection.find(Filters.and(bsons));
         }
-        return documentConverter.toBeans(findIterable, DbAndTableRsp.class);
+        List<DataStore> dataStores = documentConverter.toBeans(findIterable, DataStore.class);
+        return MapperUtils.map(dataStores, DbAndTableRsp.class);
     }
 
     @Override

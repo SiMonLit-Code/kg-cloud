@@ -8,7 +8,6 @@ import com.plantdata.kgcloud.domain.dw.req.StandardSearchReq;
 import com.plantdata.kgcloud.domain.dw.rsp.StandardTemplateRsp;
 import com.plantdata.kgcloud.domain.dw.service.StandardTemplateService;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.security.SessionHolder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

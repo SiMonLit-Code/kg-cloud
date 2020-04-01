@@ -11,4 +11,7 @@ public class RemoteTableAddReq {
 
     @ApiModelProperty("映射已有表的名称")
     private String tableName;
+
+    @ApiModelProperty("映射表的模式id")
+    private Integer modelId;
 }

@@ -17,6 +17,8 @@ public class ModelSchemaConfigRsp {
 
     private String tableName;
 
+    private Integer modelId;
+
     private Set<String> entity;
 
     private Set<RelationBean> relation;

@@ -101,5 +101,9 @@ public class DWTable {
     @Column(name = "ktr")
     private String ktr;
 
+    @Basic
+    @Column(name = "model_id")
+    private Integer modelId;
+
 
 }

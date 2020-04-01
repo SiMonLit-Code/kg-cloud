@@ -14,6 +14,7 @@ import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
+import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
@@ -211,5 +212,27 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public void fileDelete(Integer id) {
         fileTableRepository.deleteById(id);
+    }
+
+    @Override
+    public void fileAddBatch(DWFileTableBatchReq fileTableReq,MultipartFile[] files) {
+
+        if(files == null || files.length == 0){
+            return;
+        }
+
+        for(MultipartFile file : files){
+            DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(fileTableReq);
+            fileTable.setFileSize(file.getSize());
+            fileTable.setUserId(SessionHolder.getUserId());
+            fileTable.setType(file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1));
+            fileTable.setName(file.getOriginalFilename().substring(0,file.getOriginalFilename().lastIndexOf(".")));
+            fileTable.setDataBaseId(fileTableReq.getDataBaseId());
+            fileTable.setPath(fastdfsTemplate.uploadFile(file).getFullPath());
+
+            fileTableRepository.save(fileTable);
+        }
+
+        return ;
     }
 }

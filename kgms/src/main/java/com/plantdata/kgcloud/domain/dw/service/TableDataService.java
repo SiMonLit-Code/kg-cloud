@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
+import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
@@ -21,4 +22,6 @@ public interface TableDataService {
     void fileUpdate(DWFileTableUpdateReq fileTableReq);
 
     void fileDelete(Integer id);
+
+    void fileAddBatch(DWFileTableBatchReq fileTableReq,MultipartFile[] files);
 }
