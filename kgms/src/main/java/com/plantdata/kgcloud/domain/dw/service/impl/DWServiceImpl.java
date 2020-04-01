@@ -1506,7 +1506,7 @@ public class DWServiceImpl implements DWService {
         if (opt.isPresent()){
 
             try (DataOptProvider provider = getProvider(userId, databaseId,tableId,mongoProperties)) {
-                provider.deleteAll();
+                provider.dropTable();
             } catch (Exception e) {
                 throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
             }
