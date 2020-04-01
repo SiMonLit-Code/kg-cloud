@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.config;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
@@ -32,6 +33,7 @@ public class StringToObjectGenericConverter implements GenericConverter {
     public Set<ConvertiblePair> getConvertibleTypes() {
         return Sets.newHashSet(new ConvertiblePair(String.class, MarkObject.class),
                 new ConvertiblePair(String.class, BaseEnum.class),
+                new ConvertiblePair(String.class, String.class),
                 new ConvertiblePair(String.class, Collection.class),
                 new ConvertiblePair(String.class, Map.class));
     }
@@ -41,17 +43,24 @@ public class StringToObjectGenericConverter implements GenericConverter {
         if (StringUtils.isEmpty(source)) {
             return null;
         }
+        String sourceStr = StringEscapeUtils.unescapeHtml(source.toString());
+        if (targetType.getType() == String.class) {
+            return sourceStr;
+        }
         if (targetType.getType().getSuperclass() == Enum.class) {
-            return EnumUtils.getEnumObject((Class) targetType.getType(), source.toString()).get();
+            return EnumUtils.getEnumObject((Class) targetType.getType(), sourceStr).get();
         }
         ResolvableType resolvableType = targetType.getResolvableType();
         ObjectMapper instance = JacksonUtils.getInstance();
+        //兼容没有
         instance.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        //兼容单引号
+        instance.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         try {
             if (resolvableType.hasGenerics()) {
-                return instance.readValue(StringEscapeUtils.unescapeHtml(source.toString()), JacksonUtils.getInstance().constructType(resolvableType.getType()));
+                return instance.readValue(sourceStr, JacksonUtils.getInstance().constructType(resolvableType.getType()));
             }
-            return instance.readValue(StringEscapeUtils.unescapeHtml(source.toString()), resolvableType.resolve());
+            return instance.readValue(sourceStr, resolvableType.resolve());
         } catch (IOException e) {
             e.printStackTrace();
         }

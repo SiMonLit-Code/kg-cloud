@@ -41,10 +41,10 @@ import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
@@ -111,7 +111,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     @Override
     public SchemaRsp querySchema(String kgName) {
         SchemaRsp schemaRsp = new SchemaRsp();
-        Optional<SchemaVO> schemaOptional = RestRespConverter.convert(graphApi.schema(kgName));
+        Optional<SchemaVO> schemaOptional = RestRespConverter.convert(graphApi.schema(KGUtil.dbName(kgName)));
         if (!schemaOptional.isPresent()) {
             return schemaRsp;
         }
@@ -127,14 +127,14 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     }
 
     @Override
-    public List<ObjectAttributeRsp> knowledgeRecommend(String kgName, KnowledgeRecommendReq knowledgeRecommendReq) {
+    public List<ObjectAttributeRsp> knowledgeRecommend(String kgName, KnowledgeRecommendReqList knowledgeRecommendReq) {
         if (CollectionUtils.isEmpty(knowledgeRecommendReq.getAllowAttrs()) && CollectionUtils.isEmpty(knowledgeRecommendReq.getAllowAttrsKey())) {
             return Collections.emptyList();
         }
         //replace attrKey
         graphHelperService.replaceByAttrKey(kgName, knowledgeRecommendReq);
 
-        Optional<Map<Integer, Set<Long>>> entityAttrOpt = RestRespConverter.convert(entityApi.entityAttributesObject(kgName, KnowledgeRecommendConverter.reqToFrom(knowledgeRecommendReq)));
+        Optional<Map<Integer, Set<Long>>> entityAttrOpt = RestRespConverter.convert(entityApi.entityAttributesObject(KGUtil.dbName(kgName), KnowledgeRecommendConverter.reqToFrom(knowledgeRecommendReq)));
         if (!entityAttrOpt.isPresent()) {
             return Collections.emptyList();
         }
@@ -142,7 +142,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (CollectionUtils.isEmpty(entityIdList)) {
             return Collections.emptyList();
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList,true)));
         return KnowledgeRecommendConverter.voToRsp(entityAttrOpt.get(), entityOpt.orElse(Collections.emptyList()));
     }
 
@@ -190,7 +190,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (!entityIdOpt.isPresent()) {
             return graphInitRsp;
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdOpt.get())));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdOpt.get(),true)));
         if (!entityOpt.isPresent()) {
             return graphInitRsp;
         }
@@ -214,23 +214,27 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
     @Override
     public InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq) throws IOException {
-        BatchInfoBoxReq batchInfoBoxReq = new BatchInfoBoxReq();
+        BatchInfoBoxReqList batchInfoBoxReq = new BatchInfoBoxReqList();
         batchInfoBoxReq.setAllowAttrs(infoBoxReq.getAllowAttrs());
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
         batchInfoBoxReq.setIds(Lists.newArrayList(infoBoxReq.getId()));
         batchInfoBoxReq.setRelationAttrs(infoBoxReq.getRelationAttrs());
+        batchInfoBoxReq.setReverseRelationAttrs(infoBoxReq.getRelationAttrs());
         List<InfoBoxRsp> list = infoBox(kgName, batchInfoBoxReq);
         if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         InfoBoxRsp infoBoxRsp = list.get(0);
-        List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(KGUtil.dbName(kgName), userId, infoBoxRsp.getSelf().getId());
+        if (infoBoxRsp.getSelf() == null) {
+            return null;
+        }
+        List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(kgName, userId, infoBoxRsp.getSelf().getId());
         infoBoxRsp.getSelf().setDataLinks(dataLinks);
         return infoBoxRsp;
     }
 
     @Override
-    public List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReq req) {
+    public List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReqList req) {
         //实体
         graphHelperService.replaceByAttrKey(kgName, req);
         List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();
@@ -267,7 +271,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 .map(ComplexGraphAnalysisConverter::mapToCoordinatesDTO)
                 .collect(Collectors.toMap(CoordinatesDTO::getId, Function.identity()));
 
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(Lists.newArrayList(dataMap.keySet()))));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(Lists.newArrayList(dataMap.keySet()),true)));
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return visualRsp;
         }

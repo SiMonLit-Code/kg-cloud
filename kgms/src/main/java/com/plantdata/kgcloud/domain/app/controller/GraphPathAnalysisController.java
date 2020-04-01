@@ -4,9 +4,9 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphPathAnalysisService;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathTimingAnalysisRsp;
@@ -39,7 +39,7 @@ public class GraphPathAnalysisController implements SdkOpenApiInterface {
     @ApiOperation("路径发现")
     @PostMapping("{kgName}")
     public ApiReturn<PathAnalysisRsp> path(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                           @RequestBody @Valid PathAnalysisReq analysisReq) {
+                                           @RequestBody @Valid PathAnalysisReqList analysisReq) {
 
         Optional<PathAnalysisRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, analysisReq, new PathAnalysisRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphPathAnalysisService.path(kgName, analysisReq)));
@@ -48,7 +48,7 @@ public class GraphPathAnalysisController implements SdkOpenApiInterface {
     @ApiOperation("最短路径发现")
     @PostMapping("shortest/{kgName}")
     public ApiReturn<PathAnalysisRsp> shortestPath(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                   @RequestBody @Valid PathAnalysisReq analysisReq) {
+                                                   @RequestBody @Valid PathAnalysisReqList analysisReq) {
         analysisReq.getPath().setShortest(true);
         return ApiReturn.success(graphPathAnalysisService.path(kgName, analysisReq));
     }
@@ -57,7 +57,7 @@ public class GraphPathAnalysisController implements SdkOpenApiInterface {
     @ApiOperation("路径分析推理")
     @PostMapping("reasoning/{kgName}")
     public ApiReturn<PathAnalysisReasonRsp> pathRuleReason(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                           @RequestBody @Valid PathReasoningAnalysisReq analysisReq) {
+                                                           @RequestBody @Valid PathReasoningAnalysisReqList analysisReq) {
         Optional<PathAnalysisReasonRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, analysisReq, new PathAnalysisReasonRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphPathAnalysisService.pathRuleReason(kgName, analysisReq)));
     }
@@ -65,7 +65,7 @@ public class GraphPathAnalysisController implements SdkOpenApiInterface {
     @ApiOperation("时序路径分析")
     @PostMapping("timing/{kgName}")
     public ApiReturn<PathTimingAnalysisRsp> pathTimingAnalysis(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                               @RequestBody @Valid PathTimingAnalysisReq analysisReq) {
+                                                               @RequestBody @Valid PathTimingAnalysisReqList analysisReq) {
         Optional<PathTimingAnalysisRsp> rspOpt = graphHelperService.graphSearchBefore(kgName, analysisReq, new PathTimingAnalysisRsp());
         return rspOpt.map(ApiReturn::success).orElseGet(() -> ApiReturn.success(graphPathAnalysisService.pathTimingAnalysis(kgName, analysisReq)));
     }

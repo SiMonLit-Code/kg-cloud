@@ -59,55 +59,14 @@ public class GraphRuleController implements SdkOldApiInterface {
     @GetMapping("get")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "id", defaultValue = "1", dataType = "int", paramType = "query", value = "规则id"),
+            @ApiImplicitParam(name = "id", defaultValue = "1", dataType = "long", paramType = "query", value = "规则id"),
     })
-    public RestResp<GraphmRuleMapBean> get(@RequestParam(value = "kgName", required = false) String kgName, @RequestParam("id") Integer id) {
-        Function<Integer, ApiReturn<GraphConfKgqlRsp>> rspFunction = a -> kgmsClient.detailKgql(Long.valueOf(a));
+    public RestResp<GraphmRuleMapBean> get(@RequestParam(value = "kgName", required = false) String kgName, @RequestParam("id") Long id) {
+        Function<Long, ApiReturn<GraphConfKgqlRsp>> rspFunction = a -> kgmsClient.detailKgql(a);
         GraphmRuleMapBean mapBean = rspFunction
                 .andThen(a -> BasicConverter.convert(a, GraphRuleConverter::graphConfKgQlRspToGraphRuleMapBean))
                 .apply(id);
         return new RestResp<>(mapBean);
     }
 
-
-    @PostMapping("add")
-    @ApiOperation("业务规则/gis规则-新增")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "bean", required = true, dataType = "string", paramType = "form", value = "保存的数据"),
-    })
-    public RestResp<GraphmRuleMapBean> add(@Valid @ApiIgnore GraphRuleAdd graphRuleAdd) {
-        Function<GraphConfKgqlReq, ApiReturn<GraphConfKgqlRsp>> returnFunction = a -> kgmsClient.saveKgql(graphRuleAdd.getKgName(), a);
-        GraphmRuleMapBean ruleMapBean = returnFunction
-                .compose(GraphRuleConverter::graphRuleAddToGraphConfKgqlReq)
-                .andThen(a -> BasicConverter.convert(a, GraphRuleConverter::graphConfKgQlRspToGraphRuleMapBean))
-                .apply(graphRuleAdd);
-        return new RestResp<>(ruleMapBean);
-    }
-
-
-    @PostMapping("delete")
-    @ApiOperation("业务规则/gis规则-删除")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
-    })
-    public RestResp delete(@Valid @ApiIgnore GraphRuleDelect graphRuleDelect) {
-        kgmsClient.deleteKgql(Long.valueOf(graphRuleDelect.getId()));
-        return new RestResp<>();
-    }
-
-    @PostMapping("update")
-    @ApiOperation("业务规则/gis规则-修改")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
-            @ApiImplicitParam(name = "data", required = true, dataType = "string", paramType = "form", value = "需要修改的数据"),
-    })
-    public RestResp update(@Valid @ApiIgnore GraphRuleUpdate update) {
-        Function<GraphConfKgqlReq, ApiReturn<GraphConfKgqlRsp>> returnFunction = a -> kgmsClient.updateKgql(Long.valueOf(update.getId()), a);
-        returnFunction.compose(GraphRuleConverter::graphRuleMapBeanToGraphConfKgqlReq)
-                .apply(update.getBean());
-        return new RestResp<>();
-    }
 }

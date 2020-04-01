@@ -1,11 +1,16 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
+import com.plantdata.kgcloud.bean.BasePage;
+import com.plantdata.kgcloud.domain.dataset.converter.ApiReturnConverter;
+import com.plantdata.kgcloud.sdk.KgtextClient;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.util.SpringContextUtils;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @description:
@@ -14,6 +19,16 @@ import java.util.Map;
  **/
 public class PdDocumentOptProvider implements DataOptProvider {
 
+    private final String table;
+
+    private KgtextClient kgtextClient;
+
+    public PdDocumentOptProvider(DataOptConnect info) {
+        table = info.getTable();
+        kgtextClient = SpringContextUtils.getBean(KgtextClient.class);
+    }
+
+
     @Override
     public List<String> getFields() {
         return null;
@@ -21,22 +36,50 @@ public class PdDocumentOptProvider implements DataOptProvider {
 
     @Override
     public List<Map<String, Object>> find(Integer offset, Integer limit, Map<String, Object> query) {
-        return null;
+        Long cpId = resolvingCorpus();
+        int page = offset / limit + 1;
+        Optional<BasePage<Map<String, Object>>> optional =
+                ApiReturnConverter.convert(kgtextClient.listDataCorpuses(cpId,
+                        page, limit, null, null, null, null, null, null, null, null));
+        if (!optional.isPresent()) {
+            return null;
+        } else {
+            BasePage<Map<String, Object>> corpusRsps = optional.get();
+            return corpusRsps.getContent();
+        }
+    }
+
+    private Long resolvingCorpus() {
+        int indexOf = table.indexOf("_");
+        String corpusId = table.substring(0, indexOf);
+        return Long.parseLong(corpusId);
     }
 
     @Override
-    public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
+    public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query,
+                                                  Map<String, Object> sort) {
         return null;
     }
 
     @Override
     public long count(Map<String, Object> query) {
-        return 0;
+        Long cpId = resolvingCorpus();
+        Optional<BasePage<Map<String, Object>>> optional =
+                ApiReturnConverter.convert(kgtextClient.listDataCorpuses(cpId, 1, 10, null, null, null, null, null,
+                        null, null, null));
+        if (!optional.isPresent()) {
+            return 0;
+        } else {
+            BasePage<Map<String, Object>> corpusRsps = optional.get();
+            return corpusRsps.getTotalElements();
+        }
     }
 
     @Override
     public Map<String, Object> findOne(String id) {
-        return null;
+        Optional<Map<String, Object>> optional =
+                ApiReturnConverter.convert(kgtextClient.getDataDetails(resolvingCorpus(), id));
+        return optional.orElse(null);
     }
 
     @Override

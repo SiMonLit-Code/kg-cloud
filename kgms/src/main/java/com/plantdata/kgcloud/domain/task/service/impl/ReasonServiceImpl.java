@@ -4,30 +4,41 @@ package com.plantdata.kgcloud.domain.task.service.impl;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.UpdateManyModel;
+import com.mongodb.client.model.UpdateOptions;
+import com.plantdata.graph.logging.core.GraphLog;
+import com.plantdata.graph.logging.core.ServiceEnum;
+import com.plantdata.graph.logging.core.segment.*;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
+import com.plantdata.kgcloud.domain.edit.service.LogSender;
+import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.kgcloud.domain.task.dto.NodeBean;
 import com.plantdata.kgcloud.domain.task.dto.ReasonBean;
 import com.plantdata.kgcloud.domain.task.dto.TripleBean;
 import com.plantdata.kgcloud.domain.task.service.ReasonService;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.bson.BsonDocument;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.beans.BeanMap;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ReasonServiceImpl implements ReasonService {
 
     @Autowired
     private MongoClient mongoClient;
+    @Autowired
+    private LogSender logSender;
 
     @Override
     public ReasonBean listByPage(String kgName, Integer execId, BaseReq req) {
@@ -54,13 +65,15 @@ public class ReasonServiceImpl implements ReasonService {
     public Map<String, Object> importTriple(int type, String kgName, int mode, Integer taskId, List<String> dataIdList) {
 
         Map<String, Object> map = new HashMap<>(2);
-
+        logSender.setActionId();
+        String logId = ThreadLocalUtils.getBatchNo();
+        String dbName = KGUtil.dbName(kgName);
         try {
             List<TripleBean> tripleList = new ArrayList<>();
 
             Document matchDoc = null;
             if (type == 1) {
-                matchDoc = new Document("exec_id", taskId);
+                matchDoc = new Document("exec_id", taskId).append("status", new Document("$ne", 1));
             } else {
                 if (dataIdList != null && dataIdList.size() > 0) {
                     List<ObjectId> idList = new ArrayList<>();
@@ -128,9 +141,30 @@ public class ReasonServiceImpl implements ReasonService {
 
                     if (attributeList.size() > 0 && collection != null) {
                         if (summaryList.size() > 0) {
-                            mongoClient.getDatabase(getDbName(kgName)).getCollection("attribute_summary").insertMany(summaryList);
+                            upsertMany(mongoClient, dbName, "attribute_summary", summaryList, "entity_id", "attr_id");
                         }
-                        mongoClient.getDatabase(getDbName(kgName)).getCollection(collection).insertMany(attributeList);
+                        String[] fields;
+                        if (collection.contains("private")) {
+                            fields = new String[]{"entity_id", "attr_name"};
+                        } else {
+                            fields = new String[]{"entity_id", "attr_id"};
+                        }
+                        upsertMany(mongoClient, dbName, collection, attributeList, fields);
+                        Segment segment = null;
+                        for (Document attr : attributeList) {
+                            if ("attribute_private_object".equals(collection)) {
+                                segment = PrivateRelationSegment.ofBson(attr);
+                            } else if ("attribute_object".equals(collection)) {
+                                segment = RelationSegment.ofBson(attr);
+                            } else if ("attribute_private_data".equals(collection)) {
+                                segment = PrivateAttributeSegment.ofBson(attr);
+                            } else {
+                                segment = AttributeSegment.ofBson(attr);
+                            }
+                            GraphLog kgLog = GraphLog.create(segment, null, logId);
+                            logSender.sendDataLog(dbName, kgLog);
+                        }
+                        logSender.sendLog(kgName, ServiceEnum.SCRIPT_REASON);
                         mongoClient.getDatabase("reasoning_store").getCollection(kgName).updateMany(matchDoc, new Document("$set", new Document("status", 1)));
                     }
                 }
@@ -139,19 +173,32 @@ public class ReasonServiceImpl implements ReasonService {
             map.put("msg", "成功");
         } catch (Exception e) {
             map.put("status", 2);
+
             map.put("msg", "失败");
         }
         return map;
     }
 
-    private String getDbName(String kgName) {
-        MongoCursor<Document> iterator = mongoClient.getDatabase("kg_attribute_definition").getCollection("kg_db_name").find(new Document("kg_name", kgName)).iterator();
-        if (iterator.hasNext()) {
-            Document document = iterator.next();
-            return document.getString("db_name");
-        } else {
-            return kgName;
+    private void upsertMany(MongoClient client, String database, String collection, Collection<Document> ls, String... fieldArr) {
+
+        if (ls == null || ls.isEmpty()) {
+            return;
         }
+        List<UpdateManyModel<Document>> requests = ls.stream().map(s -> new UpdateManyModel<Document>(
+                new Bson() {
+                    @Override
+                    public <TDocument> BsonDocument toBsonDocument(Class<TDocument> aClass, CodecRegistry codecRegistry) {
+                        Document doc = new Document();
+                        for (String field : fieldArr) {
+                            doc.append(field, s.get(field));
+                        }
+                        return doc.toBsonDocument(aClass, codecRegistry);
+                    }
+                },
+                new Document("$set", s),
+                new UpdateOptions().upsert(true)
+        )).collect(Collectors.toList());
+        client.getDatabase(database).getCollection(collection).bulkWrite(requests);
     }
 
     private String getCollection(int dataType) {

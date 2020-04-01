@@ -3,9 +3,11 @@ package com.plantdata.kgcloud.domain.app.bo;
 import ai.plantdata.kg.api.pub.req.EntityRelationDegreeFrom;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.IdsFilterReq;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -22,18 +24,16 @@ public class GraphRelationStatisticBO {
 
 
     public static EntityRelationDegreeFrom buildDegreeFrom(EdgeStatisticByEntityIdReq statisticReq) {
-        Map<Integer, List<Integer>> allowAttrMap = GraphRelationStatisticBO.buildDataFilterMap(statisticReq.getAllowAttrs());
-        Map<Integer, List<Long>> allowTypeMap = GraphRelationStatisticBO.buildDataFilterMap(statisticReq.getAllowTypes());
         EntityRelationDegreeFrom degreeFrom = new EntityRelationDegreeFrom();
-        degreeFrom.setAllowAtts(allowAttrMap);
-        degreeFrom.setAllowTypes(allowTypeMap);
+        BasicConverter.consumerIfNoNull(statisticReq.getAllowAttrDefIds(),a->degreeFrom.setAllowAtts(GraphRelationStatisticBO.buildDataFilterMap(a)));
+        BasicConverter.consumerIfNoNull(statisticReq.getAllowConceptIds(),a->  degreeFrom.setAllowTypes(GraphRelationStatisticBO.buildDataFilterMap(a)));
         degreeFrom.setEntityId(statisticReq.getEntityId());
-        degreeFrom.setDirection(1);
-        degreeFrom.setIsDistinct(statisticReq.getIsDistinct() ? 1 : 0);
+        degreeFrom.setDistance(NumberUtils.INTEGER_ONE);
+        degreeFrom.setIsDistinct(statisticReq.isDistinct() ? 1 : 0);
         return degreeFrom;
     }
 
-    public static List<EdgeStatisticByEntityIdRsp> graphDegreeMapToList(Map<Integer, Integer> outDegree, Map<Integer, Integer> inDegree, Map<Integer, Integer> centrality) {
+    public static List<EdgeStatisticByEntityIdRsp> graphDegreeMapToList(Map<Integer, Integer> outDegree, Map<Integer, Integer> inDegree) {
         if (outDegree == null && inDegree == null) {
             return Collections.emptyList();
         }
@@ -52,12 +52,8 @@ public class GraphRelationStatisticBO {
                 map.put(k, rsp);
             });
         }
-        if (centrality != null) {
-            centrality.forEach((k, v) -> {
-                EdgeStatisticByEntityIdRsp rsp = map.getOrDefault(k, new EdgeStatisticByEntityIdRsp(k));
-                rsp.setDegree(v);
-                map.put(k, rsp);
-            });
+        if (!CollectionUtils.isEmpty(map)) {
+            map.forEach((k,v)->v.setDegree(v.getInDegree()+v.getOutDegree()));
         }
         return Lists.newArrayList(map.values());
     }

@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.plantdata.req.app.PromptParameter;
 import com.plantdata.kgcloud.plantdata.req.app.SeniorPromptParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
+import com.plantdata.kgcloud.sdk.constant.PromptResultTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.CompareFilterReq;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
@@ -17,8 +18,11 @@ import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
+import com.plantdata.kgcloud.util.EnumUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
+
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -52,15 +56,36 @@ public class PromptConverter extends BasicConverter {
         promptReq.setCaseInsensitive(promptParam.getIsCaseInsensitive());
         consumerIfNoNull(promptParam.getAllowTypes(), a -> promptReq.setConceptIds(toListNoNull(a, Long::valueOf)));
         promptReq.setConceptKeys(promptParam.getAllowTypesKey());
-        promptReq.setFuzzy(promptParam.getIsFuzzy());
+        promptReq.setFuzzy(promptParam.getIsFuzzy() == null ? false : promptParam.getIsFuzzy());
         promptReq.setInherit(promptParam.getIsInherit());
         promptReq.setKw(promptParam.getKw());
         promptReq.setOpenExportDate(promptParam.getOpenExportDate());
         promptReq.setPage(promptParam.getPageNo());
+        Optional<PromptResultTypeEnum> promptResultTypeEnum = EnumUtils.parseById(PromptResultTypeEnum.class, getKgType(promptParam.getType()));
+        promptReq.setType(promptResultTypeEnum.orElse(PromptResultTypeEnum.CONCEPT).getDesc());
         promptReq.setPromptType(promptParam.getPromptType());
         promptReq.setSize(promptParam.getPageSize());
-        consumerIfNoNull(promptParam.getSort(), a -> promptReq.setSort(SortTypeEnum.parseByName(a).orElse(SortTypeEnum.DESC).getValue()));
+        consumerIfNoNull(promptParam.getSort(), a -> promptReq.setSort(SortTypeEnum.parseByValue(a)
+                .orElse(SortTypeEnum.DESC).getValue()));
         return promptReq;
+    }
+
+    private static Integer getKgType(Integer type) {
+        //底层：1：提示实体；0：概念；10：概念和实体
+        int realType;
+        //默认111。第一位表示概念，第二位表示实例。第三位表示属性
+        switch (type) {
+            case 100:
+                realType = 0;
+                break;
+            case 110:
+                realType = 10;
+                break;
+            default:
+                realType = 1;
+                break;
+        }
+        return realType;
     }
 
     public static EntityBean promptEntityRspToEntityBean(@NonNull PromptEntityRsp newEntity) {

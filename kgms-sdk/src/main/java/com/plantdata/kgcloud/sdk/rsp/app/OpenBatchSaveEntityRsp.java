@@ -30,12 +30,22 @@ public class OpenBatchSaveEntityRsp {
     private String imageUrl;
     @ApiModelProperty("实体id更新是必填")
     private Long id;
-    private String note;
     @ApiModelProperty("同义词")
     private List<String> synonyms;
     @ApiModelProperty("属性")
     private Map<Integer, String> attributes;
     @ApiModelProperty("私有属性")
     private Map<String, String> privateAttributes;
+    @ApiModelProperty("元数据")
+    private MetaDataReq metaData;
+    @ApiModelProperty("错误信息")
+    private String note;
 
+    @ApiModel("元数据")
+    @Getter
+    @Setter
+    public static class MetaDataReq {
+        @ApiModelProperty("批次号")
+        private String batchNo;
+    }
 }

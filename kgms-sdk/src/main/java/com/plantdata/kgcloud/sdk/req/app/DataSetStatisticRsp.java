@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
+import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,24 +21,34 @@ import java.util.Map;
 public class DataSetStatisticRsp {
 
     @ApiModelProperty("x轴")
-    private List<List<String>> xAxis;
+    private List<List<String>> xAxis = new ArrayList<>();
     private List<Map<String, Object>> series = new ArrayList<>();
 
     public void addData2xAxis(List<String> data) {
+        if(CollectionUtils.isEmpty(this.xAxis)){
+            this.xAxis= Lists.newArrayList();
+        }
         this.xAxis.add(data);
+    }
+
+    public void addData2Series(Map<String, Object> map) {
+        if(CollectionUtils.isEmpty(this.series)){
+            this.series= Lists.newArrayList();
+        }
+        this.series.add(map);
     }
 
     public void addData2Series(String name, List data) {
         Map<String, Object> m = new HashMap<>(2);
         m.put("name", name);
         m.put("data", data);
-        this.series.add(m);
+        addData2Series(m);
     }
 
     public void addData2Series(String k, Long v) {
         Map<String, Object> m = new HashMap<>(2);
         m.put("name", k);
         m.put("value", v);
-        this.series.add(m);
+        addData2Series(m);
     }
 }

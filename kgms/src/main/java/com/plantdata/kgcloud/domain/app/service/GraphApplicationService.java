@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
 import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
@@ -43,7 +43,7 @@ public interface GraphApplicationService {
      * @param knowledgeRecommendReq 过滤参数
      * @return result
      */
-    List<ObjectAttributeRsp> knowledgeRecommend(String kgName, @Valid KnowledgeRecommendReq knowledgeRecommendReq);
+    List<ObjectAttributeRsp> knowledgeRecommend(String kgName, @Valid KnowledgeRecommendReqList knowledgeRecommendReq);
 
     /**
      * 获取可视化模型数据
@@ -99,7 +99,7 @@ public interface GraphApplicationService {
      * @param req    参数
      * @return list
      */
-    List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReq req);
+    List<InfoBoxRsp> infoBox(String kgName, BatchInfoBoxReqList req);
 
     /**
      * 复杂图算法 可视化展示

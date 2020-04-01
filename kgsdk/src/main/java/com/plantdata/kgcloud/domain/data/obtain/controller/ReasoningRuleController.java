@@ -30,7 +30,7 @@ import java.util.Map;
  * @date 2019/11/14 12:02
  */
 @RestController
-@RequestMapping("v3/kgdata/reasoningRule")
+@RequestMapping("v3/kgdata/rule/reasoning")
 public class ReasoningRuleController implements GraphDataObtainInterface {
     @Autowired
     private KgmsClient kgmsClient;

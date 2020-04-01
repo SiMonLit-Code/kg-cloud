@@ -26,6 +26,7 @@ public class NerReq {
     @Setter
     @ApiModel("中文命名实体识别配置-参数")
     public static class NerTagConfigReq {
+        @ApiModelProperty("tag配置")
         private List<TagConfigReq> tagConfigList;
     }
 

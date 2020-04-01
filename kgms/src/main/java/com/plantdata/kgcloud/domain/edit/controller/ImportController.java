@@ -1,8 +1,10 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
+import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -45,6 +47,7 @@ public class ImportController {
 
     @ApiOperation("概念导入")
     @PostMapping("/{kgName}/concept")
+    @EditLogOperation(serviceEnum = ServiceEnum.CONCEPT_DEFINE)
     public ApiReturn importConcepts(@PathVariable("kgName") String kgName,
                                     @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -56,6 +59,7 @@ public class ImportController {
 
     @ApiOperation("实体导入(包含数值属性值)")
     @PostMapping("/{kgName}/{conceptId}/entity")
+    @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
     public ApiReturn importEntities(@PathVariable("kgName") String kgName,
                                     @PathVariable("conceptId") Long conceptId,
                                     @ApiParam(required = true) MultipartFile file) {
@@ -68,6 +72,7 @@ public class ImportController {
 
     @ApiOperation("同义词导入")
     @PostMapping("/{kgName}/synonym")
+    @EditLogOperation(serviceEnum = ServiceEnum.SYNS_EDIT)
     public ApiReturn importSynonyms(@PathVariable("kgName") String kgName,
                                     @ApiParam(required = true) MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -79,6 +84,7 @@ public class ImportController {
 
     @ApiOperation("属性定义导入")
     @PostMapping("/{kgName}/attr/{type}")
+    @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn importAttrDefinition(@PathVariable("kgName") String kgName,
                                           @PathVariable("type") Integer type,
                                           @ApiParam(required = true) MultipartFile file) {
@@ -103,6 +109,7 @@ public class ImportController {
 
     @ApiOperation("关系导入")
     @PostMapping("/{kgName}/{mode}/relation")
+    @EditLogOperation(serviceEnum = ServiceEnum.RELATION_EDIT)
     public ApiReturn importRelation(@PathVariable("kgName") String kgName,
                                     @ApiParam(value = "0:忽略不存在的实例,1:实体不存在则新增", required = true)
                                     @PathVariable("mode") Integer mode,
@@ -116,6 +123,7 @@ public class ImportController {
 
     @ApiOperation("特定关系导入")
     @PostMapping("/{kgName}/{attrId}/{mode}/relation")
+    @EditLogOperation(serviceEnum = ServiceEnum.RELATION_EDIT)
     public ApiReturn importRelation(@PathVariable("kgName") String kgName,
                                     @PathVariable("attrId") Integer attrId,
                                     @PathVariable("mode") Integer mode,

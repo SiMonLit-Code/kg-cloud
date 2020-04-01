@@ -29,17 +29,16 @@ public class GraphDataStatisticsController implements GraphDataStatisticsInterfa
     private KgDataClient kgDataClient;
 
     @ApiOperation("对象属性统计，统计对象属性的数量，按关系分组")
-    @PostMapping("/byAttrValue/{kgName}")
+    @PostMapping("{kgName}/attrValue")
     public ApiReturn<Object> relationCountByAttrValue(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                       @RequestBody EdgeStatisticByConceptIdReq conceptIdReq) {
         return kgDataClient.statisticRelation(kgName, conceptIdReq);
     }
 
-    @ApiOperation("边数值属性统计，按数值属性值分组")
-    @PostMapping("byEdgeAttrValue/{kgName}")
+    @ApiOperation(value = "边关系按属性值统计",notes = "统计知识图谱关系上的一种属性，值的分布情况。")
+    @PostMapping("{kgName}/edge/attrValue/")
     public ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                       @RequestBody EdgeAttrStatisticByAttrValueReq conceptIdReq) {
-
         return kgDataClient.statEdgeGroupByEdgeValue(kgName, conceptIdReq);
     }
 

@@ -1,16 +1,22 @@
 package com.plantdata.kgcloud.domain.pdd.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.domain.pdd.service.PddService;
 import com.plantdata.kgcloud.sdk.KgmsClient;
+import com.plantdata.kgcloud.sdk.KgtextClient;
+import com.plantdata.kgcloud.sdk.bo.SchemaConfigBO;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
+import com.plantdata.kgcloud.sdk.rsp.EventRsp;
+import com.plantdata.kgcloud.sdk.rsp.ModelSchemaRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.plantdata.kgcloud.config.Constants.KG_MYSQL;
 
 /**
  * @author xiezhenxiang 2019/12/10
@@ -20,11 +26,15 @@ public class PddServiceImpl implements PddService {
 
     @Autowired
     private KgmsClient kgmsClient;
+    @Autowired
+    private KgtextClient kgtextClient;
 
     @Override
     public Map getTag(Long dmId) {
 
-        DataSetRsp dataSetRsp = kgmsClient.dataSetFindById(dmId).getData();
+        String sql = "select * from data_set where id = " + dmId;
+        JSONObject dm = KG_MYSQL.findOne(sql);
+        String tbName = dm.getString("tb_name");
         // 实体标签
         Set<String> entityTag = Sets.newHashSet();
         // 数值属性标签
@@ -35,34 +45,29 @@ public class PddServiceImpl implements PddService {
         Set<String> eventType = Sets.newHashSet();
         // 事件元素
         Map<String, List<String>> eventElement = new HashMap<>(8);
+        long taskId = Long.parseLong(tbName.substring(0, tbName.indexOf("_")));
+        ModelSchemaRsp schemaRsp = kgtextClient.getCorpusDetails(taskId).getData();
 
-        int taskId = Integer.parseInt(dataSetRsp.getDataName().substring(0, dataSetRsp.getDataName().indexOf("_")));
-        JSONObject schema = getSchema(taskId);
-        JSONArray entity = schema.getJSONArray("entity");
-        entityTag.addAll(entity.toJavaList(String.class));
+        entityTag.addAll(schemaRsp.getSchemaConfig().getEntity());
+        List<String> relTags = schemaRsp.getSchemaConfig().getRelation().stream().map(SchemaConfigBO.DomainBean::getName).collect(Collectors.toList());
+        objAttrTag.addAll(relTags);;
 
-        JSONArray relation = schema.getJSONArray("relation");
-        List<String> objAttrs = relation.toJavaList(JSONObject.class).stream().map(s -> s.getString("name")).collect(Collectors.toList());
-        objAttrTag.addAll(objAttrs);
+        List<String> attrTags = schemaRsp.getSchemaConfig().getAttr().stream().map(SchemaConfigBO.DomainBean::getName).collect(Collectors.toList());
+        basicAttrTag.addAll(attrTags);
 
-        JSONArray attr = schema.getJSONArray("attr");
-        List<String> attrNames = attr.toJavaList(JSONObject.class).stream().map(s -> s.getString("name")).collect(Collectors.toList());
-        basicAttrTag.addAll(attrNames);
-
-        List<JSONObject> events = getEvents(taskId);
-        for (JSONObject obj : events) {
-
-            if (obj.get("element") == null) {
+        List<EventRsp> eventRsps = kgtextClient.listByCorpusId(taskId).getData();
+        for (EventRsp obj : eventRsps) {
+            if (obj.getEventElement() == null) {
                 continue;
             }
-            String type = obj.getString("type");
+            String type = obj.getEventType();
             eventType.add(type);
-            String element = obj.getString("element");
-            List<String> elementLs = JSONArray.parseArray(element, String.class);
-            if (!elementLs.isEmpty()) {
-                elementLs.add("触发词");
+            if (obj.getEventElement() != null) {
+                if (!obj.getEventElement().isEmpty()) {
+                    obj.getEventElement().add("触发词");
+                }
+                eventElement.put(type, obj.getEventElement());
             }
-            eventElement.put(type, elementLs);
         }
 
         Map<String, Object> rs = new HashMap<>(6);
@@ -72,39 +77,5 @@ public class PddServiceImpl implements PddService {
         rs.put("eventType", eventType);
         rs.put("eventElement", eventElement);
         return rs;
-    }
-
-    private JSONObject getSchema(int taskId) {
-
-        /*String url = appConfig.kgTextPath + "/plantdata-text/api/schema/get?taskId=" + taskId;
-            String str = HttpUtil.sendGet(url);
-            if (str.isEmpty()) {
-                throw ThirdPartyException.newInstance();
-            }
-
-            Object schema = JSONPath.read(str, "$.data.schema");
-            if (schema == null) {
-                throw ServiceException.newInstance(50036, "未找到语料集的schema！");
-            }
-
-            return JSONObject.parseObject(schema.toString());*/
-
-        return null;
-    }
-
-    private List<JSONObject> getEvents(Integer taskId) {
-
-        List<JSONObject> ls = new ArrayList<>();
-
-        /*String url = appConfig.kgTextPath + "/plantdata-text/api/event/get/list?pageNo=1&pageSize=100&taskId=" + taskId;
-        String rs = HttpUtil.sendGet(url);
-
-        if (!rs.isEmpty()) {
-            Object rsData = JSONPath.read(rs, "$.data.rsData");
-            if (rsData != null) {
-                ls = (List<JSONObject>) rsData;
-            }
-        }*/
-        return ls;
     }
 }

@@ -14,7 +14,7 @@ import com.plantdata.kgcloud.sdk.constant.AttrDefinitionTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.FileRsp;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class InfoBoxConverter extends BasicConverter {
 
 
-    public static BasicDetailFilter batchInfoBoxReqToBasicDetailFilter(BatchInfoBoxReq boxReq) {
+    public static BasicDetailFilter batchInfoBoxReqToBasicDetailFilter(BatchInfoBoxReqList boxReq) {
         BasicDetailFilter detailFilter = new BasicDetailFilter();
         detailFilter.setIds(boxReq.getIds());
         detailFilter.setReadObj(boxReq.getRelationAttrs());
@@ -121,9 +121,9 @@ public class InfoBoxConverter extends BasicConverter {
         //基本字段
         infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList));
         // 正向对象属性
-        infoBoxRsp.setAttrs(listToRsp(objAttrList, InfoBoxConverter::attrValToInfoBoxAttrRsp));
+        consumerIfNoNull(objAttrList, a -> infoBoxRsp.setAttrs(listToRsp(a, InfoBoxConverter::attrValToInfoBoxAttrRsp)));
         // 反向对象属性
-        infoBoxRsp.setReAttrs(listToRsp(resObjAttrList, InfoBoxConverter::attrValToInfoBoxAttrRsp));
+        consumerIfNoNull(resObjAttrList, a -> infoBoxRsp.setReAttrs(listToRsp(resObjAttrList, InfoBoxConverter::attrValToInfoBoxAttrRsp)));
         return infoBoxRsp;
     }
 
@@ -138,11 +138,11 @@ public class InfoBoxConverter extends BasicConverter {
             fillDefaultAttr(extraList, a);
             self.setTags(MetaConverter.getTags(a));
         });
-        consumerIfNoNull(entity.getAbs(), a -> extraList.add(new EntityLinksRsp.ExtraRsp(-1, "简介", a, null)));
+        consumerIfNoNull(entity.getAbs(), a -> extraList.add(new EntityLinksRsp.ExtraRsp(-1, "简介", null, a, null)));
 
         if (!CollectionUtils.isEmpty(entity.getSynonym())) {
             String synonyms = org.springframework.util.StringUtils.collectionToDelimitedString(entity.getSynonym(), ",");
-            extraList.add(new EntityLinksRsp.ExtraRsp(-1, "别称", synonyms, null));
+            extraList.add(new EntityLinksRsp.ExtraRsp(-1, "别称", null, synonyms, null));
         }
         //设置数值,私有属性
         consumerIfNoNull(dataAttrList, a -> fillAttr(extraList, a));
@@ -169,7 +169,8 @@ public class InfoBoxConverter extends BasicConverter {
         promptEntityRsp.setMeaningTag(attrValueVO.getMeaningTag());
         promptEntityRsp.setName(attrValueVO.getName());
         promptEntityRsp.setQa(false);
-        promptEntityRsp.setType(EntityTypeEnum.ENTITY);
+        EntityTypeEnum entityTypeEnum = EntityTypeEnum.parseById(attrValueVO.getType());
+        promptEntityRsp.setType(entityTypeEnum);
         return promptEntityRsp;
     }
 
@@ -177,7 +178,7 @@ public class InfoBoxConverter extends BasicConverter {
         for (EntityAttributeValueVO value : attrValueList) {
             //私有属性
             if (value.getType() == null) {
-                extraList.add(new EntityLinksRsp.ExtraRsp(-1, value.getName(), value.getDataValue(), value.getDataType()));
+                extraList.add(new EntityLinksRsp.ExtraRsp(-1, value.getName(), value.getDomainValue(), value.getDataValue(), value.getDataType()));
             }
             //数值属性
             else if (value.getType() == 0) {
@@ -187,7 +188,7 @@ public class InfoBoxConverter extends BasicConverter {
             else if (value.getType() == 1 && !CollectionUtils.isEmpty(value.getObjectValues())) {
                 value.getObjectValues().forEach(a -> {
                     Map<Integer, List<BasicInfo>> relationObjectValues = a.getRelationObjectValues();
-                    extraList.add(new EntityLinksRsp.ExtraRsp(a.getAttrId(), a.getName(), relationObjectValues.values(), value.getDataType()));
+                    extraList.add(new EntityLinksRsp.ExtraRsp(a.getAttrId(), a.getName(), value.getDomainValue(), relationObjectValues.values(), value.getDataType()));
                 });
             }
 
@@ -198,9 +199,9 @@ public class InfoBoxConverter extends BasicConverter {
         AttributeDataTypeEnum dataType = AttributeDataTypeEnum.parseById(attributeValue.getDataType());
         if (dataType == null) {
             log.error("attributeDefinition:{},不存在", attributeValue.getDataType());
-            return new EntityLinksRsp.ExtraRsp(-1, attributeValue.getName(), attributeValue.getDataValue(), attributeValue.getDataType());
+            return new EntityLinksRsp.ExtraRsp(-1, attributeValue.getName(), attributeValue.getDomainValue(), attributeValue.getDataValue(), attributeValue.getDataType());
         }
-        EntityLinksRsp.ExtraRsp extraRsp = new EntityLinksRsp.ExtraRsp(attributeValue.getId(), attributeValue.getName(), attributeValue.getDataType());
+        EntityLinksRsp.ExtraRsp extraRsp = new EntityLinksRsp.ExtraRsp(attributeValue.getId(), attributeValue.getName(), attributeValue.getDomainValue(), attributeValue.getDataType());
         switch (dataType) {
             case ATTACHMENT:
             case VIDEO:
@@ -224,16 +225,6 @@ public class InfoBoxConverter extends BasicConverter {
                 break;
         }
         return extraRsp;
-    }
-
-    private static PromptEntityRsp voToPromptEntityRsp(@NonNull ai.plantdata.kg.api.edit.resp.EntityVO entityVO) {
-        PromptEntityRsp entityRsp = new PromptEntityRsp();
-        entityRsp.setConceptId(entityVO.getConceptId());
-        entityRsp.setId(entityVO.getId());
-        entityRsp.setMeaningTag(entityVO.getMeaningTag());
-        entityRsp.setName(entityVO.getName());
-        entityRsp.setType(EntityTypeEnum.ENTITY);
-        return entityRsp;
     }
 
 

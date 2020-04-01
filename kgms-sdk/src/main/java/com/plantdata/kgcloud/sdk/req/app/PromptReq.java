@@ -2,7 +2,9 @@ package com.plantdata.kgcloud.sdk.req.app;
 
 
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -19,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("实体提示参数")
-public class PromptReq extends PageReq implements PromptSearchInterface {
+public class PromptReq extends PageReq implements PromptSearchInterface, ConceptKeyListReqInterface {
 
     @ApiModelProperty("关键字")
     private String kw;
@@ -33,19 +35,39 @@ public class PromptReq extends PageReq implements PromptSearchInterface {
     private int promptType;
     @ApiModelProperty("allowTypes字段指定的概念是否继承")
     private Boolean inherit = false;
-    @ApiModelProperty("是否大小写敏感（默认区分大小写")
-    private Boolean caseInsensitive = false;
-    @ApiModelProperty("是否模糊搜索")
+    @ApiModelProperty("是否大小写敏感（默认不区分大小写")
+    private Boolean caseInsensitive = true;
+    @ApiModelProperty("是否模糊搜索 false前缀搜索，true支持模糊搜索")
     private boolean fuzzy;
     @ApiModelProperty("是否使用导出实体数据集检索")
     private Boolean openExportDate = true;
     @ApiModelProperty("排序")
-    private Integer sort;
+    @ChooseCheck(value = "[0,1,-1]", name = "sort", isBlank = true)
+    private Integer sort=-1;
+
 
 
     @ApiModelProperty(hidden = true)
     @Override
     public Boolean getInherit() {
         return inherit;
+    }
+
+    @ApiModelProperty(hidden = true)
+    @Override
+    public List<Long> getAllowConcepts() {
+        return conceptIds;
+    }
+
+    @ApiModelProperty(hidden = true)
+    @Override
+    public void setAllowConcepts(List<Long> allowConceptIds) {
+        this.conceptIds = allowConceptIds;
+    }
+
+    @ApiModelProperty(hidden = true)
+    @Override
+    public List<String> getAllowConceptsKey() {
+        return conceptKeys;
     }
 }

@@ -2,8 +2,11 @@ package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
+import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
+import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
@@ -14,12 +17,11 @@ import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -73,7 +75,7 @@ public interface KgDataClient {
      * @param statisticReq
      * @return
      */
-    @PostMapping("statistic/{kgName}/attr/groupByAttrValue")
+    @PostMapping("statistic/{kgName}/attr/value")
     ApiReturn<Object> statisticAttrGroupByConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                   @RequestBody EntityStatisticGroupByAttrIdReq statisticReq);
 
@@ -109,6 +111,12 @@ public interface KgDataClient {
     ApiReturn<RestData<Map<String, Object>>> searchDataSet(@RequestBody NameReadReq nameReadReq);
 
     /**
+     * 读取数据集(单字段)
+     */
+    @PostMapping("dataset/read/{dataName}")
+    ApiReturn<List<Object>> searchDataSet(@PathVariable("dataName") String dataName, @RequestBody DataSetOneFieldReq fieldReq);
+
+    /**
      * 批量新增数据集
      *
      * @param addReq
@@ -116,6 +124,7 @@ public interface KgDataClient {
      */
     @PostMapping("dataset/name")
     ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq);
+
 
     /**
      * 查询概念
@@ -131,13 +140,29 @@ public interface KgDataClient {
     /**
      * 根据概念查询属性定义
      *
-     * @param kgName   。
-     * @param queryReq 。
-     * @return 。
+     * @param kgName
+     * @param conceptId
+     * @param conceptKey
+     * @param inherit
+     * @return
      */
-    @PostMapping("/{kgName}/attribute/search")
-    ApiReturn<List<AttrDefinitionRsp>> searchAttrDefByConcept(@PathVariable("kgName") String kgName, @RequestBody AttrDefQueryReq queryReq);
+    @GetMapping("/{kgName}/attribute/search")
+    ApiReturn<List<AttrDefinitionRsp>> searchAttrDefByConcept(@PathVariable("kgName") String kgName,
+                                                              @RequestParam(value = "conceptId", required = false) Long conceptId,
+                                                              @RequestParam(value = "conceptKey", required = false) String conceptKey,
+                                                              @RequestParam(value = "inherit", defaultValue = "true") boolean inherit);
 
     @PostMapping("sparQl/query/{kgName}")
     ApiReturn<QueryResultRsp> sparQlQuery(@PathVariable("kgName") String kgName, @RequestBody SparQlReq sparQlReq);
+
+    /**
+     * 根据 name 和消歧标识 查询实例
+     *
+     * @param kgName           。
+     * @param conditionReqList 。
+     * @return List<OpenEntityRsp>
+     */
+    @PostMapping("{kgName}/entity/query")
+    ApiReturn<List<OpenEntityRsp>> queryEntityByNameAndMeaningTag(@PathVariable("kgName") String kgName,
+                                                                  @RequestBody List<EntityQueryWithConditionReq> conditionReqList);
 }

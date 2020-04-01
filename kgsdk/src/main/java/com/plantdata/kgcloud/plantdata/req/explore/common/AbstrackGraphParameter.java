@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class AbstrackGraphParameter {
     @ApiParam(value = "图谱名称", required = true)
     private String kgName;
-    @Max(value = 30, message = "层数最多可查询30层")
+    @Max(value = 10, message = "层数最多可查询10层")
     @Min(value = 1, message = "层数最小为1")
     private Integer distance = 1;
     private List<Long> replaceClassIds;

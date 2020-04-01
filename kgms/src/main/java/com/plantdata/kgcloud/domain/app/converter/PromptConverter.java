@@ -2,16 +2,20 @@ package com.plantdata.kgcloud.domain.app.converter;
 
 import ai.plantdata.kg.api.pub.req.AggAttrValueFrom;
 import ai.plantdata.kg.api.pub.req.PromptListFrom;
+import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.PromptItemVO;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.plantdata.kgcloud.constant.PromptResultTypeEnum;
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
+import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
+import com.plantdata.kgcloud.sdk.constant.PromptResultTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
+import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
@@ -23,7 +27,7 @@ import org.springframework.beans.BeanUtils;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -32,17 +36,31 @@ import java.util.stream.Collectors;
  */
 public class PromptConverter extends BasicConverter {
 
+    public static SearchByAttributeFrom seniorPromptReqToSearchByAttributeFrom(@NonNull SeniorPromptReq promptReq, List<Map<String, Object>> queryMapList) {
+        SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
+        consumerIfNoNull(queryMapList, a -> attributeFrom.setKvMap(a.get(0)));
+        consumerIfNoNull(promptReq.getKw(), attributeFrom::setEntityName);
+        attributeFrom.setInherit(true);
+        consumerIfNoNull(promptReq.getConceptId(), a -> attributeFrom.setConceptIds(Lists.newArrayList(a)));
+        return attributeFrom;
+    }
+
     public static PromptListFrom promptReqReqToPromptListFrom(PromptReq req) {
         PromptListFrom from = new PromptListFrom();
         from.setConceptIds(req.getConceptIds());
-        from.setCaseInsensitive(req.getCaseInsensitive() == null ? false : req.getCaseInsensitive());
+        from.setCaseInsensitive(req.getCaseInsensitive() == null ? true : req.getCaseInsensitive());
         from.setFuzzy(req.isFuzzy());
         from.setSkip(req.getOffset());
         from.setLimit(req.getLimit());
         from.setInherit(req.getInherit());
         from.setText(req.getKw());
-        PromptResultTypeEnum resultType = req.getType() == null ? PromptResultTypeEnum.CONCEPT_ENTITY : PromptResultTypeEnum.parseWithDefault(req.getType());
-        from.setType(resultType.getId());
+        Optional<PromptResultTypeEnum> enumObject = EnumUtils.getEnumObject(PromptResultTypeEnum.class, req.getType());
+        PromptResultTypeEnum resultType = enumObject.orElse(PromptResultTypeEnum.ENTITY);
+        if (PromptResultTypeEnum.CONCEPT_ENTITY == resultType) {
+            from.setTypes(Lists.newArrayList(PromptResultTypeEnum.SYNONYM.getId(), PromptResultTypeEnum.CONCEPT.getId(), PromptResultTypeEnum.ENTITY.getId()));
+        } else {
+            from.setTypes(Lists.newArrayList(PromptResultTypeEnum.SYNONYM.getId(), resultType.getId()));
+        }
         return from;
     }
 
@@ -70,27 +88,24 @@ public class PromptConverter extends BasicConverter {
         return DefaultUtils.oneElMap("query", queryMap);
     }
 
-    public static List<PromptEntityRsp> esResultToEntity(@NotNull List<Map<String, Object>> maps) {
-        return maps.stream().map(s -> {
-            PromptEntityRsp entityBean = new PromptEntityRsp();
-            Object conceptId = s.get("concept_id");
-            if (conceptId != null) {
-                try {
-                    entityBean.setConceptId(Long.parseLong(conceptId.toString()));
-                } catch (Exception e) {
-                    List<Long> conceptIds = JacksonUtils.readValue(conceptId.toString(), new TypeReference<List<Long>>() {
-                    });
-                    if (conceptIds.size() > 0) {
-                        entityBean.setConceptId(conceptIds.get(0));
-                    }
-                }
+    public static PromptEntityRsp esResultToEntity(@NotNull Map<String, Object> map) {
+
+        PromptEntityRsp entityBean = new PromptEntityRsp();
+        Object conceptId = map.get("concept_id");
+        consumerIfNoNull(conceptId, a -> {
+            try {
+                entityBean.setConceptId(Long.parseLong(conceptId.toString()));
+            } catch (Exception e) {
+                List<Long> conceptIds = JacksonUtils.readValue(conceptId.toString(), new TypeReference<List<Long>>() {
+                });
+                consumerIfNoNull(conceptIds, b -> entityBean.setConceptId(b.get(0)));
             }
-            DefaultUtils.ifPresent(a -> entityBean.setId(Long.parseLong(s.get("entity_id").toString())), s.get("entity_id"));
-            DefaultUtils.ifPresent(a -> entityBean.setName(s.get("name").toString()), s.get("name"));
-            DefaultUtils.ifPresent(a -> entityBean.setName(s.get("meaning_tag").toString()), s.get("meaning_tag"));
-            DefaultUtils.ifPresent(a -> entityBean.setName(s.get("score").toString()), s.get("score"));
-            return entityBean;
-        }).collect(Collectors.toList());
+        });
+        DefaultUtils.ifPresent(a -> entityBean.setId(Long.parseLong(map.get("entity_id").toString())), map.get("entity_id"));
+        DefaultUtils.ifPresent(a -> entityBean.setName(map.get("name").toString()), map.get("name"));
+        DefaultUtils.ifPresent(a -> entityBean.setName(map.get("meaning_tag").toString()), map.get("meaning_tag"));
+        DefaultUtils.ifPresent(a -> entityBean.setName(map.get("score").toString()), map.get("score"));
+        return entityBean;
     }
 
     public static SeniorPromptRsp seniorPromptRspToPromptEntityRsp(@NonNull PromptEntityRsp promptEntityRsp) {
@@ -101,10 +116,7 @@ public class PromptConverter extends BasicConverter {
 
     public static PromptEntityRsp promptItemVoToPromptEntityRsp(@NonNull PromptItemVO item) {
         PromptEntityRsp entityRsp = new PromptEntityRsp();
-        if (item.getType() != null) {
-            EntityTypeEnum typeEnum = EntityTypeEnum.parseById(item.getType());
-            consumerWithDefault(EntityTypeEnum.ENTITY, typeEnum, entityRsp::setType);
-        }
+        consumerIfNoNull(item.getType(), a -> entityRsp.setType(EntityTypeEnum.parseById(a)));
         entityRsp.setName(item.getName());
         entityRsp.setMeaningTag(item.getMeaningTag());
         entityRsp.setId(item.getId());
@@ -134,16 +146,8 @@ public class PromptConverter extends BasicConverter {
         from.setAttrId(String.valueOf(req.getAttrId()));
         from.setIsPrivate(NumberUtils.INTEGER_ZERO);
         from.setSearchOption(req.getSearchOption());
-        from.setSortDirection(SortTypeEnum.DESC.getValue());
-//        if (!CollectionUtils.isEmpty(req.getSorts()) && req.getSorts().size() > 0) {
-//            String sort = req.getSorts().get(0);
-//            String[] split = sort.split(":");
-//            if (split.length == 2) {
-//                Optional<SortTypeEnum> typeOpt = SortTypeEnum.parseByName(split[1]);
-//                typeOpt.ifPresent(sortTypeEnum -> from.setSortDirection(sortTypeEnum.getValue()));
-//            }
-//        }
-        consumerIfNoNull(from.getSortDirection(), a -> SortTypeEnum.parseByValue(a).orElse(SortTypeEnum.DESC).getValue());
+        Integer sortDirection = SortTypeEnum.parseByValue(from.getSortDirection()).orElse(SortTypeEnum.DESC).getValue();
+        from.setSortDirection(sortDirection);
         return from;
     }
 }

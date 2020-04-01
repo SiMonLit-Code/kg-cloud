@@ -6,6 +6,7 @@ import ai.plantdata.kg.api.pub.req.statistics.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.statistics.RelationStatisticsBean;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.ExtraInfo;
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
@@ -15,11 +16,13 @@ import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.DataSetStatisticEnum;
+import com.plantdata.kgcloud.sdk.constant.StatisticConstants;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatDataRsp;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -35,6 +38,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2019/12/11 9:59
  */
+@Slf4j
 public class GraphStatisticConverter extends BasicConverter {
 
 
@@ -44,38 +48,40 @@ public class GraphStatisticConverter extends BasicConverter {
         statisticsBean.setEntityIds(attrIdReq.getEntityIds());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(reSize);
-        statisticsBean.setSort(attrIdReq.getDirection());
+        statisticsBean.setSort(attrIdReq.getSort());
         statisticsBean.setAppendId(appendId);
-        statisticsBean.setAttributeId(attrIdReq.getAttrId());
+        statisticsBean.setAttributeId(attrIdReq.getAttrDefId());
         statisticsBean.setAllowValues(attrIdReq.getAllowValues());
-        infoLog("AttributeStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
+        log.error("AttributeStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
 
     public static ConceptStatisticsBean entityReqConceptStatisticsBean(EntityStatisticGroupByConceptReq statisticReq) {
         Integer appendId = statisticReq.getEntityIds() == null || statisticReq.getEntityIds().isEmpty() ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
         ConceptStatisticsBean statisticsBean = new ConceptStatisticsBean();
-        statisticsBean.setAllowTypes(statisticReq.getAllowTypes());
+        statisticsBean.setAllowTypes(statisticReq.getAllowConcepts());
         statisticsBean.setAppendId(appendId);
         statisticsBean.setSort(statisticReq.getSort());
         statisticsBean.setEntityIds(statisticReq.getEntityIds());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticsBean.setLimit(defaultStatisticSize(statisticReq.getSize()));
-        infoLog("ConceptStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
+        log.error("ConceptStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
 
     public static RelationStatisticsBean conceptIdReqConceptStatisticsBean(EdgeStatisticByConceptIdReq conceptIdReq) {
         RelationStatisticsBean statisticsBean = new RelationStatisticsBean();
         Integer appendId = CollectionUtils.isEmpty(conceptIdReq.getTripleIds()) ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
-        statisticsBean.setAllowAttrs(conceptIdReq.getAllowAtts());
+        statisticsBean.setAllowAttrs(conceptIdReq.getAllowAttrs());
         statisticsBean.setConceptId(conceptIdReq.getConceptId());
         statisticsBean.setAppendId(appendId);
+        statisticsBean.setSort(conceptIdReq.getSort());
         statisticsBean.setStartTime(conceptIdReq.getFromTime());
         statisticsBean.setEndTime(conceptIdReq.getToTime());
         statisticsBean.setSkip(NumberUtils.INTEGER_ZERO);
-        statisticsBean.setLimit(defaultStatisticSize(conceptIdReq.getSize()));
-        infoLog("RelationStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
+        consumerIfNoNull(conceptIdReq.getTripleIds(), statisticsBean::setTripleIds);
+        consumerIfNoNull(conceptIdReq.getSize(), a -> statisticsBean.setLimit(a == -1 ? Integer.MAX_VALUE - 1 : a));
+        log.error("RelationStatisticsBean:{}", JsonUtils.objToJson(statisticsBean));
         return statisticsBean;
     }
 
@@ -83,14 +89,16 @@ public class GraphStatisticConverter extends BasicConverter {
         RelationExtraInfoStatisticBean statisticBean = new RelationExtraInfoStatisticBean();
         Integer appendId = CollectionUtils.isEmpty(attrValueReq.getTripleIds()) ? NumberUtils.INTEGER_ZERO : NumberUtils.INTEGER_ONE;
         statisticBean.setAllowValues(attrValueReq.getAllowValues());
-        statisticBean.setAttributeId(attrValueReq.getAttrId());
+        statisticBean.setAttributeId(attrValueReq.getAttrDefId());
         statisticBean.setAppendId(appendId);
+        statisticBean.setEntityIds(attrValueReq.getEntityIds());
+        statisticBean.setSort(attrValueReq.getSort());
         statisticBean.setSeqNo(attrValueReq.getSeqNo());
         statisticBean.setTripleIds(attrValueReq.getTripleIds());
         statisticBean.setSkip(NumberUtils.INTEGER_ZERO);
         statisticBean.setLimit(defaultStatisticSize(attrValueReq.getSize()));
         statisticBean.setSort(attrValueReq.getSort());
-        infoLog("RelationExtraInfoStatisticBean:{}", JsonUtils.objToJson(statisticBean));
+        log.error("RelationExtraInfoStatisticBean:{}", JsonUtils.objToJson(statisticBean));
         return statisticBean;
     }
 
@@ -105,14 +113,8 @@ public class GraphStatisticConverter extends BasicConverter {
                 String value = StatisticResultTypeEnum.NAME.equals(resultType) ? s.getName() : s.getValue();
                 map.put("name", value);
                 map.put("value", s.getTotal());
-                Object relation = s.getRelation();
-                Object entity = s.getEntity();
-                if (relation != null) {
-                    map.put("ids", relation);
-                }
-                if (entity != null) {
-                    map.put("ids", entity);
-                }
+                BasicConverter.consumerIfNoNull(s.getRelation(), a -> map.put("ids", a));
+                BasicConverter.consumerIfNoNull(s.getEntity(), a -> map.put("ids", a));
                 return map;
             }).collect(Collectors.toList());
         }
@@ -131,16 +133,19 @@ public class GraphStatisticConverter extends BasicConverter {
 
     public static Integer reBuildResultSize(Integer size, Integer valueType, AttributeDataTypeEnum dataType) {
         if (AttributeValueType.isNumeric(valueType) && AttributeDataTypeEnum.DATE_SET.contains(dataType)) {
-            return Integer.MAX_VALUE;
+            return StatisticConstants.STATISTIC_MAX_SIZE;
         }
         return size == null ? 10 : size;
     }
 
     private static int defaultStatisticSize(Integer size) {
         if (size != null && size.equals(NumberUtils.INTEGER_MINUS_ONE)) {
-            return Integer.MAX_VALUE - NumberUtils.INTEGER_ONE;
+            return StatisticConstants.STATISTIC_MAX_SIZE;
         }
-        return PageUtils.DEFAULT_SIZE;
+        if (size == null) {
+            size = PageUtils.DEFAULT_SIZE;
+        }
+        return size;
     }
 
     public static AttributeDataTypeEnum edgeAttrDataType(int seqNo, AttributeDefinition attrDef) {

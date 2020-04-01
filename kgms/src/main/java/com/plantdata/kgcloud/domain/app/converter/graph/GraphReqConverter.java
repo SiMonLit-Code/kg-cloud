@@ -5,17 +5,20 @@ import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MetaData;
 import ai.plantdata.kg.api.pub.req.PathFrom;
 import ai.plantdata.kg.api.pub.req.RelationFrom;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.constant.TimeFilterTypeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
+import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
@@ -49,7 +52,7 @@ public class GraphReqConverter extends BasicConverter {
      * @param <E>        。。。
      * @return 。。
      */
-    public static <E extends BasicGraphExploreReq> GraphFrom commonReqProxy(E exploreReq) {
+    public static <E extends BasicGraphExploreReqList> GraphFrom commonReqProxy(E exploreReq) {
         GraphFrom graphFrom = GraphCommonConverter.basicReqToRemote(exploreReq, new GraphFrom());
         if (exploreReq instanceof GraphCommonReqInterface) {
             fillCommon(((GraphCommonReqInterface) exploreReq).fetchCommon(), exploreReq.getPage(), graphFrom);
@@ -68,7 +71,7 @@ public class GraphReqConverter extends BasicConverter {
      * @param <E>        。。。
      * @return 。。
      */
-    public static <E extends BasicGraphExploreReq> PathFrom pathReqProxy(E exploreReq) {
+    public static <E extends BasicGraphExploreReqList> PathFrom pathReqProxy(E exploreReq) {
         PathFrom pathFrom = GraphCommonConverter.basicReqToRemote(exploreReq, new PathFrom());
         if (exploreReq instanceof GraphPathReqInterface) {
             fillPath(((GraphPathReqInterface) exploreReq).fetchPath(), pathFrom);
@@ -87,7 +90,7 @@ public class GraphReqConverter extends BasicConverter {
      * @param <E>        。。。
      * @return 。。
      */
-    public static <E extends BasicGraphExploreReq> RelationFrom relationReqProxy(E exploreReq) {
+    public static <E extends BasicGraphExploreReqList> RelationFrom relationReqProxy(E exploreReq) {
         RelationFrom relationFrom = GraphCommonConverter.basicReqToRemote(exploreReq, new RelationFrom());
         //关联分析
         if (exploreReq instanceof GraphRelationReqInterface) {
@@ -122,7 +125,7 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.getHighLevelFilter().setSkip(page.getOffset());
         graphFrom.getHighLevelFilter().setLimit(page.getLimit());
         graphFrom.getHighLevelFilter().setDirection(common.getDirection());
-        graphFrom.getHighLevelFilter().setQueryPrivate(common.isPrivateAttRead());
+
         if (!CollectionUtils.isEmpty(common.getEdgeAttrSorts())) {
             Map<String, Integer> edgeAttrQuery = ConditionConverter.relationAttrSortToMap(common.getEdgeAttrSorts());
             graphFrom.getHighLevelFilter().setEdgeSort(edgeAttrQuery);
@@ -130,8 +133,10 @@ public class GraphReqConverter extends BasicConverter {
         graphFrom.setDirection(common.getDirection());
         graphFrom.setId(common.getId());
         graphFrom.setName(common.getKw());
-        graphFrom.setQueryPrivate(common.isPrivateAttRead());
-
+        consumerIfNoNull(common.getPrivateAttRead(), a -> {
+            graphFrom.setQueryPrivate(common.getPrivateAttRead());
+            graphFrom.getHighLevelFilter().setQueryPrivate(common.getPrivateAttRead());
+        });
         consumerIfNoNull(common.getHyponymyDistance(), graphFrom::setHyponymyDistance);
 
     }
@@ -147,9 +152,34 @@ public class GraphReqConverter extends BasicConverter {
         if (timeFilter == null) {
             return;
         }
-        if (null == timeFilter.getFromTime() && null == timeFilter.getToTime()) {
+        Optional<TimeFilterTypeEnum> filterType = EnumUtils.parseById(TimeFilterTypeEnum.class, timeFilter.getTimeFilterType());
+        if (!filterType.isPresent()) {
             return;
         }
+        consumerIfNoNull(filterType.get(), a -> {
+            commonFilter.getHighLevelFilter().setTimeFilterType(a.fetchId());
+            commonFilter.setTimeFilterType(a.fetchId());
+            if (!TimeFilterTypeEnum.ENTITY.equals(a) && !TimeFilterTypeEnum.NO_FILTER.equals(a)) {
+                commonFilter.setQueryPrivate(false);
+                commonFilter.getHighLevelFilter().setQueryPrivate(false);
+            }
+        });
+        //实体时间排序参数
+        Map<String, Integer> edgeSort = Maps.newHashMap();
+        Map<Integer, Integer> entityFromTimeSortMap = Maps.newHashMapWithExpectedSize(1);
+        consumerIfNoNull(timeFilter.getSort(), a -> {
+            Optional<SortTypeEnum> sortTypeEnum = SortTypeEnum.parseByName(timeFilter.getSort());
+            SortTypeEnum sortType = sortTypeEnum.orElse(SortTypeEnum.DESC);
+            entityFromTimeSortMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), sortType.getValue());
+            edgeSort.put("attr_time_from", sortType.getValue());
+
+        });
+        if (null == timeFilter.getFromTime() && null == timeFilter.getToTime()) {
+            consumerIfNoNull(entityFromTimeSortMap, a -> fillTime(timeFilter.getTimeFilterType(), a, edgeSort,
+                    null, commonFilter, null, null));
+            return;
+        }
+        //关系时间筛选参数
         String fromTime = null;
         String toTime = null;
         Map<String, String> timeRangeMap = new HashMap<>(2);
@@ -161,32 +191,34 @@ public class GraphReqConverter extends BasicConverter {
             toTime = DateUtils.formatDate(timeFilter.getToTime());
             timeRangeMap.put("$lte", toTime);
         }
-        Map<Integer, Object> entityFromTimeMap = new HashMap<>(2);
-        consumerIfNoNull(timeRangeMap, a -> {
-            entityFromTimeMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), a);
-        });
-        Map<Integer, Integer> entityFromTimeSortMap = new HashMap<>(1);
-        consumerIfNoNull(timeFilter.getSort(), a -> {
-            Optional<SortTypeEnum> sortTypeEnum = SortTypeEnum.parseByName(timeFilter.getSort());
-            entityFromTimeSortMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), sortTypeEnum.orElse(SortTypeEnum.DESC).getValue());
-        });
-        MetaData entityMetaData = commonFilter.getEntityMeta();
-        switch (timeFilter.getTimeFilterType()) {
-            case 0:
-                break;
+
+        //实体时间筛选参数
+        Map<Integer, Object> entityFromTimeMap = Maps.newHashMapWithExpectedSize(2);
+        consumerIfNoNull(timeRangeMap, a -> entityFromTimeMap.put(Integer.parseInt(MetaDataInfo.FROM_TIME.getCode()), a));
+        fillTime(timeFilter.getTimeFilterType(), entityFromTimeSortMap, edgeSort, entityFromTimeMap, commonFilter, fromTime, toTime);
+    }
+
+    private static void fillTime(Integer timeFilterType, Map<Integer, Integer> entityFromTimeSortMap,
+                                 Map<String, Integer> edgeSort,
+                                 Map<Integer, Object> entityFromTimeMap, CommonFilter commonFilter,
+                                 String fromTime, String toTime) {
+        switch (timeFilterType) {
             case 1:
-                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, entityMetaData);
+                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, commonFilter.getEntityMeta());
                 break;
             case 2:
+                consumerIfNoNull(edgeSort, commonFilter::setEdgeSort);
                 consumerIfNoNull(fromTime, commonFilter::setAttrTimeFrom);
                 consumerIfNoNull(toTime, commonFilter::setAttrTimeTo);
                 break;
             case 3:
                 consumerIfNoNull(fromTime, commonFilter::setAttrTimeFrom);
                 consumerIfNoNull(toTime, commonFilter::setAttrTimeTo);
-                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, entityMetaData);
+                consumerIfNoNull(edgeSort, commonFilter::setEdgeSort);
+                fillMetaFilter(entityFromTimeSortMap, entityFromTimeMap, commonFilter.getEntityMeta());
                 break;
             default:
+                break;
         }
     }
 

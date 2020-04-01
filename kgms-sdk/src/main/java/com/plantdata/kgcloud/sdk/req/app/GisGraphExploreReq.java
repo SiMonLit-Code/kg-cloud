@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
+import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel("gis图探索参数")
-public class GisGraphExploreReq extends GisExploreReq {
+public class GisGraphExploreReq extends GisExploreReq implements ConceptKeyListReqInterface {
 
     @ApiModelProperty("查询指定的概念，格式为概念id的json数组，默认为查询全部 例：[\"2131231\",\"2131232\"]")
     private List<Long> conceptIds;
@@ -28,4 +29,19 @@ public class GisGraphExploreReq extends GisExploreReq {
     @ApiModelProperty("allowTypes字段指定的概念是否继承 true允许继承 默认false")
     private Boolean isInherit = false;
     private Integer direction = 0;
+
+    @Override
+    public List<Long> getAllowConcepts() {
+        return conceptIds;
+    }
+
+    @Override
+    public void setAllowConcepts(List<Long> allowConceptIds) {
+        this.conceptIds = allowConceptIds;
+    }
+
+    @Override
+    public List<String> getAllowConceptsKey() {
+        return conceptKeys;
+    }
 }

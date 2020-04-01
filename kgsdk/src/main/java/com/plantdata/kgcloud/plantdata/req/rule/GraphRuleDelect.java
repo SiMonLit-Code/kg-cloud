@@ -11,5 +11,5 @@ import lombok.*;
 @NoArgsConstructor
 public class GraphRuleDelect {
     private String kgName;
-    private Integer id;
+    private Long id;
 }

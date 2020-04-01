@@ -35,12 +35,15 @@ public class EntityLinksRsp extends BasicEntityRsp {
     public static class ExtraRsp {
         private Integer attrId;
         private String name;
+        @ApiModelProperty("属性所属概念")
+        private Long domainValue;
         private Object value;
         private Integer dataType;
 
-        public ExtraRsp(Integer attrId, String name, Integer dataType) {
+        public ExtraRsp(Integer attrId, String name, Long domainValue, Integer dataType) {
             this.attrId = attrId;
             this.name = name;
+            this.domainValue=domainValue;
             this.dataType = dataType;
         }
 

@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.edit.req.basic;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -22,5 +23,6 @@ public class AbstractModifyReq {
     private Long id;
 
     @ApiModelProperty(value = "摘要")
+    @Length(max = 5000,message = "摘要描述不能超过5000")
     private String abs;
 }

@@ -77,7 +77,7 @@ public class GisConverter extends BasicConverter {
 
     private static GisLocusOldRsp.GisLocusRelationRsp gisLocusRelationVOToGisLocusRelationRsp(@NonNull GisRelationRsp relationRsp) {
         GisLocusOldRsp.GisLocusRelationRsp locusRelationRsp = new GisLocusOldRsp.GisLocusRelationRsp();
-        locusRelationRsp.setAttId(relationRsp.getAttId());
+        consumerIfNoNull(relationRsp.getAttId(), a -> locusRelationRsp.setAttId(a.longValue()));
         locusRelationRsp.setAttName(relationRsp.getAttName());
         locusRelationRsp.setId(relationRsp.getId());
         locusRelationRsp.setFrom(relationRsp.getFrom());

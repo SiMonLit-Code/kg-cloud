@@ -4,24 +4,21 @@ import ai.plantdata.kg.api.edit.req.BatchQueryRelationFrom;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.domain.app.util.DateUtils;
 import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -31,10 +28,10 @@ import java.util.stream.Collectors;
  */
 public class RelationConverter extends BasicConverter {
 
-    public static BatchQueryRelationFrom edgeAttrSearch(EdgeSearchReq searchReq) {
+    public static BatchQueryRelationFrom edgeAttrSearch(EdgeSearchReqList searchReq) {
         BatchQueryRelationFrom queryRelationFrom = new BatchQueryRelationFrom();
         queryRelationFrom.setEntityIds(searchReq.getEntityIds());
-        queryRelationFrom.setAttrIds(searchReq.getAttrIds());
+        queryRelationFrom.setAttrIds(searchReq.getAllowAttrs());
         queryRelationFrom.setAttrValueIds(searchReq.getAttrValueIds());
         queryRelationFrom.setLimit(searchReq.getLimit());
         queryRelationFrom.setSkip(searchReq.getOffset());
@@ -42,17 +39,15 @@ public class RelationConverter extends BasicConverter {
         queryRelationFrom.setDirection(searchReq.getDirection());
         //时间筛选
         Map<String, Object> attrTimeFilters = Maps.newHashMap();
-        if (StringUtils.isNoneBlank(searchReq.getAttrTimeFrom())) {
-            attrTimeFilters.put("attr_time_from", JacksonUtils.readValue(searchReq.getAttrTimeFrom(), new TypeReference<Map<String, Object>>() {
-            }));
-        }
-        if (StringUtils.isNoneBlank(searchReq.getAttrTimeTo())) {
-            attrTimeFilters.put("attr_time_to", JacksonUtils.readValue(searchReq.getAttrTimeTo(), new TypeReference<Map<String, Object>>() {
-            }));
-        }
-        if (!CollectionUtils.isEmpty(attrTimeFilters)) {
-            queryRelationFrom.setAttrTimeFilters(attrTimeFilters);
-        }
+        consumerIfNoNull(searchReq.getAttrTimeFrom(),a->{
+            DateUtils.checkDataMap(a);
+            attrTimeFilters.put("attr_time_from",a);
+        });
+        consumerIfNoNull(searchReq.getAttrTimeTo(),a-> {
+            DateUtils.checkDataMap(a);
+            attrTimeFilters.put("attr_time_to", a);
+        });
+        consumerIfNoNull(attrTimeFilters,queryRelationFrom::setAttrTimeFilters);
         return queryRelationFrom;
 
     }
@@ -66,8 +61,8 @@ public class RelationConverter extends BasicConverter {
         relationRsp.setDirection(relation.getDirection());
         relationRsp.setFrom(relation.getFromId());
         relationRsp.setTo(relation.getToId());
-        relationRsp.setStartTime(relationRsp.getStartTime());
-        relationRsp.setEndTime(relationRsp.getEndTime());
+        relationRsp.setStartTime(relation.getStartTime());
+        relationRsp.setEndTime(relation.getEndTime());
         return relationRsp;
     }
 
@@ -108,6 +103,9 @@ public class RelationConverter extends BasicConverter {
         to.setName(relation.getAttrValueName());
 
         EdgeSearchRsp edgeSearchRsp = new EdgeSearchRsp();
+        edgeSearchRsp.setAttrTimeFrom(relation.getAttrTimeFrom());
+        edgeSearchRsp.setAttrTimeTo(relation.getAttrTimeTo());
+        edgeSearchRsp.setAttrId(relation.getAttrId());
         edgeSearchRsp.setFromEntity(from);
         edgeSearchRsp.setToEntity(to);
         edgeSearchRsp.setTripleId(relation.getId());
@@ -120,8 +118,8 @@ public class RelationConverter extends BasicConverter {
             if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
                 edgeSearchRsp.setSource(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
             }
-            if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
-                edgeSearchRsp.setReliability(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+            if (metaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
+                edgeSearchRsp.setReliability(metaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString());
             }
         }
         return edgeSearchRsp;

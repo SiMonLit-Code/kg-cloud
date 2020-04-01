@@ -6,6 +6,7 @@ import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfKgql;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfKgqlRepository;
@@ -30,7 +31,9 @@ import java.util.Optional;
 
 /**
  * 图谱业务配置
- * Created by plantdata-1007 on 2019/12/2.
+ *
+ * @author plantdata-1007
+ * @date 2019/12/2
  */
 @Service
 public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
@@ -51,12 +54,11 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
         targe.setId(kgKeyGenerator.getNextId());
         targe.setKgName(kgName);
         if (!targe.getKgql().isEmpty()) {
-            RestResp<QuerySetting> restResp = qlApi.business(kgName, targe.getKgql());
-           if (RestResp.ActionStatusMethod.FAIL.equals(restResp.getActionStatus())){
-               throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
-           }
+            RestResp<QuerySetting> restResp = qlApi.business(KGUtil.dbName(kgName), targe.getKgql());
+            if (RestResp.ActionStatusMethod.FAIL.equals(restResp.getActionStatus())) {
+                throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
+            }
             Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
-
             if (!convert.isPresent()) {
                 throw BizException.of(KgmsErrorCodeEnum.QUERYSETTING_NOT_EXISTS);
             }
@@ -76,10 +78,9 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
     public GraphConfKgqlRsp updateKgql(Long id, GraphConfKgqlReq req) {
         GraphConfKgql graphConfKgql = graphConfKgqlRepository.findById(id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_KGQL_NOT_EXISTS));
-
         if (!req.getKgql().isEmpty()) {
-            RestResp<QuerySetting> restResp = qlApi.business(graphConfKgql.getKgName(), req.getKgql());
-            if (RestResp.ActionStatusMethod.FAIL.equals(restResp.getActionStatus())){
+            RestResp<QuerySetting> restResp = qlApi.business(KGUtil.dbName(graphConfKgql.getKgName()), req.getKgql());
+            if (RestResp.ActionStatusMethod.FAIL.equals(restResp.getActionStatus())) {
                 throw BizException.of(KgmsErrorCodeEnum.CONF_KGQLQUERYSETTING_ERROR);
             }
             Optional<QuerySetting> convert = RestRespConverter.convert(restResp);
@@ -92,8 +93,6 @@ public class GraphConfKgqlServiceImpl implements GraphConfKgqlService {
             String s = JacksonUtils.writeValueAsString(convert.get());
             graphConfKgql.setRuleSettings(s);
         }
-
-
         BeanUtils.copyProperties(req, graphConfKgql);
         GraphConfKgql result = graphConfKgqlRepository.save(graphConfKgql);
         return ConvertUtils.convert(GraphConfKgqlRsp.class).apply(result);

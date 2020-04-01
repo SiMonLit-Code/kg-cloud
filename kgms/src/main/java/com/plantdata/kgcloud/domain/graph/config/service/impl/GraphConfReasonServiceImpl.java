@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.graph.config.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
-import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
@@ -47,13 +46,19 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     public GraphConfReasonRsp createReasoning(String kgName, GraphConfReasonReq req) {
         GraphConfReasoning targe = new GraphConfReasoning();
         BeanUtils.copyProperties(req, targe);
+        if (targe.getRuleName().length()>64){
+            throw BizException.of(KgmsErrorCodeEnum.CONF_RULENAME_ERROR);
+        }
         String strRuleConfig = JacksonUtils.writeValueAsString(req.getRuleConfig());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strRuleConfig);
+        if (!jsonNode.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
+        }
         targe.setRuleConfig(jsonNode.get());
         targe.setKgName(kgName);
         targe.setId(kgKeyGenerator.getNextId());
         GraphConfReasoning save = graphConfReasoningRepository.save(targe);
-        GraphConfReasonRsp graphConfReasonRsp = GraphConfReasoningConverter.JsonNodeToMapConverter(save);
+        GraphConfReasonRsp graphConfReasonRsp = GraphConfReasoningConverter.jsonNodeToMapConverter(save);
         return graphConfReasonRsp;
     }
 
@@ -71,7 +76,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), sort);
         Page<GraphConfReasoning> all = graphConfReasoningRepository.getByKgName(kgName, pageable);
         List<GraphConfReasonRsp> graphConfReasonRsps = BasicConverter.listConvert(
-                all.getContent(), a -> GraphConfReasoningConverter.JsonNodeToMapConverter(a));
+                all.getContent(), a -> GraphConfReasoningConverter.jsonNodeToMapConverter(a));
         BasePage<GraphConfReasonRsp> basePage = new BasePage<>();
         basePage.setContent(graphConfReasonRsps);
         basePage.setTotalElements(all.getTotalElements());
@@ -82,7 +87,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     public GraphConfReasonRsp findById(Long id) {
         GraphConfReasoning confReasoning = graphConfReasoningRepository.findById(id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_REASONING_NOT_EXISTS));
-        GraphConfReasonRsp graphConfReasonRsp = GraphConfReasoningConverter.JsonNodeToMapConverter(confReasoning);
+        GraphConfReasonRsp graphConfReasonRsp = GraphConfReasoningConverter.jsonNodeToMapConverter(confReasoning);
         return graphConfReasonRsp;
     }
 
@@ -94,9 +99,12 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
         BeanUtils.copyProperties(req, graphConfReasoning);
         String strRuleConfig = JacksonUtils.writeValueAsString(req.getRuleConfig());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strRuleConfig);
+        if (!jsonNode.isPresent()){
+            throw BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
+        }
         graphConfReasoning.setRuleConfig(jsonNode.get());
         GraphConfReasoning save = graphConfReasoningRepository.save(graphConfReasoning);
-        GraphConfReasonRsp graphConfReasonRsp = GraphConfReasoningConverter.JsonNodeToMapConverter(save);
+        GraphConfReasonRsp graphConfReasonRsp = GraphConfReasoningConverter.jsonNodeToMapConverter(save);
         return graphConfReasonRsp;
     }
 }

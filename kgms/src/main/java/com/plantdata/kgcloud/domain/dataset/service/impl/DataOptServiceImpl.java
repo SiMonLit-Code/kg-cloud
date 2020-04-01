@@ -364,8 +364,14 @@ public class DataOptServiceImpl implements DataOptService {
                         if (code == FieldType.STRING_ARRAY || code == FieldType.OBJECT || code == FieldType.ARRAY || code == FieldType.NESTED) {
                             objects.add(JacksonUtils.writeValueAsString(e));
                         } else {
-                            objects.add(e);
+                            if(e.toString().length() > 10000){
+                                objects.add("数据过大,无法导出");
+                            }else {
+                                objects.add(e);
+                            }
                         }
+                    }else {
+                        objects.add("");
                     }
                 }
                 resultList.add(objects);
@@ -382,7 +388,7 @@ public class DataOptServiceImpl implements DataOptService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void batchAddDataForDataSet(String userId, DataSetAddReq addReq) {
-        List<Long> ids = dataSetService.findByDataNames(userId, Lists.newArrayList(addReq.getDataName()));
+        List<Long> ids = dataSetService.findByDataNames(userId, Lists.newArrayList(addReq.getDataSetName()));
         if (CollectionUtils.isEmpty(ids)) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
         }

@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.plantdata.req.explore.relation;
 import com.plantdata.kgcloud.plantdata.req.explore.common.AbstrackGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphStatBean;
 import com.plantdata.kgcloud.plantdata.req.explore.function.StatsGraphParameter;
-import com.plantdata.kgcloud.plantdata.validator.ListLengthCheck;
+import com.plantdata.kgcloud.sdk.validator.ListLengthCheck;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +25,7 @@ import java.util.List;
 @NoArgsConstructor
 public class RelationGraphParameter extends AbstrackGraphParameter implements StatsGraphParameter {
 
-    @Max(value = 30, message = "步长不可超过30步")
+    @Max(value = 10, message = "步长不可超过10步")
     @Min(value = 1, message = "步长最小为1")
     private Integer distance = 1;
     @NotNull

@@ -24,7 +24,4 @@ import java.util.List;
 @NoArgsConstructor
 public class PathAnalysisRsp extends StatisticRsp {
 
-    public PathAnalysisRsp(List<GraphRelationRsp> relationList, Integer hasNextPage, List<CommonEntityRsp> entityList, List<GraphStatisticRsp> statisticResult) {
-        super(relationList, hasNextPage, entityList, statisticResult);
-    }
 }

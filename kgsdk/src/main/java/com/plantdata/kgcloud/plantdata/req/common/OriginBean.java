@@ -4,7 +4,7 @@ import lombok.*;
 
 @Data
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @NoArgsConstructor
 public class OriginBean {
     private String name;

@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.EntityAttrReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
@@ -15,9 +16,13 @@ import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.ReliabilityModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.ScoreModifyReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.SourceModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
+import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -67,13 +72,21 @@ public interface EntityService {
     Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq, BasicInfoListBodyReq bodyReq);
 
     /**
+     * 实体关系列表
+     * @param kgName
+     * @param entityAttrReq
+     * @return
+     */
+    List<EntityAttrValueVO> listRelations(String kgName, EntityAttrReq entityAttrReq);
+
+    /**
      * 批量删除实体
      *
      * @param kgName
      * @param ids
      * @return
      */
-    List<DeleteResult> deleteByIds(String kgName, List<Long> ids);
+    List<DeleteResult> deleteByIds(String kgName, Boolean isTrace, List<Long> ids);
 
 
     /**
@@ -93,7 +106,14 @@ public interface EntityService {
      * @param ssrModifyReq
      * @return
      */
+    @Deprecated
     void updateScoreSourceReliability(String kgName, Long entityId, SsrModifyReq ssrModifyReq);
+
+    void updateScore(String kgName, Long entityId, ScoreModifyReq scoreModifyReq);
+
+    void updateSource(String kgName, Long entityId, SourceModifyReq sourceModifyReq);
+
+    void updateReliability(String kgName, Long entityId, ReliabilityModifyReq reliabilityModifyReq);
 
     /**
      * 修改实体开始,截止时间
@@ -275,7 +295,8 @@ public interface EntityService {
 
     List<OpenEntityRsp> queryEntityList(String kgName, EntityQueryReq entityQueryReq);
 
-    OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update, List<OpenBatchSaveEntityRsp> batchEntity);
+    OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean update,
+                                                         List<OpenBatchSaveEntityRsp> batchEntity);
 
     void batchDeleteEntityAttr(String kgName, BatchEntityAttrDeleteReq deleteReq);
 }

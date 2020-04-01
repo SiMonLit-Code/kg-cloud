@@ -13,7 +13,7 @@ import com.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import com.plantdata.kgcloud.domain.edit.rsp.AttrConstraintsRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -165,7 +165,7 @@ public interface AttributeService {
      * @param kgName
      * @param tripleIds
      */
-    void deleteRelations(String kgName, List<String> tripleIds);
+    void deleteRelations(String kgName,Boolean isTrace, List<String> tripleIds);
 
     /**
      * 根据meta删除关系
@@ -225,5 +225,5 @@ public interface AttributeService {
      * @param queryReq 查询参数
      * @return 。。
      */
-    List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq);
+    List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReqList queryReq);
 }

@@ -1,8 +1,9 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
@@ -24,7 +25,6 @@ import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -75,7 +75,7 @@ public interface EditClient {
                                    @PathVariable("id") Integer id);
 
     /**
-     * 批量新增属性定义
+     * 批量新增'属性定义
      *
      * @param kgName             图谱名称
      * @param attrDefinitionReqs 批量参数
@@ -170,7 +170,7 @@ public interface EditClient {
      * @param list   req
      * @return .
      */
-    @PatchMapping("attribute/relation/update/{kgName}")
+    @PutMapping("attribute/relation/update/{kgName}")
     ApiReturn<List<RelationUpdateReq>> updateRelations(@PathVariable("kgName") String kgName,
                                                        @RequestBody List<RelationUpdateReq> list);
 
@@ -179,20 +179,11 @@ public interface EditClient {
      * 实体查询
      *
      * @param kgName
-     * @param conceptId
-     * @param conceptKey
-     * @param query
-     * @param page
-     * @param size
+     * @param queryReq
      * @return
      */
-    @GetMapping("entity/{kgName}/list/search")
-    ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName,
-                                                   @RequestParam(value = "conceptId", required = false) Long conceptId,
-                                                   @RequestParam(value = "conceptKey", required = false) String conceptKey,
-                                                   @RequestParam(value = "query", required = false) String query,
-                                                   @RequestParam(value = "page", required = false) Integer page,
-                                                   @RequestParam(value = "size", required = false) Integer size);
+    @PostMapping("entity/{kgName}/list/search")
+    ApiReturn<List<OpenEntityRsp>> queryEntityList(@PathVariable("kgName") String kgName, @RequestBody EntityQueryReq queryReq);
 
     /**
      * 批量新增实体
@@ -216,7 +207,7 @@ public interface EditClient {
      */
     @PostMapping("attribute/relation/search/{kgName}")
     ApiReturn<List<EdgeSearchRsp>> batchSearchRelation(@PathVariable("kgName") String kgName,
-                                                       @RequestBody EdgeSearchReq queryReq);
+                                                       @RequestBody EdgeSearchReqList queryReq);
 
     /**
      * 实体-私有属性-添加私有数值或对象属性值
@@ -259,15 +250,7 @@ public interface EditClient {
     ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName,
                                     @RequestBody BatchEntityAttrDeleteReq deleteReq);
 
-    /**
-     * 手工创建融合实体
-     *
-     * @param kgName kgName
-     * @param ids    实体id
-     * @return
-     */
-    @PostMapping("wait/entity/create/{kgName}")
-    ApiReturn<String> createMergeEntity(@PathVariable("kgName") String kgName, @RequestBody List<Long> ids);
+
 
     /**
      * 根据批量名称查询实体

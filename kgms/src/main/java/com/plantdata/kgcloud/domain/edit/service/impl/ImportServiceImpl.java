@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -154,7 +155,8 @@ public class ImportServiceImpl implements ImportService {
         }
         List<AttrDefinitionRsp> attrDefinitionRsps = attributeService.getAttrDefinitionByConceptId(kgName,
                 new AttrDefinitionSearchReq(conceptId));
-        attrDefinitionRsps.stream().filter(vo -> AttributeValueType.isNumeric(vo.getType()))
+        List<Integer> types = Arrays.asList(91, 92, 93);
+        attrDefinitionRsps.stream().filter(vo -> AttributeValueType.isNumeric(vo.getType()) && !types.contains(vo.getDataType()))
                 .forEach(vo -> header.add(Collections.singletonList(vo.getName() + "(" + vo.getId() + ")")));
         return header;
     }
@@ -256,6 +258,13 @@ public class ImportServiceImpl implements ImportService {
     public String exportRdf(String kgName, String format, Integer scope) {
         ResponseEntity<byte[]> body = rdfApi.exportRdf(KGUtil.dbName(kgName), scope,
                 RdfType.findByFormat(format).getType());
+        if (!body.getStatusCode().equals(HttpStatus.CREATED)) {
+            throw BizException.of(KgmsErrorCodeEnum.RDF_EXPORT_ERROR);
+        }
+        List<String> hasError = body.getHeaders().get("HAS-ERROR");
+        if (!CollectionUtils.isEmpty(hasError)) {
+            throw BizException.of(KgmsErrorCodeEnum.RDF_EXPORT_ERROR);
+        }
         ByteArrayInputStream inputStream = new ByteArrayInputStream(Objects.requireNonNull(body.getBody()));
         StorePath storePath = storageClient.uploadFile(inputStream, body.getBody().length, format, null);
         return "/" + storePath.getFullPath();

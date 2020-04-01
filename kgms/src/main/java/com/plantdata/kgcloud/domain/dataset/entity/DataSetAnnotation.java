@@ -47,12 +47,15 @@ public class DataSetAnnotation {
 
     @Basic
     @Column(name = "user_id")
-    @CreatedBy
     private String userId;
 
     @Basic
     @Column(name = "kg_name")
     private String kgName;
+
+    @Basic
+    @Column(name = "task_id")
+    private Integer taskId;
 
     @Basic
     @Column(name = "dataset_id")

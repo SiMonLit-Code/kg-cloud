@@ -146,16 +146,18 @@ public class MongodbOptProvider implements DataOptProvider {
         }
         if (!CollectionUtils.isEmpty(sort)) {
             findIterable.sort(buildSort(sort));
+        }else {
+            findIterable.sort(Sorts.descending(DataConst.CREATE_AT));
         }
         if (offset != null && offset >= 0) {
             findIterable = findIterable.skip(offset);
         }
         int size = 10;
         if (limit != null && limit > 0) {
-            limit = size;
-            findIterable = findIterable.limit(limit);
+            size = limit;
         }
-        findIterable.sort(Sorts.descending(DataConst.CREATE_AT));
+        findIterable = findIterable.limit(size);
+
         List<Map<String, Object>> mapList = new ArrayList<>();
         for (Document document : findIterable) {
             Map<String, Object> map = new HashMap<>(size);

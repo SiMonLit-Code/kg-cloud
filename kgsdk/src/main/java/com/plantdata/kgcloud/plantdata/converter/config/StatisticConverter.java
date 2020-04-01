@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.config;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.bean.RelationbyFilterBean;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
@@ -53,10 +54,10 @@ public class StatisticConverter extends BasicConverter {
 
     public static EdgeStatisticByEntityIdReq statCountRelationbyEntityParameterToEdgeStatisticByEntityIdReq(@NonNull StatCountRelationbyEntityParameter param) {
         EdgeStatisticByEntityIdReq req = new EdgeStatisticByEntityIdReq();
-        req.setIsDistinct(param.getIsDistinct());
+        consumerIfNoNull(param.getIsDistinct(),req::setDistinct);
         req.setEntityId(param.getEntityId());
-        consumerIfNoNull(toListNoNull(param.getAllowAtts(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowAttrs);
-        consumerIfNoNull(toListNoNull(param.getAllowTypes(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowTypes);
+        consumerIfNoNull(toListNoNull(param.getAllowAtts(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowAttrDefIds);
+        consumerIfNoNull(toListNoNull(param.getAllowTypes(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowConceptIds);
         return req;
     }
 
@@ -64,8 +65,8 @@ public class StatisticConverter extends BasicConverter {
         EdgeStatisticByConceptIdReq req = new EdgeStatisticByConceptIdReq();
         req.setConceptId(param.getConceptId());
         req.setConceptKey(param.getConceptKey());
-        req.setAllowAtts(param.getAllowAtts());
-        req.setAllowAttsKey(param.getAllowAttsKey());
+        req.setAllowAttrs(param.getAllowAtts());
+        req.setAllowAttrsKey(param.getAllowAttsKey());
         req.setFromTime(param.getFromTime());
         req.setReturnType(param.getReturnType());
         req.setSize(param.getSize());
@@ -77,16 +78,19 @@ public class StatisticConverter extends BasicConverter {
 
     public static EdgeAttrStatisticByAttrValueReq statEdgeGroupByEdgeValueParameterToEdgeAttrStatisticByAttrValueReq(StatEdgeGroupByEdgeValueParameter param) {
         EdgeAttrStatisticByAttrValueReq req = new EdgeAttrStatisticByAttrValueReq();
-        req.setAttrId(param.getAttrId());
-        req.setAttrKey(param.getAttrKey());
+        req.setAttrDefId(param.getAttrId());
+        req.setAttrDefKey(param.getAttrKey());
         consumerIfNoNull(param.getDateType(), a -> {
             DateTypeReq dateTypeReq = new DateTypeReq();
-            BeanUtils.copyProperties(a, dateTypeReq);
+            dateTypeReq.setType(a.getType());
+            dateTypeReq.set$gte(a.get$gte());
+            dateTypeReq.set$lte(a.get$lte());
             req.setDateType(dateTypeReq);
         });
-        req.setEntityIds(param.getEntityIds());
-        req.setAttrKey(param.getAttrKey());
-        req.setMerge(param.getMerge());
+        BasicConverter.consumerIfNoNull(param.getEntityIds(),
+                a->req.setEntityIds(Lists.newArrayList(a)));
+        req.setAttrDefKey(param.getAttrKey());
+        req.setMerge(param.getIsMerge());
         req.setReturnType(param.getReturnType());
         req.setSeqNo(param.getSeqNo());
         req.setSize(param.getSize());
@@ -98,15 +102,14 @@ public class StatisticConverter extends BasicConverter {
     public static EntityStatisticGroupByAttrIdReq statEntityGroupByAttrvalueByAttrIdParameterToEntityStatisticGroupByAttrIdReq(StatEntityGroupByAttrvalueByAttrIdParameter param) {
         EntityStatisticGroupByAttrIdReq req = new EntityStatisticGroupByAttrIdReq();
         req.setEntityIds(param.getEntityIds());
-        req.setAttrId(param.getAttrId());
-        req.setAttrKey(param.getAttrKey());
+        req.setAttrDefId(param.getAttrId());
+        req.setAttrDefKey(param.getAttrKey());
         consumerIfNoNull(param.getDateType(), a -> {
             DateTypeReq dateTypeReq = new DateTypeReq();
             BeanUtils.copyProperties(a, dateTypeReq);
-            req.setDateType(dateTypeReq);
+            req.setDataType(dateTypeReq);
         });
-        // req.setDirection(param);
-        req.setMerge(param.getMerge());
+        req.setMerge(param.isMerge());
         req.setReturnType(param.getReturnType());
         req.setSize(param.getSize());
         req.setSort(param.getSort());
@@ -116,8 +119,8 @@ public class StatisticConverter extends BasicConverter {
 
     public static EntityStatisticGroupByConceptReq statEntityGroupByConceptParameterToEntityStatisticGroupByConceptReq(StatEntityGroupByConceptParameter param) {
         EntityStatisticGroupByConceptReq conceptReq = new EntityStatisticGroupByConceptReq();
-        conceptReq.setAllowTypes(param.getAllowTypes());
-        conceptReq.setAllowTypesKey(param.getAllowTypesKey());
+        conceptReq.setAllowConcepts(param.getAllowTypes());
+        conceptReq.setAllowConceptsKey(param.getAllowTypesKey());
         consumerIfNoNull(param.getSort(), conceptReq::setSort);
         conceptReq.setEntityIds(param.getEntityIds());
         conceptReq.setReturnType(param.getReturnType());
@@ -145,8 +148,8 @@ public class StatisticConverter extends BasicConverter {
 
     private static <R extends GraphConfStatisticalReq> R initStatisticalReq(InitStatisticalBean statisticalBean, R req) {
         req.setKgName(statisticalBean.getKgName());
-        req.setStatisRule(statisticalBean.getRule());
-        req.setStatisType(statisticalBean.getType());
+        req.setStatisticRule(statisticalBean.getRule());
+        req.setStatisticType(statisticalBean.getType());
         return req;
     }
 
@@ -154,8 +157,8 @@ public class StatisticConverter extends BasicConverter {
     public static GraphConfStatisticalReq initStatisticalBeanAddToGraphConfStatisticalReq(InitStatisticalBeanAdd beanAdd) {
         GraphConfStatisticalReq statisticalReq = new GraphConfStatisticalReq();
         statisticalReq.setKgName(beanAdd.getKgName());
-        statisticalReq.setStatisType(beanAdd.getType());
-        statisticalReq.setStatisRule(beanAdd.getRule());
+        statisticalReq.setStatisticType(beanAdd.getType());
+        statisticalReq.setStatisticRule(beanAdd.getRule());
         return statisticalReq;
     }
 

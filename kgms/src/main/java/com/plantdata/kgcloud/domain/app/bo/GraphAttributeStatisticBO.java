@@ -143,34 +143,27 @@ public class GraphAttributeStatisticBO {
         if (dateTypeBean == null) {
             return list;
         }
-        Date maxTime = null;
+
         if (dateTypeBean.getType() == null || dateTypeBean.getType() == 0) {
             dateTypeBean.setType(1);
         }
 
-        if (dateTypeBean.get$lte() != null) {
-            maxTime = VeDateUtils.strToDateLong(dateTypeBean.get$lte());
-        }
-        Date minTime = null;
-        if (dateTypeBean.get$gte() != null) {
-            minTime = VeDateUtils.strToDateLong(dateTypeBean.get$gte());
-        }
-        Date finalMaxTime = maxTime;
-        Date finalMinTime = minTime;
+        final Date maxTime = dateTypeBean.get$lte() == null ? null : VeDateUtils.strToDateLong(dateTypeBean.get$lte());
+        final Date minTime = dateTypeBean.get$gte() == null ? null : VeDateUtils.strToDateLong(dateTypeBean.get$gte());
+
         List<StatisticDateDTO> dateList = list.stream().map(StatisticDateDTO::new).filter(s -> {
             if (s.getDateValue() == null) {
                 return false;
             }
-            if (finalMaxTime == null && finalMinTime == null) {
-                return true;
-            }
-            if (finalMaxTime != null) {
-                if (s.getDateValue().compareTo(finalMaxTime) > 0) {
+            if (maxTime != null) {
+                if (s.getDateValue().compareTo(maxTime) > 0) {
                     return false;
                 }
             }
-            if (finalMinTime != null) {
-                return s.getDateValue().compareTo(finalMinTime) >= 0;
+            if (minTime != null) {
+                if (s.getDateValue().compareTo(minTime) < 0) {
+                    return false;
+                }
             }
             return true;
         }).collect(Collectors.toList());
@@ -195,7 +188,7 @@ public class GraphAttributeStatisticBO {
             dataMaps.put(s1, one);
         });
 
-        return dataMaps.values().stream().map(s -> {
+        return dataMaps.values().stream().peek(s -> {
             switch (dateTypeBean.getType()) {
                 case 1:
                     s.setName(VeDateUtils.dateToStrYear(s.min));
@@ -226,10 +219,7 @@ public class GraphAttributeStatisticBO {
                     s.setValue(VeDateUtils.dateToStrLong(s.min));
                     break;
             }
-            return s;
         }).sorted(Comparator.comparing(DateRang::getValue))
-
-
                 .collect(Collectors.toList());
     }
 

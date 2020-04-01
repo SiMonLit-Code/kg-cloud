@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.app;
 
 import com.plantdata.kgcloud.domain.app.service.GraphPathAnalysisService;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.PathTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.analysis.PathAnalysisRsp;
@@ -38,7 +38,7 @@ public class GraphPathAnalysisTest {
 
     @Test
     public void pathTest() {
-        PathAnalysisReq pathAnalysisReq = new PathAnalysisReq();
+        PathAnalysisReqList pathAnalysisReq = new PathAnalysisReqList();
         pathAnalysisReq.setPath(commonPathReq());
         PathAnalysisRsp path = graphPathAnalysisService.path(KG_NAME, pathAnalysisReq);
         System.out.println(JacksonUtils.writeValueAsString(path));
@@ -46,7 +46,7 @@ public class GraphPathAnalysisTest {
 
     @Test
     public void pathRuleReasonTest() {
-        PathReasoningAnalysisReq analysisReq = new PathReasoningAnalysisReq();
+        PathReasoningAnalysisReqList analysisReq = new PathReasoningAnalysisReqList();
         analysisReq.setPath(commonPathReq());
         PathAnalysisReasonRsp path = graphPathAnalysisService.pathRuleReason(KG_NAME, analysisReq);
         System.out.println(JacksonUtils.writeValueAsString(path));
@@ -54,7 +54,7 @@ public class GraphPathAnalysisTest {
 
     @Test
     public void pathTimingAnalysisTest() {
-        PathTimingAnalysisReq pathTimingAnalysisReq = new PathTimingAnalysisReq();
+        PathTimingAnalysisReqList pathTimingAnalysisReq = new PathTimingAnalysisReqList();
         pathTimingAnalysisReq.setPath(commonPathReq());
         PathTimingAnalysisRsp path = graphPathAnalysisService.pathTimingAnalysis(KG_NAME, pathTimingAnalysisReq);
         System.out.println(JacksonUtils.writeValueAsString(path));

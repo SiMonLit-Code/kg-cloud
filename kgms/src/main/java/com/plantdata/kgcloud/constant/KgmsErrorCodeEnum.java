@@ -19,7 +19,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     FOLDER_NOT_EXISTS(120102, "文件夹不存在"),
     FOLDER_DISABLE_DELETE(120103, "默认文件夹不允许删除"),
     DATASET_TYPE_NONSUPPORT(120104, "不支持的数据集类型"),
-    DATASET_CONNECT_ERROR(120105, "数据连接失败"),
+    DATASET_CONNECT_ERROR(120105, "数据集连接失败"),
     DATASET_KEY_EXISTS(120106, "唯一标识已存在"),
     DATASET_EXPORT_FAIL(120107, "数据集导出失败"),
     DATASET_IMPORT_FAIL(120108, "数据集导入失败"),
@@ -32,7 +32,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DATASET_ES_REQUEST_ERROR(120110, "es请求失败"),
     DATASET_ES_KEY_EXISTS(120111, "es唯一标识已存在"),
     TASK_STATUS_NOT_EXISTS(120112, "任务状态记录不存在"),
-
+    DATASET_CONNECT_PDTEXT_ERROR(120113, "连接文本数据集失败"),
     MODEL_NOT_EXISTS(120201, "模型不存在"),
     /**
      * app模块
@@ -59,6 +59,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     FILE_OUT_LIMIT(120619, "文件大小超出限制"),
     METADATA_TYPE_ERROR(120618, "metadata数据类型不正确"),
     DICTIONARY_NOT_EXISTS(120301, "词典不存在"),
+    DICTIONARY_IMPORT_FAIL(120302, "词典导入失败"),
     CONF_FOCUS_ENTITIES_SIZE_ERROR(120620, "您至少设置两个节点"),
     CONF_IDORIDS_NOT_EXISTS(120621, "您输入的id不存在"),
     CONF_STATISTICALID_NOT_EXISTS(120622, "图谱统计ID不存在"),
@@ -66,6 +67,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     PRIVATE_RELATION_HAS_EXIST(120624, "私有关系已存在"),
     DOMAIN_WORD_NOT_EMPTY(120625, "领域词不能为空"),
     DOMAIN_CONCEPT_NOT_EMPTY(120626, "领域词相关概念不能为空"),
+    CONF_QUERYSETTING_ERROR(120627, "图谱关系配置错误"),
+    CONF_RULENAME_ERROR(120628, "图谱关系名称要在64位以内"),
 
 
     WORD_NOT_EXISTS(120302, "词条不存在"),
@@ -95,6 +98,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     ATTR_TEMPLATE_NOT_EXISTS(120508, "属性模板不存在"),
 
     PERMISSION_NOT_ENOUGH_ERROR(120509, "没有该图谱的编辑权限"),
+
+    RDF_EXPORT_ERROR(120510, "rdf导出错误"),
     ;
 
     private final int errorCode;

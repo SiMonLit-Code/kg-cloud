@@ -23,6 +23,7 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 /**
  * @description:
@@ -54,7 +56,39 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     private final ObjectMapper objectMapper = JacksonUtils.getInstance();
 
     private final String database;
+
     private final String type;
+
+    private BiFunction<JsonNode, Long, Map<String, Long>> smokeFun = (buckets, total) -> {
+        Map<String, Long> smoke = new HashMap<>();
+        long checked = 0L;
+        if (buckets.isArray()) {
+            for (JsonNode bucket : buckets) {
+                String status = bucket.get("key_as_string").asText();
+                long count = bucket.get("doc_count").asLong();
+                checked += count;
+                if (Objects.equals(status, "true")) {
+                    smoke.put("2", count);
+                } else if (Objects.equals(status, "false")) {
+                    smoke.put("3", count);
+                }
+            }
+            smoke.put("4", total - checked);
+        }
+        return smoke;
+    };
+
+    private BiFunction<JsonNode, Long, Map<String, Long>> smokeMsgFun = (buckets, total) -> {
+        Map<String, Long> smoke = new HashMap<>();
+        if (buckets.isArray()) {
+            for (JsonNode bucket : buckets) {
+                String msg = bucket.get("key").asText();
+                long count = bucket.get("doc_count").asLong();
+                smoke.put(msg, count);
+            }
+        }
+        return smoke;
+    };
 
     public ElasticSearchOptProvider(DataOptConnect info) {
         HttpHost[] hosts = info.getAddresses().stream()
@@ -65,7 +99,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         this.database = info.getDatabase();
         this.type = info.getTable();
     }
-
 
     @Override
     public List<String> getFields() {
@@ -92,13 +125,17 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         if (CollectionUtils.isEmpty(query)) {
             return queryNode;
         }
-        return handleQuery(queryNode,query);
+        return handleQuery(queryNode, query);
     }
 
-    private ObjectNode handleQuery(ObjectNode queryNode,Map<String, Object> query) {
+    private ObjectNode handleQuery(ObjectNode queryNode, Map<String, Object> query) {
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "sort")) {
-                queryNode.put("sort", DataConst.CREATE_AT);
+                if (entry.getValue() == null) {
+                    queryNode.put("sort", DataConst.CREATE_AT);
+                } else {
+                    queryNode.putPOJO("sort", entry.getValue());
+                }
             }
             if (Objects.equals(entry.getKey(), "query")) {
                 queryNode.putPOJO("query", entry.getValue());
@@ -106,7 +143,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             if (Objects.equals(entry.getKey(), "search")) {
                 Map<String, String> value = (Map<String, String>) entry.getValue();
                 for (Map.Entry<String, String> objectEntry : value.entrySet()) {
-                    String s = "{\"multi_match\":{\"fields\":\"" + objectEntry.getKey() + "\",\"query\":\"" + objectEntry.getValue() + "\"}}";
+                    String s = "{\"wildcard\":{\"" + objectEntry.getKey() + "\":{\"value\":\"*" + objectEntry.getValue() + "*\"}}}";
                     queryNode.putPOJO("query", JacksonUtils.readValue(s, JsonNode.class));
                 }
             }
@@ -135,7 +172,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     @Override
     public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
         if (!CollectionUtils.isEmpty(sort)) {
-            query.put("sort", sort);
+            query.put("sort", sort.get("sort"));
         }
 
         List<Map<String, Object>> mapList = new ArrayList<>();
@@ -143,9 +180,10 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         if (!StringUtils.hasText(type)) {
             endpoint = "/" + database + "/_search";
         }
-        Request request = new Request(GET, endpoint);
+
+        Request request = new Request(RequestMethod.POST.toString(), endpoint);
         ObjectNode queryNode = buildQuery(offset, limit, query);
-        NStringEntity entity = new NStringEntity(queryNode.toString(), ContentType.APPLICATION_JSON);
+        NStringEntity entity = new NStringEntity(JacksonUtils.writeValueAsString(queryNode), ContentType.APPLICATION_JSON);
         request.setEntity(entity);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
@@ -160,11 +198,13 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         return mapList;
     }
 
-
     @Override
     public long count(Map<String, Object> query) {
         String endpoint = "/" + database + "/" + type + "/_search?_source=false";
         Request request = new Request(POST, endpoint);
+        ObjectNode queryNode = buildQuery(null, null, query);
+        NStringEntity entity = new NStringEntity(JacksonUtils.writeValueAsString(queryNode), ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
         Optional<String> send = send(request);
         String result = send.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
         JsonNode node = readTree(result);
@@ -184,7 +224,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         return map;
     }
 
-
     @Override
     public void createTable(List<DataSetSchema> colList) {
         ObjectNode properties = buildProperties(colList);
@@ -196,7 +235,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
             createMapping(mapping);
         }
     }
-
 
     @Override
     public void dropTable() {
@@ -224,7 +262,8 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public Map<String, Object> update(String id, Map<String, Object> node) {
-        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/?refresh=wait_for";
+        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/";
+//        String endpoint = "/" + database + "/" + type + "/" + id + "/_update/?refresh=wait_for";
         Request request = new Request(POST, endpoint);
         Map<String, Object> map = new HashMap<>();
         map.put("doc", node);
@@ -277,20 +316,35 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public List<Map<String, Long>> statistics() {
-        String endpoint = "/" + database + "/" + type;
+        String smokeQuery = "_smoke";
+        String smokeMsgQuery = "_smokeMsg.msg";
+        List<Map<String, Long>> maps = new ArrayList<>();
+        Map<String, Long> smoke = statisticsSmoke(smokeQuery, smokeFun);
+        Map<String, Long> smokeMsg = statisticsSmoke(smokeMsgQuery, smokeMsgFun);
+        if (smoke != null) {
+            maps.add(smoke);
+        }
+        if (smokeMsg != null) {
+            maps.add(smokeMsg);
+        }
+        return maps;
+    }
+
+    private Map<String, Long> statisticsSmoke(String t, BiFunction<JsonNode, Long, Map<String, Long>> function) {
+        String endpoint = "/" + database + "/" + type + "/_search";
         Request request = new Request(POST, endpoint);
         //language=JSON
-        String statusQuery = "{\"aggs\":{\"all_interests\":{\"terms\":{\"field\":\"_smoke\"}}}}";
+        String statusQuery = "{\"aggs\":{\"smoke_aggs\":{\"terms\":{\"field\":\"" + t + "\"}}}}";
         request.setEntity(new StringEntity(statusQuery, ContentType.APPLICATION_JSON));
         Optional<String> send = send(request);
         if (send.isPresent()) {
             JsonNode node = readTree(send.get());
             JsonNode hits = node.get("hits");
-            long total = node.get("total").asLong();
-            JsonNode buckets = hits.get("aggregations").get("all_interests").get("buckets");
+            long total = hits.get("total").asLong();
+            JsonNode buckets = node.get("aggregations").get("smoke_aggs").get("buckets");
+            return function.apply(buckets, total);
         }
-
-        return new ArrayList<>();
+        return null;
     }
 
     @Override
@@ -371,7 +425,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     private void deleteAlias(String index) {
         String endpoint = "/" + index + "/_alias/" + database;
         Request request = new Request(DELETE, endpoint);
-        String rs = send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
+        send(request).orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DATASET_ES_REQUEST_ERROR));
     }
 
     private boolean indicesExists(String index) {
@@ -389,7 +443,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         }
         return code == 200;
     }
-
 
     private HttpHost buildHttpHost(String addr) {
         String[] address = addr.split(":");

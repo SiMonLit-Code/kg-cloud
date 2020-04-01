@@ -5,11 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.MongoQueryConverter;
-import com.plantdata.kgcloud.plantdata.req.common.Additional;
-import com.plantdata.kgcloud.plantdata.req.common.KVBean;
-import com.plantdata.kgcloud.plantdata.req.common.RelationBean;
-import com.plantdata.kgcloud.plantdata.req.common.RelationInfoBean;
-import com.plantdata.kgcloud.plantdata.req.common.Tag;
+import com.plantdata.kgcloud.plantdata.req.common.*;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.AbstrackGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.AttrScreeningBean;
@@ -20,7 +16,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.path.PathGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.relation.RelationGraphParameter;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonPathReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
@@ -47,6 +43,8 @@ import java.util.stream.Collectors;
  * @date 2019/12/24 10:59
  */
 public class ExploreCommonConverter extends BasicConverter {
+    private static final String RELATION_START_TIME_SSE_KEY = "开始时间";
+    private static final String RELATION_END_TIME_SSE_KEY = "结束时间";
 
     static <T extends GraphEntityRsp> EntityBean entityBeanToGraphEntityRsp(T newEntity) {
         EntityBean oldEntity = new EntityBean();
@@ -105,7 +103,7 @@ public class ExploreCommonConverter extends BasicConverter {
         });
     }
 
-    static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReq> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {
+    static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReqList> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {
         rs.setDistance(to.getDistance());
         consumerIfNoNull(to.getAllowTypesKey(), rs::setAllowConceptsKey);
         consumerIfNoNull(to.getReplaceClassIds(), rs::setReplaceClassIds);
@@ -177,24 +175,36 @@ public class ExploreCommonConverter extends BasicConverter {
         oldBean.setFrom(newBean.getFrom());
         oldBean.setTo(newBean.getTo());
         oldBean.setDirection(newBean.getDirection());
-        consumerIfNoNull(newBean.getEndTime(), oldBean::addEndTime);
-        consumerIfNoNull(newBean.getStartTime(), oldBean::addStartTime);
         oldBean.setBatch(newBean.getBatch());
-        oldBean.setAttId(newBean.getAttId());
+        consumerIfNoNull(newBean.getOrigin(), a -> {
+            oldBean.setOrigin(new OriginBean(a.getSource(), a.getSourceReason()));
+        });
         oldBean.setAttName(newBean.getAttName());
-        //时间
-        if (!CollectionUtils.isEmpty(newBean.getSourceRelationList())) {
-            newBean.getSourceRelationList().forEach(relationRsp -> {
-                consumerIfNoNull(relationRsp.getEndTime(), oldBean::addEndTime);
-                consumerIfNoNull(relationRsp.getStartTime(), oldBean::addStartTime);
-            });
+        consumerIfNoNull(newBean.getStartTime(), oldBean::addStartTime);
+        consumerIfNoNull(newBean.getEndTime(), oldBean::addEndTime);
+        //推理规则id强行适配
+        if (newBean.getReasonRuleId() != null) {
+            oldBean.setAttId(-newBean.getReasonRuleId());
+            oldBean.setType(1);
+        } else {
+            consumerIfNoNull(newBean.getAttId(), a -> oldBean.setAttId(a.longValue()));
         }
-
         List<GraphRelationRsp> allRelation = Lists.newArrayList();
         consumerIfNoNull(newBean.getSourceRelationList(), allRelation::addAll);
         if (CollectionUtils.isEmpty(allRelation)) {
             allRelation.add(newBean);
         }
+
+        //时间
+        if (!CollectionUtils.isEmpty(newBean.getSourceRelationList())) {
+            newBean.getSourceRelationList().forEach(relationRsp -> {
+                if (newBean.getId() != null && !relationRsp.getId().equals(newBean.getId())) {
+                    consumerIfNoNull(relationRsp.getEndTime(), oldBean::addEndTime);
+                    consumerIfNoNull(relationRsp.getStartTime(), oldBean::addStartTime);
+                }
+            });
+        }
+
         //边数值属性
         List<RelationInfoBean> numEdgeAttrInfoList = toListNoNull(allRelation,
                 a -> ExploreCommonConverter.edgeInfoToRelationInfoBean(a, entityConceptMap.get(a.getFrom())));
@@ -217,7 +227,9 @@ public class ExploreCommonConverter extends BasicConverter {
     private static RelationInfoBean edgeInfoToRelationInfoBean(GraphRelationRsp relationBean, Long conceptId) {
         RelationInfoBean infoBean = new RelationInfoBean();
         infoBean.setId(relationBean.getId());
-        infoBean.setKvs(toListNoNull(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId(), conceptId)));
+        consumerIfNoNull(toListNoNull(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId(), conceptId)),infoBean::setKvs);
+        consumerIfNoNull(relationBean.getStartTime(), a -> infoBean.addKv(RELATION_START_TIME_SSE_KEY, a));
+        consumerIfNoNull(relationBean.getEndTime(), a -> infoBean.addKv(RELATION_END_TIME_SSE_KEY, a));
         return infoBean;
     }
 

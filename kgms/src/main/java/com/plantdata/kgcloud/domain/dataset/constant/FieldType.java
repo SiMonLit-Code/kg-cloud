@@ -69,10 +69,10 @@ public enum FieldType {
                 LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 return string;
             } else if (Pattern.matches(time, string)) {
-                LocalTime.parse(string, DateTimeFormatter.ofPattern("hh:mm:ss"));
+                LocalTime.parse(string, DateTimeFormatter.ofPattern("HH:mm:ss"));
                 return string;
             } else if (Pattern.matches(dateTime, string)) {
-                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
+                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                 return string;
             } else {
                 throw new RuntimeException();

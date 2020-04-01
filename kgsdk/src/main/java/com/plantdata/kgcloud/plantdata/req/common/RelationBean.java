@@ -1,7 +1,5 @@
 package com.plantdata.kgcloud.plantdata.req.common;
 
-import com.plantdata.kgcloud.plantdata.link.LinkModel;
-import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -11,14 +9,17 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@LinkModel(clazz = GraphRelationRsp.class)
 public class RelationBean extends RelationMetaData {
     private static final String RELATION_START_TIME_SSE_KEY = "开始时间";
     private static final String RELATION_END_TIME_SSE_KEY = "结束时间";
     private String id;
     private Long from;
     private Long to;
-    private Integer attId;
+    private Long attId;
+    /**
+     * 0 普通关系 1推理
+     */
+    private int type;
     private String attName;
     private List<String> startTime;
     private List<String> endTime;
@@ -64,20 +65,6 @@ public class RelationBean extends RelationMetaData {
 
     public void setoRInfo(List<RelationInfoBean> oRInfo) {
         this.oRInfo = oRInfo;
-    }
-
-    public void addrObjectInfo(RelationInfoBean one) {
-        if (this.oRInfo == null) {
-            this.oRInfo = new ArrayList<>();
-        }
-        this.oRInfo.add(one);
-    }
-
-    public RelationBean(String id, Long from, Long to, Integer attId) {
-        this.id = id;
-        this.from = from;
-        this.to = to;
-        this.attId = attId;
     }
 
 

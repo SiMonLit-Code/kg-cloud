@@ -38,7 +38,7 @@ public class AggsDTO {
             throw BizException.of(AppErrorCodeEnum.GRAMMAR_ERROR);
         }
         if (aggJsonNode.get(BY_KEY_ONE).has(NESTED)) {
-            return new AggsDTO(true, aggJsonNode.get("BY_KEY_ONE").get("aggs").fieldNames().next(), aggJson);
+            return new AggsDTO(true, aggJsonNode.get(BY_KEY_ONE).get("aggs").fieldNames().next(), aggJson);
         }
         return new AggsDTO(false, null, aggJson);
     }

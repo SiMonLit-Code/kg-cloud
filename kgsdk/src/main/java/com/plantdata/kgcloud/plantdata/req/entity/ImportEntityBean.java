@@ -58,5 +58,5 @@ public class ImportEntityBean {
      * 属性列表
      */
     private Map<String, String> privateAttributes;
-
+    private String note;
 }

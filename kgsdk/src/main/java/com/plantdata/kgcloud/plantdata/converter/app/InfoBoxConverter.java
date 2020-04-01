@@ -15,7 +15,7 @@ import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.EntityLinksBean;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
@@ -45,8 +45,8 @@ public class InfoBoxConverter extends BasicConverter {
         return infoBoxReq;
     }
 
-    public static BatchInfoBoxReq infoBoxParameterMoreToBatchInfoBoxReq(@NonNull InfoBoxParameterMore parameterMore) {
-        BatchInfoBoxReq infoBoxReq = new BatchInfoBoxReq();
+    public static BatchInfoBoxReqList infoBoxParameterMoreToBatchInfoBoxReq(@NonNull InfoBoxParameterMore parameterMore) {
+        BatchInfoBoxReqList infoBoxReq = new BatchInfoBoxReqList();
         infoBoxReq.setAllowAttrs(parameterMore.getAllowAtts());
         infoBoxReq.setAllowAttrsKey(parameterMore.getAllowAttsKey());
         infoBoxReq.setRelationAttrs(parameterMore.getIsRelationAtts());
@@ -96,14 +96,14 @@ public class InfoBoxConverter extends BasicConverter {
         oldBean.setDataLinks(toListNoNull(entityLinksRsp.getDataLinks(), InfoBoxConverter::dataLinkRspToDataLinks));
         List<EntityLink> entityLinks = toListNoNull(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
         consumerIfNoNull(entityLinks, a -> oldBean.setEntityLinks(Sets.newHashSet(a)));
-        oldBean.setExtra(toListNoNull(entityLinksRsp.getExtraList(), a -> InfoBoxConverter.extraRspToExtraKVBean(a, entityLinksRsp.getConceptId())));
+        oldBean.setExtra(toListNoNull(entityLinksRsp.getExtraList(), InfoBoxConverter::extraRspToExtraKVBean));
         return oldBean;
     }
 
-    private static ExtraKVBean extraRspToExtraKVBean(@NonNull EntityLinksRsp.ExtraRsp extraRsp, Long domain) {
+    private static ExtraKVBean extraRspToExtraKVBean(@NonNull EntityLinksRsp.ExtraRsp extraRsp) {
         ExtraKVBean extraKVBean = new ExtraKVBean();
         extraKVBean.setAttDefid(extraRsp.getAttrId());
-        extraKVBean.setDomain(domain);
+        extraKVBean.setDomain(extraRsp.getDomainValue());
         extraKVBean.setType(extraRsp.getDataType());
         extraKVBean.setK(extraRsp.getName());
 

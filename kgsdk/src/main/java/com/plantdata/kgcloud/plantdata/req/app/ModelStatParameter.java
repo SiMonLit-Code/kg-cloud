@@ -1,6 +1,10 @@
 package com.plantdata.kgcloud.plantdata.req.app;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -16,7 +20,7 @@ public class ModelStatParameter {
     private String kgName;
     private Boolean isDisplay = true;
     @NotNull
-    private long conceptId = 0L;
+    private Long conceptId;
 
 
 }

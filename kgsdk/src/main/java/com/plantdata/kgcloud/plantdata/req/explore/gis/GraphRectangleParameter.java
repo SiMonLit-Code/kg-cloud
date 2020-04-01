@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.plantdata.req.explore.gis;
 
 import com.plantdata.kgcloud.plantdata.req.common.PageModel;
-import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import com.plantdata.kgcloud.plantdata.validator.DateCheck;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

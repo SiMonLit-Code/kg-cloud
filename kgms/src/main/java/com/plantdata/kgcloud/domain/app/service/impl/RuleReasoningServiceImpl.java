@@ -11,8 +11,12 @@ import ai.plantdata.kg.api.semantic.rsp.EdgeBean;
 import ai.plantdata.kg.api.semantic.rsp.NodeBean;
 import ai.plantdata.kg.api.semantic.rsp.ReasoningResultRsp;
 import ai.plantdata.kg.api.semantic.rsp.TripleBean;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.domain.app.bo.ReasoningBO;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
+import com.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -66,10 +70,10 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
     }
 
     @Override
-    public GraphVO rebuildByRuleReason(String kgName, GraphVO graphVO, ReasoningReqInterface reasoningParam) {
+    public GraphReasoningDTO buildRuleReasonDto(String kgName, GraphVO graphVO, ReasoningReqInterface reasoningParam) {
         Map<Long, Object> configMap = reasoningParam.fetchReasonConfig();
         if (MapUtils.isEmpty(configMap)) {
-            return graphVO;
+            return null;
         }
         List<GraphConfReasoning> configList = graphConfReasoningRepository.findAllById(new ArrayList<>(configMap.keySet()));
         ReasoningBO reasoning = new ReasoningBO(configList, configMap);
@@ -77,32 +81,31 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
         //一次推理
         List<Long> analysisEntityIds = reasoningParam.fetchEntityIdList();
         ReasoningReq reasoningReq = reasoning.buildReasoningReq(analysisEntityIds);
-        reasoningAndFill(kgName, graphVO, reasoningReq);
-        if (reasoningParam.fetchDistance() == 1) {
-            return graphVO;
+        GraphReasoningDTO reasoningDTO = new GraphReasoningDTO(reasoning.getRuleIdCatchMap());
+        reasoningAndFill(kgName, graphVO, reasoningReq, reasoningDTO);
+        if (reasoningParam.fetchDistance() != null && reasoningParam.fetchDistance() == 1) {
+            return reasoningDTO;
         }
         //二次推理
         Set<Long> realDomains = reasoning.getReasonRuleList().stream().map(RelationReasonRuleRsp::getDomain).collect(Collectors.toSet());
         List<Long> realIdList = graphVO.getEntityList().stream().filter(s -> realDomains.contains(s.getConceptId()) && !analysisEntityIds.contains(s.getId())).map(SimpleEntity::getId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(realIdList)) {
             reasoningReq = reasoning.buildReasoningReq(realIdList);
-            reasoningAndFill(kgName, graphVO, reasoningReq);
+            reasoningAndFill(kgName, graphVO, reasoningReq, reasoningDTO);
         }
-        return graphVO;
+        return reasoningDTO;
     }
 
-    private void reasoningAndFill(String kgName, GraphVO graphVO, ReasoningReq reasoningReq) {
+    private void reasoningAndFill(String kgName, GraphVO graphVO, ReasoningReq reasoningReq, GraphReasoningDTO reasoningDTO) {
         Optional<ReasoningResultRsp> resultOpt = RestRespConverter.convert(reasoningApi.reasoning(KGUtil.dbName(kgName), reasoningReq));
         log.error("推理reasoningReq:{}", JacksonUtils.writeValueAsString(reasoningReq));
-        resultOpt.ifPresent(reasoningResultRsp -> this.fillReasonEntityAndRelation(kgName, graphVO, reasoningResultRsp, false));
+        resultOpt.ifPresent(reasoningResultRsp -> this.fillReasonEntityAndRelation(kgName, graphVO, reasoningResultRsp, false, reasoningDTO));
     }
 
-    private void fillReasonEntityAndRelation(String kgName, GraphVO graphBean, ReasoningResultRsp reasoningResultBean, Boolean newEntity) {
-        List<SimpleEntity> entityList = graphBean.getEntityList();
-        Set<Long> entityIdSet = new HashSet<>();
-        for (SimpleEntity entityBean : entityList) {
-            entityIdSet.add(entityBean.getId());
-        }
+    private void fillReasonEntityAndRelation(String kgName, GraphVO graphBean, ReasoningResultRsp reasoningResultBean, Boolean newEntity, GraphReasoningDTO reasoningDTO) {
+
+        Set<Long> entityIdSet = BasicConverter.listToSetNoNull(BasicConverter.listToRsp(graphBean.getEntityList(), SimpleEntity::getId), Sets::newHashSet);
+
         if (CollectionUtils.isEmpty(reasoningResultBean.getTripleList()) || reasoningResultBean.getCount() <= 0) {
             return;
         }
@@ -122,28 +125,27 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
                 SimpleRelation relationBean = new SimpleRelation();
                 relationBean.setFrom(start.getId());
                 relationBean.setTo(end.getId());
-                if (edge.getId() != null) {
-                    relationBean.setAttrId(-edge.getId());
-                }
+                relationBean.setAttrId(edge.getId());
                 relationBean.setAttrName(edge.getName());
-                graphBean.getRelationList().add(relationBean);
+                reasoningDTO.getRelationList().add(relationBean);
             }
         }
         if (idList.isEmpty() || !newEntity) {
             return;
         }
-        Optional<List<EntityVO>> entityBeans = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(idList)));
+        Optional<List<EntityVO>> entityBeans = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(idList,true)));
         if (!entityBeans.isPresent() || CollectionUtils.isEmpty(entityBeans.get())) {
             return;
         }
-        graphBean.getEntityList().addAll(entityBeans.get().stream().map(s -> {
+        List<SimpleEntity> simpleEntities = entityBeans.get().stream().map(s -> {
             SimpleEntity entityBean = new SimpleEntity();
             entityBean.setId(s.getId());
             entityBean.setName(s.getName());
             entityBean.setConceptId(s.getConceptId());
             entityBean.setType(EntityTypeEnum.ENTITY.getValue());
             return entityBean;
-        }).collect(Collectors.toList()));
+        }).collect(Collectors.toList());
+        BasicConverter.consumerIfNoNull(simpleEntities, reasoningDTO.getEntityList()::addAll);
     }
 
 

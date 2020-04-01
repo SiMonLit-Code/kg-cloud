@@ -33,7 +33,7 @@ public class GraphPromptController implements GraphApplicationInterface {
     @Autowired
     private AppClient appClient;
 
-    @ApiOperation("综合搜索")
+    @ApiOperation(value = "实体提示",notes = "知识图谱概念、实体的下拉提示，支持模糊匹配。")
     @PostMapping("{kgName}")
     public ApiReturn<List<PromptEntityRsp>> prompt(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                    @RequestBody  PromptReq promptReq) {

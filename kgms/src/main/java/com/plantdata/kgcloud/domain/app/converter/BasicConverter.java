@@ -35,10 +35,16 @@ public class BasicConverter {
         }
     }
 
-    public static <T> void consumerWithDefault(@NonNull T def, T a, Consumer<T> consumer) {
+    static <T> void consumerWithDefault(@NonNull T def, T a, Consumer<T> consumer) {
         consumer.accept(a == null ? def : a);
     }
 
+    public static <T> List<T> flatToList(Collection<Collection<T>> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        return list.stream().flatMap(Collection::stream).collect(Collectors.toList());
+    }
 
     /**
      * 非空 消费 批量
@@ -56,6 +62,17 @@ public class BasicConverter {
         if (!isNull(param)) {
             function.accept(param);
         }
+    }
+
+    public static <T> List<T> mergeList(List<T> source, List<T> target) {
+        if (CollectionUtils.isEmpty(source)) {
+            return target;
+        }
+        if (!CollectionUtils.isEmpty(target)) {
+            source.addAll(target);
+        }
+
+        return source;
     }
 
     public static <T, R> List<R> listConvert(@NonNull Collection<T> list, Function<T, R> function) {
@@ -102,11 +119,11 @@ public class BasicConverter {
         return toListNoNull(list, a -> listConvert(a, function));
     }
 
-    public static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, List<R>> function) {
+    static <T extends Collection, R> List<R> toListNoNull(T list1, Function<T, Collection<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyList() : function.apply(list1).stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    protected static <T, R> Set<R> listToSetNoNull(List<T> list1, Function<List<T>, Set<R>> function) {
+    public static <T, R> Set<R> listToSetNoNull(List<T> list1, Function<List<T>, Set<R>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptySet() : function.apply(list1);
     }
 

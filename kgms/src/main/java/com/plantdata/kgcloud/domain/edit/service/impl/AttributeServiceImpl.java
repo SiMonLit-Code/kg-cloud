@@ -26,12 +26,14 @@ import ai.plantdata.kg.common.bean.ExtraInfo;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
+import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -50,12 +52,13 @@ import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.AttrConverterUtils;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.IdNameVO;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.req.EdgeSearchReq;
+import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -111,6 +114,11 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Autowired
     private BasicInfoService basicInfoService;
+    @Autowired
+    private GraphHelperService graphHelperService;
+
+    @Autowired
+    private LogSender logSender;
 
     @Override
     public AttrDefinitionVO getAttrDetails(String kgName, Integer id) {
@@ -126,8 +134,9 @@ public class AttributeServiceImpl implements AttributeService {
                                                                 AttrDefinitionSearchReq attrDefinitionSearchReq) {
         List<Long> ids = attrDefinitionSearchReq.getIds();
         Long conceptId = attrDefinitionSearchReq.getConceptId();
+        String dbName = KGUtil.dbName(kgName);
         if (0L == conceptId) {
-            Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getAll(KGUtil.dbName(kgName)));
+            Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getAll(dbName));
             return optional.orElse(new ArrayList<>()).stream()
                     .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                     .collect(Collectors.toList());
@@ -136,7 +145,7 @@ public class AttributeServiceImpl implements AttributeService {
         AttrQueryFrom attrQueryFrom = ConvertUtils.convert(AttrQueryFrom.class).apply(attrDefinitionSearchReq);
         attrQueryFrom.setIds(ids);
         Optional<List<AttrDefVO>> optional = RestRespConverter
-                .convert(attributeApi.getByConceptIds(KGUtil.dbName(kgName), attrQueryFrom));
+                .convert(attributeApi.getByConceptIds(dbName, attrQueryFrom));
         return optional.orElse(new ArrayList<>()).stream()
                 .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
@@ -200,9 +209,11 @@ public class AttributeServiceImpl implements AttributeService {
                 attrDefinitionReqs.stream().map(
                         AttrConverterUtils::attrDefinitionReqConvert
                 ).collect(Collectors.toList());
-
-        return RestCopyConverter.copyRestRespResult(batchApi.updateAttributes(KGUtil.dbName(kgName), voList),
-                new OpenBatchResult<>());
+        Optional<BatchResult<AttributeDefinitionVO>> opt =
+                RestRespConverter.convert(batchApi.updateAttributes(KGUtil.dbName(kgName), voList));
+        return opt.map(attributeDefinitionVOBatchResult ->
+                RestCopyConverter.copyToBatchResult(attributeDefinitionVOBatchResult, AttrDefinitionBatchRsp.class))
+                .orElseGet(OpenBatchResult::new);
     }
 
     @Override
@@ -253,7 +264,7 @@ public class AttributeServiceImpl implements AttributeService {
         Map<String, Long> idNameMap = Maps.newHashMap();
         rangeNames.forEach(name -> {
             Long conceptId = basicInfoService.createBasicInfo(KGUtil.dbName(kgName),
-                    BasicInfoReq.builder().conceptId(0L).type(0).name(name).build());
+                    BasicInfoReq.builder().conceptId(0L).type(0).name(name).build(), ServiceEnum.SCHEMA_REPO);
             idNameMap.put(name, conceptId);
         });
         attrTemplateReqs.stream().filter(attrTemplateReq -> AttributeValueType.isObject(attrTemplateReq.getType()))
@@ -271,7 +282,10 @@ public class AttributeServiceImpl implements AttributeService {
                     attrDefinitionReq.setRangeValue(attrTemplateReq.getRange().stream().map(IdNameVO::getId).collect(Collectors.toList()));
                     return attrDefinitionReq;
                 }).collect(Collectors.toList());
+        logSender.setActionId();
+        logSender.sendLog(kgName, ServiceEnum.SCHEMA_REPO);
         this.batchAddAttrDefinition(kgName, attrDefinitionReqs);
+        logSender.remove();
     }
 
     @Override
@@ -310,8 +324,15 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public void deleteRelations(String kgName, List<String> tripleIds) {
+    public void deleteRelations(String kgName, Boolean isTrace, List<String> tripleIds) {
+        logSender.setActionId();
+        if (isTrace) {
+            logSender.sendLog(kgName, ServiceEnum.RELATION_TRACE);
+        } else {
+            logSender.sendLog(kgName, ServiceEnum.RELATION_EDIT);
+        }
         RestRespConverter.convertVoid(batchApi.deleteRelations(KGUtil.dbName(kgName), null, tripleIds));
+        logSender.remove();
     }
 
     @Override
@@ -377,7 +398,8 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReq queryReq) {
+    public List<EdgeSearchRsp> edgeSearch(String kgName, EdgeSearchReqList queryReq) {
+        graphHelperService.replaceByAttrKey(kgName, queryReq);
         BatchQueryRelationFrom relationFrom = RelationConverter.edgeAttrSearch(queryReq);
         Optional<List<BatchRelationVO>> resOpt = RestRespConverter.convert(batchApi.queryRelation(KGUtil.dbName(kgName),
                 relationFrom));

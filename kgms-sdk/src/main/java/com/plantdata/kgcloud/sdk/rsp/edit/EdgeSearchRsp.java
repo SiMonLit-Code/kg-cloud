@@ -18,6 +18,8 @@ public class EdgeSearchRsp {
     private Integer attrId;
     private EdgeSearchEntityRsp fromEntity;
     private EdgeSearchEntityRsp toEntity;
+    private String attrTimeFrom;
+    private String attrTimeTo;
     @ApiModelProperty("权重")
     private String score = "0";
     @ApiModelProperty("来源")

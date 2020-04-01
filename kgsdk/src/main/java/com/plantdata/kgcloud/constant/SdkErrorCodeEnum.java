@@ -15,6 +15,7 @@ public enum SdkErrorCodeEnum implements ErrorCode {
     /**
      *
      */
+    NUMBER_FORMAT_ERROR(57702, "数字转换异常"),
     CONFIG_PARAM_ERROR(125001, "配置参数错误"),
     APK_NOT_IS_ADMIN(125002, "非管理员apk"),
     ;

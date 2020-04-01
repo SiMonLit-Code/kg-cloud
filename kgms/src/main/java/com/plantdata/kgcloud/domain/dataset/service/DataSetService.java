@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.dataset.service;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
+import com.plantdata.kgcloud.sdk.req.DataSetPdReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
 import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
@@ -69,6 +70,15 @@ public interface DataSetService {
      * @return
      */
     DataSetRsp insert(String userId, DataSetCreateReq req);
+
+    /**
+     * 创建文本数据集
+     *
+     * @param userId
+     * @param req
+     * @return
+     */
+    DataSetRsp insert(String userId, DataSetPdReq req);
 
     /**
      * 数据集ids移动到文件夹

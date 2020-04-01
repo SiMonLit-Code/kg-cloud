@@ -1,7 +1,5 @@
 package com.plantdata.kgcloud.plantdata.req.explore.common;
 
-import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.plantdata.bean.rule.GraphRuleBean;
 import com.plantdata.kgcloud.plantdata.req.common.AttrSortBean;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

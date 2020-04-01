@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.plantdata.req.data;
 
 
 import com.plantdata.kgcloud.plantdata.bean.DateTypeBean;
-import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,7 +38,7 @@ public class StatEdgeGroupByEdgeValueParameter {
     @Min(-1)
     @Max(1000)
     private Integer size = 10;
-    private Boolean merge = false;
+    private Boolean isMerge = false;
     private DateTypeBean dateType;
 
 }

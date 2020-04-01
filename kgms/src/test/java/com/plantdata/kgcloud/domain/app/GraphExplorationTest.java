@@ -7,9 +7,9 @@ import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonFiltersReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
@@ -20,8 +20,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * @author cjw
@@ -42,7 +40,7 @@ public class GraphExplorationTest {
      */
     @Test
     public void commonGraphExplorationTest() {
-        CommonExploreReq exploreReq = new CommonExploreReq();
+        CommonExploreReqList exploreReq = new CommonExploreReqList();
         CommonFiltersReq common = new CommonFiltersReq();
         common.setId(1L);
         common.setHyponymyDistance(6);
@@ -95,7 +93,7 @@ public class GraphExplorationTest {
 
     @Test
     public void timeGraphExplorationTest() {
-        CommonTimingExploreReq exploreReq = new CommonTimingExploreReq();
+        CommonTimingExploreReqList exploreReq = new CommonTimingExploreReqList();
         CommonFiltersReq common = new CommonFiltersReq();
         common.setKw("李岩");
         exploreReq.setCommon(common);
@@ -111,7 +109,7 @@ public class GraphExplorationTest {
 
     @Test
     public void reasoningGraphExplorationTest() {
-        CommonReasoningExploreReq exploreReq = new CommonReasoningExploreReq();
+        CommonReasoningExploreReqList exploreReq = new CommonReasoningExploreReqList();
         CommonFiltersReq common = new CommonFiltersReq();
         common.setKw("李岩");
         exploreReq.setCommon(common);

@@ -62,7 +62,10 @@ public class WordServiceImpl implements WordService {
 
     private WordRsp buildWord(Document doc) {
         WordRsp rsp = new WordRsp();
-        rsp.setId(doc.getObjectId(CommonConstants.MongoConst.ID).toHexString());
+        ObjectId objectId = doc.getObjectId(CommonConstants.MongoConst.ID);
+        if (objectId != null) {
+            rsp.setId(objectId.toHexString());
+        }
         rsp.setNature(Nature.toShow(doc.getString(DictConst.NATURE)));
         rsp.setSyns(JacksonUtils.readValue(doc.getString(DictConst.SYNONYM), new TypeReference<List<String>>() {
         }));
@@ -137,9 +140,10 @@ public class WordServiceImpl implements WordService {
     @Override
     public WordRsp update(String userId, Long dictId, String id, WordReq r) {
         MongoCollection<Document> mdb = getMongodb(userId, dictId);
-        Document document = buildDoc(r);
+        Document value = buildDoc(r);
+        Document document = new Document("$set", value);
         mdb.updateOne(Filters.eq(CommonConstants.MongoConst.ID, new ObjectId(id)), document);
-        return buildWord(document);
+        return buildWord(value);
     }
 
     @Override
@@ -198,7 +202,9 @@ public class WordServiceImpl implements WordService {
 
             @Override
             public void invoke(Map<Integer, Object> data, AnalysisContext context) {
-
+                if (name == null || synonym == null || nature == null) {
+                    throw new RuntimeException("表头必须包含：名称、同义、词性");
+                }
                 if (name != null) {
                     Document map = new Document();
                     map.append(DictConst.NAME, data.get(name));

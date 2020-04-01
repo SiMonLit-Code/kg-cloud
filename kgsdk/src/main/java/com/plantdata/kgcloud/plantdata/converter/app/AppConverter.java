@@ -5,7 +5,7 @@ import com.plantdata.kgcloud.plantdata.req.app.AssociationParameter;
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.rsp.app.ApkBean;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
 import lombok.NonNull;
@@ -20,8 +20,8 @@ import java.util.List;
  */
 public class AppConverter extends BasicConverter {
 
-    public static KnowledgeRecommendReq associationParameterToKnowledgeRecommendReq(@NonNull AssociationParameter param) {
-        KnowledgeRecommendReq recommendReq = new KnowledgeRecommendReq();
+    public static KnowledgeRecommendReqList associationParameterToKnowledgeRecommendReq(@NonNull AssociationParameter param) {
+        KnowledgeRecommendReqList recommendReq = new KnowledgeRecommendReqList();
         recommendReq.setAllowAttrs(param.getAllowAtts());
         recommendReq.setAllowAttrsKey(param.getAllowAttsKey());
         recommendReq.setDirection(param.getDirection());

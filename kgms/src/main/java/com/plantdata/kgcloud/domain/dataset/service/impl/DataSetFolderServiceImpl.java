@@ -46,6 +46,7 @@ public class DataSetFolderServiceImpl implements DataSetFolderService {
             DataSetFolder folder = new DataSetFolder();
             folder.setId(kgKeyGenerator.getNextId());
             folder.setFolderName("默认文件夹");
+            folder.setUserId(userId);
             folder.setDefaulted(true);
             return dataSetFolderRepository.save(folder);
         });
@@ -82,11 +83,12 @@ public class DataSetFolderServiceImpl implements DataSetFolderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public FolderRsp folderInsert(FolderReq req) {
+    public FolderRsp folderInsert(String userId,FolderReq req) {
         DataSetFolder folder = new DataSetFolder();
         BeanUtils.copyProperties(req, folder);
         folder.setId(kgKeyGenerator.getNextId());
         folder.setDefaulted(false);
+        folder.setUserId(userId);
         DataSetFolder save = dataSetFolderRepository.save(folder);
         return ConvertUtils.convert(FolderRsp.class).apply(save);
     }

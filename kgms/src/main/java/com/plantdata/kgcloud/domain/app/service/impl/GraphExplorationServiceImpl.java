@@ -10,6 +10,8 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.domain.app.converter.GisConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
+import com.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
+import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
@@ -18,9 +20,9 @@ import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReqList;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
@@ -55,11 +57,12 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     public CommonBasicGraphExploreRsp exploreByKgQl(String kgName, ExploreByKgQlReq kgQlReq) {
         log.error("kgql:{}", kgQlReq.getKgQl());
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.traversalRule(KGUtil.dbName(kgName), kgQlReq.getEntityId(), kgQlReq.getKgQl()));
-        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, kgQlReq)).orElse(CommonBasicGraphExploreRsp.EMPTY);
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, new GraphRspDTO(graphVO, kgQlReq))).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
     @Override
     public GisGraphExploreRsp gisGraphExploration(String kgName, GisGraphExploreReq exploreParam) {
+        graphHelperService.replaceByConceptKey(kgName,exploreParam);
         Optional<List<BasicInfo>> basicInfoOpt = RestRespConverter.convert(gisApi.GisGeneralGraph(KGUtil.dbName(kgName), GisConverter.reqToGisFrom(exploreParam)));
         Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
         return basicInfoOpt.map(a -> GisConverter.voToGisAnalysisRsp(a, conceptIdMap)).orElseGet(GisGraphExploreRsp::new);
@@ -74,21 +77,21 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     }
 
     @Override
-    public CommonBasicGraphExploreRsp commonGraphExploration(String kgName, CommonExploreReq exploreReq) {
+    public CommonBasicGraphExploreRsp commonGraphExploration(String kgName, CommonExploreReqList exploreReq) {
         exploreReq = graphHelperService.keyToId(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
         return queryAndRebuildRsp(kgName, graphFrom, exploreReq);
     }
 
     @Override
-    public CommonBasicGraphExploreRsp timeGraphExploration(String kgName, CommonTimingExploreReq exploreReq) {
+    public CommonBasicGraphExploreRsp timeGraphExploration(String kgName, CommonTimingExploreReqList exploreReq) {
         exploreReq = graphHelperService.keyToId(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
         return queryAndRebuildRsp(kgName, graphFrom, exploreReq);
     }
 
     @Override
-    public CommonBasicGraphExploreRsp reasoningGraphExploration(String kgName, CommonReasoningExploreReq exploreReq) {
+    public CommonBasicGraphExploreRsp reasoningGraphExploration(String kgName, CommonReasoningExploreReqList exploreReq) {
         exploreReq = graphHelperService.keyToId(kgName, exploreReq);
         GraphFrom graphFrom = GraphReqConverter.commonReqProxy(exploreReq);
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
@@ -96,17 +99,17 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
             return CommonBasicGraphExploreRsp.EMPTY;
         }
         //推理
-        GraphVO graphVO = ruleReasoningService.rebuildByRuleReason(kgName, graphOpt.get(), exploreReq);
-        return this.buildExploreRspWithConcept(kgName, graphVO, exploreReq);
+        GraphReasoningDTO reasoningDto = ruleReasoningService.buildRuleReasonDto(kgName, graphOpt.get(), exploreReq);
+        return this.buildExploreRspWithConcept(kgName, new GraphRspDTO(graphOpt.get(), exploreReq, reasoningDto));
     }
 
     private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, GraphReqAfterInterface graphReqAfter) {
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
-        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, graphVO, graphReqAfter)).orElse(CommonBasicGraphExploreRsp.EMPTY);
+        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, new GraphRspDTO(graphOpt.get(), graphReqAfter))).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
-    private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphVO graph, GraphReqAfterInterface graphAfter) {
+    private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphRspDTO afterDTO) {
         Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
-        return GraphRspConverter.graphVoToCommonRsp(graph, conceptIdMap, graphAfter);
+        return GraphRspConverter.fillEntityAndEntity(conceptIdMap, afterDTO);
     }
 }

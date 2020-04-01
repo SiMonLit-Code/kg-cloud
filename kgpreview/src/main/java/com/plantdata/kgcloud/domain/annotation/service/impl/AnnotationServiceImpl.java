@@ -44,6 +44,9 @@ public class AnnotationServiceImpl implements AnnotationService {
         double totalWeight = setting.fieldsAndWeights.values().stream().mapToDouble(s -> s).sum();
         List<AnnotationRsp> ls = new ArrayList<>();
         ApiReturn<BasePage<Map<String, Object>>> apiReturn = kgmsClient.dataOptFindAll(setting.getDataSetId(), 1, 20);
+        if (apiReturn == null || apiReturn.getData() == null) {
+            throw new BizException(5004, "数据集不存在");
+        }
         for (Map<String, Object> data : apiReturn.getData().getContent()) {
             for (TargetConcept targetConcept : setting.targetConcepts) {
                 Set<Long> conceptIds = KgQueryUtil.getSonConceptIds(kgDbName, true, targetConcept.conceptId);
@@ -57,8 +60,13 @@ public class AnnotationServiceImpl implements AnnotationService {
                         String field = entry.getKey();
                         double weight = entry.getValue();
                         String text = data.getOrDefault(field, "").toString().toLowerCase();
-                        if (text.contains(name)) {
-                            score += weight / totalWeight * (name.length() * 1.0 / text.length());
+                        try {
+                            String str = text.replaceAll(name, "");
+                            if (str.length() < text.length()) {
+                                score += weight / totalWeight * ((text.length() - str.length()) * 1.0 / text.length());
+                            }
+                        } catch (Exception e) {
+                            // pattern error
                         }
                     }
                     if (score > 0) {
@@ -67,6 +75,7 @@ public class AnnotationServiceImpl implements AnnotationService {
                         annotationRsp.setEntityName(name);
                         annotationRsp.setScore(score);
                         annotationRsp.setType(basic.getInteger("type"));
+                        annotationRsp.setId(data.get("_id").toString());
                         ls.add(annotationRsp);
                         if (ls.size() >= 10) {
                             break;
@@ -79,6 +88,11 @@ public class AnnotationServiceImpl implements AnnotationService {
             }
         }
         return new BasePage<>(ls.size(), ls);
+    }
+
+    public static void main(String[] args) {
+        String str = "11123";
+        str.replaceAll("+生物素立体选择性全合成方法", "");
     }
 
     /**

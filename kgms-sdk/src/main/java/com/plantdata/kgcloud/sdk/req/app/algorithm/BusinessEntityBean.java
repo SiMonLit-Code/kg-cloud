@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.sdk.req.app.algorithm;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.KVBean;
+import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
+@ApiModel("复杂图算法实体参数")
 public class BusinessEntityBean {
 
     private Map<String, Object> style;

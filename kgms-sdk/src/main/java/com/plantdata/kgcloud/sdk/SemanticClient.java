@@ -6,10 +6,8 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.NerSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
-import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBean;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBeanRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.SemanticSegWordRsp;
 import io.swagger.annotations.ApiParam;
@@ -30,11 +28,12 @@ public interface SemanticClient {
      * 问答
      *
      * @param kgName
-     * @param query
+     * @param queryReq
      * @return
      */
-    @PostMapping("qa/kbqa")
-    ApiReturn<QaAnswerDataRsp> query(@RequestParam("kgName") String kgName, @RequestBody QueryReq query);
+    @PostMapping("qa/{kgName}")
+    ApiReturn<QaAnswerDataRsp> qaKbQa(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                      @RequestBody QueryReq queryReq);
 
     /**
      * 初始化意图
@@ -57,27 +56,15 @@ public interface SemanticClient {
     /**
      * 语义识别
      *
-     * @param kgName
-     * @param var2
-     * @param var3
-     * @return
+     * @param kgName String
+     * @param query  String
+     * @param size   int
+     * @return IntentDataBeanRsp
      */
     @PostMapping({"qa/intent"})
-    ApiReturn<IntentDataBean> intent(@ApiParam("图谱名称") @RequestParam("kgName") String kgName, @ApiParam("自然语言输入") @RequestParam("query") String var2, @RequestParam(value = "size", defaultValue = "5") int var3);
-
-
-
-
-    /**
-     * 实体语义相关实体查询
-     *
-     * @param kgName
-     * @param listReq
-     * @return
-     */
-    @PostMapping("distance/list/{kgName}")
-    ApiReturn<List<DistanceEntityRsp>> semanticDistanceRelevance(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                                 @RequestBody DistanceListReq listReq);
+    ApiReturn<IntentDataBeanRsp> intent(@ApiParam("图谱名称") @RequestParam("kgName") String kgName,
+                                        @ApiParam("自然语言输入") @RequestParam("query") String query,
+                                        @RequestParam(value = "size", defaultValue = "5") int size);
 
     /**
      * 两个实体间语义距离查询

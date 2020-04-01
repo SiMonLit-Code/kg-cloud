@@ -8,11 +8,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
+import com.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
+import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
@@ -22,10 +25,7 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,21 +36,43 @@ import java.util.stream.Collectors;
  */
 public class GraphRspConverter extends BasicConverter {
 
-    public static CommonBasicGraphExploreRsp graphVoToCommonRsp(GraphVO graph, Map<Long, BasicInfo> conceptIdMap, GraphReqAfterInterface graphAfter) {
-        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap, graphAfter.getReplaceClassIds()));
-        List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, graphAfter.isRelationMerge()));
-        return new CommonBasicGraphExploreRsp(relationRspList, graph.getLevel1HasNext(), commonEntityRspList);
+    public static CommonBasicGraphExploreRsp fillEntityAndEntity(Map<Long, BasicInfo> conceptIdMap, GraphRspDTO graphAfter) {
+        CommonBasicGraphExploreRsp exploreRsp = new CommonBasicGraphExploreRsp();
+        fillEntityAndEntity(graphAfter.getGraphVo(), conceptIdMap, graphAfter.getGraphReq(), exploreRsp);
+        consumerIfNoNull(graphAfter.getReasoningDTO(), a -> fillReasonEntityAndRelation(a, conceptIdMap, graphAfter.getGraphReq(), exploreRsp));
+        return exploreRsp;
     }
 
-    public static <T extends StatisticRsp> T graphVoToStatisticRsp(GraphVO graph, List<GraphStatisticRsp> statisticRspList, Map<Long, BasicInfo> conceptIdMap, T analysisRsp, GraphReqAfterInterface graphAfter) {
+    public static <T extends StatisticRsp> T graphVoToStatisticRsp(List<GraphStatisticRsp> statisticRspList, Map<Long, BasicInfo> conceptIdMap, T analysisRsp, GraphRspDTO graphAfter) {
+        fillEntityAndEntity(graphAfter.getGraphVo(), conceptIdMap, graphAfter.getGraphReq(), analysisRsp);
+        consumerIfNoNull(graphAfter.getReasoningDTO(), a -> fillReasonEntityAndRelation(a, conceptIdMap, graphAfter.getGraphReq(), analysisRsp));
+        analysisRsp.setStatisticResult(statisticRspList);
+        return analysisRsp;
+    }
+
+    private static <T extends BasicGraphExploreRsp, E extends GraphVO> void fillEntityAndEntity(E graph, Map<Long, BasicInfo> conceptIdMap, GraphReqAfterInterface graphAfter, T t) {
         List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(graph.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap, graphAfter.getReplaceClassIds()));
         List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(graph.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, graphAfter.isRelationMerge()));
-        analysisRsp.setEntityList(commonEntityRspList);
-        analysisRsp.setHasNextPage(graph.getLevel1HasNext());
-        analysisRsp.setRelationList(relationRspList);
-        analysisRsp.setStatisticResult(statisticRspList);
-        infoLog("GraphVO", graph);
-        return analysisRsp;
+        t.setRelationList(relationRspList);
+        t.setEntityList(commonEntityRspList);
+        t.setHasNextPage(graph.getLevel1HasNext());
+    }
+
+    private static <T extends BasicGraphExploreRsp> void fillReasonEntityAndRelation(GraphReasoningDTO reasoningDTO, Map<Long, BasicInfo> conceptIdMap, GraphReqAfterInterface graphAfter, T rsp) {
+        List<CommonEntityRsp> commonEntityRspList = DefaultUtils.executeIfNoNull(reasoningDTO.getEntityList(), a -> buildCommonEntityList(a, conceptIdMap, graphAfter.getReplaceClassIds()));
+        List<GraphRelationRsp> relationRspList = DefaultUtils.executeIfNoNull(reasoningDTO.getRelationList(), a -> GraphCommonConverter.simpleRelationToGraphRelationRsp(a, graphAfter.isRelationMerge()));
+        Map<Integer, Long> ruleIdMap = reasoningDTO.getRuleIdMap();
+        BasicConverter.listConsumerIfNoNull(relationRspList, a -> a.setReasonRuleId(ruleIdMap.get(a.getAttId())));
+        if (CollectionUtils.isEmpty(rsp.getEntityList())) {
+            rsp.setEntityList(commonEntityRspList);
+        } else {
+            rsp.getEntityList().addAll(commonEntityRspList);
+        }
+        if (CollectionUtils.isEmpty(rsp.getRelationList())) {
+            rsp.setRelationList(relationRspList);
+        } else {
+            rsp.getRelationList().addAll(relationRspList);
+        }
     }
 
     /**
@@ -62,33 +84,42 @@ public class GraphRspConverter extends BasicConverter {
         List<GraphStatisticRsp> statisticRspList = Lists.newArrayList();
         for (BasicStatisticReq config : configList) {
             //拿要计算的type, 构建待计算的entityList
+            GraphStatisticRsp graphStatisticRsp = new GraphStatisticRsp(config.getKey(), config.getConceptId(), config.getAttrIdList(), Collections.emptyList());
             List<SimpleEntity> entityRspList = conceptIdKeyMap.get(config.getConceptId());
             if (CollectionUtils.isEmpty(entityRspList)) {
+                statisticRspList.add(graphStatisticRsp);
                 continue;
             }
-            Set<Long> entityIdSet = entityRspList.stream().map(SimpleEntity::getId).collect(Collectors.toSet());
-            //在要计算的entityList中计算匹配的关系
-            List<Long> entityIds = Lists.newArrayList();
-            config.getAttrIdList().stream().filter(attrIdKeyMap::containsKey).forEach(a -> {
-                List<SimpleRelation> relationRspList = attrIdKeyMap.get(a);
-                relationRspList.forEach(rsp -> {
-                    if (entityIdSet.contains(rsp.getFrom())) {
-                        entityIds.add(rsp.getFrom());
-                    }
-                    if (entityIdSet.contains(rsp.getTo())) {
-                        entityIds.add(rsp.getTo());
-                    }
-                });
-            });
+            List<Long> entityIds = fetchEntityIds(entityRspList, attrIdKeyMap, config);
             if (CollectionUtils.isEmpty(entityIds)) {
+                statisticRspList.add(graphStatisticRsp);
                 continue;
             }
             Map<Long, Long> countMap = entityIds.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
             List<GraphStatisticRsp.GraphStatisticDetailRsp> detailList = countMap.entrySet().stream().map(entry -> new GraphStatisticRsp.GraphStatisticDetailRsp(entry.getKey(), entry.getValue().intValue())).collect(Collectors.toList());
             //将结果写回configBean
-            statisticRspList.add(new GraphStatisticRsp(config.getKey(), config.getConceptId(), config.getAttrIdList(), detailList));
+            graphStatisticRsp.setStatisticDetails(detailList);
+            statisticRspList.add(graphStatisticRsp);
         }
         return statisticRspList;
+    }
+
+    private static List<Long> fetchEntityIds( List<SimpleEntity> entityRspList, Map<Integer, List<SimpleRelation>> attrIdKeyMap ,BasicStatisticReq config){
+        Set<Long> entityIdSet = entityRspList.stream().map(SimpleEntity::getId).collect(Collectors.toSet());
+        //在要计算的entityList中计算匹配的关系
+        List<Long> entityIds = Lists.newArrayList();
+        config.getAttrIdList().stream().filter(attrIdKeyMap::containsKey).forEach(a -> {
+            List<SimpleRelation> relationRspList = attrIdKeyMap.get(a);
+            relationRspList.forEach(rsp -> {
+                if (entityIdSet.contains(rsp.getFrom())) {
+                    entityIds.add(rsp.getFrom());
+                }
+                if (entityIdSet.contains(rsp.getTo())) {
+                    entityIds.add(rsp.getTo());
+                }
+            });
+        });
+        return entityIds;
     }
 
     public static Optional<GraphInitRsp> rebuildGraphInitRsp(GraphConfFocus initGraphBean, GraphInitRsp graphInitRsp) {
@@ -113,7 +144,7 @@ public class GraphRspConverter extends BasicConverter {
 
     private static List<CommonEntityRsp> buildCommonEntityList(@NonNull List<SimpleEntity> simpleEntityList, Map<Long, BasicInfo> conceptMap, List<Long> replaceClassIds) {
         Set<Long> replaceClassIdsSet = listToSetNoNull(replaceClassIds, Sets::newHashSet);
-        return simpleEntityList.stream().map(a -> GraphCommonConverter.simpleToGraphEntityRsp(new CommonEntityRsp(), a, conceptMap, replaceClassIdsSet)).collect(Collectors.toList());
+        return simpleEntityList.stream().filter(Objects::nonNull).map(a -> GraphCommonConverter.simpleToGraphEntityRsp(new CommonEntityRsp(), a, conceptMap, replaceClassIdsSet)).collect(Collectors.toList());
     }
 
 

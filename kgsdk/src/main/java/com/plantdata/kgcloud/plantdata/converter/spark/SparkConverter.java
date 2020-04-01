@@ -13,7 +13,7 @@ public class SparkConverter {
     public static SparQlReq sparqlQueryParameterToSparQlReq(SparqlQueryParameter param) {
         SparQlReq sparQlReq = new SparQlReq();
         sparQlReq.setQuery(param.getQuery());
-        sparQlReq.setSize(sparQlReq.getSize());
+        sparQlReq.setSize(param.getSize());
         return sparQlReq;
     }
 }

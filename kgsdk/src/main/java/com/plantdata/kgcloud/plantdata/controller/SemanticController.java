@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
 import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.SemanticClient;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
+import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 import io.swagger.annotations.ApiImplicitParam;
@@ -58,7 +59,7 @@ public class SemanticController implements SdkOldApiInterface {
     })
     public RestResp<QaAnswerDataRsp> qaKbqa(@Valid @ApiIgnore QaKbqaParameter param) {
 
-        Function<QueryReq, ApiReturn<QaAnswerDataRsp>> returnFunction = a -> semanticClient.query(param.getKgName(), a);
+        Function<QueryReq, ApiReturn<QaAnswerDataRsp>> returnFunction = a -> semanticClient.qaKbQa(param.getKgName(), a);
         Optional<QaAnswerDataRsp> dataRsp = returnFunction
                 .compose(QaConverter::qaKbqaParameterToQueryReq)
                 .andThen(BasicConverter::apiReturnData)
@@ -70,17 +71,13 @@ public class SemanticController implements SdkOldApiInterface {
     @PostMapping("reasoning")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "attrId", dataType = "int", paramType = "form", value = "推理属性id"),
-            @ApiImplicitParam(name = "name", dataType = "string", paramType = "form", value = "推理属性名称"),
-            @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "推理的实例id"),
-            @ApiImplicitParam(name = "type", required = true, dataType = "int", paramType = "form", value = "隐含知识类型：1数值属性，2对象属性"),
-            @ApiImplicitParam(name = "domain", required = true, dataType = "string", paramType = "form", value = "定义域"),
-            @ApiImplicitParam(name = "rangeList", required = true, dataType = "string", paramType = "form", value = "值域 JSON格式的概念id列表"),
-            @ApiImplicitParam(name = "pathRuleList", required = true, dataType = "string", paramType = "form", value = "推理条件"),
-            @ApiImplicitParam(name = "PageModel", dataType = "string", paramType = "form", value = "定义域"),
+            @ApiImplicitParam(name = "ids", required = true, dataType = "array", paramType = "form", value = "推理的实例ids[71]"),
+            @ApiImplicitParam(name = "ruleConfig", required = true, dataType = "string", paramType = "form", value = "推理规则"),
+            @ApiImplicitParam(name = "pos", required = true, dataType = "string", paramType = "form", value = "页数"),
+            @ApiImplicitParam(name = "size", dataType = "string", paramType = "form", value = "定义域"),
     })
-    public RestResp<GraphReasoningResultRsp> inference(@Valid @ApiIgnore InferenceParameter param) {
-        ApiReturn<GraphReasoningResultRsp> reasoning = reasoningClient.reasoning(param.getKgName(), ReasonConverter.inferenceParameterToReasoningReq(param));
+    public RestResp<GraphReasoningResultRsp> inference(@RequestParam("kgName")String kgName,@Valid @ApiIgnore ReasoningReq reasoningReq) {
+        ApiReturn<GraphReasoningResultRsp> reasoning = reasoningClient.reasoning(kgName,reasoningReq);
         return new RestResp<>(BasicConverter.apiReturnData(reasoning).orElse(new GraphReasoningResultRsp()));
     }
 

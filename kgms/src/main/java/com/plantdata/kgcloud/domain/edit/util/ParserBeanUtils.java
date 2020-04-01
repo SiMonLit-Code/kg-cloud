@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.util;
 
+import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.RelationVO;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,6 +18,7 @@ import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +81,10 @@ public class ParserBeanUtils {
         try {
             if (Objects.nonNull(entityMetaData)) {
                 if (entityMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-                    basicInfoRsp.setScore(Double.valueOf(entityMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString()));
+                    String score = entityMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString();
+                    if (StringUtils.hasText(score)) {
+                        basicInfoRsp.setScore(Double.valueOf(score));
+                    }
                 }
 
                 if (entityMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
@@ -99,7 +104,10 @@ public class ParserBeanUtils {
                 }
 
                 if (entityMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-                    basicInfoRsp.setReliability(Double.valueOf(entityMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString()));
+                    String reliability = entityMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString();
+                    if (StringUtils.hasText(reliability)) {
+                        basicInfoRsp.setReliability(Double.valueOf(reliability));
+                    }
                 }
 
                 if (entityMetaData.containsKey(MetaDataInfo.UPDATE_TIME.getFieldName())) {
@@ -160,6 +168,27 @@ public class ParserBeanUtils {
     }
 
     /**
+     * 解析实体关系
+     *
+     * @param vo
+     * @return
+     */
+    public static EntityAttrValueVO parserEntityAttrValue(EntityAttributeValueVO vo, int size) {
+        EntityAttrValueVO entityAttrValueVO = MapperUtils.map(vo, EntityAttrValueVO.class);
+        List<ObjectAttrValueVO> objectValues = entityAttrValueVO.getObjectValues();
+        if (Objects.nonNull(objectValues) && !objectValues.isEmpty()) {
+            if (objectValues.size() > size){
+                entityAttrValueVO.setHasNext(true);
+                objectValues.remove(size);
+            }
+            List<ObjectAttrValueVO> relationAttrValues = objectValues.stream()
+                    .map(ParserBeanUtils::parserRelationValue).collect(Collectors.toList());
+            entityAttrValueVO.setObjectValues(relationAttrValues);
+        }
+        return entityAttrValueVO;
+    }
+
+    /**
      * 解析关系的metadata
      *
      * @param relationAttrValueVO
@@ -170,13 +199,19 @@ public class ParserBeanUtils {
         try {
             if (Objects.nonNull(relationMetaData)) {
                 if (relationMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-                    relationAttrValueVO.setScore((Double) relationMetaData.get(MetaDataInfo.SCORE.getFieldName()));
+                    String score = relationMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString();
+                    if (StringUtils.hasText(score)) {
+                        relationAttrValueVO.setScore(Double.valueOf(score));
+                    }
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
                     relationAttrValueVO.setSource((String) relationMetaData.get(MetaDataInfo.SOURCE.getFieldName()));
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-                    relationAttrValueVO.setReliability((Double) relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()));
+                    String reliability = relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString();
+                    if (StringUtils.hasText(reliability)) {
+                        relationAttrValueVO.setReliability(Double.valueOf(reliability));
+                    }
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE_REASON.getFieldName())) {
                     relationAttrValueVO.setSourceReason((String) relationMetaData.get(MetaDataInfo.SOURCE_REASON.getFieldName()));
@@ -204,13 +239,19 @@ public class ParserBeanUtils {
         try {
             if (Objects.nonNull(relationMetaData)) {
                 if (relationMetaData.containsKey(MetaDataInfo.SCORE.getFieldName())) {
-                    relationRsp.setScore((Double) relationMetaData.get(MetaDataInfo.SCORE.getFieldName()));
+                    String score = relationMetaData.get(MetaDataInfo.SCORE.getFieldName()).toString();
+                    if (StringUtils.hasText(score)){
+                        relationRsp.setScore(Double.valueOf(score));
+                    }
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
                     relationRsp.setSource((String) relationMetaData.get(MetaDataInfo.SOURCE.getFieldName()));
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-                    relationRsp.setReliability((Double) relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()));
+                    String reliability = relationMetaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString();
+                    if (StringUtils.hasText(reliability)){
+                        relationRsp.setReliability(Double.valueOf(reliability));
+                    }
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.BATCH_NO.getFieldName())) {
                     relationRsp.setBatch(relationMetaData.get(MetaDataInfo.BATCH_NO.getFieldName()).toString());

@@ -6,26 +6,25 @@ import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.GisEntityVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.hiekn.pddocument.bean.element.PdEntity;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphCommonConverter;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.NamedEntityRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -35,12 +34,23 @@ import java.util.stream.Collectors;
  */
 public class EntityConverter extends BasicConverter {
 
-    public static KgServiceEntityFrom buildIdsQuery(@NonNull Collection<Long> entityIdList) {
+    @NonNull
+    public static Function<EntityQueryWithConditionReq, BasicInfo> entityQueryWithConditionReqToBasicInfo = a -> {
+        BasicInfo basicInfo = new BasicInfo();
+        basicInfo.setName(a.getName());
+        basicInfo.setMeaningTag(a.getMeaningTag());
+        return basicInfo;
+    };
+
+
+    public static KgServiceEntityFrom buildIdsQuery(@NonNull Collection<Long> entityIdList, boolean simple) {
         KgServiceEntityFrom entityFrom = new KgServiceEntityFrom();
         entityFrom.setIds(Lists.newArrayList(entityIdList));
-        entityFrom.setReadObjectAttribute(true);
         entityFrom.setReadMetaData(true);
-        entityFrom.setReadReverseObjectAttribute(false);
+        if (!simple) {
+            entityFrom.setReadObjectAttribute(true);
+            entityFrom.setReadReverseObjectAttribute(false);
+        }
         return entityFrom;
     }
 
@@ -59,7 +69,7 @@ public class EntityConverter extends BasicConverter {
         entity.setMeaningTag(entityVO.getMeaningTag());
         entity.setName(entityVO.getName());
         entity.setType(EntityTypeEnum.ENTITY.getValue());
-        MetaConverter.fillMetaWithNoNull(entityVO.getMetaData(), entity);
+        consumerIfNoNull(entityVO.getMetaData(), a -> MetaConverter.fillMetaWithNoNull(a, entity));
         return entity;
     }
 
@@ -70,7 +80,7 @@ public class EntityConverter extends BasicConverter {
         entity.setMeaningTag(entityVO.getMeaningTag());
         entity.setName(entityVO.getName());
         entity.setType(EntityTypeEnum.ENTITY.getValue());
-        MetaConverter.fillMetaWithNoNull(entityVO.getMetaData(), entity);
+        consumerIfNoNull(entityVO.getMetaData(), a -> MetaConverter.fillMetaWithNoNull(a, entity));
         return entity;
     }
 
@@ -143,12 +153,9 @@ public class EntityConverter extends BasicConverter {
 
     public static SearchByAttributeFrom entityQueryReqToSearchByAttributeFrom(EntityQueryReq entityQueryReq) {
         SearchByAttributeFrom attributeFrom = new SearchByAttributeFrom();
-        if (StringUtils.isNoneBlank(entityQueryReq.getQuery())) {
-            attributeFrom.setKvMap(JacksonUtils.readValue(entityQueryReq.getQuery(), new TypeReference<Map<String, Object>>() {
-            }));
-        }
         attributeFrom.setLimit(entityQueryReq.getLimit());
         attributeFrom.setSkip(entityQueryReq.getOffset());
+        consumerIfNoNull(entityQueryReq.getDataAttrFilters(), a -> attributeFrom.setKvMap(ConditionConverter.buildSearchMapByDataAttrReq(a)));
         consumerIfNoNull(entityQueryReq.getConceptId(), a -> attributeFrom.setConceptIds(Lists.newArrayList(a)));
         return attributeFrom;
     }

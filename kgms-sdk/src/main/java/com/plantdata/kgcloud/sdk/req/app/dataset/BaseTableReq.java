@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -14,10 +15,12 @@ import java.util.List;
 @Getter
 @Setter
 public class BaseTableReq extends PageReq {
-    @ApiModelProperty("es query条件")
-    private String query;
+    @ApiModelProperty("es query条件 例：{\"query\":{\"match_phrase\":{\"{field}\":\"{value}}\"}}}  field:数据集key; value: 数据集的值" +
+            "mongo query条件 {\"query\":{\"{field}\":\"{value}}\"}}")
+    private Map<String, Object> query;
     @ApiModelProperty("要查询的字段")
     private List<String> fields;
-    @ApiModelProperty("mongodb 语法")
-    private String sort;
+    @ApiModelProperty("mongodb 语法 例： {\"{field}\":{sort}}  field:数据集key; sort :-1反向 1正向" )
+    private Map<String, Object> sort;
+
 }

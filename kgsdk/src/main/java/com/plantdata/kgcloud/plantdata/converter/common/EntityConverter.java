@@ -3,9 +3,12 @@ package com.plantdata.kgcloud.plantdata.converter.common;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.plantdata.req.common.Additional;
 import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
+import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
+import com.plantdata.kgcloud.sdk.req.app.DataAttrReq;
+import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
@@ -48,6 +51,30 @@ public class EntityConverter extends BasicConverter {
         return entityBean;
     }
 
+    public static EntityQueryReq entityByDataAttributeParameterToEntityQueryReq(EntityByDataAttributeParameter parameter) {
+        EntityQueryReq entityQueryReq = new EntityQueryReq();
+        consumerIfNoNull(parameter.getQuery(), a -> {
+            List<DataAttrReq> dataAttrReqs = BasicConverter.toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityDataAttrReq);
+            entityQueryReq.setDataAttrFilters(dataAttrReqs);
+        });
+        entityQueryReq.setConceptId(parameter.getConceptId());
+        entityQueryReq.setConceptKey(parameter.getConceptKey());
+        entityQueryReq.setPage(parameter.getPageNo());
+        entityQueryReq.setSize(parameter.getPageSize());
+        return entityQueryReq;
+    }
+
+    public static ImportEntityBean OpenBatchSaveEntityRspToImportEntityBean(@NonNull  OpenBatchSaveEntityRsp entityRsp) {
+        ImportEntityBean entityBean = copy(entityRsp, ImportEntityBean.class);
+        consumerIfNoNull(entityRsp.getAttributes(), a -> {
+            Map<String, Object> tempMap = Maps.newHashMap();
+            a.forEach((k, v) -> tempMap.put(String.valueOf(k), v));
+            entityBean.setAttributes(tempMap);
+        });
+        consumerIfNoNull(entityRsp.getPrivateAttributes(), entityBean::setPrivateAttributes);
+        return entityBean;
+    }
+
     public static OpenBatchSaveEntityRsp importEntityBeanToOpenBatchSaveEntityRsp(@NonNull ImportEntityBean entityRsp) {
         OpenBatchSaveEntityRsp saveEntityRsp = new OpenBatchSaveEntityRsp();
         consumerIfNoNull(entityRsp.getAttributes(), a -> {
@@ -74,10 +101,4 @@ public class EntityConverter extends BasicConverter {
         return attrDeleteReq;
     }
 
-    public static Map<String, List<Long>> openBatchResultToMap(@NonNull OpenBatchResult<OpenBatchSaveEntityRsp> batchResult) {
-        Map<String, List<Long>> resMap = Maps.newHashMap();
-        resMap.put("error", toListNoNull(batchResult.getSuccess(), OpenBatchSaveEntityRsp::getId));
-        resMap.put("success", toListNoNull(batchResult.getSuccess(), OpenBatchSaveEntityRsp::getId));
-        return resMap;
-    }
 }

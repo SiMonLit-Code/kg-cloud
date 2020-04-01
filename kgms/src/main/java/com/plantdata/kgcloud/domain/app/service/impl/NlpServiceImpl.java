@@ -193,7 +193,7 @@ public class NlpServiceImpl implements NlpService {
                 });
             }
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList,true)));
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return Collections.emptyList();
         }
@@ -203,94 +203,4 @@ public class NlpServiceImpl implements NlpService {
 
     }
 
-//    @Override
-//    public List<Map<String, Object>> segmentIK(SegmentIkParameter segmentIkParameter) {
-//        Integer mode = segmentIkParameter.getMode();
-//        Boolean abandonRepeat = segmentIkParameter.getAbandonRepeat();
-//        Boolean abandonSingle = segmentIkParameter.getAbandonSingle();
-//        String kw = segmentIkParameter.getKw();
-//        String ik_mode = mode == 0 ? "ik_max_word" : "ik_smart";
-//
-//        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-//        paramMap.add("text", kw);
-//        paramMap.add("analyzer", ik_mode);
-//
-//        //  String url = "http://" + constants.cloudEsIp + ":" + constants.cloudEsRestPort + "/_analyze";
-//        String url = null;
-//        String rs = HttpUtils.getForObject(url, paramMap, String.class);
-//
-//        JSONObject rsJsonObject = JSONObject.parseObject(rs);
-//
-//        JSONArray tokens = rsJsonObject.getJSONArray("tokens");
-//
-//        if (tokens.size() == 0) {
-//            return new ArrayList<>();
-//        }
-//
-//
-//        /**
-//         * 开始处理单字
-//         */
-//
-//        if (abandonSingle) {
-//
-//            boolean tokensMoreThanSingleWord = false;
-//
-//            for (int i = 0; i < tokens.size(); i++) {
-//                if (tokens.getJSONObject(i).size() > 1) {
-//                    tokensMoreThanSingleWord = true;
-//                    break;
-//                }
-//            }
-//
-//            //干掉单字
-//            if (tokensMoreThanSingleWord) {
-//                for (int i = 0; i < tokens.size(); i++) {
-//                    if (tokens.getJSONObject(i).getString("token").length() <= 1) {
-//                        tokens.remove(i);
-//                        i--;
-//                    }
-//                }
-//            }
-//        }
-//
-//
-//        //处理重复
-//        if (abandonRepeat) {
-//
-//            for (int i = 0; i < tokens.size(); i++) {
-//
-//                String firstToken = tokens.getJSONObject(i).getString("token");
-//
-//                for (int j = 0; i != j && j < tokens.size(); j++) {
-//
-//                    String secondToken = tokens.getJSONObject(j).getString("token");
-//
-//                    if (secondToken.contains(firstToken)) {
-//                        tokens.remove(i);
-//                        i--;
-//                    }
-//                }
-//            }
-//        }
-//
-//        //处理用户输入相关性
-//        List<String> userInputWords = Arrays.asList(kw.split(" "));
-//        List<Map<String, Object>> rsList = Lists.newArrayList();
-//
-//        for (int i = 0; i < tokens.size(); i++) {
-//            JSONObject token = tokens.getJSONObject(i);
-//            String name = token.getString("token");
-//            String type = token.getString("type");
-//            Boolean userinput = userInputWords.contains(name);
-//
-//            Map<String, Object> map = Maps.newHashMap();
-//            map.put("name", name);
-//            map.put("type", type);
-//            map.put("userinput", userinput);
-//            rsList.add(map);
-//        }
-//
-//        return rsList;
-//    }
 }

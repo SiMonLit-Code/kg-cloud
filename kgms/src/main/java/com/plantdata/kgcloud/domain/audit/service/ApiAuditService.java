@@ -23,6 +23,8 @@ public interface ApiAuditService {
 
     List<AuditKgNameRsp> findAllKgName();
 
+    List<String> findAllString();
+
     List<ApiAuditRsp> groupByKgName(ApiAuditReq req);
 
     ApiAuditUrlRsp groupByUrl(ApiAuditUrlReq req);

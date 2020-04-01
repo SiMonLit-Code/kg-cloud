@@ -32,11 +32,11 @@ import com.plantdata.kgcloud.plantdata.rsp.schema.SchemaBean;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReq;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
@@ -123,7 +123,7 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts为空时生效"),
     })
     public RestResp<List<EntityProfileBean>> infoBoxMore(@Valid @ApiIgnore InfoBoxParameterMore param) {
-        Function<BatchInfoBoxReq, ApiReturn<List<InfoBoxRsp>>> returnFunction = a -> appClient.listInfoBox(param.getKgName(), a);
+        Function<BatchInfoBoxReqList, ApiReturn<List<InfoBoxRsp>>> returnFunction = a -> appClient.listInfoBox(param.getKgName(), a);
         List<EntityProfileBean> beanList = returnFunction
                 .compose(InfoBoxConverter::infoBoxParameterMoreToBatchInfoBoxReq)
                 .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, InfoBoxConverter::infoBoxRspToEntityProfileBean)))
@@ -140,7 +140,7 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "allowTypes", dataType = "string", paramType = "query", value = "查询指定的概念，格式为json数组，默认为查询全部"),
             @ApiImplicitParam(name = "allowTypesKey", dataType = "string", paramType = "query", value = "allowTypes为空时此参数生效"),
             @ApiImplicitParam(name = "isInherit", defaultValue = "false", dataType = "boolean", paramType = "query", value = "allowTypes字段指定的概念是否继承"),
-            @ApiImplicitParam(name = "isFuzzy", defaultValue = "false", dataType = "boolean", paramType = "query", value = "是否模糊搜索"),
+            @ApiImplicitParam(name = "isFuzzy", defaultValue = "true", dataType = "boolean", paramType = "query", value = "是否模糊搜索"),
             @ApiImplicitParam(name = "openExportDate", defaultValue = "true", dataType = "boolean", paramType = "query", value = "是否使用导出实体数据集检索"),
             @ApiImplicitParam(name = "sort", dataType = "Integer", defaultValue = "-1", paramType = "query", value = "按权重排序:-1=desc 1=asc,默认-1"),
             @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
@@ -157,6 +157,25 @@ public class AppController implements SdkOldApiInterface {
                 .apply(promptParameter);
 
         return new RestResp<>(entityBeans);
+    }
+
+    @ApiOperation("综合搜索")
+    @PostMapping("graph/prompt")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "kw", required = true, dataType = "string", paramType = "form", value = "搜索关键词"),
+            @ApiImplicitParam(name = "type", defaultValue = "11", dataType = "string", paramType = "form", value = "类型，默认11。第一位表示概念，第二位表示实例。。1为有，0为没有"),
+            @ApiImplicitParam(name = "allowTypes", dataType = "string", paramType = "form", value = "查询指定的概念，格式为json数组，默认为查询全部"),
+            @ApiImplicitParam(name = "allowTypesKey", dataType = "string", paramType = "form", value = "allowTypes为空时此参数生效"),
+            @ApiImplicitParam(name = "isInherit", defaultValue = "false", dataType = "boolean", paramType = "form", value = "allowTypes字段指定的概念是否继承"),
+            @ApiImplicitParam(name = "isFuzzy", defaultValue = "false", dataType = "boolean", paramType = "form", value = "是否模糊搜索"),
+            @ApiImplicitParam(name = "openExportDate", defaultValue = "true", dataType = "boolean", paramType = "form", value = "是否使用导出实体数据集检索"),
+            @ApiImplicitParam(name = "sort", dataType = "Integer", defaultValue = "-1", paramType = "form", value = "按权重排序:-1=desc 1=asc,默认-1"),
+            @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
+            @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页最小为1"),
+    })
+    public RestResp<List<EntityBean>> promptPost(@Valid @ApiIgnore PromptParameter promptParameter) {
+        return prompt(promptParameter);
     }
 
     @ApiOperation("高级搜索查实体,")
@@ -229,10 +248,10 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "direction", dataType = "int", paramType = "form", value = "关系方向。默认正向，0表示双向，1表示出发，2表示到达,默认0"),
             @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "推荐范围，格式为json数组的属性定义id,必须指定范围"),
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts 为空时生效"),
-            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "form"),
+            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "form",value = "每个属性要显示的数量"),
     })
     public RestResp<List<KVBean<String, List<EntityBean>>>> association(@Valid @ApiIgnore AssociationParameter param) {
-        Function<KnowledgeRecommendReq, ApiReturn<List<ObjectAttributeRsp>>> returnFunction = a -> appClient.knowledgeRecommend(param.getKgName(), a);
+        Function<KnowledgeRecommendReqList, ApiReturn<List<ObjectAttributeRsp>>> returnFunction = a -> appClient.knowledgeRecommend(param.getKgName(), a);
         List<KVBean<String, List<EntityBean>>> kvBeanList = returnFunction
                 .compose(AppConverter::associationParameterToKnowledgeRecommendReq)
                 .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, AppConverter::infoBoxAttrRspToKvBean)))

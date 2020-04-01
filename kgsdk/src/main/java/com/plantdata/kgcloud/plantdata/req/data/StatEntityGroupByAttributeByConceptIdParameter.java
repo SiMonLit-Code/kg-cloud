@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.plantdata.req.data;
 
 
-import com.plantdata.kgcloud.plantdata.validator.ChooseCheck;
+import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,7 +38,7 @@ public class StatEntityGroupByAttributeByConceptIdParameter {
 
     @ChooseCheck(value = "[0,1]", name = "returnType")
     private Integer returnType = 0;
-    @Min(-1)
+    @Min(1)
     @Max(1000)
     private Integer size = 10;
 
