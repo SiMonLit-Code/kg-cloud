@@ -73,7 +73,6 @@ public class LinkShareServiceImpl implements LinkShareService {
     }
 
 
-
     @Override
     public LinkShareRsp liteShareStatus(String userId) {
         LinkShareRsp linkShareRsp = linkShareRsp();
@@ -90,7 +89,7 @@ public class LinkShareServiceImpl implements LinkShareService {
         ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
         UserLimitRsp data = detail.getData();
         LinkShareRsp linkShareRsp = new LinkShareRsp();
-        if (data != null && data.getShareable()) {
+        if (data != null && data.getShareable() != null && data.getShareable()) {
             linkShareRsp.setHasRole(1);
         } else {
             linkShareRsp.setHasRole(0);

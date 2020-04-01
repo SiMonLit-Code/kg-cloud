@@ -24,6 +24,7 @@
     <properties>
         <next-tag.version>3.0.44</next-tag.version>
         <next-develop.version>3.0.45-SNAPSHOT</next-develop.version>
+
         <kg-cloud-parent.version>3.0.2</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
         <kg-services-sdk.version>3.0.0-SNAPSHOT</kg-services-sdk.version>
