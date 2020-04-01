@@ -1469,11 +1469,16 @@ public class DWServiceImpl implements DWService {
             }
         }
 
+
+        List<DWTableRsp> tableRsps = findTableAll(userId,id);
+        if(tableRsps != null && !tableRsps.isEmpty()){
+            for(DWTableRsp tableRsp : tableRsps){
+                deleteTable(userId,id,tableRsp.getId());
+            }
+        }
+
+
         dwRepository.deleteById(id);
-
-        tableRepository.delete(DWTable.builder().dwDataBaseId(id).build());
-
-
     }
 
     @Override
