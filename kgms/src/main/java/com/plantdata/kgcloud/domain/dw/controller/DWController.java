@@ -105,6 +105,15 @@ public class DWController {
         return ApiReturn.success();
     }
 
+    @ApiOperation("数仓-清空表数据")
+    @DeleteMapping("/delete/data/{databaseId}/{tableId}")
+    public ApiReturn deleteData(@PathVariable("databaseId")Long databaseId,
+                                 @PathVariable("tableId")Long tableId) {
+        String userId = SessionHolder.getUserId();
+        dwServince.deleteData(userId, databaseId,tableId);
+        return ApiReturn.success();
+    }
+
     @ApiOperation("数仓-读取远程数据库表信息")
     @GetMapping("/get/remote/{databaseId}/tables")
     public ApiReturn<List<JSONObject>> getRemoteTables(@PathVariable("databaseId") Long databaseId) {

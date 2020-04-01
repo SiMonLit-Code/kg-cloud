@@ -84,4 +84,6 @@ public interface DWService {
     void updateDatabaseName(String userId, DWDatabaseNameReq req);
 
     void exampleDownload(String userId, Long databaseId, HttpServletResponse response);
+
+    void deleteData(String userId, Long databaseId, Long tableId);
 }

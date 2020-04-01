@@ -463,6 +463,38 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
+    public void deleteData(String userId, Long databaseId, Long tableId) {
+        Optional<DWDatabase> dwOpt = dwRepository.findOne(Example.of(DWDatabase.builder().userId(userId).id(databaseId).build()));
+        if(!dwOpt.isPresent()){
+            return ;
+        }
+
+        if(dwOpt.get().getDataFormat().equals(5)){
+            //文件系统
+
+            List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().tableId(tableId).build()));
+            if(files != null && !files.isEmpty()){
+
+                for(DWFileTable file : files){
+                    fileTableRepository.deleteById(file.getId());
+                }
+            }
+        }else{
+
+            Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).id(tableId).build()));
+            if (opt.isPresent()){
+                try (DataOptProvider provider = getProvider(userId, databaseId,tableId,mongoProperties)) {
+                    provider.deleteAll();
+                } catch (Exception e) {
+                    throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
+                }
+            }
+
+        }
+
+    }
+
+    @Override
     public void upload(String userId, Long databaseId, Long tableId, MultipartFile file) {
 
         List<DataSetSchema> schemas = null;
@@ -487,6 +519,7 @@ public class DWServiceImpl implements DWService {
                 if(schemas == null){
                     schemas = schemaResolve(file, database.getDataFormat());
                     table.setSchema(schemas);
+                    table.setFields(transformFields(schemas));
                     tableRepository.save(table);
                 }
                 tableName = table.getTableName();
@@ -1466,9 +1499,32 @@ public class DWServiceImpl implements DWService {
 
         Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).id(tableId).build()));
         if (opt.isPresent()){
+
+            try (DataOptProvider provider = getProvider(userId, databaseId,tableId,mongoProperties)) {
+                provider.deleteAll();
+            } catch (Exception e) {
+                throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
+            }
+
             tableRepository.deleteById(tableId);
         }
+    }
 
+    private DataOptProvider getProvider(String userId, Long datasetId, Long tableId,MongoProperties mongoProperties) {
+
+        DWDatabase database = getDetail(datasetId);
+
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
+        DWTable table = getTableDetail(tableId);
+        if(table == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+        }
+
+        DataOptConnect connect = DataOptConnect.of(database,table,mongoProperties);
+        return DataOptProviderFactory.createProvider(connect);
     }
 
 
