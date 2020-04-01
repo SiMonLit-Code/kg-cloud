@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.dw.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -37,6 +38,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.dw.service.StandardTemplateService;
+import com.plantdata.kgcloud.domain.dw.util.ExampleYaml;
 import com.plantdata.kgcloud.domain.dw.util.PaserYaml2SchemaUtil;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.DWDataFormat;
@@ -54,11 +56,9 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -69,7 +69,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -429,6 +431,35 @@ public class DWServiceImpl implements DWService {
             dwRepository.save(database);
         }
 
+    }
+
+    @Override
+    public void exampleDownload(String userId, Long databaseId, HttpServletResponse response) {
+        try {
+
+            DWDatabase database =getDetail(databaseId);
+
+            if(database == null || !database.getDataFormat().equals(3)){
+                return ;
+            }
+
+            List<DWTableRsp> tableRsps = findTableAll(userId,databaseId);
+            if(tableRsps == null || tableRsps.isEmpty()){
+                return;
+            }
+            
+            byte[] bytes = ExampleYaml.create(tableRsps);
+
+            response.reset();
+//            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".yaml").getBytes(),
+                    "iso-8859-1"));
+
+            response.getOutputStream().write(bytes);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -1531,19 +1562,56 @@ public class DWServiceImpl implements DWService {
     public List<DataSetSchema> getTableSchema(DWDatabase dwDatabase, String tbName) {
 
         List<DataSetSchema> rsList = new ArrayList<>();
-        DataSource dataSource = getDataSource(dwDatabase);
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        String sql = "desc " + dwDatabase.getDbName() + "." + tbName;
-        List<Map<String, Object>> rs = jdbcTemplate.queryForList(sql);
-        for (Map<String, Object> coulmn : rs) {
 
-            String field = coulmn.get("Field").toString();
+        if(DataType.MONGO.equals(DataType.findType(dwDatabase.getDataType()))){
 
-            DataSetSchema dataSetSchema = new DataSetSchema();
-            dataSetSchema.setField(field);
-            dataSetSchema.setType(1);
-            rsList.add(dataSetSchema);
+            DataOptConnect connect = DataOptConnect.builder()
+                    .database(dwDatabase.getDbName())
+                    .addresses(dwDatabase.getAddr())
+                    .username(dwDatabase.getUsername())
+                    .password(dwDatabase.getPassword())
+                    .table(tbName)
+                    .build();
+
+            try (DataOptProvider provider =DataOptProviderFactory.createProvider(connect, DataType.MONGO);) {
+                List<Map<String, Object>> maps = provider.find(0, 1, null);
+
+                if(maps == null || maps.isEmpty()){
+                    return rsList;
+                }
+
+                Map<String,Object> value = maps.get(0);
+                for (Map.Entry<String, Object> coulmn : value.entrySet()) {
+
+                    String field = coulmn.getKey();
+
+                    DataSetSchema dataSetSchema = new DataSetSchema();
+                    dataSetSchema.setField(field);
+                    dataSetSchema.setType(1);
+                    rsList.add(dataSetSchema);
+                }
+
+
+            } catch (IOException e) {
+                throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
+            }
+
+        }else if(DataType.MYSQL.equals(DataType.findType(dwDatabase.getDataType()))){
+            DataSource dataSource = getDataSource(dwDatabase);
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            String sql = "desc " + dwDatabase.getDbName() + "." + tbName;
+            List<Map<String, Object>> rs = jdbcTemplate.queryForList(sql);
+            for (Map<String, Object> coulmn : rs) {
+
+                String field = coulmn.get("Field").toString();
+
+                DataSetSchema dataSetSchema = new DataSetSchema();
+                dataSetSchema.setField(field);
+                dataSetSchema.setType(1);
+                rsList.add(dataSetSchema);
+            }
         }
+
         return rsList;
     }
 
