@@ -467,6 +467,8 @@ public class DWServiceImpl implements DWService {
 
         List<DataSetSchema> schemas = null;
         String tableName = null;
+        //文件上传 本地库
+        DWDatabase database = getDetail(databaseId);
 
         if (tableId != null) {
             Optional<DWTable> tableOptional = tableRepository.findById(tableId);
@@ -482,13 +484,15 @@ public class DWServiceImpl implements DWService {
                 }
 
                 schemas = table.getSchema();
+                if(schemas == null){
+                    schemas = schemaResolve(file, database.getDataFormat());
+                    table.setSchema(schemas);
+                    tableRepository.save(table);
+                }
                 tableName = table.getTableName();
 
             }
         }
-
-        //文件上传 本地库
-        DWDatabase database = getDetail(databaseId);
 
 
         if (tableName == null) {
@@ -505,8 +509,10 @@ public class DWServiceImpl implements DWService {
         //写入数据
 
         Map<String, DataSetSchema> schemaMap = new HashMap<>();
-        for (DataSetSchema o : schemas) {
-            schemaMap.put(o.getField(), o);
+        if(schemas != null){
+            for (DataSetSchema o : schemas) {
+                schemaMap.put(o.getField(), o);
+            }
         }
 
         try (DataOptProvider provider = getProvider(database.getDataName(), tableName)) {
