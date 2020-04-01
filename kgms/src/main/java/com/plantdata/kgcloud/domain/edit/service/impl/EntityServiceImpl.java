@@ -158,6 +158,17 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
+    public void batchAddMultiModal(String kgName, List<MultiModalReq> multiModalReqs) {
+        List<MultiModal> multiModals =
+                multiModalReqs.stream().map(ConvertUtils.convert(MultiModal.class)).collect(Collectors.toList());
+        List<Document> documents =
+                multiModals.stream().map(m -> documentConverter.toDocument(m)).collect(Collectors.toList());
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
+        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
+        mongoCollection.insertMany(documents);
+    }
+
+    @Override
     public void deleteMultiModal(String kgName, String modalId) {
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
