@@ -159,7 +159,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public String getKtrConfig(Long databaseId, String tableName,String isAllKey) {
+    public String getKtrConfig(Long databaseId, String tableName,String isAllKey,Integer isScheduled) {
 
         DWDatabase database = dwService.getDetail(databaseId);
 
@@ -189,7 +189,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         configJson.put("resourceName",ktrTaskName);
         configJson.put("outputs",Lists.newArrayList(transferTaskName));
-        configJson.put("isScheduled",table.getSchedulingSwitch());
+        configJson.put("isScheduled",isScheduled == null? 0: isScheduled);
 
         return configJson.toString();
     }
@@ -281,7 +281,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             ktrTaskRsp.setUserId(SessionHolder.getUserId());
         }
 
-        ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName,isAllKey));
+        ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName,isAllKey,isSchedue));
 
         ktrTaskRsp.setStatus(isSchedue == null? 0 : isSchedue);
         /*if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null ||table.getIsAll().equals(1)){

@@ -20,7 +20,7 @@ public interface AccessTaskService {
 
     void saveTask(DWTaskRsp taskRsp,Long timeout);
 
-    String getKtrConfig(Long databaseId, String tableName,String isAllKey);
+    String getKtrConfig(Long databaseId, String tableName,String isAllKey,Integer isScheduled);
 
     String getTransferConfig(Long databaseId, String tableName,Integer isScheduled);
 
