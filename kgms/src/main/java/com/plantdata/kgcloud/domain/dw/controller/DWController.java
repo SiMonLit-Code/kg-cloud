@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -203,7 +204,7 @@ public class DWController {
         return ApiReturn.success(dwServince.createTable(userId, req));
     }
 
-    @ApiOperation("数仓-创建表")
+    @ApiOperation("数仓-批量创建表")
     @PostMapping("/batch/create/table")
     public ApiReturn batchCreateTable(@Valid @RequestBody List<DWTableReq> reqs) {
         String userId = SessionHolder.getUserId();
@@ -228,7 +229,20 @@ public class DWController {
         } catch (Exception e) {
             return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_IMPORT_FAIL);
         }
+    }
 
+    @ApiOperation("数仓-示例文件下载")
+    @GetMapping("/{databaseId}/download")
+    public void exampleDownload(
+            @PathVariable("databaseId") Long databaseId,
+            HttpServletResponse response) {
+        try {
+            String userId = SessionHolder.getUserId();
+            dwServince.exampleDownload(userId, databaseId,response);
+            return ;
+        } catch (Exception e) {
+            return ;
+        }
     }
 
     @ApiOperation("数仓-schema-识别")
