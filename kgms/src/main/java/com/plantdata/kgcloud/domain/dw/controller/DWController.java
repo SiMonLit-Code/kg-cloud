@@ -232,7 +232,7 @@ public class DWController {
     }
 
     @ApiOperation("数仓-示例文件下载")
-    @GetMapping("/{databaseId}/download")
+    @GetMapping("/download/{databaseId}")
     public void exampleDownload(
             @PathVariable("databaseId") Long databaseId,
             HttpServletResponse response) {
