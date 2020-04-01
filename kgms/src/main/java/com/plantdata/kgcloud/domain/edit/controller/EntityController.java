@@ -84,11 +84,18 @@ public class EntityController {
         return ApiReturn.success(entityService.addMultiModal(kgName, multiModalReq));
     }
 
+    @ApiOperation("实体-多模态数据-批量添加")
+    @PostMapping("/{kgName}/multi/modal/batch")
+    public ApiReturn batchAddMultiModal(@PathVariable("kgName") String kgName,
+                                        @RequestBody List<MultiModalReq> multiModalReqs) {
+        entityService.batchAddMultiModal(kgName, multiModalReqs);
+        return ApiReturn.success();
+    }
 
     @ApiOperation("实体-多模态数据-删除")
     @PostMapping("/{kgName}/multi/modal/{modalId}/delete")
     public ApiReturn deleteMultiModal(@PathVariable("kgName") String kgName,
-                                   @PathVariable("modalId") String modalId) {
+                                      @PathVariable("modalId") String modalId) {
         entityService.deleteMultiModal(kgName, modalId);
         return ApiReturn.success();
     }
