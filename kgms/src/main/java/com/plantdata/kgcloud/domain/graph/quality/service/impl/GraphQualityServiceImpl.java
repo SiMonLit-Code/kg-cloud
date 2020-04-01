@@ -48,6 +48,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         graphQuality.setKgName(kgName);
         graphQuality.setConceptId(conceptId);
         List<GraphQuality> graphQualities = graphQualityRepository.findAll(Example.of(graphQuality));
+        graphQualities.add(check(kgName,conceptId));
         return graphQualities.stream().map(ConvertUtils.convert(GraphQualityRsp.class)).collect(Collectors.toList());
     }
 
