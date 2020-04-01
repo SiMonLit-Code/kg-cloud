@@ -65,6 +65,28 @@ public class LinkShareServiceImpl implements LinkShareService {
 
     @Override
     public LinkShareRsp shareStatus(String userId, String kgName) {
+        LinkShareRsp linkShareRsp = linkShareRsp();
+        List<LinkShare> all = linkShareRepository.findByUserIdAndKgName(userId, kgName);
+        List<ShareRsp> collect = all.stream().map(ConvertUtils.convert(ShareRsp.class)).collect(Collectors.toList());
+        linkShareRsp.setShareList(collect);
+        return linkShareRsp;
+    }
+
+
+
+    @Override
+    public LinkShareRsp liteShareStatus(String userId) {
+        LinkShareRsp linkShareRsp = linkShareRsp();
+        LinkShare linkShare = new LinkShare();
+        linkShare.setUserId(userId);
+        linkShare.setSpaId("graph");
+        List<LinkShare> all = linkShareRepository.findAll(Example.of(linkShare));
+        List<ShareRsp> collect = all.stream().map(ConvertUtils.convert(ShareRsp.class)).collect(Collectors.toList());
+        linkShareRsp.setShareList(collect);
+        return linkShareRsp;
+    }
+
+    private LinkShareRsp linkShareRsp() {
         ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
         UserLimitRsp data = detail.getData();
         LinkShareRsp linkShareRsp = new LinkShareRsp();
@@ -73,28 +95,6 @@ public class LinkShareServiceImpl implements LinkShareService {
         } else {
             linkShareRsp.setHasRole(0);
         }
-        List<LinkShare> all = linkShareRepository.findByUserIdAndKgName(userId, kgName);
-        List<ShareRsp> collect = all.stream().map(ConvertUtils.convert(ShareRsp.class)).collect(Collectors.toList());
-        linkShareRsp.setShareList(collect);
-        return linkShareRsp;
-    }
-
-    @Override
-    public LinkShareRsp liteShareStatus(String userId) {
-        ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
-        UserLimitRsp data = detail.getData();
-        LinkShareRsp linkShareRsp = new LinkShareRsp();
-        if (data.getShareable()) {
-            linkShareRsp.setHasRole(1);
-        } else {
-            linkShareRsp.setHasRole(0);
-        }
-        LinkShare linkShare = new LinkShare();
-        linkShare.setUserId(userId);
-        linkShare.setSpaId("graph");
-        List<LinkShare> all = linkShareRepository.findAll(Example.of(linkShare));
-        List<ShareRsp> collect = all.stream().map(ConvertUtils.convert(ShareRsp.class)).collect(Collectors.toList());
-        linkShareRsp.setShareList(collect);
         return linkShareRsp;
     }
 
