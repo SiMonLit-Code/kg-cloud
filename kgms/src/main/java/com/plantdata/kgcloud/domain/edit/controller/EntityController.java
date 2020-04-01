@@ -85,7 +85,7 @@ public class EntityController {
     }
 
     @ApiOperation("实体-多模态数据-批量添加")
-    @PostMapping("/{kgName}/multi/modal")
+    @PostMapping("/{kgName}/multi/modal/batch")
     public ApiReturn batchAddMultiModal(@PathVariable("kgName") String kgName,
                                         @RequestBody List<MultiModalReq> multiModalReqs) {
         entityService.batchAddMultiModal(kgName, multiModalReqs);
