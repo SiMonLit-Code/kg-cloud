@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.plantdata</groupId>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.0.44-SNAPSHOT</version>
+    <version>3.0.43</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -27,7 +27,7 @@
         <kg-cloud-parent.version>3.0.2</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
         <kg-services-sdk.version>3.0.0-SNAPSHOT</kg-services-sdk.version>
-        <kgtext-sdk.version>3.0.0</kgtext-sdk.version>
+        <kgtext-sdk.version>3.0.18</kgtext-sdk.version>
         <kgcomponent-sdk.version>3.0.0-SNAPSHOT</kgcomponent-sdk.version>
     </properties>
     <dependencyManagement>
@@ -224,6 +224,6 @@
         <url>http://192.168.4.1/kgcloud/kg-cloud-kgms</url>
         <connection>scm:git:ssh://git@192.168.4.1:4422/kgcloud/kg-cloud-kgms.git</connection>
         <developerConnection>scm:git:ssh://git@192.168.4.1:4422/kgcloud/kg-cloud-kgms.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.0.43</tag>
     </scm>
 </project>
