@@ -33,7 +33,7 @@ public class KettleLogDeal {
     private static String TB_NAME = "logs_data";
     private static String SUM = "sum";
 
-    public static List<Bson> buildAggMap(KettleLogStatisticReq statisticReq) {
+    public static List<Bson> buildAggMap(KettleLogStatisticReq statisticReq,long dataId) {
         List<Bson> list = Lists.newArrayListWithExpectedSize(2);
         BasicDBObject basicBSONObject = new BasicDBObject();
         if (statisticReq.getDataType().compareTo(KettleLogTypeEnum.ALL) != 0) {
@@ -46,10 +46,13 @@ public class KettleLogDeal {
         }
         Bson match = and(basicBSONObject, gte("logTimeStamp", statisticReq.getStartDate()),
                 lte("logTimeStamp", statisticReq.getEndDate()),
-                eq("time_flag", statisticReq.getStatisticType().getLowerCase()));
+                eq("time_flag", statisticReq.getStatisticType().getLowerCase()),
+                eq("dbId",dataId),
+                in("tbName", statisticReq.getTableName()));
 
-        BasicDBObject basicDBObject = new BasicDBObject("resourceName", "$resourceName")
-                .append("date", "$logTimeStamp");
+        BasicDBObject basicDBObject = new BasicDBObject("tbName", "$tbName")
+                .append("date", "$logTimeStamp")
+                .append("dbId", "$dbId");
         list.add(Aggregates.match(match));
         list.add(Aggregates.group(basicDBObject, Accumulators.sum(SUM, "$W")));
         return list;
@@ -61,40 +64,34 @@ public class KettleLogDeal {
     }
 
 
-    public static KettleLogStatisticRsp parseKettleLogStatisticRsp(@NonNull MongoCursor<Document> data, long dataStoreId, @NonNull List<String> tableNames) {
+    public static KettleLogStatisticRsp parseKettleLogStatisticRsp(@NonNull MongoCursor<Document> data, @NonNull List<String> tableNames) {
 
         List<KettleLogAggResultDTO> list = Lists.newArrayList();
         data.forEachRemaining(a -> {
             KettleLogAggResultDTO resultDTO = new KettleLogAggResultDTO();
             Document idMap = a.get("_id", Document.class);
             resultDTO.setSum(a.getLong(SUM));
-            resultDTO.set_id(new KettleLogAggResultDTO.IdClass(idMap.getString("date"), idMap.getString("resourceName")));
+            resultDTO.set_id(new KettleLogAggResultDTO.IdClass(idMap.getString("date"),idMap.getString("tbName"), idMap.getLong("dbId")));
             list.add(resultDTO);
         });
 
         Map<String, List<KettleLogAggResultDTO>> groupDataMap = list.stream()
-                .filter(a ->
-                        tableNames.stream()
-                                .map(str -> "ktr_" + dataStoreId + "_" + str + "_isAll")
-                                .anyMatch(temp -> a.get_id().getResourceName().startsWith(temp))
-                )
                 .collect(Collectors.groupingBy(a -> a.get_id().getDate()));
 
         LinkedHashMap<String, List<KettleLogStatisticRsp.MeasureRsp>> map = new LinkedHashMap<>();
-        groupDataMap.entrySet()
-                .forEach(entry -> {
-                    Map<String, List<KettleLogAggResultDTO>> nameGroupMap = entry.getValue().stream()
-                            .collect(Collectors.groupingBy(a -> getTableName(a.get_id().getResourceName())));
-                    List<KettleLogStatisticRsp.MeasureRsp> collect = tableNames.stream().map(a -> {
-                        List<KettleLogAggResultDTO> resultDTOList = nameGroupMap.get(a);
-                        if (resultDTOList == null) {
-                            return new KettleLogStatisticRsp.MeasureRsp(a, 0L);
-                        }
-                        long sum = resultDTOList.stream().mapToLong(KettleLogAggResultDTO::getSum).sum();
-                        return new KettleLogStatisticRsp.MeasureRsp(a, sum);
-                    }).collect(Collectors.toList());
-                    map.put(entry.getKey(), collect);
-                });
+        groupDataMap.forEach((key, value) -> {
+            Map<String, List<KettleLogAggResultDTO>> nameGroupMap = value.stream()
+                    .collect(Collectors.groupingBy(a -> a.get_id().getTbName()));
+            List<KettleLogStatisticRsp.MeasureRsp> collect = tableNames.stream().map(a -> {
+                List<KettleLogAggResultDTO> resultDTOList = nameGroupMap.get(a);
+                if (resultDTOList == null) {
+                    return new KettleLogStatisticRsp.MeasureRsp(a, 0L);
+                }
+                long sum = resultDTOList.stream().mapToLong(KettleLogAggResultDTO::getSum).sum();
+                return new KettleLogStatisticRsp.MeasureRsp(a, sum);
+            }).collect(Collectors.toList());
+            map.put(key, collect);
+        });
         return new KettleLogStatisticRsp(map);
     }
 

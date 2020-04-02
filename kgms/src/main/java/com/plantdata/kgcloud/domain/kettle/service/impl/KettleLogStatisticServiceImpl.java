@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 
 /**
  * @author Administrator
@@ -38,11 +38,11 @@ public class KettleLogStatisticServiceImpl implements KettleLogStatisticService 
 
     @Override
     public KettleLogStatisticRsp kettleLogStatisticByDate(long dataId, KettleLogStatisticReq statisticReq) {
-        List<Bson> aggList = KettleLogDeal.buildAggMap(statisticReq);
+        List<Bson> aggList = KettleLogDeal.buildAggMap(statisticReq, dataId);
         aggList.forEach(a -> log.info(a.toString()));
         MongoCursor<Document> iterator = KettleLogDeal.getCollection(mongoClient).aggregate(aggList).iterator();
         if (iterator.hasNext()) {
-            return KettleLogDeal.parseKettleLogStatisticRsp(iterator, dataId, statisticReq.getTableName());
+            return KettleLogDeal.parseKettleLogStatisticRsp(iterator, statisticReq.getTableName());
         }
         return KettleLogStatisticRsp.EMPTY;
     }
@@ -51,12 +51,16 @@ public class KettleLogStatisticServiceImpl implements KettleLogStatisticService 
     public void fillGraphMapRspCount(List<GraphMapRsp> mapRspList) {
         Map<Long, List<GraphMapRsp>> collect = mapRspList.stream()
                 .collect(Collectors.groupingBy(GraphMapRsp::getDataBaseId));
+
         collect.forEach((k, v) -> {
+            Set<String> tableNames = v.stream().map(GraphMapRsp::getTableName).collect(Collectors.toSet());
+            Bson query = and(eq("dbId", v.get(0).getDataBaseId()),
+                    eq("time_flag", KettleLogStatisticTypeEnum.DAY.getLowerCase()),
+                    in("tbName", tableNames));
             FindIterable<Document> projection = KettleLogDeal.getCollection(mongoClient)
-                    .find(Filters.and(Filters.regex("resourceName", Pattern.compile("[ktr_" + k + "%]")),
-                            eq("time_flag", KettleLogStatisticTypeEnum.DAY.getLowerCase())))
+                    .find(query)
                     .sort(Sorts.descending("logTimeStamp"))
-                    .projection(new Document("resourceName", 1L).append("logTimeStamp", 1L).append("W", 1L));
+                    .projection(new Document("tbName", 1L).append("logTimeStamp", 1L).append("W", 1L));
             fillCount(projection, v);
         });
     }
@@ -71,10 +75,7 @@ public class KettleLogStatisticServiceImpl implements KettleLogStatisticService 
         Map<String, List<GraphMapRsp>> tableMap = rspList.stream().collect(Collectors.groupingBy(GraphMapRsp::getTableName));
         while (iterator.hasNext()) {
             Document next = iterator.next();
-            String tableName = KettleLogDeal.getTableName(next.getString("resourceName"));
-            if (!tableMap.containsKey(tableName)) {
-                continue;
-            }
+            String tableName = next.getString("tbName");
             String logTimeStamp = countByTable.get(tableName);
 
             String formatDate = next.getString("logTimeStamp");
