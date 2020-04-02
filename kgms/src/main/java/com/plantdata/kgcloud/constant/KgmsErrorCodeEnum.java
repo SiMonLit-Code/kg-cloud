@@ -135,7 +135,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     EMTRY_MODEL_PUDH_ERROR(120710, "空模式不能发布"),
 
-    MAP_TABLE_EXIST(120711, "映射的行业表以存在"),
+    MAP_TABLE_EXIST(120711, "映射的行业表已存在"),
 
     REMOTE_TABLE_EXIST(120712, "该远程表已存在"),
 
@@ -144,6 +144,20 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     TABLE_CONNECT_ERROR(120714, "表连接失败"),
 
     EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR(120715, "请先建表再上传模式"),
+
+    EXAMPLE_FILE_DOWNLOAD_ERROR(120716, "示例文件下载失败"),
+
+    SCHEMA_PARENT_CONCEPT_NOT_EXIST_ERROR(120717, "模式父概念不存在"),
+
+    SCHEMA_CONCEPT_CIRCULAR_REFERENCE_ERROR(120718, "模式存在循环引用"),
+
+    SCHEMA_PASER_LACK_REQUIRES_ERROR(120719, "模式解析缺少必填项"),
+
+    SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR(120720, "模式解析定义域不存在"),
+
+    SCHEMA_PASER_RANGE_NOT_EXIST_ERROR(120721, "模式解析值域不存在"),
+
+    SCHEMA_PASER_DATATYPE_NOT_EXIST_ERROR(120722, "模式解析数据类型不存在"),
     ;
 
     private final int errorCode;

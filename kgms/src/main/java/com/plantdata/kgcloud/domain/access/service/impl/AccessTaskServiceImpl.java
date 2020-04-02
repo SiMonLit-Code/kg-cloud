@@ -159,7 +159,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public String getKtrConfig(Long databaseId, String tableName,String isAllKey) {
+    public String getKtrConfig(Long databaseId, String tableName,String isAllKey,Integer isScheduled,String target) {
 
         DWDatabase database = dwService.getDetail(databaseId);
 
@@ -189,7 +189,10 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         configJson.put("resourceName",ktrTaskName);
         configJson.put("outputs",Lists.newArrayList(transferTaskName));
-        configJson.put("isScheduled",table.getSchedulingSwitch());
+        configJson.put("isScheduled",isScheduled == null? 0: isScheduled);
+        configJson.put("target",target);
+        configJson.put("dataName",database.getDataName());
+        configJson.put("tableName",tableName);
 
         return configJson.toString();
     }
@@ -258,7 +261,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public String createKtrTask(String tableName,Long databaseId,String isAllKey,Integer isSchedue) {
+    public String createKtrTask(String tableName,Long databaseId,String isAllKey,Integer isSchedue,String target) {
         Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
             return null;
@@ -281,7 +284,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             ktrTaskRsp.setUserId(SessionHolder.getUserId());
         }
 
-        ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName,isAllKey));
+        ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName,isAllKey,isSchedue,target));
 
         ktrTaskRsp.setStatus(isSchedue == null? 0 : isSchedue);
         /*if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null ||table.getIsAll().equals(1)){
