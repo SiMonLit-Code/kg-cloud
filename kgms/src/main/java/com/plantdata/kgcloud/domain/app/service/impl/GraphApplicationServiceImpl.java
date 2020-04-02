@@ -259,7 +259,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 BasicConverter.consumerIfNoNull(entity.getAttrValue(),
                         a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
-            Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(KGUtil.dbName(kgName), entityIds);
+            Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(kgName, entityIds);
             BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
                     a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()))), infoBoxRspList::addAll);
 
