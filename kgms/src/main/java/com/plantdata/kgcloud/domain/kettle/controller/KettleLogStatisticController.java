@@ -31,12 +31,6 @@ public class KettleLogStatisticController {
     public ApiReturn<KettleLogStatisticRsp> kettleLogStatisticByDate(
             @ApiParam("数仓id") @PathVariable("id") long dataId,
             @RequestBody KettleLogStatisticReq statisticReq) {
-        GraphMapRsp graphMapRsp = new GraphMapRsp();
-        graphMapRsp.setDataBaseId(164L);
-        graphMapRsp.setTableName("paper");
-        ArrayList<GraphMapRsp> graphMapRsps = Lists.newArrayList(graphMapRsp);
-        kettleLogStatisticService.fillGraphMapRspCount(graphMapRsps);
-        System.out.println(JsonUtils.objToJson(graphMapRsps));
         return ApiReturn.success(kettleLogStatisticService.kettleLogStatisticByDate(dataId,statisticReq));
     }
 }
