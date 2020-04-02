@@ -1142,9 +1142,12 @@ public class DWServiceImpl implements DWService {
 
             List<ModelSchemaConfigRsp> schemas = Lists.newArrayList();
             database.getTagJson().forEach(schema -> {
-                if(tableMappings.containsKey(schema.getTableName())){
-                    schema.setTableName(tableMappings.get(schema.getTableName()));
-                    schemas.add(schema);
+
+                if(schema != null){
+                    if(tableMappings.containsKey(schema.getTableName())){
+                        schema.setTableName(tableMappings.get(schema.getTableName()));
+                        schemas.add(schema);
+                    }
                 }
             });
             return schemas;
@@ -1230,7 +1233,7 @@ public class DWServiceImpl implements DWService {
         if (table != null && table.getSchedulingSwitch() !=null && table.getSchedulingSwitch().equals(1)) {
 
             //生成任务配置
-            accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), table.getTableName(), 1);
+            accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), table.getTableName(), 1,table.getTableName());
             if(StringUtils.hasText(table.getMapper())){
                 accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), diss,null, null, null, table.getTableName());
             }else{
@@ -1238,7 +1241,7 @@ public class DWServiceImpl implements DWService {
             }
         } else {
             //生成任务配置
-            accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), table.getTableName(), 0);
+            accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), table.getTableName(), 0,table.getTableName());
             if(StringUtils.hasText(table.getMapper())){
                 accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), null, null, diss,null, table.getTableName());
             }else{
@@ -1368,6 +1371,10 @@ public class DWServiceImpl implements DWService {
 
         Map<String,List<Integer>> tables = Maps.newHashMap();
         for(ModelSchemaConfigRsp tagjson : database.getTagJson()){
+
+            if(tagjson == null){
+                continue;
+            }
 
             List<Integer> modelIds = tables.get(tagjson.getTableName());
             if(modelIds == null){
