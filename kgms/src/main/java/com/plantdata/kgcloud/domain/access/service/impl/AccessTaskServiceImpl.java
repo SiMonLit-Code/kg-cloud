@@ -193,6 +193,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         configJson.put("target",target);
         configJson.put("dataName",database.getDataName());
         configJson.put("tableName",tableName);
+        configJson.put("dbId",databaseId);
 
         return configJson.toString();
     }
