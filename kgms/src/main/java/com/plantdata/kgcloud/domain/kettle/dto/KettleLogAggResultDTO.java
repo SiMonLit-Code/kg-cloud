@@ -15,11 +15,13 @@ public class KettleLogAggResultDTO {
     private IdClass _id;
     private Long sum;
 
+
     @Data
     @AllArgsConstructor
     public static class IdClass {
         private String date;
-        private String resourceName;
+        private String tbName;
+        private Long dbId;
     }
 
     public IdClass get_id() {

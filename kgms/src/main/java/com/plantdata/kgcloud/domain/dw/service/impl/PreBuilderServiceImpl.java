@@ -119,7 +119,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     private final static String ARRAY_START = "[";
     private final static String ARRAY_STRING_START = "[\"";
 
-    private UserDetailRsp getUserDetail(){
+    private UserDetailRsp getUserDetail() {
         return userClient.getCurrentUserDetail().getData();
     }
 
@@ -128,7 +128,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
 
-        if(!req.isGraph() && req.isManage() && !req.isUser() && !req.isDw()){
+        if (!req.isGraph() && req.isManage() && !req.isUser() && !req.isDw()) {
             return Page.empty();
         }
 
@@ -146,7 +146,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 List<Predicate> tags = new ArrayList<>();
                 if (req.isDw()) {
-                    tags.add(criteriaBuilder.isNotNull(root.get("databaseId")));;
+                    tags.add(criteriaBuilder.isNotNull(root.get("databaseId")));
+                    ;
                 }
 
                 if (req.isGraph()) {
@@ -154,11 +155,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 }
 
                 if (req.isManage()) {
-                    tags.add(criteriaBuilder.equal(root.get("username").as(String.class),"admin"));
+                    tags.add(criteriaBuilder.equal(root.get("username").as(String.class), "admin"));
                 }
 
                 if (req.isUser()) {
-                    tags.add(criteriaBuilder.notEqual(root.get("username").as(String.class),"admin"));
+                    tags.add(criteriaBuilder.notEqual(root.get("username").as(String.class), "admin"));
                 }
 
                 predicates.add(criteriaBuilder.or(tags.toArray(new Predicate[]{})));
@@ -171,11 +172,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 //查询管理员发布公开的或者自己发布的
                 Predicate isPublic = criteriaBuilder.equal(root.get("permission").as(Integer.class), 1);
-                Predicate isPrivate = criteriaBuilder.and(criteriaBuilder.equal(root.get("permission").as(Integer.class), 0),criteriaBuilder.equal(root.get("userId").as(String.class), SessionHolder.getUserId()));
-                predicates.add(criteriaBuilder.or(isPublic,isPrivate));
+                Predicate isPrivate = criteriaBuilder.and(criteriaBuilder.equal(root.get("permission").as(Integer.class), 0), criteriaBuilder.equal(root.get("userId").as(String.class), SessionHolder.getUserId()));
+                predicates.add(criteriaBuilder.or(isPublic, isPrivate));
 
                 //只能查询发布过的
-                predicates.add(criteriaBuilder.equal(root.get("status").as(String.class),"1"));
+                predicates.add(criteriaBuilder.equal(root.get("status").as(String.class), "1"));
 
                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
             }
@@ -245,9 +246,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
 
         List<DWPrebuildConcept> concepts;
-        if(req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()){
+        if (req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()) {
             concepts = prebuildConceptRepository.findByModelAndConceptIds(req.getModelId(), req.getFindAttrConceptIds());
-        }else{
+        } else {
             concepts = prebuildConceptRepository.findAll(Example.of(DWPrebuildConcept.builder().modelId(req.getModelId()).build()));
         }
 
@@ -269,7 +270,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         List<PreBuilderMatchAttrRsp> matchAttrRspList = attrs.stream().map(ConvertUtils.convert(PreBuilderMatchAttrRsp.class))
                 .collect(Collectors.toList());
-
 
 
         Map<Integer, Long> modelKgConceptIdMap = new HashMap<>();
@@ -508,32 +508,32 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Override
     public void saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq) {
 
-        if(preBuilderGraphMapReq.getQuoteConfigs() == null || preBuilderGraphMapReq.getQuoteConfigs().isEmpty()){
-            return ;
+        if (preBuilderGraphMapReq.getQuoteConfigs() == null || preBuilderGraphMapReq.getQuoteConfigs().isEmpty()) {
+            return;
         }
 
         List<SchemaQuoteReq> quoteReqList = importToGraph(preBuilderGraphMapReq.getKgName(), preBuilderGraphMapReq.getQuoteConfigs());
 
-        Map<Integer,Long> modelDataBaseIdMap = new HashMap<>();
+        Map<Integer, Long> modelDataBaseIdMap = new HashMap<>();
         List<DWGraphMap> graphMapList = new ArrayList<>();
         List<DWGraphMapRelationAttr> graphMapRelationAttrList = new ArrayList<>();
-        for(SchemaQuoteReq schemaQuoteReq : quoteReqList){
+        for (SchemaQuoteReq schemaQuoteReq : quoteReqList) {
 
-            if(schemaQuoteReq.getConceptId().equals(0L)){
+            if (schemaQuoteReq.getConceptId().equals(0L)) {
                 continue;
             }
 
             Long modelDataBaseId;
-            if(modelDataBaseIdMap.containsKey(schemaQuoteReq.getModelId())){
+            if (modelDataBaseIdMap.containsKey(schemaQuoteReq.getModelId())) {
                 modelDataBaseId = modelDataBaseIdMap.get(schemaQuoteReq.getModelId());
-            }else{
+            } else {
                 DWPrebuildModel model = prebuildModelRepository.getOne(schemaQuoteReq.getModelId());
                 modelDataBaseId = model.getDatabaseId();
-                modelDataBaseIdMap.put(model.getId(),modelDataBaseId);
+                modelDataBaseIdMap.put(model.getId(), modelDataBaseId);
             }
 
             //非数仓模式不保存映射关系
-            if(modelDataBaseId == null){
+            if (modelDataBaseId == null) {
                 continue;
             }
 
@@ -541,12 +541,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             List<String> conceptTableName = modelConcept.getTables();
 
-            if(conceptTableName == null || conceptTableName.isEmpty()){
+            if (conceptTableName == null || conceptTableName.isEmpty()) {
                 continue;
             }
 
 
-            for(String tableName : conceptTableName){
+            for (String tableName : conceptTableName) {
                 DWGraphMap graphMap = new DWGraphMap();
                 BeanUtils.copyProperties(schemaQuoteReq, graphMap);
                 graphMap.setTableName(tableName);
@@ -558,22 +558,22 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             List<SchemaQuoteAttrReq> schemaQuoteAttrReqList = schemaQuoteReq.getAttrs();
 
-            if(schemaQuoteAttrReqList == null || schemaQuoteAttrReqList.isEmpty()){
+            if (schemaQuoteAttrReqList == null || schemaQuoteAttrReqList.isEmpty()) {
                 continue;
             }
 
-            for(SchemaQuoteAttrReq schemaQuoteAttrReq : schemaQuoteAttrReqList){
+            for (SchemaQuoteAttrReq schemaQuoteAttrReq : schemaQuoteAttrReqList) {
 
                 DWPrebuildAttr prebuildAttr = prebuildAttrRepository.getOne(schemaQuoteAttrReq.getModelAttrId());
 
                 List<String> tables = prebuildAttr.getTables();
 
-                if(tables!= null && !tables.isEmpty()){
-                    for(String tableName : tables){
+                if (tables != null && !tables.isEmpty()) {
+                    for (String tableName : tables) {
                         DWGraphMap graphMap = new DWGraphMap();
                         BeanUtils.copyProperties(schemaQuoteReq, graphMap);
-                        BeanUtils.copyProperties(schemaQuoteAttrReq,graphMap);
-                        if(schemaQuoteAttrReq.getAttrType().equals(1)){
+                        BeanUtils.copyProperties(schemaQuoteAttrReq, graphMap);
+                        if (schemaQuoteAttrReq.getAttrType().equals(1)) {
                             graphMap.setModelRange(Lists.newArrayList(schemaQuoteAttrReq.getModelRange()));
                             graphMap.setRange(Lists.newArrayList(schemaQuoteAttrReq.getRange()));
                             graphMap.setRangeName(Lists.newArrayList(schemaQuoteAttrReq.getRangeName()));
@@ -587,25 +587,25 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 }
 
 
-                if(!schemaQuoteAttrReq.getAttrType().equals(1) && schemaQuoteAttrReq.getRelationAttrs() != null && !schemaQuoteAttrReq.getRelationAttrs().isEmpty()){
+                if (!schemaQuoteAttrReq.getAttrType().equals(1) && schemaQuoteAttrReq.getRelationAttrs() != null && !schemaQuoteAttrReq.getRelationAttrs().isEmpty()) {
                     continue;
                 }
 
                 List<SchemaQuoteRelationAttrReq> schemaQuoteRelationAttrReqs = schemaQuoteAttrReq.getRelationAttrs();
 
 
-                if(schemaQuoteRelationAttrReqs != null&& !schemaQuoteRelationAttrReqs.isEmpty()){
+                if (schemaQuoteRelationAttrReqs != null && !schemaQuoteRelationAttrReqs.isEmpty()) {
 
-                    for(SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq : schemaQuoteRelationAttrReqs){
+                    for (SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq : schemaQuoteRelationAttrReqs) {
 
                         DWPrebuildRelationAttr relationAttr = prebuildRelationAttrRepository.getOne(schemaQuoteRelationAttrReq.getId());
                         List<String> tableNames = relationAttr.getTables();
 
-                        if(tableNames != null && !tableNames.isEmpty()){
-                            for(String tableName : tableNames){
+                        if (tableNames != null && !tableNames.isEmpty()) {
+                            for (String tableName : tableNames) {
 
                                 DWGraphMapRelationAttr graphMapRelationAttr = new DWGraphMapRelationAttr();
-                                BeanUtils.copyProperties(schemaQuoteRelationAttrReq,graphMapRelationAttr);
+                                BeanUtils.copyProperties(schemaQuoteRelationAttrReq, graphMapRelationAttr);
                                 graphMapRelationAttr.setTableName(tableName);
                                 graphMapRelationAttr.setDataBaseId(modelDataBaseId);
                                 graphMapRelationAttr.setSchedulingSwitch(0);
@@ -623,67 +623,67 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         }
 
-        if(!graphMapList.isEmpty()){
+        if (!graphMapList.isEmpty()) {
             graphMapRepository.saveAll(graphMapList);
         }
 
-        if(!graphMapRelationAttrList.isEmpty()){
+        if (!graphMapRelationAttrList.isEmpty()) {
             graphMapRelationAttrRepository.saveAll(graphMapRelationAttrList);
         }
 
         //生成订阅任务
-        createSchedulingConfig(preBuilderGraphMapReq.getKgName(),true,0);
-        return ;
+        createSchedulingConfig(preBuilderGraphMapReq.getKgName(), true, 0);
+        return;
     }
 
     @Override
-    public void createSchedulingConfig(String kgName,boolean isCreateKtr,Integer status) {
+    public void createSchedulingConfig(String kgName, boolean isCreateKtr, Integer status) {
 
-        List<SchemaQuoteReq> schemaQuoteReqList = getGraphMap(SessionHolder.getUserId(),kgName);
+        List<SchemaQuoteReq> schemaQuoteReqList = getGraphMap(SessionHolder.getUserId(), kgName);
 
-        if(schemaQuoteReqList == null || schemaQuoteReqList.isEmpty()){
+        if (schemaQuoteReqList == null || schemaQuoteReqList.isEmpty()) {
             return;
         }
 
         Map<Integer, List<SchemaQuoteReq>> schemaModelMap = new HashMap<>();
-        for(SchemaQuoteReq schemaQuoteReq : schemaQuoteReqList){
-            if(schemaModelMap.containsKey(schemaQuoteReq.getModelId())){
+        for (SchemaQuoteReq schemaQuoteReq : schemaQuoteReqList) {
+            if (schemaModelMap.containsKey(schemaQuoteReq.getModelId())) {
                 schemaModelMap.get(schemaQuoteReq.getModelId()).add(schemaQuoteReq);
-            }else{
+            } else {
                 List<SchemaQuoteReq> schemaQuoteReqs = new ArrayList<>();
                 schemaQuoteReqs.add(schemaQuoteReq);
-                schemaModelMap.put(schemaQuoteReq.getModelId(),schemaQuoteReqs);
+                schemaModelMap.put(schemaQuoteReq.getModelId(), schemaQuoteReqs);
             }
         }
 
         List<Integer> existModelTaskList = new ArrayList<>();
 
 
-        for(SchemaQuoteReq schemaQuoteReq : schemaQuoteReqList){
+        for (SchemaQuoteReq schemaQuoteReq : schemaQuoteReqList) {
             Integer modelId = schemaQuoteReq.getModelId();
-            if(existModelTaskList.contains(modelId)){
+            if (existModelTaskList.contains(modelId)) {
                 continue;
             }
 
             Optional<DWPrebuildModel> modelOpt = prebuildModelRepository.findById(modelId);
-            if(!modelOpt.isPresent()){
+            if (!modelOpt.isPresent()) {
                 continue;
             }
 
             DWPrebuildModel model = modelOpt.get();
 
-            List<String> tableNames =schemaQuoteReq.getTables();
-            String kgTaskName = AccessTaskType.KG.getDisplayName()+"_"+kgName+"_"+modelId;
+            List<String> tableNames = schemaQuoteReq.getTables();
+            String kgTaskName = AccessTaskType.KG.getDisplayName() + "_" + kgName + "_" + modelId;
 
 
-            if(tableNames== null || tableNames.isEmpty()){
+            if (tableNames == null || tableNames.isEmpty()) {
                 continue;
             }
 
-            if(isCreateKtr){
-                for(String tableName : tableNames){
-                    accessTaskService.createKtrTask(tableName,model.getDatabaseId(),kgName,0);
-                    accessTaskService.createTransfer(tableName,model.getDatabaseId(),null,null,null,null,kgName);
+            if (isCreateKtr) {
+                for (String tableName : tableNames) {
+                    accessTaskService.createKtrTask(tableName, model.getDatabaseId(), kgName, 0, kgName);
+                    accessTaskService.createTransfer(tableName, model.getDatabaseId(), null, null, null, null, kgName);
                 }
             }
 
@@ -692,7 +692,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             DWTaskRsp kgTaskRsp = accessTaskService.getByTaskName(kgTaskName);
 
-            if(kgTaskRsp == null){
+            if (kgTaskRsp == null) {
                 kgTaskRsp = new DWTaskRsp();
                 kgTaskRsp.setName(kgTaskName);
                 kgTaskRsp.setTaskType(AccessTaskType.KG.getDisplayName());
@@ -716,14 +716,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         SchemaRsp schemaRsp = graphApplicationService.querySchema(req.getKgName());
 
-        if(schemaRsp == null || schemaRsp.getTypes() == null || schemaRsp.getTypes().isEmpty()){
-            throw  BizException.of(KgmsErrorCodeEnum.EMTRY_MODEL_PUDH_ERROR);
+        if (schemaRsp == null || schemaRsp.getTypes() == null || schemaRsp.getTypes().isEmpty()) {
+            throw BizException.of(KgmsErrorCodeEnum.EMTRY_MODEL_PUDH_ERROR);
         }
 
         DWPrebuildModel model = DWPrebuildModel.builder()
                 .name(schemaRsp.getKgTitle())
                 .permission(0)
-                .userId(SessionHolder.getUserId())
+                .userId(getUserDetail().getId())
                 .username(getUserDetail().getUsername())
                 .modelType(req.getModelType())
                 .isStandardTemplate(0)
@@ -732,39 +732,41 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         model = prebuildModelRepository.save(model);
 
-        addSchema2PreBuilder(schemaRsp,model.getId());
+        addSchema2PreBuilder(schemaRsp, model.getId());
 
     }
 
-    private void addSchema2PreBuilder(SchemaRsp schemaRsp,Integer modelId) {
+    private void addSchema2PreBuilder(SchemaRsp schemaRsp, Integer modelId) {
 
         List<BaseConceptRsp> conceptRsps = schemaRsp.getTypes();
 
-        Map<String,Integer> conceptMap = Maps.newHashMap();
-        Map<Long, String> conceptNameMap = conceptRsps.stream().collect(Collectors.toMap(BaseConceptRsp::getId,BaseConceptRsp::getName));
+        Map<String, Integer> conceptMap = Maps.newHashMap();
+        Map<Long, String> conceptNameMap = conceptRsps.stream().collect(Collectors.toMap(BaseConceptRsp::getId, BaseConceptRsp::getName));
 
 
         //递归添加概念
-        addConceptReturn(conceptRsps,modelId,conceptMap,conceptNameMap);
+        addConceptReturn(conceptRsps, modelId, conceptMap, conceptNameMap);
 
         List<AttributeDefinitionRsp> attrs = schemaRsp.getAttrs();
 
-        if(attrs == null || attrs.isEmpty()){
-            return ;
+        if (attrs == null || attrs.isEmpty()) {
+            return;
         }
 
-        for(AttributeDefinitionRsp attrRsp : attrs){
+        for (AttributeDefinitionRsp attrRsp : attrs) {
 
 
             DWPrebuildAttr attr = new DWPrebuildAttr();
             BeanUtils.copyProperties(attrRsp, attr);
             attr.setAttrKey(attrRsp.getKey());
             attr.setAttrType(attrRsp.getType());
+            attr.setId(null);
 
             attr.setConceptId(conceptMap.get(conceptNameMap.get(attrRsp.getDomainValue())));
             attr.setModelId(modelId);
             if (attrRsp.getType().equals(1)) {
                 attr.setRange(conceptMap.get(conceptNameMap.get(attrRsp.getRangeValue().get(0))));
+                attr.setRangeName(conceptNameMap.get(attrRsp.getRangeValue().get(0)));
             }
 
             attr = prebuildAttrRepository.save(attr);
@@ -778,7 +780,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                     relationAttr.setAttrId(attr.getId());
                     relationAttr.setModelId(modelId);
-                    if(relationAttr.getName() == null || relationAttr.getName().isEmpty()){
+                    if (relationAttr.getName() == null || relationAttr.getName().isEmpty()) {
                         continue;
                     }
                     prebuildRelationAttrRepository.save(relationAttr);
@@ -788,44 +790,46 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
 
-        return ;
+        return;
     }
 
     private void addConceptReturn(List<BaseConceptRsp> neadAddConcept, Integer modelId, Map<String, Integer> conceptMap, Map<Long, String> conceptNameMap) {
 
-        if(neadAddConcept == null || neadAddConcept.isEmpty()){
+        if (neadAddConcept == null || neadAddConcept.isEmpty()) {
             return;
         }
 
-        for (Iterator<BaseConceptRsp> it = neadAddConcept.iterator(); it.hasNext(); ){
+        for (Iterator<BaseConceptRsp> it = neadAddConcept.iterator(); it.hasNext(); ) {
 
             BaseConceptRsp concept = it.next();
 
-            if(concept.getParentId().equals(0l)){
+            if (concept.getParentId().equals(0l)) {
                 PreBuilderConceptRsp conceptRsp = new PreBuilderConceptRsp();
+                conceptRsp.setId(null);
                 conceptRsp.setName(concept.getName());
                 conceptRsp.setImage(concept.getImg());
                 conceptRsp.setConceptKey(concept.getKey());
-                addPreBuilderConcept(conceptRsp,modelId,conceptMap);
+                addPreBuilderConcept(conceptRsp, modelId, conceptMap);
                 it.remove();
-            }else if(conceptNameMap.containsKey(concept.getParentId()) && conceptMap.containsKey(conceptNameMap.get(concept.getParentId()))){
+            } else if (conceptNameMap.containsKey(concept.getParentId()) && conceptMap.containsKey(conceptNameMap.get(concept.getParentId()))) {
                 PreBuilderConceptRsp conceptRsp = new PreBuilderConceptRsp();
+                conceptRsp.setId(null);
                 conceptRsp.setName(concept.getName());
                 conceptRsp.setImage(concept.getImg());
                 conceptRsp.setConceptKey(concept.getKey());
                 conceptRsp.setParentId(conceptMap.get(conceptNameMap.get(concept.getParentId())));
-                addPreBuilderConcept(conceptRsp,modelId,conceptMap);
+                addPreBuilderConcept(conceptRsp, modelId, conceptMap);
                 it.remove();
             }
         }
 
-        if(!neadAddConcept.isEmpty()){
-            addConceptReturn(neadAddConcept,modelId,conceptMap,conceptNameMap);
+        if (!neadAddConcept.isEmpty()) {
+            addConceptReturn(neadAddConcept, modelId, conceptMap, conceptNameMap);
         }
 
     }
 
-    private void addPreBuilderConcept(PreBuilderConceptRsp conceptRsp,Integer modelId,Map<String,Integer> conceptMap){
+    private void addPreBuilderConcept(PreBuilderConceptRsp conceptRsp, Integer modelId, Map<String, Integer> conceptMap) {
 
         DWPrebuildConcept concept = new DWPrebuildConcept();
         BeanUtils.copyProperties(conceptRsp, concept);
@@ -963,13 +967,13 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         SchemaRsp schemaRsp = graphApplicationService.querySchema(kgName);
 
         Map<String, Long> conceptNameIdMap = new HashMap<>();
-        if(schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()){
-            conceptNameIdMap = schemaRsp.getTypes().stream().collect(Collectors.toMap(BaseConceptRsp::getName,BaseConceptRsp::getId));
+        if (schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()) {
+            conceptNameIdMap = schemaRsp.getTypes().stream().collect(Collectors.toMap(BaseConceptRsp::getName, BaseConceptRsp::getId));
         }
 
         Map<String, AttributeDefinitionRsp> attrMap = new HashMap<>();
-        if(schemaRsp.getAttrs() != null && !schemaRsp.getAttrs().isEmpty()) {
-            schemaRsp.getAttrs().forEach(attr -> attrMap.put(attr.getName()+attr.getDomainValue(),attr));
+        if (schemaRsp.getAttrs() != null && !schemaRsp.getAttrs().isEmpty()) {
+            schemaRsp.getAttrs().forEach(attr -> attrMap.put(attr.getName() + attr.getDomainValue(), attr));
         }
         List<SchemaQuoteReq> needAddConcepts = new ArrayList<>();
 
@@ -1023,27 +1027,27 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                     attrId = attrReq.getAttrId();
 
-                } else if(attrMap.containsKey(attrReq.getAttrName()+schemaQuoteReq.getConceptId())){
+                } else if (attrMap.containsKey(attrReq.getAttrName() + schemaQuoteReq.getConceptId())) {
 
-                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName()+schemaQuoteReq.getConceptId());
+                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName() + schemaQuoteReq.getConceptId());
 
-                    if(!a.getType().equals(attrReq.getAttrType())){
+                    if (!a.getType().equals(attrReq.getAttrType())) {
                         continue;
                     }
 
-                    if(a.getType().equals(0)){
-                        if(!a.getDataType().equals(attrReq.getDataType())){
+                    if (a.getType().equals(0)) {
+                        if (!a.getDataType().equals(attrReq.getDataType())) {
                             continue;
                         }
-                    }else{
-                        if(!a.getRangeValue().contains(attrReq.getRange())){
+                    } else {
+                        if (!a.getRangeValue().contains(attrReq.getRange())) {
                             continue;
                         }
                     }
 
                     attrId = a.getId();
 
-                }else{
+                } else {
 
                     AttrDefinitionReq attrDefinitionReq = new AttrDefinitionReq();
                     attrDefinitionReq.setName(attrReq.getAttrName());
@@ -1081,29 +1085,29 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 if (attrReq.getAttrType().equals(1) && attrReq.getRelationAttrs() != null) {
 
-                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName()+schemaQuoteReq.getConceptId());
+                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName() + schemaQuoteReq.getConceptId());
 
                     Map<String, AttrExtraRsp> relaAMap = new HashMap<>();
-                    if(a != null && a.getExtraInfos() != null ){
-                        a.getExtraInfos().forEach(attr -> relaAMap.put(attr.getName(),attr));
+                    if (a != null && a.getExtraInfos() != null) {
+                        a.getExtraInfos().forEach(attr -> relaAMap.put(attr.getName(), attr));
                     }
 
                     for (SchemaQuoteRelationAttrReq relationAttrReq : attrReq.getRelationAttrs()) {
 
                         Integer relaAttrId;
-                        if(relationAttrReq.getAttrId() != null){
+                        if (relationAttrReq.getAttrId() != null) {
 
                             continue;
 
-                        }else if(relaAMap.containsKey(relationAttrReq.getName())){
+                        } else if (relaAMap.containsKey(relationAttrReq.getName())) {
 
                             AttrExtraRsp graphRelaAtt = relaAMap.get(relationAttrReq.getName());
-                            if(graphRelaAtt.getType().equals(1) || !graphRelaAtt.getDataType().equals(relationAttrReq.getDataType())){
+                            if (graphRelaAtt.getType().equals(1) || !graphRelaAtt.getDataType().equals(relationAttrReq.getDataType())) {
                                 continue;
                             }
 
                             relaAttrId = graphRelaAtt.getSeqNo();
-                        }else {
+                        } else {
 
                             EdgeAttrDefinitionReq edgeAttrDefinitionReq = new EdgeAttrDefinitionReq();
                             edgeAttrDefinitionReq.setDataType(relationAttrReq.getDataType());
@@ -1160,7 +1164,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public void createModel(DWDatabase database, List<PreBuilderConceptRsp> preBuilderConceptRspList,String modelType,String yamlContent) {
+    public void createModel(DWDatabase database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, String yamlContent) {
 
         DWPrebuildModel model = DWPrebuildModel.builder()
                 .databaseId(database.getId())
@@ -1185,9 +1189,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         List<String> modelTypes;
         UserDetailRsp userDetailRsp = getUserDetail();
 
-        if("admin".equals(userDetailRsp.getUsername())){
+        if ("admin".equals(userDetailRsp.getUsername())) {
             modelTypes = prebuildModelRepository.getAdminModelTypes();
-        }else{
+        } else {
             modelTypes = prebuildModelRepository.getModelTypes(userId);
         }
         return modelTypes;
@@ -1197,50 +1201,45 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     public void create(PreBuilderCreateReq req) {
 
         UserDetailRsp userDetailRsp = getUserDetail();
-        /*if(!"admin".equals(userDetailRsp.getUsername())){
+        if (!"admin".equals(userDetailRsp.getUsername())) {
             throw BizException.of(KgmsErrorCodeEnum.PERMISSION_NOT_MODEL_UPLOAD_ERROR);
-        }*/
+        }
 
         if (req.getFilePath() == null || (!req.getFilePath().endsWith(".xls") && !req.getFilePath().endsWith(".xlsx") && !req.getFilePath().endsWith(".zip"))) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_TYPE_ERROR);
         }
 
-        try {
 
 
-            if(req.getFilePath().endsWith(".xls") || req.getFilePath().endsWith(".xlsx")){
-                //纯模式
-                List<ModelExcelRsp> modelExcelRspList = addModelByExcel(req.getFilePath(),req.getName());
+        if (req.getFilePath().endsWith(".xls") || req.getFilePath().endsWith(".xlsx")) {
+            //纯模式
+            List<ModelExcelRsp> modelExcelRspList = addModelByExcel(req.getFilePath(), req.getName());
 
-                DWPrebuildModel model = DWPrebuildModel.builder()
-                        .userId(getUserDetail().getId())
-                        .username(getUserDetail().getUsername())
-                        .modelType(req.getModelType())
-                        .description(req.getDesc())
-                        .name(req.getName())
-                        .status("0")
-                        .permission(1)
-                        .isStandardTemplate(0)
-                        .build();
+            DWPrebuildModel model = DWPrebuildModel.builder()
+                    .userId(getUserDetail().getId())
+                    .username(getUserDetail().getUsername())
+                    .modelType(req.getModelType())
+                    .description(req.getDesc())
+                    .name(req.getName())
+                    .status("0")
+                    .permission(1)
+                    .isStandardTemplate(0)
+                    .build();
 
-                prebuildModelRepository.save(model);
+            prebuildModelRepository.save(model);
 
-                createModelByExcel(model, modelExcelRspList);
+            createModelByExcel(model, modelExcelRspList);
 
-            }else{
-                //行业标准
+        } else {
+            //行业标准
 
-                DWPrebuildModel model = addModelByZip(req);
+            DWPrebuildModel model = addModelByZip(req);
 
-                prebuildModelRepository.save(model);
+            prebuildModelRepository.save(model);
 
-                createSchemaModel(model.getId(),dwService.modelSchema2PreBuilder(model.getTagJson()));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+            createSchemaModel(model.getId(), dwService.modelSchema2PreBuilder(model.getTagJson()));
         }
+
 
     }
 
@@ -1248,7 +1247,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     public static void bytesToFile(byte[] buffer, final String filePath) {
 
         File file = new File(filePath);
-        if(!file.getParentFile().exists()){
+        if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
 
@@ -1316,18 +1315,18 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 InputStream is = zipFile.getInputStream(entry);
 
 
-                if(entry.getName().endsWith(".ktr")){
+                if (entry.getName().endsWith(".ktr")) {
                     ktr = IOUtils.toString(is, StandardCharsets.UTF_8);
-                }else if(entry.getName().endsWith("tag.json")){
-                    modelSchema =  JacksonUtils.readValue(is, ModelSchemaConfigRsp.class);
+                } else if (entry.getName().endsWith("tag.json")) {
+                    modelSchema = JacksonUtils.readValue(is, ModelSchemaConfigRsp.class);
                     tableName = modelSchema.getTableName();
 
-                }else {
+                } else {
 
                     List<String> lines = IOUtils.readLines(is);
-                    file = org.apache.commons.lang3.StringUtils.join(lines," ");
+                    file = org.apache.commons.lang3.StringUtils.join(lines, " ");
 
-                    jsonFileSchema(schema,file);
+                    jsonFileSchema(schema, file);
                 }
 
                 is.close();
@@ -1351,23 +1350,25 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             e.printStackTrace();
             throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
-        }finally {
-            if(zipFile != null){
+        } finally {
+            if (zipFile != null) {
                 try {
                     zipFile.close();
-                }catch (Exception e){}
+                } catch (Exception e) {
+                }
             }
 
-            if(new File(zFile).exists()){
+            if (new File(zFile).exists()) {
                 try {
                     new File(zFile).delete();
-                }catch (Exception e){}
+                } catch (Exception e) {
+                }
             }
         }
     }
 
     private void jsonFileSchema(List<DataSetSchema> setSchemas, String in) {
-        Object json  = JacksonUtils.readValue(in, new TypeReference<Object>() {
+        Object json = JacksonUtils.readValue(in, new TypeReference<Object>() {
         });
         Map<String, Object> map = new HashMap<>();
         if (json instanceof List) {
@@ -1396,7 +1397,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             } catch (Exception e) {
                 type = FieldType.STRING;
             }
-        }else if (string.startsWith(ARRAY_START)) {
+        } else if (string.startsWith(ARRAY_START)) {
             if (string.startsWith(ARRAY_STRING_START)) {
                 try {
                     JacksonUtils.getInstance().readValue(string, new TypeReference<List<String>>() {
@@ -1432,50 +1433,50 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     private void createModelByExcel(DWPrebuildModel model, List<ModelExcelRsp> modelExcelRspList) {
 
-        if(modelExcelRspList == null || modelExcelRspList.isEmpty()){
-            return ;
+        if (modelExcelRspList == null || modelExcelRspList.isEmpty()) {
+            return;
         }
 
-        Map<String,Integer> conceptMap = new HashMap<>();
+        Map<String, Integer> conceptMap = new HashMap<>();
         List<ModelExcelRsp.Relation> relationList = new ArrayList<>();
 
         //递归添加概念
-        addModelConcept(conceptMap,relationList,modelExcelRspList,model.getId());
+        addModelConcept(conceptMap, relationList, modelExcelRspList, model.getId());
 
-        if(!relationList.isEmpty()){
-            addModelRelationByExecl(conceptMap,relationList,model.getId());
+        if (!relationList.isEmpty()) {
+            addModelRelationByExecl(conceptMap, relationList, model.getId());
         }
 
     }
 
     private void addModelRelationByExecl(Map<String, Integer> conceptMap, List<ModelExcelRsp.Relation> relationList, Integer modelId) {
 
-        for(ModelExcelRsp.Relation relation : relationList){
+        for (ModelExcelRsp.Relation relation : relationList) {
 
             prebuildAttrRepository.save(DWPrebuildAttr.builder()
                     .modelId(modelId)
-                    .conceptId(conceptMap.get(relation.getDomain()+relation.getDomainMeaningTag()))
+                    .conceptId(conceptMap.get(relation.getDomain() + relation.getDomainMeaningTag()))
                     .name(relation.getName())
                     .alias(relation.getAlias())
                     .attrType(1)
-                    .range(conceptMap.get(relation.getRange()+relation.getRangeMeaningTag()))
+                    .range(conceptMap.get(relation.getRange() + relation.getRangeMeaningTag()))
                     .rangeName(relation.getRange())
                     .build());
 
         }
     }
 
-    private void addModelConcept(Map<String, Integer> conceptMap, List<ModelExcelRsp.Relation> relationList, List<ModelExcelRsp> modelExcelRspList,Integer modelId) {
+    private void addModelConcept(Map<String, Integer> conceptMap, List<ModelExcelRsp.Relation> relationList, List<ModelExcelRsp> modelExcelRspList, Integer modelId) {
 
-        if(modelExcelRspList == null || modelExcelRspList.isEmpty()){
-            return ;
+        if (modelExcelRspList == null || modelExcelRspList.isEmpty()) {
+            return;
         }
 
-        for(Iterator<ModelExcelRsp> it = modelExcelRspList.iterator(); it.hasNext();){
+        for (Iterator<ModelExcelRsp> it = modelExcelRspList.iterator(); it.hasNext(); ) {
 
             ModelExcelRsp concept = it.next();
 
-            if(concept.getParentName() == null){
+            if (concept.getParentName() == null) {
                 //顶层概念
                 DWPrebuildConcept pbConcept = prebuildConceptRepository.save(DWPrebuildConcept.builder()
                         .modelId(modelId)
@@ -1483,37 +1484,37 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         .meaningTag(concept.getMeaningTag())
                         .build());
 
-                if(concept.getAttrs() != null && !concept.getAttrs().isEmpty()){
-                    addModelAttrByExecl(modelId,pbConcept.getId(),concept.getAttrs());
+                if (concept.getAttrs() != null && !concept.getAttrs().isEmpty()) {
+                    addModelAttrByExecl(modelId, pbConcept.getId(), concept.getAttrs());
                 }
 
-                if(concept.getRelations() != null  && !concept.getRelations().isEmpty()){
+                if (concept.getRelations() != null && !concept.getRelations().isEmpty()) {
                     relationList.addAll(concept.getRelations());
                 }
 
-                conceptMap.put(pbConcept.getName()+pbConcept.getMeaningTag(),pbConcept.getId());
+                conceptMap.put(pbConcept.getName() + pbConcept.getMeaningTag(), pbConcept.getId());
 
-            }else if(conceptMap.containsKey(concept.getParentName()+concept.getParentMeaningTag())){
+            } else if (conceptMap.containsKey(concept.getParentName() + concept.getParentMeaningTag())) {
                 //父概念已经入图
 
                 DWPrebuildConcept pbConcept = prebuildConceptRepository.save(DWPrebuildConcept.builder()
                         .modelId(modelId)
                         .name(concept.getName())
-                        .parentId(conceptMap.get(concept.getParentName()+concept.getParentMeaningTag()))
+                        .parentId(conceptMap.get(concept.getParentName() + concept.getParentMeaningTag()))
                         .meaningTag(concept.getMeaningTag())
                         .build());
 
-                if(concept.getAttrs() != null && !concept.getAttrs().isEmpty()){
-                    addModelAttrByExecl(modelId,pbConcept.getId(),concept.getAttrs());
+                if (concept.getAttrs() != null && !concept.getAttrs().isEmpty()) {
+                    addModelAttrByExecl(modelId, pbConcept.getId(), concept.getAttrs());
                 }
 
-                if(concept.getRelations() != null  && !concept.getRelations().isEmpty()){
+                if (concept.getRelations() != null && !concept.getRelations().isEmpty()) {
                     relationList.addAll(concept.getRelations());
                 }
 
 
-                conceptMap.put(pbConcept.getName()+pbConcept.getMeaningTag(),pbConcept.getId());
-            }else{
+                conceptMap.put(pbConcept.getName() + pbConcept.getMeaningTag(), pbConcept.getId());
+            } else {
 
                 //父概念还未添加
                 continue;
@@ -1522,14 +1523,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             it.remove();
 
         }
-        if(modelExcelRspList != null && !modelExcelRspList.isEmpty()){
-            addModelConcept(conceptMap,relationList,modelExcelRspList,modelId);
+        if (modelExcelRspList != null && !modelExcelRspList.isEmpty()) {
+            addModelConcept(conceptMap, relationList, modelExcelRspList, modelId);
         }
     }
 
     private void addModelAttrByExecl(Integer modelId, Integer conceptId, List<ModelExcelRsp.Attr> attrs) {
 
-        for(ModelExcelRsp.Attr attr : attrs){
+        for (ModelExcelRsp.Attr attr : attrs) {
 
             prebuildAttrRepository.save(DWPrebuildAttr.builder()
                     .modelId(modelId)
@@ -1546,32 +1547,27 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
 
-    private List<ModelExcelRsp> addModelByExcel(String filePath,String name) {
+    private List<ModelExcelRsp> addModelByExcel(String filePath, String name) {
 
-        try {
 
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(fastdfsTemplate.downloadFile(filePath));
-            ExcelParser excelParser = new ExcelParser(inputStream, filePath);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(fastdfsTemplate.downloadFile(filePath));
+        ExcelParser excelParser = new ExcelParser(inputStream, filePath);
 
-            Sheet sheet = excelParser.wb.getSheetAt(0);
-            Map<String,ModelExcelRsp> conceptMap = getExcelModelConcept(excelParser,sheet,name);
+        Sheet sheet = excelParser.wb.getSheetAt(0);
+        Map<String, ModelExcelRsp> conceptMap = getExcelModelConcept(excelParser, sheet, name);
 
-            Sheet attrSheet = excelParser.wb.getSheetAt(1);
-            getExcelModelAttr(excelParser,attrSheet,conceptMap);
+        Sheet attrSheet = excelParser.wb.getSheetAt(1);
+        getExcelModelAttr(excelParser, attrSheet, conceptMap);
 
-            Sheet relationSheet = excelParser.wb.getSheetAt(2);
-            getExcelModelRelation(excelParser,relationSheet,conceptMap);
+        Sheet relationSheet = excelParser.wb.getSheetAt(2);
+        getExcelModelRelation(excelParser, relationSheet, conceptMap);
 
-            return Lists.newArrayList(conceptMap.values());
-        }catch (Exception e){
-            e.printStackTrace();
-            throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
-        }
+        return Lists.newArrayList(conceptMap.values());
 
     }
 
     private void getExcelModelRelation(ExcelParser excelParser, Sheet sheet, Map<String, ModelExcelRsp> conceptMap) {
-        excelParser.checkTitle(sheet.getRow(0),ExcelParser.ATTRIBUTE);
+        excelParser.checkTitle(sheet.getRow(0), ExcelParser.ATTRIBUTE);
 
         int rows = sheet.getPhysicalNumberOfRows();
 
@@ -1583,18 +1579,15 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String domain = excelParser.getCellValue(row.getCell(2));
                 String fourColumn = excelParser.getCellValue(row.getCell(4));//值域
                 if (!org.springframework.util.StringUtils.hasText(attrName) || !org.springframework.util.StringUtils.hasText(domain) || !org.springframework.util.StringUtils.hasText(fourColumn)) {
-                    excelParser.buildErrorMsg(row, "缺少必填项");
-                    return;
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_LACK_REQUIRES_ERROR);
                 }
                 String domainMeaningTag = excelParser.getCellValue(row.getCell(3));
                 String fiveColumn = excelParser.getCellValue(row.getCell(5));
-                if(!conceptMap.containsKey(domain+domainMeaningTag)){
-                    excelParser.buildErrorMsg(row, "定义域不存在");
-                    return;
+                if (!conceptMap.containsKey(domain + domainMeaningTag)) {
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
                 }
-                if(!conceptMap.containsKey(fourColumn+fiveColumn)){
-                    excelParser.buildErrorMsg(row, "值域不存在");
-                    return;
+                if (!conceptMap.containsKey(fourColumn + fiveColumn)) {
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_RANGE_NOT_EXIST_ERROR);
                 }
 
                 String alias = excelParser.getCellValue(row.getCell(1));
@@ -1607,7 +1600,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 relation.setRange(fourColumn);
                 relation.setRangeMeaningTag(fiveColumn);
 
-                conceptMap.get(domain+domainMeaningTag).getRelations().add(relation);
+                conceptMap.get(domain + domainMeaningTag).getRelations().add(relation);
 
             }
 
@@ -1617,7 +1610,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     private void getExcelModelAttr(ExcelParser excelParser, Sheet sheet, Map<String, ModelExcelRsp> conceptMap) {
 
-        excelParser.checkTitle(sheet.getRow(0),ExcelParser.ATTRIBUTE);
+        excelParser.checkTitle(sheet.getRow(0), ExcelParser.ATTRIBUTE);
 
         int rows = sheet.getPhysicalNumberOfRows();
 
@@ -1629,20 +1622,17 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String domain = excelParser.getCellValue(row.getCell(2));
                 String fourColumn = excelParser.getCellValue(row.getCell(4));
                 if (!org.springframework.util.StringUtils.hasText(attrName) || !org.springframework.util.StringUtils.hasText(domain) || !org.springframework.util.StringUtils.hasText(fourColumn)) {
-                    excelParser.buildErrorMsg(row, "缺少必填项");
-                    return;
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_LACK_REQUIRES_ERROR);
                 }
                 String domainMeaningTag = excelParser.getCellValue(row.getCell(3));
                 String fiveColumn = excelParser.getCellValue(row.getCell(5));
-                if(!conceptMap.containsKey(domain+domainMeaningTag)){
-                    excelParser.buildErrorMsg(row, "定义域不存在");
-                    return;
+                if (!conceptMap.containsKey(domain + domainMeaningTag)) {
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
                 }
                 Integer fourColumnId;
                 fourColumnId = DataTypeEnum.getDataType(fourColumn);
                 if (fourColumnId == null) {
-                    excelParser.buildErrorMsg(row, "数据类型不存在");
-                    return;
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DATATYPE_NOT_EXIST_ERROR);
                 }
 
                 String alias = excelParser.getCellValue(row.getCell(1));
@@ -1653,7 +1643,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 attr.setDataType(fourColumnId);
                 attr.setUnit(fiveColumn);
 
-                conceptMap.get(domain+domainMeaningTag).getAttrs().add(attr);
+                conceptMap.get(domain + domainMeaningTag).getAttrs().add(attr);
 
             }
 
@@ -1662,9 +1652,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     private Map<String, ModelExcelRsp> getExcelModelConcept(ExcelParser excelParser, Sheet sheet, String name) {
 
-        excelParser.checkTitle(sheet.getRow(0),ExcelParser.CONCEPT);
+        excelParser.checkTitle(sheet.getRow(0), ExcelParser.CONCEPT);
 
-        Map<String,ModelExcelRsp> conceptMap =  new HashMap<>();
+        Map<String, ModelExcelRsp> conceptMap = new HashMap<>();
         int rows = sheet.getPhysicalNumberOfRows();
 
         for (int i = 1; i <= rows; i++) {
@@ -1674,9 +1664,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String parentMeaningTag = excelParser.getCellValue(row.getCell(1));
                 String sonName = excelParser.getCellValue(row.getCell(2));
                 String sonMeaningTag = excelParser.getCellValue(row.getCell(3));
-//                    if (!org.springframework.util.StringUtils.hasText(parentName)) {
-//                        throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
-//                    }
                 if (!org.springframework.util.StringUtils.hasText(sonName)) {
                     throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
                 }
@@ -1684,37 +1671,60 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
                 }
 
-                /*if(!org.springframework.util.StringUtils.hasText(parentName) || name.equals(parentName)){
-                    //顶层概念
-                }else if(conceptMap.containsKey(parentName+parentMeaningTag)){
-                    concept = conceptMap.get(parentName+parentMeaningTag);
-                }else{
-                    concept = ModelExcelRsp.builder().name(parentName).meaningTag(parentMeaningTag).build();
-                    concept.setChilds(new ArrayList<>());
-                    concept.setAttrs(new ArrayList<>());
-                    concept.setRelations(new ArrayList<>());
-                    conceptMap.put(parentName+parentMeaningTag,concept);
-                }*/
-
                 ModelExcelRsp sonConcept;
-                if(!conceptMap.containsKey(sonName+sonMeaningTag)){
+                if (!conceptMap.containsKey(sonName + sonMeaningTag)) {
                     sonConcept = ModelExcelRsp.builder().name(sonName).meaningTag(sonMeaningTag).build();
                     sonConcept.setAttrs(new ArrayList<>());
                     sonConcept.setRelations(new ArrayList<>());
-                    conceptMap.put(sonName+sonMeaningTag,sonConcept);
+                    conceptMap.put(sonName + sonMeaningTag, sonConcept);
 
-                    if(org.springframework.util.StringUtils.hasText(parentName) && !name.equals(parentName) && !"root".equals(parentMeaningTag)){
+                    if (org.springframework.util.StringUtils.hasText(parentName) && !"root".equals(parentName)) {
                         sonConcept.setParentName(parentName);
                         sonConcept.setMeaningTag(sonMeaningTag);
                     }
-                }else{
-                    throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+                } else {
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_CONCEPT_EXIST_ERROR);
                 }
 
             }
         }
 
+        //校验
+        checkPranetConceptIsExist(conceptMap);
+
         return conceptMap;
+    }
+
+    private void checkPranetConceptIsExist(Map<String, ModelExcelRsp> conceptMap) {
+
+        for (Map.Entry<String, ModelExcelRsp> concept : conceptMap.entrySet()) {
+
+            if (concept.getValue().getParentName() != null) {
+                String k = concept.getValue().getParentName() + concept.getValue().getParentMeaningTag();
+                if (!conceptMap.containsKey(k)) {
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PARENT_CONCEPT_NOT_EXIST_ERROR);
+                }
+
+                List<String> parentList  = new ArrayList<>();
+                getAllParentConcept(k, conceptMap, parentList);
+
+                if(parentList.contains(k)){
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PARENT_CONCEPT_NOT_EXIST_ERROR);
+                }
+            }
+        }
+    }
+
+    private void getAllParentConcept(String k, Map<String, ModelExcelRsp> conceptMap, List<String> parentList) {
+
+        if(conceptMap.containsKey(k)){
+            ModelExcelRsp rsp = conceptMap.get(k);
+            if(!StringUtils.isEmpty(rsp.getParentName())){
+                parentList.add(rsp.getParentName()+rsp.getParentMeaningTag());
+                getAllParentConcept(rsp.getParentName()+rsp.getParentMeaningTag(),conceptMap,parentList);
+            }
+        }
+
     }
 
 
@@ -1723,39 +1733,39 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         List<DWGraphMap> dwGraphMapList = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).build()));
 
-        if(dwGraphMapList == null || dwGraphMapList.isEmpty()){
+        if (dwGraphMapList == null || dwGraphMapList.isEmpty()) {
             return new ArrayList<>();
         }
 
-        Map<String,SchemaQuoteReq> schemaQuoteReqMap = new HashMap<>();
-        Map<String,Map<String,SchemaQuoteAttrReq>> schemaQuoteAttrMap = new HashMap<>();
-        Map<String,Map<String,List<String>>> schemaAuoteRelationAttrMap = new HashMap<>();
+        Map<String, SchemaQuoteReq> schemaQuoteReqMap = new HashMap<>();
+        Map<String, Map<String, SchemaQuoteAttrReq>> schemaQuoteAttrMap = new HashMap<>();
+        Map<String, Map<String, List<String>>> schemaAuoteRelationAttrMap = new HashMap<>();
 
-        for(DWGraphMap graphMap : dwGraphMapList){
+        for (DWGraphMap graphMap : dwGraphMapList) {
 
             SchemaQuoteReq schemaQuoteReq;
-            String conceptKey = graphMap.getEntityName()+graphMap.getConceptName()+graphMap.getModelId();
+            String conceptKey = graphMap.getEntityName() + graphMap.getConceptName() + graphMap.getModelId();
 
-            if(schemaQuoteReqMap.containsKey(conceptKey)){
+            if (schemaQuoteReqMap.containsKey(conceptKey)) {
 
                 schemaQuoteReq = schemaQuoteReqMap.get(conceptKey);
 
-                if(!schemaQuoteReq.getTables().contains(graphMap.getTableName())){
+                if (!schemaQuoteReq.getTables().contains(graphMap.getTableName())) {
                     schemaQuoteReq.getTables().add(graphMap.getTableName());
                 }
 
-            }else{
+            } else {
 
                 schemaQuoteReq = new SchemaQuoteReq();
-                BeanUtils.copyProperties(graphMap,schemaQuoteReq);
+                BeanUtils.copyProperties(graphMap, schemaQuoteReq);
 
                 schemaQuoteReq.setAttrs(new ArrayList<>());
                 schemaQuoteReq.setTables(Lists.newArrayList(graphMap.getTableName()));
-                schemaQuoteAttrMap.put(conceptKey,new HashMap<>());
-                schemaQuoteReqMap.put(conceptKey,schemaQuoteReq);
-        }
+                schemaQuoteAttrMap.put(conceptKey, new HashMap<>());
+                schemaQuoteReqMap.put(conceptKey, schemaQuoteReq);
+            }
 
-            if(graphMap.getAttrId() == null){
+            if (graphMap.getAttrId() == null) {
                 //概念映射 没有属性
                 continue;
             }
@@ -1763,11 +1773,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             //设置属性
             SchemaQuoteAttrReq schemaQuoteAttrReq;
 
-            if(!schemaQuoteAttrMap.get(conceptKey).containsKey(graphMap.getAttrName())){
+            if (!schemaQuoteAttrMap.get(conceptKey).containsKey(graphMap.getAttrName())) {
                 schemaQuoteAttrReq = new SchemaQuoteAttrReq();
-                BeanUtils.copyProperties(graphMap,schemaQuoteAttrReq);
+                BeanUtils.copyProperties(graphMap, schemaQuoteAttrReq);
 
-                if(schemaQuoteAttrReq.getAttrType().equals(1)){
+                if (schemaQuoteAttrReq.getAttrType().equals(1)) {
                     schemaQuoteAttrReq.setModelRange(graphMap.getModelRange().get(0));
                     schemaQuoteAttrReq.setRange(graphMap.getRange().get(0));
                     schemaQuoteAttrReq.setRangeName(graphMap.getRangeName().get(0));
@@ -1778,35 +1788,35 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
 
                 schemaQuoteReq.getAttrs().add(schemaQuoteAttrReq);
-                schemaQuoteAttrMap.get(conceptKey).put(graphMap.getAttrName(),schemaQuoteAttrReq);
-            }else{
-                schemaQuoteAttrReq =  schemaQuoteAttrMap.get(conceptKey).get(graphMap.getAttrName());
+                schemaQuoteAttrMap.get(conceptKey).put(graphMap.getAttrName(), schemaQuoteAttrReq);
+            } else {
+                schemaQuoteAttrReq = schemaQuoteAttrMap.get(conceptKey).get(graphMap.getAttrName());
 
-                if(!schemaQuoteAttrReq.getTables().contains(graphMap.getTableName())){
+                if (!schemaQuoteAttrReq.getTables().contains(graphMap.getTableName())) {
                     schemaQuoteAttrReq.getTables().add(graphMap.getTableName());
                 }
             }
 
             //不是对象属性，不查边属性
-            if(!schemaQuoteAttrReq.getAttrType().equals(1)){
+            if (!schemaQuoteAttrReq.getAttrType().equals(1)) {
                 continue;
             }
 
             List<DWGraphMapRelationAttr> graphMapRelationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().attrId(schemaQuoteAttrReq.getAttrId()).kgName(kgName).modelId(schemaQuoteReq.getModelId()).build()));
-            if(graphMapRelationAttrList == null || graphMapRelationAttrList.isEmpty()){
+            if (graphMapRelationAttrList == null || graphMapRelationAttrList.isEmpty()) {
                 continue;
             }
 
-            for(DWGraphMapRelationAttr graphMapRelationAttr : graphMapRelationAttrList){
+            for (DWGraphMapRelationAttr graphMapRelationAttr : graphMapRelationAttrList) {
 
-                if(schemaAuoteRelationAttrMap.containsKey(conceptKey)
+                if (schemaAuoteRelationAttrMap.containsKey(conceptKey)
                         && schemaAuoteRelationAttrMap.get(conceptKey).containsKey(schemaQuoteAttrReq.getAttrName())
-                        && schemaAuoteRelationAttrMap.get(conceptKey).get(schemaQuoteAttrReq.getAttrName()).contains(graphMapRelationAttr.getName())){
+                        && schemaAuoteRelationAttrMap.get(conceptKey).get(schemaQuoteAttrReq.getAttrName()).contains(graphMapRelationAttr.getName())) {
                     continue;
-                }else{
+                } else {
 
                     SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq = new SchemaQuoteRelationAttrReq();
-                    BeanUtils.copyProperties(graphMapRelationAttr,schemaQuoteRelationAttrReq);
+                    BeanUtils.copyProperties(graphMapRelationAttr, schemaQuoteRelationAttrReq);
                     schemaQuoteRelationAttrReq.setTables(Lists.newArrayList(graphMap.getTableName()));
                     schemaQuoteAttrReq.getRelationAttrs().add(schemaQuoteRelationAttrReq);
                 }
@@ -1836,7 +1846,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(), Sort.by(Sort.Order.desc("createAt")));
 
 
-        if(!req.isGraph() && req.isManage() && !req.isUser() && !req.isDw()){
+        if (!req.isGraph() && req.isManage() && !req.isUser() && !req.isDw()) {
             return Page.empty();
         }
 
@@ -1856,7 +1866,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 List<Predicate> tags = new ArrayList<>();
                 if (req.isDw()) {
-                    tags.add(criteriaBuilder.isNotNull(root.get("databaseId")));;
+                    tags.add(criteriaBuilder.isNotNull(root.get("databaseId")));
+                    ;
                 }
 
                 if (req.isGraph()) {
@@ -1864,11 +1875,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 }
 
                 if (req.isManage()) {
-                    tags.add(criteriaBuilder.equal(root.get("username").as(String.class),"admin"));
+                    tags.add(criteriaBuilder.equal(root.get("username").as(String.class), "admin"));
                 }
 
                 if (req.isUser()) {
-                    tags.add(criteriaBuilder.notEqual(root.get("username").as(String.class),"admin"));
+                    tags.add(criteriaBuilder.notEqual(root.get("username").as(String.class), "admin"));
                 }
 
                 predicates.add(criteriaBuilder.or(tags.toArray(new Predicate[]{})));
@@ -1879,14 +1890,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     predicates.add(modelTypeEq);
                 }
 
-                if("admin".equals(username)){
+                if ("admin".equals(username)) {
                     //管理员
-                    if(!StringUtils.isEmpty(req.getUsername())){
+                    if (!StringUtils.isEmpty(req.getUsername())) {
                         Predicate username = criteriaBuilder.equal(root.get("username").as(String.class), req.getUsername());
                         predicates.add(username);
                     }
 
-                }else{
+                } else {
                     //普通用户
                     Predicate isPrivate = criteriaBuilder.equal(root.get("userId").as(String.class), SessionHolder.getUserId());
                     predicates.add(isPrivate);
@@ -1915,9 +1926,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         String username = getUserDetail().getUsername();
 
-        if("admin".equals(username)){
+        if ("admin".equals(username)) {
             prebuildModelRepository.deleteById(id);
-        }else{
+        } else {
             prebuildModelRepository.delete(DWPrebuildModel.builder().userId(userId).id(id).build());
         }
 
@@ -1931,7 +1942,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         DWPrebuildModel model = prebuildModelRepository.getOne(id);
         model.setStatus(status);
 
-        if("admin".equals(username) || model.getUserId().equals(userId)){
+        if ("admin".equals(username) || model.getUserId().equals(userId)) {
             prebuildModelRepository.save(model);
         }
 
@@ -2021,7 +2032,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                         relationAttr.setAttrId(attr.getId());
                         relationAttr.setModelId(modelId);
-                        if(relationAttr.getName() == null || relationAttr.getName().isEmpty()){
+                        if (relationAttr.getName() == null || relationAttr.getName().isEmpty()) {
                             continue;
                         }
                         prebuildRelationAttrRepository.save(relationAttr);

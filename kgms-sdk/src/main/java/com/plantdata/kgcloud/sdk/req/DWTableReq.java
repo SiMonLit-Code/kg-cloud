@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -14,9 +15,11 @@ import java.util.List;
 public class DWTableReq {
 
     @ApiModelProperty("数仓表名称")
+    @NotNull
     private String title;
 
     @ApiModelProperty("数仓数据库id")
+    @NotNull
     private Long dwDataBaseId;
 
     private String tableName;

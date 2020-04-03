@@ -20,13 +20,13 @@ public interface AccessTaskService {
 
     void saveTask(DWTaskRsp taskRsp,Long timeout);
 
-    String getKtrConfig(Long databaseId, String tableName,String isAllKey,Integer isScheduled);
+    String getKtrConfig(Long databaseId, String tableName,String isAllKey,Integer isScheduled,String target);
 
     String getTransferConfig(Long databaseId, String tableName,Integer isScheduled);
 
     String getDwConfig(Long databaseId, DWTable tableName,Integer isScheduled);
 
-    String createKtrTask(String tableName,Long databaseId,String isAllKey,Integer isSchedue);
+    String createKtrTask(String tableName,Long databaseId,String isAllKey,Integer isSchedue,String target);
 
     String createTransfer(String tableName,Long databaseId,List<String> outputs,List<String> distributeOriginalData,List<String> deleteOutputs,List<String> deleteDistributeOriginalData,String isAllKey);
 

@@ -517,7 +517,7 @@ public class KtrXml {
                 "    </hop>\n" +
                 "    <hop>\n" +
                 "      <from>获取变量</from>\n" +
-                "      <to>Kafka producer</to>\n" +
+                "      <to>Kafka_producer_QAQ_resourceNameQAQ_QAQ</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "  </order>\n";
@@ -752,7 +752,7 @@ public class KtrXml {
                 "  </step>\n" ;
 
         static String kafkaxml = "  <step>\n" +
-                "    <name>Kafka producer</name>\n" +
+                "    <name>Kafka_producer_QAQ_resourceNameQAQ_QAQ</name>\n" +
                 "    <type>KafkaProducerOutput</type>\n" +
                 "    <description/>\n" +
                 "    <distribute>Y</distribute>\n" +

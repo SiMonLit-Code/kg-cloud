@@ -503,7 +503,7 @@ public class IndustryKtrXml {
                 "    </hop>\n" +
                 "    <hop>\n" +
                 "      <from>过滤记录</from>\n" +
-                "      <to>Kafka producer</to>\n" +
+                "      <to>Kafka_producer_QAQ_resourceNameQAQ_QAQ</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
@@ -533,7 +533,7 @@ public class IndustryKtrXml {
                 "    </hop>"+
                 "    <hop>\n" +
                 "      <from>过滤记录</from>\n" +
-                "      <to>Kafka producer err</to>\n" +
+                "      <to>Kafka_producer_err_QAQ_resourceNameQAQ_QAQ</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "  </order>\n";
@@ -737,7 +737,7 @@ public class IndustryKtrXml {
                 "  </step>\n" ;
 
         static String kafkaTrueXml = "<step>\n" +
-                "    <name>Kafka producer</name>\n" +
+                "    <name>Kafka_producer_QAQ_resourceNameQAQ_QAQ</name>\n" +
                 "    <type>KafkaProducerOutput</type>\n" +
                 "    <description/>\n" +
                 "    <distribute>Y</distribute>\n" +
@@ -779,7 +779,7 @@ public class IndustryKtrXml {
                 "  </step>\n";
 
         static String kafkaErrorXml = "  <step>\n" +
-                "    <name>Kafka producer err</name>\n" +
+                "    <name>Kafka_producer_err_QAQ_resourceNameQAQ_QAQ</name>\n" +
                 "    <type>KafkaProducerOutput</type>\n" +
                 "    <description/>\n" +
                 "    <distribute>Y</distribute>\n" +
@@ -960,8 +960,8 @@ public class IndustryKtrXml {
                 "      <method>none</method>\n" +
                 "      <schema_name/>\n" +
                 "    </partitioning>\n" +
-                "    <send_true_to>Kafka producer</send_true_to>\n" +
-                "    <send_false_to>Kafka producer err</send_false_to>\n" +
+                "    <send_true_to>Kafka_producer_QAQ_resourceNameQAQ_QAQ</send_true_to>\n" +
+                "    <send_false_to>Kafka_producer_err_QAQ_resourceNameQAQ_QAQ</send_false_to>\n" +
                 "    <compare>\n" +
                 "      <condition>\n" +
                 "        <negated>N</negated>\n" +
