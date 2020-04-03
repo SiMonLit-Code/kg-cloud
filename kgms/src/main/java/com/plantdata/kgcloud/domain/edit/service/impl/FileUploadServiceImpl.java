@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +47,8 @@ public class FileUploadServiceImpl implements FileUploadService {
         List<ThumbPathRsp> rstList = new ArrayList<>();
         for (MultipartFile file : files) {
             String originalFilename = file.getOriginalFilename();
-            String fileExtName = originalFilename.substring(Objects.requireNonNull(originalFilename).lastIndexOf(".") + 1);
+            String fileExtName =
+                    originalFilename.substring(Objects.requireNonNull(originalFilename).lastIndexOf(".") + 1);
             FastdfsPathDto fastdfsPathDto;
             if (imageType.contains(fileExtName.toUpperCase())) {
                 fastdfsPathDto = fastdfsTemplate.uploadImage(file);
@@ -62,5 +66,22 @@ public class FileUploadServiceImpl implements FileUploadService {
     public ThumbPathRsp uploadPicture(MultipartFile file) {
         FastdfsPathDto fastdfsPathDto = fastdfsTemplate.uploadImage(file);
         return ConvertUtils.convert(ThumbPathRsp.class).apply(fastdfsPathDto);
+    }
+
+
+    public void download(String filePath, HttpServletResponse response) {
+        int i = filePath.lastIndexOf("/") + 1;
+        String fileName = filePath.substring(i);
+        byte[] bytes = fastdfsTemplate.downloadFile(filePath);
+        try {
+            response.reset();
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + new String((fileName).getBytes(),
+                    "iso-8859-1"));
+            ServletOutputStream outputStream = response.getOutputStream();
+            outputStream.write(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

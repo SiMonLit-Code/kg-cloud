@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
@@ -33,6 +34,9 @@ public class DWController {
 
     @Autowired
     private DWService dwServince;
+
+    @Autowired
+    private UserClient userClient;
 
     @ApiOperation("数仓-创建数据库")
     @PostMapping("/create/database")
@@ -194,6 +198,7 @@ public class DWController {
     public ApiReturn push(@RequestBody ModelPushReq req) {
 
         String userId = SessionHolder.getUserId();
+//        String userId = userClient.getCurrentUserDetail().getData().getId();
         dwServince.push(userId, req);
         return ApiReturn.success();
     }
@@ -203,6 +208,7 @@ public class DWController {
     public ApiReturn<ModelSchemaConfigRsp> getModel(@PathVariable("id") Long id) {
 
         String userId = SessionHolder.getUserId();
+//        String userId = userClient.getCurrentUserDetail().getData().getId();
         return ApiReturn.success(dwServince.getModel(userId, id));
     }
 

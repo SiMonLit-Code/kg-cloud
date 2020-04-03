@@ -38,6 +38,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.dw.service.StandardTemplateService;
+import com.plantdata.kgcloud.domain.dw.util.ExampleTagJson;
 import com.plantdata.kgcloud.domain.dw.util.ExampleYaml;
 import com.plantdata.kgcloud.domain.dw.util.PaserYaml2SchemaUtil;
 import com.plantdata.kgcloud.exception.BizException;
@@ -439,7 +440,7 @@ public class DWServiceImpl implements DWService {
 
             DWDatabase database =getDetail(databaseId);
 
-            if(database == null || !database.getDataFormat().equals(3)){
+            if(database == null || (!database.getDataFormat().equals(3) && !database.getDataFormat().equals(2))){
                 return ;
             }
 
@@ -447,15 +448,22 @@ public class DWServiceImpl implements DWService {
             if(tableRsps == null || tableRsps.isEmpty()){
                 return;
             }
-            
-            byte[] bytes = ExampleYaml.create(tableRsps);
-
             response.reset();
-//            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".yaml").getBytes(),
-                    "iso-8859-1"));
+            byte[] bytes;
+            if(database.getDataFormat().equals(3)){
 
-            response.getOutputStream().write(bytes);
+                bytes = ExampleYaml.create(tableRsps);
+                response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".yaml").getBytes(),
+                        "iso-8859-1"));
+                response.getOutputStream().write(bytes);
+            }else if(database.getDataFormat().equals(2)){
+                bytes = ExampleTagJson.create(tableRsps);
+                response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".json").getBytes(),
+                        "iso-8859-1"));
+                response.getOutputStream().write(bytes);
+            }else{
+                throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1117,11 +1125,13 @@ public class DWServiceImpl implements DWService {
     private List<ModelSchemaConfigRsp> getDatabseModelSchema(String userId, Long id){
 
         DWDatabase database = getDetail(id);
+
+        DWDatabaseRsp databaseRsp = ConvertUtils.convert(DWDatabaseRsp.class).apply(database);
         if (!database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
-        if(database.getDataFormat().equals(1)){
+        if(databaseRsp.getDataFormat().equals(1)){
             //行业模板 根据引入的表获取模式
             List<DWTableRsp> tables = findTableAll(userId, id);
 
@@ -1141,7 +1151,7 @@ public class DWServiceImpl implements DWService {
 
 
             List<ModelSchemaConfigRsp> schemas = Lists.newArrayList();
-            database.getTagJson().forEach(schema -> {
+            databaseRsp.getTagJson().forEach(schema -> {
 
                 if(schema != null){
                     if(tableMappings.containsKey(schema.getTableName())){
@@ -1152,7 +1162,7 @@ public class DWServiceImpl implements DWService {
             });
             return schemas;
         }else{
-            return database.getTagJson();
+            return databaseRsp.getTagJson();
         }
 
     }

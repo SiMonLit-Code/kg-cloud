@@ -26,7 +26,7 @@ public class KettleLogStatisticReq {
     @ApiModelProperty(value = "开始日期", required = true)
     private String startDate;
     @NotNull
-    @ApiModelProperty(value = "统计类型 默认 DAY 按统计，HOUR按小时")
+    @ApiModelProperty(value = "统计类型 默认 DAY 按统计，HOUR按小时 MONTH 按月份")
     private KettleLogStatisticTypeEnum statisticType=KettleLogStatisticTypeEnum.DAY;
     @NotNull
     @ApiModelProperty(value = "结束日期", required = true)

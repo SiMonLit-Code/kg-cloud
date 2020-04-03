@@ -191,7 +191,7 @@ public class EntityServiceImpl implements EntityService {
         List<BasicInfoRsp> basicInfoRspList =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
         int count = basicInfoRspList.size();
-        if (count > size){
+        if (count > size) {
             basicInfoRspList.remove(size.intValue());
         }
         return new PageImpl<>(basicInfoRspList, PageRequest.of(basicInfoListReq.getPage() - 1, size), count);
@@ -378,11 +378,22 @@ public class EntityServiceImpl implements EntityService {
         } else if ("".equals(toTime)) {
             conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, Collections.singletonList(20));
         }
+        BasicInfoRsp details = basicInfoService.getDetails(kgName, new BasicReq(entityId, true));
+        fromTime = hasValue(fromTime, details.getFromTime());
+        toTime = hasValue(toTime, details.getToTime());
         if (StringUtils.hasText(fromTime) && StringUtils.hasText(toTime) && fromTime.compareTo(toTime) > 0) {
             throw BizException.of(KgmsErrorCodeEnum.TIME_FORM_MORE_THAN_TO);
         }
         if (!CollectionUtils.isEmpty(metadata)) {
             conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
+        }
+    }
+
+    private String hasValue(String oldTime, String nowTime) {
+        if (StringUtils.hasText(oldTime)) {
+            return oldTime;
+        } else {
+            return nowTime;
         }
     }
 
