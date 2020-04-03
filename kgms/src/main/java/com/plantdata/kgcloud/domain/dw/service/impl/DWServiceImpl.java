@@ -38,6 +38,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.dw.service.StandardTemplateService;
+import com.plantdata.kgcloud.domain.dw.util.ExampleTagJson;
 import com.plantdata.kgcloud.domain.dw.util.ExampleYaml;
 import com.plantdata.kgcloud.domain.dw.util.PaserYaml2SchemaUtil;
 import com.plantdata.kgcloud.exception.BizException;
@@ -439,7 +440,7 @@ public class DWServiceImpl implements DWService {
 
             DWDatabase database =getDetail(databaseId);
 
-            if(database == null || !database.getDataFormat().equals(3)){
+            if(database == null || (!database.getDataFormat().equals(3) && !database.getDataFormat().equals(2))){
                 return ;
             }
 
@@ -456,7 +457,7 @@ public class DWServiceImpl implements DWService {
                         "iso-8859-1"));
                 response.getOutputStream().write(bytes);
             }else if(database.getDataFormat().equals(2)){
-                bytes = ExampleYaml.create(tableRsps);
+                bytes = ExampleTagJson.create(tableRsps);
                 response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".json").getBytes(),
                         "iso-8859-1"));
                 response.getOutputStream().write(bytes);
