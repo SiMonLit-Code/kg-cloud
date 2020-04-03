@@ -1138,7 +1138,7 @@ public class DWServiceImpl implements DWService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+            throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
         }
         return;
     }
@@ -1147,12 +1147,11 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(id);
 
-        DWDatabaseRsp databaseRsp = ConvertUtils.convert(DWDatabaseRsp.class).apply(database);
         if (!database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
-        if(databaseRsp.getDataFormat().equals(1)){
+        if(database.getDataFormat().equals(1)){
             //行业模板 根据引入的表获取模式
             List<DWTableRsp> tables = findTableAll(userId, id);
 
@@ -1172,18 +1171,20 @@ public class DWServiceImpl implements DWService {
 
 
             List<ModelSchemaConfigRsp> schemas = Lists.newArrayList();
-            databaseRsp.getTagJson().forEach(schema -> {
+            database.getTagJson().forEach(schema -> {
 
                 if(schema != null){
-                    if(tableMappings.containsKey(schema.getTableName())){
-                        schema.setTableName(tableMappings.get(schema.getTableName()));
-                        schemas.add(schema);
+                    ModelSchemaConfigRsp s = new ModelSchemaConfigRsp();
+                    BeanUtils.copyProperties(schema,s);
+                    if(tableMappings.containsKey(s.getTableName())){
+                        s.setTableName(tableMappings.get(s.getTableName()));
+                        schemas.add(s);
                     }
                 }
             });
             return schemas;
         }else{
-            return databaseRsp.getTagJson();
+            return database.getTagJson();
         }
 
     }
