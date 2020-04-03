@@ -1317,10 +1317,6 @@ public class DWServiceImpl implements DWService {
                 continue;
             }
 
-            if (tableRsp.getCreateWay() == null || !tableRsp.getCreateWay().equals(1)) {
-                continue;
-            }
-
             String cron = req.getCron();
 
             tableRsp.setCron(cron);
