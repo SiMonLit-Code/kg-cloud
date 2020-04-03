@@ -51,7 +51,9 @@ public class FileUploadServiceImpl implements FileUploadService {
             } else {
                 fastdfsPathDto = fastdfsTemplate.uploadFile(file);
             }
-            rstList.add(ConvertUtils.convert(ThumbPathRsp.class).apply(fastdfsPathDto));
+            ThumbPathRsp thumbPathRsp = ConvertUtils.convert(ThumbPathRsp.class).apply(fastdfsPathDto);
+            thumbPathRsp.setFileName(fileExtName);
+            rstList.add(thumbPathRsp);
         }
         return rstList;
     }
