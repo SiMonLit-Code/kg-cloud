@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public interface DWService {
-    
-    DWDatabase getDetail(Long databaseId);
+
+    DWDatabaseRsp getDetail(Long databaseId);
 
     DWDatabaseRsp createDatabase(String userId, DWDatabaseReq req);
 

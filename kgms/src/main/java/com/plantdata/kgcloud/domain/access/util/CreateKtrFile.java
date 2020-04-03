@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.access.util;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
+import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.constant.DataType;
 
@@ -21,7 +22,7 @@ public class CreateKtrFile {
      * @return
      * @throws IOException
      */
-    public static String getKettleXmlPath(DWDatabase database, DWTableRsp table,String resourceName, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword,String userId) {
+    public static String getKettleXmlPath(DWDatabaseRsp database, DWTableRsp table, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword, String userId) {
 
         if(database.getDataFormat().equals(1)){
             //行业标准
@@ -35,7 +36,7 @@ public class CreateKtrFile {
 
     }
 
-    private static String getKtrIndustry(DWDatabase database,DWTableRsp table, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword,String userId) {
+    private static String getKtrIndustry(DWDatabaseRsp database,DWTableRsp table, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword,String userId) {
 
         String xml = IndustryKtrXml.xml;
         String defaultXml = IndustryKtrXml.defaultStepXml;
@@ -163,7 +164,7 @@ public class CreateKtrFile {
         return customizationXml.replace("${code}",table.getKtr() == null ? "":table.getKtr());
     }
 
-    private static String changeParamAndFilterXml(String paramAndFilterXml, DWDatabase database, DWTableRsp table,String userId) {
+    private static String changeParamAndFilterXml(String paramAndFilterXml, DWDatabaseRsp database, DWTableRsp table,String userId) {
 
         return paramAndFilterXml.replace("${db}", database.getDataName())
                                     .replace("${tb}",table.getTableName())
@@ -171,7 +172,7 @@ public class CreateKtrFile {
 
     }
 
-    private static String getKtrNotIndustry(DWDatabase database, DWTableRsp table,String resourceName, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword){
+    private static String getKtrNotIndustry(DWDatabaseRsp database, DWTableRsp table,String resourceName, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword){
         String xml = KtrXml.xml;
         String defaultXml = KtrXml.defaultStepXml;
         String kafkaxml = KtrXml.kafkaxml;

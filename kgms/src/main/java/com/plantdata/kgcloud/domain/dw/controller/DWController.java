@@ -207,8 +207,8 @@ public class DWController {
     @PatchMapping("/model/get/{id}")
     public ApiReturn<ModelSchemaConfigRsp> getModel(@PathVariable("id") Long id) {
 
-        String userId = SessionHolder.getUserId();
-//        String userId = userClient.getCurrentUserDetail().getData().getId();
+//        String userId = SessionHolder.getUserId();
+        String userId = userClient.getCurrentUserDetail().getData().getId();
         return ApiReturn.success(dwServince.getModel(userId, id));
     }
 

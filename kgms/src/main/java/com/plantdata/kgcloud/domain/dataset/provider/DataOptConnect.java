@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
+import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.constant.DataType;
 import jodd.util.ArraysUtil;
 import lombok.AllArgsConstructor;
@@ -43,7 +44,7 @@ public class DataOptConnect {
         return connect;
     }
 
-    public static DataOptConnect of(DWDatabase database, DWTable table, MongoProperties mongoProperties) {
+    public static DataOptConnect of(DWDatabaseRsp database, DWTable table, MongoProperties mongoProperties) {
         DataOptConnect connect = new DataOptConnect();
 
 

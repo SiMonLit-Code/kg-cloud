@@ -17,6 +17,7 @@ import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
+import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
@@ -89,7 +90,7 @@ public class TableDataServiceImpl implements TableDataService {
 
     private DataOptProvider getProvider(String userId, Long datasetId, Long tableId,MongoProperties mongoProperties) {
 
-        DWDatabase database = dwService.getDetail(datasetId);
+        DWDatabaseRsp database = dwService.getDetail(datasetId);
 
         if(database == null){
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
