@@ -1678,12 +1678,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     sonConcept.setRelations(new ArrayList<>());
                     conceptMap.put(sonName + sonMeaningTag, sonConcept);
 
-                    if (org.springframework.util.StringUtils.hasText(parentName) && !"root".equals(parentMeaningTag)) {
+                    if (org.springframework.util.StringUtils.hasText(parentName) && !"root".equals(parentName)) {
                         sonConcept.setParentName(parentName);
                         sonConcept.setMeaningTag(sonMeaningTag);
                     }
                 } else {
-                    throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_CONCEPT_EXIST_ERROR);
                 }
 
             }

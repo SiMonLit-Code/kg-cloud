@@ -21,21 +21,21 @@ public class CreateKtrFile {
      * @return
      * @throws IOException
      */
-    public static String getKettleXmlPath(DWDatabase database, DWTableRsp table, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword,String userId) {
+    public static String getKettleXmlPath(DWDatabase database, DWTableRsp table,String resourceName, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword,String userId) {
 
         if(database.getDataFormat().equals(1)){
             //行业标准
 
-            return getKtrIndustry(database,table,kafkaServers,mongoAddrs,mongoUserrname,mongoPassword,userId);
+            return getKtrIndustry(database,table,resourceName,kafkaServers,mongoAddrs,mongoUserrname,mongoPassword,userId);
         }else{
             //非标准
-            return getKtrNotIndustry(database,table,kafkaServers,mongoAddrs,mongoUserrname,mongoPassword);
+            return getKtrNotIndustry(database,table,resourceName,kafkaServers,mongoAddrs,mongoUserrname,mongoPassword);
         }
 
 
     }
 
-    private static String getKtrIndustry(DWDatabase database, DWTableRsp table, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword,String userId) {
+    private static String getKtrIndustry(DWDatabase database,DWTableRsp table, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword,String userId) {
 
         String xml = IndustryKtrXml.xml;
         String defaultXml = IndustryKtrXml.defaultStepXml;
@@ -154,7 +154,7 @@ public class CreateKtrFile {
 
         String data = xml + connXml + orderXml + defaultXml + inputXml + kafkaTruexml+ kafkaErrorxml + customizationXml + paramAndFilterXml;
         // 创建临时路径
-        return data;
+        return data.replaceAll("resourceNameQAQ",resourceName);
 
     }
 
@@ -171,7 +171,7 @@ public class CreateKtrFile {
 
     }
 
-    private static String getKtrNotIndustry(DWDatabase database, DWTableRsp table, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword){
+    private static String getKtrNotIndustry(DWDatabase database, DWTableRsp table,String resourceName, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword){
         String xml = KtrXml.xml;
         String defaultXml = KtrXml.defaultStepXml;
         String kafkaxml = KtrXml.kafkaxml;
@@ -281,7 +281,7 @@ public class CreateKtrFile {
 
         String data = xml + connXml + orderXml + defaultXml + inputXml + kafkaxml;
         // 创建临时路径
-        return data;
+        return data.replaceAll("resourceNameQAQ",resourceName);
     }
 
     private static String changeDefaultXmlField(String defaultXml, String jsonFieldxml) {

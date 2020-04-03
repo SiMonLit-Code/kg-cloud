@@ -158,6 +158,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     SCHEMA_PASER_RANGE_NOT_EXIST_ERROR(120721, "模式解析值域不存在"),
 
     SCHEMA_PASER_DATATYPE_NOT_EXIST_ERROR(120722, "模式解析数据类型不存在"),
+
+    SCHEMA_PASER_CONCEPT_EXIST_ERROR(120723, "模式解析存在同名概念"),
     ;
 
     private final int errorCode;
