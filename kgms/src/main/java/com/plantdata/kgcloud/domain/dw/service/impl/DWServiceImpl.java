@@ -447,15 +447,22 @@ public class DWServiceImpl implements DWService {
             if(tableRsps == null || tableRsps.isEmpty()){
                 return;
             }
-            
-            byte[] bytes = ExampleYaml.create(tableRsps);
-
             response.reset();
-//            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".yaml").getBytes(),
-                    "iso-8859-1"));
+            byte[] bytes;
+            if(database.getDataFormat().equals(3)){
 
-            response.getOutputStream().write(bytes);
+                bytes = ExampleYaml.create(tableRsps);
+                response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".yaml").getBytes(),
+                        "iso-8859-1"));
+                response.getOutputStream().write(bytes);
+            }else if(database.getDataFormat().equals(2)){
+                bytes = ExampleYaml.create(tableRsps);
+                response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".json").getBytes(),
+                        "iso-8859-1"));
+                response.getOutputStream().write(bytes);
+            }else{
+                throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
