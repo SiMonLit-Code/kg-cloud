@@ -91,7 +91,7 @@ public class KettleLogStatisticServiceImpl implements KettleLogStatisticService 
         tableMap.forEach((k1, v1) -> {
             Long sum = statisticMap.getOrDefault(k1, 0L);
             String date = countByTable.get(k1);
-            rspList.forEach(val -> {
+            v1.forEach(val -> {
                 val.setLastDate(date);
                 val.setLastDateCount(sum);
             });
