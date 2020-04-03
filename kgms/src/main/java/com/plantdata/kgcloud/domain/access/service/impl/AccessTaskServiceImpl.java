@@ -193,6 +193,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         configJson.put("isScheduled",isScheduled == null? 0: isScheduled);
         configJson.put("target",target);
         configJson.put("dataName",database.getDataName());
+        configJson.put("dbTitle",database.getTitle());
         configJson.put("tableName",tableName);
         configJson.put("dbId",databaseId);
 
