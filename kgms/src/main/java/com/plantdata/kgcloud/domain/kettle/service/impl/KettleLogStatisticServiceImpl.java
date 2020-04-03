@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.domain.dw.req.KettleLogStatisticReq;
 import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.KettleLogStatisticRsp;
 import com.plantdata.kgcloud.domain.kettle.KettleLogDeal;
+import com.plantdata.kgcloud.domain.kettle.dto.KettleLogAggResultDTO;
 import com.plantdata.kgcloud.domain.kettle.service.KettleLogStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -42,7 +43,7 @@ public class KettleLogStatisticServiceImpl implements KettleLogStatisticService 
         aggList.forEach(a -> log.info(a.toString()));
         MongoCursor<Document> iterator = KettleLogDeal.getCollection(mongoClient).aggregate(aggList).iterator();
         if (iterator.hasNext()) {
-            return KettleLogDeal.parseKettleLogStatisticRsp(iterator, statisticReq.getTableName());
+            return KettleLogDeal.parseKettleLogStatisticRsp(iterator,statisticReq.getStatisticType(), statisticReq.getTableName());
         }
         return KettleLogStatisticRsp.EMPTY;
     }
@@ -55,7 +56,7 @@ public class KettleLogStatisticServiceImpl implements KettleLogStatisticService 
         collect.forEach((k, v) -> {
             Set<String> tableNames = v.stream().map(GraphMapRsp::getTableName).collect(Collectors.toSet());
             Bson query = and(eq("dbId", v.get(0).getDataBaseId()),
-                    eq("time_flag", KettleLogStatisticTypeEnum.DAY.getLowerCase()),
+                    eq("time_flag", KettleLogStatisticTypeEnum.HOUR.getLowerCase()),
                     in("tbName", tableNames));
             FindIterable<Document> projection = KettleLogDeal.getCollection(mongoClient)
                     .find(query)
@@ -78,7 +79,7 @@ public class KettleLogStatisticServiceImpl implements KettleLogStatisticService 
             String tableName = next.getString("tbName");
             String logTimeStamp = countByTable.get(tableName);
 
-            String formatDate = next.getString("logTimeStamp");
+            String formatDate = KettleLogAggResultDTO.formatByStatisticType(new Date(next.getLong("logTimeStamp")),KettleLogStatisticTypeEnum.HOUR) ;
             if (logTimeStamp == null) {
                 countByTable.put(tableName, formatDate);
                 statisticMap.put(tableName, next.getLong("W"));

@@ -19,7 +19,11 @@ public enum KettleLogStatisticTypeEnum {
     /**
      * 按小时统计
      */
-    HOUR("hour");
+    HOUR("hour"),
+    /**
+     * 按月显示
+     */
+    MONTH("month");
 
     private String lowerCase;
 
