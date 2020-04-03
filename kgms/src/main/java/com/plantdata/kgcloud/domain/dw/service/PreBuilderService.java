@@ -35,7 +35,7 @@ public interface PreBuilderService {
 
     void createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, String yamlContent);
 
-    List<String> getTypes(String userId);
+    List<String> getTypes(String userId,Boolean isManage);
 
     void create(PreBuilderCreateReq req);
 

@@ -66,10 +66,10 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-查询分类")
     @GetMapping("/get/types")
-    public ApiReturn<List<String>> getTypes() {
+    public ApiReturn<List<String>> getTypes(Boolean isManage) {
 
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(preBuilderService.getTypes(userId));
+        return ApiReturn.success(preBuilderService.getTypes(userId,isManage));
     }
 
     @ApiOperation("预构建模式-发布图谱模式")

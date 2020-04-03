@@ -22,9 +22,12 @@ public interface DWPrebuildModelRepository extends JpaRepository<DWPrebuildModel
     @Query(value = "select * from dw_prebuild_model where is_standard_template = 1 and status = '1'",nativeQuery = true)
     List<DWPrebuildModel> findStandardTemplate();
 
-    @Query(value = "select model_type from dw_prebuild_model where permission = 1 or user_id = :userId group by model_type",nativeQuery = true)
+    @Query(value = "select model_type from dw_prebuild_model where `status` = '1' and (permission = 1 or user_id = :userId) group by model_type",nativeQuery = true)
     List<String> getModelTypes(@Param("userId") String userId);
 
     @Query(value = "select model_type from dw_prebuild_model group by model_type",nativeQuery = true)
     List<String> getAdminModelTypes();
+
+    @Query(value = "select model_type from dw_prebuild_model where user_id = :userId group by model_type",nativeQuery = true)
+    List<String> getUserManageModelTypes(@Param("userId")String userId);
 }
