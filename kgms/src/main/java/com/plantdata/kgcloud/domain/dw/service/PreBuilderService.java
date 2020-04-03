@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.dw.service;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
+import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
@@ -32,7 +33,7 @@ public interface PreBuilderService {
 
     void update(String userId, Integer id, String status);
 
-    void createModel(DWDatabase database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType,String yamlContent);
+    void createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, String yamlContent);
 
     List<String> getTypes(String userId);
 

@@ -1164,7 +1164,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public void createModel(DWDatabase database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, String yamlContent) {
+    public void createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, String yamlContent) {
 
         DWPrebuildModel model = DWPrebuildModel.builder()
                 .databaseId(database.getId())

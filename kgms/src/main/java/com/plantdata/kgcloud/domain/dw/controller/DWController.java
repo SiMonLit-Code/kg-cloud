@@ -197,8 +197,8 @@ public class DWController {
     @PostMapping("/model/push")
     public ApiReturn push(@RequestBody ModelPushReq req) {
 
-        String userId = SessionHolder.getUserId();
-//        String userId = userClient.getCurrentUserDetail().getData().getId();
+//        String userId = SessionHolder.getUserId();
+        String userId = userClient.getCurrentUserDetail().getData().getId();
         dwServince.push(userId, req);
         return ApiReturn.success();
     }

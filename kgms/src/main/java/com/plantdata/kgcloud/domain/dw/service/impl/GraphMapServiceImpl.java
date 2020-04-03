@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.dw.entity.*;
 import com.plantdata.kgcloud.domain.dw.repository.*;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
+import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
@@ -90,7 +91,7 @@ public class GraphMapServiceImpl implements GraphMapService {
 
         DWGraphMap graphMap = graphMapOpt.get();
 
-        DWDatabase database = dwService.getDetail(graphMap.getDataBaseId());
+        DWDatabaseRsp database = dwService.getDetail(graphMap.getDataBaseId());
 
         if(database == null){
             return ;
@@ -163,7 +164,7 @@ public class GraphMapServiceImpl implements GraphMapService {
             }
 
             exists.add(graphMap.getDataBaseId()+graphMap.getTableName());
-            DWDatabase database = dwService.getDetail(graphMap.getDataBaseId());
+            DWDatabaseRsp database = dwService.getDetail(graphMap.getDataBaseId());
 
             if(database == null){
                 continue;
@@ -204,7 +205,7 @@ public class GraphMapServiceImpl implements GraphMapService {
 
         Map<Integer, String> modelMap = new HashMap<>();
         Map<Integer, String> attrMap = new HashMap<>();
-        Map<Long, DWDatabase> databaseMap = new HashMap<>();
+        Map<Long, DWDatabaseRsp> databaseMap = new HashMap<>();
         Map<String, DWTable> tableMap = new HashMap<>();
 
         for (DWGraphMap graphMap : graphMapList) {
@@ -212,7 +213,7 @@ public class GraphMapServiceImpl implements GraphMapService {
             GraphMapRsp rsp = ConvertUtils.convert(GraphMapRsp.class).apply(graphMap);
 
             if (!databaseMap.containsKey(graphMap.getDataBaseId())) {
-                DWDatabase database = dwService.getDetail(graphMap.getDataBaseId());
+                DWDatabaseRsp database = dwService.getDetail(graphMap.getDataBaseId());
 
                 if (database == null) {
                     databaseMap.put(graphMap.getDataBaseId(), null);

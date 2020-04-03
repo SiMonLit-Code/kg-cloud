@@ -25,6 +25,7 @@ import com.plantdata.kgcloud.domain.dw.entity.DWGraphMap;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
+import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.sdk.req.DataAccessTaskConfigReq;
@@ -161,7 +162,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     @Override
     public String getKtrConfig(Long databaseId, String tableName,String isAllKey,Integer isScheduled,String target) {
 
-        DWDatabase database = dwService.getDetail(databaseId);
+        DWDatabaseRsp database = dwService.getDetail(databaseId);
 
         if(database == null){
             return null;
@@ -201,7 +202,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     @Override
     public String getDwConfig(Long databaseId, DWTable table,Integer isScheduled) {
 
-        DWDatabase database = dwService.getDetail(databaseId);
+        DWDatabaseRsp database = dwService.getDetail(databaseId);
 
         if(database == null){
             return null;
@@ -222,7 +223,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     @Override
     public String getTransferConfig(Long databaseId, String tableName,Integer isScheduled) {
 
-        DWDatabase database = dwService.getDetail(databaseId);
+        DWDatabaseRsp database = dwService.getDetail(databaseId);
         if(database == null){
             return null;
         }
@@ -393,7 +394,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public void updateTableSchedulingConfig(DWDatabase database, DWTableRsp table,String ktrTaskName, String cron, Integer isAll, String field) {
+    public void updateTableSchedulingConfig(DWDatabaseRsp database, DWTableRsp table, String ktrTaskName, String cron, Integer isAll, String field) {
 
         Specification<DWTask> specification = new Specification<DWTask>() {
             @Override
@@ -448,7 +449,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
                 EtlConfigReq etlConfigReq = JacksonUtils.readValue(config.getConfig(), EtlConfigReq.class);
 
-                DWDatabase database = dwService.getDetail(etlConfigReq.getDatabaseId());
+                DWDatabaseRsp database = dwService.getDetail(etlConfigReq.getDatabaseId());
 
                 String yamlContent = database.getYamlContent();
                 Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
