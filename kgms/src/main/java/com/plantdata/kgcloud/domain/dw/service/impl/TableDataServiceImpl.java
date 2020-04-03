@@ -152,7 +152,9 @@ public class TableDataServiceImpl implements TableDataService {
         DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(req);
         fileTable.setFileSize(new Long(bytes.length));
         fileTable.setUserId(SessionHolder.getUserId());
-        fileTable.setType(req.getPath().substring(req.getPath().lastIndexOf(".")));
+        if (req.getPath().contains(".")){
+            fileTable.setType(req.getPath().substring(req.getPath().lastIndexOf(".")));
+        }
         fileTable.setDataBaseId(req.getDataBaseId());
 
         fileTableRepository.save(fileTable);
@@ -225,8 +227,12 @@ public class TableDataServiceImpl implements TableDataService {
             DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(fileTableReq);
             fileTable.setFileSize(file.getSize());
             fileTable.setUserId(SessionHolder.getUserId());
-            fileTable.setType(file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1));
-            fileTable.setName(file.getOriginalFilename().substring(0,file.getOriginalFilename().lastIndexOf(".")));
+            if(file.getOriginalFilename().contains(".")){
+                fileTable.setType(file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1));
+                fileTable.setName(file.getOriginalFilename().substring(0,file.getOriginalFilename().lastIndexOf(".")));
+            }else{
+                fileTable.setName(file.getOriginalFilename());
+            }
             fileTable.setDataBaseId(fileTableReq.getDataBaseId());
             fileTable.setPath(fastdfsTemplate.uploadFile(file).getFullPath());
 

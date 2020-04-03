@@ -1117,11 +1117,13 @@ public class DWServiceImpl implements DWService {
     private List<ModelSchemaConfigRsp> getDatabseModelSchema(String userId, Long id){
 
         DWDatabase database = getDetail(id);
+
+        DWDatabaseRsp databaseRsp = ConvertUtils.convert(DWDatabaseRsp.class).apply(database);
         if (!database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
-        if(database.getDataFormat().equals(1)){
+        if(databaseRsp.getDataFormat().equals(1)){
             //行业模板 根据引入的表获取模式
             List<DWTableRsp> tables = findTableAll(userId, id);
 
@@ -1141,7 +1143,7 @@ public class DWServiceImpl implements DWService {
 
 
             List<ModelSchemaConfigRsp> schemas = Lists.newArrayList();
-            database.getTagJson().forEach(schema -> {
+            databaseRsp.getTagJson().forEach(schema -> {
 
                 if(schema != null){
                     if(tableMappings.containsKey(schema.getTableName())){
@@ -1152,7 +1154,7 @@ public class DWServiceImpl implements DWService {
             });
             return schemas;
         }else{
-            return database.getTagJson();
+            return databaseRsp.getTagJson();
         }
 
     }
