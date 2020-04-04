@@ -15,6 +15,7 @@ import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
 import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 import com.plantdata.kgcloud.domain.data.service.DataStoreSender;
 import com.plantdata.kgcloud.domain.data.service.DataStoreService;
+import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -97,7 +98,18 @@ public class DataStoreServiceImpl implements DataStoreService {
         }
         List<DataStore> dataStores = documentConverter.toBeans(findIterable, DataStore.class);
         List<DataStoreRsp> dataStoreRsps = MapperUtils.map(dataStores, DataStoreRsp.class);
+
+        addDataStoreTitle(dataStoreRsps);
+
         return new BasePage<>(count, dataStoreRsps);
+    }
+
+    private void addDataStoreTitle(List<DataStoreRsp> dataStoreRsps) {
+
+        if(dataStoreRsps == null || dataStoreRsps.isEmpty()){
+            return ;
+        }
+        return ;
     }
 
     @Override

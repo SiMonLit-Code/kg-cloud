@@ -1218,7 +1218,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
 
-
         if (req.getFilePath().endsWith(".xls") || req.getFilePath().endsWith(".xlsx")) {
             //纯模式
             List<ModelExcelRsp> modelExcelRspList = addModelByExcel(req.getFilePath(), req.getName());

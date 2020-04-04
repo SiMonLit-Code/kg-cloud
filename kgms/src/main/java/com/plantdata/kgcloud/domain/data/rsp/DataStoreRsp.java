@@ -23,6 +23,9 @@ public class DataStoreRsp {
     @ApiModelProperty("数据库名称")
     private String dbName;
 
+    @ApiModelProperty("数据库标题")
+    private String title;
+
     @ApiModelProperty("数据库表名称")
     private String dbTable;
 

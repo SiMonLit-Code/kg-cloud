@@ -945,7 +945,7 @@ public class DWServiceImpl implements DWService {
         List<String> schemaFieldList = transformFields(schemaList);
         List<String> tableFieldList = transformFields(tableSchemaList);
 
-        if(!tableFieldList.contains(schemaFieldList)){
+        if(!tableFieldList.containsAll(schemaFieldList)){
             throw BizException.of(KgmsErrorCodeEnum.TABLE_SCHEMA_MISMATCHING_STIPULATE);
         }
     }
