@@ -50,6 +50,9 @@ public class YamlTransFunc {
         List<TaskRelation> relations = new ArrayList<>();
         HashMap<String, ArrayList<TaskColumn>> relaAttrs = new HashMap<>();
         for (Object o : jsonObject.getJSONArray("columns")) {
+            if(o == null){
+                continue;
+            }
             TaskColumn column = new TaskColumn(new JSONObject((Map<String, Object>) o).toJSONString());
             if (column.isRelaAttr) {
                 ArrayList<TaskColumn> orDefault = relaAttrs.getOrDefault(column.entityNameOrRelationName, new ArrayList<>());
@@ -63,6 +66,9 @@ public class YamlTransFunc {
         }
         if (jsonObject.get("relation") != null) {
             for (Object o : jsonObject.getJSONArray("relation")) {
+                if(o == null){
+                    continue;
+                }
                 TaskRelation relation = new TaskRelation(o.toString());
                 relations.add(relation);
             }

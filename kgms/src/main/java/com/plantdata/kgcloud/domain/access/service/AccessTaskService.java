@@ -23,13 +23,13 @@ public interface AccessTaskService {
 
     String getKtrConfig(Long databaseId, String tableName,String isAllKey,Integer isScheduled,String target);
 
-    String getTransferConfig(Long databaseId, String tableName,Integer isScheduled);
+    String getTransferConfig(Boolean isGraph,Integer modelId,Long databaseId, String tableName,Integer isScheduled);
 
     String getDwConfig(Long databaseId, DWTable tableName,Integer isScheduled);
 
     String createKtrTask(String tableName,Long databaseId,String isAllKey,Integer isSchedue,String target);
 
-    String createTransfer(String tableName,Long databaseId,List<String> outputs,List<String> distributeOriginalData,List<String> deleteOutputs,List<String> deleteDistributeOriginalData,String isAllKey);
+    String createTransfer(Boolean isGraph,Integer modelId,String tableName,Long databaseId,List<String> outputs,List<String> distributeOriginalData,List<String> deleteOutputs,List<String> deleteDistributeOriginalData,String isAllKey);
 
     String createDwTask(String tableName,Long databaseId);
 
