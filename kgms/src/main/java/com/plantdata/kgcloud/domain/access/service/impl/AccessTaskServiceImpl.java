@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.config.KafkaProperties;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.ChannelRedisEnum;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.entity.DWTask;
 import com.plantdata.kgcloud.domain.access.repository.DWTaskRepository;
 import com.plantdata.kgcloud.domain.access.req.EtlConfigReq;
@@ -22,12 +23,15 @@ import com.plantdata.kgcloud.domain.access.util.CreateKtrFile;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWGraphMap;
+import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
+import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataAccessTaskConfigReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -69,6 +73,9 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
     @Autowired
     private CacheManager cacheManager;
+
+    @Autowired
+    private DWPrebuildModelRepository modelRepository;
 
     private static Map<String,String> cronMap = new HashMap<>();
 
@@ -222,7 +229,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public String getTransferConfig(Long databaseId, String tableName,Integer isScheduled) {
+    public String getTransferConfig(Boolean isGraph, Integer modelId, Long databaseId, String tableName,Integer isScheduled) {
 
         DWDatabaseRsp database = dwService.getDetail(databaseId);
         if(database == null){
@@ -234,11 +241,19 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         //自定义
         if(database.getDataFormat().equals(3)){
-            String yamlContent = database.getYamlContent();
-            if(yamlContent != null && !yamlContent.isEmpty()){
-                Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
-                JSONArray tableTransfer = yamlTagMap.get(tableName);
-                transferJson.put("transferConfig", tableTransfer);
+
+            if(isGraph){
+                Optional<DWPrebuildModel> modelOpt = modelRepository.findById(modelId);
+                if(!modelOpt.isPresent()){
+                    throw BizException.of(KgmsErrorCodeEnum.MODEL_NOT_EXISTS);
+                }
+                DWPrebuildModel model = modelOpt.get();
+                String yamlContent = model.getYamlContent();
+                if(yamlContent != null && !yamlContent.isEmpty()){
+                    Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
+                    JSONArray tableTransfer = yamlTagMap.get(tableName);
+                    transferJson.put("transferConfig", tableTransfer);
+                }
             }
 
             if(transferJson.containsKey("transferConfig") && transferJson.getJSONArray("transferConfig") != null && !transferJson.getJSONArray("transferConfig").isEmpty()){
@@ -307,7 +322,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public String createTransfer(String tableName, Long databaseId, List<String> outputs,List<String>distributeOriginalData,List<String> deleteOutputs,List<String> deleteDistributeOriginalData,String isAllKey) {
+    public String createTransfer(Boolean isGraph,Integer modelId,String tableName, Long databaseId, List<String> outputs,List<String>distributeOriginalData,List<String> deleteOutputs,List<String> deleteDistributeOriginalData,String isAllKey) {
 
         Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
@@ -331,7 +346,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         }
         transferRsp.setStatus(1);
-        transferRsp.setConfig(getTransferConfig(databaseId,tableName,1));
+        transferRsp.setConfig(getTransferConfig(isGraph,modelId, databaseId,tableName,1));
         List<String> outs = transferRsp.getOutputs();
 
         if(outputs != null && !outputs.isEmpty()){

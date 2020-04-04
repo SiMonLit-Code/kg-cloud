@@ -45,8 +45,21 @@ public class DataOptConnect {
     }
 
     public static DataOptConnect of(DWDatabaseRsp database, DWTable table, MongoProperties mongoProperties) {
+        return of(false,database,table,mongoProperties);
+    }
+
+    public static DataOptConnect of(boolean isLocal,DWDatabaseRsp database, DWTable table, MongoProperties mongoProperties) {
         DataOptConnect connect = new DataOptConnect();
 
+        if(isLocal){
+            connect.setAddresses(Lists.newArrayList(mongoProperties.getAddrs()));
+            connect.setUsername(mongoProperties.getUsername());
+            connect.setPassword(mongoProperties.getPassword());
+            connect.setTable(table.getTableName());
+            connect.setDatabase(database.getDataName());
+            connect.setDataType(DataType.MONGO);
+            return  connect;
+        }
 
         //远程表
         if(table.getCreateWay().equals(1)){
@@ -81,7 +94,6 @@ public class DataOptConnect {
             connect.setDataType(DataType.MONGO);
 
         }
-
         return connect;
     }
 }

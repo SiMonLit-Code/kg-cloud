@@ -237,13 +237,10 @@ public class DWController {
         if (size > 10 * 1024 * 1024) {
             return ApiReturn.fail(KgmsErrorCodeEnum.FILE_OUT_LIMIT);
         }
-        try {
-            String userId = SessionHolder.getUserId();
-            dwServince.upload(userId, databaseId, tableId, file);
-            return ApiReturn.success();
-        } catch (Exception e) {
-            return ApiReturn.fail(KgmsErrorCodeEnum.DATASET_IMPORT_FAIL);
-        }
+
+        String userId = SessionHolder.getUserId();
+        dwServince.upload(userId, databaseId, tableId, file);
+        return ApiReturn.success();
     }
 
     @ApiOperation("数仓-示例文件下载")

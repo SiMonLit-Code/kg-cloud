@@ -683,7 +683,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             if (isCreateKtr) {
                 for (String tableName : tableNames) {
                     accessTaskService.createKtrTask(tableName, model.getDatabaseId(), kgName, 0, kgName);
-                    accessTaskService.createTransfer(tableName, model.getDatabaseId(), null, null, null, null, kgName);
+                    accessTaskService.createTransfer(true,model.getId(),tableName, model.getDatabaseId(), null, null, null, null, kgName);
                 }
             }
 
