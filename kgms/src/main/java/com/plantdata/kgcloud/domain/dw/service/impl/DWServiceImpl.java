@@ -507,7 +507,7 @@ public class DWServiceImpl implements DWService {
 
             Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).id(tableId).build()));
             if (opt.isPresent()){
-                try (DataOptProvider provider = getProvider(userId, databaseId,tableId,mongoProperties)) {
+                try (DataOptProvider provider = getProvider(true,userId, databaseId,tableId,mongoProperties)) {
                     provider.deleteAll();
                 } catch (Exception e) {
                     throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
@@ -540,27 +540,23 @@ public class DWServiceImpl implements DWService {
                 }
 
                 schemas = table.getSchema();
+                List<DataSetSchema> tableSchemas = schemaResolve(file, null);
                 if(schemas == null){
-                    schemas = schemaResolve(file, database.getDataFormat());
-                    table.setSchema(schemas);
-                    table.setFields(transformFields(schemas));
+
+                    table.setSchema(tableSchemas);
+                    table.setFields(transformFields(tableSchemas));
                     tableRepository.save(table);
+                }
+
+                if(DWDataFormat.isPDdoc(database.getDataFormat())){
+                    checkPDDocSchema(tableSchemas);
+                }else if(DWDataFormat.isStandard(database.getDataFormat())  && StringUtils.hasText(table.getMapper())){
+                    List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId,table.getMapper());
+                    checkIndutrySchema(industrySchema,tableSchemas);
                 }
                 tableName = table.getTableName();
 
             }
-        }
-
-
-        if (tableName == null) {
-            //文件上传 如果table没有创建，先创建
-            try {
-                schemas = schemaResolve(file, database.getDataFormat());
-            } catch (Exception e) {
-                throw BizException.of(KgmsErrorCodeEnum.FILE_SCHEMAPASER_ERROR);
-            }
-            DWTableRsp tableRsp = createTable(userId, DWTableReq.builder().dwDataBaseId(databaseId).schemas(schemas).build());
-            tableName = tableRsp.getTableName();
         }
 
         //写入数据
@@ -663,7 +659,6 @@ public class DWServiceImpl implements DWService {
         if (DWDataFormat.isPDdoc(dataFormat)) {
             return pddocSchema();
         }
-
 
         return dataSetService.schemaResolve(null, file);
     }
@@ -872,8 +867,11 @@ public class DWServiceImpl implements DWService {
                 }
 
                 List<DataSetSchema> schemaList = getIndustryTableSchema(databaseId, req.getTableName());
+                List<DataSetSchema> tableSchemaList = getTableSchema(database, req.getTbName());
                 if (schemaList == null) {
                     schemaList = getTableSchema(database, req.getTbName());
+                }else{
+                    checkIndutrySchema(schemaList,tableSchemaList);
                 }
 
                 DWTable table = DWTable.builder()
@@ -894,6 +892,12 @@ public class DWServiceImpl implements DWService {
 
                 List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
 
+                if(database.getDataFormat().equals(2)){
+                    //pddoc类型的数仓，判断连接表是否符合结构
+                    checkPDDocSchema(schemaList);
+                }
+
+
                 DWTable table = DWTable.builder()
                         .dwDataBaseId(databaseId)
                         .tableName(req.getTbName())
@@ -910,6 +914,40 @@ public class DWServiceImpl implements DWService {
 
         }
 
+    }
+
+    private void checkPDDocSchema(List<DataSetSchema> schemaList) {
+
+        if(schemaList == null || schemaList.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_SCHEMA_MISMATCHING_STIPULATE);
+        }
+
+        boolean flag = false;
+        for(DataSetSchema dataSetSchema : schemaList){
+            if(Objects.equals(dataSetSchema.getField(),"pdEntity")
+                    || Objects.equals(dataSetSchema.getField(),"pdRelation")
+                    || Objects.equals(dataSetSchema.getField(),"pdEvent")){
+
+                flag = true;
+
+                break;
+            }
+        }
+
+        if(!flag){
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_SCHEMA_MISMATCHING_STIPULATE);
+        }
+
+    }
+
+    private void checkIndutrySchema(List<DataSetSchema> schemaList, List<DataSetSchema> tableSchemaList) {
+
+        List<String> schemaFieldList = transformFields(schemaList);
+        List<String> tableFieldList = transformFields(tableSchemaList);
+
+        if(!tableFieldList.contains(schemaFieldList)){
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_SCHEMA_MISMATCHING_STIPULATE);
+        }
     }
 
     @Override
@@ -1267,17 +1305,17 @@ public class DWServiceImpl implements DWService {
             //生成任务配置
             accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), table.getTableName(), 1,table.getTableName());
             if(StringUtils.hasText(table.getMapper())){
-                accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), diss,null, null, null, table.getTableName());
+                accessTaskService.createTransfer(false,null,table.getTableName(), table.getDwDataBaseId(), diss,null, null, null, table.getTableName());
             }else{
-                accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), null, diss, null, null, table.getTableName());
+                accessTaskService.createTransfer(false,null,table.getTableName(), table.getDwDataBaseId(), null, diss, null, null, table.getTableName());
             }
         } else {
             //生成任务配置
             accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), table.getTableName(), 0,table.getTableName());
             if(StringUtils.hasText(table.getMapper())){
-                accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), null, null, diss,null, table.getTableName());
+                accessTaskService.createTransfer(false,null,table.getTableName(), table.getDwDataBaseId(), null, null, diss,null, table.getTableName());
             }else{
-                accessTaskService.createTransfer(table.getTableName(), table.getDwDataBaseId(), null, null, null, diss, table.getTableName());
+                accessTaskService.createTransfer(false,null,table.getTableName(), table.getDwDataBaseId(), null, null, null, diss, table.getTableName());
             }
         }
     }
@@ -1540,7 +1578,7 @@ public class DWServiceImpl implements DWService {
         Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).id(tableId).build()));
         if (opt.isPresent()){
 
-            try (DataOptProvider provider = getProvider(userId, databaseId,tableId,mongoProperties)) {
+            try (DataOptProvider provider = getProvider(true,userId, databaseId,tableId,mongoProperties)) {
                 provider.dropTable();
             } catch (Exception e) {
                 throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
@@ -1550,7 +1588,7 @@ public class DWServiceImpl implements DWService {
         }
     }
 
-    private DataOptProvider getProvider(String userId, Long datasetId, Long tableId,MongoProperties mongoProperties) {
+    private DataOptProvider getProvider(Boolean isLocal,String userId, Long datasetId, Long tableId,MongoProperties mongoProperties) {
 
         DWDatabaseRsp database = getDetail(datasetId);
 
@@ -1563,7 +1601,7 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
         }
 
-        DataOptConnect connect = DataOptConnect.of(database,table,mongoProperties);
+        DataOptConnect connect = DataOptConnect.of(isLocal,database,table,mongoProperties);
         return DataOptProviderFactory.createProvider(connect);
     }
 

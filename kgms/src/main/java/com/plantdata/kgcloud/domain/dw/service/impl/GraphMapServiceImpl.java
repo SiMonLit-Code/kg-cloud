@@ -112,17 +112,17 @@ public class GraphMapServiceImpl implements GraphMapService {
 
             accessTaskService.createKtrTask(graphMap.getTableName(), graphMap.getDataBaseId(), graphMap.getKgName(), 1,graphMap.getKgName());
             if (database.getDataFormat().equals(1)) {
-                accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), null, Lists.newArrayList(kgTaskName), null, null, graphMap.getKgName());
+                accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), null, Lists.newArrayList(kgTaskName), null, null, graphMap.getKgName());
             } else {
-                accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(kgTaskName), null, null, null, graphMap.getKgName());
+                accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(kgTaskName), null, null, null, graphMap.getKgName());
             }
         } else {
             accessTaskService.createKtrTask(graphMap.getTableName(), graphMap.getDataBaseId(), graphMap.getKgName(), 0,graphMap.getKgName());
 
             if (database.getDataFormat().equals(1)) {
-                accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, null, Lists.newArrayList(kgTaskName), graphMap.getKgName());
+                accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, null, Lists.newArrayList(kgTaskName), graphMap.getKgName());
             } else {
-                accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, Lists.newArrayList(kgTaskName), null, graphMap.getKgName());
+                accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, Lists.newArrayList(kgTaskName), null, graphMap.getKgName());
             }
         }
 
@@ -175,17 +175,17 @@ public class GraphMapServiceImpl implements GraphMapService {
 
                 accessTaskService.createKtrTask(graphMap.getTableName(), graphMap.getDataBaseId(), graphMap.getKgName(), 1,graphMap.getKgName());
                 if (database.getDataFormat().equals(1)) {
-                    accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), null, Lists.newArrayList(kgTaskName), null, null, graphMap.getKgName());
+                    accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), null, Lists.newArrayList(kgTaskName), null, null, graphMap.getKgName());
                 } else {
-                    accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(kgTaskName), null, null, null, graphMap.getKgName());
+                    accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(kgTaskName), null, null, null, graphMap.getKgName());
                 }
             } else {
                 accessTaskService.createKtrTask(graphMap.getTableName(), graphMap.getDataBaseId(), graphMap.getKgName(), 0,graphMap.getKgName());
 
                 if (database.getDataFormat().equals(1)) {
-                    accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, null, Lists.newArrayList(kgTaskName), graphMap.getKgName());
+                    accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, null, Lists.newArrayList(kgTaskName), graphMap.getKgName());
                 } else {
-                    accessTaskService.createTransfer(graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, Lists.newArrayList(kgTaskName), null, graphMap.getKgName());
+                    accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, Lists.newArrayList(kgTaskName), null, graphMap.getKgName());
                 }
             }
 
