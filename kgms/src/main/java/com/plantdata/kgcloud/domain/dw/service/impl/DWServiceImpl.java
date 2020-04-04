@@ -519,6 +519,18 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
+    public DWDatabaseRsp getDbByDataName(String dataName) {
+
+        Optional<DWDatabase> databaseOpt = dwRepository.findOne(Example.of(DWDatabase.builder().dataName(dataName).build()));
+
+        if(databaseOpt.isPresent()){
+            return ConvertUtils.convert(DWDatabaseRsp.class).apply(databaseOpt.get());
+        }
+
+        return null;
+    }
+
+    @Override
     public void upload(String userId, Long databaseId, Long tableId, MultipartFile file) {
 
         List<DataSetSchema> schemas = null;

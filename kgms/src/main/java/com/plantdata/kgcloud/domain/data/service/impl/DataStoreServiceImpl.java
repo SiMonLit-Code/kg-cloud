@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.data.service.impl;
 
+import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -16,8 +17,11 @@ import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 import com.plantdata.kgcloud.domain.data.service.DataStoreSender;
 import com.plantdata.kgcloud.domain.data.service.DataStoreService;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
+import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.bson.Document;
@@ -31,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * @Author: LinHo
@@ -49,10 +54,16 @@ public class DataStoreServiceImpl implements DataStoreService {
     @Autowired
     private DataStoreSender dataStoreSender;
 
+    @Autowired
+    private DWService dwService;
+
+    @Autowired
+    private UserClient userClient;
+
     private static final String DB_NAME = "check_data_db";
 
     private MongoCollection<Document> getCollection() {
-        return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId());
+        return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null?userClient.getCurrentUserDetail().getData().getId():SessionHolder.getUserId());
     }
 
     @Override
@@ -109,6 +120,24 @@ public class DataStoreServiceImpl implements DataStoreService {
         if(dataStoreRsps == null || dataStoreRsps.isEmpty()){
             return ;
         }
+
+        Map<String,String> dataMap = Maps.newHashMap();
+
+        for(DataStoreRsp dataStore : dataStoreRsps){
+            String dataName = dataStore.getDbName();
+            if(dataMap.containsKey(dataName)){
+                dataStore.setTitle(dataMap.get(dataName));
+            }else{
+                DWDatabaseRsp databaseRsp = dwService.getDbByDataName(dataName);
+                if(databaseRsp != null){
+                    dataMap.put(dataName,databaseRsp.getTitle());
+                    dataStore.setTitle(databaseRsp.getTitle());
+                }else{
+                    dataMap.put(dataName,null);
+                }
+            }
+        }
+
         return ;
     }
 

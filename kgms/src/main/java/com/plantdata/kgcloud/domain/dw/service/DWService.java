@@ -86,4 +86,6 @@ public interface DWService {
     void exampleDownload(String userId, Long databaseId, HttpServletResponse response);
 
     void deleteData(String userId, Long databaseId, Long tableId);
+
+    DWDatabaseRsp getDbByDataName(String dataName);
 }
