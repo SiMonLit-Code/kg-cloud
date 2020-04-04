@@ -5,17 +5,18 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 @Builder
 @ApiModel("数据表创建")
-
 public class DWTableReq {
 
     @ApiModelProperty("数仓表名称")
     @NotNull
+    @NotBlank
     private String title;
 
     @ApiModelProperty("数仓数据库id")

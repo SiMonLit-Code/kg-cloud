@@ -1032,8 +1032,13 @@ public class DWServiceImpl implements DWService {
 
             List<String> colls = new ArrayList<>();
             it.forEach(coll -> colls.add(coll));
-            s = "连接测试成功!";
-            map.put("status", "success");
+            if(colls.isEmpty()){
+                s = "连接测试失败";
+                map.put("status","fail");
+            }else{
+                s = "连接测试成功!";
+                map.put("status", "success");
+            }
         } catch (Exception e) {
             s = "连接失败";
             map.put("status", "fail");
