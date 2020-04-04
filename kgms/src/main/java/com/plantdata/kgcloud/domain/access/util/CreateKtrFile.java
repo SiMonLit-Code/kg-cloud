@@ -383,7 +383,7 @@ public class CreateKtrFile {
         String encodePassword = encodePassword(password);
 
         return connectionXml.replace("ipQAQ", ip)
-                .replace("postQAQ", port)
+                .replace("portQAQ", port)
                 .replace("dbnameQAQ", dbName)
                 .replace("tbNameQAQ",tbName == null ? "":tbName)
                 .replace("usernameQAQ", username == null ? "" : username)

@@ -812,7 +812,7 @@ public class KtrXml {
                 "      <schema_name/>\n" +
                 "    </partitioning>\n" +
                 "    <hostname>ipQAQ</hostname>\n" +
-                "    <port>postQAQ</port>\n" +
+                "    <port>portQAQ</port>\n" +
                 "    <use_all_replica_members>N</use_all_replica_members>\n" +
                 "    <db_name>dbnameQAQ</db_name>\n" +
                 "    <fields_name/>\n" +

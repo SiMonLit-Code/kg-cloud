@@ -1184,7 +1184,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public List<String> getTypes(String userId) {
+    public List<String> getTypes(String userId,Boolean isManage) {
+
+        if(isManage == null){
+            isManage = false;
+        }
 
         List<String> modelTypes;
         UserDetailRsp userDetailRsp = getUserDetail();
@@ -1192,7 +1196,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         if ("admin".equals(userDetailRsp.getUsername())) {
             modelTypes = prebuildModelRepository.getAdminModelTypes();
         } else {
-            modelTypes = prebuildModelRepository.getModelTypes(userId);
+            if(isManage){
+                modelTypes = prebuildModelRepository.getUserManageModelTypes(userId);
+            }else{
+                modelTypes = prebuildModelRepository.getModelTypes(userId);
+            }
         }
         return modelTypes;
     }
