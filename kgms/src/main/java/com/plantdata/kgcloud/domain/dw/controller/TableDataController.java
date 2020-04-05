@@ -104,6 +104,4 @@ public class TableDataController {
         return ApiReturn.success(tableDataService.getFileData(userId,dataBaseId, tableId, baseReq));
     }
 
-
-
 }
