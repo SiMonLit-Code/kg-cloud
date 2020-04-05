@@ -21,6 +21,9 @@ public class DWFileTableReq {
     @ApiModelProperty("文件名称")
     private String name;
 
+    @ApiModelProperty("文件原始名称名称")
+    private String fileName;
+
     @ApiModelProperty("文件路径")
     private String path;
 

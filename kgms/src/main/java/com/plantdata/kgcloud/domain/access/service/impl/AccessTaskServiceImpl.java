@@ -552,7 +552,13 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
                 KgConfigReq kgConfigReq = JacksonUtils.readValue(config.getConfig(), KgConfigReq.class);
 
-                DWGraphMap graphMap = graphMapRepository.getOne(kgConfigReq.getGraphMapId());
+                Optional<DWGraphMap> graphMapOpt = graphMapRepository.findById(kgConfigReq.getGraphMapId());
+
+                if(!graphMapOpt.isPresent()){
+                    break;
+                }
+                DWGraphMap graphMap = graphMapOpt.get();
+
 
                 JSONObject kgConfig = new JSONObject();
                 kgConfig.put("kgName",graphMap.getKgName());

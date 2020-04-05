@@ -43,7 +43,7 @@ public class DWController {
     public ApiReturn<DWDatabaseRsp> createDatabase(@Valid @RequestBody DWDatabaseReq req) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dwServince.createDatabase(userId, req));
-    }
+}
 
     @ApiOperation("数仓-查询行业数据库需要映射的表")
     @PatchMapping("/get/{databaseId}/mapping/table")
@@ -197,8 +197,7 @@ public class DWController {
     @PostMapping("/model/push")
     public ApiReturn push(@RequestBody ModelPushReq req) {
 
-//        String userId = SessionHolder.getUserId();
-        String userId = userClient.getCurrentUserDetail().getData().getId();
+        String userId = SessionHolder.getUserId();
         dwServince.push(userId, req);
         return ApiReturn.success();
     }
@@ -208,7 +207,6 @@ public class DWController {
     public ApiReturn<ModelSchemaConfigRsp> getModel(@PathVariable("id") Long id) {
 
         String userId = SessionHolder.getUserId();
-//        String userId = userClient.getCurrentUserDetail().getData().getId();
         return ApiReturn.success(dwServince.getModel(userId, id));
     }
 

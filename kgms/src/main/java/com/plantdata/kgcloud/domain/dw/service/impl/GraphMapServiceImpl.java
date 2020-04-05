@@ -133,16 +133,16 @@ public class GraphMapServiceImpl implements GraphMapService {
     @Override
     public void deleteSchedule(Integer id) {
 
-        DWGraphMap graphMap = graphMapRepository.getOne(id);
-        String kgName = graphMap.getKgName();
-//        String kgTaskName = AccessTaskType.KG.getDisplayName()+"_"+graphMap.getKgName()+"_"+graphMap.getModelId();
-//        accessTaskService.createTransfer(graphMap.getTableName(),graphMap.getDataBaseId(), Lists.newArrayList(),null,Lists.newArrayList(kgTaskName),null,graphMap.getKgName());
+        Optional<DWGraphMap> graphMap = graphMapRepository.findById(id);
 
+        if(graphMap.isPresent()) {
+            String kgName = graphMap.get().getKgName();
 
-        graphMapRepository.deleteById(id);
+            graphMapRepository.deleteById(id);
 
-        //更新订阅任务
-        preBuilderService.createSchedulingConfig(kgName, false,0);
+            //更新订阅任务
+            preBuilderService.createSchedulingConfig(kgName, false, 0);
+        }
     }
 
     @Override
@@ -247,22 +247,22 @@ public class GraphMapServiceImpl implements GraphMapService {
 
 
             if (!modelMap.containsKey(graphMap.getModelId())) {
-                DWPrebuildModel model = modelRepository.getOne(graphMap.getModelId());
-                if (model == null) {
-                    modelMap.put(graphMap.getModelId(), null);
+                Optional<DWPrebuildModel> modelOpt = modelRepository.findById(graphMap.getModelId());
+                if (modelOpt.isPresent()) {
+                    modelMap.put(graphMap.getModelId(), modelOpt.get().getName());
                 } else {
-                    modelMap.put(graphMap.getModelId(), model.getName());
+                    modelMap.put(graphMap.getModelId(), null);
                 }
             }
             rsp.setModelName(modelMap.get(graphMap.getModelId()));
 
             if (graphMap.getModelAttrId() != null) {
                 if (!attrMap.containsKey(graphMap.getModelAttrId())) {
-                    DWPrebuildAttr attr = attrRepository.getOne(graphMap.getModelAttrId());
-                    if (attr == null) {
-                        attrMap.put(graphMap.getModelAttrId(), null);
+                    Optional<DWPrebuildAttr> attrOpt = attrRepository.findById(graphMap.getModelAttrId());
+                    if (attrOpt.isPresent()) {
+                        attrMap.put(graphMap.getModelAttrId(), attrOpt.get().getName());
                     } else {
-                        attrMap.put(graphMap.getModelAttrId(), attr.getName());
+                        attrMap.put(graphMap.getModelAttrId(), null);
                     }
                 }
                 rsp.setModelAttrName(attrMap.get(graphMap.getModelAttrId()));

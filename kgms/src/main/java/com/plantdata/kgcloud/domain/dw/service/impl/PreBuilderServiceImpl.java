@@ -527,9 +527,15 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             if (modelDataBaseIdMap.containsKey(schemaQuoteReq.getModelId())) {
                 modelDataBaseId = modelDataBaseIdMap.get(schemaQuoteReq.getModelId());
             } else {
-                DWPrebuildModel model = prebuildModelRepository.getOne(schemaQuoteReq.getModelId());
-                modelDataBaseId = model.getDatabaseId();
-                modelDataBaseIdMap.put(model.getId(), modelDataBaseId);
+                Optional<DWPrebuildModel> modelOpt = prebuildModelRepository.findById(schemaQuoteReq.getModelId());
+                if(modelOpt.isPresent()){
+                    DWPrebuildModel model = modelOpt.get();
+                    modelDataBaseId = model.getDatabaseId();
+                    modelDataBaseIdMap.put(model.getId(), modelDataBaseId);
+                }else{
+                    modelDataBaseIdMap.put(schemaQuoteReq.getModelId(), null);
+                    modelDataBaseId = null;
+                }
             }
 
             //非数仓模式不保存映射关系
@@ -537,7 +543,13 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 continue;
             }
 
-            DWPrebuildConcept modelConcept = prebuildConceptRepository.getOne(schemaQuoteReq.getModelConceptId());
+            Optional<DWPrebuildConcept> modelConceptOpt = prebuildConceptRepository.findById(schemaQuoteReq.getModelConceptId());
+
+            if(!modelConceptOpt.isPresent()){
+                continue;
+            }
+
+            DWPrebuildConcept modelConcept = modelConceptOpt.get();
 
             List<String> conceptTableName = modelConcept.getTables();
 
@@ -564,7 +576,13 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             for (SchemaQuoteAttrReq schemaQuoteAttrReq : schemaQuoteAttrReqList) {
 
-                DWPrebuildAttr prebuildAttr = prebuildAttrRepository.getOne(schemaQuoteAttrReq.getModelAttrId());
+                Optional<DWPrebuildAttr> prebuildAttrOpt = prebuildAttrRepository.findById(schemaQuoteAttrReq.getModelAttrId());
+
+                if(!prebuildAttrOpt.isPresent()){
+                    continue;
+                }
+
+                DWPrebuildAttr prebuildAttr = prebuildAttrOpt.get();
 
                 List<String> tables = prebuildAttr.getTables();
 
@@ -598,7 +616,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                     for (SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq : schemaQuoteRelationAttrReqs) {
 
-                        DWPrebuildRelationAttr relationAttr = prebuildRelationAttrRepository.getOne(schemaQuoteRelationAttrReq.getId());
+                        Optional<DWPrebuildRelationAttr> relationAttrOpt = prebuildRelationAttrRepository.findById(schemaQuoteRelationAttrReq.getId());
+
+                        if(!relationAttrOpt.isPresent()){
+                            continue;
+                        }
+
+                        DWPrebuildRelationAttr relationAttr = relationAttrOpt.get();
+
                         List<String> tableNames = relationAttr.getTables();
 
                         if (tableNames != null && !tableNames.isEmpty()) {
@@ -1946,11 +1971,16 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         String username = getUserDetail().getUsername();
 
-        DWPrebuildModel model = prebuildModelRepository.getOne(id);
-        model.setStatus(status);
+        Optional<DWPrebuildModel> modelOpt = prebuildModelRepository.findById(id);
 
-        if ("admin".equals(username) || model.getUserId().equals(userId)) {
-            prebuildModelRepository.save(model);
+        if(modelOpt.isPresent()){
+
+            DWPrebuildModel model = modelOpt.get();
+            model.setStatus(status);
+
+            if ("admin".equals(username) || model.getUserId().equals(userId)) {
+                prebuildModelRepository.save(model);
+            }
         }
 
     }
