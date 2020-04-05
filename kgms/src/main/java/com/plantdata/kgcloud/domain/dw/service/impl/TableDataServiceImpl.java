@@ -153,8 +153,8 @@ public class TableDataServiceImpl implements TableDataService {
         DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(req);
         fileTable.setFileSize(new Long(bytes.length));
         fileTable.setUserId(SessionHolder.getUserId());
-        if (req.getPath().contains(".")){
-            fileTable.setType(req.getPath().substring(req.getPath().lastIndexOf(".")));
+        if (req.getFileName().contains(".")){
+            fileTable.setType(req.getFileName().substring(req.getFileName().lastIndexOf(".")+1));
         }
         fileTable.setDataBaseId(req.getDataBaseId());
 
