@@ -342,11 +342,11 @@ public class CreateKtrFile {
 
                 sql.append(" WHERE ")
                         .append(table.getQueryField())
-                        .append(" > ")
+                        .append(" &gt; ")
                         .append("'${StartTime}'")
                         .append(" and ")
                         .append(table.getQueryField())
-                        .append(" < ")
+                        .append(" &lt; ")
                         .append("'${EndTime}'");
 
             }
