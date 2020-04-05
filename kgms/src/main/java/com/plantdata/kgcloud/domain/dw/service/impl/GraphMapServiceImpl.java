@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
+import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.dw.entity.*;
 import com.plantdata.kgcloud.domain.dw.repository.*;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
@@ -15,6 +16,10 @@ import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.kettle.service.KettleLogStatisticService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -22,6 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @program: kg-cloud-kgms
@@ -34,6 +41,9 @@ public class GraphMapServiceImpl implements GraphMapService {
 
     @Autowired
     private DWGraphMapRepository graphMapRepository;
+
+    @Autowired
+    private DWGraphMapRelationAttrRepository graphMapRelationAttrRepository;
 
     @Autowired
     private DWPrebuildAttrRepository attrRepository;
@@ -53,11 +63,16 @@ public class GraphMapServiceImpl implements GraphMapService {
     private DWTableRepository tableRepository;
 
     @Autowired
+    private GraphApplicationService graphApplicationService;
+
+    @Autowired
     private DWService dwService;
     @Override
     public List<GraphMapRsp> list(String userId, GraphMapReq graphMapReq) {
 
         List<DWGraphMap> graphMapList;
+
+        deleteDataByNotExistConcept(graphMapReq.getKgName());
 
         if (graphMapReq.getAttrId() != null) {
 
@@ -83,6 +98,8 @@ public class GraphMapServiceImpl implements GraphMapService {
         return rspList;
     }
 
+
+
     @Override
     public void scheduleSwitch(Integer id, Integer status) {
 
@@ -105,14 +122,14 @@ public class GraphMapServiceImpl implements GraphMapService {
             return;
         }
 
-        tabs.forEach(t -> t.setSchedulingSwitch(status));
-
-        graphMapRepository.saveAll(tabs);
-
         Optional<DWPrebuildModel> modelOptional = modelRepository.findById(graphMap.getModelId());
         if(!modelOptional.isPresent()){
             throw BizException.of(KgmsErrorCodeEnum.PRE_BUILD_MODEL_NOT_EXIST);
         }
+
+        tabs.forEach(t -> t.setSchedulingSwitch(status));
+
+        graphMapRepository.saveAll(tabs);
 
         String kgTaskName = AccessTaskType.KG.getDisplayName() + "_" + graphMap.getKgName() + "_" + graphMap.getModelId();
         if (status.equals(1)) {
@@ -199,6 +216,125 @@ public class GraphMapServiceImpl implements GraphMapService {
             //更新订阅任务
         }
         preBuilderService.createSchedulingConfig(kgName, false,status);
+
+    }
+
+    @Override
+    public void deleteDataByNotExistConcept(String kgName) {
+
+        //查询这个图谱订阅的那些数据
+        List<DWGraphMap> graphMapList = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).build()));
+
+        if(graphMapList == null || graphMapList.isEmpty()){
+            return ;
+        }
+
+        //如果图谱现在没有概念，删除所有的订阅
+        SchemaRsp schemaRsp = graphApplicationService.querySchema(kgName);
+        if(schemaRsp == null || schemaRsp.getTypes() == null || schemaRsp.getTypes().isEmpty()){
+            deleteConcept(graphMapList);
+            return ;
+        }
+
+        //获取现在图谱已有的概念
+        List<Long> existConceptIds = schemaRsp.getTypes().stream().map(BaseConceptRsp::getId).collect(Collectors.toList());
+        List<Long> deleteConceptIds = Lists.newArrayList();
+
+        for(Iterator<DWGraphMap> it = graphMapList.iterator(); it.hasNext();){
+            DWGraphMap graphMap = it.next();
+
+            //图谱概念不存在，删除所有该概念的订阅
+            if(!existConceptIds.contains(graphMap.getConceptId())){
+                deleteConcept(graphMap);
+                deleteConceptIds.add(graphMap.getConceptId());
+                it.remove();
+            }
+        }
+
+        if(graphMapList.isEmpty()){
+            return;
+        }
+
+        //如果图谱属性都不存在，删除所有属性的订阅
+        if(schemaRsp == null || schemaRsp.getAttrs() == null || schemaRsp.getAttrs().isEmpty()){
+            List<DWGraphMap> attrMapList = graphMapList.stream().filter(map -> map.getAttrId() != null).collect(Collectors.toList());
+            if(attrMapList != null && !attrMapList.isEmpty()){
+                deleteConcept(attrMapList);
+            }
+        }
+
+        Map<Integer,AttributeDefinitionRsp> existAttrIds = schemaRsp.getAttrs().stream().filter(attr -> attr.getType().equals(1)).collect(Collectors.toMap(AttributeDefinitionRsp::getId, Function.identity()));
+
+        for(Iterator<DWGraphMap> it = graphMapList.iterator(); it.hasNext();){
+
+            DWGraphMap graphMap = it.next();
+
+            //实体的订阅可以保留
+            if(graphMap.getAttrId() == null){
+                continue;
+            }
+
+            //图谱中已不存在该属性，删除所有的订阅
+            if(!existAttrIds.containsKey(graphMap.getAttrId())){
+                deleteConcept(graphMap);
+            }else if(graphMap.getAttrType().equals(1)){
+
+                //图谱中存在该对象属性，查看边属性订阅关系
+                AttributeDefinitionRsp attr = existAttrIds.get(graphMap.getAttrId());
+
+                //图谱中边属性都不存在，所有该属性下边属性订阅都删除
+                if(attr.getExtraInfos() == null || attr.getExtraInfos().isEmpty()){
+                    deleteRelationAttr(kgName,attr.getId());
+                }else{
+
+
+                    List<String> relationAttrNames = attr.getExtraInfos().stream().map(AttrExtraRsp::getName).collect(Collectors.toList());
+
+                    List<DWGraphMapRelationAttr> relationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().kgName(kgName).attrId(attr.getId()).build()));
+
+                    //没有边属性订阅，跳过
+                    if(relationAttrList == null || relationAttrList.isEmpty()){
+                        continue;
+                    }
+
+                    //图谱中该属性的边属性不存在，删除订阅记录
+                    for(DWGraphMapRelationAttr relationAttr : relationAttrList){
+                        if(!relationAttrNames.contains(relationAttr.getName())){
+                            graphMapRelationAttrRepository.deleteById(relationAttr.getId());
+                        }
+                    }
+
+                }
+            }
+        }
+
+    }
+
+    private void deleteConcept(List<DWGraphMap> graphMapList) {
+
+        for(DWGraphMap graphMap : graphMapList){
+            deleteConcept(graphMap);
+        }
+    }
+
+    private void deleteConcept(DWGraphMap graphMap) {
+
+
+        Integer attrId = graphMap.getAttrId();
+
+        if(attrId != null){
+            deleteRelationAttr(graphMap.getKgName(),attrId);
+        }
+
+        graphMapRepository.deleteById(graphMap.getId());
+    }
+
+    private void deleteRelationAttr(String kgName, Integer attrId) {
+
+        List<DWGraphMapRelationAttr> relationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().kgName(kgName).attrId(attrId).build()));
+        if(relationAttrList != null && !relationAttrList.isEmpty()){
+            relationAttrList.forEach(attr -> graphMapRelationAttrRepository.deleteById(attr.getId()));
+        }
 
     }
 

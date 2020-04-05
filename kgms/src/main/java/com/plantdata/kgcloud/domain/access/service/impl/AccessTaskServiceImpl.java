@@ -157,7 +157,14 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         arrangeRsp.setUpdateTime(System.currentTimeMillis());
 
         if(taskRsp.getTaskType().equals(AccessTaskType.KTR.getDisplayName())){
-            cacheManager.getCache(ChannelRedisEnum.KTR_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());
+
+            JSONObject config = JSON.parseObject(taskRsp.getConfig());
+            String ktrFile = config.getString("fileText");
+            cacheManager.getCache(ChannelRedisEnum.KTR_KEY.getType()).put(taskRsp.getName(),ktrFile);
+
+
+            config.remove("fileText");
+            cacheManager.getCache(ChannelRedisEnum.KTR_CONFIG_KEY.getType()).put(taskRsp.getName(),config.toJSONString());
         }else{
             cacheManager.getCache(ChannelRedisEnum.CONFIG_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());
         }
@@ -189,7 +196,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         String transferTaskName = AccessTaskType.TRANSFER.getDisplayName()+"_"+taskKey;
 
         //生成ktr文件
-        String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,ktrTaskName,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
+        String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,isAllKey,ktrTaskName,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
         configJson.put("fileText",ktrTxt);
         configJson.put("updateTime",System.currentTimeMillis());
         configJson.put("cron",cronMap.get(table.getCron()));
@@ -198,11 +205,16 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         configJson.put("resourceName",ktrTaskName);
         configJson.put("outputs",Lists.newArrayList(transferTaskName));
         configJson.put("isScheduled",isScheduled == null? 0: isScheduled);
-        configJson.put("target",target);
-        configJson.put("dataName",database.getDataName());
-        configJson.put("dbTitle",database.getTitle());
-        configJson.put("tableName",tableName);
-        configJson.put("dbId",databaseId);
+
+
+        JSONObject resourceConfig = new JSONObject();
+        resourceConfig.put("target",target);
+        resourceConfig.put("dataName",database.getDataName());
+        resourceConfig.put("dbTitle",database.getTitle());
+        resourceConfig.put("tableName",tableName);
+        resourceConfig.put("dbId",databaseId);
+        resourceConfig.put("userId",SessionHolder.getUserId());
+        configJson.put("resourceConfig_",resourceConfig);
 
         return configJson.toString();
     }
@@ -435,18 +447,14 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
             DWTaskRsp taskRsp = ConvertUtils.convert(DWTaskRsp.class).apply(task);
 
+            String resourceTerget= taskRsp.getName().replaceFirst(ktrTaskName,"");
+
             JSONObject configJson = JSON.parseObject(taskRsp.getConfig());
-            String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,taskRsp.getName(),kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
+            String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,resourceTerget,taskRsp.getName(),kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
             configJson.put("fileText",ktrTxt);
             configJson.put("updateTime",System.currentTimeMillis());
             configJson.put("cron",cronMap.get(table.getCron()));
-//            if(table.getCreateWay().equals(1)){
-//                //远程表
             configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
-//            }else{
-//                //本地表
-//                configJson.put("isAll",1);
-//            }
 
             taskRsp.setConfig(configJson.toJSONString());
 
@@ -533,7 +541,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                     configJson.put("isScheduled",1);
 
                       //生成ktr文件
-                    String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,config.getId()+"_"+table.getId(),kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
+                    String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,null,config.getId()+"_"+table.getId(),kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
                     configJson.put("fileText",ktrTxt);
 
                     ResourceReq etlResourceReq = new ResourceReq();

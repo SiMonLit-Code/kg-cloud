@@ -49,21 +49,25 @@ public class YamlTransFunc {
         Map<String, ArrayList<TaskColumn>> columns = new HashMap<>();
         List<TaskRelation> relations = new ArrayList<>();
         HashMap<String, ArrayList<TaskColumn>> relaAttrs = new HashMap<>();
-        for (Object o : jsonObject.getJSONArray("columns")) {
-            if(o == null){
-                continue;
-            }
-            TaskColumn column = new TaskColumn(new JSONObject((Map<String, Object>) o).toJSONString());
-            if (column.isRelaAttr) {
-                ArrayList<TaskColumn> orDefault = relaAttrs.getOrDefault(column.entityNameOrRelationName, new ArrayList<>());
-                orDefault.add(column);
-                relaAttrs.put(column.entityNameOrRelationName, orDefault);
-            } else {
-                ArrayList<TaskColumn> orDefault = columns.getOrDefault(column.entityNameOrRelationName, new ArrayList<>());
-                orDefault.add(column);
-                columns.put(column.entityNameOrRelationName, orDefault);
+
+        if(jsonObject.getJSONArray("columns") != null){
+            for (Object o : jsonObject.getJSONArray("columns")) {
+                if(o == null){
+                    continue;
+                }
+                TaskColumn column = new TaskColumn(new JSONObject((Map<String, Object>) o).toJSONString());
+                if (column.isRelaAttr) {
+                    ArrayList<TaskColumn> orDefault = relaAttrs.getOrDefault(column.entityNameOrRelationName, new ArrayList<>());
+                    orDefault.add(column);
+                    relaAttrs.put(column.entityNameOrRelationName, orDefault);
+                } else {
+                    ArrayList<TaskColumn> orDefault = columns.getOrDefault(column.entityNameOrRelationName, new ArrayList<>());
+                    orDefault.add(column);
+                    columns.put(column.entityNameOrRelationName, orDefault);
+                }
             }
         }
+
         if (jsonObject.get("relation") != null) {
             for (Object o : jsonObject.getJSONArray("relation")) {
                 if(o == null){
