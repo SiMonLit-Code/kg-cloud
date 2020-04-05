@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.plantdata</groupId>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -225,6 +225,6 @@
         <url>http://192.168.4.1/kgcloud/kg-cloud-kgms</url>
         <connection>scm:git:ssh://git@192.168.4.1:4422/kgcloud/kg-cloud-kgms.git</connection>
         <developerConnection>scm:git:ssh://git@192.168.4.1:4422/kgcloud/kg-cloud-kgms.git</developerConnection>
-        <tag>v3.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
