@@ -719,7 +719,7 @@ public class IndustryKtrXml {
                 "    <limit>0</limit>\n" +
                 "    <lookup/>\n" +
                 "    <execute_each_row>N</execute_each_row>\n" +
-                "    <variables_active>N</variables_active>\n" +
+                "    <variables_active>isCronQAQ</variables_active>\n" +
                 "    <lazy_conversion_active>N</lazy_conversion_active>\n" +
                 "    <attributes/>\n" +
                 "    <cluster_schema/>\n" +
@@ -870,7 +870,7 @@ public class IndustryKtrXml {
         static String mongoTimeQueryXMl = "{\n" +
                 "    \"timeFieldQAQ\": {\n" +
                 "        \"$gte\": \"${StartTime}\",\n" +
-                "        \"$lte\": \"${StopTime}\"\n" +
+                "        \"$lte\": \"${EndTime}\"\n" +
                 "    }\n" +
                 "}\n";
 
@@ -899,32 +899,8 @@ public class IndustryKtrXml {
                 "        <trim_type>none</trim_type>\n" +
                 "      </field>\n" +
                 "      <field>\n" +
-                "        <name>userId</name>\n" +
-                "        <variable>${userId}</variable>\n" +
-                "        <type>String</type>\n" +
-                "        <format/>\n" +
-                "        <currency/>\n" +
-                "        <decimal/>\n" +
-                "        <group/>\n" +
-                "        <length>-1</length>\n" +
-                "        <precision>-1</precision>\n" +
-                "        <trim_type>none</trim_type>\n" +
-                "      </field>\n" +
-                "      <field>\n" +
-                "        <name>db</name>\n" +
-                "        <variable>${db}</variable>\n" +
-                "        <type>String</type>\n" +
-                "        <format/>\n" +
-                "        <currency/>\n" +
-                "        <decimal/>\n" +
-                "        <group/>\n" +
-                "        <length>-1</length>\n" +
-                "        <precision>-1</precision>\n" +
-                "        <trim_type>none</trim_type>\n" +
-                "      </field>\n" +
-                "      <field>\n" +
-                "        <name>tb</name>\n" +
-                "        <variable>${tb}</variable>\n" +
+                "        <name>resourceConfig_</name>\n" +
+                "        <variable>${resourceConfig_}</variable>\n" +
                 "        <type>String</type>\n" +
                 "        <format/>\n" +
                 "        <currency/>\n" +

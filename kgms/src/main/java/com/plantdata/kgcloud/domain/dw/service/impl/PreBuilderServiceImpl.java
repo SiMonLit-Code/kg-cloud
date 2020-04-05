@@ -27,6 +27,7 @@ import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
+import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
@@ -113,6 +114,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     @Autowired
     private DWService dwService;
+
+    @Autowired
+    private GraphMapService graphMapService;
 
 
     private final static String JSON_START = "{";
@@ -514,6 +518,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         List<SchemaQuoteReq> quoteReqList = importToGraph(preBuilderGraphMapReq.getKgName(), preBuilderGraphMapReq.getQuoteConfigs());
 
+
+
         Map<Integer, Long> modelDataBaseIdMap = new HashMap<>();
         List<DWGraphMap> graphMapList = new ArrayList<>();
         List<DWGraphMapRelationAttr> graphMapRelationAttrList = new ArrayList<>();
@@ -636,6 +642,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                                 graphMapRelationAttr.setSchedulingSwitch(0);
                                 graphMapRelationAttr.setKgName(preBuilderGraphMapReq.getKgName());
                                 graphMapRelationAttr.setModelId(schemaQuoteReq.getModelId());
+                                graphMapRelationAttr.setModelAttrId(schemaQuoteAttrReq.getModelAttrId());
                                 graphMapRelationAttrList.add(graphMapRelationAttr);
 
                             }
@@ -1762,6 +1769,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     @Override
     public List<SchemaQuoteReq> getGraphMap(String userId, String kgName) {
+
+
+        graphMapService.deleteDataByNotExistConcept(kgName);
 
         List<DWGraphMap> dwGraphMapList = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).build()));
 

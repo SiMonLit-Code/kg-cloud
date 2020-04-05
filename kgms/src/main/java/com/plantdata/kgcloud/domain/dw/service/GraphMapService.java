@@ -13,4 +13,6 @@ public interface GraphMapService {
     void deleteSchedule(Integer id);
 
     void scheduleSwitchByKgName(String kgName, Integer status);
+
+    void deleteDataByNotExistConcept(String kgName);
 }

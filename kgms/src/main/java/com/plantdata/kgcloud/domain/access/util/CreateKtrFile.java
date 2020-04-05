@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.access.util;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
@@ -22,12 +23,11 @@ public class CreateKtrFile {
      * @return
      * @throws IOException
      */
-    public static String getKettleXmlPath(DWDatabaseRsp database, DWTableRsp table, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword, String userId) {
+    public static String getKettleXmlPath(DWDatabaseRsp database, DWTableRsp table, String isAllKey,String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword, String userId) {
 
         if(database.getDataFormat().equals(1)){
             //行业标准
-
-            return getKtrIndustry(database,table,resourceName,kafkaServers,mongoAddrs,mongoUserrname,mongoPassword,userId);
+            return getKtrIndustry(database,table,isAllKey,resourceName,kafkaServers,mongoAddrs,mongoUserrname,mongoPassword,userId);
         }else{
             //非标准
             return getKtrNotIndustry(database,table,resourceName,kafkaServers,mongoAddrs,mongoUserrname,mongoPassword);
@@ -36,7 +36,7 @@ public class CreateKtrFile {
 
     }
 
-    private static String getKtrIndustry(DWDatabaseRsp database,DWTableRsp table, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword,String userId) {
+    private static String getKtrIndustry(DWDatabaseRsp database,DWTableRsp table,String isAllKey, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword,String userId) {
 
         String xml = IndustryKtrXml.xml;
         String defaultXml = IndustryKtrXml.defaultStepXml;
@@ -137,9 +137,9 @@ public class CreateKtrFile {
 
         inputXml = changeSql(inputXml, queryXml);
 
-        connXml = changeDBConnection(connXml, ip, port, dbName,tableName, username, password, type);
+        connXml = changeDBConnection(connXml, ip, port, dbName,tableName, username, password, type,table.getIsAll());
 
-        inputXml = changeDBConnection(inputXml, ip, port, dbName,tableName, username, password, type);
+        inputXml = changeDBConnection(inputXml, ip, port, dbName,tableName, username, password, type,table.getIsAll());
 
         jsonFieldxml = changeJsonField(jsonFieldxml,table.getFields(),isMongo);
 
@@ -149,7 +149,7 @@ public class CreateKtrFile {
 
         kafkaErrorxml = changeKafkaConnection(kafkaErrorxml, kafkaServers);
 
-        paramAndFilterXml = changeParamAndFilterXml(paramAndFilterXml,database,table,userId);
+//        paramAndFilterXml = changeParamAndFilterXml(paramAndFilterXml,database,table,userId,isAllKey);
 
         customizationXml = changeCustomizationXml(customizationXml,table);
 
@@ -164,13 +164,19 @@ public class CreateKtrFile {
         return customizationXml.replace("${code}",table.getKtr() == null ? "":table.getKtr());
     }
 
-    private static String changeParamAndFilterXml(String paramAndFilterXml, DWDatabaseRsp database, DWTableRsp table,String userId) {
+/*
+    private static String changeParamAndFilterXml(String paramAndFilterXml, DWDatabaseRsp database, DWTableRsp table,String userId,String isAllKey) {
 
-        return paramAndFilterXml.replace("${db}", database.getDataName())
-                                    .replace("${tb}",table.getTableName())
-                                    .replace("${userId}", userId);
+        JSONObject param = new JSONObject();
+        param.put("db",database.getDataName());
+        param.put("tb",table.getTableName());
+        param.put("userId",userId);
+        param.put("target",isAllKey);
+        param.put("dbId",database.getId());
 
+        return paramAndFilterXml.replace("resourceConfig_QAQ", param.toJSONString());
     }
+*/
 
     private static String getKtrNotIndustry(DWDatabaseRsp database, DWTableRsp table,String resourceName, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword){
         String xml = KtrXml.xml;
@@ -270,9 +276,9 @@ public class CreateKtrFile {
 
         inputXml = changeSql(inputXml, queryXml);
 
-        connXml = changeDBConnection(connXml, ip, port, dbName,tableName, username, password, type);
+        connXml = changeDBConnection(connXml, ip, port, dbName,tableName, username, password, type,table.getIsAll());
 
-        inputXml = changeDBConnection(inputXml, ip, port, dbName,tableName, username, password, type);
+        inputXml = changeDBConnection(inputXml, ip, port, dbName,tableName, username, password, type,table.getIsAll());
 
         jsonFieldxml = changeJsonField(jsonFieldxml,table.getFields(),isMongo);
 
@@ -337,7 +343,11 @@ public class CreateKtrFile {
                 sql.append(" WHERE ")
                         .append(table.getQueryField())
                         .append(" > ")
-                        .append("${time}");
+                        .append("'${StartTime}'")
+                        .append(" and ")
+                        .append(table.getQueryField())
+                        .append(" < ")
+                        .append("'${EndTime}'");
 
             }
 
@@ -377,7 +387,8 @@ public class CreateKtrFile {
                                              String tbName,
                                              String username,
                                              String password,
-                                             String type) {
+                                             String type,
+                                             Integer isAll) {
 
 
         String encodePassword = encodePassword(password);
@@ -388,7 +399,8 @@ public class CreateKtrFile {
                 .replace("tbNameQAQ",tbName == null ? "":tbName)
                 .replace("usernameQAQ", username == null ? "" : username)
                 .replace("typeQAQ", type.toUpperCase())
-                .replace("passwordQAQ", encodePassword);
+                .replace("passwordQAQ", encodePassword)
+                .replace("isCronQAQ",isAll != null && isAll.equals(2) ? "Y":"N");
 
     }
 
