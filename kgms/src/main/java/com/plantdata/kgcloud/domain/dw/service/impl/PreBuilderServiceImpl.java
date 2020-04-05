@@ -267,7 +267,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             modelConceptNameMap.put(concept.getId(), concept.getName());
         }
 
-        List<DWPrebuildAttr> attrs = prebuildAttrRepository.findByConceptIds(req.getFindAttrConceptIds());
+        List<Integer> findByConceptIds = concepts.stream().map(DWPrebuildConcept::getId).collect(Collectors.toList());
+
+        List<DWPrebuildAttr> attrs = prebuildAttrRepository.findByConceptIds(findByConceptIds);
         if (attrs == null || attrs.isEmpty()) {
             return new ArrayList<>();
         }
