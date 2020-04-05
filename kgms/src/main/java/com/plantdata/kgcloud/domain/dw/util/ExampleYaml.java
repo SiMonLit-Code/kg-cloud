@@ -23,7 +23,7 @@ public class ExampleYaml {
                 "columns：数据表中的字段\n" +
                 "columns.tag：该字段表示数值属性，格式“模式名.属性名”；\n" +
                 "columns.type：该字段的属性值类型，包括“string”、“float”、“int”；\n" +
-                "*/");
+                "*/\n");
 
         yaml.append("tables:").append("\r\n");
 
