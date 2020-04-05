@@ -342,6 +342,10 @@ public class DWServiceImpl implements DWService {
 
             String result = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
 
+            if(result.startsWith("/*")){
+                result = result.substring(result.indexOf("*/")+2);
+            }
+
             YamlTransFunc.tranTagConfig(result);
 
             Object value = new Yaml().load(result);
@@ -358,12 +362,20 @@ public class DWServiceImpl implements DWService {
 
             List<String> tableNames = tables.stream().map(DWTableRsp::getTableName).collect(Collectors.toList());
 
+            boolean isEmpty = true;
             for(ModelSchemaConfigRsp schema : modelSchemaConfig){
                 if(!tableNames.contains(schema.getTableName())){
                     throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
                 }
+
+                if(schema.getEntity() != null && !schema.getEntity().isEmpty()){
+                    isEmpty = false;
+                }
             }
 
+            if(isEmpty){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+            }
 
             database.setYamlContent(result);
             database.setTagJson(modelSchemaConfig);
@@ -1274,6 +1286,10 @@ public class DWServiceImpl implements DWService {
         } else if (database.getDataFormat().equals(3)) {
             //自定义
             String yamlContent = database.getYamlContent();
+
+            if(yamlContent == null || yamlContent.isEmpty()){
+                throw BizException.of(KgmsErrorCodeEnum.EMTRY_MODEL_PUDH_ERROR);
+            }
 
             Object value = new Yaml().load(yamlContent);
 

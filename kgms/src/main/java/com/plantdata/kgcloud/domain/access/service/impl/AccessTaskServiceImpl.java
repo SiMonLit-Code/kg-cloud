@@ -82,6 +82,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     static {
         cronMap.put("每分钟","0 * * * * ? ");
         cronMap.put("每10分钟","0 0/10 * * * ? ");
+        cronMap.put("每半小时","0 0/30 * * * ? ");
         cronMap.put("每小时","0 0 * * * ? ");
         cronMap.put("每天","0 0 0 * * ? ");
 
