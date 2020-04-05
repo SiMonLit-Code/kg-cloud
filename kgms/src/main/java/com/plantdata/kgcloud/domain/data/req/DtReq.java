@@ -20,4 +20,6 @@ public class DtReq {
 
     @ApiModelProperty("数据库表名称")
     private String dbTable;
+
+
 }
