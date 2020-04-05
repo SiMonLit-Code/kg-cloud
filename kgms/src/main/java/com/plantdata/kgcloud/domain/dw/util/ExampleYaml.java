@@ -17,6 +17,14 @@ public class ExampleYaml {
 
         StringBuilder yaml = new StringBuilder();
 
+        yaml.append("/*根据当前数据表以及字段生成的打标文件；\n" +
+                "tables：当前数仓所拥有的表及表中文名；\n" +
+                "relation：关系表有此字段，格式“-概念名>关系名>概念名”；\n" +
+                "columns：数据表中的字段\n" +
+                "columns.tag：该字段表示数值属性，格式“模式名.属性名”；\n" +
+                "columns.type：该字段的属性值类型，包括“string”、“float”、“int”；\n" +
+                "*/");
+
         yaml.append("tables:").append("\r\n");
 
         addTables(yaml,tableRspList);
