@@ -24,6 +24,9 @@ public class StandardTemplateRsp {
     @ApiModelProperty("行业标准样例文件内容")
     private String fileContent;
 
+    @ApiModelProperty("行业标准描述")
+    private String description;
+
     @ApiModelProperty("行业模板schema")
     private List<StandardTemplateSchema> schemas;
 
