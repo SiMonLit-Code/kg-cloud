@@ -59,7 +59,7 @@ public class PreBuildManageController {
 
     @ApiOperation("预构建模式管理-模式上传")
     @PostMapping("/create")
-    public ApiReturn create( PreBuilderCreateReq req) {
+    public ApiReturn create(@RequestBody PreBuilderCreateReq req) {
         preBuilderService.create(req);
         return ApiReturn.success();
     }

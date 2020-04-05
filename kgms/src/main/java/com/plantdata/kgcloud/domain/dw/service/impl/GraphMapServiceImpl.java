@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dw.service.impl;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AccessTaskType;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.dw.entity.*;
@@ -13,6 +14,7 @@ import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.kettle.service.KettleLogStatisticService;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -106,6 +108,11 @@ public class GraphMapServiceImpl implements GraphMapService {
         tabs.forEach(t -> t.setSchedulingSwitch(status));
 
         graphMapRepository.saveAll(tabs);
+
+        Optional<DWPrebuildModel> modelOptional = modelRepository.findById(graphMap.getModelId());
+        if(!modelOptional.isPresent()){
+            throw BizException.of(KgmsErrorCodeEnum.PRE_BUILD_MODEL_NOT_EXIST);
+        }
 
         String kgTaskName = AccessTaskType.KG.getDisplayName() + "_" + graphMap.getKgName() + "_" + graphMap.getModelId();
         if (status.equals(1)) {
