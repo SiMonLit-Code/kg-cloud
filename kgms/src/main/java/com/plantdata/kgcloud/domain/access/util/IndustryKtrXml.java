@@ -569,14 +569,6 @@ public class IndustryKtrXml {
                 "    </file>\n" +
                 "    <fields>\n" +
                 "fieldsQAQ" +
-                "      <field>\n" +
-                "        <name>db</name>\n" +
-                "        <element>db</element>\n" +
-                "      </field>\n" +
-                "      <field>\n" +
-                "        <name>tb</name>\n" +
-                "        <element>tb</element>\n" +
-                "      </field>\n" +
                 "    </fields>\n" +
                 "    <attributes/>\n" +
                 "    <cluster_schema/>\n" +

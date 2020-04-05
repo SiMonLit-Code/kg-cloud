@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
 import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
 
@@ -12,7 +13,9 @@ public interface GraphMapService {
 
     void deleteSchedule(Integer id);
 
-    void scheduleSwitchByKgName(String kgName, Integer status);
+    void scheduleSwitchByKgName(GraphMapReq graphMapReq);
 
     void deleteDataByNotExistConcept(String kgName);
+
+    List<JSONObject> listDatabase(String userId, String kgName);
 }

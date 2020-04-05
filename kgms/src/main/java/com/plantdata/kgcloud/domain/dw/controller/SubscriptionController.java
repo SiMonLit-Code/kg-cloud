@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
 import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
@@ -37,6 +39,13 @@ public class SubscriptionController {
         return ApiReturn.success(graphMapService.list(userId,graphMapReq));
     }
 
+    @ApiOperation("订阅检测-当前图谱订阅的数据库")
+    @GetMapping("/list/database/{kgName}")
+    public ApiReturn<List<JSONObject>> listDatabase(@PathVariable("kgName")String kgName) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(graphMapService.listDatabase(userId,kgName));
+    }
+
     @ApiOperation("订阅检测-开启/关闭订阅")
     @PatchMapping("/schedule/{id}/{status}")
     public ApiReturn scheduleSwitch(@PathVariable("id")Integer id,@PathVariable("status")Integer status) {
@@ -46,9 +55,9 @@ public class SubscriptionController {
 
 
     @ApiOperation("订阅检测-按图谱全量开启/关闭订阅")
-    @PatchMapping("/schedule/kg/{kgName}/{status}")
-    public ApiReturn scheduleSwitch(@PathVariable("kgName")String kgName,@PathVariable("status")Integer status) {
-        graphMapService.scheduleSwitchByKgName(kgName,status);
+    @PatchMapping("/schedule/kg")
+    public ApiReturn scheduleSwitch(@RequestBody GraphMapReq graphMapReq) {
+        graphMapService.scheduleSwitchByKgName(graphMapReq);
         return ApiReturn.success();
     }
 

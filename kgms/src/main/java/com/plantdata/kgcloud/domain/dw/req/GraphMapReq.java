@@ -27,5 +27,8 @@ public class GraphMapReq {
     @ApiModelProperty("图谱属性id")
     private Integer attrId;
 
+    @ApiModelProperty("订阅状态")
+    private Integer status;
+
 
 }

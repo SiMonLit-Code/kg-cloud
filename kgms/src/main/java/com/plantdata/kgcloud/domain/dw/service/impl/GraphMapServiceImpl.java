@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
@@ -64,6 +65,9 @@ public class GraphMapServiceImpl implements GraphMapService {
 
     @Autowired
     private GraphApplicationService graphApplicationService;
+
+    @Autowired
+    private DWDatabaseRepository dwDatabaseRepository;
 
     @Autowired
     private DWService dwService;
@@ -170,18 +174,37 @@ public class GraphMapServiceImpl implements GraphMapService {
     }
 
     @Override
-    public void scheduleSwitchByKgName(String kgName, Integer status) {
-        List<DWGraphMap> graphMaps = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).build()));
-        if (graphMaps == null || graphMaps.isEmpty()) {
+    public void scheduleSwitchByKgName(GraphMapReq graphMapReq) {
+
+        List<DWGraphMap> graphMapList;
+        if (graphMapReq.getAttrId() != null) {
+
+            graphMapList = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMapReq.getKgName()).dataBaseId(graphMapReq.getDatabaseId()).attrId(graphMapReq.getAttrId()).build()));
+
+        } else {
+            graphMapList = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMapReq.getKgName()).dataBaseId(graphMapReq.getDatabaseId()).conceptId(graphMapReq.getConceptId()).build()));
+
+            if (graphMapList != null && !graphMapList.isEmpty()) {
+
+                List<DWGraphMap> childGraphMaps = new ArrayList<>();
+                for (DWGraphMap graphMap : graphMapList) {
+                    getChildConceptMap(childGraphMaps, graphMapReq.getKgName(), graphMapReq.getDatabaseId(), graphMap.getConceptId());
+                }
+
+                graphMapList.addAll(childGraphMaps);
+            }
+
+        }
+        if (graphMapList == null || graphMapList.isEmpty()) {
             return;
         }
 
-        graphMaps.forEach(t -> t.setSchedulingSwitch(status));
+        graphMapList.forEach(t -> t.setSchedulingSwitch(graphMapReq.getStatus()));
 
-        graphMapRepository.saveAll(graphMaps);
+        graphMapRepository.saveAll(graphMapList);
 
         List<String> exists = Lists.newArrayList();
-        for(DWGraphMap graphMap : graphMaps){
+        for(DWGraphMap graphMap : graphMapList){
 
             if(exists.contains(graphMap.getDataBaseId()+graphMap.getTableName())){
                 continue;
@@ -195,7 +218,7 @@ public class GraphMapServiceImpl implements GraphMapService {
             }
 
             String kgTaskName = AccessTaskType.KG.getDisplayName() + "_" + graphMap.getKgName() + "_" + graphMap.getModelId();
-            if (status.equals(1)) {
+            if (graphMapReq.getStatus().equals(1)) {
 
                 accessTaskService.createKtrTask(graphMap.getTableName(), graphMap.getDataBaseId(), graphMap.getKgName(), 1,graphMap.getKgName());
                 if (database.getDataFormat().equals(1)) {
@@ -215,7 +238,7 @@ public class GraphMapServiceImpl implements GraphMapService {
 
             //更新订阅任务
         }
-        preBuilderService.createSchedulingConfig(kgName, false,status);
+        preBuilderService.createSchedulingConfig(graphMapReq.getKgName(), false,graphMapReq.getStatus());
 
     }
 
@@ -308,6 +331,33 @@ public class GraphMapServiceImpl implements GraphMapService {
             }
         }
 
+    }
+
+    @Override
+    public List<JSONObject> listDatabase(String userId, String kgName) {
+
+        List<Long> databaseIds = graphMapRepository.getDatabaseList(kgName);
+
+        if(databaseIds == null || databaseIds.isEmpty()){
+            return new ArrayList<>();
+        }
+
+        List<DWDatabase> databases = dwDatabaseRepository.findAllById(databaseIds);
+
+        if(databases == null || databases.isEmpty()){
+            return new ArrayList<>();
+        }
+
+        List<JSONObject> database = new ArrayList<>();
+        databases.forEach(d -> {
+
+            JSONObject data = new JSONObject();
+            data.put("databaseName",d.getTitle());
+            data.put("databaseId",d.getId());
+            database.add(data);
+        });
+
+        return database;
     }
 
     private void deleteConcept(List<DWGraphMap> graphMapList) {
