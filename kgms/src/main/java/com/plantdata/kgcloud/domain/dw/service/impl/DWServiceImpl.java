@@ -1398,6 +1398,7 @@ public class DWServiceImpl implements DWService {
             tableRsp.setSchedulingSwitch(req.getSchedulingSwitch());
             tableRsp.setQueryField(req.getField());
             tableRsp.setIsAll(req.getIsAll());
+            tableRsp.setIsWriteDW(req.getIsWriteDW());
 
             DWTable table = ConvertUtils.convert(DWTable.class).apply(tableRsp);
             tableRepository.save(table);
