@@ -245,7 +245,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             if(isGraph){
                 Optional<DWPrebuildModel> modelOpt = modelRepository.findById(modelId);
                 if(!modelOpt.isPresent()){
-                    throw BizException.of(KgmsErrorCodeEnum.MODEL_NOT_EXISTS);
+                    throw BizException.of(KgmsErrorCodeEnum.PRE_BUILD_MODEL_NOT_EXIST);
                 }
                 DWPrebuildModel model = modelOpt.get();
                 String yamlContent = model.getYamlContent();
