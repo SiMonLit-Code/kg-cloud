@@ -1,9 +1,15 @@
 package com.plantdata.kgcloud.domain.data.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.BsonField;
 import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.MongoOperation;
@@ -69,7 +75,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     @Override
     public List<DbAndTableRsp> listAll(DtReq dtReq) {
         MongoCollection<Document> collection = getCollection();
-        List<Bson> bsons = new ArrayList<>(2);
+       /* List<Bson> bsons = new ArrayList<>(2);
         if (StringUtils.hasText(dtReq.getDbName())) {
             bsons.add(Filters.regex("dbName", Pattern.compile(dtReq.getDbName())));
         }
@@ -82,8 +88,44 @@ public class DataStoreServiceImpl implements DataStoreService {
         } else {
             findIterable = collection.find(Filters.and(bsons));
         }
+
+
         List<DataStore> dataStores = documentConverter.toBeans(findIterable, DataStore.class);
         return MapperUtils.map(dataStores, DbAndTableRsp.class);
+*/
+        Document groupField = new Document();
+        groupField.put("dbName","$dbName");
+        groupField.put("dbTable","$dbTable");
+        Document group = new Document();
+        group.put("$group",new Document("_id",groupField));
+        AggregateIterable<Document> aggr = collection.aggregate(Lists.newArrayList(group));
+
+        MongoCursor<Document> cursor = aggr.iterator();
+
+        Map<String,List<String>> rs = Maps.newHashMap();
+
+        while (cursor.hasNext()){
+            Document item_doc = cursor.next();
+            String dbName = item_doc.get("_id", Document.class).getString("dbName");
+            String dbTable = item_doc.get("_id",Document.class).getString("dbTable");
+
+            if(rs.containsKey(dbName)){
+                rs.get(dbName).add(dbTable);
+            }else{
+                rs.put(dbName,Lists.newArrayList(dbTable));
+            }
+        }
+
+        List<DbAndTableRsp> tableRspList = Lists.newArrayList();
+        for(Map.Entry<String,List<String>> entry : rs.entrySet()){
+
+            DbAndTableRsp dataStore = new DbAndTableRsp();
+            dataStore.setDbName(entry.getKey());
+            dataStore.setDbTable(entry.getValue());
+            tableRspList.add(dataStore);
+        }
+
+        return tableRspList;
     }
 
     @Override
