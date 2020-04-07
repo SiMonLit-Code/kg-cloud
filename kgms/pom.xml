@@ -5,7 +5,7 @@
     <parent>
         <artifactId>kg-cloud-kgms</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.1.1-SNAPSHOT</version>
+        <version>3.1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -317,7 +317,7 @@
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <configuration>
-                            <!--<excludeGroupIds>
+                            <excludeGroupIds>
                                 org.projectlombok,
                                 io.springfox
                             </excludeGroupIds>
@@ -326,7 +326,7 @@
                                     <groupId>com.plantdata</groupId>
                                     <artifactId>kg-cloud-swagger</artifactId>
                                 </exclude>
-                            </excludes>-->
+                            </excludes>
                         </configuration>
                     </plugin>
                 </plugins>
