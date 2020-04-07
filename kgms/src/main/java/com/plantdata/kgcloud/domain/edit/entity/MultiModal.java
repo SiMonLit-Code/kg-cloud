@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.entity;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,10 @@ import lombok.Setter;
  */
 @Setter
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MultiModal {
+    private String id;
+
     @ApiModelProperty("实体id")
     @JsonAlias("entity_id")
     private Long entityId;
