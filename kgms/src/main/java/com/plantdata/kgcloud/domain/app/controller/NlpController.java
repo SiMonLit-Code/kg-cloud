@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.pub.req.EntityLinkingFrom;
 import ai.plantdata.kg.api.pub.resp.TaggingItemVO;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.domain.app.service.NlpService;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
@@ -74,7 +75,7 @@ public class NlpController implements SdkOpenApiInterface {
         EntityLinkingFrom entityLinkingFrom = new EntityLinkingFrom();
         entityLinkingFrom.setConceptIds(linkingFrom.getConceptIds());
         entityLinkingFrom.setText(linkingFrom.getText());
-        Optional<List<TaggingItemVO>> opt = RestRespConverter.convert(entityApi.tagging(kgName, entityLinkingFrom));
+        Optional<List<TaggingItemVO>> opt = RestRespConverter.convert(entityApi.tagging(KGUtil.dbName(kgName), entityLinkingFrom));
         return ApiReturn.success(RestCopyConverter.copyToNewList(opt.orElse(Collections.emptyList()), TaggingItemRsp.class));
     }
 
