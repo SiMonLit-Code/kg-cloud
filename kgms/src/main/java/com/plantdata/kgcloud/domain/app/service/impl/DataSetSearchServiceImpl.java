@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
+import com.plantdata.kgcloud.domain.app.util.DataSetUtils;
 import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.EsUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
@@ -21,7 +22,6 @@ import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.LinksRsp;
@@ -66,15 +66,12 @@ public class DataSetSearchServiceImpl implements DataSetSearchService {
         List<Map<String, Object>> maps;
         long count;
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect, dataSet.getDataType())) {
-
-            if (queryMap == null) {
-                queryMap = Maps.newHashMap();
-            }
             if (sortMap == null) {
                 sortMap = Maps.newHashMap();
             }
-            maps = provider.findWithSort(offset, limit, queryMap, sortMap);
-            count = provider.count(queryMap);
+            Map<String, Object> searchMap = DataSetUtils.buildSearchByDataType( queryMap);
+            maps = provider.findWithSort(offset, limit, searchMap, sortMap);
+            count = provider.count(searchMap);
         } catch (Exception e) {
             e.printStackTrace();
             throw new BizException(AppErrorCodeEnum.ERROR_DATA_SET_QUERY);
