@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.dw.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
+import com.plantdata.kgcloud.domain.dw.req.PreBuilderUpdateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
@@ -61,6 +62,13 @@ public class PreBuildManageController {
     @PostMapping("/create")
     public ApiReturn create(@RequestBody PreBuilderCreateReq req) {
         preBuilderService.create(req);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("预构建模式管理-模式编辑")
+    @PostMapping("/update")
+    public ApiReturn update(@RequestBody PreBuilderUpdateReq req) {
+        preBuilderService.updateModel(req);
         return ApiReturn.success();
     }
 

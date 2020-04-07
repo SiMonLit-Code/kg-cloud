@@ -117,11 +117,23 @@ public class DataStoreServiceImpl implements DataStoreService {
         }
 
         List<DbAndTableRsp> tableRspList = Lists.newArrayList();
+        Map<String,String> dataMap = Maps.newHashMap();
         for(Map.Entry<String,List<String>> entry : rs.entrySet()){
 
             DbAndTableRsp dataStore = new DbAndTableRsp();
             dataStore.setDbName(entry.getKey());
             dataStore.setDbTable(entry.getValue());
+            if(dataMap.containsKey(entry.getKey())){
+                dataStore.setDbTitle(dataMap.get(entry.getKey()));
+            }else{
+                DWDatabaseRsp databaseRsp = dwService.getDbByDataName(entry.getKey());
+                if(databaseRsp != null){
+                    dataMap.put(entry.getKey(),databaseRsp.getTitle());
+                    dataStore.setDbTitle(databaseRsp.getTitle());
+                }else{
+                    dataMap.put(entry.getKey(),null);
+                }
+            }
             tableRspList.add(dataStore);
         }
 
@@ -142,10 +154,10 @@ public class DataStoreServiceImpl implements DataStoreService {
         }
         FindIterable<Document> findIterable;
         long count = 0;
-        if (bsons.isEmpty()) {
-            count = collection.countDocuments();
-            findIterable = collection.find().skip(page).limit(size);
-        } else {
+            if (bsons.isEmpty()) {
+                count = collection.countDocuments();
+                findIterable = collection.find().skip(page).limit(size);
+            } else {
             count = collection.countDocuments(Filters.and(bsons));
             findIterable = collection.find(Filters.and(bsons)).skip(page).limit(size);
         }
@@ -179,7 +191,6 @@ public class DataStoreServiceImpl implements DataStoreService {
                 }
             }
         }
-
 
         return ;
     }

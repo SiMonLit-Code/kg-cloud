@@ -16,5 +16,7 @@ public class DbAndTableRsp {
 
     private String dbName;
 
+    private String dbTitle;
+
     private List<String> dbTable;
 }
