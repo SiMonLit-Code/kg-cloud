@@ -28,8 +28,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.plantdata.graph.logging.core.GraphLog;
+import com.plantdata.graph.logging.core.GraphLogOperation;
+import com.plantdata.graph.logging.core.GraphLogScope;
 import com.plantdata.graph.logging.core.ServiceEnum;
+import com.plantdata.graph.logging.core.segment.EntityMultiDataSegment;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
@@ -149,16 +154,44 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq) {
+        logSender.setActionId();
         MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(multiModalReq);
         Document document = documentConverter.toDocument(multiModal);
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         mongoCollection.insertOne(document);
+        sendMsg(kgName, multiModal);
+        logSender.remove();
         return documentConverter.toBean(document, MultiModalRsp.class);
+    }
+
+    private void sendMsg(String kgName, MultiModal multiModal) {
+        if (!logSender.isEnableLog()){
+            return;
+        }
+        String kgDbName = KGUtil.dbName(kgName);
+        logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+        GraphLog graphLog = new GraphLog();
+        graphLog.setBatch(ThreadLocalUtils.getBatchNo());
+        graphLog.setScope(GraphLogScope.MULTI_DATA);
+        graphLog.setOperation(GraphLogOperation.ADD);
+        graphLog.setNewValue(transform(multiModal));
+        logSender.sendKgLog(kgDbName, graphLog);
+    }
+
+    private EntityMultiDataSegment transform(MultiModal modal) {
+        EntityMultiDataSegment segment = new EntityMultiDataSegment();
+        segment.setId(modal.getEntityId());
+        segment.setDataHref(modal.getDataHref());
+        segment.setName(modal.getName());
+        segment.setType(modal.getType());
+        segment.setThumpPath(modal.getThumbPath());
+        return segment;
     }
 
     @Override
     public void batchAddMultiModal(String kgName, List<MultiModalReq> multiModalReqs) {
+        logSender.setActionId();
         List<MultiModal> multiModals =
                 multiModalReqs.stream().map(ConvertUtils.convert(MultiModal.class)).collect(Collectors.toList());
         List<Document> documents =
@@ -166,14 +199,36 @@ public class EntityServiceImpl implements EntityService {
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         mongoCollection.insertMany(documents);
+        multiModals.forEach(modal -> sendMsg(kgName, modal));
+        logSender.remove();
     }
 
     @Override
     public void deleteMultiModal(String kgName, String modalId) {
-        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
+        String kgDbName = KGUtil.dbName(kgName);
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(kgDbName);
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
+        MongoCursor<Document> cursor = mongoCollection.find(documentConverter.buildObjectId(modalId)).iterator();
+        if (!cursor.hasNext()) {
+            return;
+        }
+        Document document = cursor.next();
+        MultiModal multiModal = documentConverter.toBean(document, MultiModal.class);
         mongoCollection.deleteOne(documentConverter.buildObjectId(modalId));
+        if (!logSender.isEnableLog()){
+            return;
+        }
+        logSender.setActionId();
+        logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+        GraphLog graphLog = new GraphLog();
+        graphLog.setBatch(ThreadLocalUtils.getBatchNo());
+        graphLog.setScope(GraphLogScope.MULTI_DATA);
+        graphLog.setOperation(GraphLogOperation.DELETE);
+        graphLog.setOldValue(transform(multiModal));
+        logSender.sendKgLog(kgDbName, graphLog);
+        logSender.remove();
     }
+
 
     @Override
     public Page<BasicInfoRsp> listEntities(String kgName, BasicInfoListReq basicInfoListReq,
