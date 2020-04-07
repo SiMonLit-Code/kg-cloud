@@ -1,10 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.service.impl;
 
-import ai.plantdata.kg.common.bean.BasicInfo;
-import ai.plantdata.kg.common.bean.ParentSon;
-import cn.hiboot.mcn.core.exception.ErrorMsg;
-import cn.hiboot.mcn.core.exception.ServiceException;
 import com.alibaba.excel.util.StringUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -15,7 +12,6 @@ import com.plantdata.kgcloud.constant.DataTypeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
 import com.plantdata.kgcloud.domain.access.rsp.KgConfigRsp;
-import com.plantdata.kgcloud.domain.access.rsp.KtrConfigRsp;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphEditService;
@@ -25,6 +21,7 @@ import com.plantdata.kgcloud.domain.dw.parser.ExcelParser;
 import com.plantdata.kgcloud.domain.dw.repository.*;
 import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
+import com.plantdata.kgcloud.domain.dw.req.PreBuilderUpdateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
@@ -41,7 +38,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -56,9 +52,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -67,7 +61,6 @@ import javax.persistence.criteria.Root;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -512,10 +505,13 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public void saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq) {
+    public JSONObject saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq) {
+
+        JSONObject isDwModel = new JSONObject();
 
         if (preBuilderGraphMapReq.getQuoteConfigs() == null || preBuilderGraphMapReq.getQuoteConfigs().isEmpty()) {
-            return;
+            isDwModel.put("isDwModel",false);
+            return isDwModel;
         }
 
         List<SchemaQuoteReq> quoteReqList = importToGraph(preBuilderGraphMapReq.getKgName(), preBuilderGraphMapReq.getQuoteConfigs());
@@ -659,15 +655,17 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         if (!graphMapList.isEmpty()) {
             graphMapRepository.saveAll(graphMapList);
+            isDwModel.put("isDwModel",true);
         }
 
         if (!graphMapRelationAttrList.isEmpty()) {
             graphMapRelationAttrRepository.saveAll(graphMapRelationAttrList);
+            isDwModel.put("isDwModel",true);
         }
 
         //生成订阅任务
         createSchedulingConfig(preBuilderGraphMapReq.getKgName(), true, 0);
-        return;
+        return isDwModel;
     }
 
     @Override
@@ -768,6 +766,21 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         addSchema2PreBuilder(schemaRsp, model.getId());
 
+    }
+
+    @Override
+    public void updateModel(PreBuilderUpdateReq req) {
+
+        Optional<DWPrebuildModel> opt = prebuildModelRepository.findById(req.getId());
+
+        if(opt.isPresent()){
+
+            DWPrebuildModel model = opt.get();
+            model.setName(req.getName());
+            model.setDescription(req.getDesc());
+            model.setModelType(req.getModelType());
+            prebuildModelRepository.save(model);
+        }
     }
 
     private void addSchema2PreBuilder(SchemaRsp schemaRsp, Integer modelId) {
@@ -1048,6 +1061,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         for (SchemaQuoteReq schemaQuoteReq : quoteConfigs) {
+
+            //避免属性定义添加到顶层概念
+            if(schemaQuoteReq.getConceptId().equals(0L)){
+                continue;
+            }
 
             if (schemaQuoteReq.getAttrs() == null || schemaQuoteReq.getAttrs().isEmpty()) {
                 continue;
