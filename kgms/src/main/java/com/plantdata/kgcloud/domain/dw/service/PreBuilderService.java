@@ -1,8 +1,9 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
-import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
+import com.plantdata.kgcloud.domain.dw.req.PreBuilderUpdateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
@@ -21,7 +22,7 @@ public interface PreBuilderService {
 
     List<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq);
 
-    void saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq);
+    JSONObject saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq);
 
     List<SchemaQuoteReq> getGraphMap(String userId, String kgName);
 
@@ -42,4 +43,6 @@ public interface PreBuilderService {
     void createSchedulingConfig(String kgName,boolean isCreateKtr,Integer status);
 
     void pushGraphModel(String userId, ModelPushReq req);
+
+    void updateModel(PreBuilderUpdateReq req);
 }

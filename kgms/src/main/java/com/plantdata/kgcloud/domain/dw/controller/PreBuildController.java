@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.common.converter.JsonNodeConverter;
 import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
@@ -50,10 +52,9 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-引入模式配置保存")
     @PostMapping("/save/graph/map")
-    public ApiReturn saveGraphMap(@RequestBody PreBuilderGraphMapReq preBuilderGraphMapReq) {
+    public ApiReturn<JSONObject> saveGraphMap(@RequestBody PreBuilderGraphMapReq preBuilderGraphMapReq) {
         String userId = SessionHolder.getUserId();
-        preBuilderService.saveGraphMap(userId,preBuilderGraphMapReq);
-        return ApiReturn.success();
+        return ApiReturn.success(preBuilderService.saveGraphMap(userId,preBuilderGraphMapReq));
     }
 
     @ApiOperation("预构建模式-查询图谱的映射配置")
