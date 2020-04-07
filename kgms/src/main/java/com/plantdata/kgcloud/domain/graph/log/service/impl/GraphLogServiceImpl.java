@@ -175,7 +175,7 @@ public class GraphLogServiceImpl implements GraphLogService {
             );
         } else {
             query = Filters.and(
-                    Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name(), GraphLogScope.PRIVATE_ATTRIBUTE.name())),
+                    Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name(), GraphLogScope.PRIVATE_ATTRIBUTE.name(), GraphLogScope.MULTI_DATA.name())),
                     Filters.or(Filters.eq("newValue.id", id), Filters.eq("oldValue.id", id),
                             Filters.eq("newValue.entityId", id), Filters.eq("oldValue.entityId", id))
             );
