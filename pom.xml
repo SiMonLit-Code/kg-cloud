@@ -33,7 +33,6 @@
     </properties>
     <dependencyManagement>
         <dependencies>
-
             <!-- ********** kgms 依赖 *************-->
             <dependency>
                 <groupId>com.plantdata</groupId>
