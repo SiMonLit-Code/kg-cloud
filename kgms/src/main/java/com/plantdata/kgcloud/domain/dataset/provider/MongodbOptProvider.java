@@ -1,10 +1,7 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
 import com.google.common.collect.Lists;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -98,6 +95,12 @@ public class MongodbOptProvider implements DataOptProvider {
                 Map<String, String> value = (Map<String, String>) entry.getValue();
                 for (Map.Entry<String, String> objectEntry : value.entrySet()) {
                     bsonList.add(Filters.regex(objectEntry.getKey(), objectEntry.getValue()));
+                }
+            }
+            if (Objects.equals(entry.getKey(), "query")) {
+                Map<String, Object> value = (Map<String, Object>) entry.getValue();
+                for (Map.Entry<String, Object> objectEntry : value.entrySet()) {
+                    bsonList.add(new BasicDBObject(objectEntry.getKey(),objectEntry.getValue()));
                 }
             }
             if (Objects.equals(entry.getKey(), "resultType")) {
