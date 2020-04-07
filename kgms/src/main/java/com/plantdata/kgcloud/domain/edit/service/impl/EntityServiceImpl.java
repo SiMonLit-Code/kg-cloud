@@ -160,7 +160,7 @@ public class EntityServiceImpl implements EntityService {
         Integer size = basicInfoListReq.getSize();
         Integer page = (basicInfoListReq.getPage() - 1) * size;
         basicInfoListFrom.setSkip(page);
-        basicInfoListFrom.setLimit(size);
+        basicInfoListFrom.setLimit(size + 1);
         RestResp<List<EntityVO>> restResp = conceptEntityApi.list(KGUtil.dbName(kgName),
                 basicInfoListFrom);
         Optional<List<EntityVO>> optional = RestRespConverter.convert(restResp);
