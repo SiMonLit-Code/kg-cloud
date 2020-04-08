@@ -48,9 +48,9 @@ public class KettleLogDeal {
             }
         }
         long startTime = DateUtils.parseDatetime(statisticReq.getStartDate()).getTime();
-        long endTime = DateUtils.parseDatetime(statisticReq.getEndDate()).getTime();
-        Bson match = and(basicBSONObject, gte("logTimeStamp",startTime),
-                lte("logTimeStamp",endTime),
+        long endTime =  DateUtils.parseDatetime(statisticReq.getEndDate()).getTime();
+        Bson match = and(basicBSONObject, gte("logTimeStamp", startTime),
+                lte("logTimeStamp", endTime),
                 eq("time_flag", KettleLogStatisticTypeEnum.HOUR.getLowerCase()),
                 eq("dbId", dataId),
                 in("tbName", statisticReq.getTableName()));
