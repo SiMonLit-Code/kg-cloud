@@ -25,16 +25,14 @@ import java.util.List;
 public class KettleLogStatisticReq {
 
     @NotEmpty
-    @DateTimeFormat(iso = ISO.DATE_TIME)
     @ApiModelProperty(value = "开始日期", required = true)
-    private Date startDate;
+    private String startDate;
     @NotNull
     @ApiModelProperty(value = "统计类型 默认 DAY 按统计，HOUR按小时 MONTH 按月份")
     private KettleLogStatisticTypeEnum statisticType=KettleLogStatisticTypeEnum.DAY;
     @NotEmpty
-    @DateTimeFormat(iso = ISO.DATE_TIME)
     @ApiModelProperty(value = "结束日期", required = true)
-    private Date endDate;
+    private String endDate;
     @ApiModelProperty(value = "表名", required = true)
     @NotNull
     private List<String> tableName;
