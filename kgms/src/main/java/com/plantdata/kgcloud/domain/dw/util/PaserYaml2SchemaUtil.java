@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderRelationAttrRsp;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
@@ -29,8 +30,14 @@ public class PaserYaml2SchemaUtil {
 
         attDataTypeMap.put("int",1);
         attDataTypeMap.put("float",2);
-        attDataTypeMap.put("date",4);
+        attDataTypeMap.put("double",2);
+        attDataTypeMap.put("datetime",4);
+        attDataTypeMap.put("date",41);
+        attDataTypeMap.put("time",42);
         attDataTypeMap.put("string",5);
+        attDataTypeMap.put("map",8);
+        attDataTypeMap.put("link",9);
+        attDataTypeMap.put("text",10);
 
     }
 
@@ -213,8 +220,12 @@ public class PaserYaml2SchemaUtil {
                 String domain = relation.getDomain();
                 String range = relation.getRange();
 
-                if(!conceptRspMap.containsKey(domain) || !conceptRspMap.containsKey(range)){
-                    throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+                if(!conceptRspMap.containsKey(domain)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_DOMAIN_NOT_EXIST_ERROR);
+                }
+
+                if(!conceptRspMap.containsKey(range)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_RANGE_NOT_EXIST_ERROR);
                 }
 
                 PreBuilderConceptRsp conceptRsp = conceptRspMap.get(domain);
@@ -252,7 +263,6 @@ public class PaserYaml2SchemaUtil {
         rsList.addAll(conceptRspMap.values());
 
         distinc(rsList);
-
 
         return rsList;
     }
@@ -340,8 +350,9 @@ public class PaserYaml2SchemaUtil {
             String[] relationValue = rela.split(">");
 
             if(relationValue.length != 3){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+                throw BizException.of(KgmsErrorCodeEnum.YAML_RELATION_PARSER_ERROR);
             }
+
 
             relation.add(YamlRelation.builder().domain(relationValue[0].trim()).range(relationValue[2].trim()).relationName(relationValue[1].trim()).build());
         }
@@ -353,7 +364,7 @@ public class PaserYaml2SchemaUtil {
     public static List<YamlColumn> convertColumn(JSONArray columns){
 
         if(columns == null ||columns.isEmpty()){
-            return new ArrayList<>();
+            throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_IS_EMTRY_ERROR);
         }
 
         List<YamlColumn> columnList = new ArrayList<>();
@@ -364,13 +375,27 @@ public class PaserYaml2SchemaUtil {
 
                 JSONObject columnValue = column.getJSONObject(key);
                 String tag = columnValue.getString("tag");
-                String type = columnValue.getString("type");
+
+                if(StringUtils.isEmpty(tag)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_NOT_EXIST);
+                }
 
                 String[] tags = tag.split("\\.");
 
                 if(tags.length != 2){
-                    throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_PARSER_ERROR);
                 }
+
+                String type = columnValue.getString("type");
+
+                if(StringUtils.isEmpty(type)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_NOT_EXIST);
+                }
+
+                if(!attDataTypeMap.containsKey(type)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_PARSER_ERROR);
+                }
+
 
                 YamlColumn col = YamlColumn.builder().attrName(tags[1]).type(type).columnName(key).conceptOrRelationName(tags[0]).build();
                 if (tags[0].startsWith("<")) {
@@ -386,15 +411,55 @@ public class PaserYaml2SchemaUtil {
 
         }
 
+        if(columnList.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_IS_EMTRY_ERROR);
+        }
+
+        Map<String,Boolean> columnNameMap = new HashMap<>();
+
+        for(YamlColumn yamlColumn : columnList){
+
+            if(yamlColumn.getIsRelationAttr()){
+                continue;
+            }
+
+            if(!columnNameMap.containsKey(yamlColumn.getConceptOrRelationName())){
+                columnNameMap.put(yamlColumn.getConceptOrRelationName(),false);
+            }
+
+            if("名称".equals(yamlColumn.getAttrName())){
+                columnNameMap.put(yamlColumn.getConceptOrRelationName(),true);
+            }
+
+        }
+
+        if(columnNameMap.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_NOT_EXIST_CONCEPT);
+        }
+
+        columnNameMap.forEach((k,v) -> {
+            if(!v){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_NOT_EXIST_CONCEPT_NAME);
+            }
+        });
+
         return columnList;
     }
 
     public static List<ModelSchemaConfigRsp> parserYaml2TagJson(JSONObject json) {
-        if(json == null || json.isEmpty() || !json.containsKey("tables")){
-            return new ArrayList<>();
+        if(json == null || json.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_FILE_EMTRY_ERROR);
+        }
+
+        if(!json.containsKey("tables")){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_TABLES_NOT_EXIST_ERROR);
         }
 
         JSONArray tables = json.getJSONArray("tables");
+
+        if(tables.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_TABLES_IS_EMTRY_ERROR);
+        }
 
         List<ModelSchemaConfigRsp> rsList = new ArrayList<>(tables.size());
 
@@ -411,7 +476,7 @@ public class PaserYaml2SchemaUtil {
             JSONObject tabJOSNObj = json.getJSONObject(tableName);
 
             if(tabJOSNObj == null){
-                continue;
+                throw BizException.of(KgmsErrorCodeEnum.YAML_TABLES_CONFIG_IS_EMTRY_ERROR);
             }
 
             JSONArray columns = tabJOSNObj.getJSONArray("columns");
@@ -452,9 +517,14 @@ public class PaserYaml2SchemaUtil {
                 String domain = relation.getDomain();
                 String range = relation.getRange();
 
-                if(!entity.contains(domain) || !entity.contains(range)){
-                    throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+                if(!entity.contains(domain)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_DOMAIN_NOT_EXIST_ERROR);
                 }
+
+                if(!entity.contains(range)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_RANGE_NOT_EXIST_ERROR);
+                }
+
 
                 ModelSchemaConfigRsp.RelationBean relationBean = new ModelSchemaConfigRsp.RelationBean();
                 relationBean.setName(relation.getRelationName());

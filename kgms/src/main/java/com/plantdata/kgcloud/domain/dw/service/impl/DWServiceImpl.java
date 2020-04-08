@@ -338,53 +338,55 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
+        List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(),databaseId);
+
+        if(tables == null || tables.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
+        }
+
+        List<String> tableNames = tables.stream().map(DWTableRsp::getTableName).collect(Collectors.toList());
+
+        JSONObject json;
+        String result;
         try {
 
-            String result = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
+            result = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
 
-            if(result.startsWith("/*")){
-                result = result.substring(result.indexOf("*/")+2);
+            if (result.startsWith("/*")) {
+                result = result.substring(result.indexOf("*/") + 2);
             }
-
-            YamlTransFunc.tranTagConfig(result);
 
             Object value = new Yaml().load(result);
 
             //生成json
-            JSONObject json = JacksonUtils.readValue(JacksonUtils.writeValueAsString(value), JSONObject.class);
-
-            List<ModelSchemaConfigRsp> modelSchemaConfig = PaserYaml2SchemaUtil.parserYaml2TagJson(json);
-
-            List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(),databaseId);
-            if(tables == null || tables.isEmpty()){
-                throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
-            }
-
-            List<String> tableNames = tables.stream().map(DWTableRsp::getTableName).collect(Collectors.toList());
-
-            boolean isEmpty = true;
-            for(ModelSchemaConfigRsp schema : modelSchemaConfig){
-                if(!tableNames.contains(schema.getTableName())){
-                    throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
-                }
-
-                if(schema.getEntity() != null && !schema.getEntity().isEmpty()){
-                    isEmpty = false;
-                }
-            }
-
-            if(isEmpty){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
-            }
-
-            database.setYamlContent(result);
-            database.setTagJson(modelSchemaConfig);
-
-            dwRepository.save(database);
-        } catch (Exception e) {
+            json = JacksonUtils.readValue(JacksonUtils.writeValueAsString(value), JSONObject.class);
+        }catch (Exception e){
             e.printStackTrace();
             throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
         }
+
+        List<ModelSchemaConfigRsp> modelSchemaConfig = PaserYaml2SchemaUtil.parserYaml2TagJson(json);
+
+        boolean isEmpty = true;
+        for(ModelSchemaConfigRsp schema : modelSchemaConfig){
+            if(!tableNames.contains(schema.getTableName())){
+                throw BizException.of(KgmsErrorCodeEnum.TABLE_NOT_EXIST_IN_DATABASE);
+            }
+
+            if(schema.getEntity() != null && !schema.getEntity().isEmpty()){
+                isEmpty = false;
+            }
+        }
+
+        if(isEmpty){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+        }
+
+        YamlTransFunc.tranTagConfig(result);
+        database.setYamlContent(result);
+        database.setTagJson(modelSchemaConfig);
+
+        dwRepository.save(database);
         return;
     }
 
