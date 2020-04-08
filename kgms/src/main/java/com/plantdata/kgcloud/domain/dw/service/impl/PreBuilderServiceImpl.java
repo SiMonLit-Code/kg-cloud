@@ -663,6 +663,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             isDwModel.put("isDwModel",true);
         }
 
+        if(!isDwModel.containsKey("isDwModel")){
+            isDwModel.put("isDwModel",false);
+        }
+
         //生成订阅任务
         createSchedulingConfig(preBuilderGraphMapReq.getKgName(), true, 0);
         return isDwModel;
