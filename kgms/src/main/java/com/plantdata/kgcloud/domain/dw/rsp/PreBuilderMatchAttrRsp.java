@@ -55,7 +55,8 @@ public class PreBuilderMatchAttrRsp {
     @ApiModelProperty("模式id")
     private Integer modelId;
 
-
+    @ApiModelProperty("属性匹配状态 0概念未引入 1已引入 2冲突 3可引入")
+    private Integer matchStatus;
 
 
 }

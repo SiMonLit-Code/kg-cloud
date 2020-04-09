@@ -72,9 +72,6 @@ public class GraphMapServiceImpl implements GraphMapService {
     private DWDatabaseRepository dwDatabaseRepository;
 
     @Autowired
-    private ConceptService conceptService;
-
-    @Autowired
     private DWService dwService;
     @Override
     public List<GraphMapRsp> list(String userId, GraphMapReq graphMapReq) {
@@ -90,15 +87,16 @@ public class GraphMapServiceImpl implements GraphMapService {
         } else {
             graphMapList = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMapReq.getKgName()).dataBaseId(graphMapReq.getDatabaseId()).conceptId(graphMapReq.getConceptId()).build()));
 
-            if (graphMapList != null && !graphMapList.isEmpty()) {
-
-                if(graphMapReq.getConceptId() != null){
-                    List<DWGraphMap> childGraphMaps = new ArrayList<>();
-                    getChildConceptMap(childGraphMaps, graphMapReq.getKgName(), graphMapReq.getDatabaseId(), graphMapReq.getConceptId());
-                    graphMapList.addAll(childGraphMaps);
-                }
-
+            if (graphMapList == null) {
+                graphMapList = Lists.newArrayList();
             }
+
+            if(graphMapReq.getConceptId() != null){
+                List<DWGraphMap> childGraphMaps = new ArrayList<>();
+                getChildConceptMap(childGraphMaps, graphMapReq.getKgName(), graphMapReq.getDatabaseId(), graphMapReq.getConceptId());
+                graphMapList.addAll(childGraphMaps);
+            }
+
 
         }
         List<GraphMapRsp> rspList = graphMap2Rsp(graphMapList);
@@ -503,13 +501,16 @@ public class GraphMapServiceImpl implements GraphMapService {
 
     private void getChildConceptMap(List<DWGraphMap> graphMapList, String kgName, Long databaseId, Long conceptId) {
 
-        List<BasicInfoVO> conceptTree = conceptService.getConceptTree(kgName, conceptId);
+        SchemaRsp types = graphApplicationService.querySchema(kgName);
 
-        if(conceptTree ==  null || conceptTree.isEmpty()){
+        if(types.getTypes() ==  null || types.getTypes().isEmpty()){
             return;
         }
 
-        for(BasicInfoVO info : conceptTree){
+        List<BaseConceptRsp> conceptTree = Lists.newArrayList();
+        getChildConcept(types.getTypes(),conceptTree,conceptId);
+
+        for(BaseConceptRsp info : conceptTree){
             if(info.getId() == null || info.getId().equals(conceptId)){
                 continue;
             }
@@ -523,5 +524,19 @@ public class GraphMapServiceImpl implements GraphMapService {
         }
 
         return;
+    }
+
+    private void getChildConcept(List<BaseConceptRsp> types,List<BaseConceptRsp> childs, Long conceptId) {
+
+        if(types == null || types.isEmpty()){
+            return ;
+        }
+
+        for(BaseConceptRsp conceptRsp : types){
+            if(conceptRsp.getParentId().equals(conceptId)){
+                childs.add(conceptRsp);
+                getChildConcept(types,childs,conceptRsp.getId());
+            }
+        }
     }
 }
