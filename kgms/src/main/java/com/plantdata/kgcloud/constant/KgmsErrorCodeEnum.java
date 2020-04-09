@@ -192,6 +192,10 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     YAML_RELATION_PARSER_ERROR(120738, "yaml文件relation字段格式不正确"),
 
     YAML_TABLES_CONFIG_IS_EMTRY_ERROR(120739, "yaml文件tables信息未配置"),
+
+    TAG_ATTR_TYPE_PARSER_ERROR(120740, "属性dataType枚举错误"),
+
+    YAML_COLUMS_NOT_EXIST_IN_TABLE(120741, "colums字段在表中不存在"),
     ;
 
     private final int errorCode;

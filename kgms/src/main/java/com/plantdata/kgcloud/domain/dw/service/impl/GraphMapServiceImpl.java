@@ -263,6 +263,8 @@ public class GraphMapServiceImpl implements GraphMapService {
         List<Long> existConceptIds = schemaRsp.getTypes().stream().map(BaseConceptRsp::getId).collect(Collectors.toList());
         List<Long> deleteConceptIds = Lists.newArrayList();
 
+        List<String> existMapList = Lists.newArrayList();
+
         for(Iterator<DWGraphMap> it = graphMapList.iterator(); it.hasNext();){
             DWGraphMap graphMap = it.next();
 
@@ -271,6 +273,17 @@ public class GraphMapServiceImpl implements GraphMapService {
                 deleteConcept(graphMap);
                 deleteConceptIds.add(graphMap.getConceptId());
                 it.remove();
+                continue;
+            }
+
+            //唯一标识这个映射的key,重复引入的删除
+            String key = graphMap.getModelId()+graphMap.getModelConceptId()+graphMap.getConceptName()+graphMap.getTableName()+graphMap.getModelAttrId()+graphMap.getAttrId();
+            if(existMapList.contains(key)){
+                deleteConcept(graphMap);
+                deleteConceptIds.add(graphMap.getConceptId());
+                it.remove();
+            }else{
+                existMapList.add(key);
             }
         }
 
@@ -286,7 +299,7 @@ public class GraphMapServiceImpl implements GraphMapService {
             }
         }
 
-        Map<Integer,AttributeDefinitionRsp> existAttrIds = schemaRsp.getAttrs().stream().filter(attr -> attr.getType().equals(1)).collect(Collectors.toMap(AttributeDefinitionRsp::getId, Function.identity()));
+        Map<Integer,AttributeDefinitionRsp> existAttrIds = schemaRsp.getAttrs().stream().collect(Collectors.toMap(AttributeDefinitionRsp::getId, Function.identity()));
 
         for(Iterator<DWGraphMap> it = graphMapList.iterator(); it.hasNext();){
 
@@ -320,10 +333,18 @@ public class GraphMapServiceImpl implements GraphMapService {
                         continue;
                     }
 
+                    List<String> existRelationAttList = Lists.newArrayList();
+
                     //图谱中该属性的边属性不存在，删除订阅记录
                     for(DWGraphMapRelationAttr relationAttr : relationAttrList){
                         if(!relationAttrNames.contains(relationAttr.getName())){
                             graphMapRelationAttrRepository.deleteById(relationAttr.getId());
+                        }
+
+                        if(existRelationAttList.contains(relationAttr.getName()+relationAttr.getModelId()+relationAttr.getModelAttrId())){
+                            graphMapRelationAttrRepository.deleteById(relationAttr.getId());
+                        }else{
+                            existRelationAttList.add(relationAttr.getName()+relationAttr.getModelId()+relationAttr.getModelAttrId());
                         }
                     }
 

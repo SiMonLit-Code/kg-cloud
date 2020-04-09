@@ -303,6 +303,11 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             return null;
         }
 
+        DWTable table = tableOpt.get();
+        if(table.getIsAll() != null && table.getIsAll().equals(2) && table.getQueryField() == null){
+            return null;
+        }
+
         String taskKey= databaseId+"_"+tableName + "_" +isAllKey;
 
         Long timeout = 600L;
