@@ -62,7 +62,7 @@ public class PreBuildController {
     public ApiReturn<List<SchemaQuoteReq>> getGraphMap(@PathVariable("kgName") String kgName) {
 
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(preBuilderService.getGraphMap(userId,kgName));
+        return ApiReturn.success(preBuilderService.getGraphMap(userId,kgName,true));
     }
 
     @ApiOperation("预构建模式-查询分类")

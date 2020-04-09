@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PreBuilderMatchAttrReq {
+public class PreBuilderMatchAttrReq{
 
     @ApiModelProperty("当前配置的图谱名")
     private String kgName;
