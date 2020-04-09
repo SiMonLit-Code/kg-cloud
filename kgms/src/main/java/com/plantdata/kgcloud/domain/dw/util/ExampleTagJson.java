@@ -40,7 +40,7 @@ public class ExampleTagJson {
             relationAttr.put("dataType","");
             range.put("attrs",Lists.newArrayList(relationAttr));
 
-            tagJson.put("range", Lists.newArrayList(range));
+            tagJson.put("relation", Lists.newArrayList(range));
 
             tagJson.put("tableName",tableRsp.getTableName());
 

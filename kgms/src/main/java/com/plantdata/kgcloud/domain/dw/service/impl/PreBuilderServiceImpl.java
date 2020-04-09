@@ -516,8 +516,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         List<SchemaQuoteReq> quoteReqList = importToGraph(preBuilderGraphMapReq.getKgName(), preBuilderGraphMapReq.getQuoteConfigs());
 
-
-
         Map<Integer, Long> modelDataBaseIdMap = new HashMap<>();
         List<DWGraphMap> graphMapList = new ArrayList<>();
         List<DWGraphMapRelationAttr> graphMapRelationAttrList = new ArrayList<>();
@@ -595,11 +593,13 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         DWGraphMap graphMap = new DWGraphMap();
                         BeanUtils.copyProperties(schemaQuoteReq, graphMap);
                         BeanUtils.copyProperties(schemaQuoteAttrReq, graphMap);
+
                         if (schemaQuoteAttrReq.getAttrType().equals(1)) {
                             graphMap.setModelRange(Lists.newArrayList(schemaQuoteAttrReq.getModelRange()));
                             graphMap.setRange(Lists.newArrayList(schemaQuoteAttrReq.getRange()));
                             graphMap.setRangeName(Lists.newArrayList(schemaQuoteAttrReq.getRangeName()));
                         }
+
                         graphMap.setTableName(tableName);
                         graphMap.setDataBaseId(modelDataBaseId);
                         graphMap.setSchedulingSwitch(0);
