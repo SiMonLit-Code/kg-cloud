@@ -80,10 +80,15 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     private static Map<String,String> cronMap = new HashMap<>();
 
     static {
-        cronMap.put("每分钟","0 * * * * ? ");
+
+        cronMap.put("每5秒钟","0/5 * * * * ? ");
+        cronMap.put("每10秒钟","0/10 * * * * ? ");
+        cronMap.put("每30秒钟","0/30 * * * * ? ");
+        cronMap.put("每1分钟","0 0 * * * ? ");
+        cronMap.put("每5分钟","0 0/5 * * * ? ");
         cronMap.put("每10分钟","0 0/10 * * * ? ");
-        cronMap.put("每半小时","0 0/30 * * * ? ");
-        cronMap.put("每小时","0 0 * * * ? ");
+        cronMap.put("每30分钟","0 0/30 * * * ? ");
+        cronMap.put("每1小时","0 0 * * * ? ");
         cronMap.put("每天","0 0 0 * * ? ");
 
     }
@@ -295,6 +300,11 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     public String createKtrTask(String tableName,Long databaseId,String isAllKey,Integer isSchedue,String target) {
         Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
+            return null;
+        }
+
+        DWTable table = tableOpt.get();
+        if(table.getIsAll() != null && table.getIsAll().equals(2) && table.getQueryField() == null){
             return null;
         }
 

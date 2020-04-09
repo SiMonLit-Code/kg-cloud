@@ -15,12 +15,14 @@ import com.plantdata.kgcloud.domain.dw.rsp.GraphMapRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
+import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.domain.kettle.service.KettleLogStatisticService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -70,6 +72,9 @@ public class GraphMapServiceImpl implements GraphMapService {
     private DWDatabaseRepository dwDatabaseRepository;
 
     @Autowired
+    private ConceptService conceptService;
+
+    @Autowired
     private DWService dwService;
     @Override
     public List<GraphMapRsp> list(String userId, GraphMapReq graphMapReq) {
@@ -87,12 +92,12 @@ public class GraphMapServiceImpl implements GraphMapService {
 
             if (graphMapList != null && !graphMapList.isEmpty()) {
 
-                List<DWGraphMap> childGraphMaps = new ArrayList<>();
-                for (DWGraphMap graphMap : graphMapList) {
-                    getChildConceptMap(childGraphMaps, graphMapReq.getKgName(), graphMapReq.getDatabaseId(), graphMap.getConceptId());
+                if(graphMapReq.getConceptId() != null){
+                    List<DWGraphMap> childGraphMaps = new ArrayList<>();
+                    getChildConceptMap(childGraphMaps, graphMapReq.getKgName(), graphMapReq.getDatabaseId(), graphMapReq.getConceptId());
+                    graphMapList.addAll(childGraphMaps);
                 }
 
-                graphMapList.addAll(childGraphMaps);
             }
 
         }
@@ -263,6 +268,8 @@ public class GraphMapServiceImpl implements GraphMapService {
         List<Long> existConceptIds = schemaRsp.getTypes().stream().map(BaseConceptRsp::getId).collect(Collectors.toList());
         List<Long> deleteConceptIds = Lists.newArrayList();
 
+        List<String> existMapList = Lists.newArrayList();
+
         for(Iterator<DWGraphMap> it = graphMapList.iterator(); it.hasNext();){
             DWGraphMap graphMap = it.next();
 
@@ -271,6 +278,17 @@ public class GraphMapServiceImpl implements GraphMapService {
                 deleteConcept(graphMap);
                 deleteConceptIds.add(graphMap.getConceptId());
                 it.remove();
+                continue;
+            }
+
+            //唯一标识这个映射的key,重复引入的删除
+            String key = graphMap.getModelId()+graphMap.getModelConceptId()+graphMap.getConceptName()+graphMap.getTableName()+graphMap.getModelAttrId()+graphMap.getAttrId();
+            if(existMapList.contains(key)){
+                deleteConcept(graphMap);
+                deleteConceptIds.add(graphMap.getConceptId());
+                it.remove();
+            }else{
+                existMapList.add(key);
             }
         }
 
@@ -286,7 +304,7 @@ public class GraphMapServiceImpl implements GraphMapService {
             }
         }
 
-        Map<Integer,AttributeDefinitionRsp> existAttrIds = schemaRsp.getAttrs().stream().filter(attr -> attr.getType().equals(1)).collect(Collectors.toMap(AttributeDefinitionRsp::getId, Function.identity()));
+        Map<Integer,AttributeDefinitionRsp> existAttrIds = schemaRsp.getAttrs().stream().collect(Collectors.toMap(AttributeDefinitionRsp::getId, Function.identity()));
 
         for(Iterator<DWGraphMap> it = graphMapList.iterator(); it.hasNext();){
 
@@ -320,10 +338,18 @@ public class GraphMapServiceImpl implements GraphMapService {
                         continue;
                     }
 
+                    List<String> existRelationAttList = Lists.newArrayList();
+
                     //图谱中该属性的边属性不存在，删除订阅记录
                     for(DWGraphMapRelationAttr relationAttr : relationAttrList){
                         if(!relationAttrNames.contains(relationAttr.getName())){
                             graphMapRelationAttrRepository.deleteById(relationAttr.getId());
+                        }
+
+                        if(existRelationAttList.contains(relationAttr.getName()+relationAttr.getModelId()+relationAttr.getModelAttrId())){
+                            graphMapRelationAttrRepository.deleteById(relationAttr.getId());
+                        }else{
+                            existRelationAttList.add(relationAttr.getName()+relationAttr.getModelId()+relationAttr.getModelAttrId());
                         }
                     }
 
@@ -369,21 +395,30 @@ public class GraphMapServiceImpl implements GraphMapService {
 
     private void deleteConcept(DWGraphMap graphMap) {
 
-
         Integer attrId = graphMap.getAttrId();
 
         if(attrId != null){
             deleteRelationAttr(graphMap.getKgName(),attrId);
         }
 
-        graphMapRepository.deleteById(graphMap.getId());
+        synchronized (this){
+            if(graphMapRepository.existsById(graphMap.getId())){
+                graphMapRepository.deleteById(graphMap.getId());
+            }
+        }
     }
 
     private void deleteRelationAttr(String kgName, Integer attrId) {
 
         List<DWGraphMapRelationAttr> relationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().kgName(kgName).attrId(attrId).build()));
         if(relationAttrList != null && !relationAttrList.isEmpty()){
-            relationAttrList.forEach(attr -> graphMapRelationAttrRepository.deleteById(attr.getId()));
+            relationAttrList.forEach(attr -> {
+                synchronized (this) {
+                    if (graphMapRelationAttrRepository.existsById(attr.getId())) {
+                        graphMapRelationAttrRepository.deleteById(attr.getId());
+                    }
+                }
+            });
         }
 
     }
@@ -468,17 +503,23 @@ public class GraphMapServiceImpl implements GraphMapService {
 
     private void getChildConceptMap(List<DWGraphMap> graphMapList, String kgName, Long databaseId, Long conceptId) {
 
-        List<DWGraphMap> graphMaps = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).dataBaseId(databaseId).pConceptId(conceptId).build()));
-        if (graphMaps == null || graphMaps.isEmpty()) {
+        List<BasicInfoVO> conceptTree = conceptService.getConceptTree(kgName, conceptId);
+
+        if(conceptTree ==  null || conceptTree.isEmpty()){
             return;
         }
 
-        for (DWGraphMap graphMap : graphMaps) {
-            graphMapList.add(graphMap);
-            if (graphMap.getConceptId() == null) {
+        for(BasicInfoVO info : conceptTree){
+            if(info.getId() == null || info.getId().equals(conceptId)){
                 continue;
             }
-            getChildConceptMap(graphMapList, kgName, databaseId, graphMap.getConceptId());
+
+            List<DWGraphMap> graphMaps = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).dataBaseId(databaseId).conceptId(info.getId()).build()));
+            if (graphMaps == null || graphMaps.isEmpty()) {
+                continue;
+            }
+
+            graphMapList.addAll(graphMaps);
         }
 
         return;

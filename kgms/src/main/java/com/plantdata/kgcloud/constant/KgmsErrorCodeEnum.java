@@ -121,7 +121,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     DW_TABLE_NOT_EXIST(120703, "数仓数据表不存在"),
 
-    YAML_PARSE_ERROR(120704, "yaml文件解析错误"),
+    YAML_PARSE_ERROR(120704, "yaml文件格式错误"),
 
     REMOTE_TABLE_FIND_ERROR(120705, "获取远程表错误"),
 
@@ -162,6 +162,40 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     SCHEMA_PASER_CONCEPT_EXIST_ERROR(120723, "模式解析存在同名概念"),
 
     TABLE_SCHEMA_MISMATCHING_STIPULATE(120724, "该表结构不符合要求"),
+
+    TABLE_NOT_EXIST_IN_DATABASE(120725, "打标文件中存在未添加表"),
+
+    YAML_FILE_EMTRY_ERROR(120726, "yaml文件为空，请检查后再上传"),
+
+    YAML_TABLES_NOT_EXIST_ERROR(120727, "yaml缺少tables字段"),
+
+    YAML_TABLES_IS_EMTRY_ERROR(120728, "yaml文件tables信息为空"),
+
+    YAML_ATTR_DOMAIN_NOT_EXIST_ERROR(120729, "yaml文件属性定义域不存在"),
+
+    YAML_ATTR_RANGE_NOT_EXIST_ERROR(120730, "yaml文件属性值域不存在"),
+
+    YAML_COLUMN_IS_EMTRY_ERROR(120731, "yaml文件colums为空"),
+
+    YAML_COLUMN_TAG_PARSER_ERROR(120732, "yaml文件colums字段中tag格式不正确"),
+
+    YAML_COLUMN_TAG_NOT_EXIST(120733, "yaml文件colums字段中tag不存在或数据为空"),
+
+    YAML_COLUMN_TYPE_NOT_EXIST(120734, "yaml文件colums字段中type不存在或数据为空"),
+
+    YAML_COLUMN_TYPE_PARSER_ERROR(120735, "yaml文件colums字段中type枚举错误"),
+
+    YAML_COLUMN_NOT_EXIST_CONCEPT(120736, "yaml文件colums字段没有定义概念"),
+
+    YAML_COLUMN_NOT_EXIST_CONCEPT_NAME(120737, "yaml文件colums字段没有定义概念名称信息"),
+
+    YAML_RELATION_PARSER_ERROR(120738, "yaml文件relation字段格式不正确"),
+
+    YAML_TABLES_CONFIG_IS_EMTRY_ERROR(120739, "yaml文件tables信息未配置"),
+
+    TAG_ATTR_TYPE_PARSER_ERROR(120740, "属性dataType枚举错误"),
+
+    YAML_COLUMS_NOT_EXIST_IN_TABLE(120741, "colums字段在表中不存在"),
     ;
 
     private final int errorCode;

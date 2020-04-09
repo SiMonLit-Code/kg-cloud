@@ -20,18 +20,19 @@ public class YamlTransFunc {
 
         JSONObject jsonObject = new JSONObject(yaml.load(yamlStr));
 
-        HashMap<String, String> tbtagMap = new HashMap<>();
+        HashMap<String, String> tbTagMap = new HashMap<>();
 
         Map<String, JSONArray> tableTasksMap = new HashMap<>();
 
         JSONArray tables = jsonObject.getJSONArray("tables");
+
         for (Object table : tables) {
             JSONObject json = new JSONObject((Map<String, Object>) table);
             String tbname = json.keySet().iterator().next();
             String tbTag = json.getString(tbname);
-            tbtagMap.put(tbname, tbTag);
+            tbTagMap.put(tbname, tbTag);
         }
-        for (String tbname : tbtagMap.keySet()) {
+        for (String tbname : tbTagMap.keySet()) {
             JSONObject jsonObject1 = jsonObject.getJSONObject(tbname);
             JSONArray transConfig = getTransConfig(jsonObject1);
             tableTasksMap.put(tbname, transConfig);
@@ -219,6 +220,7 @@ public class YamlTransFunc {
         return JSON.parseObject(relaStr);
     }
 
+
     public static Integer changeType(String type) {
         switch (type) {
             case "int":
@@ -226,8 +228,20 @@ public class YamlTransFunc {
             case "float":
             case "double":
                 return 2;
-            case "date":
+            case "datetime":
                 return 4;
+            case "date":
+                return 41;
+            case "time":
+                return 42;
+            case "string":
+                return 5;
+            case "map":
+                return 8;
+            case "link":
+                return 9;
+            case "text":
+                return 10;
             default:
                 return 5;
         }

@@ -26,18 +26,22 @@ import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
+import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.*;
+import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -110,7 +114,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     @Autowired
     private GraphMapService graphMapService;
-
 
     private final static String JSON_START = "{";
     private final static String ARRAY_START = "[";
@@ -239,7 +242,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         List<SchemaQuoteReq> dataMapReqList = req.getSchemaQuoteReqList();
-        megerSchemaQuote(dataMapReqList, getGraphMap(userId, req.getKgName()));
+        megerSchemaQuote(dataMapReqList, getGraphMap(userId, req.getKgName(),false));
 
 
         List<DWPrebuildConcept> concepts;
@@ -516,8 +519,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         List<SchemaQuoteReq> quoteReqList = importToGraph(preBuilderGraphMapReq.getKgName(), preBuilderGraphMapReq.getQuoteConfigs());
 
-
-
         Map<Integer, Long> modelDataBaseIdMap = new HashMap<>();
         List<DWGraphMap> graphMapList = new ArrayList<>();
         List<DWGraphMapRelationAttr> graphMapRelationAttrList = new ArrayList<>();
@@ -595,11 +596,13 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         DWGraphMap graphMap = new DWGraphMap();
                         BeanUtils.copyProperties(schemaQuoteReq, graphMap);
                         BeanUtils.copyProperties(schemaQuoteAttrReq, graphMap);
+
                         if (schemaQuoteAttrReq.getAttrType().equals(1)) {
                             graphMap.setModelRange(Lists.newArrayList(schemaQuoteAttrReq.getModelRange()));
                             graphMap.setRange(Lists.newArrayList(schemaQuoteAttrReq.getRange()));
                             graphMap.setRangeName(Lists.newArrayList(schemaQuoteAttrReq.getRangeName()));
                         }
+
                         graphMap.setTableName(tableName);
                         graphMap.setDataBaseId(modelDataBaseId);
                         graphMap.setSchedulingSwitch(0);
@@ -675,7 +678,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Override
     public void createSchedulingConfig(String kgName, boolean isCreateKtr, Integer status) {
 
-        List<SchemaQuoteReq> schemaQuoteReqList = getGraphMap(SessionHolder.getUserId(), kgName);
+        List<SchemaQuoteReq> schemaQuoteReqList = getGraphMap(SessionHolder.getUserId(), kgName,false);
 
         if (schemaQuoteReqList == null || schemaQuoteReqList.isEmpty()) {
             return;
@@ -1022,10 +1025,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             conceptNameIdMap = schemaRsp.getTypes().stream().collect(Collectors.toMap(BaseConceptRsp::getName, BaseConceptRsp::getId));
         }
 
-        Map<String, AttributeDefinitionRsp> attrMap = new HashMap<>();
-        if (schemaRsp.getAttrs() != null && !schemaRsp.getAttrs().isEmpty()) {
-            schemaRsp.getAttrs().forEach(attr -> attrMap.put(attr.getName() + attr.getDomainValue(), attr));
-        }
         List<SchemaQuoteReq> needAddConcepts = new ArrayList<>();
 
         for (SchemaQuoteReq schemaQuoteReq : quoteConfigs) {
@@ -1075,6 +1074,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 continue;
             }
 
+            AttrDefinitionSearchReq attrDefinitionSearchReq = new AttrDefinitionSearchReq();
+            attrDefinitionSearchReq.setConceptId(conceptNameIdMap.get(schemaQuoteReq.getConceptName()));
+            List<AttrDefinitionRsp> attrDefinitionRspList = attributeService.getAttrDefinitionByConceptId(kgName,attrDefinitionSearchReq);
+            Map<String, AttributeDefinitionRsp> attrMap = new HashMap<>();
+            if (attrDefinitionRspList != null && !attrDefinitionRspList.isEmpty()) {
+                schemaRsp.getAttrs().forEach(attr -> attrMap.put(attr.getName(), attr));
+            }
+
             for (SchemaQuoteAttrReq attrReq : schemaQuoteReq.getAttrs()) {
 
                 Integer attrId;
@@ -1083,7 +1090,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                     attrId = attrReq.getAttrId();
 
-                } else if (attrMap.containsKey(attrReq.getAttrName() + schemaQuoteReq.getConceptId())) {
+                } else if (attrMap.containsKey(attrReq.getAttrName())) {
 
                     AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName() + schemaQuoteReq.getConceptId());
 
@@ -1134,7 +1141,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         attrDefinitionReq.setDirection(0);
                         attrDefinitionReq.setDataType(0);
                     }
-                    attrId = attributeService.addAttrDefinition(kgName, attrDefinitionReq);
+                    OpenBatchResult<AttrDefinitionBatchRsp> openBatchResult = attributeService.batchAddAttrDefinition(kgName, Lists.newArrayList(attrDefinitionReq));
+                    if(openBatchResult == null || openBatchResult.getSuccess() == null ||openBatchResult.getSuccess().isEmpty()){
+                        continue;
+                    }
+                    attrId = openBatchResult.getSuccess().get(0).getId();
+
                 }
 
                 attrReq.setAttrId(attrId);
@@ -1792,10 +1804,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
 
     @Override
-    public List<SchemaQuoteReq> getGraphMap(String userId, String kgName) {
+    public List<SchemaQuoteReq> getGraphMap(String userId, String kgName,boolean isDelete) {
 
 
-        graphMapService.deleteDataByNotExistConcept(kgName);
+        if(isDelete){
+            graphMapService.deleteDataByNotExistConcept(kgName);
+        }
 
         List<DWGraphMap> dwGraphMapList = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(kgName).build()));
 

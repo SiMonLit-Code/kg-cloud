@@ -338,53 +338,55 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
+        List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(),databaseId);
+
+        if(tables == null || tables.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
+        }
+
+        List<String> tableNames = tables.stream().map(DWTableRsp::getTableName).collect(Collectors.toList());
+
+        JSONObject json;
+        String result;
         try {
 
-            String result = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
+            result = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
 
-            if(result.startsWith("/*")){
-                result = result.substring(result.indexOf("*/")+2);
+            if (result.startsWith("/*")) {
+                result = result.substring(result.indexOf("*/") + 2);
             }
-
-            YamlTransFunc.tranTagConfig(result);
 
             Object value = new Yaml().load(result);
 
             //生成json
-            JSONObject json = JacksonUtils.readValue(JacksonUtils.writeValueAsString(value), JSONObject.class);
-
-            List<ModelSchemaConfigRsp> modelSchemaConfig = PaserYaml2SchemaUtil.parserYaml2TagJson(json);
-
-            List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(),databaseId);
-            if(tables == null || tables.isEmpty()){
-                throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
-            }
-
-            List<String> tableNames = tables.stream().map(DWTableRsp::getTableName).collect(Collectors.toList());
-
-            boolean isEmpty = true;
-            for(ModelSchemaConfigRsp schema : modelSchemaConfig){
-                if(!tableNames.contains(schema.getTableName())){
-                    throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
-                }
-
-                if(schema.getEntity() != null && !schema.getEntity().isEmpty()){
-                    isEmpty = false;
-                }
-            }
-
-            if(isEmpty){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
-            }
-
-            database.setYamlContent(result);
-            database.setTagJson(modelSchemaConfig);
-
-            dwRepository.save(database);
-        } catch (Exception e) {
+            json = JacksonUtils.readValue(JacksonUtils.writeValueAsString(value), JSONObject.class);
+        }catch (Exception e){
             e.printStackTrace();
             throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
         }
+
+        List<ModelSchemaConfigRsp> modelSchemaConfig = PaserYaml2SchemaUtil.parserYaml2TagJson(json,tables);
+
+        boolean isEmpty = true;
+        for(ModelSchemaConfigRsp schema : modelSchemaConfig){
+            if(!tableNames.contains(schema.getTableName())){
+                throw BizException.of(KgmsErrorCodeEnum.TABLE_NOT_EXIST_IN_DATABASE);
+            }
+
+            if(schema.getEntity() != null && !schema.getEntity().isEmpty()){
+                isEmpty = false;
+            }
+        }
+
+        if(isEmpty){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+        }
+
+        YamlTransFunc.tranTagConfig(result);
+        database.setYamlContent(result);
+        database.setTagJson(modelSchemaConfig);
+
+        dwRepository.save(database);
         return;
     }
 
@@ -880,6 +882,12 @@ public class DWServiceImpl implements DWService {
                 throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_EXIST);
             }
 
+            Optional<DWTable> optTbName = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tableName(req.getTbName()).build()));
+
+            if(optTbName.isPresent()){
+                throw BizException.of(KgmsErrorCodeEnum.TABLE_NAME_EXIST);
+            }
+
 
             //行业表映射
             if (StringUtils.hasText(req.getTableName())) {
@@ -1113,20 +1121,28 @@ public class DWServiceImpl implements DWService {
             }
 
             DWTable table = tableOpt.get();
-            DWTableRsp tableRsp = ConvertUtils.convert(DWTableRsp.class).apply(table);
 
-            table.setQueryField(req.getField());
+
+            if(req.getIsAll() != null && req.getIsAll().equals(2) && table.getFields().contains(req.getField())){
+                table.setQueryField(req.getField());
+            }
             table.setCron(req.getCron());
             table.setIsAll(req.getIsAll());
             table.setSchedulingSwitch(req.getSchedulingSwitch());
             table.setIsWriteDW(req.getIsWriteDW());
 
-            updateSchedulingConfig(database, tableRsp, tableRsp.getDwDataBaseId(), tableRsp.getTableName(), req.getCron(), req.getIsAll(), req.getField());
-
-
             tableRepository.save(table);
 
-            createTableSchedulingConfig(table);
+            DWTableRsp tableRsp = ConvertUtils.convert(DWTableRsp.class).apply(table);
+
+            if(tableRsp.getIsAll() != null && tableRsp.getIsAll().equals(2) && tableRsp.getQueryField() == null){
+                continue;
+            }
+            updateSchedulingConfig(database, tableRsp, tableRsp.getDwDataBaseId(), tableRsp.getTableName(), req.getCron(), req.getIsAll(), req.getField());
+
+            if(tableRsp.getCreateWay().equals(1) && req.getIsWriteDW().equals(1)){
+                createTableSchedulingConfig(table);
+            }
 
         }
 
@@ -1201,7 +1217,45 @@ public class DWServiceImpl implements DWService {
                 if(!tableNames.contains(schema.getTableName())){
                     throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
                 }
+
+                Set<String> entry = schema.getEntity();
+
+                if(schema.getAttr() != null && !schema.getAttr().isEmpty()){
+                    schema.getAttr().forEach(attrBean -> {
+                        if(!entry.contains(attrBean.getDomain())){
+                            throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
+                        }
+
+                        if(!PaserYaml2SchemaUtil.attrTypeList.contains(attrBean.getDataType())){
+                            throw BizException.of(KgmsErrorCodeEnum.TAG_ATTR_TYPE_PARSER_ERROR);
+                        }
+                    });
+
+
+                }
+
+                if(schema.getRelation() != null && !schema.getRelation().isEmpty()){
+                    schema.getRelation().forEach(relationBean -> {
+                        if(!entry.contains(relationBean.getDomain())){
+                            throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
+                        }
+                        if(!entry.containsAll(relationBean.getRange())){
+                            throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_RANGE_NOT_EXIST_ERROR);
+                        }
+
+                        Set<ModelSchemaConfigRsp.RelationAttr> relationAttrs = relationBean.getAttrs();
+                        if(relationAttrs != null && !relationAttrs.isEmpty()){
+                            relationAttrs.forEach(relationAttr -> {
+                                if(!PaserYaml2SchemaUtil.attrTypeList.contains(relationAttr.getDataType())){
+                                    throw BizException.of(KgmsErrorCodeEnum.TAG_ATTR_TYPE_PARSER_ERROR);
+                                }
+                            });
+                        }
+
+                    });
+                }
             }
+
 
             database.setTagJson(modelSchemaConfig);
 
@@ -1293,10 +1347,12 @@ public class DWServiceImpl implements DWService {
 
             Object value = new Yaml().load(yamlContent);
 
+            List<DWTableRsp> tableRsps = findTableAll(userId,database.getId());
+
             //生成json
             JSONObject json = JacksonUtils.readValue(JacksonUtils.writeValueAsString(value), JSONObject.class);
 
-            preBuilderConceptRspList = PaserYaml2SchemaUtil.parserYaml2Schema(json);
+            preBuilderConceptRspList = PaserYaml2SchemaUtil.parserYaml2Schema(json,tableRsps);
 
             if(preBuilderConceptRspList == null || preBuilderConceptRspList.isEmpty()){
                 throw BizException.of(KgmsErrorCodeEnum.EMTRY_MODEL_PUDH_ERROR);
@@ -1318,11 +1374,21 @@ public class DWServiceImpl implements DWService {
         DWTable table = tableOpt.get();
 
         if(StringUtils.hasText(table.getTableName())){
+
             table.setSchedulingSwitch(req.getSchedulingSwitch());
 
             tableRepository.save(table);
 
-            createTableSchedulingConfig(table);
+            //连接的表，落地才建立任务
+            if(table.getCreateWay().equals(1) && table.getIsWriteDW() != null && table.getIsWriteDW().equals(1)){
+
+                //增量没字段不开启
+                if(table.getIsAll() != null && table.getIsAll().equals(2) && table.getQueryField()== null){
+                    return;
+                }else{
+                    createTableSchedulingConfig(table);
+                }
+            }
 
         }
 
@@ -1395,17 +1461,28 @@ public class DWServiceImpl implements DWService {
             String cron = req.getCron();
 
             tableRsp.setCron(cron);
-            tableRsp.setSchedulingSwitch(req.getSchedulingSwitch());
-            tableRsp.setQueryField(req.getField());
+            if(tableRsp.getFields().contains(req.getField()) || req.getField() == null){
+                tableRsp.setQueryField(req.getField());
+            }
             tableRsp.setIsAll(req.getIsAll());
-            tableRsp.setIsWriteDW(req.getIsWriteDW());
+
+            if (tableRsp.getCreateWay().equals(1)) {
+                tableRsp.setSchedulingSwitch(req.getSchedulingSwitch());
+                tableRsp.setIsWriteDW(req.getIsWriteDW());
+            }
 
             DWTable table = ConvertUtils.convert(DWTable.class).apply(tableRsp);
             tableRepository.save(table);
 
+            //增量更新但是没有字段，不更新信息
+            if(tableRsp.getIsAll() != null && tableRsp.getIsAll().equals(2) && tableRsp.getQueryField() == null){
+                continue;
+            }
             updateSchedulingConfig(database, tableRsp, tableRsp.getDwDataBaseId(), tableRsp.getTableName(), req.getCron(), req.getIsAll(), req.getField());
 
-            createTableSchedulingConfig(table);
+            if(tableRsp.getCreateWay().equals(1) && req.getIsWriteDW().equals(1)){
+                createTableSchedulingConfig(table);
+            }
 
         }
 
