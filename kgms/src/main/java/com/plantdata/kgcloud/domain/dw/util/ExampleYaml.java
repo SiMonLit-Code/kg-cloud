@@ -3,12 +3,16 @@ package com.plantdata.kgcloud.domain.dw.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: kg-cloud-kgms
@@ -32,6 +36,17 @@ public class ExampleYaml {
     private final static String DATE = "date";
     private final static String TIMESTAMP = "timestamp";
 
+    private static Map<Integer,String> attDataTypeMap = new HashMap<>();
+    static {
+
+        attDataTypeMap.put(0,"int");
+        attDataTypeMap.put(1,"string");
+        attDataTypeMap.put(2,"int");
+        attDataTypeMap.put(3,"date");
+        attDataTypeMap.put(8,"double");
+        attDataTypeMap.put(9,"float");
+        attDataTypeMap.put(10,"text");
+    }
 
 
     public static byte[] create(List<DWTableRsp> tableRspList){
@@ -63,18 +78,28 @@ public class ExampleYaml {
         yaml.append(" relation:").append("\r\n");
         yaml.append(" columns:").append("\r\n");
 
-        List<String> fields = tableRsp.getFields();
+        List<DataSetSchema> fields = tableRsp.getSchema();
         if(fields != null && !fields.isEmpty()){
-            for(String field : fields){
-                yaml.append("    - ").append(field).append(": { tag:   , type: string }").append("\r\n");
+            for(DataSetSchema field : fields){
+                String type = getGraphType(field.getType());
+                yaml.append("    - ").append(field.getField()).append(": { tag:   , type: ").append(type).append(" , explain: ").append(field.getDesc()).append("}").append("\r\n");
             }
         }
 
     }
 
+    private static String getGraphType(Integer type) {
+
+        if(attDataTypeMap.containsKey(type)){
+            return attDataTypeMap.get(type);
+        }else{
+            return "string";
+        }
+    }
+
     private static void addTables(StringBuilder yaml, List<DWTableRsp> tableRspList) {
         for(DWTableRsp tableRsp : tableRspList){
-            yaml.append(" - ").append(tableRsp.getTableName()).append(": ").append("\r\n");
+            yaml.append(" - ").append(tableRsp.getTableName()).append(": ").append(tableRsp.getTitle()).append("\r\n");
         }
     }
 

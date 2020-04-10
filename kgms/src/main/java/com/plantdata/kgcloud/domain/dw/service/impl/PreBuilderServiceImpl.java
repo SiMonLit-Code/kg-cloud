@@ -205,7 +205,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         //概念名称映射属性名称与属性
         if (schemaRsp != null && schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()) {
-            conceptNameMap = schemaRsp.getTypes().stream().collect(Collectors.toMap(BaseConceptRsp::getName,BaseConceptRsp::getId));
+
+            schemaRsp.getTypes().forEach(c -> {
+                conceptNameMap.put(c.getName(),c.getId());
+            });
         }
 
         //已引入的概念属性
