@@ -1839,13 +1839,14 @@ public class DWServiceImpl implements DWService {
                 }
 
                 Map<String,Object> value = maps.get(0);
-                for (Map.Entry<String, Object> coulmn : value.entrySet()) {
+                for (Map.Entry<String, Object> column : value.entrySet()) {
 
-                    String field = coulmn.getKey();
+                    String field = column.getKey();
 
                     DataSetSchema dataSetSchema = new DataSetSchema();
                     dataSetSchema.setField(field);
-                    dataSetSchema.setType(1);
+
+                    dataSetSchema.setType(ExampleYaml.readType(column.getValue()).getCode());
                     rsList.add(dataSetSchema);
                 }
 
@@ -1865,7 +1866,7 @@ public class DWServiceImpl implements DWService {
 
                 DataSetSchema dataSetSchema = new DataSetSchema();
                 dataSetSchema.setField(field);
-                dataSetSchema.setType(1);
+                dataSetSchema.setType(ExampleYaml.readMysqlType(coulmn.get("Type").toString()).getCode());
                 rsList.add(dataSetSchema);
             }
         }
