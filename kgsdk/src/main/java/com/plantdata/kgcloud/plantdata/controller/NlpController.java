@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
+import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
+import com.hiekn.pddocument.bean.PdDocument;
 
 import javax.validation.Valid;
 import java.util.Collections;
@@ -97,13 +99,14 @@ public class NlpController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "useEntity", defaultValue = "true", dataType = "boolean", paramType = "form", value = "是否使用实体作为词典"),
             @ApiImplicitParam(name = "useAttr", defaultValue = "true", dataType = "boolean", paramType = "form", value = "是否使用属性作为词典"),
     })
-    public RestResp<List<GraphSegmentRsp>> segment(@Valid @ApiIgnore SegmentParametet param) {
+    public RestResp<PdDocument> segment(@Valid @ApiIgnore SegmentParametet param) {
         Function<SegmentReq, ApiReturn<List<GraphSegmentRsp>>> returnFunction = a -> nlpClient.graphSegment(param.getKgName(), a);
         Optional<List<GraphSegmentRsp>> entityBeans = returnFunction
                 .compose(NlpConverter::segmentParametetToSegmentReq)
                 .andThen(BasicConverter::apiReturnData)
                 .apply(param);
-        return new RestResp<>(entityBeans.orElse(Collections.emptyList()));
+        PdDocument document = NlpConverter2.graphSegmentToPdDocument(entityBeans.orElse(Collections.emptyList()),param.getKw());
+        return new RestResp<>(document);
     }
 
     @ApiOperation("文本语义标注")
@@ -113,13 +116,14 @@ public class NlpController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "text", dataType = "string", paramType = "form", value = "待标注文本"),
             @ApiImplicitParam(name = "conceptIds", dataType = "string", paramType = "form", value = "标注范围，格式为json数组格式的概念列表"),
     })
-    public RestResp<List<TaggingItemRsp>> annotation(@Valid @ApiIgnore AnnotationParameter param) {
+    public RestResp<PdDocument> annotation(@Valid @ApiIgnore AnnotationParameter param) {
         Function<EntityLinkingReq, ApiReturn<List<TaggingItemRsp>>> returnFunction = a -> nlpClient.tagging(param.getKgName(), a);
         Optional<List<TaggingItemRsp>> opt = returnFunction
                 .compose(NlpConverter::annotationParameterToEntityLinkingReq)
                 .andThen(BasicConverter::apiReturnData)
                 .apply(param);
-        return new RestResp<>(opt.orElse(Collections.emptyList()));
+        PdDocument document = NlpConverter2.annotationToPdDocument(opt.orElse(Collections.emptyList()));
+        return new RestResp<>(document);
     }
 
     @ApiOperation("语义关联")
@@ -142,9 +146,9 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("中文分词")
     @PostMapping("segment/chinese")
-    public RestResp<List<String>> seg(@RequestParam @ApiParam(required = true) String input) {
+    public RestResp<PdDocument> seg(@RequestParam @ApiParam(required = true) String input) {
         List<String> segList = hanLPService.seg(input);
-        return new RestResp<>(segList);
+        return new RestResp<>(NlpConverter2.segmentToPdDocument(segList));
     }
 
     /**
@@ -155,9 +159,9 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("词性标注")
     @PostMapping("pos")
-    public RestResp<List<String>> pos(@ApiParam(required = true) @RequestParam("input") String input) {
+    public RestResp<PdDocument> pos(@ApiParam(required = true) @RequestParam("input") String input) {
         List<String> segList = hanLPService.pos(input);
-        return new RestResp<>(segList);
+        return new RestResp<>(NlpConverter2.posToPdDocument(segList));
     }
 
     /**
@@ -168,9 +172,9 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("中文命名实体识别")
     @PostMapping("ner/chinere")
-    public RestResp<Map<String, List<String>>> ner(@ApiParam(required = true) @RequestParam("input") String input) {
+    public RestResp<PdDocument> ner(@ApiParam(required = true) @RequestParam("input") String input) {
         Map<String, List<String>> nerList = hanLPService.ner(input);
-        return new RestResp<>(nerList);
+        return new RestResp<>(NlpConverter2.nerToPdDocument(nerList,input));
     }
 
     /**
@@ -181,8 +185,8 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("转换为简体中文")
     @PostMapping("simplified/chinese")
-    public RestResp<String> toSimplifiedChinese(@ApiParam(required = true) @RequestParam("input") String input) {
-        return new RestResp<>(hanLPService.toSimplifiedChinese(input));
+    public RestResp<PdDocument> toSimplifiedChinese(@ApiParam(required = true) @RequestParam("input") String input) {
+        return new RestResp<>(NlpConverter2.stringToPdDocument(hanLPService.toSimplifiedChinese(input)));
     }
 
     /**
@@ -193,8 +197,8 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("转换为繁体中文")
     @PostMapping("traditional/chinese")
-    public RestResp<String> toTraditionalChinese(@ApiParam(required = true) @RequestParam("input") String input) {
-        return new RestResp<>(hanLPService.toTraditionalChinese(input));
+    public RestResp<PdDocument> toTraditionalChinese(@ApiParam(required = true) @RequestParam("input") String input) {
+        return new RestResp<>(NlpConverter2.stringToPdDocument(hanLPService.toTraditionalChinese(input)));
     }
 
     /**
@@ -205,8 +209,8 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("转换为拼音")
     @PostMapping("phoneticize")
-    public RestResp<List<String>> phoneticize(@ApiParam(required = true) @RequestParam("input") String input) {
-        return new RestResp<>(hanLPService.toPinyin(input));
+    public RestResp<PdDocument> phoneticize(@ApiParam(required = true) @RequestParam("input") String input) {
+        return new RestResp<>(NlpConverter2.phoneticToPdDocument(hanLPService.toPinyin(input)));
     }
 
     /**
@@ -217,9 +221,9 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("关键词提取")
     @PostMapping("extract/keyword")
-    public RestResp<List<String>> extractKeyword(@ApiParam(required = true) @RequestParam("input") String input,
+    public RestResp<PdDocument> extractKeyword(@ApiParam(required = true) @RequestParam("input") String input,
                                                  @ApiParam(required = true, value = "个数") @RequestParam("size") Integer size) {
-        return new RestResp<>(hanLPService.extractKeyword(input, size));
+        return new RestResp<>(NlpConverter2.keywordToPdDocument(hanLPService.extractKeyword(input, size),input));
     }
 
 
@@ -231,9 +235,9 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("新词发现")
     @PostMapping("extract/newword")
-    public RestResp<List<String>> extractNewWord(@ApiParam(required = true) @RequestParam("input") String input,
+    public RestResp<PdDocument> extractNewWord(@ApiParam(required = true) @RequestParam("input") String input,
                                                  @ApiParam(required = true, value = "个数") @RequestParam("size") Integer size) {
-        return new RestResp<>(hanLPService.extractNewWord(input, size));
+        return new RestResp<>(NlpConverter2.segmentToPdDocument(hanLPService.extractNewWord(input, size),input));
     }
 
     /**
@@ -244,9 +248,9 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("短语提取")
     @PostMapping("extract/phrase")
-    public RestResp<List<String>> extractPhrase(@ApiParam(required = true) @RequestParam("input") String input,
+    public RestResp<PdDocument> extractPhrase(@ApiParam(required = true) @RequestParam("input") String input,
                                                 @ApiParam(required = true, value = "个数") @RequestParam("size") Integer size) {
-        return new RestResp<>(hanLPService.extractPhrase(input, size));
+        return new RestResp<>(NlpConverter2.segmentToPdDocument(hanLPService.extractPhrase(input, size),input));
     }
 
     /**
@@ -257,8 +261,8 @@ public class NlpController implements SdkOldApiInterface {
      */
     @ApiOperation("自动摘要")
     @PostMapping("summarize")
-    public RestResp<List<String>> summarize(@ApiParam(required = true) @RequestParam("input") String input,
+    public RestResp<PdDocument> summarize(@ApiParam(required = true) @RequestParam("input") String input,
                                             @ApiParam(required = true, value = " 句子个数") @RequestParam("size") Integer size) {
-        return new RestResp<>(hanLPService.summarize(input, size));
+        return new RestResp<>(NlpConverter2.segmentToPdDocument(hanLPService.summarize(input, size),input));
     }
 }
