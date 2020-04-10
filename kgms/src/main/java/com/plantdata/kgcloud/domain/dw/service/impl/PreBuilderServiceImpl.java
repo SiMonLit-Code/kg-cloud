@@ -382,7 +382,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     if (!attrDefinitionRsp.getType().equals(matchAttrRsp.getAttrType())) {
 
                         //不类型不匹配，冲突
-                        status = "数据类型冲突";
+                        status = "属性类型冲突";
                         matchStatus = 2;
 
                     } else if (matchAttrRsp.getAttrType() == 0) {
@@ -424,7 +424,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     if (!attrType.equals(matchAttrRsp.getAttrType())) {
 
                         //不类型不匹配，冲突
-                        status = "数据类型冲突";
+                        status = "属性类型冲突";
                         matchStatus = 2;
 
                     } else if (matchAttrRsp.getAttrType() == 0) {
@@ -489,7 +489,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 if (!attrDefinitionRsp.getType().equals(matchAttrRsp.getAttrType())) {
 
                     //不类型不匹配，冲突
-                    status = "数据类型冲突";
+                    status = "属性类型冲突";
                     matchStatus = 2;
 
                 } else if (matchAttrRsp.getAttrType() == 0) {
