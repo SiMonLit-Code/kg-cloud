@@ -46,7 +46,7 @@ public class KgLogListener {
      * 数据层日志监听
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"}, groupId = "log")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"})
     public void logListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -62,7 +62,7 @@ public class KgLogListener {
                 GraphLogMessage.appendMessage(mongoClient, kgDbName, tmpLog);
                 log.setMessage(tmpLog.getMessage());
 
-                if (StringUtils.isNotBlank(log.getBatch()) && StringUtils.isNotBlank(log.getMessage())) {
+                if (StringUtils.isNotBlank(log.getBatch())) {
                     List<Document> ls = dataMap.getOrDefault(kgDbName, new ArrayList<>());
                     ls.add(Document.parse(JacksonUtils.writeValueAsString(log)));
                     String kgName = graphRepository.findByDbName(kgDbName).getKgName();
@@ -88,7 +88,7 @@ public class KgLogListener {
      * 业务层日志监听
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.service.log}"}, groupId = "log")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.service.log}"})
     public void serviceLogListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
