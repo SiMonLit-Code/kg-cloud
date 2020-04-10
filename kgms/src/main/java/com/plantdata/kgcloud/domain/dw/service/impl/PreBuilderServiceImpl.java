@@ -215,7 +215,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         List<SchemaQuoteReq> dataMapReqList = req.getSchemaQuoteReqList();
 //        megerSchemaQuote(dataMapReqList,);
         List<SchemaQuoteReq> existMap =  getGraphMap(userId, req.getKgName(),true);
-        megerSchemaQuote(dataMapReqList,existMap);
+//        List<SchemaQuoteReq> existMap =  getGraphMap(userClient.getCurrentUserDetail().getData().getId(), req.getKgName(),true);
+//        megerSchemaQuote(dataMapReqList,existMap);
 
         List<DWPrebuildConcept> concepts;
         if (req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()) {
@@ -246,6 +247,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 .collect(Collectors.toList());
 
         Map<String, Long> modelKgConceptIdMap = new HashMap<>();
+        Map<String, String> modelKgConceptNameMap = new HashMap<>();
 
         //已引入的shcema概念名称-属性名称-属性类型映射
         Map<String, List<SchemaQuoteReq>> conceptQuoteMap = new HashMap<>();
@@ -261,6 +263,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 }
 
                 modelKgConceptIdMap.put(schemaQuoteReq.getEntityName()+schemaQuoteReq.getModelId(), schemaQuoteReq.getConceptId());
+                modelKgConceptNameMap.put(schemaQuoteReq.getEntityName()+schemaQuoteReq.getModelId(), schemaQuoteReq.getConceptName());
 
                 if(conceptQuoteMap.containsKey(schemaQuoteReq.getConceptName())){
                     conceptQuoteMap.get(schemaQuoteReq.getConceptName()).add(schemaQuoteReq);
@@ -448,14 +451,20 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                         //都为对象属性,值域一样
                         Long modelRange = modelKgConceptIdMap.get(schemaQuoteAttrReqList.get(0).getRangeName()+schemaQuoteAttrReqList.get(0).getModelId());
-                        if (modelRange != null && modelRange.equals(modelKgConceptIdMap.get(matchAttrRsp.getRangeName())+matchAttrRsp.getModelId())) {
-                            if (graphAttrMap.containsKey(matchAttrRsp.getName())) {
-                                status = "完全匹配，可引入";
-                                matchAttrRsp.setAttrId(graphAttrMap.get(matchAttrRsp.getName()).getId());
-                            } else {
-                                status = "新增，可引入";
-                            }
+                        if (modelRange != null && modelRange.equals(modelKgConceptIdMap.get(matchAttrRsp.getRangeName()+matchAttrRsp.getModelId()))) {
+                            status = "新增，可引入";
                             matchStatus = 3;
+                        }else if(modelRange == null){
+
+                            String modelRangeName = modelKgConceptNameMap.get(schemaQuoteAttrReqList.get(0).getRangeName()+schemaQuoteAttrReqList.get(0).getModelId());
+                            if(modelRangeName != null && modelRangeName.equals(modelKgConceptNameMap.get(matchAttrRsp.getRangeName()+matchAttrRsp.getModelId()))){
+                                status = "新增，可引入";
+                                matchStatus = 3;
+                            }else{
+                                status = "对象属性值域冲突";
+                                matchStatus = 2;
+                            }
+
                         } else {
                             status = "对象属性值域冲突";
                             matchStatus = 2;
@@ -539,7 +548,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     }
                 }
             }
-
 
             matchAttrRsp.setAttrMatchStatus(status);
             matchAttrRsp.setMatchStatus(matchStatus);
