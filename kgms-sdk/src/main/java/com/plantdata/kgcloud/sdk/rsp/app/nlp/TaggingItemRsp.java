@@ -19,4 +19,19 @@ public class TaggingItemRsp {
     private Double score;
     private Long classId;
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Double getScore() {
+        return score;
+    }
+
+    public Long getClassId() {
+        return classId;
+    }
 }
