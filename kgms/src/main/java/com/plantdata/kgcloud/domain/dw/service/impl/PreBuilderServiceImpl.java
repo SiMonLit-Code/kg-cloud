@@ -1129,6 +1129,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             List<AttributesMapReq> relationAttrs = new ArrayList<>();
 
                             for (SchemaQuoteRelationAttrReq relationAttrReq : relationAttrReqs) {
+
+                                if(relationAttrReq.getAttrId() == null){
+                                    continue;
+                                }
                                 AttributesMapReq attr = new AttributesMapReq();
                                 attr.setAttrName(relationAttrReq.getName());
                                 attr.setKgAttrId(relationAttrReq.getAttrId());
@@ -2072,12 +2076,16 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 continue;
             }
 
-            List<DWGraphMapRelationAttr> graphMapRelationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().attrId(schemaQuoteAttrReq.getModelAttrId()).kgName(kgName).modelId(schemaQuoteReq.getModelId()).build()));
+            List<DWGraphMapRelationAttr> graphMapRelationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().modelAttrId(schemaQuoteAttrReq.getModelAttrId()).kgName(kgName).modelId(schemaQuoteReq.getModelId()).build()));
             if (graphMapRelationAttrList == null || graphMapRelationAttrList.isEmpty()) {
                 continue;
             }
 
             for (DWGraphMapRelationAttr graphMapRelationAttr : graphMapRelationAttrList) {
+
+                if(graphMapRelationAttr.getAttrId() == null){
+                    continue;
+                }
 
                 if (schemaAuoteRelationAttrMap.containsKey(conceptKey)
                         && schemaAuoteRelationAttrMap.get(conceptKey).containsKey(schemaQuoteAttrReq.getAttrName())
