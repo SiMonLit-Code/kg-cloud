@@ -36,7 +36,7 @@ public class FileUploadController {
     @PostMapping
     @EditPermissionUnwanted
     public ApiReturn<FilePathRsp> uploadFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
+        if (file == null) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
         return ApiReturn.success(fileUploadService.uploadFile(file));
@@ -56,7 +56,7 @@ public class FileUploadController {
     @PostMapping("/thump")
     @EditPermissionUnwanted
     public ApiReturn<ThumbPathRsp> uploadPicture(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
+        if (file == null) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
         return ApiReturn.success(fileUploadService.uploadPicture(file));
