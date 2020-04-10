@@ -401,6 +401,10 @@ public class PaserYaml2SchemaUtil {
             JSONObject column = columns.getJSONObject(i);
             for (String key : column.keySet()) {
 
+                if(fields == null || fields.isEmpty()){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
+                }
+
                 if(!fields.contains(key)){
                     throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
                 }
