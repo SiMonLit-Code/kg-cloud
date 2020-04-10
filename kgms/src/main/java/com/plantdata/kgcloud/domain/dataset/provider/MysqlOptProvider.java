@@ -70,7 +70,7 @@ public class MysqlOptProvider implements DataOptProvider {
 
         StringBuilder sql = new StringBuilder();
 
-        sql.append("SELECT count(*) FROM ").append(table);
+        sql.append("SELECT count(*) FROM `").append(table).append("` ");
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "search")) {
                 sql.append(" WHERE ");
