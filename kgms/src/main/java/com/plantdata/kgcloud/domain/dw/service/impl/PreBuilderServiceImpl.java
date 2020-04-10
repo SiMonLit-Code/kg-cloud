@@ -245,7 +245,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         List<PreBuilderMatchAttrRsp> matchAttrRspList = attrs.stream().map(ConvertUtils.convert(PreBuilderMatchAttrRsp.class))
                 .collect(Collectors.toList());
 
-        Map<Integer, Long> modelKgConceptIdMap = new HashMap<>();
+        Map<String, Long> modelKgConceptIdMap = new HashMap<>();
 
         //已引入的shcema概念名称-属性名称-属性类型映射
         Map<String, List<SchemaQuoteReq>> conceptQuoteMap = new HashMap<>();
@@ -260,7 +260,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     req.getConceptIds().add(schemaQuoteReq.getModelConceptId());
                 }
 
-                modelKgConceptIdMap.put(schemaQuoteReq.getModelConceptId(), schemaQuoteReq.getConceptId());
+                modelKgConceptIdMap.put(schemaQuoteReq.getEntityName()+schemaQuoteReq.getModelId(), schemaQuoteReq.getConceptId());
 
                 if(conceptQuoteMap.containsKey(schemaQuoteReq.getConceptName())){
                     conceptQuoteMap.get(schemaQuoteReq.getConceptName()).add(schemaQuoteReq);
@@ -401,7 +401,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                         //都为对象属性,值域一样
                         List<Long> ranges = attrDefinitionRsp.getRangeValue();
-                        Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRange());
+                        Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRangeName()+matchAttrRsp.getModelId());
                         if (ranges.contains(modelRange)) {
                             status = "存在，可引入";
                             matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
@@ -447,8 +447,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     } else {
 
                         //都为对象属性,值域一样
-                        Long modelRange = modelKgConceptIdMap.get(schemaQuoteAttrReqList.get(0).getModelRange());
-                        if (modelRange.equals(modelKgConceptIdMap.get(matchAttrRsp.getRange()))) {
+                        Long modelRange = modelKgConceptIdMap.get(schemaQuoteAttrReqList.get(0).getRangeName()+schemaQuoteAttrReqList.get(0).getModelId());
+                        if (modelRange != null && modelRange.equals(modelKgConceptIdMap.get(matchAttrRsp.getRangeName())+matchAttrRsp.getModelId())) {
                             if (graphAttrMap.containsKey(matchAttrRsp.getName())) {
                                 status = "存在，可引入";
                                 matchAttrRsp.setAttrId(graphAttrMap.get(matchAttrRsp.getName()).getId());
@@ -508,7 +508,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                     //都为对象属性,值域一样
                     List<Long> ranges = attrDefinitionRsp.getRangeValue();
-                    Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRange());
+                    Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRangeName()+matchAttrRsp.getModelId());
                     if (ranges.contains(modelRange)) {
                         status = "存在，可引入";
                         matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
