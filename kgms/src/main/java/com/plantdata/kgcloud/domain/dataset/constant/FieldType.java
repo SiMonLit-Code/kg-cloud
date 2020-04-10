@@ -117,6 +117,12 @@ public enum FieldType {
             BigDecimal bigDecimal = new BigDecimal(obj.toString());
             return bigDecimal.floatValue();
         }
+    },
+    TEXT(10, DataConst.JSON_INDEX) {
+        @Override
+        public Object deserialize(Object obj) throws Exception {
+            return null;
+        }
     };
 
     private final int code;

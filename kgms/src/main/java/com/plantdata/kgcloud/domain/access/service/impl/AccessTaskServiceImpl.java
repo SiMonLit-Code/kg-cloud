@@ -39,6 +39,7 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.UUIDUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.domain.Specification;
@@ -77,13 +78,24 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     @Autowired
     private DWPrebuildModelRepository modelRepository;
 
+    @Value("${topic.channel.transfer}")
+    private String kafkaTransferTopic;
+
+    @Value("${topic.channel.check}")
+    private String kafkaCheckTopic;
+
     private static Map<String,String> cronMap = new HashMap<>();
 
     static {
-        cronMap.put("每分钟","0 * * * * ? ");
+
+        cronMap.put("每5秒钟","0/5 * * * * ? ");
+        cronMap.put("每10秒钟","0/10 * * * * ? ");
+        cronMap.put("每30秒钟","0/30 * * * * ? ");
+        cronMap.put("每1分钟","0 0 * * * ? ");
+        cronMap.put("每5分钟","0 0/5 * * * ? ");
         cronMap.put("每10分钟","0 0/10 * * * ? ");
-        cronMap.put("每半小时","0 0/30 * * * ? ");
-        cronMap.put("每小时","0 0 * * * ? ");
+        cronMap.put("每30分钟","0 0/30 * * * ? ");
+        cronMap.put("每1小时","0 0 * * * ? ");
         cronMap.put("每天","0 0 0 * * ? ");
 
     }
@@ -197,7 +209,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         String transferTaskName = AccessTaskType.TRANSFER.getDisplayName()+"_"+taskKey;
 
         //生成ktr文件
-        String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,isAllKey,ktrTaskName,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
+        String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,isAllKey,ktrTaskName,kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId(),kafkaTransferTopic,kafkaCheckTopic);
         configJson.put("fileText",ktrTxt);
         configJson.put("updateTime",System.currentTimeMillis());
         configJson.put("cron",cronMap.get(table.getCron()));
@@ -295,6 +307,11 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     public String createKtrTask(String tableName,Long databaseId,String isAllKey,Integer isSchedue,String target) {
         Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
+            return null;
+        }
+
+        DWTable table = tableOpt.get();
+        if(table.getIsAll() != null && table.getIsAll().equals(2) && table.getQueryField() == null){
             return null;
         }
 
@@ -451,7 +468,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             String resourceTerget= taskRsp.getName().replaceFirst(ktrTaskName,"");
 
             JSONObject configJson = JSON.parseObject(taskRsp.getConfig());
-            String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,resourceTerget,taskRsp.getName(),kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
+            String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,resourceTerget,taskRsp.getName(),kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId(),kafkaTransferTopic,kafkaCheckTopic);
             configJson.put("fileText",ktrTxt);
             configJson.put("updateTime",System.currentTimeMillis());
             configJson.put("cron",cronMap.get(table.getCron()));
@@ -542,7 +559,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                     configJson.put("isScheduled",1);
 
                       //生成ktr文件
-                    String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,null,config.getId()+"_"+table.getId(),kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId());
+                    String ktrTxt = CreateKtrFile.getKettleXmlPath(database, table,null,config.getId()+"_"+table.getId(),kafkaProperties.getServers(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword(),SessionHolder.getUserId(),kafkaTransferTopic,kafkaCheckTopic);
                     configJson.put("fileText",ktrTxt);
 
                     ResourceReq etlResourceReq = new ResourceReq();

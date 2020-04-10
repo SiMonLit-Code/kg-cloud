@@ -248,6 +248,7 @@ public class EntityServiceImpl implements EntityService {
         int count = basicInfoRspList.size();
         if (count > size) {
             basicInfoRspList.remove(size.intValue());
+            count += page;
         }
         return new PageImpl<>(basicInfoRspList, PageRequest.of(basicInfoListReq.getPage() - 1, size), count);
     }

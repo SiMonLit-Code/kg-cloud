@@ -45,7 +45,7 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-匹配属性")
     @PostMapping("/match/attr")
-    public ApiReturn<List<PreBuilderMatchAttrRsp>> matchAttr(@RequestBody PreBuilderMatchAttrReq preBuilderMatchAttrReq) {
+    public ApiReturn<Page<PreBuilderMatchAttrRsp>> matchAttr(@RequestBody PreBuilderMatchAttrReq preBuilderMatchAttrReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.matchAttr(userId,preBuilderMatchAttrReq));
     }
@@ -62,7 +62,7 @@ public class PreBuildController {
     public ApiReturn<List<SchemaQuoteReq>> getGraphMap(@PathVariable("kgName") String kgName) {
 
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(preBuilderService.getGraphMap(userId,kgName));
+        return ApiReturn.success(preBuilderService.getGraphMap(userId,kgName,true));
     }
 
     @ApiOperation("预构建模式-查询分类")

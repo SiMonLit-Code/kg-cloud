@@ -6,20 +6,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderAttrRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderRelationAttrRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class PaserYaml2SchemaUtil {
 
     private static Map<String,String> attSetMap = new HashMap<>();
     private static Map<String,Integer> attDataTypeMap = new HashMap<>();
+    public static List<Integer> attrTypeList = Lists.newArrayList();
     static {
         attSetMap.put("名称", "name");
         attSetMap.put("消歧标识", "meaningTag");
@@ -29,8 +30,24 @@ public class PaserYaml2SchemaUtil {
 
         attDataTypeMap.put("int",1);
         attDataTypeMap.put("float",2);
-        attDataTypeMap.put("date",4);
+        attDataTypeMap.put("double",2);
+        attDataTypeMap.put("datetime",4);
+        attDataTypeMap.put("date",41);
+        attDataTypeMap.put("time",42);
         attDataTypeMap.put("string",5);
+        attDataTypeMap.put("map",8);
+        attDataTypeMap.put("link",9);
+        attDataTypeMap.put("text",10);
+
+        attrTypeList.add(1);
+        attrTypeList.add(2);
+        attrTypeList.add(4);
+        attrTypeList.add(41);
+        attrTypeList.add(42);
+        attrTypeList.add(5);
+        attrTypeList.add(8);
+        attrTypeList.add(9);
+        attrTypeList.add(10);
 
     }
 
@@ -133,14 +150,16 @@ public class PaserYaml2SchemaUtil {
 //        System.out.println(JacksonUtils.writeValueAsString(a));
         JSONObject jsonObject = new JSONObject();
         jsonObject.putAll(a);
-        System.out.println(JSON.toJSONString(parserYaml2TagJson(jsonObject)));
+        System.out.println(JSON.toJSONString(parserYaml2TagJson(jsonObject,null)));
     }
 
-    public static List<PreBuilderConceptRsp> parserYaml2Schema(JSONObject json){
+    public static List<PreBuilderConceptRsp> parserYaml2Schema(JSONObject json,List<DWTableRsp> tableRsps){
 
         if(json == null || json.isEmpty() || !json.containsKey("tables")){
             return new ArrayList<>();
         }
+
+        Map<String,List<String>> tableFields = tableRsps.stream().collect(Collectors.toMap(DWTableRsp::getTableName,DWTableRsp::getFields));
 
         JSONArray tables = json.getJSONArray("tables");
 
@@ -165,7 +184,7 @@ public class PaserYaml2SchemaUtil {
             JSONArray columns = tabJOSNObj.getJSONArray("columns");
             JSONArray relations = tabJOSNObj.getJSONArray("relation");
 
-            List<YamlColumn> columnList = convertColumn(columns);
+            List<YamlColumn> columnList = convertColumn(columns,tableFields.get(tableName));
             List<YamlRelation> relationList = convertRelation(relations);
 
             Map<String,List<YamlColumn>> relationColumn = new HashMap<>();
@@ -213,8 +232,12 @@ public class PaserYaml2SchemaUtil {
                 String domain = relation.getDomain();
                 String range = relation.getRange();
 
-                if(!conceptRspMap.containsKey(domain) || !conceptRspMap.containsKey(range)){
-                    throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+                if(!conceptRspMap.containsKey(domain)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_DOMAIN_NOT_EXIST_ERROR);
+                }
+
+                if(!conceptRspMap.containsKey(range)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_RANGE_NOT_EXIST_ERROR);
                 }
 
                 PreBuilderConceptRsp conceptRsp = conceptRspMap.get(domain);
@@ -236,6 +259,7 @@ public class PaserYaml2SchemaUtil {
                         attrs.add(PreBuilderRelationAttrRsp.builder()
                                 .dataType(attDataTypeMap.get(column.getType()))
                                 .name(column.getAttrName())
+                                .tables(Lists.newArrayList(tableName))
                                 .build());
                     }
                     attrRsp.setRelationAttrs(attrs);
@@ -252,7 +276,6 @@ public class PaserYaml2SchemaUtil {
         rsList.addAll(conceptRspMap.values());
 
         distinc(rsList);
-
 
         return rsList;
     }
@@ -296,14 +319,29 @@ public class PaserYaml2SchemaUtil {
                                     relation.getRelationAttrs().addAll(relationAttrRsps);
                                 }else{
 
-                                    List<String> existRelaAttrs = new ArrayList<>();
-                                    relation.getRelationAttrs().forEach(relaAttr -> existRelaAttrs.add(relaAttr.getName()));
-
+                                    Map<String,PreBuilderRelationAttrRsp> existRelaAttrs = relation.getRelationAttrs().stream().collect(Collectors.toMap(PreBuilderRelationAttrRsp::getName, Function.identity()));
+//                                    relation.getRelationAttrs().forEach(relaAttr -> existRelaAttrs.add(relaAttr.getName()));
 
                                     for(PreBuilderRelationAttrRsp relationAttr : relationAttrRsps){
-                                        if(!existRelaAttrs.contains(relationAttr.getName())){
+                                        if(!existRelaAttrs.containsKey(relationAttr.getName())){
                                             relation.getRelationAttrs().add(relationAttr);
-                                            existRelaAttrs.add(relationAttr.getName());
+                                            existRelaAttrs.put(relationAttr.getName(),relationAttr);
+                                        }else{
+                                            if(relationAttr.getTables() == null || relationAttr.getTables().isEmpty()){
+                                                continue;
+                                            }
+
+                                            PreBuilderRelationAttrRsp relationAttrRsp = existRelaAttrs.get(relationAttr.getName());
+                                            if(relationAttrRsp.getTables() == null){
+                                                relationAttrRsp.setTables(new ArrayList<>());
+                                            }
+
+                                            for(String tableName : relationAttr.getTables()){
+                                                if(!relationAttr.getTables().contains(tableName)){
+                                                    relationAttr.getTables().add(tableName);
+                                                }
+                                            }
+
                                         }
                                     }
                                 }
@@ -340,8 +378,9 @@ public class PaserYaml2SchemaUtil {
             String[] relationValue = rela.split(">");
 
             if(relationValue.length != 3){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+                throw BizException.of(KgmsErrorCodeEnum.YAML_RELATION_PARSER_ERROR);
             }
+
 
             relation.add(YamlRelation.builder().domain(relationValue[0].trim()).range(relationValue[2].trim()).relationName(relationValue[1].trim()).build());
         }
@@ -350,10 +389,10 @@ public class PaserYaml2SchemaUtil {
     }
 
 
-    public static List<YamlColumn> convertColumn(JSONArray columns){
+    public static List<YamlColumn> convertColumn(JSONArray columns,List<String> fields){
 
         if(columns == null ||columns.isEmpty()){
-            return new ArrayList<>();
+            throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_IS_EMTRY_ERROR);
         }
 
         List<YamlColumn> columnList = new ArrayList<>();
@@ -362,15 +401,37 @@ public class PaserYaml2SchemaUtil {
             JSONObject column = columns.getJSONObject(i);
             for (String key : column.keySet()) {
 
+                if(fields == null || fields.isEmpty()){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
+                }
+
+                if(!fields.contains(key)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
+                }
+
                 JSONObject columnValue = column.getJSONObject(key);
                 String tag = columnValue.getString("tag");
-                String type = columnValue.getString("type");
+
+                if(StringUtils.isEmpty(tag)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_NOT_EXIST);
+                }
 
                 String[] tags = tag.split("\\.");
 
                 if(tags.length != 2){
-                    throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_PARSER_ERROR);
                 }
+
+                String type = columnValue.getString("type");
+
+                if(StringUtils.isEmpty(type)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_NOT_EXIST);
+                }
+
+                if(!attDataTypeMap.containsKey(type)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_PARSER_ERROR);
+                }
+
 
                 YamlColumn col = YamlColumn.builder().attrName(tags[1]).type(type).columnName(key).conceptOrRelationName(tags[0]).build();
                 if (tags[0].startsWith("<")) {
@@ -386,15 +447,57 @@ public class PaserYaml2SchemaUtil {
 
         }
 
+        if(columnList.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_IS_EMTRY_ERROR);
+        }
+
+        Map<String,Boolean> columnNameMap = new HashMap<>();
+
+        for(YamlColumn yamlColumn : columnList){
+
+            if(yamlColumn.getIsRelationAttr()){
+                continue;
+            }
+
+            if(!columnNameMap.containsKey(yamlColumn.getConceptOrRelationName())){
+                columnNameMap.put(yamlColumn.getConceptOrRelationName(),false);
+            }
+
+            if("名称".equals(yamlColumn.getAttrName())){
+                columnNameMap.put(yamlColumn.getConceptOrRelationName(),true);
+            }
+
+        }
+
+        if(columnNameMap.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_NOT_EXIST_CONCEPT);
+        }
+
+        columnNameMap.forEach((k,v) -> {
+            if(!v){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_NOT_EXIST_CONCEPT_NAME);
+            }
+        });
+
         return columnList;
     }
 
-    public static List<ModelSchemaConfigRsp> parserYaml2TagJson(JSONObject json) {
-        if(json == null || json.isEmpty() || !json.containsKey("tables")){
-            return new ArrayList<>();
+    public static List<ModelSchemaConfigRsp> parserYaml2TagJson(JSONObject json, List<DWTableRsp> tableRsps) {
+        if(json == null || json.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_FILE_EMTRY_ERROR);
         }
 
+        if(!json.containsKey("tables")){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_TABLES_NOT_EXIST_ERROR);
+        }
+
+        Map<String,List<String>> tableFields = tableRsps.stream().collect(Collectors.toMap(DWTableRsp::getTableName,DWTableRsp::getFields));
+
         JSONArray tables = json.getJSONArray("tables");
+
+        if(tables.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.YAML_TABLES_IS_EMTRY_ERROR);
+        }
 
         List<ModelSchemaConfigRsp> rsList = new ArrayList<>(tables.size());
 
@@ -411,13 +514,13 @@ public class PaserYaml2SchemaUtil {
             JSONObject tabJOSNObj = json.getJSONObject(tableName);
 
             if(tabJOSNObj == null){
-                continue;
+                throw BizException.of(KgmsErrorCodeEnum.YAML_TABLES_CONFIG_IS_EMTRY_ERROR);
             }
 
             JSONArray columns = tabJOSNObj.getJSONArray("columns");
             JSONArray relations = tabJOSNObj.getJSONArray("relation");
 
-            List<YamlColumn> columnList = convertColumn(columns);
+            List<YamlColumn> columnList = convertColumn(columns,tableFields.get(tableName));
             List<YamlRelation> relationList = convertRelation(relations);
 
             Set<String> entity = new HashSet<>();
@@ -452,9 +555,14 @@ public class PaserYaml2SchemaUtil {
                 String domain = relation.getDomain();
                 String range = relation.getRange();
 
-                if(!entity.contains(domain) || !entity.contains(range)){
-                    throw BizException.of(KgmsErrorCodeEnum.YAML_PARSE_ERROR);
+                if(!entity.contains(domain)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_DOMAIN_NOT_EXIST_ERROR);
                 }
+
+                if(!entity.contains(range)){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_RANGE_NOT_EXIST_ERROR);
+                }
+
 
                 ModelSchemaConfigRsp.RelationBean relationBean = new ModelSchemaConfigRsp.RelationBean();
                 relationBean.setName(relation.getRelationName());

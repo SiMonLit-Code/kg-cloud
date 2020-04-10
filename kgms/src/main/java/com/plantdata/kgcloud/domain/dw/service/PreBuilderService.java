@@ -20,11 +20,11 @@ import java.util.List;
 public interface PreBuilderService {
     Page<PreBuilderSearchRsp> findModel(String userId, PreBuilderSearchReq preBuilderSearchReq);
 
-    List<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq);
+    Page<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq);
 
     JSONObject saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq);
 
-    List<SchemaQuoteReq> getGraphMap(String userId, String kgName);
+    List<SchemaQuoteReq> getGraphMap(String userId, String kgName,boolean isDelete);
 
     PreBuilderSearchRsp databaseDetail(String userId, Long databaseId);
 

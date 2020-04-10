@@ -62,7 +62,7 @@ public class KgLogListener {
                 GraphLogMessage.appendMessage(mongoClient, kgDbName, tmpLog);
                 log.setMessage(tmpLog.getMessage());
 
-                if (StringUtils.isNotBlank(log.getBatch())) {
+                if (StringUtils.isNotBlank(log.getBatch()) && StringUtils.isNotBlank(log.getMessage())) {
                     List<Document> ls = dataMap.getOrDefault(kgDbName, new ArrayList<>());
                     ls.add(Document.parse(JacksonUtils.writeValueAsString(log)));
                     String kgName = graphRepository.findByDbName(kgDbName).getKgName();

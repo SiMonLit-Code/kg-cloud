@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -22,17 +24,17 @@ import java.util.List;
 @ApiModel("Kettle日志统计请求参数")
 public class KettleLogStatisticReq {
 
-    @NotNull
+    @NotEmpty
     @ApiModelProperty(value = "开始日期", required = true)
     private String startDate;
     @NotNull
     @ApiModelProperty(value = "统计类型 默认 DAY 按统计，HOUR按小时 MONTH 按月份")
     private KettleLogStatisticTypeEnum statisticType=KettleLogStatisticTypeEnum.DAY;
-    @NotNull
+    @NotEmpty
     @ApiModelProperty(value = "结束日期", required = true)
     private String endDate;
     @ApiModelProperty(value = "表名", required = true)
-    @NotEmpty
+    @NotNull
     private List<String> tableName;
     @NotNull
     @ApiModelProperty(value = "是否只显示正确数据 默认ALL显示全部 SUCCESS正确数据 ERROR 错误数据 ")
