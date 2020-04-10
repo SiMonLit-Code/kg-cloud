@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.nlp;
 
 import com.hiekn.basicnlptools.hanlp.HanLPService;
+import com.hiekn.pddocument.bean.element.PdKeyword;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.NaturalLanguageProcessingInterface;
 import com.plantdata.kgcloud.sdk.NlpClient;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
+import com.hiekn.pddocument.bean.PdDocument;
 
 import java.util.List;
 import java.util.Map;
@@ -47,9 +50,9 @@ public class NlpController implements NaturalLanguageProcessingInterface {
 
     @ApiOperation(value = "文本语义标注", notes = "文本语义标注，以知识图谱的实体，对输入文本进行标注。")
     @PostMapping("annotation/{kgName}")
-    public ApiReturn<List<TaggingItemRsp>> tagging(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    public ApiReturn<PdDocument> tagging(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                    @RequestBody EntityLinkingReq linkingFrom) {
-        return nlpClient.tagging(kgName, linkingFrom);
+        return ApiReturn.success(NlpConverter2.annotationToPdDocument(nlpClient.tagging(kgName, linkingFrom).getData()));
     }
 
     @ApiOperation(value = "图谱实体识别", notes = "实体识别，以知识图谱的实体，对输入文本进行命名实体识别。")
@@ -67,15 +70,15 @@ public class NlpController implements NaturalLanguageProcessingInterface {
 
     @ApiOperation(value = "中文命名实体识别", notes = "中文命名实体识别，用于识别中文人名")
     @PostMapping("ner/chinese")
-    public ApiReturn<Map<String, List<String>>> ner(@ApiParam(required = true) @RequestBody String input) {
-        return ApiReturn.success(hanLPService.ner(input));
+    public ApiReturn<PdDocument> ner(@ApiParam(required = true) @RequestBody String input) {
+        return ApiReturn.success(NlpConverter2.nerToPdDocument(hanLPService.ner(input),input));
     }
 
     @ApiOperation(value = "图谱分词", notes = "图谱分词，以知识图谱的实体，对输入文本进行分词。")
     @GetMapping("segment/graph/{kgName}")
-    public ApiReturn<List<GraphSegmentRsp>> graphSegment(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    public ApiReturn<PdDocument> graphSegment(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                          SegmentReq segmentReq) {
-        return nlpClient.graphSegment(kgName, segmentReq);
+        return ApiReturn.success(NlpConverter2.graphSegmentToPdDocument(nlpClient.graphSegment(kgName, segmentReq).getData(),segmentReq.getKw()));
     }
 
     @ApiOperation(value = "语义关联", notes = "语义关联接口。在给定的知识图谱中对输入的文本内容进行实体识别和消歧，" +
@@ -90,62 +93,62 @@ public class NlpController implements NaturalLanguageProcessingInterface {
 
     @ApiOperation(value = "繁体转换", notes = "繁体转换，将输入的文本转换为繁体中文")
     @PostMapping("traditional/chinese")
-    public ApiReturn<String> toTraditionalChinese(@ApiParam(required = true) @RequestBody String input) {
-        return ApiReturn.success(hanLPService.toTraditionalChinese(input));
+    public ApiReturn<PdDocument> toTraditionalChinese(@ApiParam(required = true) @RequestBody String input) {
+        return ApiReturn.success(NlpConverter2.stringToPdDocument(hanLPService.toTraditionalChinese(input)));
     }
 
     @ApiOperation(value = "简体转换", notes = "简体转换，将输入的文本转换为简体中文")
     @PostMapping("simplified/chinese")
-    public ApiReturn<String> toSimplifiedChinese(@ApiParam(required = true) @RequestBody String input) {
-        return ApiReturn.success(hanLPService.toSimplifiedChinese(input));
+    public ApiReturn<PdDocument> toSimplifiedChinese(@ApiParam(required = true) @RequestBody String input) {
+        return ApiReturn.success(NlpConverter2.stringToPdDocument(hanLPService.toSimplifiedChinese(input)));
     }
 
     @ApiOperation(value = "拼音转换", notes = "将输入文本转换为拼音")
     @PostMapping("phonetic")
-    public ApiReturn<List<String>> phonetic(@ApiParam(required = true) @RequestBody String input) {
-        return ApiReturn.success(hanLPService.toPinyin(input));
+    public ApiReturn<PdDocument> phonetic(@ApiParam(required = true) @RequestBody String input) {
+        return ApiReturn.success(NlpConverter2.phoneticToPdDocument(hanLPService.toPinyin(input)));
     }
 
     @ApiOperation(value = "中文分词", notes = "中文分词")
     @PostMapping("segment/chinese")
-    public ApiReturn<List<String>> seg(@RequestParam @ApiParam(required = true) String input) {
+    public ApiReturn<PdDocument> seg(@RequestParam @ApiParam(required = true) String input) {
 
-        return ApiReturn.success(hanLPService.seg(input));
+        return ApiReturn.success(NlpConverter2.segmentToPdDocument(hanLPService.seg(input)));
     }
 
     @ApiOperation(value = "自动摘要", notes = "自动摘要")
     @PostMapping("summarize")
-    public ApiReturn<List<String>> summarize(@ApiParam(required = true) @RequestBody String input,
+    public ApiReturn<PdDocument> summarize(@ApiParam(required = true) @RequestBody String input,
                                              @ApiParam(required = true, value = " 句子个数") @RequestParam("size") Integer size) {
-        return ApiReturn.success(hanLPService.summarize(input, size));
+        return ApiReturn.success(NlpConverter2.segmentToPdDocument(hanLPService.summarize(input, size),input));
     }
 
     @ApiOperation(value = "词性标注", notes = "词性标注")
     @PostMapping("pos")
-    public ApiReturn<List<String>> pos(@ApiParam(required = true) @RequestBody String input) {
-        return ApiReturn.success(hanLPService.pos(input));
+    public ApiReturn<PdDocument> pos(@ApiParam(required = true) @RequestBody String input) {
+        return ApiReturn.success(NlpConverter2.posToPdDocument(hanLPService.pos(input)));
     }
 
 
     @ApiOperation(value = "短语提取", notes = "短语提取")
     @PostMapping("extract/phrase")
-    public ApiReturn<List<String>> extractPhrase(@ApiParam(required = true) @RequestBody String input,
+    public ApiReturn<PdDocument> extractPhrase(@ApiParam(required = true) @RequestBody String input,
                                                  @ApiParam(required = true, value = "个数") @RequestParam("size") Integer size) {
-        return ApiReturn.success(hanLPService.extractPhrase(input, size));
+        return ApiReturn.success(NlpConverter2.segmentToPdDocument(hanLPService.extractPhrase(input, size),input));
     }
 
     @ApiOperation(value = "新词发现", notes = "新词发现")
     @PostMapping("extract/newWord")
-    public ApiReturn<List<String>> extractNewWord(@ApiParam(required = true) @RequestBody String input,
+    public ApiReturn<PdDocument> extractNewWord(@ApiParam(required = true) @RequestBody String input,
                                                   @ApiParam(required = true, value = "个数") @RequestParam("size") Integer size) {
-        return ApiReturn.success(hanLPService.extractNewWord(input, size));
+        return ApiReturn.success(NlpConverter2.segmentToPdDocument(hanLPService.extractNewWord(input, size),input));
     }
 
     @ApiOperation(value = "关键词提取", notes = "关键词提取")
     @PostMapping("extract/keyword")
-    public ApiReturn<List<String>> extractKeyword(@ApiParam(required = true) @RequestBody String input,
-                                                  @ApiParam(required = true, value = "个数") @RequestParam("size") Integer size) {
-        return ApiReturn.success((hanLPService.extractKeyword(input, size)));
+    public ApiReturn<PdDocument> extractKeyword(@ApiParam(required = true) @RequestBody String input,
+                                               @ApiParam(required = true, value = "个数") @RequestParam("size") Integer size) {
+        return ApiReturn.success(NlpConverter2.keywordToPdDocument(hanLPService.extractKeyword(input, size),input));
     }
 
     @ApiOperation("两个实体间语义距离查询")

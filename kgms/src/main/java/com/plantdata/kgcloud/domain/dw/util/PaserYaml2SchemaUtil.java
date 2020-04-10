@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class PaserYaml2SchemaUtil {
@@ -258,6 +259,7 @@ public class PaserYaml2SchemaUtil {
                         attrs.add(PreBuilderRelationAttrRsp.builder()
                                 .dataType(attDataTypeMap.get(column.getType()))
                                 .name(column.getAttrName())
+                                .tables(Lists.newArrayList(tableName))
                                 .build());
                     }
                     attrRsp.setRelationAttrs(attrs);
@@ -317,14 +319,29 @@ public class PaserYaml2SchemaUtil {
                                     relation.getRelationAttrs().addAll(relationAttrRsps);
                                 }else{
 
-                                    List<String> existRelaAttrs = new ArrayList<>();
-                                    relation.getRelationAttrs().forEach(relaAttr -> existRelaAttrs.add(relaAttr.getName()));
-
+                                    Map<String,PreBuilderRelationAttrRsp> existRelaAttrs = relation.getRelationAttrs().stream().collect(Collectors.toMap(PreBuilderRelationAttrRsp::getName, Function.identity()));
+//                                    relation.getRelationAttrs().forEach(relaAttr -> existRelaAttrs.add(relaAttr.getName()));
 
                                     for(PreBuilderRelationAttrRsp relationAttr : relationAttrRsps){
-                                        if(!existRelaAttrs.contains(relationAttr.getName())){
+                                        if(!existRelaAttrs.containsKey(relationAttr.getName())){
                                             relation.getRelationAttrs().add(relationAttr);
-                                            existRelaAttrs.add(relationAttr.getName());
+                                            existRelaAttrs.put(relationAttr.getName(),relationAttr);
+                                        }else{
+                                            if(relationAttr.getTables() == null || relationAttr.getTables().isEmpty()){
+                                                continue;
+                                            }
+
+                                            PreBuilderRelationAttrRsp relationAttrRsp = existRelaAttrs.get(relationAttr.getName());
+                                            if(relationAttrRsp.getTables() == null){
+                                                relationAttrRsp.setTables(new ArrayList<>());
+                                            }
+
+                                            for(String tableName : relationAttr.getTables()){
+                                                if(!relationAttr.getTables().contains(tableName)){
+                                                    relationAttr.getTables().add(tableName);
+                                                }
+                                            }
+
                                         }
                                     }
                                 }
@@ -383,6 +400,10 @@ public class PaserYaml2SchemaUtil {
 
             JSONObject column = columns.getJSONObject(i);
             for (String key : column.keySet()) {
+
+                if(fields == null || fields.isEmpty()){
+                    throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
+                }
 
                 if(!fields.contains(key)){
                     throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);

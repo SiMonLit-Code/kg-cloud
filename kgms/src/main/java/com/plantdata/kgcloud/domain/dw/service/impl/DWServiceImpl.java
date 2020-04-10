@@ -486,12 +486,20 @@ public class DWServiceImpl implements DWService {
             byte[] bytes;
             if(database.getDataFormat().equals(3)){
 
-                bytes = ExampleYaml.create(tableRsps);
+                if(database.getYamlContent() != null && !database.getYamlContent().isEmpty()){
+                    bytes =database.getYamlContent().getBytes();
+                }else{
+                    bytes = ExampleYaml.create(tableRsps);
+                }
                 response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".yaml").getBytes(),
                         "iso-8859-1"));
                 response.getOutputStream().write(bytes);
             }else if(database.getDataFormat().equals(2)){
-                bytes = ExampleTagJson.create(tableRsps);
+                if(database.getTagJson() != null && !database.getTagJson().isEmpty()){
+                    bytes = JacksonUtils.writeValueAsString(database.getTagJson()).getBytes();
+                }else{
+                    bytes = ExampleTagJson.create(tableRsps);
+                }
                 response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".json").getBytes(),
                         "iso-8859-1"));
                 response.getOutputStream().write(bytes);
@@ -1839,13 +1847,14 @@ public class DWServiceImpl implements DWService {
                 }
 
                 Map<String,Object> value = maps.get(0);
-                for (Map.Entry<String, Object> coulmn : value.entrySet()) {
+                for (Map.Entry<String, Object> column : value.entrySet()) {
 
-                    String field = coulmn.getKey();
+                    String field = column.getKey();
 
                     DataSetSchema dataSetSchema = new DataSetSchema();
                     dataSetSchema.setField(field);
-                    dataSetSchema.setType(1);
+
+                    dataSetSchema.setType(ExampleYaml.readType(column.getValue()).getCode());
                     rsList.add(dataSetSchema);
                 }
 
@@ -1857,7 +1866,7 @@ public class DWServiceImpl implements DWService {
         }else if(DataType.MYSQL.equals(DataType.findType(dwDatabase.getDataType()))){
             DataSource dataSource = getDataSource(dwDatabase);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            String sql = "desc " + dwDatabase.getDbName() + "." + tbName;
+            String sql = "show full COLUMNS from  " + dwDatabase.getDbName() + "." + tbName;
             List<Map<String, Object>> rs = jdbcTemplate.queryForList(sql);
             for (Map<String, Object> coulmn : rs) {
 
@@ -1865,7 +1874,8 @@ public class DWServiceImpl implements DWService {
 
                 DataSetSchema dataSetSchema = new DataSetSchema();
                 dataSetSchema.setField(field);
-                dataSetSchema.setType(1);
+                dataSetSchema.setType(ExampleYaml.readMysqlType(coulmn.get("Type").toString()).getCode());
+                dataSetSchema.setDesc(coulmn.get("Comment").toString());
                 rsList.add(dataSetSchema);
             }
         }
