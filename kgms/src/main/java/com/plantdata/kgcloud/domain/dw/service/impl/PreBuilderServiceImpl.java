@@ -1275,7 +1275,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 } else if (attrMap.containsKey(attrReq.getAttrName())) {
 
-                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName() + schemaQuoteReq.getConceptId());
+                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName());
 
                     if (!a.getType().equals(attrReq.getAttrType())) {
                         continue;
