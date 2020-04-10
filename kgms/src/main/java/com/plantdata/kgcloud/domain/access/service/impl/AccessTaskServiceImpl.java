@@ -162,12 +162,16 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     public void saveTask(DWTaskRsp taskRsp,Long timeout) {
         taskRepository.save(ConvertUtils.convert(DWTask.class).apply(taskRsp));
 
-        ChannelRedisArrangeRsp arrangeRsp = new ChannelRedisArrangeRsp();
-        arrangeRsp.setResourceName(taskRsp.getName());
-        arrangeRsp.setResourceType(taskRsp.getTaskType());
-        arrangeRsp.setOutputs(taskRsp.getOutputs());
-        arrangeRsp.setDistributeOriginalData(taskRsp.getDistributeOriginalData());
-        arrangeRsp.setUpdateTime(System.currentTimeMillis());
+        try {
+            ChannelRedisArrangeRsp arrangeRsp = new ChannelRedisArrangeRsp();
+            arrangeRsp.setResourceName(taskRsp.getName());
+            arrangeRsp.setResourceType(taskRsp.getTaskType());
+            arrangeRsp.setOutputs(taskRsp.getOutputs());
+            arrangeRsp.setDistributeOriginalData(taskRsp.getDistributeOriginalData());
+            arrangeRsp.setUpdateTime(System.currentTimeMillis());
+            cacheManager.getCache(ChannelRedisEnum.ARRANGE_KEY.getType()).put(taskRsp.getName(), JSON.parseObject(JSON.toJSONString(arrangeRsp)));
+        }catch (Exception e){}
+
 
         if(taskRsp.getTaskType().equals(AccessTaskType.KTR.getDisplayName())){
 
@@ -175,14 +179,13 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             String ktrFile = config.getString("fileText");
             cacheManager.getCache(ChannelRedisEnum.KTR_KEY.getType()).put(taskRsp.getName(),ktrFile);
 
-
             config.remove("fileText");
             cacheManager.getCache(ChannelRedisEnum.KTR_CONFIG_KEY.getType()).put(taskRsp.getName(),config.toJSONString());
         }else{
             cacheManager.getCache(ChannelRedisEnum.CONFIG_KEY.getType()).put(taskRsp.getName(),taskRsp.getConfig());
         }
 
-        cacheManager.getCache(ChannelRedisEnum.ARRANGE_KEY.getType()).put(taskRsp.getName(), JSON.parseObject(JSON.toJSONString(arrangeRsp)));
+
 
     }
 
