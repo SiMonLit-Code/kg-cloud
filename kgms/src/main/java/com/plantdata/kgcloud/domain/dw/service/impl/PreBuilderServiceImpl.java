@@ -2072,7 +2072,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 continue;
             }
 
-            List<DWGraphMapRelationAttr> graphMapRelationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().attrId(schemaQuoteAttrReq.getAttrId()).kgName(kgName).modelId(schemaQuoteReq.getModelId()).build()));
+            List<DWGraphMapRelationAttr> graphMapRelationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().attrId(schemaQuoteAttrReq.getModelAttrId()).kgName(kgName).modelId(schemaQuoteReq.getModelId()).build()));
             if (graphMapRelationAttrList == null || graphMapRelationAttrList.isEmpty()) {
                 continue;
             }
