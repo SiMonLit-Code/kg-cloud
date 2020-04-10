@@ -210,7 +210,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         //已引入的概念属性
         List<SchemaQuoteReq> dataMapReqList = req.getSchemaQuoteReqList();
-        megerSchemaQuote(dataMapReqList, getGraphMap(userId, req.getKgName(),true));
+//        megerSchemaQuote(dataMapReqList,);
+        List<SchemaQuoteReq> existMap =  getGraphMap(userId, req.getKgName(),true);
+        megerSchemaQuote(dataMapReqList,existMap);
 
         List<DWPrebuildConcept> concepts;
         if (req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()) {
@@ -280,6 +282,18 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             }
         }
 
+        Map<String, List<SchemaQuoteReq>> existConceptQuoteMap = new HashMap<>();
+        if(existMap != null && !existMap.isEmpty()){
+            for (SchemaQuoteReq schemaQuoteReq : existMap) {
+
+                if(existConceptQuoteMap.containsKey(schemaQuoteReq.getConceptName())){
+                    existConceptQuoteMap.get(schemaQuoteReq.getConceptName()).add(schemaQuoteReq);
+                }else{
+                    existConceptQuoteMap.put(schemaQuoteReq.getConceptName(), Lists.newArrayList(schemaQuoteReq));
+                }
+
+            }
+        }
 
         for (PreBuilderMatchAttrRsp matchAttrRsp : matchAttrRspList) {
 
@@ -330,8 +344,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         continue;
                     }
 
-                    modelAttrIds.putAll(s.getAttrs().stream().collect(Collectors.toMap(SchemaQuoteAttrReq::getModelAttrId,Function.identity())));
-
                     for (SchemaQuoteAttrReq quoteAttrReq : s.getAttrs()) {
                         quoteAttrReq.setModelId(s.getModelId());
                         if(quoteAttrReqMap.containsKey(quoteAttrReq.getAttrName())){
@@ -342,12 +354,61 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     }
                 }
 
+                List<SchemaQuoteReq> existSchemaQuoteList = existConceptQuoteMap.get(conceptName);
+                if(existSchemaQuoteList != null){
+                    for(SchemaQuoteReq exist : existSchemaQuoteList){
+                        if(exist.getAttrs() == null || exist.getAttrs().isEmpty()){
+                            continue;
+                        }
+
+                        modelAttrIds.putAll(exist.getAttrs().stream().collect(Collectors.toMap(SchemaQuoteAttrReq::getModelAttrId,Function.identity())));
+                    }
+                }
+
                 if(modelAttrIds.containsKey(matchAttrRsp.getId())){
 
                     //同模式同概念同名属性已引入
                     status = "已引入";
                     matchStatus = 1;
                     matchAttrRsp.setAttrId(modelAttrIds.get(matchAttrRsp.getId()).getAttrId());
+
+                }else if(graphAttrMap.containsKey(matchAttrRsp.getName())){
+
+                    //未引入过同名属性但是图谱中存在同名属性
+                    AttrDefinitionRsp attrDefinitionRsp = graphAttrMap.get(matchAttrRsp.getName());
+                    if (!attrDefinitionRsp.getType().equals(matchAttrRsp.getAttrType())) {
+
+                        //不类型不匹配，冲突
+                        status = "数据类型冲突";
+                        matchStatus = 2;
+
+                    } else if (matchAttrRsp.getAttrType() == 0) {
+
+                        //都为数值属性
+                        if (matchAttrRsp.getDataType().equals(attrDefinitionRsp.getDataType())) {
+                            matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
+                            status = "存在，可引入";
+                            matchStatus = 3;
+
+                        } else {
+                            status = "数值属性类型冲突";
+                            matchStatus = 2;
+                        }
+                    } else {
+
+                        //都为对象属性,值域一样
+                        List<Long> ranges = attrDefinitionRsp.getRangeValue();
+                        Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRange());
+                        if (ranges.contains(modelRange)) {
+                            status = "存在，可引入";
+                            matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
+                            matchStatus = 3;
+                        } else {
+                            status = "对象属性值域冲突";
+                            matchStatus = 2;
+                        }
+                    }
+
 
                 }else if(quoteAttrReqMap.containsKey(matchAttrRsp.getName())){
 
@@ -397,44 +458,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             matchStatus = 2;
                         }
                     }
-
-                }else if(graphAttrMap.containsKey(matchAttrRsp.getName())){
-
-                    //未引入过同名属性但是图谱中存在同名属性
-                    AttrDefinitionRsp attrDefinitionRsp = graphAttrMap.get(matchAttrRsp.getName());
-                    if (!attrDefinitionRsp.getType().equals(matchAttrRsp.getAttrType())) {
-
-                        //不类型不匹配，冲突
-                        status = "数据类型冲突";
-                        matchStatus = 2;
-
-                    } else if (matchAttrRsp.getAttrType() == 0) {
-
-                        //都为数值属性
-                        if (matchAttrRsp.getDataType().equals(attrDefinitionRsp.getDataType())) {
-                            matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
-                            status = "存在，可引入";
-                            matchStatus = 3;
-
-                        } else {
-                            status = "数值属性类型冲突";
-                            matchStatus = 2;
-                        }
-                    } else {
-
-                        //都为对象属性,值域一样
-                        List<Long> ranges = attrDefinitionRsp.getRangeValue();
-                        Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRange());
-                        if (ranges.contains(modelRange)) {
-                            status = "存在，可引入";
-                            matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
-                            matchStatus = 3;
-                        } else {
-                            status = "对象属性值域冲突";
-                            matchStatus = 2;
-                        }
-                    }
-
 
                 }else{
                     //未引入过该属性，图谱中也未有同名属性
