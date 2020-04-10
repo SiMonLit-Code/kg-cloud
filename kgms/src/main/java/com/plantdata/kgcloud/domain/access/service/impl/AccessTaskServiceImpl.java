@@ -169,7 +169,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             arrangeRsp.setOutputs(taskRsp.getOutputs());
             arrangeRsp.setDistributeOriginalData(taskRsp.getDistributeOriginalData());
             arrangeRsp.setUpdateTime(System.currentTimeMillis());
-            cacheManager.getCache(ChannelRedisEnum.ARRANGE_KEY.getType()).put(taskRsp.getName(), JSON.parseObject(JSON.toJSONString(arrangeRsp)));
+            cacheManager.getCache(ChannelRedisEnum.ARRANGE_KEY.getType()).put(taskRsp.getName(), JSON.toJSONString(arrangeRsp));
         }catch (Exception e){}
 
 
