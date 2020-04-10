@@ -730,10 +730,13 @@ public class DWServiceImpl implements DWService {
             //文件系统，增加文件夹拥有文件数量
             for(DWTableRsp tableRsp : tableRsps){
                 tableRsp.setFileCount(setTableFileCount(tableRsp.getId(),database.getId()));
-                tableRsp.setDataName(database.getDataName());
-                tableRsp.setDbName(database.getDbName());
             }
         }
+
+        tableRsps.forEach(t -> {
+            t.setDataName(database.getDataName());
+            t.setDbName(database.getDbName());
+        });
 
         return tableRsps;
     }
@@ -1201,17 +1204,17 @@ public class DWServiceImpl implements DWService {
         }
 
         try {
+            List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(),databaseId);
+            if(tables == null || tables.isEmpty()){
+                throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
+            }
+
 
             String result = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
 
             //生成json
             List<ModelSchemaConfigRsp> modelSchemaConfig = JacksonUtils.readValue(result, new TypeReference<List<ModelSchemaConfigRsp>>() {
             });
-
-            List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(),databaseId);
-            if(tables == null || tables.isEmpty()){
-                throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
-            }
 
             List<String> tableNames = tables.stream().map(DWTableRsp::getTableName).collect(Collectors.toList());
 
