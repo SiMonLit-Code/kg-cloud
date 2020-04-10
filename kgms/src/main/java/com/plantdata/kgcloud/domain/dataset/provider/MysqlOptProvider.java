@@ -51,13 +51,13 @@ public class MysqlOptProvider implements DataOptProvider {
 
         StringBuilder sql = new StringBuilder();
 
-        sql.append("SELECT * FROM ").append(table);
+        sql.append("SELECT * FROM `").append(table).append("` ");
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "search")) {
                 sql.append(" WHERE ");
                 Map<String, String> value = (Map<String, String>) entry.getValue();
                 for (Map.Entry<String, String> objectEntry : value.entrySet()) {
-                    sql.append(objectEntry.getKey()).append(" like \"%").append(objectEntry.getValue()).append("%\"");
+                    sql.append("`").append(objectEntry.getKey()).append("`").append(" like \"%").append(objectEntry.getValue()).append("%\"");
                 }
 
             }
@@ -132,7 +132,7 @@ public class MysqlOptProvider implements DataOptProvider {
 
         StringBuilder sql = new StringBuilder();
 
-        sql.append("SELECT * FROM ").append(table).append(" WHERE id = ").append(id);
+        sql.append("SELECT * FROM `").append(table).append("` WHERE id = ").append(id);
 
         return sql.toString();
     }

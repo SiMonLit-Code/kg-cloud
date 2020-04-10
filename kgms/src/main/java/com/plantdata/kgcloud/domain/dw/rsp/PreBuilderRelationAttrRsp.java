@@ -45,4 +45,7 @@ public class PreBuilderRelationAttrRsp {
     @ApiModelProperty("属性匹配状态")
     private String attrMatchStatus;
 
+    @ApiModelProperty("属性匹配")
+    private Integer matchStatus;
+
 }

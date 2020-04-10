@@ -20,7 +20,7 @@ import java.util.List;
 public interface PreBuilderService {
     Page<PreBuilderSearchRsp> findModel(String userId, PreBuilderSearchReq preBuilderSearchReq);
 
-    List<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq);
+    Page<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq);
 
     JSONObject saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq);
 

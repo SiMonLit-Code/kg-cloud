@@ -55,4 +55,7 @@ public class SchemaQuoteAttrReq {
     @ApiModelProperty("映射的表名")
     private List<String> tables;
 
+    @ApiModelProperty("映射的模式id")
+    private Integer modelId;
+
 }
