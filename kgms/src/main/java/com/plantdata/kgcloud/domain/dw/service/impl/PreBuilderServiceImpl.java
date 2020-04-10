@@ -390,7 +390,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         //都为数值属性
                         if (matchAttrRsp.getDataType().equals(attrDefinitionRsp.getDataType())) {
                             matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
-                            status = "存在，可引入";
+                            status = "完全匹配，可引入";
                             matchStatus = 3;
 
                         } else {
@@ -403,7 +403,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         List<Long> ranges = attrDefinitionRsp.getRangeValue();
                         Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRangeName()+matchAttrRsp.getModelId());
                         if (ranges.contains(modelRange)) {
-                            status = "存在，可引入";
+                            status = "完全匹配，可引入";
                             matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
                             matchStatus = 3;
                         } else {
@@ -432,7 +432,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         //不同模式，都为数值属性
                         if (matchAttrRsp.getDataType().equals(dataType)) {
                             if (graphAttrMap.containsKey(matchAttrRsp.getName())) {
-                                status = "存在，可引入";
+                                status = "完全匹配，可引入";
                                 matchAttrRsp.setAttrId(graphAttrMap.get(matchAttrRsp.getName()).getId());
                             } else {
                                 status = "新增，可引入";
@@ -450,7 +450,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         Long modelRange = modelKgConceptIdMap.get(schemaQuoteAttrReqList.get(0).getRangeName()+schemaQuoteAttrReqList.get(0).getModelId());
                         if (modelRange != null && modelRange.equals(modelKgConceptIdMap.get(matchAttrRsp.getRangeName())+matchAttrRsp.getModelId())) {
                             if (graphAttrMap.containsKey(matchAttrRsp.getName())) {
-                                status = "存在，可引入";
+                                status = "完全匹配，可引入";
                                 matchAttrRsp.setAttrId(graphAttrMap.get(matchAttrRsp.getName()).getId());
                             } else {
                                 status = "新增，可引入";
@@ -497,7 +497,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     //都为数值属性
                     if (matchAttrRsp.getDataType().equals(attrDefinitionRsp.getDataType())) {
                         matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
-                        status = "存在，可引入";
+                        status = "完全匹配，可引入";
                         matchStatus = 3;
 
                     } else {
@@ -510,7 +510,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     List<Long> ranges = attrDefinitionRsp.getRangeValue();
                     Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRangeName()+matchAttrRsp.getModelId());
                     if (ranges.contains(modelRange)) {
-                        status = "存在，可引入";
+                        status = "完全匹配，可引入";
                         matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
                         matchStatus = 3;
                     } else {
@@ -630,7 +630,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                             } else {
 
-                                relationAttrRsp.setAttrMatchStatus("存在，可引入");
+                                relationAttrRsp.setAttrMatchStatus("完全匹配，可引入");
                                 relationAttrRsp.setMatchStatus(3);
 
                             }
