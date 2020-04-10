@@ -730,6 +730,8 @@ public class DWServiceImpl implements DWService {
             //文件系统，增加文件夹拥有文件数量
             for(DWTableRsp tableRsp : tableRsps){
                 tableRsp.setFileCount(setTableFileCount(tableRsp.getId(),database.getId()));
+                tableRsp.setDataName(database.getDataName());
+                tableRsp.setDbName(database.getDbName());
             }
         }
 

@@ -19,6 +19,10 @@ public class DWTableRsp {
 
     private String tableName;
 
+    private String dbName;
+
+    private String dataName;
+
     private List<String> fields;
 
     private List<DataSetSchema> schema;

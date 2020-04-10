@@ -38,6 +38,7 @@ import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
@@ -53,10 +54,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -199,7 +197,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public List<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq req) {
+    public Page<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq req) {
 
         SchemaRsp schemaRsp = graphApplicationService.querySchema(req.getKgName());
 
@@ -212,7 +210,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         //已引入的概念属性
         List<SchemaQuoteReq> dataMapReqList = req.getSchemaQuoteReqList();
-        megerSchemaQuote(dataMapReqList, getGraphMap(userId, req.getKgName(),true));
+//        megerSchemaQuote(dataMapReqList,);
+        List<SchemaQuoteReq> existMap =  getGraphMap(userId, req.getKgName(),true);
+        megerSchemaQuote(dataMapReqList,existMap);
 
         List<DWPrebuildConcept> concepts;
         if (req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()) {
@@ -222,7 +222,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         if (concepts == null || concepts.isEmpty()) {
-            return new ArrayList<>();
+            return Page.empty();
         }
 
         Map<Integer, String> modelConceptNameMap = new HashMap<>();
@@ -236,7 +236,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         List<DWPrebuildAttr> attrs = prebuildAttrRepository.findByConceptIds(findByConceptIds);
         if (attrs == null || attrs.isEmpty()) {
-            return new ArrayList<>();
+            return Page.empty();
         }
 
         List<PreBuilderMatchAttrRsp> matchAttrRspList = attrs.stream().map(ConvertUtils.convert(PreBuilderMatchAttrRsp.class))
@@ -250,6 +250,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         if (dataMapReqList != null && !dataMapReqList.isEmpty()) {
             for (SchemaQuoteReq schemaQuoteReq : dataMapReqList) {
 
+                if(req.getConceptIds() == null){
+                    req.setConceptIds(Lists.newArrayList());
+                }
                 if (!req.getConceptIds().contains(schemaQuoteReq.getModelConceptId())) {
                     req.getConceptIds().add(schemaQuoteReq.getModelConceptId());
                 }
@@ -279,6 +282,18 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             }
         }
 
+        Map<String, List<SchemaQuoteReq>> existConceptQuoteMap = new HashMap<>();
+        if(existMap != null && !existMap.isEmpty()){
+            for (SchemaQuoteReq schemaQuoteReq : existMap) {
+
+                if(existConceptQuoteMap.containsKey(schemaQuoteReq.getConceptName())){
+                    existConceptQuoteMap.get(schemaQuoteReq.getConceptName()).add(schemaQuoteReq);
+                }else{
+                    existConceptQuoteMap.put(schemaQuoteReq.getConceptName(), Lists.newArrayList(schemaQuoteReq));
+                }
+
+            }
+        }
 
         for (PreBuilderMatchAttrRsp matchAttrRsp : matchAttrRspList) {
 
@@ -286,7 +301,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             String status;
             Integer matchStatus;
-            if (!req.getConceptIds().contains(matchAttrRsp.getConceptId())) {
+            if (req.getConceptIds() == null ||!req.getConceptIds().contains(matchAttrRsp.getConceptId())) {
                 //概念还未引入，不能引入属性
                 status = "-";
                 matchStatus = 0;
@@ -329,8 +344,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         continue;
                     }
 
-                    modelAttrIds.putAll(s.getAttrs().stream().collect(Collectors.toMap(SchemaQuoteAttrReq::getModelAttrId,Function.identity())));
-
                     for (SchemaQuoteAttrReq quoteAttrReq : s.getAttrs()) {
                         quoteAttrReq.setModelId(s.getModelId());
                         if(quoteAttrReqMap.containsKey(quoteAttrReq.getAttrName())){
@@ -341,11 +354,61 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     }
                 }
 
+                List<SchemaQuoteReq> existSchemaQuoteList = existConceptQuoteMap.get(conceptName);
+                if(existSchemaQuoteList != null){
+                    for(SchemaQuoteReq exist : existSchemaQuoteList){
+                        if(exist.getAttrs() == null || exist.getAttrs().isEmpty()){
+                            continue;
+                        }
+
+                        modelAttrIds.putAll(exist.getAttrs().stream().collect(Collectors.toMap(SchemaQuoteAttrReq::getModelAttrId,Function.identity())));
+                    }
+                }
+
                 if(modelAttrIds.containsKey(matchAttrRsp.getId())){
 
                     //同模式同概念同名属性已引入
                     status = "已引入";
                     matchStatus = 1;
+                    matchAttrRsp.setAttrId(modelAttrIds.get(matchAttrRsp.getId()).getAttrId());
+
+                }else if(graphAttrMap.containsKey(matchAttrRsp.getName())){
+
+                    //未引入过同名属性但是图谱中存在同名属性
+                    AttrDefinitionRsp attrDefinitionRsp = graphAttrMap.get(matchAttrRsp.getName());
+                    if (!attrDefinitionRsp.getType().equals(matchAttrRsp.getAttrType())) {
+
+                        //不类型不匹配，冲突
+                        status = "数据类型冲突";
+                        matchStatus = 2;
+
+                    } else if (matchAttrRsp.getAttrType() == 0) {
+
+                        //都为数值属性
+                        if (matchAttrRsp.getDataType().equals(attrDefinitionRsp.getDataType())) {
+                            matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
+                            status = "存在，可引入";
+                            matchStatus = 3;
+
+                        } else {
+                            status = "数值属性类型冲突";
+                            matchStatus = 2;
+                        }
+                    } else {
+
+                        //都为对象属性,值域一样
+                        List<Long> ranges = attrDefinitionRsp.getRangeValue();
+                        Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRange());
+                        if (ranges.contains(modelRange)) {
+                            status = "存在，可引入";
+                            matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
+                            matchStatus = 3;
+                        } else {
+                            status = "对象属性值域冲突";
+                            matchStatus = 2;
+                        }
+                    }
+
 
                 }else if(quoteAttrReqMap.containsKey(matchAttrRsp.getName())){
 
@@ -367,9 +430,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         if (matchAttrRsp.getDataType().equals(dataType)) {
                             if (graphAttrMap.containsKey(matchAttrRsp.getName())) {
                                 status = "存在，可引入";
+                                matchAttrRsp.setAttrId(graphAttrMap.get(matchAttrRsp.getName()).getId());
                             } else {
                                 status = "新增，可引入";
                             }
+
                             matchStatus = 3;
 
                         } else {
@@ -383,6 +448,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         if (modelRange.equals(modelKgConceptIdMap.get(matchAttrRsp.getRange()))) {
                             if (graphAttrMap.containsKey(matchAttrRsp.getName())) {
                                 status = "存在，可引入";
+                                matchAttrRsp.setAttrId(graphAttrMap.get(matchAttrRsp.getName()).getId());
                             } else {
                                 status = "新增，可引入";
                             }
@@ -392,43 +458,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             matchStatus = 2;
                         }
                     }
-
-                }else if(graphAttrMap.containsKey(matchAttrRsp.getName())){
-
-                    //未引入过同名属性但是图谱中存在同名属性
-                    AttrDefinitionRsp attrDefinitionRsp = graphAttrMap.get(matchAttrRsp.getName());
-                    if (!attrDefinitionRsp.getType().equals(matchAttrRsp.getAttrType())) {
-
-                        //不类型不匹配，冲突
-                        status = "数据类型冲突";
-                        matchStatus = 2;
-
-                    } else if (matchAttrRsp.getAttrType() == 0) {
-
-                        //都为数值属性
-                        if (matchAttrRsp.getDataType().equals(attrDefinitionRsp.getDataType())) {
-
-                            status = "存在，可引入";
-                            matchStatus = 3;
-
-                        } else {
-                            status = "数值属性类型冲突";
-                            matchStatus = 2;
-                        }
-                    } else {
-
-                        //都为对象属性,值域一样
-                        List<Long> ranges = attrDefinitionRsp.getRangeValue();
-                        Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRange());
-                        if (ranges.contains(modelRange)) {
-                            status = "存在，可引入";
-                            matchStatus = 3;
-                        } else {
-                            status = "对象属性值域冲突";
-                            matchStatus = 2;
-                        }
-                    }
-
 
                 }else{
                     //未引入过该属性，图谱中也未有同名属性
@@ -450,7 +479,45 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     }
                 }
 
-            }else{
+            }else if(graphAttrMap.containsKey(matchAttrRsp.getName())){
+
+                //未引入过同名属性但是图谱中存在同名属性
+                AttrDefinitionRsp attrDefinitionRsp = graphAttrMap.get(matchAttrRsp.getName());
+                if (!attrDefinitionRsp.getType().equals(matchAttrRsp.getAttrType())) {
+
+                    //不类型不匹配，冲突
+                    status = "数据类型冲突";
+                    matchStatus = 2;
+
+                } else if (matchAttrRsp.getAttrType() == 0) {
+
+                    //都为数值属性
+                    if (matchAttrRsp.getDataType().equals(attrDefinitionRsp.getDataType())) {
+                        matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
+                        status = "存在，可引入";
+                        matchStatus = 3;
+
+                    } else {
+                        status = "数值属性类型冲突";
+                        matchStatus = 2;
+                    }
+                } else {
+
+                    //都为对象属性,值域一样
+                    List<Long> ranges = attrDefinitionRsp.getRangeValue();
+                    Long modelRange = modelKgConceptIdMap.get(matchAttrRsp.getRange());
+                    if (ranges.contains(modelRange)) {
+                        status = "存在，可引入";
+                        matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
+                        matchStatus = 3;
+                    } else {
+                        status = "对象属性值域冲突";
+                        matchStatus = 2;
+                    }
+                }
+
+
+            }else {
                 //该图谱什么都没有映射
                 if (matchAttrRsp.getAttrType() == 0) {
 
@@ -468,8 +535,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         matchStatus = 2;
                     }
                 }
-
             }
+
 
             matchAttrRsp.setAttrMatchStatus(status);
             matchAttrRsp.setMatchStatus(matchStatus);
@@ -540,7 +607,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         AttrDefinitionRsp attrDefinitionRsp = graphAttrMap.get(matchAttrRsp.getName());
                         Map<String, ExtraInfoVO> extraInfoVOMap = Maps.newHashMap();
 
-                        if (attrDefinitionRsp.getExtraInfo() != null && !attrDefinitionRsp.getExtraInfo().isEmpty()) {
+                        if (attrDefinitionRsp != null && attrDefinitionRsp.getExtraInfo() != null && !attrDefinitionRsp.getExtraInfo().isEmpty()) {
                             extraInfoVOMap = attrDefinitionRsp.getExtraInfo().stream().collect(Collectors.toMap(ExtraInfoVO::getName, Function.identity()));
                         }
 
@@ -583,7 +650,38 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         }
 
-        return matchAttrRspList;
+        if(matchAttrRspList != null && req.getMatchStatus() != null){
+            matchAttrRspList = matchAttrRspList.stream().filter(attr -> req.getMatchStatus().equals(attr.getMatchStatus())).collect(Collectors.toList());
+        }
+
+        List<PreBuilderMatchAttrRsp> rsList = subList(matchAttrRspList,req.getPage(),req.getSize());
+
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+        Page<PreBuilderMatchAttrRsp> page = new PageImpl<>(rsList, pageable, matchAttrRspList.size());
+
+        return page;
+    }
+
+    private List<PreBuilderMatchAttrRsp> subList(List<PreBuilderMatchAttrRsp> matchAttrRspList, Integer page, Integer size) {
+
+        if(matchAttrRspList == null || matchAttrRspList.isEmpty()){
+            return matchAttrRspList;
+        }
+
+        Integer from = (page - 1) * size;
+
+        Integer to = from + size;
+
+        if(matchAttrRspList.size() < from){
+            return Lists.newArrayList();
+        }
+
+        if(matchAttrRspList.size() > to){
+            return matchAttrRspList.subList(from,to);
+        }
+
+        return matchAttrRspList.subList(from,matchAttrRspList.size());
+
     }
 
     @Override

@@ -35,9 +35,6 @@ public class DWController {
     @Autowired
     private DWService dwServince;
 
-    @Autowired
-    private UserClient userClient;
-
     @ApiOperation("数仓-创建数据库")
     @PostMapping("/create/database")
     public ApiReturn<DWDatabaseRsp> createDatabase(@Valid @RequestBody DWDatabaseReq req) {
