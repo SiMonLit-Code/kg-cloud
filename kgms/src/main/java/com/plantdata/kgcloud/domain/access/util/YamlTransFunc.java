@@ -15,6 +15,59 @@ import java.util.stream.Collectors;
 public class YamlTransFunc {
     private static Yaml yaml = new Yaml();
 
+    public static void main(String[] args) {
+        String yaml = "\n" +
+                "tables:\n" +
+                " - t_system: 系统\n" +
+                " - t_relation: 关联\n" +
+                " - t_trans_log: 交易记录\n" +
+                "t_system:\n" +
+                " relation:\n" +
+                " columns:\n" +
+                "    - system: { tag:  系统.名称 , type: text , explain: }\n" +
+                "    - MAC: { tag:  系统.MAC地址 , type: text , explain: }\n" +
+                "    - type: { tag: 系统.系统类型  , type: text , explain: }\n" +
+                "    - counter: { tag: 系统.计数  , type: text , explain: }\n" +
+                "    - status: { tag: 系统.状态  , type: text , explain: }\n" +
+                "    - createdate: { tag: 系统.创建时间  , type: date , explain: }\n" +
+                "t_relation:\n" +
+                " relation:\n" +
+                "    - 关联 > 拥有 > 系统\n" +
+                "    - 机房 > 所属数据中心 > 数据中心\n" +
+                "    - 机架 > 所属机房 > 机房\n" +
+                "    - 设备 > 所属机架 > 机架\n" +
+                "    - 系统 > 所属设备 > 设备\n" +
+                "    - 用户 > 使用 > 系统\n" +
+                "    - 用户 > 托管 > 设备\n" +
+                "    - 用户 > 拥有 > 席位\n" +
+                "    - 系统 > 席位 > 席位\n" +
+                " columns:\n" +
+                "    - system: { tag:  系统.名称 , type: text , explain: }\n" +
+                "    - user: { tag: 用户.名称  , type: text , explain: }\n" +
+                "    - dc: { tag:  数据中心.名称 , type: text , explain: }\n" +
+                "    - idc: { tag: 机房.名称  , type: text , explain: }\n" +
+                "    - rack: { tag: 机架.名称  , type: text , explain: }\n" +
+                "    - camera_stand: { tag:  关联.摄像头 , type: text , explain: }\n" +
+                "    - equipment: { tag:  设备.名称 , type: text , explain: }\n" +
+                "    - IP: { tag:  关联.名称    , type: text , explain: }\n" +
+                "    - seat: { tag:  席位.名称 , type: text , explain: }\n" +
+                "t_trans_log:\n" +
+                " relation:\n" +
+                " columns:\n" +
+                "    - id: { tag: 交易记录.id , type: int , explain: }\n" +
+                "    - seat: { tag: 席位.名称  , type: text , explain: 席位}\n" +
+                "    - buy_num: { tag: 交易记录.买入  , type: int , explain: }\n" +
+                "    - sale_num: { tag: 交易记录.卖出  , type: int , explain: }\n" +
+                "    - trust_buy_num: { tag:  交易记录.委托买入 , type: int , explain: }\n" +
+                "    - trust_sale_num: { tag: 交易记录.委托卖出  , type: int , explain: }\n" +
+                "    - deal_time: { tag: 交易记录.交易时间  , type: text , explain: }\n" +
+                "    - deal_price: { tag:  交易记录.交易价格 , type: string , explain: }\n" +
+                "    - create_time: { tag:  交易记录.创建时间 , type: text , explain: }\n" +
+                "    - name: { tag: 交易记录.名称  , type: text , explain: }\n";
+
+        System.out.println(JSON.toJSONString(tranTagConfig(yaml)));
+    }
+
     public static Map<String, JSONArray> tranTagConfig(String yamlStr) {
         //yaml转json
 
@@ -153,7 +206,7 @@ public class YamlTransFunc {
             }
 
             relation.getJSONObject("rela").put("relationName", relaname);
-            relationMap.put(relaname, relation);
+            relationMap.put(relaname+relation.getString("entityTypeName"), relation);
         }
         JSONArray re = new JSONArray();
 
