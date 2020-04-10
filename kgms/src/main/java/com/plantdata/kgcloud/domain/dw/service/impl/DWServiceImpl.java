@@ -1203,73 +1203,71 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
+
+        List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(),databaseId);
+        if(tables == null || tables.isEmpty()){
+            throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
+        }
+
+
+        List<String> tableNames = tables.stream().map(DWTableRsp::getTableName).collect(Collectors.toList());
+        String result;
+        List<ModelSchemaConfigRsp> modelSchemaConfig;
         try {
-            List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(),databaseId);
-            if(tables == null || tables.isEmpty()){
+            result = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
+            //生成json
+            modelSchemaConfig = JacksonUtils.readValue(result, new TypeReference<List<ModelSchemaConfigRsp>>() {
+            });
+        }catch (Exception e){
+            throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
+        }
+
+        for(ModelSchemaConfigRsp schema : modelSchemaConfig){
+            if(!tableNames.contains(schema.getTableName())){
                 throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
             }
 
+            Set<String> entry = schema.getEntity();
 
-            String result = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
+            if(schema.getAttr() != null && !schema.getAttr().isEmpty()){
+                schema.getAttr().forEach(attrBean -> {
+                    if(!entry.contains(attrBean.getDomain())){
+                        throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
+                    }
 
-            //生成json
-            List<ModelSchemaConfigRsp> modelSchemaConfig = JacksonUtils.readValue(result, new TypeReference<List<ModelSchemaConfigRsp>>() {
-            });
-
-            List<String> tableNames = tables.stream().map(DWTableRsp::getTableName).collect(Collectors.toList());
-
-            for(ModelSchemaConfigRsp schema : modelSchemaConfig){
-                if(!tableNames.contains(schema.getTableName())){
-                    throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
-                }
-
-                Set<String> entry = schema.getEntity();
-
-                if(schema.getAttr() != null && !schema.getAttr().isEmpty()){
-                    schema.getAttr().forEach(attrBean -> {
-                        if(!entry.contains(attrBean.getDomain())){
-                            throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
-                        }
-
-                        if(!PaserYaml2SchemaUtil.attrTypeList.contains(attrBean.getDataType())){
-                            throw BizException.of(KgmsErrorCodeEnum.TAG_ATTR_TYPE_PARSER_ERROR);
-                        }
-                    });
+                    if(!PaserYaml2SchemaUtil.attrTypeList.contains(attrBean.getDataType())){
+                        throw BizException.of(KgmsErrorCodeEnum.TAG_ATTR_TYPE_PARSER_ERROR);
+                    }
+                });
 
 
-                }
-
-                if(schema.getRelation() != null && !schema.getRelation().isEmpty()){
-                    schema.getRelation().forEach(relationBean -> {
-                        if(!entry.contains(relationBean.getDomain())){
-                            throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
-                        }
-                        if(!entry.containsAll(relationBean.getRange())){
-                            throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_RANGE_NOT_EXIST_ERROR);
-                        }
-
-                        Set<ModelSchemaConfigRsp.RelationAttr> relationAttrs = relationBean.getAttrs();
-                        if(relationAttrs != null && !relationAttrs.isEmpty()){
-                            relationAttrs.forEach(relationAttr -> {
-                                if(!PaserYaml2SchemaUtil.attrTypeList.contains(relationAttr.getDataType())){
-                                    throw BizException.of(KgmsErrorCodeEnum.TAG_ATTR_TYPE_PARSER_ERROR);
-                                }
-                            });
-                        }
-
-                    });
-                }
             }
 
+            if(schema.getRelation() != null && !schema.getRelation().isEmpty()){
+                schema.getRelation().forEach(relationBean -> {
+                    if(!entry.contains(relationBean.getDomain())){
+                        throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
+                    }
+                    if(!entry.containsAll(relationBean.getRange())){
+                        throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_RANGE_NOT_EXIST_ERROR);
+                    }
 
-            database.setTagJson(modelSchemaConfig);
+                    Set<ModelSchemaConfigRsp.RelationAttr> relationAttrs = relationBean.getAttrs();
+                    if(relationAttrs != null && !relationAttrs.isEmpty()){
+                        relationAttrs.forEach(relationAttr -> {
+                            if(!PaserYaml2SchemaUtil.attrTypeList.contains(relationAttr.getDataType())){
+                                throw BizException.of(KgmsErrorCodeEnum.TAG_ATTR_TYPE_PARSER_ERROR);
+                            }
+                        });
+                    }
 
-            dwRepository.save(database);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
+                });
+            }
         }
+
+        database.setTagJson(modelSchemaConfig);
+
+        dwRepository.save(database);
         return;
     }
 
