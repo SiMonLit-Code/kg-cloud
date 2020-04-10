@@ -1199,7 +1199,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         Map<String, Long> conceptNameIdMap = new HashMap<>();
         if (schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()) {
-            conceptNameIdMap = schemaRsp.getTypes().stream().collect(Collectors.toMap(BaseConceptRsp::getName, BaseConceptRsp::getId));
+            schemaRsp.getTypes().forEach(type -> {
+                conceptNameIdMap.put(type.getName(),type.getId());
+            });
+//            conceptNameIdMap = schemaRsp.getTypes().stream().collect(Collectors.toMap(BaseConceptRsp::getName, BaseConceptRsp::getId));
         }
 
         List<SchemaQuoteReq> needAddConcepts = new ArrayList<>();
