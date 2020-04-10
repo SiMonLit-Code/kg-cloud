@@ -777,7 +777,7 @@ public class KtrXml {
                 "    <connectionType>DIRECT</connectionType>\n" +
                 "    <directBootstrapServers>kafkaQAQ</directBootstrapServers>\n" +
                 "    <clusterName/>\n" +
-                "    <topic>channel_transfer</topic>\n" +
+                "    <topic>topicQAQ</topic>\n" +
                 "    <clientId/>\n" +
                 "    <keyField>resourceName</keyField>\n" +
                 "    <messageField>value</messageField>\n" +
