@@ -2081,6 +2081,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 continue;
             }
 
+            List<String> relationAttrName = schemaQuoteAttrReq.getRelationAttrs().stream().map(SchemaQuoteRelationAttrReq::getName).collect(Collectors.toList());
+
             for (DWGraphMapRelationAttr graphMapRelationAttr : graphMapRelationAttrList) {
 
                 if(graphMapRelationAttr.getAttrId() == null){
@@ -2093,10 +2095,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     continue;
                 } else {
 
-                    SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq = new SchemaQuoteRelationAttrReq();
-                    BeanUtils.copyProperties(graphMapRelationAttr, schemaQuoteRelationAttrReq);
-                    schemaQuoteRelationAttrReq.setTables(Lists.newArrayList(graphMap.getTableName()));
-                    schemaQuoteAttrReq.getRelationAttrs().add(schemaQuoteRelationAttrReq);
+                    if(!relationAttrName.contains(graphMapRelationAttr.getName())){
+                        SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq = new SchemaQuoteRelationAttrReq();
+                        BeanUtils.copyProperties(graphMapRelationAttr, schemaQuoteRelationAttrReq);
+                        schemaQuoteRelationAttrReq.setTables(Lists.newArrayList(graphMap.getTableName()));
+                        schemaQuoteAttrReq.getRelationAttrs().add(schemaQuoteRelationAttrReq);
+                        relationAttrName.add(graphMapRelationAttr.getName());
+                    }
+
                 }
 
             }
