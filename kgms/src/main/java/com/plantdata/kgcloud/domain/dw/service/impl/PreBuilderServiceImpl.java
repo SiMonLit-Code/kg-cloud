@@ -129,7 +129,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
 
-        if (!req.isGraph() && req.isManage() && !req.isUser() && !req.isDw()) {
+        if (!req.isGraph() && !req.isManage() && !req.isUser() && !req.isDw()) {
             return Page.empty();
         }
 
@@ -148,7 +148,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 List<Predicate> tags = new ArrayList<>();
                 if (req.isDw()) {
                     tags.add(criteriaBuilder.isNotNull(root.get("databaseId")));
-                    ;
                 }
 
                 if (req.isGraph()) {
@@ -2110,7 +2109,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(), Sort.by(Sort.Order.desc("createAt")));
 
 
-        if (!req.isGraph() && req.isManage() && !req.isUser() && !req.isDw()) {
+        if (!req.isGraph() && !req.isManage() && !req.isUser() && !req.isDw()) {
             return Page.empty();
         }
 
