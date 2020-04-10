@@ -215,6 +215,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         List<SchemaQuoteReq> dataMapReqList = req.getSchemaQuoteReqList();
 //        megerSchemaQuote(dataMapReqList,);
         List<SchemaQuoteReq> existMap =  getGraphMap(userId, req.getKgName(),true);
+//        List<SchemaQuoteReq> existMap =  getGraphMap(userClient.getCurrentUserDetail().getData().getId(), req.getKgName(),true);
         megerSchemaQuote(dataMapReqList,existMap);
 
         List<DWPrebuildConcept> concepts;
@@ -448,7 +449,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                         //都为对象属性,值域一样
                         Long modelRange = modelKgConceptIdMap.get(schemaQuoteAttrReqList.get(0).getRangeName()+schemaQuoteAttrReqList.get(0).getModelId());
-                        if (modelRange != null && modelRange.equals(modelKgConceptIdMap.get(matchAttrRsp.getRangeName())+matchAttrRsp.getModelId())) {
+                        if (modelRange != null && modelRange.equals(modelKgConceptIdMap.get(matchAttrRsp.getRangeName()+matchAttrRsp.getModelId()))) {
                             if (graphAttrMap.containsKey(matchAttrRsp.getName())) {
                                 status = "完全匹配，可引入";
                                 matchAttrRsp.setAttrId(graphAttrMap.get(matchAttrRsp.getName()).getId());
