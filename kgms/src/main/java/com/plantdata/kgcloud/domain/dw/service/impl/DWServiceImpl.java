@@ -148,7 +148,7 @@ public class DWServiceImpl implements DWService {
                     continue;
                 }
 
-//                tagjsons.forEach(config -> config.setModelId(stId));
+                tagjsons.forEach(config -> config.setModelId(stId));
                 modelSchemas.addAll(standardTemplateRsp.getTagJson());
             }
 
@@ -1621,7 +1621,14 @@ public class DWServiceImpl implements DWService {
                             json.put("modelId",modelId);
                         }
 
-                        if (t.containsKey(table.getKey()) && table.getValue().contains(t.get(table.getKey()).getModelId())){
+                        /*if (t.containsKey(table.getKey()) && table.getValue().contains(t.get(table.getKey()).getModelId())){
+                            json.put("status",1);
+                            json.put("mapper",t.get(table.getKey()).getTableName());
+                        }else{
+                            json.put("status",0);
+                        }*/
+
+                        if (t.containsKey(table.getKey())){
                             json.put("status",1);
                             json.put("mapper",t.get(table.getKey()).getTableName());
                         }else{
