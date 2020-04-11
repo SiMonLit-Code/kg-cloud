@@ -4,6 +4,7 @@ import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
+import ai.plantdata.kg.api.edit.req.RelationListFrom;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.EntityApi;
@@ -30,6 +31,7 @@ import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
@@ -248,6 +250,15 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         detailFilter.setEntity(true);
         //概念
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
+        if(entityListOpt.isPresent()) {
+            RelationListFrom relationListFrom = new RelationListFrom();
+            relationListFrom.setEntityId(req.getIds().get(0));
+            BasicReq basicReq = new BasicReq();
+            basicReq.setId(req.getIds().get(0));
+            basicReq.setIsEntity(true);
+            relationListFrom.setConceptId(basicInfoService.getDetails(kgName,basicReq).getConceptId());
+            entityListOpt.get().get(0).setAttrValue(conceptEntityApi.relationList(kgName,relationListFrom).getData());
+        }
 
         detailFilter.setEntity(false);
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> conceptListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
