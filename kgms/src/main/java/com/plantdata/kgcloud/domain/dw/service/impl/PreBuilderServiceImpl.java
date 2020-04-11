@@ -1347,7 +1347,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 if (attrReq.getAttrType().equals(1) && attrReq.getRelationAttrs() != null) {
 
-                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName() + schemaQuoteReq.getConceptId());
+                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName());
 
                     Map<String, AttrExtraRsp> relaAMap = new HashMap<>();
                     if (a != null && a.getExtraInfos() != null) {
