@@ -250,7 +250,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         detailFilter.setEntity(true);
         //概念
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
-        if(entityListOpt.isPresent()) {
+        if(entityListOpt.isPresent() && req.getRelationAttrs()) {
             RelationListFrom relationListFrom = new RelationListFrom();
             relationListFrom.setEntityId(req.getIds().get(0));
             BasicReq basicReq = new BasicReq();
