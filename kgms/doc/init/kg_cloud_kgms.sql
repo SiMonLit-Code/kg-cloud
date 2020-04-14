@@ -410,7 +410,7 @@ CREATE TABLE `graph_quality` (
 -- ----------------------------
 -- Table structure for graph_attr_quality
 -- ----------------------------
-DROP TABLE IF EXISTS `graph_quality`;
+DROP TABLE IF EXISTS `graph_attr_quality`;
 CREATE TABLE `graph_attr_quality` (
   `id` bigint(20) NOT NULL,
   `kg_name` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '图谱kgName',
