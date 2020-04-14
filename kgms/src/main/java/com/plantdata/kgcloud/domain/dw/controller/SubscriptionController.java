@@ -53,6 +53,13 @@ public class SubscriptionController {
         return ApiReturn.success();
     }
 
+    @ApiOperation("订阅检测-批量开启/关闭订阅")
+    @PostMapping("/schedule/batch/{status}")
+    public ApiReturn batchScheduleSwitch(@RequestBody List<Integer> ids,@PathVariable("status")Integer status) {
+        graphMapService.batchScheduleSwitch(ids,status);
+        return ApiReturn.success();
+    }
+
 
     @ApiOperation("订阅检测-按图谱全量开启/关闭订阅")
     @PatchMapping("/schedule/kg")

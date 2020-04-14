@@ -14,6 +14,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.AccessTaskType;
+import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
@@ -42,17 +43,20 @@ import com.plantdata.kgcloud.domain.dw.util.ExampleTagJson;
 import com.plantdata.kgcloud.domain.dw.util.ExampleYaml;
 import com.plantdata.kgcloud.domain.dw.util.PaserYaml2SchemaUtil;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.constant.DWDataFormat;
 import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.UUIDUtils;
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +94,10 @@ public class DWServiceImpl implements DWService {
 
     private final static String DW_PREFIX = "dw_db";
     private final static String JOIN = "_";
+    private final static String KETTLE_LOGS_DATABASE = "kettle_logs";
+    private final static String KETTLE_LOGS_COLLECTION = "logs_data";
+
+    private static final String MONGO_ID = CommonConstants.MongoConst.ID;
 
     @Autowired
     private DWDatabaseRepository dwRepository;
@@ -118,6 +126,9 @@ public class DWServiceImpl implements DWService {
     @Autowired
     private DWPrebuildModelRepository modelRepository;
 
+    @Autowired
+    private UserClient userClient;
+
     private final Function<DWDatabase, DWDatabaseRsp> dw2rsp = (s) -> {
         DWDatabaseRsp dwRsp = new DWDatabaseRsp();
         BeanUtils.copyProperties(s, dwRsp);
@@ -130,8 +141,23 @@ public class DWServiceImpl implements DWService {
         return tableRsp;
     };
 
+    private void checkUserLimit(String userId){
+        UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
+        if (data != null) {
+            DWDatabase probe = new DWDatabase();
+            probe.setUserId(userId);
+            long count = dwRepository.count(Example.of(probe));
+            Integer datasetCount = data.getDwCount();
+            if (datasetCount != null && count >= datasetCount) {
+                throw BizException.of(KgmsErrorCodeEnum.DW_OUT_LIMIT);
+            }
+        }
+    }
+
     @Override
     public DWDatabaseRsp createDatabase(String userId, DWDatabaseReq req) {
+
+        checkUserLimit(userId);
 
         DWDatabase dw = saveDatabase(req);
 
@@ -611,16 +637,65 @@ public class DWServiceImpl implements DWService {
             if (filename != null) {
                 int i = filename.lastIndexOf(".");
                 String extName = filename.substring(i);
+                Long sum = 0L;
                 if (KgmsConstants.FileType.XLSX.equalsIgnoreCase(extName) || KgmsConstants.FileType.XLS.equalsIgnoreCase(extName)) {
-                    excelFileHandle(provider, schemaMap, file);
+                    sum = excelFileHandle(provider, schemaMap, file);
                 } else if (KgmsConstants.FileType.JSON.equalsIgnoreCase(extName)) {
-                    jsonFileHandle(provider, schemaMap, file);
+                    sum = jsonFileHandle(provider, schemaMap, file);
                 }
+
+                writeInsertCount(database,tableName,sum);
             }
         } catch (Exception e) {
             e.printStackTrace();
             throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
         }
+
+    }
+
+    private void writeInsertCount(DWDatabaseRsp database, String tableName, Long sum) {
+
+        if(sum == null || sum.equals(0L)){
+            return;
+        }
+        Long now = System.currentTimeMillis();
+        Long logTimeStamp =  now - (now % (1000*60*60));
+        Map<String,Object> search = new HashMap<>();
+        search.put("dataName",database.getDataName());
+        search.put("tableName",tableName);
+        search.put("logTimeStamp",logTimeStamp+"");
+        search.put("userId",database.getUserId());
+        Map<String,Object> query = new HashMap<>();
+        query.put("search",search);
+        DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE,KETTLE_LOGS_COLLECTION);
+        List<Map<String, Object>> rs = provider.find(0,1,query);
+        if(rs == null || rs.isEmpty()){
+
+            Map<String,Object> value = new HashMap<>();
+
+            value.put("logTimeStamp",logTimeStamp+"");
+            value.put("time_flag","hour");
+            value.put("W",sum);
+            value.put("dataName",database.getDataName());
+            value.put("dbId",database.getId().intValue());
+            value.put("dbTitle",database.getTitle());
+            value.put("tableName",tableName);
+            value.put("target",tableName);
+            value.put("userId",database.getUserId());
+            provider.insert(value);
+        }else{
+
+            Map<String,Object> value = rs.get(0);
+            Long count = value.get("W") == null ? 0L : Long.parseLong(value.get("W").toString());
+
+            count += sum;
+            value.put("W",count);
+            String id = value.get(MONGO_ID).toString();
+            value.remove(MONGO_ID);
+            provider.update(id,value);
+
+        }
+
 
     }
 
@@ -1685,6 +1760,8 @@ public class DWServiceImpl implements DWService {
 
 
         dwRepository.deleteById(id);
+
+        preBuilderService.updateStatusByDatabaseId(id,2);
     }
 
     @Override
@@ -1967,8 +2044,9 @@ public class DWServiceImpl implements DWService {
         return o;
     }
 
-    private List excelFileHandle(DataOptProvider provider, Map<String, DataSetSchema> schemaMap, MultipartFile file) throws Exception {
+    private Long excelFileHandle(DataOptProvider provider, Map<String, DataSetSchema> schemaMap, MultipartFile file) throws Exception {
         List<String> error = new ArrayList<>();
+        final Long[] sum = {0L};
         EasyExcel.read(file.getInputStream(), new AnalysisEventListener<Map<Integer, Object>>() {
             Map<Integer, String> head;
             List<Map<String, Object>> mapList = new ArrayList<>();
@@ -2009,6 +2087,7 @@ public class DWServiceImpl implements DWService {
                 }
                 if (mapList.size() >= 10000) {
                     provider.batchInsert(mapList);
+                    sum[0] += mapList.size();
                     mapList.clear();
                 }
             }
@@ -2017,17 +2096,20 @@ public class DWServiceImpl implements DWService {
             public void doAfterAllAnalysed(AnalysisContext context) {
                 if (!mapList.isEmpty()) {
                     provider.batchInsert(mapList);
+                    sum[0] += mapList.size();
                     mapList.clear();
                 }
             }
         }).sheet().doRead();
-        return error;
+        return sum[0];
     }
 
-    private void jsonFileHandle(DataOptProvider provider, Map<String, DataSetSchema> schemaMap, MultipartFile file) throws Exception {
+    private Long jsonFileHandle(DataOptProvider provider, Map<String, DataSetSchema> schemaMap, MultipartFile file) throws Exception {
         List<Map<String, Object>> dataList = JacksonUtils.readValue(file.getInputStream(), new TypeReference<List<Map<String, Object>>>() {
         });
         List<Map<String, Object>> mapList = new ArrayList<>();
+
+        Long sum = 0L;
         for (Map<String, Object> map : dataList) {
             try {
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -2056,12 +2138,16 @@ public class DWServiceImpl implements DWService {
             }
             if (mapList.size() >= 10000) {
                 provider.batchInsert(mapList);
+                sum += mapList.size();
                 mapList.clear();
             }
         }
         if (!mapList.isEmpty()) {
             provider.batchInsert(mapList);
+            sum += mapList.size();
             mapList.clear();
         }
+
+        return sum;
     }
 }
