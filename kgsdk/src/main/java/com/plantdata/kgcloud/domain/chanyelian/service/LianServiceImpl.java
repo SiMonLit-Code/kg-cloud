@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.chanyelian.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
@@ -92,17 +92,24 @@ public class LianServiceImpl implements LianService {
             if (!attr.isEmpty()) {
                 nextNode.setAttr(attr);
             }
-            dsLast(kgDbName, nextNode, attrId, mongoUtil);
-            dsNext(kgDbName, nextNode, deep + 1, mongoUtil, viewRsp);
+
+            dsLast(kgDbName, nextNode, mongoUtil, sNode.getId());
+
+            List<Long> lastIds = Lists.newArrayList(sNode.getLastIds());
+            lastIds.add(sNode.getId());
+            nextNode.setLastIds(lastIds);
+            if (!lastIds.contains(valueId)) {
+                dsNext(kgDbName, nextNode, deep + 1, mongoUtil, viewRsp);
+            }
             next.add(nextNode);
         });
         sNode.setNext(next);
     }
 
     @SuppressWarnings("unchecked")
-    private static void dsLast(String kgDbName, Node sNode, Integer exId, MongoUtil mongoUtil) {
+    private static void dsLast(String kgDbName, Node sNode, MongoUtil mongoUtil, Long lastId) {
 
-        Bson query = Filters.and(Filters.eq("attr_value", sNode.getId()), Filters.ne("attr_id", exId));
+        Bson query = Filters.and(Filters.eq("attr_value", sNode.getId()), Filters.ne("entity_id", lastId));
         MongoCursor<Document> lastCursor = mongoUtil.find(kgDbName, "attribute_object", query);
         if (!lastCursor.hasNext()) {
             return;
@@ -127,6 +134,12 @@ public class LianServiceImpl implements LianService {
             Node lastNode = new Node(entityId, entityNodeName, attName);
             if (!attr.isEmpty()) {
                 lastNode.setAttr(attr);
+            }
+            List<Long> nextIds = Lists.newArrayList(sNode.getNextIds());
+            nextIds.add(sNode.getId());
+            lastNode.setNextIds(nextIds);
+            if (!nextIds.contains(entityId)) {
+                dsLast(kgDbName, lastNode, mongoUtil, sNode.getId());
             }
             last.add(lastNode);
         });

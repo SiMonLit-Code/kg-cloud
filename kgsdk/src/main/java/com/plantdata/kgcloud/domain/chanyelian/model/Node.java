@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.chanyelian.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +18,10 @@ public class Node {
     private String edgeName;
     private List<Node> next;
     private List<Node> last;
+    @JsonIgnore
+    private List<Long> lastIds = new ArrayList<>();
+    @JsonIgnore
+    private List<Long> nextIds = new ArrayList<>();
     private Map<String, Object> attr;
 
     public Node(Long id, String name) {
