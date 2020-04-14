@@ -45,4 +45,6 @@ public interface PreBuilderService {
     void pushGraphModel(String userId, ModelPushReq req);
 
     void updateModel(PreBuilderUpdateReq req);
+
+    void updateStatusByDatabaseId(Long databaseId, int status);
 }

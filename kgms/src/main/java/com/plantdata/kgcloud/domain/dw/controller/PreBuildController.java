@@ -8,6 +8,7 @@ import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderMatchAttrReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;

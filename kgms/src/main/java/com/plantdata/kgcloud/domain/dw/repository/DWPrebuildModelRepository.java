@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -30,4 +31,8 @@ public interface DWPrebuildModelRepository extends JpaRepository<DWPrebuildModel
 
     @Query(value = "select model_type from dw_prebuild_model where user_id = :userId group by model_type",nativeQuery = true)
     List<String> getUserManageModelTypes(@Param("userId")String userId);
+
+    @Modifying
+    @Query(value = "update dw_prebuild_model set `status` = :status where database_id = :databaseId",nativeQuery = true)
+    void updateStatusByDatabaseId(@Param("databaseId")Long databaseId, @Param("status")int status);
 }

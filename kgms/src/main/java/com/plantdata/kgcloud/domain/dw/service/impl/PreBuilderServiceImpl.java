@@ -57,6 +57,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -125,13 +126,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public Page<PreBuilderSearchRsp> findModel(String userId, PreBuilderSearchReq req) {
+    public Page<PreBuilderSearchRsp> findModel(final String userId, PreBuilderSearchReq req) {
 
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
 
         if (!req.isGraph() && !req.isManage() && !req.isUser() && !req.isDw()) {
             return Page.empty();
         }
+
 
         Specification<DWPrebuildModel> specification = new Specification<DWPrebuildModel>() {
             @Override
@@ -172,7 +174,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 //查询管理员发布公开的或者自己发布的
                 Predicate isPublic = criteriaBuilder.equal(root.get("permission").as(Integer.class), 1);
-                Predicate isPrivate = criteriaBuilder.and(criteriaBuilder.equal(root.get("permission").as(Integer.class), 0), criteriaBuilder.equal(root.get("userId").as(String.class), SessionHolder.getUserId()));
+                Predicate isPrivate = criteriaBuilder.and(criteriaBuilder.equal(root.get("permission").as(Integer.class), 0), criteriaBuilder.equal(root.get("userId").as(String.class), userId));
                 predicates.add(criteriaBuilder.or(isPublic, isPrivate));
 
                 //只能查询发布过的
@@ -975,6 +977,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             model.setModelType(req.getModelType());
             prebuildModelRepository.save(model);
         }
+    }
+
+    @Override
+    @Transactional
+    public void updateStatusByDatabaseId(Long databaseId, int status) {
+        prebuildModelRepository.updateStatusByDatabaseId(databaseId,status);
     }
 
     private void addSchema2PreBuilder(SchemaRsp schemaRsp, Integer modelId) {
