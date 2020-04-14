@@ -227,6 +227,7 @@ public class GraphMapServiceImpl implements GraphMapService {
                 if (database.getDataFormat().equals(1)) {
                     accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), null, Lists.newArrayList(kgTaskName), null, null, graphMap.getKgName());
                 } else {
+
                     accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(kgTaskName), null, null, null, graphMap.getKgName());
                 }
             } else {

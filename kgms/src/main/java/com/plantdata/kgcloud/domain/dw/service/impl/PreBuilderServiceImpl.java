@@ -1129,6 +1129,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             List<AttributesMapReq> relationAttrs = new ArrayList<>();
 
                             for (SchemaQuoteRelationAttrReq relationAttrReq : relationAttrReqs) {
+
+                                if(relationAttrReq.getAttrId() == null){
+                                    continue;
+                                }
                                 AttributesMapReq attr = new AttributesMapReq();
                                 attr.setAttrName(relationAttrReq.getName());
                                 attr.setKgAttrId(relationAttrReq.getAttrId());
@@ -1343,7 +1347,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 if (attrReq.getAttrType().equals(1) && attrReq.getRelationAttrs() != null) {
 
-                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName() + schemaQuoteReq.getConceptId());
+                    AttributeDefinitionRsp a = attrMap.get(attrReq.getAttrName());
 
                     Map<String, AttrExtraRsp> relaAMap = new HashMap<>();
                     if (a != null && a.getExtraInfos() != null) {
@@ -2072,12 +2076,18 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 continue;
             }
 
-            List<DWGraphMapRelationAttr> graphMapRelationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().attrId(schemaQuoteAttrReq.getAttrId()).kgName(kgName).modelId(schemaQuoteReq.getModelId()).build()));
+            List<DWGraphMapRelationAttr> graphMapRelationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().modelAttrId(schemaQuoteAttrReq.getModelAttrId()).kgName(kgName).modelId(schemaQuoteReq.getModelId()).build()));
             if (graphMapRelationAttrList == null || graphMapRelationAttrList.isEmpty()) {
                 continue;
             }
 
+            List<String> relationAttrName = schemaQuoteAttrReq.getRelationAttrs().stream().map(SchemaQuoteRelationAttrReq::getName).collect(Collectors.toList());
+
             for (DWGraphMapRelationAttr graphMapRelationAttr : graphMapRelationAttrList) {
+
+                if(graphMapRelationAttr.getAttrId() == null){
+                    continue;
+                }
 
                 if (schemaAuoteRelationAttrMap.containsKey(conceptKey)
                         && schemaAuoteRelationAttrMap.get(conceptKey).containsKey(schemaQuoteAttrReq.getAttrName())
@@ -2085,10 +2095,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     continue;
                 } else {
 
-                    SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq = new SchemaQuoteRelationAttrReq();
-                    BeanUtils.copyProperties(graphMapRelationAttr, schemaQuoteRelationAttrReq);
-                    schemaQuoteRelationAttrReq.setTables(Lists.newArrayList(graphMap.getTableName()));
-                    schemaQuoteAttrReq.getRelationAttrs().add(schemaQuoteRelationAttrReq);
+                    if(!relationAttrName.contains(graphMapRelationAttr.getName())){
+                        SchemaQuoteRelationAttrReq schemaQuoteRelationAttrReq = new SchemaQuoteRelationAttrReq();
+                        BeanUtils.copyProperties(graphMapRelationAttr, schemaQuoteRelationAttrReq);
+                        schemaQuoteRelationAttrReq.setTables(Lists.newArrayList(graphMap.getTableName()));
+                        schemaQuoteAttrReq.getRelationAttrs().add(schemaQuoteRelationAttrReq);
+                        relationAttrName.add(graphMapRelationAttr.getName());
+                    }
+
                 }
 
             }
