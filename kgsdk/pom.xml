@@ -30,6 +30,16 @@
 
         <dependency>
             <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-persistence</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-nosql-mongo</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.plantdata</groupId>
             <artifactId>kg-cloud-web</artifactId>
         </dependency>
         <dependency>
