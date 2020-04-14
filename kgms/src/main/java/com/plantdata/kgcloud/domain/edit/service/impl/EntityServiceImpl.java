@@ -199,22 +199,22 @@ public class EntityServiceImpl implements EntityService {
     private Map<String, Object> parserFilterMetadata(BasicInfoListReq basicInfoListReq, BasicInfoListBodyReq bodyReq) {
         Map<String, Object> filters = new HashMap<>();
         if (Objects.nonNull(bodyReq.getReliability()) && !bodyReq.getReliability().isEmpty()) {
-            filters.put(MetaDataInfo.RELIABILITY.getCode(), bodyReq.getReliability());
+            filters.put(MetaDataInfo.METADATA + MetaDataInfo.RELIABILITY.getCode(), bodyReq.getReliability());
         }
         if (StringUtils.hasText(bodyReq.getSource())) {
             Map<String, Object> operation = new HashMap<>();
             operation.put(MongoOperation.EQUAL.getType(), bodyReq.getSource());
-            filters.put(MetaDataInfo.SOURCE.getCode(), operation);
+            filters.put(MetaDataInfo.METADATA + MetaDataInfo.SOURCE.getCode(), operation);
         }
         if (StringUtils.hasText(bodyReq.getBatchNo())) {
             Map<String, Object> operation = new HashMap<>();
             operation.put(MongoOperation.EQUAL.getType(), bodyReq.getBatchNo());
-            filters.put(MetaDataInfo.BATCH_NO.getCode(), operation);
+            filters.put(MetaDataInfo.METADATA + MetaDataInfo.BATCH_NO.getCode(), operation);
         }
         if (Objects.nonNull(bodyReq.getTags()) && !bodyReq.getTags().isEmpty()) {
             Map<String, Object> operation = new HashMap<>();
             operation.put(MongoOperation.IN.getType(), bodyReq.getTags());
-            filters.put(MetaDataInfo.TAG.getCode(), operation);
+            filters.put(MetaDataInfo.METADATA + MetaDataInfo.TAG.getCode() + ".name", operation);
         }
         return filters;
     }
