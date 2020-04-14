@@ -120,7 +120,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         for(DataAccessTaskConfigReq config : reqs){
 
-            if(!"kg".equals(config.getType())){
+            if(!"plantdata-graph-setting".equals(config.getType())){
                 continue;
             }
 
