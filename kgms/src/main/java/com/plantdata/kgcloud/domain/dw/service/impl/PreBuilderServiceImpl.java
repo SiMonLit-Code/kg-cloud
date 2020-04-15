@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
+import com.plantdata.kgcloud.domain.dw.util.SortUtil;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
@@ -56,8 +57,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -724,6 +727,16 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 Optional<DWPrebuildModel> modelOpt = prebuildModelRepository.findById(schemaQuoteReq.getModelId());
                 if(modelOpt.isPresent()){
                     DWPrebuildModel model = modelOpt.get();
+                    Integer quoteCount = model.getQuoteCount();
+
+                    if(quoteCount == null){
+                        quoteCount = 0;
+                    }
+
+                    model.setQuoteCount(++quoteCount);
+                    //更新引用数量
+                    prebuildModelRepository.save(model);
+
                     modelDataBaseId = model.getDatabaseId();
                     modelDataBaseIdMap.put(model.getId(), modelDataBaseId);
                 }else{
@@ -1476,7 +1489,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public void create(PreBuilderCreateReq req) {
+    public String create(PreBuilderCreateReq req) {
 
         UserDetailRsp userDetailRsp = getUserDetail();
         if (!"admin".equals(userDetailRsp.getUsername())) {
@@ -1490,8 +1503,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         if (req.getFilePath().endsWith(".xls") || req.getFilePath().endsWith(".xlsx")) {
             //纯模式
-            List<ModelExcelRsp> modelExcelRspList = addModelByExcel(req.getFilePath(), req.getName());
+            ExcelParserRsp rsp = addModelByExcel(req.getFilePath(), req.getName(),req.getFilePath());
+            if(rsp.isError()){
+                return rsp.getErrorFilePath();
+            }
 
+            List<ModelExcelRsp> modelExcelRspList = rsp.getModelExcelRspList();
             DWPrebuildModel model = DWPrebuildModel.builder()
                     .userId(getUserDetail().getId())
                     .username(getUserDetail().getUsername())
@@ -1507,6 +1524,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             createModelByExcel(model, modelExcelRspList);
 
+            return "";
+
         } else {
             //行业标准
 
@@ -1515,6 +1534,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             prebuildModelRepository.save(model);
 
             createSchemaModel(model.getId(), dwService.modelSchema2PreBuilder(model.getTagJson()));
+
+            return "";
         }
 
 
@@ -1824,7 +1845,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
 
-    private List<ModelExcelRsp> addModelByExcel(String filePath, String name) {
+    private ExcelParserRsp addModelByExcel(String filePath, String name,String path) {
 
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(fastdfsTemplate.downloadFile(filePath));
@@ -1839,12 +1860,26 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         Sheet relationSheet = excelParser.wb.getSheetAt(2);
         getExcelModelRelation(excelParser, relationSheet, conceptMap);
 
-        return Lists.newArrayList(conceptMap.values());
+        ExcelParserRsp rsp = new ExcelParserRsp();
+        if(excelParser.hasError()){
+            ByteArrayOutputStream out = excelParser.parse(wb -> {});
+
+            String errorName = name + "-error.xlsx";
+            MultipartFile file = new MockMultipartFile(errorName,errorName,null,out.toByteArray());
+            String errorFilePath = fastdfsTemplate.uploadFile(file).getFullPath();
+            rsp.setError(true);
+            rsp.setErrorFilePath(errorFilePath);
+        }else{
+            rsp.setError(false);
+            rsp.setModelExcelRspList(Lists.newArrayList(conceptMap.values()));
+        }
+        return rsp;
+
 
     }
 
     private void getExcelModelRelation(ExcelParser excelParser, Sheet sheet, Map<String, ModelExcelRsp> conceptMap) {
-        excelParser.checkTitle(sheet.getRow(0), ExcelParser.ATTRIBUTE);
+        excelParser.checkTitle(sheet.getRow(0), ExcelParser.RELATION);
 
         int rows = sheet.getPhysicalNumberOfRows();
 
@@ -1855,16 +1890,27 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String attrName = excelParser.getCellValue(row.getCell(0));
                 String domain = excelParser.getCellValue(row.getCell(2));
                 String fourColumn = excelParser.getCellValue(row.getCell(4));//值域
-                if (!org.springframework.util.StringUtils.hasText(attrName) || !org.springframework.util.StringUtils.hasText(domain) || !org.springframework.util.StringUtils.hasText(fourColumn)) {
-                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_LACK_REQUIRES_ERROR);
+                if (!org.springframework.util.StringUtils.hasText(attrName) ) {
+                    excelParser.buildErrorMsg(row,"属性名为空",ExcelParser.RELATION);
+                    continue;
+                }
+                if ( !org.springframework.util.StringUtils.hasText(domain)) {
+                    excelParser.buildErrorMsg(row,"属性定义域为空",ExcelParser.RELATION);
+                    continue;
+                }
+                if (!org.springframework.util.StringUtils.hasText(fourColumn)) {
+                    excelParser.buildErrorMsg(row,"属性值域为空",ExcelParser.RELATION);
+                    continue;
                 }
                 String domainMeaningTag = excelParser.getCellValue(row.getCell(3));
                 String fiveColumn = excelParser.getCellValue(row.getCell(5));
                 if (!conceptMap.containsKey(domain + domainMeaningTag)) {
-                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
+                    excelParser.buildErrorMsg(row,"属性定义域不存在",ExcelParser.RELATION);
+                    continue;
                 }
                 if (!conceptMap.containsKey(fourColumn + fiveColumn)) {
-                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_RANGE_NOT_EXIST_ERROR);
+                    excelParser.buildErrorMsg(row,"属性值域不存在",ExcelParser.RELATION);
+                    continue;
                 }
 
                 String alias = excelParser.getCellValue(row.getCell(1));
@@ -1898,18 +1944,29 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String attrName = excelParser.getCellValue(row.getCell(0));
                 String domain = excelParser.getCellValue(row.getCell(2));
                 String fourColumn = excelParser.getCellValue(row.getCell(4));
-                if (!org.springframework.util.StringUtils.hasText(attrName) || !org.springframework.util.StringUtils.hasText(domain) || !org.springframework.util.StringUtils.hasText(fourColumn)) {
-                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_LACK_REQUIRES_ERROR);
+                if (!org.springframework.util.StringUtils.hasText(attrName)) {
+                    excelParser.buildErrorMsg(row,"属性名为空",ExcelParser.ATTRIBUTE);
+                    continue;
+                }
+                if (!org.springframework.util.StringUtils.hasText(domain)) {
+                    excelParser.buildErrorMsg(row,"属性定义域为空",ExcelParser.ATTRIBUTE);
+                    continue;
+                }
+                if (!org.springframework.util.StringUtils.hasText(fourColumn)) {
+                    excelParser.buildErrorMsg(row,"属性数据类型为空",ExcelParser.ATTRIBUTE);
+                    continue;
                 }
                 String domainMeaningTag = excelParser.getCellValue(row.getCell(3));
                 String fiveColumn = excelParser.getCellValue(row.getCell(5));
                 if (!conceptMap.containsKey(domain + domainMeaningTag)) {
-                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
+                    excelParser.buildErrorMsg(row,"属性定义域不存在",ExcelParser.ATTRIBUTE);
+                    continue;
                 }
                 Integer fourColumnId;
                 fourColumnId = DataTypeEnum.getDataType(fourColumn);
                 if (fourColumnId == null) {
-                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DATATYPE_NOT_EXIST_ERROR);
+                    excelParser.buildErrorMsg(row,"属性数据类型不存在",ExcelParser.ATTRIBUTE);
+                    continue;
                 }
 
                 String alias = excelParser.getCellValue(row.getCell(1));
@@ -1942,51 +1999,55 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String sonName = excelParser.getCellValue(row.getCell(2));
                 String sonMeaningTag = excelParser.getCellValue(row.getCell(3));
                 if (!org.springframework.util.StringUtils.hasText(sonName)) {
-                    throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+                    excelParser.buildErrorMsg(row,"概念名为空",ExcelParser.CONCEPT);
+                    continue;
                 }
                 if (Objects.equals(parentMeaningTag, sonMeaningTag) && Objects.equals(sonName, parentName)) {
-                    throw BizException.of(KgmsErrorCodeEnum.MODEL_PARSER_ERROR);
+                    excelParser.buildErrorMsg(row, "父子概念不能一样",ExcelParser.CONCEPT);
+                    continue;
                 }
 
                 ModelExcelRsp sonConcept;
-                if (!conceptMap.containsKey(sonName + sonMeaningTag)) {
-                    sonConcept = ModelExcelRsp.builder().name(sonName).meaningTag(sonMeaningTag).build();
-                    sonConcept.setAttrs(new ArrayList<>());
-                    sonConcept.setRelations(new ArrayList<>());
-                    conceptMap.put(sonName + sonMeaningTag, sonConcept);
+                if (conceptMap.containsKey(sonName + sonMeaningTag)) {
+                    excelParser.buildErrorMsg(row, "概念已存在",ExcelParser.CONCEPT);
+                    continue;
+                }
+                sonConcept = ModelExcelRsp.builder().name(sonName).meaningTag(sonMeaningTag).row(row).build();
+                sonConcept.setAttrs(new ArrayList<>());
+                sonConcept.setRelations(new ArrayList<>());
+                conceptMap.put(sonName + sonMeaningTag, sonConcept);
 
-                    if (org.springframework.util.StringUtils.hasText(parentName) && !"root".equals(parentName)) {
-                        sonConcept.setParentName(parentName);
-                        sonConcept.setMeaningTag(sonMeaningTag);
-                    }
-                } else {
-                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_CONCEPT_EXIST_ERROR);
+                if (org.springframework.util.StringUtils.hasText(parentName) && !"root".equals(parentName)) {
+                    sonConcept.setParentName(parentName);
+                    sonConcept.setMeaningTag(sonMeaningTag);
                 }
 
             }
         }
 
         //校验
-        checkPranetConceptIsExist(conceptMap);
+        checkPranetConceptIsExist(conceptMap,excelParser);
 
         return conceptMap;
     }
 
-    private void checkPranetConceptIsExist(Map<String, ModelExcelRsp> conceptMap) {
+    private void checkPranetConceptIsExist(Map<String, ModelExcelRsp> conceptMap,ExcelParser excelParser) {
 
         for (Map.Entry<String, ModelExcelRsp> concept : conceptMap.entrySet()) {
 
             if (concept.getValue().getParentName() != null) {
                 String k = concept.getValue().getParentName() + concept.getValue().getParentMeaningTag();
                 if (!conceptMap.containsKey(k)) {
-                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PARENT_CONCEPT_NOT_EXIST_ERROR);
+                    excelParser.buildErrorMsg(concept.getValue().getRow(), "模式父概念不存在",ExcelParser.CONCEPT);
+                    continue;
                 }
 
                 List<String> parentList  = new ArrayList<>();
                 getAllParentConcept(k, conceptMap, parentList);
 
                 if(parentList.contains(k)){
-                    throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PARENT_CONCEPT_NOT_EXIST_ERROR);
+                    excelParser.buildErrorMsg(concept.getValue().getRow(), "模式概念存在循环引用",ExcelParser.CONCEPT);
+                    continue;
                 }
             }
         }
@@ -1996,7 +2057,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         if(conceptMap.containsKey(k)){
             ModelExcelRsp rsp = conceptMap.get(k);
-            if(!StringUtils.isEmpty(rsp.getParentName())){
+            if(!StringUtils.isEmpty(rsp.getParentName()) && !parentList.contains(rsp.getParentName()+rsp.getParentMeaningTag())){
                 parentList.add(rsp.getParentName()+rsp.getParentMeaningTag());
                 getAllParentConcept(rsp.getParentName()+rsp.getParentMeaningTag(),conceptMap,parentList);
             }
@@ -2135,8 +2196,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     @Override
     public Page<PreBuilderSearchRsp> listManage(String userId, PreBuilderSearchReq req) {
-        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(), Sort.by(Sort.Order.desc("createAt")));
-
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(), SortUtil.buildSort(req.getSorts()));
 
         if (!req.isGraph() && !req.isManage() && !req.isUser() && !req.isDw()) {
             return Page.empty();

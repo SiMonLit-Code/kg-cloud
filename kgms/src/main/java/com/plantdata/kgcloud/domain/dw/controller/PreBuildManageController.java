@@ -61,8 +61,12 @@ public class PreBuildManageController {
     @ApiOperation("预构建模式管理-模式上传")
     @PostMapping("/create")
     public ApiReturn create(@RequestBody PreBuilderCreateReq req) {
-        preBuilderService.create(req);
-        return ApiReturn.success();
+        String errorFilePath = preBuilderService.create(req);
+        if("".equals(errorFilePath)){
+            return ApiReturn.success();
+        }else {
+            return ApiReturn.fail(KgmsErrorCodeEnum.MODEL_PARSER_ERROR.getErrorCode(),errorFilePath);
+        }
     }
 
     @ApiOperation("预构建模式管理-模式编辑")

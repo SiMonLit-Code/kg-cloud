@@ -1016,7 +1016,7 @@ public class DWServiceImpl implements DWService {
 
                 List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
 
-                if(database.getDataFormat().equals(2)){
+                if(DWDataFormat.isPDdoc(database.getDataFormat())){
                     //pddoc类型的数仓，判断连接表是否符合结构
                     checkPDDocSchema(schemaList);
                 }

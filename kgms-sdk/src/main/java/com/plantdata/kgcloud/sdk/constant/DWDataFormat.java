@@ -27,7 +27,9 @@ public enum DWDataFormat {
 
     RDF_OWL(4),
 
-    FILE(5);
+    FILE(5),
+
+    PDD2R(6);
 
     private Integer type;
 

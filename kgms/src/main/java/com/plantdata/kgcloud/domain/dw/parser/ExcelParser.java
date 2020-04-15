@@ -34,11 +34,19 @@ public class ExcelParser {
     private String outFilePath;
 
     public Workbook wb;
-    private int errorNum;
     private boolean error;
 
-    private Row titleRow;
-    private List<Row> errorRows;
+    private int conceptErrorNum = 4;
+    private Row conceptTitleRow;
+    private List<Row> conceptErrorRows;
+
+    private int attrErrorNum = 6;
+    private Row attrTitleRow;
+    private List<Row> attrErrorRows;
+
+    private int relationErrorNum = 6;
+    private Row relationTitleRow;
+    private List<Row> relationErrorRows;
 
     private static final Map<String,List<String>> titles = Maps.newHashMap();
     public static final String CONCEPT = "concept";
@@ -57,7 +65,8 @@ public class ExcelParser {
         //数值、对象属性定义
         titles.put(ATTRIBUTE, Lists.newArrayList("属性名称(必填)", "别名", "属性定义域(必填)", "属性定义域的消歧标识"));
         //关系
-        titles.put(RELATION, Lists.newArrayList("定义域（必填，实例的概念类型）", "定义域消歧标识", "定义域实例名称（必填）", "实例消歧标识","关系名称（必填）","值域实例名称（必填）"));
+//        titles.put(RELATION, Lists.newArrayList("定义域（必填，实例的概念类型）", "定义域消歧标识", "定义域实例名称（必填）", "实例消歧标识","关系名称（必填）","值域实例名称（必填）"));
+        titles.put(RELATION, Lists.newArrayList("属性名称(必填)", "别名", "属性定义域(必填)", "属性定义域的消歧标识","属性值域(必填)","属性值域的消歧标识"));
         //特定关系
         titles.put(SPECIAL, Lists.newArrayList("实例名称（必填）", "实例消歧标识", "关系实例名称（必填）", "关系实例消歧标识","关系值域（必填，关系实例的概念类型）"));
         //同义词
@@ -82,10 +91,10 @@ public class ExcelParser {
 
 
     public void checkTitle(Row row, String key){
-        checkTitle(row, key,false);
+        checkTitle(row, key,false,key);
     }
 
-    public void checkTitle(Row row, String key, boolean isGisOpen){
+    public void checkTitle(Row row, String key, boolean isGisOpen,String type){
         List<String> title = titles.get(key);
         for (int i = 0; i < title.size(); i++) {
             if(!isGisOpen && i == 5){//gis不开启 后续三个不校验
@@ -97,11 +106,23 @@ public class ExcelParser {
                 throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
             }
         }
-        this.titleRow = row;
+
+        switch (type){
+            case CONCEPT:
+                this.conceptTitleRow = row;
+                break;
+            case ATTRIBUTE:
+                this.attrTitleRow = row;
+                break;
+            case RELATION:
+                this.relationTitleRow = row;
+                break;
+        }
     }
+
     public ByteArrayOutputStream parse(Parser parser) {
+
         if (wb.getNumberOfSheets() != 0) {
-            this.errorNum = wb.getSheetAt(0).getRow(0).getLastCellNum();
             parser.parse(wb);
         }
         return outStream();
@@ -113,9 +134,6 @@ public class ExcelParser {
             int rowNum = sheetAt.getPhysicalNumberOfRows();
             for (int i = 0; i <= rowNum; i++) {
                 Row row = sheetAt.getRow(i);
-                if (i == 0) {
-                    this.errorNum = row.getLastCellNum();
-                }
                 if (row != null) {
                     parseRow.parse(row, i);
                 }
@@ -127,7 +145,6 @@ public class ExcelParser {
     public ByteArrayOutputStream parse(ParseRows parseRows, int sheet) {
         if (wb.getNumberOfSheets() != 0) {
             Sheet sheetAt = wb.getSheetAt(sheet);
-            this.errorNum = sheetAt.getRow(0).getLastCellNum();
             parseRows.parse(sheetAt);
         }
         return outStream();
@@ -139,21 +156,51 @@ public class ExcelParser {
 
     private ByteArrayOutputStream outputStream(boolean isNew) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Workbook wb = this.wb;
+        Workbook wb = new XSSFWorkbook();
         if(isNew){
-            if(errorRows == null){
-                return outputStream;
-            }
-            errorRows.add(0,titleRow);
-            wb = new XSSFWorkbook();
-            Sheet sheet = wb.createSheet();
-            int index = 0;
-            for (Row errRow : errorRows) {
-                Row row = sheet.createRow(index++);
-                for (int i = 0; i <= errorNum; i++) {
-                    write(row,i,getCellValue(errRow.getCell(i)),wb,i == errorNum);
+
+            if(conceptErrorRows != null){
+
+                conceptErrorRows.add(0,conceptTitleRow);
+                Sheet sheet = wb.createSheet(CONCEPT);
+                int index = 0;
+                for (Row errRow : conceptErrorRows) {
+                    Row row = sheet.createRow(index++);
+                    for (int i = 0; i <= conceptErrorNum; i++) {
+                        write(row,i,getCellValue(errRow.getCell(i)),wb,i == conceptErrorNum);
+                    }
                 }
+
             }
+
+            if(attrErrorRows != null){
+
+                attrErrorRows.add(0,attrTitleRow);
+                Sheet sheet = wb.createSheet(ATTRIBUTE);
+                int index = 0;
+                for (Row errRow : attrErrorRows) {
+                    Row row = sheet.createRow(index++);
+                    for (int i = 0; i <= attrErrorNum; i++) {
+                        write(row,i,getCellValue(errRow.getCell(i)),wb,i == attrErrorNum);
+                    }
+                }
+
+            }
+
+            if(relationErrorRows != null){
+
+                relationErrorRows.add(0,relationTitleRow);
+                Sheet sheet = wb.createSheet(RELATION);
+                int index = 0;
+                for (Row errRow : relationErrorRows) {
+                    Row row = sheet.createRow(index++);
+                    for (int i = 0; i <= relationErrorNum; i++) {
+                        write(row,i,getCellValue(errRow.getCell(i)),wb,i == relationErrorNum);
+                    }
+                }
+
+            }
+
         }
         try {
             wb.write(outputStream);
@@ -177,13 +224,40 @@ public class ExcelParser {
         return outFilePath;
     }
 
-    public void buildErrorMsg(Row row, String msg) {
-        if(errorRows == null){
-            errorRows = Lists.newArrayList();
+    public void buildErrorMsg(Row row, String msg,String type) {
+
+        switch (type){
+
+            case CONCEPT:
+
+                if(conceptErrorRows == null){
+                    conceptErrorRows = Lists.newArrayList();
+                }
+                conceptErrorRows.add(row);
+                this.error = true;
+                write(row,conceptErrorNum,msg,wb,true);
+                break;
+            case ATTRIBUTE:
+
+                if(attrErrorRows == null){
+                    attrErrorRows = Lists.newArrayList();
+                }
+                attrErrorRows.add(row);
+                this.error = true;
+                write(row,attrErrorNum,msg,wb,true);
+                break;
+            case RELATION:
+
+                if(relationErrorRows == null){
+                    relationErrorRows = Lists.newArrayList();
+                }
+                relationErrorRows.add(row);
+                this.error = true;
+                write(row,relationErrorNum,msg,wb,true);
+                break;
+
         }
-        errorRows.add(row);
-        this.error = true;
-        write(row,errorNum,msg,wb,true);
+
     }
 
     public boolean hasError(){
@@ -191,6 +265,7 @@ public class ExcelParser {
     }
 
     public void write(Row row, int column, String msg, Workbook wb, boolean red) {
+
         Cell cell = row.createCell(column);
         if(red){
             CellStyle cellStyle = wb.createCellStyle();

@@ -38,6 +38,9 @@ public class PreBuilderSearchRsp {
     @ApiModelProperty("权限")
     private Integer permission;
 
+    @ApiModelProperty("引用次数")
+    private Integer quoteCount;
+
     @ApiModelProperty("关联行业标准id")
     private Long standardTemplateId;
 

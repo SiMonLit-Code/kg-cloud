@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.domain.dw.rsp;
 
+import io.micrometer.core.instrument.MultiGauge;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.poi.ss.usermodel.Row;
 
 import java.util.List;
 
@@ -30,6 +32,8 @@ public class ModelExcelRsp {
     private List<Attr> attrs;
 
     private List<Relation> relations;
+
+    private Row row;
 
     @Data
     public static class Attr{
