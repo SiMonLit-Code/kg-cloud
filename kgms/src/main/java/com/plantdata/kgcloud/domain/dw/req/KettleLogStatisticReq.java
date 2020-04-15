@@ -24,13 +24,13 @@ import java.util.List;
 @ApiModel("Kettle日志统计请求参数")
 public class KettleLogStatisticReq {
 
-    @NotEmpty
+    @NotEmpty(message = "开始日期不能为空")
     @ApiModelProperty(value = "开始日期", required = true)
     private String startDate;
     @NotNull
     @ApiModelProperty(value = "统计类型 默认 DAY 按统计，HOUR按小时 MONTH 按月份")
-    private KettleLogStatisticTypeEnum statisticType=KettleLogStatisticTypeEnum.DAY;
-    @NotEmpty
+    private KettleLogStatisticTypeEnum statisticType = KettleLogStatisticTypeEnum.DAY;
+    @NotEmpty(message = "结束日期不能为空")
     @ApiModelProperty(value = "结束日期", required = true)
     private String endDate;
     @ApiModelProperty(value = "表名", required = true)
