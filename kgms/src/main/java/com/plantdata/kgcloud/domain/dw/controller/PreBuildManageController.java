@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderUpdateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
@@ -10,13 +9,11 @@ import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @program: kg-cloud-kgms
@@ -37,25 +34,25 @@ public class PreBuildManageController {
     @PostMapping("/list")
     public ApiReturn<Page<PreBuilderSearchRsp>> listManage(@RequestBody PreBuilderSearchReq preBuilderSearchReq) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(preBuilderService.listManage(userId,preBuilderSearchReq));
+        return ApiReturn.success(preBuilderService.listManage(userId, preBuilderSearchReq));
     }
 
     @ApiOperation("预构建模式管理-删除")
     @PatchMapping("/delete/{id}")
-    public ApiReturn delete(@PathVariable("id")Integer id) {
+    public ApiReturn delete(@PathVariable("id") Integer id) {
         String userId = SessionHolder.getUserId();
-        preBuilderService.delete(userId,id);
+        preBuilderService.delete(userId, id);
         return ApiReturn.success();
     }
 
     @ApiOperation("预构建模式管理-发布(1)/禁用(0)")
     @PatchMapping("/update/{id}/{status}")
-    public ApiReturn update(@PathVariable("id")Integer id,
-                            @PathVariable("status")String status) {
+    public ApiReturn update(@PathVariable("id") Integer id,
+                            @PathVariable("status") String status) {
         String userId = SessionHolder.getUserId();
-        preBuilderService.update(userId,id,status);
+        preBuilderService.update(userId, id, status);
         return ApiReturn.success();
-}
+    }
 
 
     @ApiOperation("预构建模式管理-模式上传")
@@ -69,6 +66,13 @@ public class PreBuildManageController {
     @PostMapping("/update")
     public ApiReturn update(@RequestBody PreBuilderUpdateReq req) {
         preBuilderService.updateModel(req);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("预构建模式管理-模式导出")
+    @GetMapping("/export/{kgName}")
+    public ApiReturn exportEntityToWord(@PathVariable("kgName") String kgName, HttpServletResponse response) {
+        preBuilderService.exportEntity(kgName, response);
         return ApiReturn.success();
     }
 

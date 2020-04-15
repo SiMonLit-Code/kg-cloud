@@ -196,6 +196,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     TAG_ATTR_TYPE_PARSER_ERROR(120740, "属性dataType枚举错误"),
 
     YAML_COLUMS_NOT_EXIST_IN_TABLE(120741, "colums字段在表中不存在"),
+
+    SCHEMA_CONCEPT_NOT_EXIST_ERROR(120742,"图谱没有定义概念"),
     ;
 
     private final int errorCode;
