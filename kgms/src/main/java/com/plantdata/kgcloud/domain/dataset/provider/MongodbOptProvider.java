@@ -135,13 +135,26 @@ public class MongodbOptProvider implements DataOptProvider {
     }
 
     @Override
-    public List<Map<String, Object>> search(Map<String, String> searchMap,int offset,int limit) {
+    public List<Map<String, Object>> search(Map<String, String> searchMap, int offset, int limit) {
         Document document = new Document();
-        searchMap.forEach((k, v) -> document.put(k, PatternUtils.getLikeStr(v)));
+        Document projection = new Document();
+        searchMap.forEach((k, v) -> {
+            document.put(k, PatternUtils.getLikeStr(v));
+            projection.put(k, 1);
+        });
 
-        FindIterable<Document> documents = getCollection().find(document).skip(offset).limit(limit);
+        FindIterable<Document> documents = getCollection().find(document).skip(offset).limit(limit).projection(projection);
         List<Map<String, Object>> list = Lists.newArrayList();
-        documents.iterator().forEachRemaining(list::add);
+        documents.iterator().forEachRemaining(a -> projection.keySet().forEach(k -> {
+            String[] split = StringUtils.split(k, ".");
+            Map<String, Object> data = (Map<String, Object>) a.get(split[0]);
+            if (split.length > 1) {
+                for (int i = 0; i < split.length - 1; i++) {
+                    data = (Map<String, Object>) a.get(split[i]);
+                }
+            }
+            BasicConverter.consumerIfNoNull(data, d -> list.add(d.entrySet().stream().collect(Collectors.toMap(v -> k, Map.Entry::getValue))));
+        }));
         return list;
     }
 
