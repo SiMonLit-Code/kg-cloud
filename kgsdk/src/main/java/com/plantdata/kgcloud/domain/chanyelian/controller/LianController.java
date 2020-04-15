@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.chanyelian.controller;
 
-import com.plantdata.kgcloud.domain.chanyelian.model.ViewRsp;
-import com.plantdata.kgcloud.domain.chanyelian.service.LianService;
+import com.plantdata.kgcloud.sdk.ComponentClient;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +19,11 @@ import javax.annotation.Resource;
 public class LianController {
 
     @Resource
-    private LianService lianService;
+    private ComponentClient componentClient;
 
     @GetMapping("/view/{kgName}")
     @ApiOperation("可视化")
-    public ViewRsp view(@PathVariable("kgName") String kgName) {
-        return lianService.view(kgName);
+    public Object view(@PathVariable("kgName") String kgName) {
+        return componentClient.chanYeLianView(kgName);
     }
 }

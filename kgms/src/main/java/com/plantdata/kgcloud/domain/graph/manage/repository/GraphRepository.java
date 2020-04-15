@@ -18,6 +18,4 @@ public interface GraphRepository extends JpaRepository<Graph, GraphPk>, JpaSpeci
     Graph findByKgNameAndUserId(String kgName, String userId);
 
     Graph findByDbName(String dbName);
-
-    Graph findByKgName(String kgName);
 }
