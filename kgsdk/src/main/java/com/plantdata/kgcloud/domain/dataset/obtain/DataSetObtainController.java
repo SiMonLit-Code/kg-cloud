@@ -3,7 +3,9 @@ package com.plantdata.kgcloud.domain.dataset.obtain;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.common.module.DataSetDataObtainInterface;
+import com.plantdata.kgcloud.sdk.DataStoreClient;
 import com.plantdata.kgcloud.sdk.KgmsClient;
+import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
@@ -30,6 +32,8 @@ public class DataSetObtainController implements DataSetDataObtainInterface {
     private KgDataClient kgDataClient;
     @Autowired
     private KgmsClient kgmsClient;
+    @Autowired
+    private DataStoreClient dataStoreClient;
 
     @ApiOperation(value = "获取数据集列表", notes = "获取当前用户的数据集列表")
     @GetMapping("page")
@@ -64,5 +68,12 @@ public class DataSetObtainController implements DataSetDataObtainInterface {
     @ApiOperation(value = "数据集导入数据", notes = "根据数据集的schema，向数据集以json形式批量插入数据。")
     public ApiReturn interfaceUpload(@RequestBody DataSetAddReq addReq) {
         return kgDataClient.batchSaveDataSetByName(addReq);
+    }
+
+    @ApiOperation(value = "数据仓库下拉提示", notes = "根据数据集的schema，向数据集以json形式批量插入数据。")
+    @GetMapping("table/data/search/{dataStoreId}/{tableId}")
+    public ApiReturn<List<Map<String, Object>>> search(@PathVariable("dataStoreId") long dataStoreId,
+                                                       @PathVariable("tableId") long tableId, @RequestBody DwTableDataSearchReq searchReq) {
+        return dataStoreClient.search(dataStoreId, tableId, searchReq);
     }
 }
