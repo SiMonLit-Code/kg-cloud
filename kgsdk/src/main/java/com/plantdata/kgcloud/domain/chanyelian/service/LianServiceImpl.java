@@ -5,6 +5,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.domain.chanyelian.model.Node;
+import com.plantdata.kgcloud.domain.chanyelian.model.Pair;
 import com.plantdata.kgcloud.domain.chanyelian.model.ViewRsp;
 import com.plantdata.kgcloud.util.DriverUtil;
 import com.plantdata.kgcloud.util.MongoUtil;
@@ -45,23 +46,24 @@ public class LianServiceImpl implements LianService {
         String kgDbName = data.get("db_name").toString();
         ViewRsp viewRsp = new ViewRsp();
         viewRsp.setDeep(0);
+        List<Pair> relation = new ArrayList<>();
         MongoCursor<Document> cursor = mongoUtil.find(kgDbName, "basic_info", Filters.ne("type", 0));
         cursor.forEachRemaining(s -> {
             Long id = s.getLong("id");
             String name = getNodeName(mongoUtil, kgDbName, id);
             Node sNode = new Node(id, name);
             Integer deep = viewRsp.getDeep();
-            dsNext(kgDbName, sNode, 0, mongoUtil, viewRsp);
+            dsNext(kgDbName, sNode, 0, mongoUtil, viewRsp, relation);
             if (viewRsp.getDeep() > deep) {
                 viewRsp.setNode(sNode);
             }
         });
-
+        viewRsp.setRelation(relation);
         return viewRsp;
     }
 
     @SuppressWarnings("unchecked")
-    private static void dsNext(String kgDbName, Node sNode, int deep, MongoUtil mongoUtil, ViewRsp viewRsp) {
+    private static void dsNext(String kgDbName, Node sNode, int deep, MongoUtil mongoUtil, ViewRsp viewRsp, List<Pair> relation) {
 
         MongoCursor<Document> nextCursor = mongoUtil.find(kgDbName, "attribute_object", new Document("entity_id", sNode.getId()));
         if (!nextCursor.hasNext()) {
@@ -93,21 +95,23 @@ public class LianServiceImpl implements LianService {
                 nextNode.setAttr(attr);
             }
 
-            dsLast(kgDbName, nextNode, mongoUtil, sNode.getId());
+            dsLast(kgDbName, nextNode, mongoUtil, sNode.getId(), relation);
 
             List<Long> lastIds = Lists.newArrayList(sNode.getLastIds());
             lastIds.add(sNode.getId());
             nextNode.setLastIds(lastIds);
             if (!lastIds.contains(valueId)) {
-                dsNext(kgDbName, nextNode, deep + 1, mongoUtil, viewRsp);
+                dsNext(kgDbName, nextNode, deep + 1, mongoUtil, viewRsp, relation);
             }
+            Pair pair = new Pair(sNode.getId(), valueId, attName, attr);
+            relation.add(pair);
             next.add(nextNode);
         });
         sNode.setNext(next);
     }
 
     @SuppressWarnings("unchecked")
-    private static void dsLast(String kgDbName, Node sNode, MongoUtil mongoUtil, Long lastId) {
+    private static void dsLast(String kgDbName, Node sNode, MongoUtil mongoUtil, Long lastId, List<Pair> relation) {
 
         Bson query = Filters.and(Filters.eq("attr_value", sNode.getId()), Filters.ne("entity_id", lastId));
         MongoCursor<Document> lastCursor = mongoUtil.find(kgDbName, "attribute_object", query);
@@ -139,8 +143,10 @@ public class LianServiceImpl implements LianService {
             nextIds.add(sNode.getId());
             lastNode.setNextIds(nextIds);
             if (!nextIds.contains(entityId)) {
-                dsLast(kgDbName, lastNode, mongoUtil, sNode.getId());
+                dsLast(kgDbName, lastNode, mongoUtil, sNode.getId(), relation);
             }
+            Pair pair = new Pair(entityId, sNode.getId(), attName, attr);
+            relation.add(pair);
             last.add(lastNode);
         });
         sNode.setLast(last);
