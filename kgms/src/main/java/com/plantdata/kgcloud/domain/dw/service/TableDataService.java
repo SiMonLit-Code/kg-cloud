@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.dw.service;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
+import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
@@ -28,4 +29,6 @@ public interface TableDataService {
     void fileAddBatch(DWFileTableBatchReq fileTableReq, MultipartFile[] files);
 
     List<Map<String, Object>> statistic(String userId, Long datasetId, Long tableId, DwTableDataStatisticReq statisticReq);
+
+    List<Map<String, Object>> search(String userId, Long datasetId, Long tableId, DwTableDataSearchReq searchReq);
 }

@@ -10,6 +10,7 @@ import com.mongodb.client.model.*;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
+import com.plantdata.kgcloud.domain.common.util.PatternUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.sdk.constant.DataStoreSearchEnum;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
@@ -146,10 +147,10 @@ public class MongodbOptProvider implements DataOptProvider {
                     Object like = valMap.get(DataStoreSearchEnum.LIKE.getName());
                     Object noLike = valMap.get(DataStoreSearchEnum.NOL_LIKE.getName());
                     if (noLike != null) {
-                        a.put(k, getNoLikeStr(noLike.toString()));
+                        a.put(k, PatternUtils.getNoLikeStr(noLike.toString()));
                     }
                     if (like != null) {
-                        a.put(k, getLikeStr(like.toString()));
+                        a.put(k, PatternUtils.getLikeStr(like.toString()));
                     }
                 }
             });
@@ -203,15 +204,6 @@ public class MongodbOptProvider implements DataOptProvider {
         return resList;
     }
 
-    private BasicDBObject getLikeStr(String findStr) {
-        Pattern compile = Pattern.compile("^.*" + findStr + ".*$", Pattern.CASE_INSENSITIVE);
-        return new BasicDBObject("$regex", compile);
-    }
-
-    private BasicDBObject getNoLikeStr(String findStr) {
-        Pattern compile = Pattern.compile("^((?!" + findStr + ").)*$");
-        return new BasicDBObject("$regex", compile);
-    }
 
     @Override
     public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {

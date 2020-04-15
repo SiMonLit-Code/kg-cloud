@@ -1,10 +1,10 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
+import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.TableDataService;
@@ -62,7 +62,6 @@ public class TableDataController {
     @PostMapping("/file/add")
     public ApiReturn<FilePathRsp> fileAdd(
             @RequestBody DWFileTableReq fileTableReq) {
-
         tableDataService.fileAdd(fileTableReq);
         return ApiReturn.success();
     }
@@ -107,14 +106,19 @@ public class TableDataController {
     }
 
 
-
     @ApiOperation("数仓表统计")
     @PostMapping("statistic/{dataStoreId}/{tableId}")
     public ApiReturn<List<Map<String, Object>>> dataSoreStatistic(@PathVariable("dataStoreId") long dataStoreId,
                                                                   @PathVariable("tableId") long tableId,
-                                                                  @RequestBody DwTableDataStatisticReq statisticReq)  {
-        System.out.println(JsonUtils.objToJson(statisticReq));
+                                                                  @RequestBody DwTableDataStatisticReq statisticReq) {
+
         return ApiReturn.success(tableDataService.statistic(SessionHolder.getUserId(), dataStoreId, tableId, statisticReq));
     }
 
+    @ApiOperation("数仓表下拉提示")
+    @GetMapping("search/{dataStoreId}/{tableId}")
+    public ApiReturn<List<Map<String, Object>>> search(@PathVariable("dataStoreId") long dataStoreId,
+                            @PathVariable("tableId") long tableId, @RequestBody DwTableDataSearchReq searchReq) {
+        return ApiReturn.success(tableDataService.search(SessionHolder.getUserId(), dataStoreId, tableId, searchReq));
+    }
 }

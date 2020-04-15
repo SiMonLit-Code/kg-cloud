@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.dw.service.impl;
 
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.util.PatternUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -12,6 +14,7 @@ import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
+import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
@@ -30,6 +33,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +45,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @program: kg-cloud-kgms
@@ -99,6 +104,7 @@ public class TableDataServiceImpl implements TableDataService {
         DataOptConnect connect = DataOptConnect.of(database, table, mongoProperties);
         return DataOptProviderFactory.createProvider(connect);
     }
+
     @Override
     public List<Map<String, Object>> statistic(String userId, Long datasetId, Long tableId, DwTableDataStatisticReq statisticReq) {
         try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
@@ -107,6 +113,27 @@ public class TableDataServiceImpl implements TableDataService {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<Map<String, Object>> search(String userId, Long datasetId, Long tableId, DwTableDataSearchReq searchReq) {
+        try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
+            List<String> fields = CollectionUtils.isEmpty(searchReq.getFields()) ? searchReq.getFields() : provider.getFields();
+            Map<String, Object> queryMap = Maps.newHashMap();
+            List<Map<String, Object>> collect = fields.stream().map(a -> {
+                Map<String, Object> map = Maps.newHashMapWithExpectedSize(1);
+                map.put(a, PatternUtils.getLikeStr(a));
+                return map;
+            }).collect(Collectors.toList());
+            HashMap<Object, Object> map = Maps.newHashMap();
+            map.put("$or", collect);
+            queryMap.put("search", map);
+            return provider.find(searchReq.getOffset(), searchReq.getLimit(), queryMap);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
