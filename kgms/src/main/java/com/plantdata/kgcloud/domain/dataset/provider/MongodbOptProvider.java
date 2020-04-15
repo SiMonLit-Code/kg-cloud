@@ -136,25 +136,29 @@ public class MongodbOptProvider implements DataOptProvider {
 
     @Override
     public List<Map<String, Object>> search(Map<String, String> searchMap, int offset, int limit) {
-        Document document = new Document();
+        List<Document> findDoc = Lists.newArrayListWithExpectedSize(searchMap.size());
         Document projection = new Document();
         searchMap.forEach((k, v) -> {
-            document.put(k, PatternUtils.getLikeStr(v));
+            findDoc.add(new Document(k, PatternUtils.getLikeStr(v)));
             projection.put(k, 1);
         });
-
-        FindIterable<Document> documents = getCollection().find(document).skip(offset).limit(limit).projection(projection);
+        FindIterable<Document> documents = getCollection().find(new Document("$or", findDoc))
+                .skip(offset).limit(limit).projection(projection);
         List<Map<String, Object>> list = Lists.newArrayList();
-        documents.iterator().forEachRemaining(a -> projection.keySet().forEach(k -> {
-            String[] split = StringUtils.split(k, ".");
-            Map<String, Object> data = (Map<String, Object>) a.get(split[0]);
-            if (split.length > 1) {
-                for (int i = 0; i < split.length - 1; i++) {
-                    data = (Map<String, Object>) a.get(split[i]);
+        documents.iterator().forEachRemaining(a -> {
+            Map<String, Object> dataMap = projection.keySet().stream().collect(Collectors.toMap(k -> k, v -> {
+                String[] split = StringUtils.split(v, ".");
+                Map<String, Object> data = a;
+                for (int i = 0; i < split.length; i++) {
+                    if (i == split.length - 1) {
+                        return data.get(split[i]);
+                    }
+                    data = (Map<String, Object>) data.get(split[i]);
                 }
-            }
-            BasicConverter.consumerIfNoNull(data, d -> list.add(d.entrySet().stream().collect(Collectors.toMap(v -> k, Map.Entry::getValue))));
-        }));
+                return a;
+            }));
+            BasicConverter.consumerIfNoNull(dataMap, list::add);
+        });
         return list;
     }
 
@@ -196,8 +200,6 @@ public class MongodbOptProvider implements DataOptProvider {
                     throw BizException.of(KgmsErrorCodeEnum.DATA_STORE_STATISTIC_TYPE_ERROR);
                 }
             });
-            System.out.println("1:" + basicDBObject.toJson());
-            System.out.println("2:" + bsonFields.toString());
             operations.add(Aggregates.group(basicDBObject, bsonFields));
         });
         //排序
