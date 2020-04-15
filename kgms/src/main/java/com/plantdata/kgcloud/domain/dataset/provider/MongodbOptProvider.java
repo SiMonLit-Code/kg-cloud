@@ -135,6 +135,17 @@ public class MongodbOptProvider implements DataOptProvider {
     }
 
     @Override
+    public List<Map<String, Object>> search(Map<String, String> searchMap,int offset,int limit) {
+        Document document = new Document();
+        searchMap.forEach((k, v) -> document.put(k, PatternUtils.getLikeStr(v)));
+
+        FindIterable<Document> documents = getCollection().find(document).skip(offset).limit(limit);
+        List<Map<String, Object>> list = Lists.newArrayList();
+        documents.iterator().forEachRemaining(list::add);
+        return list;
+    }
+
+    @Override
     public List<Map<String, Object>> aggregateStatistics(Map<String, Object> filterMap, Map<String, DwTableDataStatisticReq.GroupReq> groupMap,
                                                          Map<SortTypeEnum, List<String>> sortMap) {
 

@@ -116,7 +116,7 @@ public class TableDataController {
     }
 
     @ApiOperation("数仓表下拉提示")
-    @GetMapping("search/{dataStoreId}/{tableId}")
+    @PostMapping("search/{dataStoreId}/{tableId}")
     public ApiReturn<List<Map<String, Object>>> search(@PathVariable("dataStoreId") long dataStoreId,
                             @PathVariable("tableId") long tableId, @RequestBody DwTableDataSearchReq searchReq) {
         return ApiReturn.success(tableDataService.search(SessionHolder.getUserId(), dataStoreId, tableId, searchReq));
