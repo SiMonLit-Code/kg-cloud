@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.sdk.req.PreBuilderMatchAttrReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
 import com.plantdata.kgcloud.sdk.req.SchemaQuoteReq;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -24,7 +25,7 @@ public interface PreBuilderService {
 
     JSONObject saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq);
 
-    List<SchemaQuoteReq> getGraphMap(String userId, String kgName, boolean isDelete);
+    List<SchemaQuoteReq> getGraphMap(String userId, String kgName,boolean isDelete);
 
     PreBuilderSearchRsp databaseDetail(String userId, Long databaseId);
 
@@ -36,15 +37,17 @@ public interface PreBuilderService {
 
     void createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, String yamlContent);
 
-    List<String> getTypes(String userId, Boolean isManage);
+    List<String> getTypes(String userId,Boolean isManage);
 
     void create(PreBuilderCreateReq req);
 
-    void createSchedulingConfig(String kgName, boolean isCreateKtr, Integer status);
+    void createSchedulingConfig(String kgName,boolean isCreateKtr,Integer status);
 
     void pushGraphModel(String userId, ModelPushReq req);
 
     void updateModel(PreBuilderUpdateReq req);
+
+    void updateStatusByDatabaseId(Long databaseId, int status);
 
     void exportEntity(String kgName, HttpServletResponse response);
 }

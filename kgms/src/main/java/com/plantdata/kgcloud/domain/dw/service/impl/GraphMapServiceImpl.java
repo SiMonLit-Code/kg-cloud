@@ -385,6 +385,74 @@ public class GraphMapServiceImpl implements GraphMapService {
         return database;
     }
 
+    @Override
+    public void batchScheduleSwitch(List<Integer> ids, Integer status) {
+
+        if(ids == null || ids.isEmpty()){
+            return;
+        }
+
+        List<String> taskList = new ArrayList<>();
+        for(Integer id : ids){
+
+            Optional<DWGraphMap> graphMapOpt = graphMapRepository.findById(id);
+            if (!graphMapOpt.isPresent()) {
+                return;
+            }
+
+            DWGraphMap graphMap = graphMapOpt.get();
+
+            if(taskList.contains(graphMap.getDataBaseId()+graphMap.getTableName())){
+                continue;
+            }else{
+                taskList.add(graphMap.getDataBaseId()+graphMap.getTableName());
+            }
+
+            DWDatabaseRsp database = dwService.getDetail(graphMap.getDataBaseId());
+
+            if(database == null){
+                return ;
+            }
+
+            List<DWGraphMap> tabs = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMap.getKgName()).tableName(graphMap.getTableName()).build()));
+
+            if (tabs == null || tabs.isEmpty()) {
+                return;
+            }
+
+            Optional<DWPrebuildModel> modelOptional = modelRepository.findById(graphMap.getModelId());
+            if(!modelOptional.isPresent()){
+                throw BizException.of(KgmsErrorCodeEnum.PRE_BUILD_MODEL_NOT_EXIST);
+            }
+
+            tabs.forEach(t -> t.setSchedulingSwitch(status));
+
+            graphMapRepository.saveAll(tabs);
+
+            String kgTaskName = AccessTaskType.KG.getDisplayName() + "_" + graphMap.getKgName() + "_" + graphMap.getModelId();
+            if (status.equals(1)) {
+
+                accessTaskService.createKtrTask(graphMap.getTableName(), graphMap.getDataBaseId(), graphMap.getKgName(), 1,graphMap.getKgName());
+                if (database.getDataFormat().equals(1)) {
+                    accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), null, Lists.newArrayList(kgTaskName), null, null, graphMap.getKgName());
+                } else {
+                    accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(kgTaskName), null, null, null, graphMap.getKgName());
+                }
+            } else {
+                accessTaskService.createKtrTask(graphMap.getTableName(), graphMap.getDataBaseId(), graphMap.getKgName(), 0,graphMap.getKgName());
+
+                if (database.getDataFormat().equals(1)) {
+                    accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, null, Lists.newArrayList(kgTaskName), graphMap.getKgName());
+                } else {
+                    accessTaskService.createTransfer(true,graphMap.getModelId(),graphMap.getTableName(), graphMap.getDataBaseId(), Lists.newArrayList(), null, Lists.newArrayList(kgTaskName), null, graphMap.getKgName());
+                }
+            }
+
+            //更新订阅任务
+            preBuilderService.createSchedulingConfig(graphMap.getKgName(), false,status);
+        }
+    }
+
     private void deleteConcept(List<DWGraphMap> graphMapList) {
 
         for(DWGraphMap graphMap : graphMapList){

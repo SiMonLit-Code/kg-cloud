@@ -18,4 +18,6 @@ public interface GraphMapService {
     void deleteDataByNotExistConcept(String kgName);
 
     List<JSONObject> listDatabase(String userId, String kgName);
+
+    void batchScheduleSwitch(List<Integer> ids, Integer status);
 }

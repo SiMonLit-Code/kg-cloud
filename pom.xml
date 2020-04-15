@@ -26,6 +26,7 @@
         <next-develop.version>3.1.6-SNAPSHOT</next-develop.version>
         <kg-cloud-parent.version>3.0.2</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
+        <kg-cloud-kguser.version>3.2.0-SNAPSHOT</kg-cloud-kguser.version>
         <kg-usersdk.version>3.0.5</kg-usersdk.version>
         <kg-services-sdk.version>3.0.0-SNAPSHOT</kg-services-sdk.version>
         <kgtext-sdk.version>3.0.11-SNAPSHOT</kgtext-sdk.version>
@@ -103,7 +104,7 @@
             <dependency>
                 <groupId>com.plantdata</groupId>
                 <artifactId>kguser-sdk</artifactId>
-                <version>${kg-cloud-public.version}</version>
+                <version>${kg-cloud-kguser.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.plantdata</groupId>
