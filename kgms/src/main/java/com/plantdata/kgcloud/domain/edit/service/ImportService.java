@@ -110,4 +110,11 @@ public interface ImportService {
      */
     String exportRdf(String kgName, String format, Integer scope);
 
+    /**
+     * 实体概念模型导出
+     * @param kgName
+     * @param response
+     */
+    void exportEntity(String kgName, HttpServletResponse response);
+
 }

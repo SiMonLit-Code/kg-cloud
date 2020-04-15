@@ -69,11 +69,4 @@ public class PreBuildManageController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("预构建模式管理-模式导出")
-    @GetMapping("/export/{kgName}")
-    public ApiReturn exportEntityToWord(@PathVariable("kgName") String kgName, HttpServletResponse response) {
-        preBuilderService.exportEntity(kgName, response);
-        return ApiReturn.success();
-    }
-
 }

@@ -154,6 +154,13 @@ public class ImportController {
         return ApiReturn.success(importService.exportRdf(kgName, format, scope));
     }
 
+    @ApiOperation("实体概念模型导出")
+    @GetMapping("/export/{kgName}")
+    public ApiReturn exportEntityToWord(@PathVariable("kgName") String kgName, HttpServletResponse response) {
+        importService.exportEntity(kgName, response);
+        return ApiReturn.success();
+    }
+
     /**
      * 校验文件类型
      *

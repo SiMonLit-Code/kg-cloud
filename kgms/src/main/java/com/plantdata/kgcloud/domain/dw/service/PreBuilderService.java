@@ -49,5 +49,4 @@ public interface PreBuilderService {
 
     void updateStatusByDatabaseId(Long databaseId, int status);
 
-    void exportEntity(String kgName, HttpServletResponse response);
 }
