@@ -1,10 +1,12 @@
 package com.plantdata.kgcloud.domain.dw.service.impl;
 
+import com.alibaba.excel.util.CollectionUtils;
 import com.alibaba.excel.util.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.AccessTaskType;
@@ -15,6 +17,7 @@ import com.plantdata.kgcloud.domain.access.rsp.KgConfigRsp;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphEditService;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dw.entity.*;
 import com.plantdata.kgcloud.domain.dw.parser.ExcelParser;
@@ -52,6 +55,10 @@ import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xwpf.usermodel.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -63,7 +70,11 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.math.BigInteger;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
@@ -75,6 +86,9 @@ import java.util.zip.ZipFile;
 public class PreBuilderServiceImpl implements PreBuilderService {
 
 
+    private final static String JSON_START = "{";
+    private final static String ARRAY_START = "[";
+    private final static String ARRAY_STRING_START = "[\"";
     @Autowired
     private DWPrebuildModelRepository prebuildModelRepository;
 
@@ -116,10 +130,50 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     @Autowired
     private GraphMapService graphMapService;
+    @Autowired
+    private FastFileStorageClient storageClient;
 
-    private final static String JSON_START = "{";
-    private final static String ARRAY_START = "[";
-    private final static String ARRAY_STRING_START = "[\"";
+    public static void bytesToFile(byte[] buffer, final String filePath) {
+
+        File file = new File(filePath);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        OutputStream output = null;
+        BufferedOutputStream bufferedOutput = null;
+
+        try {
+            output = new FileOutputStream(file);
+
+            bufferedOutput = new BufferedOutputStream(output);
+
+            bufferedOutput.write(buffer);
+            bufferedOutput.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != bufferedOutput) {
+                try {
+                    bufferedOutput.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (null != output) {
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+    }
 
     private UserDetailRsp getUserDetail() {
         return userClient.getCurrentUserDetail().getData();
@@ -202,20 +256,20 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         SchemaRsp schemaRsp = graphApplicationService.querySchema(req.getKgName());
 
-        Map<String,Long> conceptNameMap = new HashMap<>();
+        Map<String, Long> conceptNameMap = new HashMap<>();
 
         //概念名称映射属性名称与属性
         if (schemaRsp != null && schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()) {
 
             schemaRsp.getTypes().forEach(c -> {
-                conceptNameMap.put(c.getName(),c.getId());
+                conceptNameMap.put(c.getName(), c.getId());
             });
         }
 
         //已引入的概念属性
         List<SchemaQuoteReq> dataMapReqList = req.getSchemaQuoteReqList();
 //        megerSchemaQuote(dataMapReqList,);
-        List<SchemaQuoteReq> existMap =  getGraphMap(userId, req.getKgName(),true);
+        List<SchemaQuoteReq> existMap = getGraphMap(userId, req.getKgName(), true);
 //        List<SchemaQuoteReq> existMap =  getGraphMap(userClient.getCurrentUserDetail().getData().getId(), req.getKgName(),true);
 //        megerSchemaQuote(dataMapReqList,existMap);
 
@@ -985,6 +1039,140 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         prebuildModelRepository.updateStatusByDatabaseId(databaseId,status);
     }
 
+    @Override
+    public void exportEntity(String kgName, HttpServletResponse response) {
+        SchemaRsp schemaRsp = graphApplicationService.querySchema(kgName);
+        if (schemaRsp == null || schemaRsp.getTypes() == null || schemaRsp.getTypes().isEmpty()) {
+            throw BizException.of(KgmsErrorCodeEnum.SCHEMA_CONCEPT_NOT_EXIST_ERROR);
+        }
+
+        int rowSize = 0;
+
+        String title = schemaRsp.getKgTitle() + "图谱实体概念模型";
+        List<BaseConceptRsp> conceptList = schemaRsp.getTypes();
+        List<AttributeDefinitionRsp> attrList = schemaRsp.getAttrs();
+        Map<Long, String> conceptMap = Maps.newHashMap();
+        for (BaseConceptRsp baseConceptRsp : conceptList) {
+            conceptMap.put(baseConceptRsp.getId(), baseConceptRsp.getName());
+            rowSize += 2;
+        }
+
+        Map<String, List<Map<String, String>>> dataMap = Maps.newHashMap();
+        for (BaseConceptRsp baseConceptRsp : conceptList) {
+            Long conceptId = baseConceptRsp.getId();
+            List<AttributeDefinitionRsp> collect = attrList == null ? new ArrayList<>() : attrList.stream()
+                    .filter(attr -> conceptId.equals(attr.getDomainValue())).collect(Collectors.toList());
+
+            List<Map<String, String>> dataList = Lists.newArrayList();
+
+            for (AttributeDefinitionRsp attr : collect) {
+                String rangeValue = attr.getRangeValue() == null ? "-" : attr.getRangeValue().stream()
+                        .map(conceptMap::get).collect(Collectors.joining("、"));
+                if (StringUtils.isEmpty(rangeValue)) {
+                    rangeValue = "-";
+                }
+
+                String extraInfo = attr.getExtraInfos() == null ? "-" : attr.getExtraInfos().stream()
+                        .map(AttrExtraRsp::getName).collect(Collectors.joining("、"));
+                if (StringUtils.isEmpty(extraInfo)) {
+                    extraInfo = "-";
+                }
+
+                Map<String, String> map = Maps.newHashMap();
+                map.put("属性名", attr.getName());
+                map.put("属性类型", CollectionUtils.isEmpty(attr.getRangeValue()) ? "数值" : "对象");
+                map.put("值域", rangeValue);
+                map.put("边属性", extraInfo);
+                rowSize++;
+                dataList.add(map);
+            }
+            if (collect.size() == 0) {
+                Map<String, String> map = Maps.newHashMap();
+                map.put("属性名", "-");
+                map.put("属性类型", "-");
+                map.put("值域", "-");
+                map.put("边属性", "-");
+                rowSize++;
+                dataList.add(map);
+            }
+            dataMap.put(conceptMap.get(conceptId), dataList);
+        }
+        try {
+            XWPFDocument document = createWord(title, dataMap, rowSize);
+
+            response.setContentType("application/octet-stream");
+            String dataName = schemaRsp.getKgTitle() + "图谱模式报告.doc";
+            String fileName = URLEncoder.encode(dataName, "UTF-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+            ServletOutputStream outputStream = response.getOutputStream();
+            document.write(outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private XWPFDocument createWord(String title, Map<String, List<Map<String, String>>> dataMap, int rowSize) throws IOException {
+        XWPFDocument doc = new XWPFDocument();
+        // 创建标题
+        XWPFParagraph titleParagraph = doc.createParagraph();
+        titleParagraph.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun titleFun = titleParagraph.createRun();
+        titleFun.setText(title);
+        titleFun.setFontSize(11);
+        // 创建表格
+        XWPFTable table = doc.createTable(rowSize, 4);
+        // 设置列宽
+        CTTblPr tblPr = table.getCTTbl().getTblPr();
+        tblPr.getTblW().setType(STTblWidth.DXA);
+        tblPr.getTblW().setW(new BigInteger("8000"));
+
+        int currectRow = 0;
+        List<String> parameters = Lists.newArrayList("属性名", "属性类型", "值域", "边属性");
+
+        Set<String> set = dataMap.keySet();
+        for (String concept : set) {
+            // 合并单元格
+            for (int cellIndex = 0; cellIndex <= 3; cellIndex++) {
+                XWPFTableCell cell = table.getRow(currectRow).getCell(cellIndex);
+                if (cellIndex == 0) {
+                    cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.RESTART);
+                } else {
+                    cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.CONTINUE);
+                }
+            }
+            // 设置行高和颜色
+            table.getRow(currectRow).getCtRow().addNewTrPr().addNewTrHeight().setVal(new BigInteger("400"));
+            table.getRow(currectRow).getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("D7D7D7");
+            // 概念
+            XWPFParagraph cParagraph = table.getRow(currectRow).getCell(0).getParagraphArray(0);
+            cParagraph.setAlignment(ParagraphAlignment.CENTER);
+            XWPFRun cContent = cParagraph.createRun();
+            cContent.setText(concept);
+            currectRow++;
+            // 参数
+            for (int i = 0; i < parameters.size(); i++) {
+                table.getRow(currectRow).getCtRow().addNewTrPr().addNewTrHeight().setVal(new BigInteger("400"));
+                XWPFParagraph paragraph = table.getRow(currectRow).getCell(i).getParagraphArray(0);
+                paragraph.setAlignment(ParagraphAlignment.CENTER);
+                XWPFRun content = paragraph.createRun();
+                content.setText(parameters.get(i));
+            }
+            // 属性
+            for (int i = 0; i < dataMap.get(concept).size(); i++) {
+                currectRow++;
+                for (int j = 0; j < parameters.size(); j++) {
+                    table.getRow(currectRow).getCtRow().addNewTrPr().addNewTrHeight().setVal(new BigInteger("400"));
+                    XWPFParagraph paragraph = table.getRow(currectRow).getCell(j).getParagraphArray(0);
+                    paragraph.setAlignment(ParagraphAlignment.CENTER);
+                    XWPFRun content = paragraph.createRun();
+                    content.setText(dataMap.get(concept).get(i).get(parameters.get(j)));
+                }
+            }
+            currectRow++;
+        }
+        return doc;
+    }
+
     private void addSchema2PreBuilder(SchemaRsp schemaRsp, Integer modelId) {
 
         List<BaseConceptRsp> conceptRsps = schemaRsp.getTypes();
@@ -1519,50 +1707,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
 
     }
-
-
-    public static void bytesToFile(byte[] buffer, final String filePath) {
-
-        File file = new File(filePath);
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
-        }
-
-        OutputStream output = null;
-        BufferedOutputStream bufferedOutput = null;
-
-        try {
-            output = new FileOutputStream(file);
-
-            bufferedOutput = new BufferedOutputStream(output);
-
-            bufferedOutput.write(buffer);
-            bufferedOutput.flush();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (null != bufferedOutput) {
-                try {
-                    bufferedOutput.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (null != output) {
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-
-    }
-
 
     private DWPrebuildModel addModelByZip(PreBuilderCreateReq req) {
 

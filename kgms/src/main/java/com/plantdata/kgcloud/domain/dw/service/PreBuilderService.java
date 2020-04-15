@@ -15,6 +15,7 @@ import com.plantdata.kgcloud.sdk.req.SchemaQuoteReq;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public interface PreBuilderService {
@@ -47,4 +48,6 @@ public interface PreBuilderService {
     void updateModel(PreBuilderUpdateReq req);
 
     void updateStatusByDatabaseId(Long databaseId, int status);
+
+    void exportEntity(String kgName, HttpServletResponse response);
 }
