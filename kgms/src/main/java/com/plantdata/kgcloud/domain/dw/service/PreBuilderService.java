@@ -39,7 +39,7 @@ public interface PreBuilderService {
 
     List<String> getTypes(String userId,Boolean isManage);
 
-    void create(PreBuilderCreateReq req);
+    String create(PreBuilderCreateReq req);
 
     void createSchedulingConfig(String kgName,boolean isCreateKtr,Integer status);
 

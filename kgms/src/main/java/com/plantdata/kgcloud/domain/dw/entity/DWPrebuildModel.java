@@ -69,6 +69,10 @@ public class DWPrebuildModel {
     private Integer isStandardTemplate;
 
     @Basic
+    @Column(name = "quote_count")
+    private Integer quoteCount;
+
+    @Basic
     @Column(name = "database_id")
     private Long databaseId;
 
