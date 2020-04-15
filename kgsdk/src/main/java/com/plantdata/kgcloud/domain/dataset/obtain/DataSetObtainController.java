@@ -71,7 +71,7 @@ public class DataSetObtainController implements DataSetDataObtainInterface {
     }
 
     @ApiOperation(value = "数据仓库下拉提示", notes = "根据数据集的schema，向数据集以json形式批量插入数据。")
-    @GetMapping("table/data/search/{dataStoreId}/{tableId}")
+    @PostMapping("table/data/search/{dataStoreId}/{tableId}")
     public ApiReturn<List<Map<String, Object>>> search(@PathVariable("dataStoreId") long dataStoreId,
                                                        @PathVariable("tableId") long tableId, @RequestBody DwTableDataSearchReq searchReq) {
         return dataStoreClient.search(dataStoreId, tableId, searchReq);

@@ -117,23 +117,24 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Override
     public List<Map<String, Object>> search(String userId, Long datasetId, Long tableId, DwTableDataSearchReq searchReq) {
-        try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
-            List<String> fields = CollectionUtils.isEmpty(searchReq.getFields()) ? searchReq.getFields() : provider.getFields();
-            Map<String, Object> queryMap = Maps.newHashMap();
-            List<Map<String, Object>> collect = fields.stream().map(a -> {
-                Map<String, Object> map = Maps.newHashMapWithExpectedSize(1);
-                map.put(a, PatternUtils.getLikeStr(a));
-                return map;
-            }).collect(Collectors.toList());
-            HashMap<Object, Object> map = Maps.newHashMap();
-            map.put("$or", collect);
-            queryMap.put("search", map);
-            return provider.find(searchReq.getOffset(), searchReq.getLimit(), queryMap);
-
+        DWDatabaseRsp database = dwService.getDetail(datasetId);
+        if (database == null) {
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+        DWTable table = dwService.getTableDetail(tableId);
+        if (table == null) {
+            throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+        }
+        DataOptConnect connect = DataOptConnect.of(database, table, mongoProperties);
+        try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect)) {
+            List<String> fields = CollectionUtils.isEmpty(searchReq.getFields()) ? provider.getFields() : searchReq.getFields();
+            Map<String, String> searchMap = Maps.newHashMapWithExpectedSize(fields.size());
+            fields.forEach(a->searchMap.put(a,searchReq.getKw()));
+            return provider.search(searchMap,searchReq.getOffset(),searchReq.getLimit());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

@@ -39,7 +39,7 @@ public interface DataStoreClient {
      * @param searchReq
      * @return
      */
-    @GetMapping("table/data/search/{dataStoreId}/{tableId}")
+    @PostMapping("table/data/search/{dataStoreId}/{tableId}")
     ApiReturn<List<Map<String, Object>>> search(@PathVariable("dataStoreId") long dataStoreId,
                                                 @PathVariable("tableId") long tableId, @RequestBody DwTableDataSearchReq searchReq);
 }
