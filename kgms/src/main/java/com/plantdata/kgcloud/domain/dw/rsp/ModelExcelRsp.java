@@ -63,6 +63,8 @@ public class ModelExcelRsp {
 
         private String rangeMeaningTag;
 
+        private List<Attr> relationAttrs;
+
     }
 }
 

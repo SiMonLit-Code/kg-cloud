@@ -39,13 +39,11 @@ import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -55,7 +53,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
@@ -1860,6 +1861,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         Sheet relationSheet = excelParser.wb.getSheetAt(2);
         getExcelModelRelation(excelParser, relationSheet, conceptMap);
 
+        Sheet relationAttrSheet = excelParser.wb.getSheetAt(3);
+        getExcelModelRelationAttr(excelParser, relationAttrSheet, conceptMap);
+
         ExcelParserRsp rsp = new ExcelParserRsp();
         if(excelParser.hasError()){
             ByteArrayOutputStream out = excelParser.parse(wb -> {});
@@ -1875,6 +1879,82 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
         return rsp;
 
+
+    }
+
+    private void getExcelModelRelationAttr(ExcelParser excelParser, Sheet sheet, Map<String, ModelExcelRsp> conceptMap) {
+
+        excelParser.checkTitle(sheet.getRow(0), ExcelParser.RELATION);
+
+        int rows = sheet.getPhysicalNumberOfRows();
+
+        for (int i = 1; i <= rows; i++) {
+            Row row = sheet.getRow(i);
+            if (row != null) {
+
+                String relationDomain = excelParser.getCellValue(row.getCell(0));
+                String relationMt = excelParser.getCellValue(row.getCell(1));
+                String relationName = excelParser.getCellValue(row.getCell(2));
+                String attrName = excelParser.getCellValue(row.getCell(3));
+                String attrAlias = excelParser.getCellValue(row.getCell(4));
+                String attrType = excelParser.getCellValue(row.getCell(5));
+                String attrUnit = excelParser.getCellValue(row.getCell(6));
+                if (!org.springframework.util.StringUtils.hasText(relationDomain) ) {
+                    excelParser.buildErrorMsg(row,"边属性关系定义域为空",ExcelParser.RELATION_ATTR);
+                    continue;
+                }
+                if ( !org.springframework.util.StringUtils.hasText(relationName)) {
+                    excelParser.buildErrorMsg(row,"边属性关系名称为空",ExcelParser.RELATION_ATTR);
+                    continue;
+                }
+                if (!org.springframework.util.StringUtils.hasText(attrName)) {
+                    excelParser.buildErrorMsg(row,"边属性名为空",ExcelParser.RELATION_ATTR);
+                    continue;
+                }
+                if (!org.springframework.util.StringUtils.hasText(attrType)) {
+                    excelParser.buildErrorMsg(row,"边属性类型为空",ExcelParser.RELATION_ATTR);
+                    continue;
+                }
+                if (!conceptMap.containsKey(relationDomain + relationMt)) {
+                    excelParser.buildErrorMsg(row,"边属性关系定义域不存在",ExcelParser.RELATION_ATTR);
+                    continue;
+                }
+
+                List<ModelExcelRsp.Relation> relationList = conceptMap.get(relationDomain + relationMt).getRelations();
+                if(relationList == null ||relationList.isEmpty()){
+                    excelParser.buildErrorMsg(row,"边属性关系不存在",ExcelParser.RELATION_ATTR);
+                    continue;
+                }
+
+                ModelExcelRsp.Relation relation = null;
+                for(ModelExcelRsp.Relation r : relationList){
+                    if(r.getName().equals(attrName)){
+                        relation = r;
+                        break;
+                    }
+                }
+
+                if(relation == null){
+                    excelParser.buildErrorMsg(row,"边属性关系不存在",ExcelParser.RELATION_ATTR);
+                    continue;
+                }
+
+                if(relation.getRelationAttrs() == null){
+                    relation.setRelationAttrs(new ArrayList<>());
+                }
+
+
+                ModelExcelRsp.Attr attr = new ModelExcelRsp.Attr();
+                attr.setName(attrName);
+                attr.setAlias(attrAlias);
+                attr.setDataType(DataTypeEnum.getDataType(attrType));
+                attr.setUnit(attrUnit);
+
+                relation.getRelationAttrs().add(attr);
+
+            }
+
+        }
 
     }
 

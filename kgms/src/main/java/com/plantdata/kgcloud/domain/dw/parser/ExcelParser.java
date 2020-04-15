@@ -48,11 +48,16 @@ public class ExcelParser {
     private Row relationTitleRow;
     private List<Row> relationErrorRows;
 
+    private int relationAttrErrorNum = 7;
+    private Row relationAttrTitleRow;
+    private List<Row> relationAttrErrorRows;
+
     private static final Map<String,List<String>> titles = Maps.newHashMap();
     public static final String CONCEPT = "concept";
     public static final String ENTITY = "entity";
     public static final String ATTRIBUTE = "attribute";
     public static final String RELATION = "relation";
+    public static final String RELATION_ATTR = "relation_attr";
     public static final String SPECIAL = "special";
     public static final String SYNONYM = "synonym";
     public static final String DOMAIN = "domain";
@@ -66,7 +71,9 @@ public class ExcelParser {
         titles.put(ATTRIBUTE, Lists.newArrayList("属性名称(必填)", "别名", "属性定义域(必填)", "属性定义域的消歧标识"));
         //关系
 //        titles.put(RELATION, Lists.newArrayList("定义域（必填，实例的概念类型）", "定义域消歧标识", "定义域实例名称（必填）", "实例消歧标识","关系名称（必填）","值域实例名称（必填）"));
-        titles.put(RELATION, Lists.newArrayList("属性名称(必填)", "别名", "属性定义域(必填)", "属性定义域的消歧标识","属性值域(必填)","属性值域的消歧标识"));
+        titles.put(RELATION, Lists.newArrayList("关系名称(必填)", "别名", "关系定义域(必填)", "关系定义域的消歧标识","关系值域(必填)","关系值域的消歧标识"));
+
+        titles.put(RELATION_ATTR, Lists.newArrayList("关系定义域(必填)", "关系定义域的消歧标识", "关系名称(必填)", "边属性名称(必填)","别名","数据类型(必填)","单位"));
         //特定关系
         titles.put(SPECIAL, Lists.newArrayList("实例名称（必填）", "实例消歧标识", "关系实例名称（必填）", "关系实例消歧标识","关系值域（必填，关系实例的概念类型）"));
         //同义词
@@ -116,6 +123,9 @@ public class ExcelParser {
                 break;
             case RELATION:
                 this.relationTitleRow = row;
+                break;
+            case RELATION_ATTR:
+                this.relationAttrTitleRow = row;
                 break;
         }
     }
@@ -201,6 +211,20 @@ public class ExcelParser {
 
             }
 
+            if(relationAttrErrorRows != null){
+
+                relationAttrErrorRows.add(0,relationAttrTitleRow);
+                Sheet sheet = wb.createSheet(RELATION_ATTR);
+                int index = 0;
+                for (Row errRow : relationAttrErrorRows) {
+                    Row row = sheet.createRow(index++);
+                    for (int i = 0; i <= relationAttrErrorNum; i++) {
+                        write(row,i,getCellValue(errRow.getCell(i)),wb,i == relationAttrErrorNum);
+                    }
+                }
+
+            }
+
         }
         try {
             wb.write(outputStream);
@@ -254,6 +278,15 @@ public class ExcelParser {
                 relationErrorRows.add(row);
                 this.error = true;
                 write(row,relationErrorNum,msg,wb,true);
+                break;
+            case RELATION_ATTR:
+
+                if(relationAttrErrorRows == null){
+                    relationAttrErrorRows = Lists.newArrayList();
+                }
+                relationAttrErrorRows.add(row);
+                this.error = true;
+                write(row,relationAttrErrorNum,msg,wb,true);
                 break;
 
         }
