@@ -11,5 +11,6 @@ public class KgConfigReq {
 
     private String taskId;
     private Integer graphMapId;
+    private String kgName;
 
 }

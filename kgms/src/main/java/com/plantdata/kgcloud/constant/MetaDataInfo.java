@@ -73,6 +73,11 @@ public enum MetaDataInfo {
 
     private final String name;
 
+    public static final String META_DATA = "meta_data.";
+    public static final String PREFIX = "meta_data_";
+
+    public static final String METADATA = META_DATA + PREFIX;
+
     MetaDataInfo(String code, String fieldName, String name) {
         this.code = code;
         this.fieldName = fieldName;

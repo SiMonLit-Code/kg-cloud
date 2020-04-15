@@ -28,9 +28,11 @@ import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
+import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
+import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataAccessTaskConfigReq;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -78,6 +80,9 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     @Autowired
     private DWPrebuildModelRepository modelRepository;
 
+    @Autowired
+    private GraphMapService graphMapService;
+
     @Value("${topic.channel.transfer}")
     private String kafkaTransferTopic;
 
@@ -108,18 +113,26 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         }
 
         Map<String,String> taskId2TypeMap = new HashMap<>();
+//
+//        for(DataAccessTaskConfigReq config : reqs){
+//            taskId2TypeMap.put(config.getId(),config.getType());
+//        }
 
         for(DataAccessTaskConfigReq config : reqs){
-            taskId2TypeMap.put(config.getId(),config.getType());
+
+            if(!"plantdata-graph-setting".equals(config.getType())){
+                continue;
+            }
+
+            GraphMapReq graphMapReq = new GraphMapReq();
+            KgConfigReq kgConfigReq = JacksonUtils.readValue(config.getConfig(), KgConfigReq.class);
+            graphMapReq.setKgName(kgConfigReq.getKgName());
+            graphMapReq.setStatus(1);
+            graphMapService.scheduleSwitchByKgName(graphMapReq);
         }
 
-        List<ResourceReq> resourceReqList = new ArrayList<>();
-        for(DataAccessTaskConfigReq config : reqs){
-            resourceReqList.addAll(transformConfig( config,taskId2TypeMap));
-        }
 
-
-        DWTask task = new DWTask();
+       /* DWTask task = new DWTask();
 
         if(taskId != null){
             task.setId(taskId);
@@ -128,9 +141,9 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         task.setConfig(JacksonUtils.writeValueAsString(resourceReqList));
         task.setName("数据接入任务");
         task.setUserId(SessionHolder.getUserId());
-        task = taskRepository.save(task);
+        task = taskRepository.save(task);*/
 
-        return task.getId();
+        return 1;
     }
 
     @Override
