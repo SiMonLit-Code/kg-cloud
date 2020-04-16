@@ -675,9 +675,9 @@ public class DWServiceImpl implements DWService {
 
             value.put("logTimeStamp",logTimeStamp);
             value.put("time_flag","hour");
-            value.put("W",sum);
+            value.put("W",new Long(sum));
             value.put("dataName",database.getDataName());
-            value.put("dbId",database.getId().intValue());
+            value.put("dbId",database.getId());
             value.put("dbTitle",database.getTitle());
             value.put("tableName",tableName);
             value.put("target",tableName);
@@ -689,7 +689,7 @@ public class DWServiceImpl implements DWService {
             Long count = value.get("W") == null ? 0L : Long.parseLong(value.get("W").toString());
 
             count += sum;
-            value.put("W",count);
+            value.put("W",new Long(count));
             String id = value.get(MONGO_ID).toString();
             value.remove(MONGO_ID);
             provider.update(id,value);
