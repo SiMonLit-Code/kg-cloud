@@ -17,8 +17,10 @@ import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -39,15 +41,15 @@ public class RelationConverter extends BasicConverter {
         queryRelationFrom.setDirection(searchReq.getDirection());
         //时间筛选
         Map<String, Object> attrTimeFilters = Maps.newHashMap();
-        consumerIfNoNull(searchReq.getAttrTimeFrom(),a->{
+        consumerIfNoNull(searchReq.getAttrTimeFrom(), a -> {
             DateUtils.checkDataMap(a);
-            attrTimeFilters.put("attr_time_from",a);
+            attrTimeFilters.put("attr_time_from", a);
         });
-        consumerIfNoNull(searchReq.getAttrTimeTo(),a-> {
+        consumerIfNoNull(searchReq.getAttrTimeTo(), a -> {
             DateUtils.checkDataMap(a);
             attrTimeFilters.put("attr_time_to", a);
         });
-        consumerIfNoNull(attrTimeFilters,queryRelationFrom::setAttrTimeFilters);
+        consumerIfNoNull(attrTimeFilters, queryRelationFrom::setAttrTimeFilters);
         return queryRelationFrom;
 
     }
@@ -61,14 +63,15 @@ public class RelationConverter extends BasicConverter {
         relationRsp.setDirection(relation.getDirection());
         relationRsp.setFrom(relation.getFromId());
         relationRsp.setTo(relation.getToId());
-        relationRsp.setStartTime(relation.getStartTime());
-        relationRsp.setEndTime(relation.getEndTime());
+        Function<Date, String> dateFormat = a -> a == null ? StringUtils.EMPTY : com.plantdata.kgcloud.util.DateUtils.formatDatetime(a);
+        relationRsp.setStartTime(dateFormat.apply(relation.getStartTime()));
+        relationRsp.setEndTime(dateFormat.apply(relation.getEndTime()));
         return relationRsp;
     }
 
     public static AggRelationFrom edgeAttrPromptReqToAggRelationFrom(EdgeAttrPromptReq req) {
         AggRelationFrom from = new AggRelationFrom();
-        from.setSkip( req.getOffset());
+        from.setSkip(req.getOffset());
         from.setLimit(req.getLimit());
         from.setSeqNo(req.getSeqNo());
         from.setAttrId(req.getAttrId());
