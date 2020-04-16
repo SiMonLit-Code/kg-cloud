@@ -56,77 +56,34 @@ public class PaserYaml2SchemaUtil {
         //yaml转json
         Yaml yaml = new Yaml();
         String document = "tables:\n" +
-                "  - t_trans_log: 成交记录表\n" +
-                "  - t_rack_a: 机柜信息表\n" +
-                "  - t_dc: 数据中心表\n" +
-                "  - t_equipment: 设备表\n" +
-                "  - t_idc: 机房表\n" +
-                "  - t_relation: 关系表\n" +
-                "  - t_system: 系统表\n" +
+                " - t_trans_log: 成交记录表\n" +
+                " - t_system: 系统表\n" +
+                " - t_relation: 关系表\n" +
+                " - t_rack_a: 机柜信息表\n" +
+                " - t_idc: 机房表\n" +
+                " - t_equipment: 设备表\n" +
+                " - t_dc: 数据中心表\n" +
                 "t_trans_log:\n" +
-                "  relation:\n" +
-                "    - 席位 > 产生 > 成交记录\n" +
-                "  columns:\n" +
-                "    - seat: { tag: 席位.名称, type: string }\n" +
-                "    - name: { tag: 成交记录.名称, type: string }\n" +
-                "    - bug_num: { tag: 成交记录.买成交量, type: int }\n" +
-                "    - sale_num: { tag: 成交记录.卖成交量, type: int }\n" +
-                "    - trust_buy_num: { tag: 成交记录.委托买次数, type: int }\n" +
-                "    - trust_sale_num: { tag: 成交记录.委托卖次数, type: int }\n" +
-                "    - deal_time: { tag: 成交记录.成交时间, type: date }\n" +
-                "    - deal_price: { tag: 成交记录.成交单价, type: float }\n" +
-                "t_rack_a:\n" +
-                "  relation:\n" +
-                "    - 机柜 > 所属机房 > 机房\n" +
-                "    - 机柜 > 所属数据中心 > 数据中心\n" +
-                "  columns:\n" +
-                "    - rack: { tag: 机柜.名称, type: string }\n" +
-                "    - dc: { tag: 数据中心.名称, type: int }\n" +
-                "    - idc: { tag: 机房.名称, type: string }\n" +
-                "    - rack_capacity: { tag: 机柜.机柜容量, type: string }\n" +
-                "    - row: { tag: <所属机房>.所属行, type: string }\n" +
-                "    - column: { tag: <所属机房>.所属列, type: string }\n" +
-                "    - enabled: { tag: 机柜.启用状态, type: string }\n" +
-                "    - on_position: { tag: 机柜.通电状态, type: string }\n" +
-                "    - power_type: { tag: 机柜.电源类型, type: string }\n" +
-                "    - hz: { tag: 机柜.电流类型, type: int }\n" +
-                "    - two_circuit_feed: { tag: 机柜.是否双路供电, type: string }\n" +
-                "    - lease_type: { tag: 机柜.租赁类型, type: string }\n" +
-                "    - kw: { tag: 机柜.最大额定功率, type: string }\n" +
+                " relation:\n" +
+                "     - 席位 > 产生 > 成交记录\n" +
+                " columns:\n" +
+                "    - seat: { tag: 席位.名称   , type: text , explain: 席位}\n" +
+                "    - buy_num: { tag: 成交记录.买成交量   , type: int , explain: }\n" +
+                "    - sale_num: { tag: 成交记录.卖成交量   , type: int , explain: }\n" +
+                "    - trust_buy_num: { tag: 成交记录.委托买次数   , type: int , explain: }\n" +
+                "    - trust_sale_num: { tag: 成交记录.委托卖次数   , type: int , explain: }\n" +
+                "    - deal_time: { tag: 成交记录.成交时间   , type: text , explain: }\n" +
+                "    - deal_price: { tag: 成交记录.成交单价   , type: string , explain: }\n" +
+                "    - name: { tag: 成交记录.名称   , type: text , explain: }\n" +
                 "t_system:\n" +
-                "  relation:\n" +
-                "  columns:\n" +
-                "    - system: { tag: 系统.名称, type: string }\n" +
-                "    - MAC: { tag: 系统.MAC, type: int }\n" +
-                "    - type: { tag: 系统.类型, type: string }\n" +
-                "    - status: { tag: 系统.状态, type: string }\n" +
-                "t_dc:\n" +
-                "  relation:\n" +
-                "    - 数据中心 > 所在地区 > 地区\n" +
-                "    - 数据中心 > 地址 > 地址\n" +
-                "  columns:\n" +
-                "    - dc: { tag: 数据中心.名称, type: string }\n" +
-                "    - locality: { tag: 地区.名称, type: int }\n" +
-                "    - type: { tag: 数据中心.类型, type: string }\n" +
-                "    - network_access: { tag: 数据中心.网络接入, type: string }\n" +
-                "    - ddress: { tag: 地址.名称, type: string }\n" +
-                "t_equipment:\n" +
-                "  relation:\n" +
-                "  columns:\n" +
-                "    - equipment: { tag: 设备.名称, type: string }\n" +
-                "    - model: { tag: 设备.型号, type: string }\n" +
-                "    - interspace: { tag: 设备.空间, type: string }\n" +
-                "    - power: { tag: 设备.功率, type: string }\n" +
-                "    - image_url: { tag: 设备.图片, type: string }\n" +
-                "    - createDate: { tag: 设备.创建时间, type: date }\n" +
-                "t_idc:\n" +
-                "  relation:\n" +
-                "    - 机房 > 所属数据中心 > 数据中心\n" +
-                "  columns:\n" +
-                "    - idc: { tag: 机房.名称, type: string }\n" +
-                "    - dc: { tag: 数据中心.名称, type: string }\n" +
+                " relation:\n" +
+                " columns:\n" +
+                "    - system: { tag: 系统.名称   , type: text , explain: }\n" +
+                "    - MAC: { tag: 系统.MAC   , type: text , explain: }\n" +
+                "    - type: { tag: 系统.类型   , type: text , explain: }\n" +
+                "    - status: { tag: 系统.状态   , type: text , explain: }\n" +
                 "t_relation:\n" +
-                "  relation:\n" +
+                " relation:\n" +
                 "    - 机房 > 所属数据中心 > 数据中心\n" +
                 "    - 机柜 > 所属机房 > 机房\n" +
                 "    - 设备 > 所属机柜 > 机柜\n" +
@@ -135,17 +92,59 @@ public class PaserYaml2SchemaUtil {
                 "    - 会员 > 托管 > 设备\n" +
                 "    - 会员 > 拥有 > 席位\n" +
                 "    - 系统 > 席位 > 席位\n" +
-                "\n" +
-                "  columns:\n" +
-                "    - system: { tag: 系统.名称, type: string }\n" +
-                "    - user: { tag: 会员.名称, type: string }\n" +
-                "    - dc: { tag: 数据中心.名称, type: string }\n" +
-                "    - idc: { tag: 机房.名称, type: string }\n" +
-                "    - rack: { tag: 机柜.名称, type: string }\n" +
-                "    - camera_stand: { tag: 机位.名称, type: string }\n" +
-                "    - equipment: { tag: 设备.名称, type: string }\n" +
-                "    - IP: { tag: IP.名称, type: string }\n" +
-                "    - seat: { tag: 席位.名称, type: string }";
+                " columns:\n" +
+                "    - system: { tag: 系统.名称   , type: text , explain: 系统}\n" +
+                "    - user: { tag: 会员.名称   , type: text , explain: 用户}\n" +
+                "    - dc: { tag: 数据中心.名称   , type: text , explain: 数据中心}\n" +
+                "    - idc: { tag: 机房.名称   , type: text , explain: 机房}\n" +
+                "    - rack: { tag: 机柜.名称   , type: text , explain: 机架}\n" +
+                "    - camera_stand: { tag: 机位.名称   , type: text , explain: }\n" +
+                "    - equipment: { tag: 设备.名称   , type: text , explain: 设备}\n" +
+                "    - IP: { tag: IP.名称   , type: text , explain: ip}\n" +
+                "    - seat: { tag: 席位.名称   , type: text , explain: 席位}\n" +
+                "t_rack_a:\n" +
+                " relation:\n" +
+                "    - 机柜 > 所属机房 > 机房\n" +
+                "    - 机柜 > 所属数据中心 > 数据中心\n" +
+                " columns:\n" +
+                "    - rack: { tag: 机柜.名称   , type: text , explain: }\n" +
+                "    - dc: { tag: 数据中心.名称   , type: text , explain: }\n" +
+                "    - idc: { tag: 机房.名称   , type: text , explain: }\n" +
+                "    - rack_capacity: { tag: 机柜.机柜容量   , type: text , explain: }\n" +
+                "    - row: { tag: <所属机房>.所属行   , type: text , explain: }\n" +
+                "    - column: { tag: <所属机房>.所属列   , type: text , explain: }\n" +
+                "    - enabled: { tag: 机柜.启用状态   , type: text , explain: }\n" +
+                "    - on_position: { tag: 机柜.通电状态   , type: text , explain: }\n" +
+                "    - power_type: { tag: 机柜.电源类型   , type: text , explain: }\n" +
+                "    - hz: { tag: 机柜.电流类型   , type: text , explain: }\n" +
+                "    - two_circuit_feed: { tag: 机柜.是否双路供电   , type: text , explain: }\n" +
+                "    - lease_type: { tag: 机柜.租赁类型   , type: text , explain: }\n" +
+                "    - kw: { tag: 机柜.最大额定功率   , type: text , explain: }\n" +
+                "t_idc:\n" +
+                " relation:\n" +
+                "     - 机房 > 所属数据中心 > 数据中心\n" +
+                " columns:\n" +
+                "    - idc: { tag: 机房.名称   , type: text , explain: }\n" +
+                "    - dc: { tag: 数据中心.名称   , type: text , explain: }\n" +
+                "t_equipment:\n" +
+                " relation:\n" +
+                " columns:\n" +
+                "    - equipment: { tag: 设备.名称   , type: text , explain: }\n" +
+                "    - model: { tag: 设备.型号   , type: text , explain: }\n" +
+                "    - image_url: { tag: 设备.图片  , type: text , explain: }\n" +
+                "    - interspace: { tag: 设备.空间   , type: int , explain: }\n" +
+                "    - power: { tag: 设备.功率   , type: int , explain: }\n" +
+                "    - createDate: { tag: 设备.创建时间   , type: text , explain: }\n" +
+                "t_dc:\n" +
+                " relation:\n" +
+                "    - 数据中心 > 所在地区 > 地区\n" +
+                "    - 数据中心 > 地址 > 地址\n" +
+                " columns:\n" +
+                "    - dc: { tag: 数据中心.名称   , type: text , explain: 数据中心}\n" +
+                "    - locality: { tag: 地区.名称   , type: text , explain: 地点}\n" +
+                "    - type: { tag: 数据中心.类型   , type: text , explain: 类型}\n" +
+                "    - network_access: { tag: 数据中心.网络接入   , type: text , explain: 网络地址}\n" +
+                "    - ddress: { tag: 地址.名称   , type: text , explain: }\n";
         Map a = (Map<String, Object>) yaml.load(document);
 //        System.out.println(JacksonUtils.writeValueAsString(a));
         JSONObject jsonObject = new JSONObject();
