@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.constant.DirectionEnum;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.common.GisBean;
@@ -81,6 +82,8 @@ public class GisConverter extends BasicConverter {
         locusRelationRsp.setAttName(relationRsp.getAttName());
         locusRelationRsp.setId(relationRsp.getId());
         locusRelationRsp.setFrom(relationRsp.getFrom());
+        locusRelationRsp.setStartTime(Lists.newArrayList(relationRsp.getStartTime()));
+        locusRelationRsp.setEndTime(Lists.newArrayList(relationRsp.getEndTime()));
         locusRelationRsp.setTo(relationRsp.getTo());
         locusRelationRsp.setRuleId(relationRsp.getRuleId());
         locusRelationRsp.setLabelStyle(relationRsp.getLabelStyle());
