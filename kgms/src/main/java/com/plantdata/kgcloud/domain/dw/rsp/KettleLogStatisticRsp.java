@@ -7,10 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Administrator
@@ -24,8 +21,9 @@ import java.util.Map;
 @NoArgsConstructor
 public class KettleLogStatisticRsp {
 
-    public static final KettleLogStatisticRsp EMPTY = new KettleLogStatisticRsp(new LinkedHashMap<>());
-
+    public static final KettleLogStatisticRsp EMPTY = new KettleLogStatisticRsp(null, new LinkedHashMap<>());
+    @ApiModelProperty("最后一次统计日期")
+    private Date lastStatisticDate;
     @ApiModelProperty("统计结果,k->日期 v")
     private LinkedHashMap<String, List<MeasureRsp>> result;
 
