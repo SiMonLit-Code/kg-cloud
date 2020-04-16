@@ -34,6 +34,7 @@ import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
+import com.plantdata.kgcloud.domain.edit.service.DomainDictService;
 import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
@@ -58,9 +59,11 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.DictRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -114,6 +117,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private DataSetSearchService dataSetSearchService;
     @Autowired
     private BasicInfoService basicInfoService;
+    @Autowired
+    private DomainDictService domainDictService;
 
     @Override
     public SchemaRsp querySchema(String kgName) {
@@ -237,6 +242,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         }
         List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(kgName, userId, infoBoxRsp.getSelf().getId());
         infoBoxRsp.getSelf().setDataLinks(dataLinks);
+        List<DictRsp> dictRspList = domainDictService.listDictByEntity(kgName, infoBoxReq.getId());
+        infoBoxRsp.getSelf().setDictList(dictRspList);
         return infoBoxRsp;
     }
 

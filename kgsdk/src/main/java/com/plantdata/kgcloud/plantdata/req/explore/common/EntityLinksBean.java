@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.plantdata.bean.EntityLink;
 import com.plantdata.kgcloud.plantdata.req.common.DataLinks;
 import com.plantdata.kgcloud.plantdata.req.common.ExtraKVBean;
 import com.plantdata.kgcloud.plantdata.req.common.Tag;
+import com.plantdata.kgcloud.sdk.rsp.edit.DictRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,4 +27,5 @@ public class EntityLinksBean {
     private List<Tag> tags;
     private Set<EntityLink> entityLinks;
     private List<MultiModalRsp> multiModals;
+    private List<DictRsp> dictList;
 }
