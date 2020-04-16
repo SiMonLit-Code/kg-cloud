@@ -20,4 +20,6 @@ public interface GraphMapService {
     List<JSONObject> listDatabase(String userId, String kgName);
 
     void batchScheduleSwitch(List<Integer> ids, Integer status);
+
+    void batchDeleteSchedule(List<Integer> ids);
 }

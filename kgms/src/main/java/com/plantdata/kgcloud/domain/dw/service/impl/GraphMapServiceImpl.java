@@ -123,7 +123,7 @@ public class GraphMapServiceImpl implements GraphMapService {
             return ;
         }
 
-        List<DWGraphMap> tabs = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMap.getKgName()).tableName(graphMap.getTableName()).build()));
+        List<DWGraphMap> tabs = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMap.getKgName()).dataBaseId(graphMap.getDataBaseId()).tableName(graphMap.getTableName()).build()));
 
         if (tabs == null || tabs.isEmpty()) {
             return;
@@ -414,7 +414,7 @@ public class GraphMapServiceImpl implements GraphMapService {
                 return ;
             }
 
-            List<DWGraphMap> tabs = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMap.getKgName()).tableName(graphMap.getTableName()).build()));
+            List<DWGraphMap> tabs = graphMapRepository.findAll(Example.of(DWGraphMap.builder().kgName(graphMap.getKgName()).dataBaseId(graphMap.getDataBaseId()).tableName(graphMap.getTableName()).build()));
 
             if (tabs == null || tabs.isEmpty()) {
                 return;
@@ -450,6 +450,17 @@ public class GraphMapServiceImpl implements GraphMapService {
 
             //更新订阅任务
             preBuilderService.createSchedulingConfig(graphMap.getKgName(), false,status);
+        }
+    }
+
+    @Override
+    public void batchDeleteSchedule(List<Integer> ids) {
+        if(ids == null || ids.isEmpty()){
+            return;
+        }
+
+        for(Integer id : ids){
+            deleteSchedule(id);
         }
     }
 

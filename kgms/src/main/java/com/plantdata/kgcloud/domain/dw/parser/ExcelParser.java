@@ -48,7 +48,7 @@ public class ExcelParser {
     private Row relationTitleRow;
     private List<Row> relationErrorRows;
 
-    private int relationAttrErrorNum = 7;
+    private int relationAttrErrorNum = 6;
     private Row relationAttrTitleRow;
     private List<Row> relationAttrErrorRows;
 
@@ -58,28 +58,17 @@ public class ExcelParser {
     public static final String ATTRIBUTE = "attribute";
     public static final String RELATION = "relation";
     public static final String RELATION_ATTR = "relation_attr";
-    public static final String SPECIAL = "special";
-    public static final String SYNONYM = "synonym";
-    public static final String DOMAIN = "domain";
 
     static {
         //概念
         titles.put(CONCEPT, Lists.newArrayList("父概念（必填）", "父概念消歧标识", "子概念（必填）", "子概念消歧标识"));
-        //实体
-        titles.put(ENTITY, Lists.newArrayList("实例名称（必填）", "消歧标识", "简介", "数据来源", "置信度","GIS名称","经度","纬度"));
         //数值、对象属性定义
-        titles.put(ATTRIBUTE, Lists.newArrayList("属性名称(必填)", "别名", "属性定义域(必填)", "属性定义域的消歧标识"));
+        titles.put(ATTRIBUTE, Lists.newArrayList("属性名称(必填)", "别名", "属性定义域(必填)", "属性定义域的消歧标识","数据类型（必填）","单位"));
         //关系
 //        titles.put(RELATION, Lists.newArrayList("定义域（必填，实例的概念类型）", "定义域消歧标识", "定义域实例名称（必填）", "实例消歧标识","关系名称（必填）","值域实例名称（必填）"));
         titles.put(RELATION, Lists.newArrayList("关系名称(必填)", "别名", "关系定义域(必填)", "关系定义域的消歧标识","关系值域(必填)","关系值域的消歧标识"));
 
-        titles.put(RELATION_ATTR, Lists.newArrayList("关系定义域(必填)", "关系定义域的消歧标识", "关系名称(必填)", "边属性名称(必填)","别名","数据类型(必填)","单位"));
-        //特定关系
-        titles.put(SPECIAL, Lists.newArrayList("实例名称（必填）", "实例消歧标识", "关系实例名称（必填）", "关系实例消歧标识","关系值域（必填，关系实例的概念类型）"));
-        //同义词
-        titles.put(SYNONYM, Lists.newArrayList("id", "概念或实体名称（必填）", "同义词A（必填）", "同义词B","同义词C","..."));
-        //领域词
-        titles.put(DOMAIN, Lists.newArrayList("领域词（必填）", "对应实体id", "词性", "词频"));
+        titles.put(RELATION_ATTR, Lists.newArrayList("关系定义域(必填)", "关系定义域的消歧标识", "关系名称(必填)", "边属性名称(必填)","数据类型(必填)","单位"));
 
     }
 
@@ -404,35 +393,4 @@ public class ExcelParser {
         }
         return wb;
     }
-//    public String parse(Parser parser) {
-//        if (wb.getNumberOfSheets() != 0) {
-//            this.errorNum = wb.getSheetAt(0).getRow(0).getLastCellNum();
-//            parser.parse(wb);
-//        }
-//        return saveLocal();
-//    }
-//    public String parse(ParseRow parseRow, int sheet) {
-//        if (wb.getNumberOfSheets() != 0) {
-//            Sheet sheetAt = wb.getSheetAt(sheet);
-//            int rowNum = sheetAt.getPhysicalNumberOfRows();
-//            for (int i = 0; i <= rowNum; i++) {
-//                Row row = sheetAt.getRow(i);
-//                if (i == 0) {
-//                    this.errorNum = row.getLastCellNum();
-//                }
-//                if (row != null) {
-//                    parseRow.parse(row, i);
-//                }
-//            }
-//        }
-//        return saveLocal();
-//    }
-//    public String parse(ParseRows parseRows, int sheet) {
-//        if (wb.getNumberOfSheets() != 0) {
-//            Sheet sheetAt = wb.getSheetAt(sheet);
-//            this.errorNum = sheetAt.getRow(0).getLastCellNum();
-//            parseRows.parse(sheetAt);
-//        }
-//        return saveLocal();
-//    }
 }

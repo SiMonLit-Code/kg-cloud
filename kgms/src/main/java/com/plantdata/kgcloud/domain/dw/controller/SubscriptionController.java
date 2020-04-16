@@ -74,4 +74,11 @@ public class SubscriptionController {
         graphMapService.deleteSchedule(id);
         return ApiReturn.success();
     }
+
+    @ApiOperation("订阅检测-删除订阅")
+    @PostMapping("/delete/schedule/batch")
+    public ApiReturn deleteSchedule(@RequestBody List<Integer> ids) {
+        graphMapService.batchDeleteSchedule(ids);
+        return ApiReturn.success();
+    }
 }

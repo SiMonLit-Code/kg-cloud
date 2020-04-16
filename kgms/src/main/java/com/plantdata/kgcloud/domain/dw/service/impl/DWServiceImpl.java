@@ -673,7 +673,7 @@ public class DWServiceImpl implements DWService {
 
             Map<String,Object> value = new HashMap<>();
 
-            value.put("logTimeStamp",logTimeStamp+"");
+            value.put("logTimeStamp",logTimeStamp);
             value.put("time_flag","hour");
             value.put("W",sum);
             value.put("dataName",database.getDataName());

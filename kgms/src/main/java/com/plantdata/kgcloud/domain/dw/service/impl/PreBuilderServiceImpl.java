@@ -1762,7 +1762,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         for (ModelExcelRsp.Relation relation : relationList) {
 
-            prebuildAttrRepository.save(DWPrebuildAttr.builder()
+            DWPrebuildAttr attr = DWPrebuildAttr.builder()
                     .modelId(modelId)
                     .conceptId(conceptMap.get(relation.getDomain() + relation.getDomainMeaningTag()))
                     .name(relation.getName())
@@ -1770,7 +1770,26 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     .attrType(1)
                     .range(conceptMap.get(relation.getRange() + relation.getRangeMeaningTag()))
                     .rangeName(relation.getRange())
-                    .build());
+                    .build();
+
+            attr = prebuildAttrRepository.save(attr);
+
+            if(relation.getRelationAttrs() == null || relation.getRelationAttrs().isEmpty()){
+                continue;
+            }
+
+            for(ModelExcelRsp.Attr relaAttr: relation.getRelationAttrs()){
+
+                prebuildRelationAttrRepository.save(DWPrebuildRelationAttr.builder()
+                        .modelId(modelId)
+                        .name(relaAttr.getName())
+                        .dataType(relaAttr.getDataType())
+                        .unit(relaAttr.getUnit())
+                        .attrId(attr.getId())
+                        .build());
+
+            }
+
 
         }
     }
@@ -1906,9 +1925,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String relationMt = excelParser.getCellValue(row.getCell(1));
                 String relationName = excelParser.getCellValue(row.getCell(2));
                 String attrName = excelParser.getCellValue(row.getCell(3));
-                String attrAlias = excelParser.getCellValue(row.getCell(4));
-                String attrType = excelParser.getCellValue(row.getCell(5));
-                String attrUnit = excelParser.getCellValue(row.getCell(6));
+                String attrType = excelParser.getCellValue(row.getCell(4));
+                String attrUnit = excelParser.getCellValue(row.getCell(5));
                 if (!org.springframework.util.StringUtils.hasText(relationDomain) ) {
                     excelParser.buildErrorMsg(row,"边属性关系定义域为空",ExcelParser.RELATION_ATTR);
                     continue;
@@ -1953,10 +1971,19 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     relation.setRelationAttrs(new ArrayList<>());
                 }
 
+                List<String> relationNameList = new ArrayList<>();
+                relation.getRelationAttrs().forEach(relaAttr -> {
+                    relationNameList.add(relaAttr.getName());
+                });
+
+                if(relationNameList.contains(attrName)){
+                    excelParser.buildErrorMsg(row,"边属性名已存在",ExcelParser.RELATION_ATTR);
+                    continue;
+                }
+
 
                 ModelExcelRsp.Attr attr = new ModelExcelRsp.Attr();
                 attr.setName(attrName);
-                attr.setAlias(attrAlias);
                 attr.setDataType(DataTypeEnum.getDataType(attrType));
                 attr.setUnit(attrUnit);
 
@@ -1981,29 +2008,47 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String domain = excelParser.getCellValue(row.getCell(2));
                 String fourColumn = excelParser.getCellValue(row.getCell(4));//值域
                 if (!org.springframework.util.StringUtils.hasText(attrName) ) {
-                    excelParser.buildErrorMsg(row,"属性名为空",ExcelParser.RELATION);
+                    excelParser.buildErrorMsg(row,"关系名为空",ExcelParser.RELATION);
                     continue;
                 }
                 if ( !org.springframework.util.StringUtils.hasText(domain)) {
-                    excelParser.buildErrorMsg(row,"属性定义域为空",ExcelParser.RELATION);
+                    excelParser.buildErrorMsg(row,"关系定义域为空",ExcelParser.RELATION);
                     continue;
                 }
                 if (!org.springframework.util.StringUtils.hasText(fourColumn)) {
-                    excelParser.buildErrorMsg(row,"属性值域为空",ExcelParser.RELATION);
+                    excelParser.buildErrorMsg(row,"关系值域为空",ExcelParser.RELATION);
                     continue;
                 }
                 String domainMeaningTag = excelParser.getCellValue(row.getCell(3));
                 String fiveColumn = excelParser.getCellValue(row.getCell(5));
                 if (!conceptMap.containsKey(domain + domainMeaningTag)) {
-                    excelParser.buildErrorMsg(row,"属性定义域不存在",ExcelParser.RELATION);
+                    excelParser.buildErrorMsg(row,"关系定义域不存在",ExcelParser.RELATION);
                     continue;
                 }
                 if (!conceptMap.containsKey(fourColumn + fiveColumn)) {
-                    excelParser.buildErrorMsg(row,"属性值域不存在",ExcelParser.RELATION);
+                    excelParser.buildErrorMsg(row,"关系值域不存在",ExcelParser.RELATION);
                     continue;
                 }
 
                 String alias = excelParser.getCellValue(row.getCell(1));
+                List<String> attrNameList = getConceptAttrNames(conceptMap,domain,domainMeaningTag);
+
+                if(attrNameList.contains(attrName)){
+                    excelParser.buildErrorMsg(row,"关系名已存在",ExcelParser.ATTRIBUTE);
+                    continue;
+                }
+
+                if(org.springframework.util.StringUtils.hasText(alias)){
+
+                    if(attrName.equals(alias)){
+                        excelParser.buildErrorMsg(row,"关系名与别名冲突",ExcelParser.ATTRIBUTE);
+                        continue;
+                    }else if(attrNameList.contains(alias)){
+                        excelParser.buildErrorMsg(row,"关系别名已存在",ExcelParser.ATTRIBUTE);
+                        continue;
+                    }
+
+                }
 
                 ModelExcelRsp.Relation relation = new ModelExcelRsp.Relation();
                 relation.setDomain(domain);
@@ -2021,11 +2066,109 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     }
 
+    private List<String> getConceptAttrNames(Map<String, ModelExcelRsp> conceptMap, String domain, String domainMeaningTag) {
+
+        List<String> attrNameList = new ArrayList<>();
+
+        ModelExcelRsp modelExcelRsp = conceptMap.get(domain+domainMeaningTag);
+        for(ModelExcelRsp.Attr attr : modelExcelRsp.getAttrs()){
+            attrNameList.add(attr.getName());
+            if(org.springframework.util.StringUtils.hasText(attr.getAlias())){
+                attrNameList.add(attr.getAlias());
+            }
+        }
+
+        for(ModelExcelRsp.Relation relation : modelExcelRsp.getRelations()){
+            attrNameList.add(relation.getName());
+            if(org.springframework.util.StringUtils.hasText(relation.getAlias())){
+                attrNameList.add(relation.getAlias());
+            }
+        }
+
+        getParentAttrNames(attrNameList,conceptMap,domain,domainMeaningTag);
+
+        Map<String, List<ModelExcelRsp>> parentConceptMap = new HashMap<>();
+        conceptMap.values().stream().forEach(rsp -> {
+            String key = rsp.getParentName()+rsp.getParentMeaningTag();
+            if(parentConceptMap.containsKey(key)){
+                parentConceptMap.get(key).add(rsp);
+            }else{
+                List<ModelExcelRsp> childs = new ArrayList<>();
+                childs.add(rsp);
+                parentConceptMap.put(rsp.getParentName()+rsp.getParentMeaningTag(),childs);
+            }
+        });
+
+        getChildAttrNames(attrNameList,parentConceptMap,domain,domainMeaningTag);
+
+        return attrNameList;
+    }
+
+    private void getChildAttrNames(List<String> attrNameList, Map<String, List<ModelExcelRsp>> parentConceptMap, String domain, String domainMeaningTag) {
+
+        List<ModelExcelRsp> rsps = parentConceptMap.get(domain+domainMeaningTag);
+
+        if(rsps == null || rsps.isEmpty()){
+            return;
+        }
+
+        for(ModelExcelRsp rsp : rsps){
+
+            for(ModelExcelRsp.Attr attr : rsp.getAttrs()){
+                attrNameList.add(attr.getName());
+                if(org.springframework.util.StringUtils.hasText(attr.getAlias())){
+                    attrNameList.add(attr.getAlias());
+                }
+            }
+
+            for(ModelExcelRsp.Relation relation : rsp.getRelations()){
+                attrNameList.add(relation.getName());
+                if(org.springframework.util.StringUtils.hasText(relation.getAlias())){
+                    attrNameList.add(relation.getAlias());
+                }
+            }
+
+            getChildAttrNames(attrNameList,parentConceptMap,rsp.getName(),rsp.getMeaningTag());
+
+        }
+
+    }
+
+    private void getParentAttrNames(List<String> attrNameList, Map<String, ModelExcelRsp> conceptMap, String domain, String domainMeaningTag) {
+
+        ModelExcelRsp rsp = conceptMap.get(domain+domainMeaningTag);
+
+        if(rsp == null){
+            return;
+        }
+        if(!org.springframework.util.StringUtils.hasText(rsp.getParentName())){
+            return ;
+        }
+
+        ModelExcelRsp parent = conceptMap.get(rsp.getParentName()+rsp.getParentMeaningTag());
+        for(ModelExcelRsp.Attr attr : parent.getAttrs()){
+            attrNameList.add(attr.getName());
+            if(org.springframework.util.StringUtils.hasText(attr.getAlias())){
+                attrNameList.add(attr.getAlias());
+            }
+        }
+
+        for(ModelExcelRsp.Relation relation : parent.getRelations()){
+            attrNameList.add(relation.getName());
+            if(org.springframework.util.StringUtils.hasText(relation.getAlias())){
+                attrNameList.add(relation.getAlias());
+            }
+        }
+
+        getParentAttrNames(attrNameList,conceptMap,rsp.getParentName(),rsp.getParentMeaningTag());
+    }
+
     private void getExcelModelAttr(ExcelParser excelParser, Sheet sheet, Map<String, ModelExcelRsp> conceptMap) {
 
         excelParser.checkTitle(sheet.getRow(0), ExcelParser.ATTRIBUTE);
 
         int rows = sheet.getPhysicalNumberOfRows();
+
 
         for (int i = 1; i <= rows; i++) {
             Row row = sheet.getRow(i);
@@ -2061,13 +2204,34 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 String alias = excelParser.getCellValue(row.getCell(1));
 
+                List<ModelExcelRsp.Attr> attrs = conceptMap.get(domain + domainMeaningTag).getAttrs();
+
+                List<String> attrNameList = getConceptAttrNames(conceptMap,domain,domainMeaningTag);
+
+                if(attrNameList.contains(attrName)){
+                    excelParser.buildErrorMsg(row,"属性名已存在",ExcelParser.ATTRIBUTE);
+                    continue;
+                }
+
+                if(org.springframework.util.StringUtils.hasText(alias)){
+
+                    if(attrName.equals(alias)){
+                        excelParser.buildErrorMsg(row,"属性名与别名冲突",ExcelParser.ATTRIBUTE);
+                        continue;
+                    }else if(attrNameList.contains(alias)){
+                        excelParser.buildErrorMsg(row,"属性别名已存在",ExcelParser.ATTRIBUTE);
+                        continue;
+                    }
+
+                }
+
                 ModelExcelRsp.Attr attr = new ModelExcelRsp.Attr();
                 attr.setName(attrName);
                 attr.setAlias(alias);
                 attr.setDataType(fourColumnId);
                 attr.setUnit(fiveColumn);
 
-                conceptMap.get(domain + domainMeaningTag).getAttrs().add(attr);
+                attrs.add(attr);
 
             }
 

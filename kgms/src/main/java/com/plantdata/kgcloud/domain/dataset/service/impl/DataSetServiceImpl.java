@@ -410,7 +410,13 @@ public class DataSetServiceImpl implements DataSetService {
                     for (Map.Entry<Integer, String> entry : headMap.entrySet()) {
                         DataSetSchema dataSetSchema = new DataSetSchema();
                         dataSetSchema.setField(entry.getValue());
-                        dataSetSchema.setType(1);
+                        Object val = entry.getValue();
+                        if (val != null) {
+                            FieldType type = readType(val);
+                            dataSetSchema.setType(type.getCode());
+                        }else{
+                            dataSetSchema.setType(1);
+                        }
                         dataSetSchemaMap.put(entry.getKey(), dataSetSchema);
                     }
                 }
