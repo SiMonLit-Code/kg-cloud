@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.kettle.service.KettleLogStatisticService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,7 +28,7 @@ public class KettleLogStatisticController {
     @PostMapping("byDate/{id}")
     public ApiReturn<KettleLogStatisticRsp> kettleLogStatisticByDate(
             @ApiParam("数仓id") @PathVariable("id") long dataId,
-            @RequestBody @Valid KettleLogStatisticReq statisticReq) {
+            @RequestBody @Validated KettleLogStatisticReq statisticReq) {
         return ApiReturn.success(kettleLogStatisticService.kettleLogStatisticByDate(dataId,statisticReq));
     }
 }

@@ -13,7 +13,7 @@ public enum AggregateEnum {
     /**
      * todo
      */
-    COUNT(0, "COUNT"), SUM(1, "SUM");
+    COUNT(0, "count"), SUM(1, "sum"),SHOW(2,"show");
 
     private int index;
     private String expression;
