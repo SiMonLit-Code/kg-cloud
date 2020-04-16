@@ -73,11 +73,18 @@ public class DomainDictServiceImpl implements DomainDictService {
         Integer size = dictSearchReq.getSize();
         Integer skip = (page - 1) * size;
         RestResp<List<DomainDicVO>> restResp = domainDicApi.list(KGUtil.dbName(kgName),
-                dictSearchReq.getConceptId(), dictSearchReq.getFrequency(), skip, size);
+                dictSearchReq.getConceptId(), null, dictSearchReq.getFrequency(), skip, size);
         Optional<List<DomainDicVO>> optional = RestRespConverter.convert(restResp);
         List<DictRsp> dictRsps =
                 optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(DictRsp.class)).collect(Collectors.toList());
         Optional<Integer> count = RestRespConverter.convertCount(restResp);
         return new PageImpl<>(dictRsps, PageRequest.of(page - 1, size), count.orElse(0));
+    }
+
+    @Override
+    public List<com.plantdata.kgcloud.sdk.rsp.edit.DictRsp> listDictByEntity(String kgName, Long entityId) {
+        RestResp<List<DomainDicVO>> restResp = domainDicApi.list(KGUtil.dbName(kgName), null, entityId, 1, 0, 100);
+        Optional<List<DomainDicVO>> optional = RestRespConverter.convert(restResp);
+        return optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(com.plantdata.kgcloud.sdk.rsp.edit.DictRsp.class)).collect(Collectors.toList());
     }
 }

@@ -47,4 +47,13 @@ public interface DomainDictService {
      * @return
      */
     Page<DictRsp> listDict(String kgName, DictSearchReq dictSearchReq);
+
+    /**
+     * 获取实体关联的所有领域词
+     * @param kgName
+     * @param entityId
+     * @return
+     */
+    List<com.plantdata.kgcloud.sdk.rsp.edit.DictRsp> listDictByEntity(String kgName, Long entityId);
+
 }

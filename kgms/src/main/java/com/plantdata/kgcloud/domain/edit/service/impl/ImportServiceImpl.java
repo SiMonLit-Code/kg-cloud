@@ -287,15 +287,12 @@ public class ImportServiceImpl implements ImportService {
             throw BizException.of(KgmsErrorCodeEnum.SCHEMA_CONCEPT_NOT_EXIST_ERROR);
         }
 
-        int rowSize = 0;
-
         String title = schemaRsp.getKgTitle() + "图谱实体概念模型";
         List<BaseConceptRsp> conceptList = schemaRsp.getTypes();
         List<AttributeDefinitionRsp> attrList = schemaRsp.getAttrs();
         Map<Long, String> conceptMap = Maps.newHashMap();
         for (BaseConceptRsp baseConceptRsp : conceptList) {
             conceptMap.put(baseConceptRsp.getId(), baseConceptRsp.getName());
-            rowSize += 2;
         }
 
         Map<String, List<Map<String, String>>> dataMap = Maps.newHashMap();
@@ -324,7 +321,6 @@ public class ImportServiceImpl implements ImportService {
                 map.put("属性类型", com.alibaba.excel.util.CollectionUtils.isEmpty(attr.getRangeValue()) ? "数值" : "对象");
                 map.put("值域", rangeValue);
                 map.put("边属性", extraInfo);
-                rowSize++;
                 dataList.add(map);
             }
             if (collect.size() == 0) {
@@ -333,13 +329,12 @@ public class ImportServiceImpl implements ImportService {
                 map.put("属性类型", "-");
                 map.put("值域", "-");
                 map.put("边属性", "-");
-                rowSize++;
                 dataList.add(map);
             }
             dataMap.put(conceptMap.get(conceptId), dataList);
         }
         try {
-            XWPFDocument document = createWord(title, dataMap, rowSize);
+            XWPFDocument document = createWord(title, dataMap);
 
             response.setContentType("application/octet-stream");
             String dataName = schemaRsp.getKgTitle() + "图谱模式报告.doc";
@@ -352,7 +347,7 @@ public class ImportServiceImpl implements ImportService {
         }
     }
 
-    private XWPFDocument createWord(String title, Map<String, List<Map<String, String>>> dataMap, int rowSize) throws IOException {
+    private XWPFDocument createWord(String title, Map<String, List<Map<String, String>>> dataMap) throws IOException {
         XWPFDocument doc = new XWPFDocument();
         // 创建标题
         XWPFParagraph titleParagraph = doc.createParagraph();
@@ -360,18 +355,21 @@ public class ImportServiceImpl implements ImportService {
         XWPFRun titleFun = titleParagraph.createRun();
         titleFun.setText(title);
         titleFun.setFontSize(11);
-        // 创建表格
-        XWPFTable table = doc.createTable(rowSize, 4);
-        // 设置列宽
-        CTTblPr tblPr = table.getCTTbl().getTblPr();
-        tblPr.getTblW().setType(STTblWidth.DXA);
-        tblPr.getTblW().setW(new BigInteger("8000"));
 
-        int currectRow = 0;
         List<String> parameters = Lists.newArrayList("属性名", "属性类型", "值域", "边属性");
 
         Set<String> set = dataMap.keySet();
         for (String concept : set) {
+            List<Map<String, String>> list = dataMap.get(concept);
+            // 创建表格
+            XWPFTable table = doc.createTable(dataMap.get(concept).size() + 2, 4);
+            // 设置列宽
+            CTTblPr tblPr = table.getCTTbl().getTblPr();
+            tblPr.getTblW().setType(STTblWidth.DXA);
+            tblPr.getTblW().setW(new BigInteger("8000"));
+            // 当前行
+            int currectRow = 0;
+
             // 合并单元格
             for (int cellIndex = 0; cellIndex <= 3; cellIndex++) {
                 XWPFTableCell cell = table.getRow(currectRow).getCell(cellIndex);
@@ -409,7 +407,8 @@ public class ImportServiceImpl implements ImportService {
                     content.setText(dataMap.get(concept).get(i).get(parameters.get(j)));
                 }
             }
-            currectRow++;
+            // 换行
+            doc.createParagraph();
         }
         return doc;
     }
