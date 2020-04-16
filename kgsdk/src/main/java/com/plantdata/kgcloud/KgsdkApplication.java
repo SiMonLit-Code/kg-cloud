@@ -4,6 +4,7 @@ import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -14,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
  * @author wanglong
  */
 @EnableDiscoveryClient
-@SpringBootApplication(scanBasePackages = CommonConstants.WebConst.ROOT_PKG)
+@SpringBootApplication(scanBasePackages = CommonConstants.WebConst.ROOT_PKG, exclude= {DataSourceAutoConfiguration.class})
 @EnableApolloConfig
 @EnableFeignClients(basePackages = {CommonConstants.FeignConst.BASE_PKG, CommonConstants.FeignConst.PUBLIC_PKG})
 public class KgsdkApplication extends SpringBootServletInitializer {

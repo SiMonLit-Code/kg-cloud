@@ -1,36 +1,34 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
-import com.google.common.collect.Lists;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.*;
-import com.plantdata.kgcloud.constant.CommonConstants;
-import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
+import com.mongodb.*;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
+import com.plantdata.kgcloud.domain.app.util.JsonUtils;
+import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.constant.AggregateEnum;
+import com.plantdata.kgcloud.sdk.constant.DataStoreSearchEnum;
+import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.util.CollectionUtils;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
 
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class MysqlOptProvider implements DataOptProvider {
 
     private final JdbcTemplate jdbcTemplate;
     private final String table;
+    private final String dataBase;
 
     public MysqlOptProvider(DataOptConnect info) {
 
@@ -42,7 +40,7 @@ public class MysqlOptProvider implements DataOptProvider {
         dataSourceBuilder.username(info.getUsername());
         dataSourceBuilder.password(info.getPassword());
         jdbcTemplate = new JdbcTemplate(dataSourceBuilder.build());
-
+        this.dataBase = info.getDatabase();
         this.table = info.getTable();
     }
 
@@ -87,7 +85,11 @@ public class MysqlOptProvider implements DataOptProvider {
 
     @Override
     public List<String> getFields() {
-        return null;
+        StringBuilder query = new StringBuilder();
+        convertSql(query, "SELECT", "COLUMN_NAME", "FROM", "information_schema.COLUMNS",
+                "WHERE", "table_schema", "=", "'" + dataBase + "'", "AND", "table_name", "=", "'" + table + "'");
+        List<String> query1 = jdbcTemplate.query(query.toString(), new SingleColumnRowMapper(String.class));
+        return query1;
     }
 
     @Override
@@ -99,12 +101,12 @@ public class MysqlOptProvider implements DataOptProvider {
     public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
 
         String sql = buildQuery(query);
-        if (offset != null && offset >= 0 ) {
+        if (offset != null && offset >= 0) {
             int size = 10;
-            if(limit != null && limit > 0){
+            if (limit != null && limit > 0) {
                 size = limit;
             }
-            sql += " limit "+offset+","+size;
+            sql += " limit " + offset + "," + size;
         }
 
         List<Map<String, Object>> rs = jdbcTemplate.queryForList(sql);
@@ -115,7 +117,7 @@ public class MysqlOptProvider implements DataOptProvider {
     public long count(Map<String, Object> query) {
         String sql = buildCount(query);
 
-        List<Long> countList = jdbcTemplate.queryForList(sql,Long.class);
+        List<Long> countList = jdbcTemplate.queryForList(sql, Long.class);
         return countList.get(0);
 
     }
@@ -187,4 +189,95 @@ public class MysqlOptProvider implements DataOptProvider {
     public void close() throws IOException {
 
     }
+
+    @Override
+    public List<Map<String, Object>> search(Map<String, String> searchMap, int offset, int limit) {
+        String field = searchMap.keySet().stream().reduce((a, b) -> a + "," + b).orElse(StringUtils.SPACE);
+        StringBuilder builder = new StringBuilder();
+        searchMap.forEach((key, value) -> {
+            if (builder.length() > 0) {
+                convertSql(builder, "or");
+            }
+            convertSql(builder, key, "like", "\"%" + value + "%\"");
+        });
+        StringBuilder select = new StringBuilder();
+        convertSql(select, "select", field, "from", table, "where", builder.toString(), "limit", offset + "," + limit);
+        return jdbcTemplate.queryForList(select.toString());
+    }
+
+    @Override
+    public List<Map<String, Object>> aggregateStatistics(Map<String, Object> filterMap, Map<String, DwTableDataStatisticReq.GroupReq> groupMap, Map<SortTypeEnum, List<String>> sortMap) {
+        StringBuilder querySb = new StringBuilder();
+        StringBuilder groupSb = new StringBuilder();
+        groupMap.forEach((k, v) -> {
+            if (querySb.length() > 0) {
+                querySb.append(",");
+            }
+            if (AggregateEnum.SUM == v.getAggregateType()) {
+                convertSql(querySb, "sum(" + stringStr(v.getJsonPath()) + ")", "as", stringStr(k));
+            } else if (AggregateEnum.COUNT == v.getAggregateType()) {
+                convertSql(querySb, "count(" + stringStr(v.getJsonPath()) + ")", "as", stringStr(k));
+            } else if (AggregateEnum.SHOW == v.getAggregateType()) {
+                convertSql(querySb, stringStr(v.getJsonPath()), "as", stringStr(k));
+                if (groupSb.length() > 0) {
+                    groupSb.append(",");
+                }
+                groupSb.append(StringUtils.SPACE);
+                convertSql(groupSb, stringStr(v.getJsonPath()));
+            } else {
+                throw BizException.of(KgmsErrorCodeEnum.DATA_STORE_STATISTIC_TYPE_ERROR);
+            }
+        });
+        StringBuilder select = new StringBuilder("select");
+
+        convertSql(select, querySb.toString(), "from", table);
+        //筛选
+        BasicConverter.consumerIfNoNull(filterMap, a -> convertSql(select, "where", getFilterSql(a)));
+        //分组
+        BasicConverter.consumerIfNoNull(groupSb.toString(), a -> convertSql(select, "group by", a));
+
+        //排序
+        Function<List<String>, Optional<String>> con = a -> a.stream().reduce((c, d) -> stringStr(c) + "," + stringStr(d));
+        BasicConverter.consumerIfNoNull(sortMap, a -> {
+            convertSql(select, "order by");
+            sortMap.forEach((k, v) -> {
+                convertSql(select, v.size() == 1 ? stringStr(v.get(0)) : con.apply(v).orElse(StringUtils.SPACE), k.getName());
+            });
+        });
+        log.warn("(aggregateStatistics)sql:" + select.toString());
+        return jdbcTemplate.queryForList(select.toString());
+    }
+
+
+    private String getFilterSql(Map<String, Object> filterMap) {
+        StringBuilder sb = new StringBuilder();
+        filterMap.forEach((k, v) -> {
+            if (sb.length() > 0) {
+                sb.append("and");
+            }
+            if (v instanceof Map) {
+                Map<String, Object> map = (Map<String, Object>) v;
+                Function<Object, Optional<String>> function = a -> JsonUtils.objToList(a, String.class).stream().reduce((c, d) -> c + "," + d);
+                Function<Object, Object> appendIfString = a -> a instanceof String ? "\"" + a + "\"" : a;
+                BasicConverter.consumerIfNoNull(map.get("$eq"), a -> convertSql(sb, k, "=", appendIfString.apply(a)));
+                BasicConverter.consumerIfNoNull(map.get(DataStoreSearchEnum.LIKE.getName()), a -> convertSql(sb, k, "like", "\"%" + a + "\"%"));
+                BasicConverter.consumerIfNoNull(map.get(DataStoreSearchEnum.NOL_LIKE.getName()), a -> convertSql(sb, k, "not", "like", appendIfString.apply(a)));
+                BasicConverter.consumerIfNoNull(map.get("$in"), a -> function.apply(a)
+                        .ifPresent(s -> convertSql(sb, k, "in", "(", appendIfString.apply(s), ")")));
+                BasicConverter.consumerIfNoNull(map.get("$nin"), a -> function.apply(a)
+                        .ifPresent(s -> convertSql(sb, k, "not in", "(", appendIfString.apply(s), ")")));
+            }
+        });
+        return sb.toString();
+    }
+
+    private String stringStr(String str) {
+        return "`" + str + "`";
+    }
+
+    private void convertSql(StringBuilder sb, Object... strArray) {
+        Arrays.stream(strArray).forEach(s -> sb.append(StringUtils.SPACE).append(s));
+    }
+
+
 }

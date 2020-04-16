@@ -48,7 +48,7 @@ public class KettleLogDeal {
             }
         }
         long startTime = DateUtils.parseDatetime(statisticReq.getStartDate()).getTime();
-        long endTime =  DateUtils.parseDatetime(statisticReq.getEndDate()).getTime();
+        long endTime = DateUtils.parseDatetime(statisticReq.getEndDate()).getTime();
         Bson match = and(basicBSONObject, gte("logTimeStamp", startTime),
                 lte("logTimeStamp", endTime),
                 eq("time_flag", KettleLogStatisticTypeEnum.HOUR.getLowerCase()),
@@ -70,6 +70,7 @@ public class KettleLogDeal {
 
 
     public static KettleLogStatisticRsp parseKettleLogStatisticRsp(@NonNull MongoCursor<Document> data, @NonNull KettleLogStatisticTypeEnum statisticType, @NonNull List<String> tableNames) {
+
 
         List<KettleLogAggResultDTO> list = Lists.newArrayList();
         data.forEachRemaining(a -> {
@@ -97,6 +98,7 @@ public class KettleLogDeal {
             }).collect(Collectors.toList());
             map.put(key, collect);
         });
-        return new KettleLogStatisticRsp(map);
+
+        return new KettleLogStatisticRsp(list.get(0).get_id().getDate(), map);
     }
 }
