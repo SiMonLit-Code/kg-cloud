@@ -17,8 +17,10 @@ import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -61,8 +63,9 @@ public class RelationConverter extends BasicConverter {
         relationRsp.setDirection(relation.getDirection());
         relationRsp.setFrom(relation.getFromId());
         relationRsp.setTo(relation.getToId());
-        relationRsp.setStartTime(relation.getStartTime());
-        relationRsp.setEndTime(relation.getEndTime());
+        Function<Date, String> dateFormat = a -> a == null ? StringUtils.EMPTY : com.plantdata.kgcloud.util.DateUtils.formatDatetime(a);
+        relationRsp.setStartTime(dateFormat.apply(relation.getStartTime()));
+        relationRsp.setEndTime(dateFormat.apply(relation.getEndTime()));
         return relationRsp;
     }
 
