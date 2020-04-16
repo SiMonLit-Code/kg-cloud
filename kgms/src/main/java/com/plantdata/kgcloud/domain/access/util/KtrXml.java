@@ -506,17 +506,17 @@ public class KtrXml {
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>" +
                 "    <hop>\n" +
-                "      <from>JavaScript代码</from>\n" +
+                "      <from>input</from>\n" +
                 "      <to>获取变量</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
-                "      <from>input</from>\n" +
+                "      <from>获取变量</from>\n" +
                 "      <to>JSON output</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
-                "      <from>获取变量</from>\n" +
+                "      <from>JavaScript代码</from>\n" +
                 "      <to>Kafka_producer_QAQ_resourceNameQAQ_QAQ</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
@@ -590,7 +590,8 @@ public class KtrXml {
                 "\n" +
                 "var re = {\n" +
                 "\"data\" : JSON.parse(data_input),\n" +
-                "\"operationType\":\"ADD\"\n" +
+                "\"operationType\":\"ADD\",\n" +
+                "\"resourceConfig_\":resourceConfig_\n" +
                 "}\n" +
                 "\n" +
                 "var value=JSON.stringify(re)</jsScript_script>\n" +
@@ -862,7 +863,7 @@ public class KtrXml {
         static String mongoTimeQueryXMl = "{\n" +
                 "    \"timeFieldQAQ\": {\n" +
                 "        \"$gte\": \"${StartTime}\",\n" +
-                "        \"$lte\": \"${EndTime}\"\n" +
+                "        \"$lt\": \"${EndTime}\"\n" +
                 "    }\n" +
                 "}\n";
     }

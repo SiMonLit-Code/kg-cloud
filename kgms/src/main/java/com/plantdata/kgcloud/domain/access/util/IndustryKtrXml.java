@@ -862,7 +862,7 @@ public class IndustryKtrXml {
         static String mongoTimeQueryXMl = "{\n" +
                 "    \"timeFieldQAQ\": {\n" +
                 "        \"$gte\": \"${StartTime}\",\n" +
-                "        \"$lte\": \"${EndTime}\"\n" +
+                "        \"$lt\": \"${EndTime}\"\n" +
                 "    }\n" +
                 "}\n";
 
