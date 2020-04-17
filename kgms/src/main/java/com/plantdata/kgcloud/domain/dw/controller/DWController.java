@@ -257,4 +257,11 @@ public class DWController {
     public ApiReturn<List<DataSetSchema>> resolve(@RequestParam(value = "file") MultipartFile file) {
         return ApiReturn.success(dwServince.schemaResolve(file,null));
     }
+
+
+    @ApiOperation("数仓-错误日志详情")
+    @GetMapping("/database/err/{databaseId}")
+    public ApiReturn errList(@PathVariable("databaseId") Long databaseId) {
+        return ApiReturn.success(dwServince.errList(databaseId));
+    }
 }

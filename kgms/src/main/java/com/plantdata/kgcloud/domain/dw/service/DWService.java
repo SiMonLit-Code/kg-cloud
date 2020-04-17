@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.req.*;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
@@ -88,4 +85,5 @@ public interface DWService {
     void deleteData(String userId, Long databaseId, Long tableId);
 
     DWDatabaseRsp getDbByDataName(String dataName);
+    List<DWErrDataRsp> errList(Long databaseId);
 }
