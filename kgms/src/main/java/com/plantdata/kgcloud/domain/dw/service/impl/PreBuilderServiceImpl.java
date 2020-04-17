@@ -1,12 +1,10 @@
 package com.plantdata.kgcloud.domain.dw.service.impl;
 
-import com.alibaba.excel.util.CollectionUtils;
 import com.alibaba.excel.util.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.AccessTaskType;
@@ -17,8 +15,8 @@ import com.plantdata.kgcloud.domain.access.rsp.KgConfigRsp;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphEditService;
-import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
+import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.dw.entity.*;
 import com.plantdata.kgcloud.domain.dw.parser.ExcelParser;
 import com.plantdata.kgcloud.domain.dw.repository.*;
@@ -51,13 +49,10 @@ import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import com.plantdata.kgcloud.util.UUIDUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xwpf.usermodel.*;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -74,11 +69,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.math.BigInteger;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
@@ -134,8 +125,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     @Autowired
     private GraphMapService graphMapService;
+
     @Autowired
-    private FastFileStorageClient storageClient;
+    private DataSetService dataSetService;
 
     public static void bytesToFile(byte[] buffer, final String filePath) {
 
@@ -1623,18 +1615,17 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 // 将压缩文件内容写入到这个文件中
                 InputStream is = zipFile.getInputStream(entry);
 
-
                 if (entry.getName().endsWith(".ktr")) {
                     ktr = IOUtils.toString(is, StandardCharsets.UTF_8);
                 } else if (entry.getName().endsWith("tag.json")) {
                     modelSchema = JacksonUtils.readValue(is, ModelSchemaConfigRsp.class);
-                    tableName = modelSchema.getTableName();
+
+                    tableName = UUIDUtils.getShortString();
+                    modelSchema.setTableName(tableName);
 
                 } else {
-
                     List<String> lines = IOUtils.readLines(is);
-                    file = org.apache.commons.lang3.StringUtils.join(lines, " ");
-
+                    file = org.apache.commons.lang3.StringUtils.join(lines, "\r\n");
                     jsonFileSchema(schema, file);
                 }
 

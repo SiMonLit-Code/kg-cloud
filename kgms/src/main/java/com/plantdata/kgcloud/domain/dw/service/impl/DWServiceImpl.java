@@ -663,7 +663,7 @@ public class DWServiceImpl implements DWService {
         Map<String,Object> search = new HashMap<>();
         search.put("dataName",database.getDataName());
         search.put("tableName",tableName);
-        search.put("logTimeStamp",logTimeStamp+"");
+        search.put("logTimeStamp",logTimeStamp);
         search.put("userId",database.getUserId());
         Map<String,Object> query = new HashMap<>();
         query.put("search",search);
@@ -680,6 +680,7 @@ public class DWServiceImpl implements DWService {
             value.put("dbId",database.getId());
             value.put("dbTitle",database.getTitle());
             value.put("tableName",tableName);
+            value.put("tbName",tableName);
             value.put("target",tableName);
             value.put("userId",database.getUserId());
             provider.insert(value);
@@ -963,6 +964,10 @@ public class DWServiceImpl implements DWService {
         }
 
         for (RemoteTableAddReq req : reqList) {
+
+            if(!StringUtils.hasText(req.getTbName())){
+                throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
+            }
 
             Optional<DWTable> optTb = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tbName(req.getTbName()).build()));
 
