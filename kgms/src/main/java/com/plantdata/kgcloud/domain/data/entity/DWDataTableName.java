@@ -14,9 +14,8 @@ import java.util.Objects;
  */
 @Setter
 @Getter
-@ApiModel("数仓数据-错误状态")
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class DWData {
+@ApiModel("数仓数据-数据表名称")
+public class DWDataTableName {
 
 
     private String tableName;
@@ -25,7 +24,7 @@ public class DWData {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DWData dwData = (DWData) o;
+        DWDataTableName dwData = (DWDataTableName) o;
         return Objects.equals(tableName, dwData.tableName);
     }
 
