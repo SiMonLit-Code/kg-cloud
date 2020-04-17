@@ -143,7 +143,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     TABLE_CONNECT_ERROR(120714, "表连接失败"),
 
-    EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR(120715, "请先建表再上传模式"),
+    EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR(120715, "tableName不存在，请先创建再上传模式"),
 
     EXAMPLE_FILE_DOWNLOAD_ERROR(120716, "示例文件下载失败"),
 
