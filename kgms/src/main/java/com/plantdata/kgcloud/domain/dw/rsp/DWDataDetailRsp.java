@@ -5,8 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel(value = "数仓错误信息展示")
-public class DWErrDataRsp {
+@ApiModel(value = "数仓信息展示")
+public class DWDataDetailRsp {
     @ApiModelProperty("创建时间")
     private String logTimeStamp;
     @ApiModelProperty("信息详情")

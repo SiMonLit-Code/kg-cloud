@@ -11,9 +11,7 @@ import com.hiekn.pddocument.bean.PdDocument;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.plantdata.kgcloud.config.MongoProperties;
@@ -23,8 +21,8 @@ import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
-import com.plantdata.kgcloud.domain.data.entity.DWData;
-import com.plantdata.kgcloud.domain.data.entity.DWErrData;
+import com.plantdata.kgcloud.domain.data.entity.DWDataTableName;
+import com.plantdata.kgcloud.domain.data.entity.DWDataStatusDatail;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
@@ -64,7 +62,6 @@ import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.UUIDUtils;
-import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -671,30 +668,30 @@ public class DWServiceImpl implements DWService {
             return;
         }
         Long now = System.currentTimeMillis();
-        Long logTimeStamp =  now - (now % (1000*60*60));
-        Map<String,Object> search = new HashMap<>();
-        search.put("dataName",database.getDataName());
-        search.put("tableName",tableName);
-        search.put("logTimeStamp",logTimeStamp);
-        search.put("userId",database.getUserId());
-        Map<String,Object> query = new HashMap<>();
-        query.put("search",search);
-        DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE,KETTLE_LOGS_COLLECTION);
-        List<Map<String, Object>> rs = provider.find(0,1,query);
-        if(rs == null || rs.isEmpty()){
+        Long logTimeStamp = now - (now % (1000 * 60 * 60));
+        Map<String, Object> search = new HashMap<>();
+        search.put("dataName", database.getDataName());
+        search.put("tableName", tableName);
+        search.put("logTimeStamp", logTimeStamp);
+        search.put("userId", database.getUserId());
+        Map<String, Object> query = new HashMap<>();
+        query.put("search", search);
+        DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE, KETTLE_LOGS_COLLECTION);
+        List<Map<String, Object>> rs = provider.find(0, 1, query);
+        if (rs == null || rs.isEmpty()) {
 
-            Map<String,Object> value = new HashMap<>();
+            Map<String, Object> value = new HashMap<>();
 
-            value.put("logTimeStamp",logTimeStamp);
-            value.put("time_flag","hour");
-            value.put("W",new Long(sum));
-            value.put("dataName",database.getDataName());
-            value.put("dbId",database.getId());
-            value.put("dbTitle",database.getTitle());
-            value.put("tableName",tableName);
-            value.put("tbName",tableName);
-            value.put("target",tableName);
-            value.put("userId",database.getUserId());
+            value.put("logTimeStamp", logTimeStamp);
+            value.put("time_flag", "hour");
+            value.put("W", new Long(sum));
+            value.put("dataName", database.getDataName());
+            value.put("dbId", database.getId());
+            value.put("dbTitle", database.getTitle());
+            value.put("tableName", tableName);
+            value.put("tbName", tableName);
+            value.put("target", tableName);
+            value.put("userId", database.getUserId());
             provider.insert(value);
         } else {
 
@@ -977,7 +974,7 @@ public class DWServiceImpl implements DWService {
 
         for (RemoteTableAddReq req : reqList) {
 
-            if(!StringUtils.hasText(req.getTbName())){
+            if (!StringUtils.hasText(req.getTbName())) {
                 throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
             }
 
@@ -2169,30 +2166,46 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public List<DWErrDataRsp> errList(Long databaseId) {
+    public DWDataDetailRsp DataLogDetail(DWDataDetailReq reqs) {
+        MongoCollection<Document> collection = mongoClient.getDatabase(KETTLE_LOGS_DATABASE).getCollection(KETTLE_LOGS_RECODE);
+        String userId = SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId();
+        List<Bson> bsons = new ArrayList<>(2);
+        bsons.add(Filters.eq("userId", userId));
+        bsons.add(Filters.eq("tableName", reqs.getTableName()));
+        bsons.add(Filters.eq("logTimeStamp", reqs.getLogTimeStamp()));
+        FindIterable<Document> findIterable = collection.find(Filters.and(bsons));
+        List<DWDataStatusDatail> dwDataList = documentConverter.toBeans(findIterable, DWDataStatusDatail.class);
+        List<DWDataDetailRsp> dWDataRsps = MapperUtils.map(dwDataList, DWDataDetailRsp.class);
+        if (null != dWDataRsps && dWDataRsps.size() != 0) {
+            return dWDataRsps.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<DWDataStatusRsp> DataStatusList(Long databaseId) {
         MongoCollection<Document> collection = mongoClient.getDatabase(KETTLE_LOGS_DATABASE).getCollection(KETTLE_LOGS_RECODE);
         String userId = SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId();
         List<Bson> bsons = new ArrayList<>(2);
         bsons.add(Filters.eq("dbId", databaseId));
         bsons.add(Filters.eq("userId", userId));
         FindIterable<Document> findIterable = collection.find(Filters.and(bsons));
-        List<DWData> dwErrDataList = documentConverter.toBeans(findIterable, DWData.class);
-        Set<DWData> dwErrDataSet = new HashSet();
-        dwErrDataSet.addAll(dwErrDataList);
-        List<DWErrData> dWErrDataRspList = new ArrayList<>();
-        bsons.add(Filters.eq("dbId", databaseId));
-        for (DWData DWData : dwErrDataSet) {
+        List<DWDataTableName> dwDataList = documentConverter.toBeans(findIterable, DWDataTableName.class);
+        List<String> collect = dwDataList.stream().map(DWDataTableName::getTableName).distinct().collect(Collectors.toList());
+        List<DWDataStatusDatail> dWDataRspList = new ArrayList<>();
+        for (String dWData : collect) {
             List<Bson> bson = new ArrayList<>(3);
             bson.add(Filters.eq("dbId", databaseId));
-            bson.add(Filters.eq("tableName", DWData.getTableName()));
+            bson.add(Filters.eq("tableName", dWData));
             bson.add(Filters.eq("userId", userId));
-            FindIterable<Document> dWErrDataDocuments = collection.find(Filters.and(bson)).sort(Sorts.descending("logTimeStamp")).limit(1);
-            List<DWErrData> data = documentConverter.toBeans(dWErrDataDocuments, DWErrData.class);
+            FindIterable<Document> dWDataDocuments = collection.find(Filters.and(bson)).sort(Sorts.descending("logTimeStamp")).limit(1);
+            List<DWDataStatusDatail> data = documentConverter.toBeans(dWDataDocuments, DWDataStatusDatail.class);
             if (null != data && data.size() != 0) {
-                dWErrDataRspList.add(data.get(0));
+                dWDataRspList.add(data.get(0));
             }
         }
-        List<DWErrDataRsp> dWErrDataRsps = MapperUtils.map(dWErrDataRspList, DWErrDataRsp.class);
+        List<DWDataStatusRsp> dWErrDataRsps = MapperUtils.map(dWDataRspList, DWDataStatusRsp.class);
         return dWErrDataRsps;
     }
 }

@@ -14,10 +14,11 @@ import lombok.Setter;
 @Getter
 @ApiModel("数仓数据-状态")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DWErrData {
-
+public class DWDataStatusDatail {
     private String level;
+
     private String logTimeStamp;
+
     private String resourceMsg;
 
     private String tableName;
