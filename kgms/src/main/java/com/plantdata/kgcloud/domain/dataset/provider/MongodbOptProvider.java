@@ -95,11 +95,7 @@ public class MongodbOptProvider implements DataOptProvider {
             if (Objects.equals(entry.getKey(), "search")) {
                 Map<String, Object> value = (Map<String, Object>) entry.getValue();
                 for (Map.Entry<String, Object> objectEntry : value.entrySet()) {
-                    if(objectEntry.getValue() instanceof Long || objectEntry.getValue() instanceof Integer || objectEntry.getValue() instanceof Double){
-                        bsonList.add(Filters.eq(objectEntry.getKey(), objectEntry.getValue()));
-                    }else{
-                        bsonList.add(Filters.regex(objectEntry.getKey(), objectEntry.getValue()+""));
-                    }
+                    bsonList.add(Filters.eq(objectEntry.getKey(), objectEntry.getValue()));
                 }
             }
             if (Objects.equals(entry.getKey(), "resultType")) {
