@@ -671,29 +671,30 @@ public class DWServiceImpl implements DWService {
             return;
         }
         Long now = System.currentTimeMillis();
-        Long logTimeStamp = now - (now % (1000 * 60 * 60));
-        Map<String, Object> search = new HashMap<>();
-        search.put("dataName", database.getDataName());
-        search.put("tableName", tableName);
-        search.put("logTimeStamp", logTimeStamp + "");
-        search.put("userId", database.getUserId());
-        Map<String, Object> query = new HashMap<>();
-        query.put("search", search);
-        DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE, KETTLE_LOGS_COLLECTION);
-        List<Map<String, Object>> rs = provider.find(0, 1, query);
-        if (rs == null || rs.isEmpty()) {
+        Long logTimeStamp =  now - (now % (1000*60*60));
+        Map<String,Object> search = new HashMap<>();
+        search.put("dataName",database.getDataName());
+        search.put("tableName",tableName);
+        search.put("logTimeStamp",logTimeStamp);
+        search.put("userId",database.getUserId());
+        Map<String,Object> query = new HashMap<>();
+        query.put("search",search);
+        DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE,KETTLE_LOGS_COLLECTION);
+        List<Map<String, Object>> rs = provider.find(0,1,query);
+        if(rs == null || rs.isEmpty()){
 
-            Map<String, Object> value = new HashMap<>();
+            Map<String,Object> value = new HashMap<>();
 
-            value.put("logTimeStamp", logTimeStamp);
-            value.put("time_flag", "hour");
-            value.put("W", new Long(sum));
-            value.put("dataName", database.getDataName());
-            value.put("dbId", database.getId());
-            value.put("dbTitle", database.getTitle());
-            value.put("tableName", tableName);
-            value.put("target", tableName);
-            value.put("userId", database.getUserId());
+            value.put("logTimeStamp",logTimeStamp);
+            value.put("time_flag","hour");
+            value.put("W",new Long(sum));
+            value.put("dataName",database.getDataName());
+            value.put("dbId",database.getId());
+            value.put("dbTitle",database.getTitle());
+            value.put("tableName",tableName);
+            value.put("tbName",tableName);
+            value.put("target",tableName);
+            value.put("userId",database.getUserId());
             provider.insert(value);
         } else {
 
@@ -975,6 +976,10 @@ public class DWServiceImpl implements DWService {
         }
 
         for (RemoteTableAddReq req : reqList) {
+
+            if(!StringUtils.hasText(req.getTbName())){
+                throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
+            }
 
             Optional<DWTable> optTb = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tbName(req.getTbName()).build()));
 

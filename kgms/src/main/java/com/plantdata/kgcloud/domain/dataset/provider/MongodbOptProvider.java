@@ -93,9 +93,13 @@ public class MongodbOptProvider implements DataOptProvider {
         List<Bson> bsonList = new ArrayList<>();
         for (Map.Entry<String, Object> entry : query.entrySet()) {
             if (Objects.equals(entry.getKey(), "search")) {
-                Map<String, String> value = (Map<String, String>) entry.getValue();
-                for (Map.Entry<String, String> objectEntry : value.entrySet()) {
-                    bsonList.add(Filters.regex(objectEntry.getKey(), objectEntry.getValue()));
+                Map<String, Object> value = (Map<String, Object>) entry.getValue();
+                for (Map.Entry<String, Object> objectEntry : value.entrySet()) {
+                    if(objectEntry.getValue() instanceof Long || objectEntry.getValue() instanceof Integer || objectEntry.getValue() instanceof Double){
+                        bsonList.add(Filters.eq(objectEntry.getKey(), objectEntry.getValue()));
+                    }else{
+                        bsonList.add(Filters.regex(objectEntry.getKey(), objectEntry.getValue()+""));
+                    }
                 }
             }
             if (Objects.equals(entry.getKey(), "resultType")) {
@@ -315,7 +319,8 @@ public class MongodbOptProvider implements DataOptProvider {
     @Override
     public Map<String, Object> insert(Map<String, Object> node) {
         MongoCollection<Document> collection = getCollection();
-        Document map = Document.parse(JacksonUtils.writeValueAsString(node));
+//        Document map = Document.parse(JacksonUtils.writeValueAsString(node));
+        Document map = new Document(node);
         collection.insertOne(map);
         map.put(MONGO_ID, map.getObjectId(MONGO_ID).toHexString());
         return map;
@@ -324,7 +329,8 @@ public class MongodbOptProvider implements DataOptProvider {
     @Override
     public Map<String, Object> update(String id, Map<String, Object> node) {
         MongoCollection<Document> collection = getCollection();
-        Document map = Document.parse(JacksonUtils.writeValueAsString(node));
+//        Document map = Document.parse(JacksonUtils.writeValueAsString(node));
+        Document map = new Document(node);
         collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(id)), new Document("$set", map));
         map.put(MONGO_ID, id);
         return map;
@@ -347,7 +353,8 @@ public class MongodbOptProvider implements DataOptProvider {
         MongoCollection<Document> collection = getCollection();
         List<Document> docList = new ArrayList<>();
         for (Map<String, Object> node : nodes) {
-            Document map = Document.parse(JacksonUtils.writeValueAsString(node));
+            Document map = new Document(node);
+//            Document map = Document.parse(JacksonUtils.writeValueAsString(node));
             docList.add(map);
         }
         collection.insertMany(docList);
