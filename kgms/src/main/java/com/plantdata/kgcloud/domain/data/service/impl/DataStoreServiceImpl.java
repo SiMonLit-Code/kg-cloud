@@ -69,7 +69,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     private static final String DB_NAME = "check_data_db";
 
     private MongoCollection<Document> getCollection() {
-        return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null?userClient.getCurrentUserDetail().getData().getId():SessionHolder.getUserId());
+        return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
     }
 
     @Override
@@ -94,44 +94,44 @@ public class DataStoreServiceImpl implements DataStoreService {
         return MapperUtils.map(dataStores, DbAndTableRsp.class);
 */
         Document groupField = new Document();
-        groupField.put("dbName","$dbName");
-        groupField.put("dbTable","$dbTable");
+        groupField.put("dbName", "$dbName");
+        groupField.put("dbTable", "$dbTable");
         Document group = new Document();
-        group.put("$group",new Document("_id",groupField));
+        group.put("$group", new Document("_id", groupField));
         AggregateIterable<Document> aggr = collection.aggregate(Lists.newArrayList(group));
 
         MongoCursor<Document> cursor = aggr.iterator();
 
-        Map<String,List<String>> rs = Maps.newHashMap();
+        Map<String, List<String>> rs = Maps.newHashMap();
 
-        while (cursor.hasNext()){
+        while (cursor.hasNext()) {
             Document item_doc = cursor.next();
             String dbName = item_doc.get("_id", Document.class).getString("dbName");
-            String dbTable = item_doc.get("_id",Document.class).getString("dbTable");
+            String dbTable = item_doc.get("_id", Document.class).getString("dbTable");
 
-            if(rs.containsKey(dbName)){
+            if (rs.containsKey(dbName)) {
                 rs.get(dbName).add(dbTable);
-            }else{
-                rs.put(dbName,Lists.newArrayList(dbTable));
+            } else {
+                rs.put(dbName, Lists.newArrayList(dbTable));
             }
         }
 
         List<DbAndTableRsp> tableRspList = Lists.newArrayList();
-        Map<String,String> dataMap = Maps.newHashMap();
-        for(Map.Entry<String,List<String>> entry : rs.entrySet()){
+        Map<String, String> dataMap = Maps.newHashMap();
+        for (Map.Entry<String, List<String>> entry : rs.entrySet()) {
 
             DbAndTableRsp dataStore = new DbAndTableRsp();
             dataStore.setDbName(entry.getKey());
             dataStore.setDbTable(entry.getValue());
-            if(dataMap.containsKey(entry.getKey())){
+            if (dataMap.containsKey(entry.getKey())) {
                 dataStore.setDbTitle(dataMap.get(entry.getKey()));
-            }else{
+            } else {
                 DWDatabaseRsp databaseRsp = dwService.getDbByDataName(entry.getKey());
-                if(databaseRsp != null){
-                    dataMap.put(entry.getKey(),databaseRsp.getTitle());
+                if (databaseRsp != null) {
+                    dataMap.put(entry.getKey(), databaseRsp.getTitle());
                     dataStore.setDbTitle(databaseRsp.getTitle());
-                }else{
-                    dataMap.put(entry.getKey(),null);
+                } else {
+                    dataMap.put(entry.getKey(), null);
                 }
             }
             tableRspList.add(dataStore);
@@ -150,14 +150,20 @@ public class DataStoreServiceImpl implements DataStoreService {
             bsons.add(Filters.eq("dbName", req.getDbName()));
         }
         if (StringUtils.hasText(req.getDbTable())) {
+
             bsons.add(Filters.eq("dbTable", req.getDbTable()));
         }
+
+        if (!StringUtils.isEmpty(req.getKeyword())) {
+            bsons.add(Filters.regex("errorReason", req.getKeyword()));
+        }
+
         FindIterable<Document> findIterable;
         long count = 0;
-            if (bsons.isEmpty()) {
-                count = collection.countDocuments();
-                findIterable = collection.find().skip(page).limit(size);
-            } else {
+        if (bsons.isEmpty()) {
+            count = collection.countDocuments();
+            findIterable = collection.find().skip(page).limit(size);
+        } else {
             count = collection.countDocuments(Filters.and(bsons));
             findIterable = collection.find(Filters.and(bsons)).skip(page).limit(size);
         }
@@ -171,28 +177,28 @@ public class DataStoreServiceImpl implements DataStoreService {
 
     private void addDataStoreTitle(List<DataStoreRsp> dataStoreRsps) {
 
-        if(dataStoreRsps == null || dataStoreRsps.isEmpty()){
-            return ;
+        if (dataStoreRsps == null || dataStoreRsps.isEmpty()) {
+            return;
         }
 
-        Map<String,String> dataMap = Maps.newHashMap();
+        Map<String, String> dataMap = Maps.newHashMap();
 
-        for(DataStoreRsp dataStore : dataStoreRsps){
+        for (DataStoreRsp dataStore : dataStoreRsps) {
             String dataName = dataStore.getDbName();
-            if(dataMap.containsKey(dataName)){
+            if (dataMap.containsKey(dataName)) {
                 dataStore.setTitle(dataMap.get(dataName));
-            }else{
+            } else {
                 DWDatabaseRsp databaseRsp = dwService.getDbByDataName(dataName);
-                if(databaseRsp != null){
-                    dataMap.put(dataName,databaseRsp.getTitle());
+                if (databaseRsp != null) {
+                    dataMap.put(dataName, databaseRsp.getTitle());
                     dataStore.setTitle(databaseRsp.getTitle());
-                }else{
-                    dataMap.put(dataName,null);
+                } else {
+                    dataMap.put(dataName, null);
                 }
             }
         }
 
-        return ;
+        return;
     }
 
     @Override
