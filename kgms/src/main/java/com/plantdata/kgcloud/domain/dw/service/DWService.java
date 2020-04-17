@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.req.*;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
@@ -84,7 +85,7 @@ public interface DWService {
 
     DWDatabaseRsp getDbByDataName(String dataName);
 
-    DWDataDetailRsp DataLogDetail(DWDataDetailReq reqs);
+    BasePage<TableLogListRsp> tableLogList(DWTableLogReq dwTableLogReq);
 
-    List<DWDataStatusRsp> DataStatusList(Long databaseId);
+    List<DWDataStatusRsp> DataStatusList(Long req);
 }

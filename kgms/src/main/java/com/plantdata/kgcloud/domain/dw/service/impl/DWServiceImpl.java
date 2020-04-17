@@ -14,6 +14,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.CommonConstants;
@@ -2166,21 +2167,21 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public DWDataDetailRsp DataLogDetail(DWDataDetailReq reqs) {
+    public BasePage<TableLogListRsp> tableLogList(DWTableLogReq req) {
         MongoCollection<Document> collection = mongoClient.getDatabase(KETTLE_LOGS_DATABASE).getCollection(KETTLE_LOGS_RECODE);
+        Integer size = req.getSize();
+        Integer page = (req.getPage() - 1) * size;
         String userId = SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId();
         List<Bson> bsons = new ArrayList<>(2);
         bsons.add(Filters.eq("userId", userId));
-        bsons.add(Filters.eq("tableName", reqs.getTableName()));
-        bsons.add(Filters.eq("logTimeStamp", reqs.getLogTimeStamp()));
-        FindIterable<Document> findIterable = collection.find(Filters.and(bsons));
-        List<DWDataStatusDatail> dwDataList = documentConverter.toBeans(findIterable, DWDataStatusDatail.class);
-        List<DWDataDetailRsp> dWDataRsps = MapperUtils.map(dwDataList, DWDataDetailRsp.class);
-        if (null != dWDataRsps && dWDataRsps.size() != 0) {
-            return dWDataRsps.get(0);
-        } else {
-            return null;
-        }
+        bsons.add(Filters.eq("tableName", req.getTableName()));
+        FindIterable<Document> findIterable;
+        long count = 0;
+        count = collection.countDocuments(Filters.and(bsons));
+        findIterable = collection.find(Filters.and(bsons)).sort(Sorts.descending("logTimeStamp")).skip(page).limit(size);
+        List<DWDataStatusDatail> dataStores = documentConverter.toBeans(findIterable, DWDataStatusDatail.class);
+        List<TableLogListRsp> dataStoreRsps = MapperUtils.map(dataStores, TableLogListRsp.class);
+        return new BasePage<>(count, dataStoreRsps);
     }
 
     @Override
@@ -2205,7 +2206,7 @@ public class DWServiceImpl implements DWService {
                 dWDataRspList.add(data.get(0));
             }
         }
-        List<DWDataStatusRsp> dWErrDataRsps = MapperUtils.map(dWDataRspList, DWDataStatusRsp.class);
-        return dWErrDataRsps;
+        List<DWDataStatusRsp> dWDataRsps = MapperUtils.map(dWDataRspList, DWDataStatusRsp.class);
+        return dWDataRsps;
     }
 }
