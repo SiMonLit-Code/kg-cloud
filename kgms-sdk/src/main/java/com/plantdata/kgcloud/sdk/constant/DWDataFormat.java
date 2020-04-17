@@ -54,6 +54,10 @@ public enum DWDataFormat {
         return PDDOC.getType().equals(type);
     }
 
+    public static boolean isPDd2r(Integer type){
+        return PDD2R.getType().equals(type);
+    }
+
 
 
 

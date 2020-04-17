@@ -24,6 +24,9 @@ public class SchemaQuoteReq {
     @ApiModelProperty("映射的图谱概念名称")
     private String conceptName;
 
+    @ApiModelProperty("映射的图谱概念标识")
+    private String conceptMeaningTag;
+
     @ApiModelProperty("映射的图谱父概念名称")
     private String pConceptName;
 

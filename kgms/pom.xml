@@ -292,6 +292,11 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hiekn</groupId>
+            <artifactId>kettleBean</artifactId>
+            <version>1.00</version>
+        </dependency>
     </dependencies>
 
     <profiles>
