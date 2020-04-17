@@ -8,12 +8,10 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-@ApiModel(value = "数仓信息展示")
-public class DWDataDetailReq  {
-    @ApiModelProperty("创建时间")
-    @NotBlank(message = "日期不能为空")
-    private String logTimeStamp;
+@ApiModel("数仓状态日志统计")
+public class DWTableLogReq extends BaseReq {
     @ApiModelProperty("数据表名")
     @NotBlank(message = "数据表名不能为空")
     private String tableName;
+
 }

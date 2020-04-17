@@ -258,17 +258,15 @@ public class DWController {
         return ApiReturn.success(dwServince.schemaResolve(file, null));
     }
 
-
     @ApiOperation("数仓-日志状态列表")
     @GetMapping("/database/status/{databaseId}")
     public ApiReturn DataStatusList(@PathVariable("databaseId") Long databaseId) {
         return ApiReturn.success(dwServince.DataStatusList(databaseId));
     }
 
-
-    @ApiOperation("数仓-日志详情")
-    @GetMapping("/database/logDatail")
-    public ApiReturn DataLogDetail(@Valid DWDataDetailReq reqs) {
-        return ApiReturn.success(dwServince.DataLogDetail(reqs));
+    @ApiOperation("数仓-数据库日志记录列表")
+    @GetMapping("/database/tableLogList")
+    public ApiReturn tableLogList(@Valid DWTableLogReq dwTableLogReq) {
+        return ApiReturn.success(dwServince.tableLogList(dwTableLogReq));
     }
 }

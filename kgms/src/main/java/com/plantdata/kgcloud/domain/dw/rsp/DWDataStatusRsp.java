@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel(value = "数仓信息状态")
+@ApiModel(value = "数仓信息日志状态")
 public class DWDataStatusRsp {
     @ApiModelProperty("创建时间")
     private String logTimeStamp;

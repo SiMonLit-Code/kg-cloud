@@ -15,9 +15,8 @@ import java.util.Objects;
 @Setter
 @Getter
 @ApiModel("数仓数据-数据表名称")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DWDataTableName {
-
-
     private String tableName;
 
     @Override
