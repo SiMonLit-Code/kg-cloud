@@ -88,4 +88,8 @@ public interface DWService {
     BasePage<TableLogListRsp> tableLogList(DWTableLogReq dwTableLogReq);
 
     List<DWDataStatusRsp> DataStatusList(Long req);
+
+    void updateTagJson(Long databaseId, List<TagJsonReq> tagJsonReqs);
+
+    List<ModelSchemaConfigRsp> getTagJson(Long databaseId);
 }
