@@ -28,4 +28,22 @@ public class MultiModalReq {
 
     @ApiModelProperty("文件类型")
     private String type;
+
+    @ApiModelProperty("上传类型(0：上传文件，1：选择文件)")
+    private Integer uploadType;
+
+    @ApiModelProperty("数仓id")
+    private Long dataBaseId;
+
+    @ApiModelProperty("所属文件夹id")
+    private Long tableId;
+
+    @ApiModelProperty("数仓文件id(上传类型为1传值)")
+    private Integer dwFileId;
+
+    @ApiModelProperty("关键词")
+    private String keyword;
+
+    @ApiModelProperty("简介")
+    private String description;
 }

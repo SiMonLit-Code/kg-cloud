@@ -202,6 +202,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DW_OUT_LIMIT(120743, "超过数仓创建限制,请联系管理员"),
 
     SCHEMA_CONCEPT_NOT_EXIST_ERROR(120744,"图谱没有定义概念"),
+
+    UNZIP_ERROR(120745,"解压失败"),
             ;
     private final int errorCode;
 
