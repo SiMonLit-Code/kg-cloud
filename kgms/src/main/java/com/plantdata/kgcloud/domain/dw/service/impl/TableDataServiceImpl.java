@@ -1,7 +1,10 @@
 package com.plantdata.kgcloud.domain.dw.service.impl;
 
+import com.github.junrar.Archive;
+import com.github.junrar.rarfile.FileHeader;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.config.MongoProperties;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.util.PatternUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
@@ -14,6 +17,9 @@ import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
+import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
+import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
@@ -26,6 +32,9 @@ import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import jodd.io.ZipUtil;
+import org.apache.tools.zip.ZipEntry;
+import org.apache.tools.zip.ZipFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,7 +50,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -67,6 +76,12 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Autowired
     private DWFileTableRepository fileTableRepository;
+
+    @Autowired
+    private EntityFileRelationService entityFileRelationService;
+
+    @Autowired
+    private EntityService entityService;
 
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq) {
@@ -178,7 +193,7 @@ public class TableDataServiceImpl implements TableDataService {
     }
 
     @Override
-    public void fileAdd(DWFileTableReq req) {
+    public DWFileTable fileAdd(DWFileTableReq req) {
 
         byte[] bytes = fastdfsTemplate.downloadFile(req.getPath());
 
@@ -190,7 +205,85 @@ public class TableDataServiceImpl implements TableDataService {
         }
         fileTable.setDataBaseId(req.getDataBaseId());
 
-        fileTableRepository.save(fileTable);
+        // 对压缩包进行解压
+        try {
+            if ("rar".equals(fileTable.getType())){
+                unRar(new File(req.getPath()),req.getPath().substring(0,req.getPath().lastIndexOf("/")+1));
+            }else if ("zip".equals(fileTable.getType())){
+                unZip(new File(req.getPath()),req.getPath().substring(0,req.getPath().lastIndexOf("/")+1));
+            }
+        } catch (Exception e) {
+            throw new BizException(KgmsErrorCodeEnum.UNZIP_ERROR);
+        }
+
+        return fileTableRepository.save(fileTable);
+    }
+
+    public void unZip(File zipFile, String outDir) throws Exception {
+
+        File outFileDir = new File(outDir);
+        if (!outFileDir.exists()) {
+            boolean isMakDir = outFileDir.mkdirs();
+            if (!isMakDir) {
+                throw new Exception();
+            }
+        }
+
+        ZipFile zip = new ZipFile(zipFile);
+        for (Enumeration enumeration = zip.getEntries(); enumeration.hasMoreElements(); ) {
+            ZipEntry entry = (ZipEntry) enumeration.nextElement();
+            String zipEntryName = entry.getName();
+            InputStream in = zip.getInputStream(entry);
+
+            if (entry.isDirectory()) {      //处理压缩文件包含文件夹的情况
+                File fileDir = new File(outDir + zipEntryName);
+                fileDir.mkdir();
+                continue;
+            }
+
+            File file = new File(outDir, zipEntryName);
+            file.createNewFile();
+            OutputStream out = new FileOutputStream(file);
+            byte[] buff = new byte[1024];
+            int len;
+            while ((len = in.read(buff)) > 0) {
+                out.write(buff, 0, len);
+            }
+            in.close();
+            out.close();
+        }
+    }
+
+    public void unRar(File rarFile, String outDir) throws Exception {
+        File outFileDir = new File(outDir);
+        if (!outFileDir.exists()) {
+            boolean isMakDir = outFileDir.mkdirs();
+            if (!isMakDir) {
+                throw new Exception();
+            }
+        }
+        Archive archive = new Archive(new FileInputStream(rarFile));
+        FileHeader fileHeader = archive.nextFileHeader();
+        while (fileHeader != null) {
+            if (fileHeader.isDirectory()) {
+                fileHeader = archive.nextFileHeader();
+                continue;
+            }
+            File out = new File(outDir + fileHeader.getFileNameString());
+            if (!out.exists()) {
+                if (!out.getParentFile().exists()) {
+                    out.getParentFile().mkdirs();
+                }
+                out.createNewFile();
+            }
+            FileOutputStream os = new FileOutputStream(out);
+            archive.extractFile(fileHeader, os);
+
+            os.close();
+
+            fileHeader = archive.nextFileHeader();
+        }
+        archive.close();
     }
 
     @Override
@@ -240,6 +333,15 @@ public class TableDataServiceImpl implements TableDataService {
             fileTable.setKeyword(fileTableReq.getKeyword());
             fileTable.setDescription(fileTableReq.getDescription());
             fileTableRepository.save(fileTable);
+
+            // 更新关联表
+            EntityFileRelation entityFileRelation = entityFileRelationService.getRelationByDwFileId(fileTable.getId());
+            if (entityFileRelation != null) {
+                entityFileRelation.setName(fileTableReq.getName());
+                entityFileRelation.setKeyword(fileTableReq.getKeyword());
+                entityFileRelation.setDescription(fileTableReq.getDescription());
+                entityFileRelationService.updateRelation(entityFileRelation);
+            }
         }
 
     }
@@ -247,6 +349,13 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public void fileDelete(Integer id) {
         fileTableRepository.deleteById(id);
+        EntityFileRelation relationByDwFileId = entityFileRelationService.getRelationByDwFileId(id);
+        if (relationByDwFileId != null) {
+            // 删除实体文件关联
+            entityFileRelationService.deleteRelationByDwFileId(id);
+            // 删除多模态文件记录
+            entityService.deleteMultiModal(relationByDwFileId.getKgName(),relationByDwFileId.getMultiModalId());
+        }
     }
 
     @Override
@@ -268,6 +377,17 @@ public class TableDataServiceImpl implements TableDataService {
             }
             fileTable.setDataBaseId(fileTableReq.getDataBaseId());
             fileTable.setPath(fastdfsTemplate.uploadFile(file).getFullPath());
+
+            // 对压缩包进行解压
+            try {
+                if ("rar".equals(fileTable.getType())){
+                    unRar(new File(fileTable.getPath()),fileTable.getPath().substring(0,fileTable.getPath().lastIndexOf("/")+1));
+                }else if ("zip".equals(fileTable.getType())){
+                    unZip(new File(fileTable.getPath()),fileTable.getPath().substring(0,fileTable.getPath().lastIndexOf("/")+1));
+                }
+            } catch (Exception e) {
+                throw new BizException(KgmsErrorCodeEnum.UNZIP_ERROR);
+            }
 
             fileTableRepository.save(fileTable);
         }

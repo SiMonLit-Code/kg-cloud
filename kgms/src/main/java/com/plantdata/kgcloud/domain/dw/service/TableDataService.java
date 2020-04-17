@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
+import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
@@ -18,7 +19,7 @@ public interface TableDataService {
 
     Map<String, Object> getDataById(String userId, Long datasetId, Long tableId, String dataId);
 
-    void fileAdd(DWFileTableReq req);
+    DWFileTable fileAdd(DWFileTableReq req);
 
     Page<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq);
 

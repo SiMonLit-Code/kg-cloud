@@ -423,3 +423,21 @@ CREATE TABLE `graph_attr_quality` (
   `update_at` datetime(3) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='图谱质量属性统计';
+
+-- ----------------------------
+-- Table structure for entity_file_relation
+-- ----------------------------
+DROP TABLE IF EXISTS `entity_file_relation`;
+CREATE TABLE `entity_file_relation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `kg_name` varchar(255) DEFAULT NULL COMMENT '图谱名称',
+  `entity_id` bigint(20) DEFAULT NULL COMMENT '实体ID',
+  `file_name` varchar(255) DEFAULT NULL COMMENT '文件名',
+  `type` varchar(255) DEFAULT NULL COMMENT '文件类型',
+  `keyword` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '关键词',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT '简介',
+  `dw_file_id` int(11) DEFAULT NULL COMMENT '数仓文件ID',
+  `multi_modal_id` varchar(255) DEFAULT NULL COMMENT '多模态mongo文件ID',
+  `create_at` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='实体文件关联表';
