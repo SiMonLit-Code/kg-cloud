@@ -21,4 +21,8 @@ public class DataStoreScreenReq extends BaseReq {
 
     @ApiModelProperty("数据库表名称")
     private String dbTable;
+
+    @ApiModelProperty("关键字搜索")
+    private String keyword;
+
 }

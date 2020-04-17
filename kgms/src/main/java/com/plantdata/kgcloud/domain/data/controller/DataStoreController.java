@@ -66,5 +66,4 @@ public class DataStoreController {
         dataStoreService.sendData(ids);
         return ApiReturn.success();
     }
-
 }
