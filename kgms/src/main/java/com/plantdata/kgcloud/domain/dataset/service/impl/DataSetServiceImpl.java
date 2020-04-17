@@ -25,12 +25,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.KgtextClient;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.constant.DataType;
-import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
-import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
-import com.plantdata.kgcloud.sdk.req.DataSetPdReq;
-import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
-import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
+import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.rsp.CorpusSetInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
@@ -55,19 +50,12 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -526,16 +514,20 @@ public class DataSetServiceImpl implements DataSetService {
                         type = FieldType.DOUBLE;
                     }catch (Exception e4){
                         try {
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            formatter.parse(string);
-                            type = FieldType.DATE;
-                        }catch (Exception e2){
-                            try {
-                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                                formatter.parse(string);
+                            String date = "\\d{4}-\\d{2}-\\d{2}";
+                            String time = "\\d{2}:\\d{2}:\\d{2}";
+                            String dateTime = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
+                            if (Pattern.matches(date, string)) {
+                                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 type = FieldType.DATE;
-                            }catch (Exception e3){
+                            } else if (Pattern.matches(time, string)) {
+                                LocalTime.parse(string, DateTimeFormatter.ofPattern("HH:mm:ss"));
+                                type = FieldType.DATE;
+                            } else if (Pattern.matches(dateTime, string)) {
+                                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                type = FieldType.DATE;
                             }
+                        }catch (Exception e2){
                         }
                     }
                 }

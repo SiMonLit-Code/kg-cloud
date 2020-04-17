@@ -190,6 +190,24 @@ public class DWController {
         return ApiReturn.success();
     }
 
+    @ApiOperation("数仓-更新pd类型打标")
+    @PostMapping("/{databaseId}/update/tagjson")
+    public ApiReturn updateTagJson(
+            @PathVariable("databaseId") Long databaseId,
+            @RequestBody List<TagJsonReq> tagJsonReqs) {
+
+        dwServince.updateTagJson(databaseId, tagJsonReqs);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数仓-获取pd类型打标")
+    @PatchMapping("/{databaseId}/get/tagjson")
+    public ApiReturn<List<ModelSchemaConfigRsp>> getTagJson(
+            @PathVariable("databaseId") Long databaseId) {
+
+        return ApiReturn.success(dwServince.getTagJson(databaseId));
+    }
+
     @ApiOperation("数仓-模式发布")
     @PostMapping("/model/push")
     public ApiReturn push(@RequestBody ModelPushReq req) {

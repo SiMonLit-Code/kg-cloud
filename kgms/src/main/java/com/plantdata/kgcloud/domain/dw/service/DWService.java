@@ -88,4 +88,8 @@ public interface DWService {
     void deleteData(String userId, Long databaseId, Long tableId);
 
     DWDatabaseRsp getDbByDataName(String dataName);
+
+    void updateTagJson(Long databaseId, List<TagJsonReq> tagJsonReqs);
+
+    List<ModelSchemaConfigRsp> getTagJson(Long databaseId);
 }
