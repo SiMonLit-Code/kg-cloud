@@ -700,7 +700,7 @@ public class DWServiceImpl implements DWService {
                 schemas = table.getSchema();
                 List<DataSetSchema> tableSchemas = schemaResolve(file, null);
                 if (schemas == null) {
-
+                    schemas = tableSchemas;
                     table.setSchema(tableSchemas);
                     table.setFields(transformFields(tableSchemas));
                     tableRepository.save(table);
