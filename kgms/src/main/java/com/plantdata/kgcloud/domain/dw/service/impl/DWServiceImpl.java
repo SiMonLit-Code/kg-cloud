@@ -512,20 +512,12 @@ public class DWServiceImpl implements DWService {
             byte[] bytes;
             if(database.getDataFormat().equals(3)){
 
-//                if(database.getYamlContent() != null && !database.getYamlContent().isEmpty()){
-//                    bytes =database.getYamlContent().getBytes();
-//                }else{
                 bytes = ExampleYaml.create(tableRsps);
-//                }
                 response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".yaml").getBytes(),
                         "iso-8859-1"));
                 response.getOutputStream().write(bytes);
             }else if(database.getDataFormat().equals(2)){
-//                if(database.getTagJson() != null && !database.getTagJson().isEmpty()){
-//                    bytes = JacksonUtils.writeValueAsString(database.getTagJson()).getBytes();
-//                }else{
                 bytes = ExampleTagJson.create(tableRsps);
-//                }
                 response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".json").getBytes(),
                         "iso-8859-1"));
                 response.getOutputStream().write(bytes);

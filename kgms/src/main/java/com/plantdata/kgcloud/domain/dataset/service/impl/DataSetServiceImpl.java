@@ -55,6 +55,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -471,7 +472,11 @@ public class DataSetServiceImpl implements DataSetService {
     }
 
     private FieldType readType(Object val) {
-        FieldType type;
+        FieldType type = null;
+        if(val == null){
+            type = FieldType.STRING;
+            return type;
+        }
         String string = val.toString();
         if (string.startsWith(JSON_START)) {
             try {
@@ -508,7 +513,37 @@ public class DataSetServiceImpl implements DataSetService {
         } else if (val instanceof Float) {
             type = FieldType.FLOAT;
         } else {
-            type = FieldType.STRING;
+            try {
+                Integer.parseInt(string);
+                type = FieldType.INTEGER;
+            }catch (Exception e){
+                try {
+                    Long.parseLong(string);
+                    type = FieldType.LONG;
+                }catch (Exception e1){
+                    try {
+                        Double.parseDouble(string);
+                        type = FieldType.DOUBLE;
+                    }catch (Exception e4){
+                        try {
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            formatter.parse(string);
+                            type = FieldType.DATE;
+                        }catch (Exception e2){
+                            try {
+                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                                formatter.parse(string);
+                                type = FieldType.DATE;
+                            }catch (Exception e3){
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(type == null){
+                type = FieldType.STRING;
+            }
         }
         return type;
     }
