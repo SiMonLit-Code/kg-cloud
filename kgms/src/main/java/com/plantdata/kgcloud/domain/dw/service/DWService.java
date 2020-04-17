@@ -1,14 +1,10 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.req.*;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
@@ -35,7 +31,7 @@ public interface DWService {
 
     DWTableRsp createTable(String userId, DWTableReq req);
 
-    List<DataSetSchema> schemaResolve(MultipartFile file,Integer dataForamt);
+    List<DataSetSchema> schemaResolve(MultipartFile file, Integer dataForamt);
 
     List<DWTableRsp> findTableAll(String userId, Long databaseId);
 
@@ -75,7 +71,7 @@ public interface DWService {
 
     void deteleDatabase(String userId, Long id);
 
-    void deleteTable(String userId, Long databaseId,Long tableId);
+    void deleteTable(String userId, Long databaseId, Long tableId);
 
     DWTable getTableDetail(Long tableId);
 
@@ -88,6 +84,10 @@ public interface DWService {
     void deleteData(String userId, Long databaseId, Long tableId);
 
     DWDatabaseRsp getDbByDataName(String dataName);
+
+    BasePage<TableLogListRsp> tableLogList(DWTableLogReq dwTableLogReq);
+
+    List<DWDataStatusRsp> DataStatusList(Long req);
 
     void updateTagJson(Long databaseId, List<TagJsonReq> tagJsonReqs);
 

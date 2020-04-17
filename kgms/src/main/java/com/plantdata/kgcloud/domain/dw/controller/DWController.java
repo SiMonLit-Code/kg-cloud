@@ -40,11 +40,11 @@ public class DWController {
     public ApiReturn<DWDatabaseRsp> createDatabase(@Valid @RequestBody DWDatabaseReq req) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dwServince.createDatabase(userId, req));
-}
+    }
 
     @ApiOperation("数仓-查询行业数据库需要映射的表")
     @PatchMapping("/get/{databaseId}/mapping/table")
-    public ApiReturn<List<JSONObject>> getDatabaseMappingTable(@PathVariable("databaseId")Long databaseId) {
+    public ApiReturn<List<JSONObject>> getDatabaseMappingTable(@PathVariable("databaseId") Long databaseId) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(dwServince.getDatabaseMappingTable(userId, databaseId));
     }
@@ -91,7 +91,7 @@ public class DWController {
 
     @ApiOperation("数仓-删除数仓")
     @DeleteMapping("/delete/database/{id}")
-    public ApiReturn deleteDatabase(@PathVariable("id")Long id) {
+    public ApiReturn deleteDatabase(@PathVariable("id") Long id) {
         String userId = SessionHolder.getUserId();
         dwServince.deteleDatabase(userId, id);
         return ApiReturn.success();
@@ -99,19 +99,19 @@ public class DWController {
 
     @ApiOperation("数仓-删除表")
     @DeleteMapping("/delete/table/{databaseId}/{tableId}")
-    public ApiReturn deleteTable(@PathVariable("databaseId")Long databaseId,
-                                 @PathVariable("tableId")Long tableId) {
+    public ApiReturn deleteTable(@PathVariable("databaseId") Long databaseId,
+                                 @PathVariable("tableId") Long tableId) {
         String userId = SessionHolder.getUserId();
-        dwServince.deleteTable(userId, databaseId,tableId);
+        dwServince.deleteTable(userId, databaseId, tableId);
         return ApiReturn.success();
     }
 
     @ApiOperation("数仓-清空表数据")
     @DeleteMapping("/delete/data/{databaseId}/{tableId}")
-    public ApiReturn deleteData(@PathVariable("databaseId")Long databaseId,
-                                 @PathVariable("tableId")Long tableId) {
+    public ApiReturn deleteData(@PathVariable("databaseId") Long databaseId,
+                                @PathVariable("tableId") Long tableId) {
         String userId = SessionHolder.getUserId();
-        dwServince.deleteData(userId, databaseId,tableId);
+        dwServince.deleteData(userId, databaseId, tableId);
         return ApiReturn.success();
     }
 
@@ -127,7 +127,7 @@ public class DWController {
     public ApiReturn addRemoteTables(@PathVariable("databaseId") Long databaseId,
                                      @RequestBody List<RemoteTableAddReq> reqList) {
         String userId = SessionHolder.getUserId();
-        dwServince.addRemoteTables(userId, databaseId,reqList);
+        dwServince.addRemoteTables(userId, databaseId, reqList);
         return ApiReturn.success();
     }
 
@@ -155,9 +155,9 @@ public class DWController {
 
     @ApiOperation("数仓-查找数仓详情")
     @GetMapping("/database/{id}")
-    public ApiReturn<DWDatabaseRsp> getDatabase(@PathVariable("id")Long id) {
+    public ApiReturn<DWDatabaseRsp> getDatabase(@PathVariable("id") Long id) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(dwServince.getDatabase(userId,id));
+        return ApiReturn.success(dwServince.getDatabase(userId, id));
     }
 
 
@@ -172,7 +172,7 @@ public class DWController {
     @GetMapping("/{databaseId}/table/all")
     public ApiReturn<List<DWTableRsp>> findTableAll(@PathVariable("databaseId") Long databaseId) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(dwServince.findTableAll(userId,databaseId));
+        return ApiReturn.success(dwServince.findTableAll(userId, databaseId));
     }
 
     @ApiOperation("数仓-模式上传")
@@ -263,16 +263,28 @@ public class DWController {
             HttpServletResponse response) {
         try {
             String userId = SessionHolder.getUserId();
-            dwServince.exampleDownload(userId, databaseId,response);
-            return ;
+            dwServince.exampleDownload(userId, databaseId, response);
+            return;
         } catch (Exception e) {
-            return ;
+            return;
         }
     }
 
     @ApiOperation("数仓-schema-识别")
     @PostMapping("/schema")
     public ApiReturn<List<DataSetSchema>> resolve(@RequestParam(value = "file") MultipartFile file) {
-        return ApiReturn.success(dwServince.schemaResolve(file,null));
+        return ApiReturn.success(dwServince.schemaResolve(file, null));
+    }
+
+    @ApiOperation("数仓-日志状态列表")
+    @GetMapping("/database/status/{databaseId}")
+    public ApiReturn DataStatusList(@PathVariable("databaseId") Long databaseId) {
+        return ApiReturn.success(dwServince.DataStatusList(databaseId));
+    }
+
+    @ApiOperation("数仓-数据库日志记录列表")
+    @GetMapping("/database/tableLogList")
+    public ApiReturn tableLogList(@Valid DWTableLogReq dwTableLogReq) {
+        return ApiReturn.success(dwServince.tableLogList(dwTableLogReq));
     }
 }
