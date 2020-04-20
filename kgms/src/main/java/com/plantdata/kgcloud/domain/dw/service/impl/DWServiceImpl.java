@@ -1863,7 +1863,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
-        if (database == null || DWDataFormat.isStandard(database.getDataFormat()) || database.getTagJson() == null || database.getTagJson().isEmpty()) {
+        if (database == null || !DWDataFormat.isStandard(database.getDataFormat()) || database.getTagJson() == null || database.getTagJson().isEmpty()) {
             return Lists.newArrayList();
         }
 
