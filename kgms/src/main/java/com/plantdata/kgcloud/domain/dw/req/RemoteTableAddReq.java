@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.req;
 
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -17,4 +18,7 @@ public class RemoteTableAddReq {
 
     @ApiModelProperty("PDDOC|PDD2R 特有 指定数据存储的字段")
     private String field;
+
+    @ApiModelProperty("字段schema")
+    private DataSetSchema dataSetSchema;
 }

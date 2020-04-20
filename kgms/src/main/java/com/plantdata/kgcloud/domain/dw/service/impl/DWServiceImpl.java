@@ -707,17 +707,35 @@ public class DWServiceImpl implements DWService {
                 schemas = table.getSchema();
                 List<DataSetSchema> tableSchemas = schemaResolve(file, null);
                 if (schemas == null) {
-                    schemas = tableSchemas;
-                    table.setSchema(tableSchemas);
-                    table.setFields(transformFields(tableSchemas));
+
+                    if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
+                        if(tableSchemas != null && !tableSchemas.isEmpty()){
+                            List<DataSetSchema> schemaList = new ArrayList<>(1);
+                            for(DataSetSchema s: schemaList) {
+                                if(table.getPdSingleField().equals(s.getField())){
+                                    schemaList.add(s);
+                                    break;
+                                }
+                            }
+
+                            if(!schemaList.isEmpty()){
+                                schemas = schemaList;
+                            }
+                        }
+
+                    }else{
+                        schemas = tableSchemas;
+                    }
+                    table.setSchema(schemas);
+                    table.setFields(transformFields(schemas));
                     tableRepository.save(table);
                 }
 
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
-                    checkPDDocSchema(tableSchemas,table.getFields());
+                    checkPDDocSchema(schemas,table.getFields());
                 } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
                     List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
-                    checkIndutrySchema(industrySchema, tableSchemas);
+                    checkIndutrySchema(industrySchema, schemas);
                 }
                 tableName = table.getTableName();
 
@@ -841,17 +859,13 @@ public class DWServiceImpl implements DWService {
         }
         target.setTitle(req.getTitle());
         //本地库创建结构
-        List<DataSetSchema> schema;
+        List<DataSetSchema> schema = null;
         if (StringUtils.hasText(req.getTableName())) {
             schema = getIndustryTableSchema(req.getDwDataBaseId(), req.getTableName());
             target.setKtr(getIndustryTableKtr(req.getDwDataBaseId(), req.getTableName()));
         } else if (DWDataFormat.isPDdoc(dwDatabase.getDataFormat()) || DWDataFormat.isPDd2r(dwDatabase.getDataFormat())) {
             if (StringUtils.hasText(req.getField())) {
                 target.setPdSingleField(req.getField());
-                DataSetSchema dataSetSchema = new DataSetSchema();
-                dataSetSchema.setField(req.getField());
-                dataSetSchema.setType(FieldType.ARRAY.getCode());
-                schema = Lists.newArrayList(dataSetSchema);
             } else {
                 schema = schemaResolve(null, dwDatabase.getDataFormat());
             }
@@ -964,15 +978,17 @@ public class DWServiceImpl implements DWService {
         }
 
         List<String> tables;
+
+        Map<String,List<DataSetSchema>> schemaMap = new HashMap<>();
         if (dwDatabase.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
                 tables = getMongoCollection(dwDatabase);
+
             } catch (Exception e) {
                 throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
             }
         } else {
-
 
             DataSource dataSource = getDataSource(dwDatabase);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -995,6 +1011,15 @@ public class DWServiceImpl implements DWService {
         }
 
 
+        if(tables != null && !tables.isEmpty()){
+
+            for(String table : tables){
+                List<DataSetSchema> schemas = getTableSchema(dwDatabase, table);
+                schemaMap.put(table,schemas);
+            }
+
+        }
+
         List<JSONObject> tabList = Lists.newArrayList();
         if (tables != null && !tables.isEmpty()) {
 
@@ -1011,6 +1036,7 @@ public class DWServiceImpl implements DWService {
             for (String t : tables) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("tableName", t);
+                jsonObject.put("schema",schemaMap.get(t));
                 if (existList.contains(t)) {
                     jsonObject.put("status", 1);
                 } else {
@@ -1080,7 +1106,6 @@ public class DWServiceImpl implements DWService {
 
     @Override
     public void addRemoteTables(String userId, Long databaseId, List<RemoteTableAddReq> reqList) {
-
 
         if (reqList == null || reqList.isEmpty()) {
             return;
@@ -1155,9 +1180,7 @@ public class DWServiceImpl implements DWService {
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
 
                     if(StringUtils.hasText(req.getField())){
-                        DataSetSchema dataSetSchema = new DataSetSchema();
-                        dataSetSchema.setField(req.getField());
-                        dataSetSchema.setType(FieldType.ARRAY.getCode());
+                        DataSetSchema dataSetSchema = req.getDataSetSchema();
                         schemaList = Lists.newArrayList(dataSetSchema);
                         fields = transformFields(schemaList);
                         checkPDD2rSchema(schemaList,fields);
@@ -1169,9 +1192,7 @@ public class DWServiceImpl implements DWService {
 
 
                     if(StringUtils.hasText(req.getField())){
-                        DataSetSchema dataSetSchema = new DataSetSchema();
-                        dataSetSchema.setField(req.getField());
-                        dataSetSchema.setType(FieldType.ARRAY.getCode());
+                        DataSetSchema dataSetSchema = req.getDataSetSchema();
                         schemaList = Lists.newArrayList(dataSetSchema);
                         fields = transformFields(schemaList);
                         checkPDD2rSchema(schemaList,fields);
