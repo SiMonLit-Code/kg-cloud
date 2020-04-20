@@ -17,7 +17,7 @@ public class DWDatabaseRsp {
     private String title;
     @ApiModelProperty(value = "数仓类型")
     private Integer dataType;
-    @ApiModelProperty(value = "数仓数据类型 1行业标准 2pddoc 3自定义")
+    @ApiModelProperty(value = "数仓数据类型 1行业标准 2PDDocument 3自定义 4RDF/OWL 5FILE 6PDD2R")
     private Integer dataFormat;
     private List<Integer> standardTemplateId;
     private List<String> addr;

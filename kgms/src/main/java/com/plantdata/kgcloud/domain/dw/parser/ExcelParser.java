@@ -61,9 +61,9 @@ public class ExcelParser {
 
     static {
         //概念
-        titles.put(CONCEPT, Lists.newArrayList("父概念（必填）", "父概念消歧标识", "子概念（必填）", "子概念消歧标识"));
+        titles.put(CONCEPT, Lists.newArrayList("父概念(必填)", "父概念消歧标识", "子概念(必填)", "子概念消歧标识"));
         //数值、对象属性定义
-        titles.put(ATTRIBUTE, Lists.newArrayList("属性名称(必填)", "别名", "属性定义域(必填)", "属性定义域的消歧标识","数据类型（必填）","单位"));
+        titles.put(ATTRIBUTE, Lists.newArrayList("属性名称(必填)", "别名", "属性定义域(必填)", "属性定义域的消歧标识","数据类型(必填)","单位"));
         //关系
 //        titles.put(RELATION, Lists.newArrayList("定义域（必填，实例的概念类型）", "定义域消歧标识", "定义域实例名称（必填）", "实例消歧标识","关系名称（必填）","值域实例名称（必填）"));
         titles.put(RELATION, Lists.newArrayList("关系名称(必填)", "别名", "关系定义域(必填)", "关系定义域的消歧标识","关系值域(必填)","关系值域的消歧标识"));
