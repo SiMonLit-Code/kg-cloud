@@ -13,7 +13,7 @@ public class DWDatabaseReq {
     @ApiModelProperty("名称")
     private String title;
 
-    @ApiModelProperty("数仓数据类型 1行业标准 2PDDocument 3自定义 4RDF/OWL 5FILE 6PDDOC")
+    @ApiModelProperty("数仓数据类型 1行业标准 2PDDocument 3自定义 4RDF/OWL 5FILE 6PDD2R")
     private Integer dataFormat;
 
     @ApiModelProperty("引用的行业模板id")
