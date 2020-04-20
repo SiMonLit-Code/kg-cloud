@@ -236,6 +236,37 @@ public class EntityServiceImpl implements EntityService {
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         mongoCollection.insertMany(documents);
+
+        List<MultiModalRsp> multiModalRsps = documentConverter.toBeans(documents, MultiModalRsp.class);
+
+        for (MultiModalReq multiModalReq: multiModalReqs) {
+
+            MultiModalRsp multiModalRsp = multiModalRsps.stream()
+                    .filter(m->m.getDataHref().equals(multiModalReq.getDataHref())).collect(Collectors.toList()).get(0);
+
+            if (1 == multiModalReq.getUploadType()) {
+                // 创建实体文件关联
+                EntityFileRelationReq entityFileRelationReq = new EntityFileRelationReq();
+                BeanUtils.copyProperties(multiModalReq, entityFileRelationReq);
+                entityFileRelationReq.setDwFileId(multiModalReq.getDwFileId());
+                entityFileRelationReq.setMultiModalId(multiModalRsp.getId());
+                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+            } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
+                // 创建数仓文件记录
+                DWFileTableReq dwFileTableReq = new DWFileTableReq();
+                BeanUtils.copyProperties(multiModalReq, dwFileTableReq);
+                dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
+                dwFileTableReq.setPath(multiModalReq.getThumbPath());
+                DWFileTable dwFileTable = tableDataService.fileAdd(dwFileTableReq);
+                // 创建实体文件关联
+                EntityFileRelationReq entityFileRelationReq = new EntityFileRelationReq();
+                BeanUtils.copyProperties(multiModalReq, entityFileRelationReq);
+                entityFileRelationReq.setDwFileId(dwFileTable.getId());
+                entityFileRelationReq.setMultiModalId(multiModalRsp.getId());
+                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+            }
+        }
+
         multiModals.forEach(modal -> sendMsg(kgName, modal));
         logSender.remove();
     }
