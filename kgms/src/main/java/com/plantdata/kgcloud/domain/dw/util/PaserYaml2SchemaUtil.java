@@ -523,8 +523,8 @@ public class PaserYaml2SchemaUtil {
             List<YamlRelation> relationList = convertRelation(relations);
 
             Set<String> entity = new HashSet<>();
-            Set<ModelSchemaConfigRsp.AttrBean> attrBeans = new HashSet<>();
-            Set<ModelSchemaConfigRsp.RelationBean> relationBeans = new HashSet<>();
+            Set<ModelAttrBeanRsp> attrBeans = new HashSet<>();
+            Set<ModelRelationBeanRsp> relationBeans = new HashSet<>();
 
             Map<String,List<YamlColumn>> relationColumn = new HashMap<>();
 
@@ -541,7 +541,7 @@ public class PaserYaml2SchemaUtil {
                         //默认的属性不需要加属性定义
                         continue;
                     }
-                    ModelSchemaConfigRsp.AttrBean attrBean = new ModelSchemaConfigRsp.AttrBean();
+                    ModelAttrBeanRsp attrBean = new ModelAttrBeanRsp();
                     attrBean.setDomain(column.getConceptOrRelationName());
                     attrBean.setDataType(attDataTypeMap.get(column.getType()));
                     attrBean.setName(column.getAttrName());
@@ -563,7 +563,7 @@ public class PaserYaml2SchemaUtil {
                 }
 
 
-                ModelSchemaConfigRsp.RelationBean relationBean = new ModelSchemaConfigRsp.RelationBean();
+                ModelRelationBeanRsp relationBean = new ModelRelationBeanRsp();
                 relationBean.setName(relation.getRelationName());
                 relationBean.setDomain(domain);
                 relationBean.setRange(Sets.newHashSet(range));
@@ -572,11 +572,11 @@ public class PaserYaml2SchemaUtil {
 
                     List<YamlColumn> relationAtt = relationColumn.get(relation.getRelationName());
 
-                    Set<ModelSchemaConfigRsp.RelationAttr> attrs = new HashSet<>();
+                    Set<ModelRelationAttrBeanRsp> attrs = new HashSet<>();
 
                     for(YamlColumn column : relationAtt){
 
-                        ModelSchemaConfigRsp.RelationAttr relationAttr = new ModelSchemaConfigRsp.RelationAttr();
+                        ModelRelationAttrBeanRsp relationAttr = new ModelRelationAttrBeanRsp();
                         relationAttr.setName(column.getAttrName());
                         relationAttr.setDataType(attDataTypeMap.get(column.getType()));
 

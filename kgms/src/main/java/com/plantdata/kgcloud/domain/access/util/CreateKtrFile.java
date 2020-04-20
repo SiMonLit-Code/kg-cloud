@@ -77,6 +77,9 @@ public class CreateKtrFile {
         //连接信息
         String connXml;
 
+        //错误数据接入
+        String mongoErrorInput = IndustryKtrXml.mongoErrorInput;
+
 
         if(table.getCreateWay().equals(1)){
             //远程表
@@ -149,11 +152,12 @@ public class CreateKtrFile {
 
         kafkaErrorxml = changeKafkaConnection(kafkaErrorxml, kafkaServers,kafkaCheckTopic);
 
-//        paramAndFilterXml = changeParamAndFilterXml(paramAndFilterXml,database,table,userId,isAllKey);
+        mongoErrorInput = changeMongoErrorInput(mongoErrorInput,mongoAddrs[0].split(":")[0],mongoAddrs[0].split(":")[1],mongoUserrname,mongoPassword,database,table);
+
 
         customizationXml = changeCustomizationXml(customizationXml,table);
 
-        String data = xml + connXml + orderXml + defaultXml + inputXml + kafkaTruexml+ kafkaErrorxml + customizationXml + paramAndFilterXml;
+        String data = xml + connXml + orderXml + defaultXml + inputXml + kafkaTruexml+ kafkaErrorxml+mongoErrorInput + customizationXml + paramAndFilterXml;
         // 创建临时路径
         return data.replaceAll("resourceNameQAQ",resourceName);
 
@@ -164,19 +168,6 @@ public class CreateKtrFile {
         return customizationXml.replace("${code}",table.getKtr() == null ? "":table.getKtr());
     }
 
-/*
-    private static String changeParamAndFilterXml(String paramAndFilterXml, DWDatabaseRsp database, DWTableRsp table,String userId,String isAllKey) {
-
-        JSONObject param = new JSONObject();
-        param.put("db",database.getDataName());
-        param.put("tb",table.getTableName());
-        param.put("userId",userId);
-        param.put("target",isAllKey);
-        param.put("dbId",database.getId());
-
-        return paramAndFilterXml.replace("resourceConfig_QAQ", param.toJSONString());
-    }
-*/
 
     private static String getKtrNotIndustry(DWDatabaseRsp database, DWTableRsp table,String resourceName, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword,String topic){
         String xml = KtrXml.xml;
@@ -213,6 +204,9 @@ public class CreateKtrFile {
 
         //连接信息
         String connXml;
+
+        //错误数据接入
+        String mongoErrorInput = KtrXml.mongoErrorInput;
 
 
         if(table.getCreateWay().equals(1)){
@@ -286,9 +280,23 @@ public class CreateKtrFile {
 
         kafkaxml = changeKafkaConnection(kafkaxml, kafkaServers,topic);
 
-        String data = xml + connXml + orderXml + defaultXml + inputXml + kafkaxml;
+        mongoErrorInput = changeMongoErrorInput(mongoErrorInput,mongoAddrs[0].split(":")[0],mongoAddrs[0].split(":")[1],mongoUserrname,mongoPassword,database,table);
+
+        String data = xml + connXml + orderXml + defaultXml + inputXml +mongoErrorInput+ kafkaxml;
         // 创建临时路径
         return data.replaceAll("resourceNameQAQ",resourceName);
+    }
+
+    private static String changeMongoErrorInput(String mongoErrorInput, String mongoIp,String mongoPort, String mongoUserrname, String mongoPassword, DWDatabaseRsp database, DWTableRsp table) {
+
+        String encodePassword = encodePassword(mongoPassword);
+
+        return mongoErrorInput.replace("errorMongoIpQAQ",mongoIp)
+                .replace("errorMongoPortQAQ",mongoPort)
+                .replace("errorMongoDbQAQ","dw_rerun_"+database.getDataName())
+                .replace("errorMongoCollectionQAQ",table.getTableName())
+                .replace("errorMongoUserQAQ",mongoUserrname)
+                .replace("errorMongoPasswordQAQ",encodePassword);
     }
 
     private static String changeDefaultXmlField(String defaultXml, String jsonFieldxml) {
@@ -322,6 +330,8 @@ public class CreateKtrFile {
         if(dataType == null || DataType.MONGO.equals(DataType.findType(dataType))){
 
             if(table.getIsAll() == null || table.getIsAll().equals(1)){
+
+
                 return sql.toString();
             }else{
                 return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
@@ -340,7 +350,7 @@ public class CreateKtrFile {
 
             if(table.getIsAll() != null && !table.getIsAll().equals(1)){
 
-                sql.append(" WHERE ")
+                sql.append(" WHERE false=${key} and ")
                         .append(table.getQueryField())
                         .append(" &gte; ")
                         .append("'${StartTime}'")
@@ -349,6 +359,8 @@ public class CreateKtrFile {
                         .append(" &lt; ")
                         .append("'${EndTime}'");
 
+            }else{
+                sql.append(" WHERE false=${key} ");
             }
 
             return sql.toString();

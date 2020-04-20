@@ -14,4 +14,7 @@ public class RemoteTableAddReq {
 
     @ApiModelProperty("映射表的模式id")
     private Integer modelId;
+
+    @ApiModelProperty("PDDOC|PDD2R 特有 指定数据存储的字段")
+    private String field;
 }

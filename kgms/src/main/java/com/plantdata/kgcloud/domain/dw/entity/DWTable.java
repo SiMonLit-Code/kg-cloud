@@ -102,6 +102,10 @@ public class DWTable {
     private String ktr;
 
     @Basic
+    @Column(name = "pd_single_field")
+    private String pdSingleField;
+
+    @Basic
     @Column(name = "model_id")
     private Integer modelId;
 

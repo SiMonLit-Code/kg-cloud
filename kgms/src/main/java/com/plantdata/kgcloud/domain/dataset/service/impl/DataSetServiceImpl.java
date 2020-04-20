@@ -459,7 +459,8 @@ public class DataSetServiceImpl implements DataSetService {
         }
     }
 
-    private FieldType readType(Object val) {
+    @Override
+    public FieldType readType(Object val) {
         FieldType type = null;
         if(val == null){
             type = FieldType.STRING;

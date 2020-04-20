@@ -33,4 +33,7 @@ public class DWTableReq {
     @ApiModelProperty("数据schema")
     private List<DataSetSchema> schemas;
 
+    @ApiModelProperty("PDDOC|PDD2R 特有 指定数据存储的字段")
+    private String field;
+
 }

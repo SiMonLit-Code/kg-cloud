@@ -7,11 +7,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.hiekn.bean.Pdd2rBean;
 import com.hiekn.pddocument.bean.PdDocument;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.*;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.plantdata.kgcloud.bean.BasePage;
@@ -22,8 +25,8 @@ import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
-import com.plantdata.kgcloud.domain.data.entity.DWDataTableName;
 import com.plantdata.kgcloud.domain.data.entity.DWDataStatusDatail;
+import com.plantdata.kgcloud.domain.data.entity.DWDataTableName;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
@@ -155,7 +158,7 @@ public class DWServiceImpl implements DWService {
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
         if (data != null) {
             DWDatabase probe = new DWDatabase();
-            probe.setUserId(userId);
+            probe.setUserId(data.getUserId());
             long count = dwRepository.count(Example.of(probe));
             Integer datasetCount = data.getDwCount();
             if (datasetCount != null && count >= datasetCount) {
@@ -234,15 +237,15 @@ public class DWServiceImpl implements DWService {
 
             if (tagJson.getRelation() != null) {
 
-                Map<String, ModelSchemaConfigRsp.RelationBean> map = new HashMap<>();
+                Map<String, ModelRelationBeanRsp> map = new HashMap<>();
 
-                for (ModelSchemaConfigRsp.RelationBean relation : modelSchema.getRelation()) {
+                for (ModelRelationBeanRsp relation : modelSchema.getRelation()) {
                     map.put(relation.getDomain() + "-" + relation.getName(), relation);
                 }
 
-                for (ModelSchemaConfigRsp.RelationBean relation : tagJson.getRelation()) {
+                for (ModelRelationBeanRsp relation : tagJson.getRelation()) {
                     if (map.containsKey(relation.getDomain() + relation.getName())) {
-                        ModelSchemaConfigRsp.RelationBean rela = map.get(relation.getDomain() + relation.getName());
+                        ModelRelationBeanRsp rela = map.get(relation.getDomain() + relation.getName());
 
                         //值域相加
                         rela.getRange().addAll(relation.getRange());
@@ -370,7 +373,7 @@ public class DWServiceImpl implements DWService {
         DWDatabase database = dwDatabase.get();
 
         //不是自定义类型数据库不用上传yaml
-        if (!database.getDataFormat().equals(3)) {
+        if (!DWDataFormat.isCustom(database.getDataFormat())) {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
@@ -510,7 +513,7 @@ public class DWServiceImpl implements DWService {
 
             DWDatabaseRsp database = getDetail(databaseId);
 
-            if (database == null || (!database.getDataFormat().equals(3) && !database.getDataFormat().equals(2))) {
+            if (database == null || (!DWDataFormat.isCustom(database.getDataFormat()) && !DWDataFormat.isPDd2r(database.getDataFormat()) && !DWDataFormat.isPDdoc(database.getDataFormat()))) {
                 return;
             }
 
@@ -520,15 +523,15 @@ public class DWServiceImpl implements DWService {
             }
             response.reset();
             byte[] bytes;
-            if (database.getDataFormat().equals(3)) {
+            if (DWDataFormat.isCustom(database.getDataFormat())) {
 
                 bytes = ExampleYaml.create(tableRsps);
-                response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".yaml").getBytes(),
+                response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle() + ".yaml").getBytes(),
                         "iso-8859-1"));
                 response.getOutputStream().write(bytes);
-            }else if(database.getDataFormat().equals(2)){
+            } else if (DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) {
                 bytes = ExampleTagJson.create(tableRsps);
-                response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle()+".json").getBytes(),
+                response.setHeader("Content-Disposition", "attachment;filename=" + new String((database.getTitle() + ".json").getBytes(),
                         "iso-8859-1"));
                 response.getOutputStream().write(bytes);
             } else {
@@ -547,7 +550,7 @@ public class DWServiceImpl implements DWService {
             return;
         }
 
-        if (dwOpt.get().getDataFormat().equals(5)) {
+        if (DWDataFormat.isFile(dwOpt.get().getDataFormat())) {
             //文件系统
 
             List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().tableId(tableId).build()));
@@ -589,40 +592,44 @@ public class DWServiceImpl implements DWService {
         Optional<DWDatabase> dwDatabase = dwRepository.findById(databaseId);
 
         if (!dwDatabase.isPresent()) {
-            return ;
+            return;
         }
 
         DWDatabase database = dwDatabase.get();
 
         //不是PDDOC类型数据库不用上传tagjson
-        if (!database.getDataFormat().equals(2)) {
+        if (!DWDataFormat.isPDd2r(database.getDataFormat()) && !DWDataFormat.isPDdoc(database.getDataFormat())) {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
 
-        List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(),databaseId);
-        if(tables == null || tables.isEmpty()){
+        List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(), databaseId);
+        if (tables == null || tables.isEmpty()) {
             throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
         }
 
 
         List<String> tableNames = tables.stream().map(DWTableRsp::getTableName).collect(Collectors.toList());
-        List<ModelSchemaConfigRsp> modelSchemaConfig = tagJsonReqs.stream().map(s -> ConvertUtils.convert(ModelSchemaConfigRsp.class).apply(s)).collect(Collectors.toList());
+        List<ModelSchemaConfigRsp> modelSchemaConfig = tagJsonReqs.stream().map(s -> {
+            ModelSchemaConfigRsp rsp = new ModelSchemaConfigRsp();
+            BeanUtils.copyProperties(s, rsp);
+            return rsp;
+        }).collect(Collectors.toList());
 
-        for(ModelSchemaConfigRsp schema : modelSchemaConfig){
-            if(!tableNames.contains(schema.getTableName())){
+        for (ModelSchemaConfigRsp schema : modelSchemaConfig) {
+            if (!tableNames.contains(schema.getTableName())) {
                 throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
             }
 
             Set<String> entry = schema.getEntity();
 
-            if(schema.getAttr() != null && !schema.getAttr().isEmpty()){
+            if (schema.getAttr() != null && !schema.getAttr().isEmpty()) {
                 schema.getAttr().forEach(attrBean -> {
-                    if(!entry.contains(attrBean.getDomain())){
+                    if (!entry.contains(attrBean.getDomain())) {
                         throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
                     }
 
-                    if(!PaserYaml2SchemaUtil.attrTypeList.contains(attrBean.getDataType())){
+                    if (!PaserYaml2SchemaUtil.attrTypeList.contains(attrBean.getDataType())) {
                         throw BizException.of(KgmsErrorCodeEnum.TAG_ATTR_TYPE_PARSER_ERROR);
                     }
                 });
@@ -630,19 +637,19 @@ public class DWServiceImpl implements DWService {
 
             }
 
-            if(schema.getRelation() != null && !schema.getRelation().isEmpty()){
+            if (schema.getRelation() != null && !schema.getRelation().isEmpty()) {
                 schema.getRelation().forEach(relationBean -> {
-                    if(!entry.contains(relationBean.getDomain())){
+                    if (!entry.contains(relationBean.getDomain())) {
                         throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR);
                     }
-                    if(!entry.containsAll(relationBean.getRange())){
+                    if (!entry.containsAll(relationBean.getRange())) {
                         throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_RANGE_NOT_EXIST_ERROR);
                     }
 
-                    Set<ModelSchemaConfigRsp.RelationAttr> relationAttrs = relationBean.getAttrs();
-                    if(relationAttrs != null && !relationAttrs.isEmpty()){
+                    Set<ModelRelationAttrBeanRsp> relationAttrs = relationBean.getAttrs();
+                    if (relationAttrs != null && !relationAttrs.isEmpty()) {
                         relationAttrs.forEach(relationAttr -> {
-                            if(!PaserYaml2SchemaUtil.attrTypeList.contains(relationAttr.getDataType())){
+                            if (!PaserYaml2SchemaUtil.attrTypeList.contains(relationAttr.getDataType())) {
                                 throw BizException.of(KgmsErrorCodeEnum.TAG_ATTR_TYPE_PARSER_ERROR);
                             }
                         });
@@ -669,7 +676,7 @@ public class DWServiceImpl implements DWService {
         DWDatabase database = dwDatabase.get();
 
         //不是PDDOC类型数据库不用上传tagjson
-        if (!database.getDataFormat().equals(2)) {
+        if (!DWDataFormat.isPDd2r(database.getDataFormat()) && !DWDataFormat.isPDdoc(database.getDataFormat())) {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
@@ -707,7 +714,7 @@ public class DWServiceImpl implements DWService {
                 }
 
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
-                    checkPDDocSchema(tableSchemas);
+                    checkPDDocSchema(tableSchemas,table.getFields());
                 } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
                     List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
                     checkIndutrySchema(industrySchema, tableSchemas);
@@ -838,8 +845,16 @@ public class DWServiceImpl implements DWService {
         if (StringUtils.hasText(req.getTableName())) {
             schema = getIndustryTableSchema(req.getDwDataBaseId(), req.getTableName());
             target.setKtr(getIndustryTableKtr(req.getDwDataBaseId(), req.getTableName()));
-        } else if (DWDataFormat.isPDdoc(dwDatabase.getDataFormat())) {
-            schema = schemaResolve(null, dwDatabase.getDataFormat());
+        } else if (DWDataFormat.isPDdoc(dwDatabase.getDataFormat()) || DWDataFormat.isPDd2r(dwDatabase.getDataFormat())) {
+            if (StringUtils.hasText(req.getField())) {
+                target.setPdSingleField(req.getField());
+                DataSetSchema dataSetSchema = new DataSetSchema();
+                dataSetSchema.setField(req.getField());
+                dataSetSchema.setType(FieldType.ARRAY.getCode());
+                schema = Lists.newArrayList(dataSetSchema);
+            } else {
+                schema = schemaResolve(null, dwDatabase.getDataFormat());
+            }
         } else {
             schema = req.getSchemas();
         }
@@ -865,15 +880,18 @@ public class DWServiceImpl implements DWService {
     public List<DataSetSchema> schemaResolve(MultipartFile file, Integer dataFormat) {
 
         if (DWDataFormat.isPDdoc(dataFormat)) {
-            return pddocSchema();
+            return beanSchema(PdDocument.class);
+        }
+
+        if(DWDataFormat.isPDd2r(dataFormat)){
+            return beanSchema(Pdd2rBean.class);
         }
 
         return dataSetService.schemaResolve(null, file);
     }
 
-    private List<DataSetSchema> pddocSchema() {
-
-        Field[] fields = PdDocument.class.getDeclaredFields();
+    private List<DataSetSchema> beanSchema(Class c) {
+        Field[] fields = c.getDeclaredFields();
 
         List<DataSetSchema> schemas = new ArrayList<>();
         for (int i = 0; i < fields.length; i++) {
@@ -883,6 +901,23 @@ public class DWServiceImpl implements DWService {
             String name = field.getName();
             DataSetSchema schema = new DataSetSchema();
             schema.setField(name);
+            try {
+                if(field.getType() == Integer.class){
+                    schema.setType(FieldType.INTEGER.getCode());
+                }else if(field.getType() == Long.class){
+                    schema.setType(FieldType.LONG.getCode());
+                }else if(field.getType() == String.class){
+                    schema.setType(FieldType.STRING.getCode());
+                }else if(field.getType() == Date.class){
+                    schema.setType(FieldType.DATE.getCode());
+                }else if(field.getType() == List.class || field.getType() == Set.class){
+                    schema.setType(FieldType.ARRAY.getCode());
+                }else{
+                    schema.setType(FieldType.STRING.getCode());
+                }
+            } catch (Exception e) {
+                schema.setType(FieldType.STRING.getCode());
+            }
             schemas.add(schema);
 
         }
@@ -904,7 +939,7 @@ public class DWServiceImpl implements DWService {
             return tableRsps;
         }
 
-        if (database.getDataFormat().equals(5)) {
+        if (DWDataFormat.isFile(database.getDataFormat())) {
             //文件系统，增加文件夹拥有文件数量
             for (DWTableRsp tableRsp : tableRsps) {
                 tableRsp.setFileCount(setTableFileCount(tableRsp.getId(), database.getId()));
@@ -1115,9 +1150,39 @@ public class DWServiceImpl implements DWService {
 
                 List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
 
+                List<String> fields = null;
+
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
-                    //pddoc类型的数仓，判断连接表是否符合结构
-                    checkPDDocSchema(schemaList);
+
+                    if(StringUtils.hasText(req.getField())){
+                        DataSetSchema dataSetSchema = new DataSetSchema();
+                        dataSetSchema.setField(req.getField());
+                        dataSetSchema.setType(FieldType.ARRAY.getCode());
+                        schemaList = Lists.newArrayList(dataSetSchema);
+                        fields = transformFields(schemaList);
+                        checkPDD2rSchema(schemaList,fields);
+                    }else{
+                        checkPDD2rSchema(schemaList,null);
+                    }
+
+                }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
+
+
+                    if(StringUtils.hasText(req.getField())){
+                        DataSetSchema dataSetSchema = new DataSetSchema();
+                        dataSetSchema.setField(req.getField());
+                        dataSetSchema.setType(FieldType.ARRAY.getCode());
+                        schemaList = Lists.newArrayList(dataSetSchema);
+                        fields = transformFields(schemaList);
+                        checkPDD2rSchema(schemaList,fields);
+                    }else{
+                        checkPDD2rSchema(schemaList,null);
+                    }
+
+                }
+
+                if(fields == null){
+                    fields = transformFields(schemaList);
                 }
 
 
@@ -1128,7 +1193,8 @@ public class DWServiceImpl implements DWService {
                         .tbName(req.getTbName())
                         .title(req.getTbName())
                         .createWay(1)
-                        .fields(transformFields(schemaList))
+                        .fields(fields)
+                        .pdSingleField(req.getField())
                         .build();
 
                 tableRepository.save(table);
@@ -1139,21 +1205,65 @@ public class DWServiceImpl implements DWService {
 
     }
 
-    private void checkPDDocSchema(List<DataSetSchema> schemaList) {
+    private void checkPDD2rSchema(List<DataSetSchema> schemaList,List<String> fields) {
+        if (schemaList == null || schemaList.isEmpty()) {
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_SCHEMA_MISMATCHING_STIPULATE);
+        }
+        boolean flag = false;
+
+        if(fields != null && fields.size() == 1){
+
+            for (DataSetSchema dataSetSchema : schemaList) {
+                if (Objects.equals(dataSetSchema.getField(), fields.get(0))) {
+                    flag = true;
+                    break;
+                }
+            }
+
+        }else {
+            for (DataSetSchema dataSetSchema : schemaList) {
+                if (Objects.equals(dataSetSchema.getField(), "entities")
+                        || Objects.equals(dataSetSchema.getField(), "relations")) {
+
+                    flag = true;
+
+                    break;
+                }
+            }
+        }
+
+        if (!flag) {
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_SCHEMA_MISMATCHING_STIPULATE);
+        }
+    }
+
+    private void checkPDDocSchema(List<DataSetSchema> schemaList,List<String> fields) {
 
         if (schemaList == null || schemaList.isEmpty()) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_SCHEMA_MISMATCHING_STIPULATE);
         }
 
         boolean flag = false;
-        for (DataSetSchema dataSetSchema : schemaList) {
-            if (Objects.equals(dataSetSchema.getField(), "pdEntity")
-                    || Objects.equals(dataSetSchema.getField(), "pdRelation")
-                    || Objects.equals(dataSetSchema.getField(), "pdEvent")) {
 
-                flag = true;
+        if(fields != null && fields.size() == 1){
 
-                break;
+            for (DataSetSchema dataSetSchema : schemaList) {
+                if (Objects.equals(dataSetSchema.getField(), fields.get(0))) {
+                    flag = true;
+                    break;
+                }
+            }
+
+        }else{
+            for (DataSetSchema dataSetSchema : schemaList) {
+                if (Objects.equals(dataSetSchema.getField(), "pdEntity")
+                        || Objects.equals(dataSetSchema.getField(), "pdRelation")
+                        || Objects.equals(dataSetSchema.getField(), "pdEvent")) {
+
+                    flag = true;
+
+                    break;
+                }
             }
         }
 
@@ -1381,7 +1491,7 @@ public class DWServiceImpl implements DWService {
         DWDatabase database = dwDatabase.get();
 
         //不是PDDOC类型数据库不用上传tagjson
-        if (!database.getDataFormat().equals(2)) {
+        if (!DWDataFormat.isPDdoc(database.getDataFormat()) && !DWDataFormat.isPDd2r(database.getDataFormat())) {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
@@ -1434,7 +1544,7 @@ public class DWServiceImpl implements DWService {
                         throw BizException.of(KgmsErrorCodeEnum.SCHEMA_PASER_RANGE_NOT_EXIST_ERROR);
                     }
 
-                    Set<ModelSchemaConfigRsp.RelationAttr> relationAttrs = relationBean.getAttrs();
+                    Set<ModelRelationAttrBeanRsp> relationAttrs = relationBean.getAttrs();
                     if (relationAttrs != null && !relationAttrs.isEmpty()) {
                         relationAttrs.forEach(relationAttr -> {
                             if (!PaserYaml2SchemaUtil.attrTypeList.contains(relationAttr.getDataType())) {
@@ -1457,11 +1567,12 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(id);
 
+        userId = userClient.getCurrentUserDetail().getData().getId();
         if (!database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
-        if (database.getDataFormat().equals(1)) {
+        if (DWDataFormat.isStandard(database.getDataFormat())) {
             //行业模板 根据引入的表获取模式
             List<DWTableRsp> tables = findTableAll(userId, id);
 
@@ -1508,7 +1619,7 @@ public class DWServiceImpl implements DWService {
         }
 
         List<PreBuilderConceptRsp> preBuilderConceptRspList;
-        if (database.getDataFormat().equals(1) || database.getDataFormat().equals(2)) {
+        if (DWDataFormat.isStandard(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat()) || DWDataFormat.isPDd2r(database.getDataFormat())) {
             //行业标准 or pddoc
             List<ModelSchemaConfigRsp> modelSchemaConfigRsp = getDatabseModelSchema(userId, req.getId());
 
@@ -1522,7 +1633,7 @@ public class DWServiceImpl implements DWService {
 
             preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), null);
 
-        } else if (database.getDataFormat().equals(3)) {
+        } else if (DWDataFormat.isCustom(database.getDataFormat())) {
             //自定义
             String yamlContent = database.getYamlContent();
 
@@ -1688,10 +1799,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
-        //不是PDDOC类型数据库不用上传tagjson
-        if (database.getDataFormat().equals(2) && file.getOriginalFilename().endsWith(".json")) {
+        //不是PD类型数据库不用上传tagjson
+        if ((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && file.getOriginalFilename().endsWith(".json")) {
             tagUpload(databaseId, file);
-        } else if (database.getDataFormat().equals(3) && file.getOriginalFilename().endsWith(".yaml")) {
+        } else if (DWDataFormat.isCustom(database.getDataFormat()) && file.getOriginalFilename().endsWith(".yaml")) {
             yamlUpload(databaseId, file);
         } else {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
@@ -1710,7 +1821,7 @@ public class DWServiceImpl implements DWService {
         for (DWDatabaseRsp databaseRsp : databases) {
             List<DWTableRsp> tableRsps = findTableAll(userId, databaseRsp.getId());
             databaseRsp.setTables(tableRsps);
-            if (databaseRsp.getDataFormat().equals(5)) {
+            if (DWDataFormat.isFile(databaseRsp.getDataFormat())) {
                 //文件系统，增加文件夹拥有文件数量
                 for (DWTableRsp tableRsp : tableRsps) {
                     tableRsp.setFileCount(setTableFileCount(tableRsp.getId(), databaseRsp.getId()));
@@ -1731,7 +1842,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
-        if (database == null || !database.getDataFormat().equals(1) || database.getTagJson() == null || database.getTagJson().isEmpty()) {
+        if (database == null || DWDataFormat.isStandard(database.getDataFormat()) || database.getTagJson() == null || database.getTagJson().isEmpty()) {
             return Lists.newArrayList();
         }
 
@@ -1795,13 +1906,6 @@ public class DWServiceImpl implements DWService {
                             json.put("modelId", modelId);
                         }
 
-                        /*if (t.containsKey(table.getKey()) && table.getValue().contains(t.get(table.getKey()).getModelId())){
-                            json.put("status",1);
-                            json.put("mapper",t.get(table.getKey()).getTableName());
-                        }else{
-                            json.put("status",0);
-                        }*/
-
                         if (t.containsKey(table.getKey())) {
                             json.put("status", 1);
                             json.put("mapper", t.get(table.getKey()).getTableName());
@@ -1838,7 +1942,7 @@ public class DWServiceImpl implements DWService {
             return;
         }
 
-        if (dwOpt.get().getDataFormat().equals(5)) {
+        if (DWDataFormat.isFile(dwOpt.get().getDataFormat())) {
             //文件系统
             List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().dataBaseId(id).build()));
             if (files != null && !files.isEmpty()) {
@@ -1871,7 +1975,7 @@ public class DWServiceImpl implements DWService {
             return;
         }
 
-        if (dwOpt.get().getDataFormat().equals(5)) {
+        if (DWDataFormat.isFile(dwOpt.get().getDataFormat())) {
             //文件系统
 
             List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().tableId(tableId).build()));
@@ -1946,7 +2050,7 @@ public class DWServiceImpl implements DWService {
             }
 
             if (schema.getAttr() != null && !schema.getAttr().isEmpty()) {
-                for (ModelSchemaConfigRsp.AttrBean attrBean : schema.getAttr()) {
+                for (ModelAttrBeanRsp attrBean : schema.getAttr()) {
                     String domain = attrBean.getDomain();
 
                     if (!conceptRspMap.containsKey(domain)) {
@@ -1965,7 +2069,7 @@ public class DWServiceImpl implements DWService {
 
             if (schema.getRelation() != null && !schema.getRelation().isEmpty()) {
 
-                for (ModelSchemaConfigRsp.RelationBean relationBean : schema.getRelation()) {
+                for (ModelRelationBeanRsp relationBean : schema.getRelation()) {
 
                     String domain = relationBean.getDomain();
 
@@ -1982,7 +2086,7 @@ public class DWServiceImpl implements DWService {
                     if (relationBean.getAttrs() != null && !relationBean.getAttrs().isEmpty()) {
 
                         List<PreBuilderRelationAttrRsp> relationAttrRspList = new ArrayList<>();
-                        for (ModelSchemaConfigRsp.RelationAttr relationAttr : relationBean.getAttrs()) {
+                        for (ModelRelationAttrBeanRsp relationAttr : relationBean.getAttrs()) {
 
                             PreBuilderRelationAttrRsp relationAttrRsp = new PreBuilderRelationAttrRsp();
                             relationAttrRsp.setName(relationAttr.getName());

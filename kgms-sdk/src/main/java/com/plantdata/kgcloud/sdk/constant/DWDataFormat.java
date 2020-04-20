@@ -46,15 +46,24 @@ public enum DWDataFormat {
         return DWDataFormat.CUSTOM;
     }
 
-    public static boolean isStandard(Integer type){
+    public static boolean isStandard(Integer type) {
         return STANDARD.getType().equals(type);
     }
 
-    public static boolean isPDdoc(Integer type){
+    public static boolean isPDdoc(Integer type) {
         return PDDOC.getType().equals(type);
     }
 
+    public static boolean isPDd2r(Integer type) {
+        return PDD2R.getType().equals(type);
+    }
+
+    public static boolean isCustom(Integer type) {
+        return CUSTOM.getType().equals(type);
+    }
 
 
-
+    public static boolean isFile(Integer type) {
+        return FILE.getType().equals(type);
+    }
 }
