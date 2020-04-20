@@ -297,6 +297,16 @@
             <artifactId>kettleBean</artifactId>
             <version>1.00</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.junrar</groupId>
+            <artifactId>junrar</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.9.4</version>
+        </dependency>
     </dependencies>
 
     <profiles>

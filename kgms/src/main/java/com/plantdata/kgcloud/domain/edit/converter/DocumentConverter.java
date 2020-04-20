@@ -39,6 +39,14 @@ public class DocumentConverter {
         return list;
     }
 
+    public <T> List<T> toBeans(List<Document> documents, Class<T> clazz) {
+        List<T> list = Lists.newArrayList();
+        for (Document document : documents) {
+            list.add(toBean(document, clazz));
+        }
+        return list;
+    }
+
     public <T> T toBean(Document document, Class<T> clazz) {
         if (Objects.isNull(document)) {
             return null;

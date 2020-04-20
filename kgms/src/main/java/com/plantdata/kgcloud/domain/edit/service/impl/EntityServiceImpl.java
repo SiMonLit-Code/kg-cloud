@@ -47,16 +47,22 @@ import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
+import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
+import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
+import com.plantdata.kgcloud.domain.dw.service.TableDataService;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.OpenEntityConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.*;
+import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
@@ -82,6 +88,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.bson.Document;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -141,6 +148,12 @@ public class EntityServiceImpl implements EntityService {
     @Autowired
     private DocumentConverter documentConverter;
 
+    @Autowired
+    private TableDataService tableDataService;
+
+    @Autowired
+    private EntityFileRelationService entityFileRelationService;
+
     @Override
     public void addMultipleConcept(String kgName, Long conceptId, Long entityId) {
         RestRespConverter.convertVoid(conceptEntityApi.addMultipleConcept(KGUtil.dbName(kgName), conceptId, entityId));
@@ -155,11 +168,35 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq) {
         logSender.setActionId();
+
         MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(multiModalReq);
         Document document = documentConverter.toDocument(multiModal);
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         mongoCollection.insertOne(document);
+        if (1 == multiModalReq.getUploadType()){
+            // 创建实体文件关联
+            EntityFileRelationReq entityFileRelationReq = new EntityFileRelationReq();
+            BeanUtils.copyProperties(multiModalReq, entityFileRelationReq);
+            entityFileRelationReq.setDwFileId(multiModalReq.getDwFileId());
+            MultiModalRsp multiModalRsp = documentConverter.toBean(document, MultiModalRsp.class);
+            entityFileRelationReq.setMultiModalId(multiModalRsp.getId());
+            entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+        }else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
+            // 创建数仓文件记录
+            DWFileTableReq dwFileTableReq = new DWFileTableReq();
+            BeanUtils.copyProperties(multiModalReq, dwFileTableReq);
+            dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModal.getType());
+            dwFileTableReq.setPath(multiModalReq.getThumbPath());
+            DWFileTable dwFileTable = tableDataService.fileAdd(dwFileTableReq);
+            // 创建实体文件关联
+            EntityFileRelationReq entityFileRelationReq = new EntityFileRelationReq();
+            BeanUtils.copyProperties(multiModalReq, entityFileRelationReq);
+            entityFileRelationReq.setDwFileId(dwFileTable.getId());
+            MultiModalRsp multiModalRsp = documentConverter.toBean(document, MultiModalRsp.class);
+            entityFileRelationReq.setMultiModalId(multiModalRsp.getId());
+            entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+        }
         sendMsg(kgName, multiModal);
         logSender.remove();
         return documentConverter.toBean(document, MultiModalRsp.class);
@@ -199,6 +236,37 @@ public class EntityServiceImpl implements EntityService {
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         mongoCollection.insertMany(documents);
+
+        List<MultiModalRsp> multiModalRsps = documentConverter.toBeans(documents, MultiModalRsp.class);
+
+        for (MultiModalReq multiModalReq: multiModalReqs) {
+
+            MultiModalRsp multiModalRsp = multiModalRsps.stream()
+                    .filter(m->m.getDataHref().equals(multiModalReq.getDataHref())).collect(Collectors.toList()).get(0);
+
+            if (1 == multiModalReq.getUploadType()) {
+                // 创建实体文件关联
+                EntityFileRelationReq entityFileRelationReq = new EntityFileRelationReq();
+                BeanUtils.copyProperties(multiModalReq, entityFileRelationReq);
+                entityFileRelationReq.setDwFileId(multiModalReq.getDwFileId());
+                entityFileRelationReq.setMultiModalId(multiModalRsp.getId());
+                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+            } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
+                // 创建数仓文件记录
+                DWFileTableReq dwFileTableReq = new DWFileTableReq();
+                BeanUtils.copyProperties(multiModalReq, dwFileTableReq);
+                dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
+                dwFileTableReq.setPath(multiModalReq.getThumbPath());
+                DWFileTable dwFileTable = tableDataService.fileAdd(dwFileTableReq);
+                // 创建实体文件关联
+                EntityFileRelationReq entityFileRelationReq = new EntityFileRelationReq();
+                BeanUtils.copyProperties(multiModalReq, entityFileRelationReq);
+                entityFileRelationReq.setDwFileId(dwFileTable.getId());
+                entityFileRelationReq.setMultiModalId(multiModalRsp.getId());
+                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+            }
+        }
+
         multiModals.forEach(modal -> sendMsg(kgName, modal));
         logSender.remove();
     }
@@ -218,6 +286,15 @@ public class EntityServiceImpl implements EntityService {
         if (!logSender.isEnableLog()){
             return;
         }
+
+        EntityFileRelation relationByMultiModalId = entityFileRelationService.getRelationByMultiModalId(modalId);
+        if (relationByMultiModalId != null) {
+            // 删除实体文件关联
+            entityFileRelationService.deleteRelationByMultiModalId(modalId);
+            // 删除数仓文件记录
+            tableDataService.fileDelete(relationByMultiModalId.getDwFileId());
+        }
+
         logSender.setActionId();
         logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
         GraphLog graphLog = new GraphLog();
