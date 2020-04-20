@@ -519,7 +519,7 @@ public class IndustryKtrXml {
                 "    <hop>\n" +
                 "      <from>MongoDB input</from>\n" +
                 "      <to>JSON output 2</to>\n" +
-                "      <enabled>N</enabled>\n" +
+                "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
                 "      <from>JSON output 2</from>\n" +
@@ -838,7 +838,7 @@ public class IndustryKtrXml {
                 "    <limit>0</limit>\n" +
                 "    <lookup/>\n" +
                 "    <execute_each_row>N</execute_each_row>\n" +
-                "    <variables_active>isCronQAQ</variables_active>\n" +
+                "    <variables_active>Y</variables_active>\n" +
                 "    <lazy_conversion_active>N</lazy_conversion_active>\n" +
                 "    <attributes/>\n" +
                 "    <cluster_schema/>\n" +
