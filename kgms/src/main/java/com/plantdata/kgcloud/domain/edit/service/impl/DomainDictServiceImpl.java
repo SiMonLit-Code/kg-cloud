@@ -67,17 +67,17 @@ public class DomainDictServiceImpl implements DomainDictService {
         RestRespConverter.convertVoid(domainDicApi.delete(KGUtil.dbName(kgName), ids));
     }
 
-    @Override
-    public Page<DictRsp> listDict(String kgName, DictSearchReq dictSearchReq) {
-        Integer page = dictSearchReq.getPage();
-        Integer size = dictSearchReq.getSize();
-        Integer skip = (page - 1) * size;
-        RestResp<List<DomainDicVO>> restResp = domainDicApi.list(KGUtil.dbName(kgName),
-                dictSearchReq.getConceptId(), dictSearchReq.getFrequency(), skip, size);
-        Optional<List<DomainDicVO>> optional = RestRespConverter.convert(restResp);
-        List<DictRsp> dictRsps =
-                optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(DictRsp.class)).collect(Collectors.toList());
-        Optional<Integer> count = RestRespConverter.convertCount(restResp);
-        return new PageImpl<>(dictRsps, PageRequest.of(page - 1, size), count.orElse(0));
-    }
+//    @Override
+//    public Page<DictRsp> listDict(String kgName, DictSearchReq dictSearchReq) {
+//        Integer page = dictSearchReq.getPage();
+//        Integer size = dictSearchReq.getSize();
+//        Integer skip = (page - 1) * size;
+//        RestResp<List<DomainDicVO>> restResp = domainDicApi.list(KGUtil.dbName(kgName),
+//                dictSearchReq.getConceptId(), dictSearchReq.getFrequency(), skip, size);
+//        Optional<List<DomainDicVO>> optional = RestRespConverter.convert(restResp);
+//        List<DictRsp> dictRsps =
+//                optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(DictRsp.class)).collect(Collectors.toList());
+//        Optional<Integer> count = RestRespConverter.convertCount(restResp);
+//        return new PageImpl<>(dictRsps, PageRequest.of(page - 1, size), count.orElse(0));
+//    }
 }

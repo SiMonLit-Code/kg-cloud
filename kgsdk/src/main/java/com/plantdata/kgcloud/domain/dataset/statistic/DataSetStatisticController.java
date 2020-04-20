@@ -63,16 +63,16 @@ public class DataSetStatisticController implements DataSetStatisticInterface {
         return appClient.statistic3dByTable(thirdDimensional);
     }
 
-    @ApiOperation(value = "数据集统计",notes = "按照数据集指定字段进行统计支持筛选和模糊搜索")
-    @PostMapping("data/{dataSetId}")
-    public     ApiReturn<KgStatisticRsp<MultiMeasureStatisticResultRsp>>  dataSetStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetStatisticReq statisticReq) {
-        return componentStatisticClient.dataSetStatistic(dataSetId, statisticReq);
-    }
-
-    @ApiOperation(value = "数据集数字统计",notes = "对数据集某个字段的值进行计数或求和")
-    @PostMapping("number/{dataSetId}")
-    public ApiReturn<BasicValueRsp> dataSetNumberStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetCountReq countReq) {
-        return componentStatisticClient.dataSetNumberStatistic(dataSetId, countReq);
-    }
+//    @ApiOperation(value = "数据集统计",notes = "按照数据集指定字段进行统计支持筛选和模糊搜索")
+//    @PostMapping("data/{dataSetId}")
+//    public     ApiReturn<KgStatisticRsp<MultiMeasureStatisticResultRsp>>  dataSetStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetStatisticReq statisticReq) {
+//        return componentStatisticClient.dataSetStatistic(dataSetId, statisticReq);
+//    }
+//
+//    @ApiOperation(value = "数据集数字统计",notes = "对数据集某个字段的值进行计数或求和")
+//    @PostMapping("number/{dataSetId}")
+//    public ApiReturn<BasicValueRsp> dataSetNumberStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetCountReq countReq) {
+//        return componentStatisticClient.dataSetNumberStatistic(dataSetId, countReq);
+//    }
 
 }

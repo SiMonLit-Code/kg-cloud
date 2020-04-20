@@ -57,9 +57,9 @@ public class DomainDictController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("领域词列表")
-    @GetMapping("/{kgName}/list")
-    public ApiReturn<Page<DictRsp>> listDict(@PathVariable("kgName") String kgName, DictSearchReq dictSearchReq) {
-        return ApiReturn.success(domainDictService.listDict(kgName, dictSearchReq));
-    }
+//    @ApiOperation("领域词列表")
+//    @GetMapping("/{kgName}/list")
+//    public ApiReturn<Page<DictRsp>> listDict(@PathVariable("kgName") String kgName, DictSearchReq dictSearchReq) {
+//        return ApiReturn.success(domainDictService.listDict(kgName, dictSearchReq));
+//    }
 }

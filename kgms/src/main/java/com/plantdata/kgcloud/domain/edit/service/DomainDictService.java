@@ -39,12 +39,12 @@ public interface DomainDictService {
      */
     void batchDelete(String kgName, List<String> ids);
 
-    /**
-     * 领域词列表
-     *
-     * @param kgName
-     * @param dictSearchReq
-     * @return
-     */
-    Page<DictRsp> listDict(String kgName, DictSearchReq dictSearchReq);
+//    /**
+//     * 领域词列表
+//     *
+//     * @param kgName
+//     * @param dictSearchReq
+//     * @return
+//     */
+//    Page<DictRsp> listDict(String kgName, DictSearchReq dictSearchReq);
 }

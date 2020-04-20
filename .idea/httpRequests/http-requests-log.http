@@ -1,0 +1,16 @@
+GET http://localhost:9812/dw/database/all
+
+###
+
+POST http://localhost:9812/dw/update/database/name
+
+###
+
+GET http://localhost:9812/dw/database/table/list
+
+###
+
+GET http://localhost:9812/dw/database/all
+
+###
+

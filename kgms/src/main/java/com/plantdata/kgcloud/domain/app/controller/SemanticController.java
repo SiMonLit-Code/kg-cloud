@@ -64,6 +64,9 @@ public class SemanticController implements SdkOpenApiInterface {
     public ApiReturn<IntentDataBeanRsp> intent(@ApiParam("图谱名称") @RequestParam("kgName") String kgName,
                                                @ApiParam("自然语言输入") @RequestParam("query") String query,
                                                @RequestParam(value = "size", defaultValue = "5") int size) {
+        query = query.replaceAll("&ldquo;","“");
+        query = query.replaceAll("&rdquo;","”");
+        query = query.replaceAll("&quot;","\"");
         Optional<IntentDataBean> dataBean = RestRespConverter.convert(questionAnswersApi.intent(kgName,KGUtil.dbName(kgName), query, size));
         if (!dataBean.isPresent()) {
             return ApiReturn.success(new IntentDataBeanRsp());
