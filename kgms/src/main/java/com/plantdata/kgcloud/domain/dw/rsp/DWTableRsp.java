@@ -52,4 +52,7 @@ public class DWTableRsp {
     private Date updateAt;
 
     private Long fileCount;
+
+    private String pdSingleField;
+
 }

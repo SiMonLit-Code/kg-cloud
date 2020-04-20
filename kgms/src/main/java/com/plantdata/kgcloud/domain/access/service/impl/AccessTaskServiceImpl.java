@@ -34,6 +34,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.constant.DWDataFormat;
 import com.plantdata.kgcloud.sdk.req.DataAccessTaskConfigReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -112,12 +113,6 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             return null;
         }
 
-        Map<String,String> taskId2TypeMap = new HashMap<>();
-//
-//        for(DataAccessTaskConfigReq config : reqs){
-//            taskId2TypeMap.put(config.getId(),config.getType());
-//        }
-
         for(DataAccessTaskConfigReq config : reqs){
 
             if(!"plantdata-graph-setting".equals(config.getType())){
@@ -132,16 +127,6 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         }
 
 
-       /* DWTask task = new DWTask();
-
-        if(taskId != null){
-            task.setId(taskId);
-        }
-
-        task.setConfig(JacksonUtils.writeValueAsString(resourceReqList));
-        task.setName("数据接入任务");
-        task.setUserId(SessionHolder.getUserId());
-        task = taskRepository.save(task);*/
 
         return 1;
     }
@@ -243,6 +228,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         resourceConfig.put("tableName",tableName);
         resourceConfig.put("dbId",databaseId);
         resourceConfig.put("userId",SessionHolder.getUserId());
+//        resourceConfig.put("pdSingleField",table.getPdSingleField());
         configJson.put("resourceConfig_",resourceConfig);
 
         return configJson.toString();
@@ -270,7 +256,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public String getTransferConfig(Boolean isGraph, Integer modelId, Long databaseId, String tableName,Integer isScheduled) {
+    public String getTransferConfig(Boolean isGraph, Integer modelId, Long databaseId, String tableName,Integer isScheduled,String pdSingleField) {
 
         DWDatabaseRsp database = dwService.getDetail(databaseId);
         if(database == null){
@@ -281,7 +267,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         transferJson.put("isScheduled",isScheduled);
 
         //自定义
-        if(database.getDataFormat().equals(3)){
+        if(DWDataFormat.isCustom(database.getDataFormat())){
 
             if(isGraph){
                 Optional<DWPrebuildModel> modelOpt = modelRepository.findById(modelId);
@@ -303,14 +289,20 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                 transferJson.put("transferType","");
                 transferJson.put("transferConfig","");
             }
-        }else if(database.getDataFormat().equals(1)){
+        }else if(DWDataFormat.isStandard(database.getDataFormat())){
             //行业标准
             transferJson.put("transferType","industry");
             transferJson.put("transferConfig","");
-        }else if(database.getDataFormat().equals(2)){
+        }else if(DWDataFormat.isPDdoc(database.getDataFormat())){
             //pddoc
             transferJson.put("transferType","pddoc");
             transferJson.put("transferConfig","");
+            transferJson.put("dataSet",pdSingleField);
+        }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
+            //pdd2r
+            transferJson.put("transferType","pdd2r");
+            transferJson.put("transferConfig","");
+            transferJson.put("dataSet",pdSingleField);
         }else{
             transferJson.put("transferType","");
             transferJson.put("transferConfig","");
@@ -351,16 +343,6 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         ktrTaskRsp.setConfig(getKtrConfig(databaseId,tableName,isAllKey,isSchedue,target));
 
         ktrTaskRsp.setStatus(isSchedue == null? 0 : isSchedue);
-        /*if(table.getCreateWay() == null || table.getCreateWay().equals(2) || table.getIsAll() == null ||table.getIsAll().equals(1)){
-
-            //本地库或者全量按指定
-
-
-        }else{
-
-            //增量的调度跟表一起
-            ktrTaskRsp.setStatus(table.getSchedulingSwitch());
-        }*/
 
         saveTask(ktrTaskRsp,timeout);
 
@@ -374,6 +356,8 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         if(!tableOpt.isPresent()){
             return null;
         }
+
+        DWTable table = tableOpt.get();
 
         String taskKey = databaseId+"_"+tableName + "_"+isAllKey;
         Long timeout = 600L;
@@ -392,7 +376,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         }
         transferRsp.setStatus(1);
-        transferRsp.setConfig(getTransferConfig(isGraph,modelId, databaseId,tableName,1));
+        transferRsp.setConfig(getTransferConfig(isGraph,modelId, databaseId,tableName,1,table.getPdSingleField()));
         List<String> outs = transferRsp.getOutputs();
 
         if(outputs != null && !outputs.isEmpty()){

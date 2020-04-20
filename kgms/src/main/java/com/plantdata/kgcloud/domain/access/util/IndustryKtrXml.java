@@ -507,15 +507,35 @@ public class IndustryKtrXml {
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
-                "      <from>input</from>\n" +
-                "      <to>获取变量</to>\n" +
+                "      <from>获取变量</from>\n" +
+                "      <to>input</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
                 "      <from>获取变量</from>\n" +
-                "      <to>JSON output</to>\n" +
+                "      <to>MongoDB input</to>\n" +
+                "      <enabled>Y</enabled>\n" +
+                "    </hop>\n"+
+                "    <hop>\n" +
+                "      <from>MongoDB input</from>\n" +
+                "      <to>JSON output 2</to>\n" +
+                "      <enabled>N</enabled>\n" +
+                "    </hop>\n" +
+                "    <hop>\n" +
+                "      <from>JSON output 2</from>\n" +
+                "      <to>JavaScript代码 2 2</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
+                "    <hop>\n" +
+                "      <from>JavaScript代码 2 2</from>\n" +
+                "      <to>JavaScript代码</to>\n" +
+                "      <enabled>Y</enabled>\n" +
+                "    </hop>\n"+
+                "    <hop>\n" +
+                "      <from>input</from>\n" +
+                "      <to>JSON output</to>\n" +
+                "      <enabled>Y</enabled>\n" +
+                "    </hop>\n"+
                 "     <hop>\n" +
                 "      <from>JSON output</from>\n" +
                 "      <to>JavaScript代码 2</to>\n" +
@@ -688,7 +708,114 @@ public class IndustryKtrXml {
                 "      <yloc>128</yloc>\n" +
                 "      <draw>Y</draw>\n" +
                 "    </GUI>\n" +
-                "  </step>\n";
+                "  </step>\n" +
+                "  <step>\n" +
+                "    <name>JSON output 2</name>\n" +
+                "    <type>JsonOutput</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>N</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <outputValue>data_json</outputValue>\n" +
+                "    <jsonBloc>data_json</jsonBloc>\n" +
+                "    <nrRowsInBloc>1</nrRowsInBloc>\n" +
+                "    <operation_type>outputvalue</operation_type>\n" +
+                "    <compatibility_mode>N</compatibility_mode>\n" +
+                "    <encoding>UTF-8</encoding>\n" +
+                "    <addtoresult>N</addtoresult>\n" +
+                "    <file>\n" +
+                "      <name/>\n" +
+                "      <extention>js</extention>\n" +
+                "      <append>N</append>\n" +
+                "      <split>N</split>\n" +
+                "      <haspartno>N</haspartno>\n" +
+                "      <add_date>N</add_date>\n" +
+                "      <add_time>N</add_time>\n" +
+                "      <create_parent_folder>N</create_parent_folder>\n" +
+                "      <DoNotOpenNewFileInit>N</DoNotOpenNewFileInit>\n" +
+                "      <servlet_output>N</servlet_output>\n" +
+                "    </file>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>idc</name>\n" +
+                "        <element>idc</element>\n" +
+                "      </field>\n" +
+                "      <field>\n" +
+                "        <name>dc</name>\n" +
+                "        <element>dc</element>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>384</xloc>\n" +
+                "      <yloc>368</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n"+
+                " <step>\n" +
+                "    <name>JavaScript代码 2 2</name>\n" +
+                "    <type>ScriptValueMod</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>N</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <compatible>N</compatible>\n" +
+                "    <optimizationLevel>9</optimizationLevel>\n" +
+                "    <jsScripts>\n" +
+                "      <jsScript>\n" +
+                "        <jsScript_type>0</jsScript_type>\n" +
+                "        <jsScript_name>Script 1</jsScript_name>\n" +
+                "        <jsScript_script>var data_input = JSON.parse(data_json)[\"data_json\"][0]\n" +
+                "\n" +
+                "if ( data_input[\"json\"] !=null ) {\n" +
+                "    data_input = data_input[\"json\"]\n" +
+                "}else{\n" +
+                "data_input=JSON.stringify(data_input)\n" +
+                "\n" +
+                "}\n" +
+                "\n" +
+                "</jsScript_script>\n" +
+                "      </jsScript>\n" +
+                "    </jsScripts>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>data_input</name>\n" +
+                "        <rename>data_input</rename>\n" +
+                "        <type>String</type>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <replace>N</replace>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>656</xloc>\n" +
+                "      <yloc>352</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>";
 
         static String jsonFieldxml = "<field>\n" +
                 "        <name>fieldQAQ</name>\n" +
@@ -859,13 +986,6 @@ public class IndustryKtrXml {
                 "    </GUI>\n" +
                 "  </step>";
 
-        static String mongoTimeQueryXMl = "{\n" +
-                "    \"timeFieldQAQ\": {\n" +
-                "        \"$gte\": \"${StartTime}\",\n" +
-                "        \"$lt\": \"${EndTime}\"\n" +
-                "    }\n" +
-                "}\n";
-
         static String paramAndFilterXml = "<step>\n" +
                 "    <name>获取变量</name>\n" +
                 "    <type>GetVariable</type>\n" +
@@ -980,6 +1100,52 @@ public class IndustryKtrXml {
                 "  <slave_transformation>N</slave_transformation>\n" +
                 "  <attributes/>\n" +
                 "</transformation>";
+
+        static String mongoErrorInput = "<step>\n" +
+                "    <name>MongoDB input</name>\n" +
+                "    <type>MongoDbInput</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>Y</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <hostname>errorMongoIpQAQ</hostname>\n" +
+                "    <port>errorMongoPortQAQ</port>\n" +
+                "    <use_all_replica_members>N</use_all_replica_members>\n" +
+                "    <db_name>errorMongoDbQAQ</db_name>\n" +
+                "    <fields_name/>\n" +
+                "    <collection>errorMongoCollectionQAQ</collection>\n" +
+                "    <json_field_name>json</json_field_name>\n" +
+                "    <json_query/>\n" +
+                "    <auth_database/>\n" +
+                "    <auth_user>errorMongoUserQAQ</auth_user>\n" +
+                "    <auth_password>errorMongoPasswordQAQ</auth_password>\n" +
+                "    <auth_mech/>\n" +
+                "    <auth_kerberos>N</auth_kerberos>\n" +
+                "    <connect_timeout/>\n" +
+                "    <socket_timeout/>\n" +
+                "    <use_ssl_socket_factory>N</use_ssl_socket_factory>\n" +
+                "    <read_preference>primary</read_preference>\n" +
+                "    <output_json>Y</output_json>\n" +
+                "    <query_is_pipeline>N</query_is_pipeline>\n" +
+                "    <execute_for_each_row>N</execute_for_each_row>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>208</xloc>\n" +
+                "      <yloc>368</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>";
 
         static String customizationXml = "${code}";
 

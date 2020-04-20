@@ -23,7 +23,7 @@ public interface AccessTaskService {
 
     String getKtrConfig(Long databaseId, String tableName,String isAllKey,Integer isScheduled,String target);
 
-    String getTransferConfig(Boolean isGraph,Integer modelId,Long databaseId, String tableName,Integer isScheduled);
+    String getTransferConfig(Boolean isGraph,Integer modelId,Long databaseId, String tableName,Integer isScheduled,String pdSingleFiel);
 
     String getDwConfig(Long databaseId, DWTable tableName,Integer isScheduled);
 
