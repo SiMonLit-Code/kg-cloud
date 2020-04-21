@@ -352,7 +352,7 @@ public class CreateKtrFile {
 
                 sql.append(" WHERE false=${key} and ")
                         .append(table.getQueryField())
-                        .append(" &gte; ")
+                        .append(" &gt;= ")
                         .append("'${StartTime}'")
                         .append(" and ")
                         .append(table.getQueryField())

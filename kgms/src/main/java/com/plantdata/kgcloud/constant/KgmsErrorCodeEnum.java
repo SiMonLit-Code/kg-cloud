@@ -171,23 +171,23 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     YAML_TABLES_IS_EMTRY_ERROR(120728, "yaml文件tables信息为空"),
 
-    YAML_ATTR_DOMAIN_NOT_EXIST_ERROR(120729, "yaml文件属性定义域不存在"),
+    YAML_ATTR_DOMAIN_NOT_EXIST_ERROR(120729, "定义域不存在"),
 
-    YAML_ATTR_RANGE_NOT_EXIST_ERROR(120730, "yaml文件属性值域不存在"),
+    YAML_ATTR_RANGE_NOT_EXIST_ERROR(120730, "值域不存在"),
 
-    YAML_COLUMN_IS_EMTRY_ERROR(120731, "yaml文件colums为空"),
+    YAML_COLUMN_IS_EMTRY_ERROR(120731, "colums为空"),
 
-    YAML_COLUMN_TAG_PARSER_ERROR(120732, "yaml文件colums字段中tag格式不正确"),
+    YAML_COLUMN_TAG_PARSER_ERROR(120732, "colums字段中tag格式不正确"),
 
-    YAML_COLUMN_TAG_NOT_EXIST(120733, "yaml文件colums字段中tag不存在或数据为空"),
+    YAML_COLUMN_TAG_NOT_EXIST(120733, "colums字段中tag不存在或数据为空"),
 
-    YAML_COLUMN_TYPE_NOT_EXIST(120734, "yaml文件colums字段中type不存在或数据为空"),
+    YAML_COLUMN_TYPE_NOT_EXIST(120734, "colums字段中type不存在或数据为空"),
 
-    YAML_COLUMN_TYPE_PARSER_ERROR(120735, "yaml文件colums字段中type枚举错误"),
+    YAML_COLUMN_TYPE_PARSER_ERROR(120735, "colums字段中type枚举错误"),
 
-    YAML_COLUMN_NOT_EXIST_CONCEPT(120736, "yaml文件colums字段没有定义概念"),
+    YAML_COLUMN_NOT_EXIST_CONCEPT(120736, "colums字段没有定义概念"),
 
-    YAML_COLUMN_NOT_EXIST_CONCEPT_NAME(120737, "yaml文件colums字段没有定义概念名称信息"),
+    YAML_COLUMN_NOT_EXIST_CONCEPT_NAME(120737, "colums字段没有定义概念名称信息"),
 
     YAML_RELATION_PARSER_ERROR(120738, "yaml文件relation字段格式不正确"),
 
@@ -204,6 +204,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     SCHEMA_CONCEPT_NOT_EXIST_ERROR(120744,"图谱没有定义概念"),
 
     UNZIP_ERROR(120745,"解压失败"),
+
+    LABEL_ENUM_NOT_EMTRY(120746,"枚举值不能为空"),
             ;
     private final int errorCode;
 

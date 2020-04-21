@@ -507,17 +507,17 @@ public class IndustryKtrXml {
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
-                "      <from>获取变量</from>\n" +
-                "      <to>input</to>\n" +
+                "      <from>input</from>\n" +
+                "      <to>获取变量</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
-                "      <from>获取变量</from>\n" +
-                "      <to>MongoDB input</to>\n" +
+                "      <from>MongoDB input</from>\n" +
+                "      <to>获取变量 2</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n"+
                 "    <hop>\n" +
-                "      <from>MongoDB input</from>\n" +
+                "      <from>获取变量 2</from>\n" +
                 "      <to>JSON output 2</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
@@ -533,7 +533,7 @@ public class IndustryKtrXml {
                 "    </hop>\n"+
                 "    <hop>\n" +
                 "      <from>input</from>\n" +
-                "      <to>JSON output</to>\n" +
+                "      <to>获取变量</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n"+
                 "     <hop>\n" +
@@ -988,6 +988,57 @@ public class IndustryKtrXml {
 
         static String paramAndFilterXml = "<step>\n" +
                 "    <name>获取变量</name>\n" +
+                "    <type>GetVariable</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>Y</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>resourceName</name>\n" +
+                "        <variable>${resourceName}</variable>\n" +
+                "        <type>String</type>\n" +
+                "        <format/>\n" +
+                "        <currency/>\n" +
+                "        <decimal/>\n" +
+                "        <group/>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <trim_type>none</trim_type>\n" +
+                "      </field>\n" +
+                "      <field>\n" +
+                "        <name>resourceConfig_</name>\n" +
+                "        <variable>${resourceConfig_}</variable>\n" +
+                "        <type>String</type>\n" +
+                "        <format/>\n" +
+                "        <currency/>\n" +
+                "        <decimal/>\n" +
+                "        <group/>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <trim_type>none</trim_type>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>208</xloc>\n" +
+                "      <yloc>144</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" +
+                "<step>\n" +
+                "    <name>获取变量 2</name>\n" +
                 "    <type>GetVariable</type>\n" +
                 "    <description/>\n" +
                 "    <distribute>Y</distribute>\n" +

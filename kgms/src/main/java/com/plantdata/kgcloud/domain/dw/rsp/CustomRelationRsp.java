@@ -19,6 +19,9 @@ public class CustomRelationRsp {
     @ApiModelProperty("关系名")
     private String name;
 
+    @ApiModelProperty("定义域")
+    private String domain;
+
     @ApiModelProperty("值域")
     private List<String> range;
 
