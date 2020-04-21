@@ -210,10 +210,9 @@ public class DWController {
         return ApiReturn.success(dwServince.getTagJson(databaseId));
     }
 
-    @ApiOperation("数仓-获取自定义类型打标")
+    @ApiOperation("数仓-获取自定义类型打标 isDefault默认false，传true获取自动生成信息")
     @GetMapping("/get/custom/label")
-    public ApiReturn<List<CustomTableRsp>> getCustomLabel(Long databaseId,
-            @ApiParam("是否获取默认模式 默认false") Boolean isDefault) {
+    public ApiReturn<List<CustomTableRsp>> getCustomLabel(Long databaseId, Boolean isDefault) {
 
         return ApiReturn.success(dwServince.getCustomLabel(databaseId,isDefault));
     }

@@ -21,12 +21,14 @@ public class PaserYaml2SchemaUtil {
     private static Map<String,String> attSetMap = new HashMap<>();
     private static Map<String,Integer> attDataTypeMap = new HashMap<>();
     public static List<Integer> attrTypeList = Lists.newArrayList();
+    public static String ENUM_CONCEPT = "$concept";
+
     static {
-        attSetMap.put("名称", "name");
-        attSetMap.put("消歧标识", "meaningTag");
-        attSetMap.put("图片", "img");
-        attSetMap.put("简介", "abs");
-        attSetMap.put("同义词", "synonyms");
+        attSetMap.put("name", "name");
+        attSetMap.put("meaningTag", "meaningTag");
+        attSetMap.put("img", "img");
+        attSetMap.put("desc", "abs");
+        attSetMap.put("synonyms", "synonyms");
 
         attDataTypeMap.put("int",1);
         attDataTypeMap.put("float",2);
@@ -597,5 +599,250 @@ public class PaserYaml2SchemaUtil {
         }
 
         return rsList;
+    }
+
+    public static List<ModelSchemaConfigRsp> parserLabel2TagJson(List<CustomTableRsp> tableLabels, List<DWTableRsp> tableRsps) {
+
+        Map<String,List<String>> tableFields = tableRsps.stream().collect(Collectors.toMap(DWTableRsp::getTableName,DWTableRsp::getFields));
+
+        List<ModelSchemaConfigRsp> rsList = new ArrayList<>(tableRsps.size());
+
+        for(CustomTableRsp label : tableLabels){
+
+            List<YamlColumn> columnList = convertLabelColumn(label.getColumns(),tableFields.get(label.getTableName()));
+
+            Set<String> entity = new HashSet<>();
+            Set<ModelAttrBeanRsp> attrBeans = new HashSet<>();
+            Set<ModelRelationBeanRsp> relationBeans = new HashSet<>();
+            Map<String,Set<String>> enumMap = new HashMap<>();
+
+            for(YamlColumn column : columnList){
+                entity.add(column.getConceptOrRelationName());
+
+                if(attSetMap.containsKey(column.getAttrName())){
+                    //默认的属性不需要加属性定义
+                    continue;
+                }
+
+                if(ENUM_CONCEPT.equals(column.getAttrName())){
+                    if(label.getTypeEnum() == null ||!label.getTypeEnum().containsKey(column.getConceptOrRelationName()+"."+ENUM_CONCEPT) || label.getTypeEnum().get(column.getConceptOrRelationName()+"."+ENUM_CONCEPT).isEmpty()){
+                        throw BizException.of(KgmsErrorCodeEnum.LABEL_ENUM_NOT_EMTRY);
+                    }
+
+                    if(enumMap.containsKey(column.getConceptOrRelationName())){
+                        enumMap.get(column.getConceptOrRelationName()).addAll(label.getTypeEnum().get(column.getConceptOrRelationName()+"."+ENUM_CONCEPT));
+                    }else{
+                        enumMap.put(column.getConceptOrRelationName(),new HashSet<>(label.getTypeEnum().get(column.getConceptOrRelationName()+"."+ENUM_CONCEPT)));
+                    }
+                    continue;
+                }
+
+                ModelAttrBeanRsp attrBean = new ModelAttrBeanRsp();
+                attrBean.setDomain(column.getConceptOrRelationName());
+                attrBean.setDataType(attDataTypeMap.get(column.getType()));
+                attrBean.setName(column.getAttrName());
+                attrBeans.add(attrBean);
+            }
+
+            if(label.getRelationRsps() != null && !label.getRelationRsps().isEmpty()){
+
+                for(CustomRelationRsp relation : label.getRelationRsps()){
+
+                    String domain = relation.getDomain();
+                    List<String> range = relation.getRange();
+
+                    if(!entity.contains(domain)){
+                        throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_DOMAIN_NOT_EXIST_ERROR);
+                    }
+
+                    if(!entity.containsAll(range)){
+                        throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_RANGE_NOT_EXIST_ERROR);
+                    }
+
+
+                    ModelRelationBeanRsp relationBean = new ModelRelationBeanRsp();
+                    relationBean.setName(relation.getName());
+                    relationBean.setDomain(domain);
+                    relationBean.setRange(Sets.newHashSet(range));
+
+                    if(relation.getRelationAttrs() != null && !relation.getRelationAttrs().isEmpty()){
+
+                        Set<ModelRelationAttrBeanRsp> attrs = new HashSet<>();
+
+                        for(CustomColumnRsp column : relation.getRelationAttrs()){
+
+                            ModelRelationAttrBeanRsp relationAttr = new ModelRelationAttrBeanRsp();
+                            relationAttr.setName(column.getTag());
+                            relationAttr.setDataType(attDataTypeMap.get(column.getType()));
+
+                            attrs.add(relationAttr);
+                        }
+                        relationBean.setAttrs(attrs);
+
+                    }
+                    relationBeans.add(relationBean);
+                }
+            }
+
+            //处理枚举值
+            if(!enumMap.isEmpty()){
+
+                //实体
+                Set<String> ents = new HashSet<>();
+                for(Iterator<String> it = entity.iterator(); it.hasNext();){
+                    String ent = it.next();
+                    if(enumMap.containsKey(ent)){
+                        it.remove();
+                        ents.addAll(enumMap.get(ent));
+                    }
+                }
+                entity.addAll(ents);
+
+                //数值属性
+                Set<ModelAttrBeanRsp> attrs = new HashSet<>();
+                for(Iterator<ModelAttrBeanRsp> it = attrBeans.iterator(); it.hasNext();){
+                    ModelAttrBeanRsp attr = it.next();
+                    if(enumMap.containsKey(attr.getDomain())){
+                        it.remove();
+                        Set<String> enumValues = enumMap.get(attr.getDomain());
+                        for(String s : enumValues){
+                            ModelAttrBeanRsp attrBean = new ModelAttrBeanRsp();
+                            attrBean.setDomain(s);
+                            attrBean.setDataType(attr.getDataType());
+                            attrBean.setName(attr.getName());
+                            attrs.add(attrBean);
+                        }
+                    }
+
+                }
+                attrBeans.addAll(attrs);
+
+
+                //关系
+                Set<ModelRelationBeanRsp> relations = new HashSet<>();
+                for(Iterator<ModelRelationBeanRsp> it = relationBeans.iterator(); it.hasNext();){
+                    ModelRelationBeanRsp relation = it.next();
+
+                    Set<String> newRanges= new HashSet<>();
+                    for(String range :relation.getRange()){
+                        if(enumMap.containsKey(range)){
+                            newRanges.addAll(enumMap.get(range));
+                        }else{
+                            newRanges.add(range);
+                        }
+                    }
+
+                    if(enumMap.containsKey(relation.getDomain())){
+                        it.remove();
+                        Set<String> enumValues = enumMap.get(relation.getDomain());
+                        for(String s : enumValues){
+                            ModelRelationBeanRsp relationBeanRsp = new ModelRelationBeanRsp();
+                            relationBeanRsp.setDomain(s);
+                            relationBeanRsp.setAttrs(relation.getAttrs());
+                            relationBeanRsp.setName(relation.getName());
+                            relationBeanRsp.setRange(newRanges);
+                            relations.add(relationBeanRsp);
+                        }
+                    }else{
+                        relation.setRange(newRanges);
+                    }
+
+
+                }
+                relationBeans.addAll(relations);
+            }
+
+
+
+            ModelSchemaConfigRsp modelSchemaConfigRsp = new ModelSchemaConfigRsp();
+            modelSchemaConfigRsp.setEntity(entity);
+            modelSchemaConfigRsp.setAttr(attrBeans);
+            modelSchemaConfigRsp.setRelation(relationBeans);
+            modelSchemaConfigRsp.setTableName(label.getTableName());
+            rsList.add(modelSchemaConfigRsp);
+        }
+
+        return rsList;
+
+    }
+
+
+    private static List<YamlColumn> convertLabelColumn(List<CustomColumnRsp> columns, List<String> fields) {
+
+        if(columns == null ||columns.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<YamlColumn> columnList = new ArrayList<>();
+        for(CustomColumnRsp column : columns){
+
+            if(column.getTag() == null){
+                continue;
+            }
+
+            if(fields == null || fields.isEmpty()){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
+            }
+
+            if(!fields.contains(column.getName())){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
+            }
+
+
+            if(StringUtils.isEmpty(column.getTag())){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_NOT_EXIST);
+            }
+
+            String[] tags = column.getTag().split("\\.");
+
+            if(tags.length != 2){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_PARSER_ERROR);
+            }
+
+            String type = column.getType();
+
+            if(StringUtils.isEmpty(type)){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_NOT_EXIST);
+            }
+
+            if(!attDataTypeMap.containsKey(type)){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_PARSER_ERROR);
+            }
+
+
+            YamlColumn col = YamlColumn.builder().attrName(tags[1]).type(type).columnName(column.getName()).conceptOrRelationName(tags[0]).build();
+            col.setIsRelationAttr(false);
+            columnList.add(col);
+        }
+
+        if(columnList.isEmpty()){
+            return columnList;
+        }
+
+        Map<String,Boolean> columnNameMap = new HashMap<>();
+
+        for(YamlColumn yamlColumn : columnList){
+
+            if(!columnNameMap.containsKey(yamlColumn.getConceptOrRelationName())){
+                columnNameMap.put(yamlColumn.getConceptOrRelationName(),false);
+            }
+
+            if("name".equals(yamlColumn.getAttrName())){
+                columnNameMap.put(yamlColumn.getConceptOrRelationName(),true);
+            }
+
+        }
+
+        if(columnNameMap.isEmpty()){
+            return columnList;
+        }
+
+        columnNameMap.forEach((k,v) -> {
+            if(!v){
+                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_NOT_EXIST_CONCEPT_NAME);
+            }
+        });
+
+        return columnList;
     }
 }
