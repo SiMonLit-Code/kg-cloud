@@ -1825,10 +1825,9 @@ public class DWServiceImpl implements DWService {
         }
 
         List<PreBuilderConceptRsp> preBuilderConceptRspList;
-        if (DWDataFormat.isStandard(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat()) || DWDataFormat.isPDd2r(database.getDataFormat())) {
-            //行业标准 or pddoc
+        if (DWDataFormat.isStandard(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat()) || DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isCustom(database.getDataFormat())) {
+            //行业标准 or pddoc or pdd2r or 自定义
             List<ModelSchemaConfigRsp> modelSchemaConfigRsp = getDatabseModelSchema(userId, req.getId());
-
 
             preBuilderConceptRspList = modelSchema2PreBuilder(modelSchemaConfigRsp);
 
@@ -1839,7 +1838,8 @@ public class DWServiceImpl implements DWService {
 
             preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), null);
 
-        } else if (DWDataFormat.isCustom(database.getDataFormat())) {
+        }
+        /*else if (DWDataFormat.isCustom(database.getDataFormat())) {
             //自定义
             String yamlContent = database.getYamlContent();
 
@@ -1861,7 +1861,7 @@ public class DWServiceImpl implements DWService {
             }
 
             preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), yamlContent);
-        }
+        }*/
 
     }
 

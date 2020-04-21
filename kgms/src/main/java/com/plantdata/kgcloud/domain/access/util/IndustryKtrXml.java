@@ -507,8 +507,8 @@ public class IndustryKtrXml {
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
-                "      <from>input</from>\n" +
-                "      <to>获取变量</to>\n" +
+                "      <from>获取变量</from>\n" +
+                "      <to>JSON output</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n" +
                 "    <hop>\n" +
