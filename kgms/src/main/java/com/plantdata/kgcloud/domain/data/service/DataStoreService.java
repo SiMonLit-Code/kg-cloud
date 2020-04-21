@@ -1,9 +1,7 @@
 package com.plantdata.kgcloud.domain.data.service;
 
 import com.plantdata.kgcloud.bean.BasePage;
-import com.plantdata.kgcloud.domain.data.req.DataStoreModifyReq;
-import com.plantdata.kgcloud.domain.data.req.DataStoreScreenReq;
-import com.plantdata.kgcloud.domain.data.req.DtReq;
+import com.plantdata.kgcloud.domain.data.req.*;
 import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
 import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 
@@ -52,4 +50,8 @@ public interface DataStoreService {
      * @param ids
      */
     void sendData(List<String> ids);
+
+    void updateErrData(DataStoreReq id);
+
+    BasePage<DataStoreRsp> listErrDataStore(DataStoreScreenReq req);
 }
