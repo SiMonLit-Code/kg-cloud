@@ -1901,7 +1901,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     private void getExcelModelRelationAttr(ExcelParser excelParser, Sheet sheet, Map<String, ModelExcelRsp> conceptMap) {
 
-        excelParser.checkTitle(sheet.getRow(0), ExcelParser.RELATION);
+        excelParser.checkTitle(sheet.getRow(0), ExcelParser.RELATION_ATTR);
 
         int rows = sheet.getPhysicalNumberOfRows();
 

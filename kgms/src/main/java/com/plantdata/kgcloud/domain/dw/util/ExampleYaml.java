@@ -136,6 +136,9 @@ public class ExampleYaml {
 
     public static FieldType readType(Object val) {
         FieldType type;
+        if(val == null){
+            return FieldType.STRING;
+        }
         String string = val.toString();
         if (string.startsWith(JSON_START)) {
             try {
