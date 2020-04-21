@@ -684,6 +684,108 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
+    public List<CustomTableRsp> getCustomLabel(Long databaseId, Boolean isDefault) {
+        Optional<DWDatabase> dwDatabase = dwRepository.findById(databaseId);
+
+        if (!dwDatabase.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+        DWDatabase database = dwDatabase.get();
+
+        if (!DWDataFormat.isCustom(database.getDataFormat())) {
+            throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
+        }
+
+        List<DWTableRsp> tables = findTableAll(SessionHolder.getUserId(), databaseId);
+
+        if (tables == null || tables.isEmpty()) {
+            throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
+        }
+
+        List<CustomTableRsp> customTableRsps;
+
+        if(isDefault != null && isDefault){
+
+            customTableRsps = ExampleYaml.createCustom(tables);
+
+        }else{
+
+            customTableRsps = database.getTableLabels();
+        }
+        return customTableRsps;
+    }
+
+    @Override
+    public List<String> getTableFieldEnum(Long databaseId, String tableName, String field) {
+        Optional<DWDatabase> dwDatabase = dwRepository.findById(databaseId);
+
+        if (!dwDatabase.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+        DWDatabaseRsp database = ConvertUtils.convert(DWDatabaseRsp.class).apply(dwDatabase.get());
+
+        if (!DWDataFormat.isCustom(database.getDataFormat())) {
+            throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
+        }
+
+        List<String> fieldEnums = new ArrayList<>();
+        if (database.getDataType().equals(DataType.MONGO.getDataType())) {
+
+            try {
+                fieldEnums = getMongoCollection(database);
+
+            } catch (Exception e) {
+                throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
+            }
+        } else {
+
+            DataSource dataSource = getDataSource(database);
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+            String sql = getTableFieldEnumSql(database.getDataType(),tableName,field);
+
+            try {
+                fieldEnums = jdbcTemplate.queryForList(sql, String.class);
+            } catch (Exception e) {
+                throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
+            } finally {
+                try {
+                    if (dataSource != null && dataSource.getConnection() != null) {
+                        dataSource.getConnection().close();
+                    }
+                } catch (Exception e) {
+                }
+            }
+
+        }
+
+
+        return fieldEnums;
+    }
+
+    private String getTableFieldEnumSql(Integer dataType,String tableName,String field) {
+
+        return "select "+field +" as field from " + tableName + " group by "+ field +" limit 50";
+    }
+
+    @Override
+    public void updateCustomLabel(Long databaseId, List<CustomTableRsp> tableLabels) {
+        Optional<DWDatabase> dwDatabase = dwRepository.findById(databaseId);
+
+        if (!dwDatabase.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+        DWDatabase database = dwDatabase.get();
+
+        if (!DWDataFormat.isCustom(database.getDataFormat())) {
+            throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
+        }
+
+        database.setTableLabels(tableLabels);
+        dwRepository.save(database);
+    }
+
+    @Override
     public void upload(String userId, Long databaseId, Long tableId, MultipartFile file) {
 
         List<DataSetSchema> schemas = null;
@@ -732,7 +834,17 @@ public class DWServiceImpl implements DWService {
                 }
 
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
-                    checkPDDocSchema(schemas,table.getFields());
+                    if(StringUtils.hasText(table.getPdSingleField())){
+                        checkPDDocSchema(schemas,Lists.newArrayList(table.getPdSingleField()));
+                    }else{
+                        checkPDDocSchema(schemas,null);
+                    }
+                }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
+                    if(StringUtils.hasText(table.getPdSingleField())){
+                        checkPDD2rSchema(schemas,Lists.newArrayList(table.getPdSingleField()));
+                    }else{
+                        checkPDD2rSchema(schemas,null);
+                    }
                 } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
                     List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
                     checkIndutrySchema(industrySchema, schemas);
@@ -1183,9 +1295,9 @@ public class DWServiceImpl implements DWService {
                         DataSetSchema dataSetSchema = req.getDataSetSchema();
                         schemaList = Lists.newArrayList(dataSetSchema);
                         fields = transformFields(schemaList);
-                        checkPDD2rSchema(schemaList,fields);
+                        checkPDDocSchema(schemaList,fields);
                     }else{
-                        checkPDD2rSchema(schemaList,null);
+                        checkPDDocSchema(schemaList,null);
                     }
 
                 }else if(DWDataFormat.isPDd2r(database.getDataFormat())){

@@ -2,7 +2,9 @@ package com.plantdata.kgcloud.domain.dw.entity;
 
 import com.plantdata.kgcloud.domain.common.converter.IntegerListConverter;
 import com.plantdata.kgcloud.domain.dataset.converter.AddressConverter;
+import com.plantdata.kgcloud.domain.dw.converter.CustomTableConverter;
 import com.plantdata.kgcloud.domain.dw.converter.MoldSchemaConfigConverter;
+import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -98,6 +100,11 @@ public class DWDatabase {
     @Column(name = "update_at")
     @LastModifiedDate
     private Date updateAt;
+
+    @Basic
+    @Column(name = "table_labels")
+    @Convert(converter = CustomTableConverter.class)
+    private List<CustomTableRsp> tableLabels;
 
 
 }
