@@ -2,22 +2,14 @@ package com.plantdata.kgcloud.domain.data.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
-import com.plantdata.kgcloud.domain.data.req.DataStoreModifyReq;
-import com.plantdata.kgcloud.domain.data.req.DataStoreScreenReq;
-import com.plantdata.kgcloud.domain.data.req.DtReq;
+import com.plantdata.kgcloud.domain.data.req.*;
 import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
 import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 import com.plantdata.kgcloud.domain.data.service.DataStoreService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -65,5 +57,18 @@ public class DataStoreController {
     public ApiReturn sendData(@RequestBody List<String> ids) {
         dataStoreService.sendData(ids);
         return ApiReturn.success();
+    }
+
+    @ApiOperation("更新数仓错误数据")
+    @PostMapping("/err/update")
+    public ApiReturn updateErrData(@RequestBody DataStoreReq req) {
+        dataStoreService.updateErrData(req);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("数仓错误数据修正列表")
+    @GetMapping("/err/list")
+    public ApiReturn<BasePage<DataStoreRsp>> listErrDataStore(DataStoreScreenReq req) {
+        return ApiReturn.success(dataStoreService.listErrDataStore(req));
     }
 }
