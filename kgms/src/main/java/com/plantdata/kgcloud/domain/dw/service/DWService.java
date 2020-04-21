@@ -92,4 +92,10 @@ public interface DWService {
     void updateTagJson(Long databaseId, List<TagJsonReq> tagJsonReqs);
 
     List<ModelSchemaConfigRsp> getTagJson(Long databaseId);
+
+    List<CustomTableRsp> getCustomLabel(Long databaseId, Boolean isDefault);
+
+    List<String> getTableFieldEnum(Long databaseId, String tableName, String field);
+
+    void updateCustomLabel(Long databaseId, List<CustomTableRsp> customTableRsps);
 }

@@ -1038,11 +1038,9 @@ public class KtrXml {
                 "        \"$gte\": \"${StartTime}\",\n" +
                 "        \"$lt\": \"${EndTime}\"\n" +
                 "    },\n" +
-                "{\n" +
                 "  \"_id\": {\n" +
                 "    \"$exist\":${key}\n" +
                 "  }\n" +
-                "}\n" +
                 "}\n";
     }
 

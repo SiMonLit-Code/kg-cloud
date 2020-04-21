@@ -29,4 +29,5 @@ public class DWDatabaseRsp {
     private String yamlFile;
     List<ModelSchemaConfigRsp> tagJson;
     private List<DWTableRsp> tables;
+    private List<CustomTableRsp> tableLabels;
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.req.*;
+import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
@@ -16,6 +17,7 @@ import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -206,6 +208,31 @@ public class DWController {
             @PathVariable("databaseId") Long databaseId) {
 
         return ApiReturn.success(dwServince.getTagJson(databaseId));
+    }
+
+    @ApiOperation("数仓-获取自定义类型打标")
+    @GetMapping("/get/custom/label")
+    public ApiReturn<List<CustomTableRsp>> getCustomLabel(Long databaseId,
+            @ApiParam("是否获取默认模式 默认false") Boolean isDefault) {
+
+        return ApiReturn.success(dwServince.getCustomLabel(databaseId,isDefault));
+    }
+
+    @ApiOperation("数仓-获取表字段枚举值")
+    @GetMapping("/get/table/field/enum")
+    public ApiReturn<List<String>> getTableFieldEnum(Long databaseId,
+            String tableName,String field) {
+
+        return ApiReturn.success(dwServince.getTableFieldEnum(databaseId,tableName,field));
+    }
+
+    @ApiOperation("数仓-更新自定义类型打标")
+    @PostMapping("/{databaseId}/update/custom/label")
+    public ApiReturn updateCustomLabel(
+            @PathVariable("databaseId") Long databaseId,
+            @RequestBody List<CustomTableRsp> tableLabels) {
+        dwServince.updateCustomLabel(databaseId,tableLabels);
+        return ApiReturn.success();
     }
 
     @ApiOperation("数仓-模式发布")

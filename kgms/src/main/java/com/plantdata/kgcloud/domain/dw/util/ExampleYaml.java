@@ -5,14 +5,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
+import com.plantdata.kgcloud.domain.dw.rsp.CustomColumnRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @program: kg-cloud-kgms
@@ -71,6 +70,37 @@ public class ExampleYaml {
         }
 
         return yaml.toString().getBytes();
+    }
+
+    public static List<CustomTableRsp> createCustom(List<DWTableRsp> tableRspList){
+
+        List<CustomTableRsp> tableRsps = new ArrayList<>(tableRspList.size());
+
+        for(DWTableRsp tableRsp : tableRspList){
+            tableRsps.add(addTableColumns(tableRsp));
+        }
+
+        return tableRsps;
+    }
+
+    private static CustomTableRsp addTableColumns(DWTableRsp tableRsp) {
+
+        List<CustomColumnRsp> customColumnRsps = new ArrayList<>();
+
+        List<DataSetSchema> fields = tableRsp.getSchema();
+        if(fields != null && !fields.isEmpty()){
+            for(DataSetSchema field : fields){
+                String type = getGraphType(field.getType());
+                customColumnRsps.add(CustomColumnRsp.builder()
+                        .name(field.getField())
+                        .type(type)
+                        .comment(field.getDesc())
+                        .build()
+                );
+            }
+        }
+
+        return CustomTableRsp.builder().tableName(tableRsp.getTableName()).columns(customColumnRsps).build();
     }
 
     private static void addTableColumns(StringBuilder yaml, DWTableRsp tableRsp) {
