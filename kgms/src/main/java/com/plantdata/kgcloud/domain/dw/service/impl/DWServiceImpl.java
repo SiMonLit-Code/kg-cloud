@@ -974,6 +974,7 @@ public class DWServiceImpl implements DWService {
                 value.put("tbName", tableName);
                 value.put("target", tableName);
                 value.put("userId", database.getUserId());
+                value.put("updateTime", now);
                 provider.insert(value);
             } else {
 
@@ -982,6 +983,7 @@ public class DWServiceImpl implements DWService {
 
                 count += sum;
                 value.put("W", new Long(count));
+                value.put("updateTime", now);
                 String id = value.get(MONGO_ID).toString();
                 value.remove(MONGO_ID);
                 provider.update(id, value);
@@ -1293,7 +1295,7 @@ public class DWServiceImpl implements DWService {
         for (RemoteTableAddReq req : reqList) {
 
             if (!StringUtils.hasText(req.getTbName())) {
-                throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
+                throw BizException.of(KgmsErrorCodeEnum.NOT_SELECT_MAP_TABLE);
             }
 
             Optional<DWTable> optTb = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tbName(req.getTbName()).build()));
@@ -2202,8 +2204,29 @@ public class DWServiceImpl implements DWService {
                 throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
             }
 
+            deleteCountData(databaseId,opt.get().getTableName());
+
             tableRepository.deleteById(tableId);
         }
+    }
+
+    private void deleteCountData(Long databaseId, String tableName) {
+        Map<String, Object> search = new HashMap<>();
+        search.put("dbId", databaseId);
+        search.put("tableName", tableName);
+        Map<String, Object> query = new HashMap<>();
+        query.put("search", search);
+        try(DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE, KETTLE_LOGS_COLLECTION)) {
+            List<Map<String, Object>> rs = provider.find(0,999999,query);
+            if(rs != null && !rs.isEmpty()){
+                List<String> ids = rs.stream().map(map -> map.get("_id").toString()).collect(Collectors.toList());
+                if(ids != null && !ids.isEmpty()){
+                    provider.batchDelete(ids);
+                }
+            }
+        }catch (Exception e){
+        }
+
     }
 
     private DataOptProvider getProvider(Boolean isLocal, String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
