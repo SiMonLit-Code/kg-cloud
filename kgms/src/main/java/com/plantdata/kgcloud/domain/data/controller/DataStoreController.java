@@ -68,7 +68,7 @@ public class DataStoreController {
 
     @ApiOperation("数仓错误数据修正列表")
     @GetMapping("/err/list")
-    public ApiReturn<BasePage<DataStoreRsp>> listErrDataStore(DataStoreScreenReq req) {
+    public ApiReturn listErrDataStore(DataStoreScreenReq req) {
         return ApiReturn.success(dataStoreService.listErrDataStore(req));
     }
 }
