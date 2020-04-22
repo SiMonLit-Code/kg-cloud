@@ -25,7 +25,7 @@ public class BasicConceptTreeRsp extends BasicConceptRsp {
     private List<BasicConceptTreeRsp> children;
     @ApiModelProperty("数值属性")
     private List<NumberAttr> numAttrs;
-    @ApiModelProperty("数值属性")
+    @ApiModelProperty("对象属性")
     private List<ObjectAttr> objAttrs;
 
     public BasicConceptTreeRsp(Long id, String name) {
