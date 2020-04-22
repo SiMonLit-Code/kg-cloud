@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
 import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: LinHo
@@ -50,8 +51,7 @@ public interface DataStoreService {
      * @param ids
      */
     void sendData(List<String> ids);
-
     void updateErrData(DataStoreReq id);
 
-    BasePage<DataStoreRsp> listErrDataStore(DataStoreScreenReq req);
+    BasePage<Map<String, Object>> listErrDataStore(DataStoreScreenReq req);
 }

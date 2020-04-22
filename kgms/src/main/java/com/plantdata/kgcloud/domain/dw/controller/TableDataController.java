@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
@@ -120,5 +121,12 @@ public class TableDataController {
     public ApiReturn<List<Map<String, Object>>> search(@PathVariable("dataStoreId") long dataStoreId,
                             @PathVariable("tableId") long tableId, @RequestBody DwTableDataSearchReq searchReq) {
         return ApiReturn.success(tableDataService.search(SessionHolder.getUserId(), dataStoreId, tableId, searchReq));
+    }
+
+    @ApiOperation("数仓数据-编辑")
+    @PostMapping("/update")
+    public ApiReturn dataUpdate(@RequestBody DWDatabaseUpdateReq baseReq) {
+        tableDataService.dataUpdate(baseReq);
+        return ApiReturn.success();
     }
 }
