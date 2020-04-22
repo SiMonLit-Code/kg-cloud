@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.domain.access.util;
 public class KtrXml {
         static String xml = "<transformation>\n" +
                 "  <info>\n" +
-                "    <name>dc</name>\n" +
+                "    <name>resourceNameQAQ</name>\n" +
                 "    <description/>\n" +
                 "    <extended_description/>\n" +
                 "    <trans_version/>\n" +
