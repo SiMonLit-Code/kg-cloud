@@ -65,7 +65,7 @@ public class DataStoreServiceImpl implements DataStoreService {
 
     @Autowired
     private UserClient userClient;
-
+    private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private static final String DB_NAME = "check_data_db";
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
 
@@ -231,13 +231,21 @@ public class DataStoreServiceImpl implements DataStoreService {
         if (StringUtils.isEmpty(req.getDbName()) || StringUtils.isEmpty(req.getDbTable())) {
             throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
         }
-        DataErrStore dataErrStore = ConvertUtils.convert(DataErrStore.class).apply(req);
-        MongoCollection<Document> collection = mongoClient.getDatabase(
-                DB_FIX_NAME_PREFIX + req.getDbName()).getCollection(req.getDbTable());
-        MongoCollection<Document> mongoCollection = getCollection();
-        Document document = documentConverter.toDocument(dataErrStore);
-        Map<String, Object> dataMap = isDataId(req.getData());
-        document.putAll(dataMap);
+        //创建新的集合
+        MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + req.getDbName()).getCollection(req.getDbTable());
+        //查询旧集合
+        MongoCollection<Document> collectionLog = getCollection();
+
+        FindIterable<Document> documents = collectionLog.find(Filters.eq(MONGO_ID, req.getId()));
+        List<DataErrStore> list = documentConverter.toBeans(documents, DataErrStore.class);
+        if (null == list || list.isEmpty()) {
+            return;
+        }
+        DataErrStore errStore = list.get(0);
+        Document document = documentConverter.toDocument(errStore);
+        document.remove("data");
+        Map<String, Object> data = errStore.getData();
+        document.putAll(data);
         document.put("createdate", DateUtils.formatDatetime());
         try {
             collection.insertOne(document);
@@ -245,14 +253,16 @@ public class DataStoreServiceImpl implements DataStoreService {
             e.printStackTrace();
             throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
         }
-        mongoCollection.deleteOne(Filters.eq("_id", req.getId()));
+        collectionLog.deleteOne(Filters.eq("_id", req.getId()));
     }
 
 
     @Override
     public BasePage<Map<String, Object>> listErrDataStore(DataStoreScreenReq req) {
-        MongoCollection<Document> collection = mongoClient.getDatabase(
-                req.getDbName()).getCollection(req.getDbTable());
+        if (StringUtils.isEmpty(req.getDbName()) || StringUtils.isEmpty(req.getDbTable())) {
+            throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
+        }
+        MongoCollection<Document> collection = mongoClient.getDatabase(req.getDbName()).getCollection(req.getDbTable());
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
         FindIterable<Document> findIterable;
@@ -264,7 +274,7 @@ public class DataStoreServiceImpl implements DataStoreService {
             list.add(map);
         }
 
-        return new BasePage <Map<String, Object>> (count, list);
+        return new BasePage<>(count, list);
     }
 
 

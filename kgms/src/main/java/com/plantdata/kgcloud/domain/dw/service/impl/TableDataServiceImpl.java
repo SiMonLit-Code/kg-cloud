@@ -44,6 +44,7 @@ import jodd.io.ZipUtil;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -418,35 +419,31 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public void dataUpdate(DWDatabaseUpdateReq baseReq) {
         String userId = SessionHolder.getUserId();
-        List<DWTable> list = dwTableRepository.findAll(Example.of(DWTable.builder().id(baseReq.getTableId()).dwDataBaseId(baseReq.getDataBaseId()).build()));
-        if (null == list || list.isEmpty()) {
-            throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+        Optional<DWTable> optional = dwTableRepository.findOne(Example.of(DWTable.builder().id(baseReq.getTableId()).dwDataBaseId(baseReq.getDataBaseId()).build()));
+        DWTable table = optional.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST));
+        if (null == table.getCreateWay() || null == table.getIsWriteDW()) {
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
-        DWTable table = list.get(0);
-        Boolean isflag = (null == table.getCreateWay() || null == table.getIsWriteDW() || table.getCreateWay() != CREATE_WAY || table.getIsWriteDW() != IS_WRITE_DW);
-        if (isflag) {
-            return;
+        if (!(table.getCreateWay() == CREATE_WAY && table.getIsWriteDW() == IS_WRITE_DW)) {
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
         DataOptProvider provider = getProvider(userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties);
         Optional<DWDatabase> id = dwDatabaseRepository.findById(baseReq.getDataBaseId());
         DWDatabase database = id.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
         MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
-        //查询出原有数据 获得_ID
-        String objectId = provider.findOne(baseReq.getId()).get(MONGO_ID).toString();
+        String objectId = baseReq.getId();
         long count = collection.countDocuments(Filters.eq(MONGO_ID, objectId));
         Map<String, Object> data = baseReq.getData();
-        provider.update(objectId, new Document(data));
         if (count == 0) {
+            data.put(MONGO_ID, objectId);
             collection.insertOne(new Document(data));
             data.remove(MONGO_ID);
             Document map = new Document(data);
             provider.update(objectId, map);
         } else {
-            data.remove(MONGO_ID);
             Document map = new Document(data);
             collection.updateOne(Filters.eq(MONGO_ID, objectId), new Document("$set", map));
             provider.update(objectId, map);
         }
-
     }
 }
