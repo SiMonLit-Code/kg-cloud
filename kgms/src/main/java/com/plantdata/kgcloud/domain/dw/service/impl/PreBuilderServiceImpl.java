@@ -1919,7 +1919,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String attrType = excelParser.getCellValue(row.getCell(4));
                 String attrUnit = excelParser.getCellValue(row.getCell(5));
                 if (!org.springframework.util.StringUtils.hasText(relationDomain) ) {
-                    excelParser.buildErrorMsg(row,"边属性关系定义域为空",ExcelParser.RELATION_ATTR);
+//                    excelParser.buildErrorMsg(row,"边属性关系定义域为空",ExcelParser.RELATION_ATTR);
                     continue;
                 }
                 if ( !org.springframework.util.StringUtils.hasText(relationName)) {
@@ -1947,7 +1947,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 ModelExcelRsp.Relation relation = null;
                 for(ModelExcelRsp.Relation r : relationList){
-                    if(r.getName().equals(attrName)){
+                    if(r.getName().equals(relationName)){
                         relation = r;
                         break;
                     }
@@ -1999,7 +1999,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String domain = excelParser.getCellValue(row.getCell(2));
                 String fourColumn = excelParser.getCellValue(row.getCell(4));//值域
                 if (!org.springframework.util.StringUtils.hasText(attrName) ) {
-                    excelParser.buildErrorMsg(row,"关系名为空",ExcelParser.RELATION);
+//                    excelParser.buildErrorMsg(row,"关系名为空",ExcelParser.RELATION);
                     continue;
                 }
                 if ( !org.springframework.util.StringUtils.hasText(domain)) {
@@ -2137,6 +2137,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         ModelExcelRsp parent = conceptMap.get(rsp.getParentName()+rsp.getParentMeaningTag());
+
+        if(parent == null || parent.getAttrs() == null){
+            return;
+        }
         for(ModelExcelRsp.Attr attr : parent.getAttrs()){
             attrNameList.add(attr.getName());
             if(org.springframework.util.StringUtils.hasText(attr.getAlias())){
@@ -2169,7 +2173,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String domain = excelParser.getCellValue(row.getCell(2));
                 String fourColumn = excelParser.getCellValue(row.getCell(4));
                 if (!org.springframework.util.StringUtils.hasText(attrName)) {
-                    excelParser.buildErrorMsg(row,"属性名为空",ExcelParser.ATTRIBUTE);
+//                    excelParser.buildErrorMsg(row,"属性名为空",ExcelParser.ATTRIBUTE);
                     continue;
                 }
                 if (!org.springframework.util.StringUtils.hasText(domain)) {
@@ -2244,7 +2248,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 String sonName = excelParser.getCellValue(row.getCell(2));
                 String sonMeaningTag = excelParser.getCellValue(row.getCell(3));
                 if (!org.springframework.util.StringUtils.hasText(sonName)) {
-                    excelParser.buildErrorMsg(row,"概念名为空",ExcelParser.CONCEPT);
+//                    excelParser.buildErrorMsg(row,"概念名为空",ExcelParser.CONCEPT);
                     continue;
                 }
                 if (Objects.equals(parentMeaningTag, sonMeaningTag) && Objects.equals(sonName, parentName)) {
@@ -2264,7 +2268,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 if (org.springframework.util.StringUtils.hasText(parentName) && !"root".equals(parentName)) {
                     sonConcept.setParentName(parentName);
-                    sonConcept.setMeaningTag(sonMeaningTag);
+                    sonConcept.setParentMeaningTag(parentMeaningTag);
                 }
 
             }

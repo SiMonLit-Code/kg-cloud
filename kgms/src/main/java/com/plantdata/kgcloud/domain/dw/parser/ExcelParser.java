@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.util.CommonUtil;
 import com.plantdata.kgcloud.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -54,10 +55,14 @@ public class ExcelParser {
 
     private static final Map<String,List<String>> titles = Maps.newHashMap();
     public static final String CONCEPT = "concept";
+    public static final String CONCEPT_KEY = "概念建模";
     public static final String ENTITY = "entity";
     public static final String ATTRIBUTE = "attribute";
+    public static final String ATTRIBUTE_KEY = "属性建模";
     public static final String RELATION = "relation";
+    public static final String RELATION_KEY = "关系建模";
     public static final String RELATION_ATTR = "relation_attr";
+    public static final String RELATION_ATTR_KEY = "边属性建模";
 
     static {
         //概念
@@ -161,7 +166,7 @@ public class ExcelParser {
             if(conceptErrorRows != null){
 
                 conceptErrorRows.add(0,conceptTitleRow);
-                Sheet sheet = wb.createSheet(CONCEPT);
+                Sheet sheet = wb.createSheet(CONCEPT_KEY);
                 int index = 0;
                 for (Row errRow : conceptErrorRows) {
                     Row row = sheet.createRow(index++);
@@ -175,7 +180,7 @@ public class ExcelParser {
             if(attrErrorRows != null){
 
                 attrErrorRows.add(0,attrTitleRow);
-                Sheet sheet = wb.createSheet(ATTRIBUTE);
+                Sheet sheet = wb.createSheet(ATTRIBUTE_KEY);
                 int index = 0;
                 for (Row errRow : attrErrorRows) {
                     Row row = sheet.createRow(index++);
@@ -189,7 +194,7 @@ public class ExcelParser {
             if(relationErrorRows != null){
 
                 relationErrorRows.add(0,relationTitleRow);
-                Sheet sheet = wb.createSheet(RELATION);
+                Sheet sheet = wb.createSheet(RELATION_KEY);
                 int index = 0;
                 for (Row errRow : relationErrorRows) {
                     Row row = sheet.createRow(index++);
@@ -203,7 +208,7 @@ public class ExcelParser {
             if(relationAttrErrorRows != null){
 
                 relationAttrErrorRows.add(0,relationAttrTitleRow);
-                Sheet sheet = wb.createSheet(RELATION_ATTR);
+                Sheet sheet = wb.createSheet(RELATION_ATTR_KEY);
                 int index = 0;
                 for (Row errRow : relationAttrErrorRows) {
                     Row row = sheet.createRow(index++);
@@ -318,7 +323,14 @@ public class ExcelParser {
                     result = Boolean.toString(cell.getBooleanCellValue());
                     break;
                 case 2:
-                    result = cell.getCellFormula();
+//                    result = cell.getCellFormula();
+                    try {
+                        FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+                        evaluator.setDebugEvaluationOutputForNextEval(true);
+                        result = evaluator.evaluateInCell(cell).getRichStringCellValue();
+                    } catch (IllegalStateException e) {
+                        result = cell.getRichStringCellValue().getString();
+                    }
                     break;
                 case 5:
                     result = cell.getErrorCellValue();

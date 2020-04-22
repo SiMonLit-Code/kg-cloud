@@ -1090,7 +1090,7 @@ public class KtrXml {
                 "        \"$lt\": \"${EndTime}\"\n" +
                 "    },\n" +
                 "  \"_id\": {\n" +
-                "    \"$exist\":${key}\n" +
+                "    \"$exists\":${key}\n" +
                 "  }\n" +
                 "}\n";
     }
