@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,6 +38,12 @@ public class ConceptConverter extends BasicConverter {
         treeItemVo.setName(treeRsp.getName());
         treeItemVo.setParentId(treeRsp.getParentId());
         treeItemVo.setType(treeRsp.getType());
+        treeItemVo.setNumAtts(new ArrayList<Object>());
+        if(treeRsp.getNumAttrs()!=null) {
+            for (BasicConceptTreeRsp.NumberAttr attr : treeRsp.getNumAttrs()) {
+                treeItemVo.getNumAtts().add(attr);
+            }
+        }
         treeItemVo.setChildren(toListNoNull(treeRsp.getChildren(), ConceptConverter::basicConceptTreeRspToTreeItemVo));
         List<EditAttDefBeanMole> editAttDefBeanMoles = toListNoNull(treeRsp.getObjAttrs(), a -> objAttrToEditAttDefBeanMole(a, treeRsp.getName(), treeRsp.getId()));
         consumerIfNoNull(editAttDefBeanMoles, a -> {
