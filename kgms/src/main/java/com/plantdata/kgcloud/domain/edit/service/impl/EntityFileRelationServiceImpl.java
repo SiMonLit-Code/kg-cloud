@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRelationRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
+import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     private EntityFileRelationRepository entityFileRelationRepository;
     @Autowired
     private BasicInfoService basicInfoService;
+    @Autowired
+    private EntityService entityService;
 
     @Override
     public void createRelation(String kgName, EntityFileRelationReq req) {
@@ -53,9 +56,12 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
+    @Transactional
     public void deleteRelation(List<Integer> idList) {
-        for (Integer id : idList) {
-            entityFileRelationRepository.deleteById(id);
+        List<EntityFileRelation> list = entityFileRelationRepository.findAllById(idList);
+        for (EntityFileRelation relation : list){
+            entityService.deleteMultiModalOnly(relation.getKgName(), relation.getMultiModalId());
+            entityFileRelationRepository.deleteRelationByDwFileId(relation.getDwFileId());
         }
     }
 

@@ -287,7 +287,6 @@ public class ImportServiceImpl implements ImportService {
         List<AttributeDefinitionGroupRsp> attrGroups = schemaRsp.getAttrGroups();
         attrGroups.clear();
         attrGroups = null;
-        System.gc();
 
         String title = schemaRsp.getKgTitle() + "图谱实体概念模型";
         List<BaseConceptRsp> conceptList = schemaRsp.getTypes();
@@ -336,7 +335,6 @@ public class ImportServiceImpl implements ImportService {
             dataMap.put(conceptMap.get(conceptId), dataList);
             collect.clear();
             collect = null;
-            System.gc();
         }
         if (attrList != null) {
             attrList.clear();
@@ -344,6 +342,7 @@ public class ImportServiceImpl implements ImportService {
         attrList = null;
         conceptList.clear();
         conceptList = null;
+        System.gc();
         try {
             XWPFDocument document = createWord(title, dataMap);
 
