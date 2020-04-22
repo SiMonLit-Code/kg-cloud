@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.entity.*;
@@ -55,6 +56,7 @@ public interface EntityService {
 
     /**
      * 批量
+     *
      * @param kgName
      * @param multiModalReqs
      */
@@ -68,6 +70,22 @@ public interface EntityService {
      * @return
      */
     void deleteMultiModal(String kgName, String modalId);
+
+    /**
+     * 删除多模态数据
+     *
+     * @param kgName
+     * @param modalId
+     * @return
+     */
+    void deleteMultiModalOnly(String kgName, String modalId);
+
+    /**
+     * 更新多模态数据
+     * @param kgName
+     * @param multiModal
+     */
+    void updateMultiModal(String kgName, MultiModal multiModal);
 
     /**
      * 实体列表

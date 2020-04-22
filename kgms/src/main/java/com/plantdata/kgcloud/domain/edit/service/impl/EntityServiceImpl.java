@@ -2,24 +2,8 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
-import ai.plantdata.kg.api.edit.req.AttributePrivateDataFrom;
-import ai.plantdata.kg.api.edit.req.AttributeValueFrom;
-import ai.plantdata.kg.api.edit.req.BasicInfoListFrom;
-import ai.plantdata.kg.api.edit.req.DeleteRelationFrom;
-import ai.plantdata.kg.api.edit.req.EdgeObjectValueFrom;
-import ai.plantdata.kg.api.edit.req.EdgeValueFrom;
-import ai.plantdata.kg.api.edit.req.EntityPrivateRelationFrom;
-import ai.plantdata.kg.api.edit.req.EntityRelationFrom;
-import ai.plantdata.kg.api.edit.req.MetaDataOptionFrom;
-import ai.plantdata.kg.api.edit.req.ObjectAttributeValueFrom;
-import ai.plantdata.kg.api.edit.req.RelationListFrom;
-import ai.plantdata.kg.api.edit.req.UpdateRelationFrom;
-import ai.plantdata.kg.api.edit.resp.BatchDeleteAttrValueVO;
-import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
-import ai.plantdata.kg.api.edit.resp.BatchEntityVO;
-import ai.plantdata.kg.api.edit.resp.BatchResult;
-import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
-import ai.plantdata.kg.api.edit.resp.EntityVO;
+import ai.plantdata.kg.api.edit.req.*;
+import ai.plantdata.kg.api.edit.resp.*;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityTagFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
@@ -35,13 +19,7 @@ import com.plantdata.graph.logging.core.GraphLogOperation;
 import com.plantdata.graph.logging.core.GraphLogScope;
 import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.graph.logging.core.segment.EntityMultiDataSegment;
-import com.plantdata.kgcloud.constant.AttributeValueType;
-import com.plantdata.kgcloud.constant.KgmsConstants;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.constant.MetaDataInfo;
-import com.plantdata.kgcloud.constant.MongoOperation;
-import com.plantdata.kgcloud.constant.TaskStatus;
-import com.plantdata.kgcloud.constant.TaskType;
+import com.plantdata.kgcloud.constant.*;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
@@ -98,15 +76,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -174,7 +144,7 @@ public class EntityServiceImpl implements EntityService {
         MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
         mongoCollection.insertOne(document);
-        if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()){
+        if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
             // 创建实体文件关联
             EntityFileRelationReq entityFileRelationReq = new EntityFileRelationReq();
             BeanUtils.copyProperties(multiModalReq, entityFileRelationReq);
@@ -182,7 +152,7 @@ public class EntityServiceImpl implements EntityService {
             MultiModalRsp multiModalRsp = documentConverter.toBean(document, MultiModalRsp.class);
             entityFileRelationReq.setMultiModalId(multiModalRsp.getId());
             entityFileRelationService.createRelation(kgName, entityFileRelationReq);
-        }else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
+        } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
             // 创建数仓文件记录
             DWFileTableReq dwFileTableReq = new DWFileTableReq();
             BeanUtils.copyProperties(multiModalReq, dwFileTableReq);
@@ -203,7 +173,7 @@ public class EntityServiceImpl implements EntityService {
     }
 
     private void sendMsg(String kgName, MultiModal multiModal) {
-        if (!logSender.isEnableLog()){
+        if (!logSender.isEnableLog()) {
             return;
         }
         String kgDbName = KGUtil.dbName(kgName);
@@ -239,10 +209,10 @@ public class EntityServiceImpl implements EntityService {
 
         List<MultiModalRsp> multiModalRsps = documentConverter.toBeans(documents, MultiModalRsp.class);
 
-        for (MultiModalReq multiModalReq: multiModalReqs) {
+        for (MultiModalReq multiModalReq : multiModalReqs) {
 
             MultiModalRsp multiModalRsp = multiModalRsps.stream()
-                    .filter(m->m.getDataHref().equals(multiModalReq.getDataHref())).collect(Collectors.toList()).get(0);
+                    .filter(m -> m.getDataHref().equals(multiModalReq.getDataHref())).collect(Collectors.toList()).get(0);
 
             if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
                 // 创建实体文件关联
@@ -283,7 +253,7 @@ public class EntityServiceImpl implements EntityService {
         Document document = cursor.next();
         MultiModal multiModal = documentConverter.toBean(document, MultiModal.class);
         mongoCollection.deleteOne(documentConverter.buildObjectId(modalId));
-        if (!logSender.isEnableLog()){
+        if (!logSender.isEnableLog()) {
             return;
         }
 
@@ -304,6 +274,37 @@ public class EntityServiceImpl implements EntityService {
         graphLog.setOldValue(transform(multiModal));
         logSender.sendKgLog(kgDbName, graphLog);
         logSender.remove();
+    }
+
+    @Override
+    public void deleteMultiModalOnly(String kgName, String modalId) {
+        String kgDbName = KGUtil.dbName(kgName);
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(kgDbName);
+        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
+        MongoCursor<Document> cursor = mongoCollection.find(documentConverter.buildObjectId(modalId)).iterator();
+        if (!cursor.hasNext()) {
+            return;
+        }
+        Document document = cursor.next();
+        MultiModal multiModal = documentConverter.toBean(document, MultiModal.class);
+        mongoCollection.deleteOne(documentConverter.buildObjectId(modalId));
+    }
+
+    @Override
+    public void updateMultiModal(String kgName, MultiModal multiModal) {
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
+        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
+        MongoCursor<Document> cursor = mongoCollection.find(documentConverter.buildObjectId(multiModal.getId())).iterator();
+        if (!cursor.hasNext()) {
+            return;
+        }
+        Document document = cursor.next();
+        MultiModal newMultiModal = documentConverter.toBean(document, MultiModal.class);
+        String id = newMultiModal.getId();
+        newMultiModal.setId(null);
+        newMultiModal.setName(multiModal.getName());
+        Document newDocument = documentConverter.toDocument(newMultiModal);
+        mongoCollection.updateOne(documentConverter.buildObjectId(id), new Document("$set", newDocument));
     }
 
 

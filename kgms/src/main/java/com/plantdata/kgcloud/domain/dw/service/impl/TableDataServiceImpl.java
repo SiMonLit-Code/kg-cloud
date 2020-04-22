@@ -7,7 +7,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.config.MongoProperties;
-import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
@@ -21,7 +20,6 @@ import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
-import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
@@ -30,6 +28,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.TableDataService;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -43,7 +42,6 @@ import com.plantdata.kgcloud.util.ConvertUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -364,6 +362,12 @@ public class TableDataServiceImpl implements TableDataService {
                 entityFileRelation.setKeyword(fileTableReq.getKeyword());
                 entityFileRelation.setDescription(fileTableReq.getDescription());
                 entityFileRelationService.updateRelation(entityFileRelation);
+
+                String multiModalId = entityFileRelation.getMultiModalId();
+                MultiModal multiModal = new MultiModal();
+                multiModal.setId(multiModalId);
+                multiModal.setName(fileTableReq.getName());
+                entityService.updateMultiModal(entityFileRelation.getKgName(), multiModal);
             }
         }
 
