@@ -10,10 +10,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.CustomRelationRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
 import org.yaml.snakeyaml.Yaml;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -131,6 +128,8 @@ public class YamlTransFunc {
                     props.setProperty(tags[1]);
                     props.setMapField(Lists.newArrayList(column.getName()));
                 }
+
+                entityPropertyMap.put(tags[0],propertyRsps);
             }else if(ENUM_CONCEPT.equals(tags[1])){
                 TransInsConfigRsp entityType = new TransInsConfigRsp();
                 entityType.setName(Lists.newArrayList(column.getName()));
@@ -158,7 +157,26 @@ public class YamlTransFunc {
 
         }
 
-        Map<String,TransRelationConfigRsp> relationConfigRspMap = new HashMap<>();
+        Collection<Map<String,TransPropertyRsp>> ents = entityPropertyMap.values();
+        if(ents == null ||ents.isEmpty()){
+            return rs;
+        }
+
+        for(Map.Entry<String,Map<String,TransPropertyRsp>> entry : entityPropertyMap.entrySet()){
+
+            for(Map<String,TransPropertyRsp> props : ents){
+                List<TransPropertyRsp> entTypes = Lists.newArrayList(props.values());
+                TransEntityConfigRsp entity = new TransEntityConfigRsp();
+                entity.setDataType("entity");
+                entity.setAttrs(Lists.newArrayList(attrMap.get(entry.getKey()).values()));
+                entity.setEntity(entTypes);
+                entity.setEntityType(entityTypeMap.get(entry.getKey()));
+
+                rs.add(entity);
+            }
+        }
+
+
         if(label.getRelationRsps() != null && !label.getRelationRsps().isEmpty()){
 
             for(CustomRelationRsp relationRsp : label.getRelationRsps()){
@@ -169,6 +187,8 @@ public class YamlTransFunc {
                 if(domainType == null){
                     continue;
                 }
+
+
 
                 List<String> ranges = relationRsp.getRange();
                 if(ranges == null || ranges.isEmpty()){
@@ -182,8 +202,22 @@ public class YamlTransFunc {
                         continue;
                     }
 
-//                    TransRelationConfigRsp
 
+                    TransRelationConfigRsp relationConfigRsp = new TransRelationConfigRsp();
+                    relationConfigRsp.setTimeFrom(relationRsp.getStartTime());
+                    relationConfigRsp.setTimeTo(relationRsp.getEndTime());
+                    relationConfigRsp.setDataType("relation");
+                    relationConfigRsp.setEntityType(domainType);
+                    relationConfigRsp.setEntity(Lists.newArrayList(entityPropertyMap.get(domain).values()));
+                    relationConfigRsp.setValue(Lists.newArrayList(entityPropertyMap.get(range).values()));
+                    relationConfigRsp.setValueType(rangeType);
+
+                    TransInsConfigRsp rela = new TransInsConfigRsp();
+                    rela.setName(Lists.newArrayList(relationRsp.getName()));
+                    rela.setNameIsEnum(false);
+                    relationConfigRsp.setRela(rela);
+
+                    rs.add(relationConfigRsp);
                 }
 
             }
