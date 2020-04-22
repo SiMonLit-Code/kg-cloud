@@ -11,19 +11,12 @@ import java.util.List;
  * @create: 2020-04-21 18:22
  **/
 @Data
-public class TransRelationConfigRsp {
+public class TransRelationConfigRsp extends TransObjRsp{
 
-    private TransTraceRsp trace = new TransTraceRsp();
 
     private String timeFrom;
 
     private String timeTo;
-
-    private String dataType;
-
-    private TransInsConfigRsp entityType;
-
-    private List<TransPropertyRsp> entity;
 
     private TransInsConfigRsp rela;
 
