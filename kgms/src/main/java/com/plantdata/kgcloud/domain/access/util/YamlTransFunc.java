@@ -9,10 +9,12 @@ import com.plantdata.kgcloud.domain.access.rsp.*;
 import com.plantdata.kgcloud.domain.dw.rsp.CustomColumnRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.CustomRelationRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -45,7 +47,62 @@ public class YamlTransFunc {
     private static Yaml yaml = new Yaml();
 
     public static void main(String[] args) {
-        String yaml = "";
+        String yaml = "\n" +
+                "    {\n" +
+                "        \"tableName\":\"\",\n" +
+                "        \"columns\":[\n" +
+                "            {\n" +
+                "                \"name\":\"id1\",\n" +
+                "                \"tag\":\"数仓.id\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id2\",\n" +
+                "                \"tag\":\"数仓.name\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id3\",\n" +
+                "                \"tag\":\"数仓.字段\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id4\",\n" +
+                "                \"tag\":\"数表.name\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id5\",\n" +
+                "                \"tag\":\"数表.信息\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id6\",\n" +
+                "                \"tag\":\"数表.$concept\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"relationRsps\":[\n" +
+                "            {\n" +
+                "                \"name\":\"关联\",\n" +
+                "                \"domain\":\"数仓\",\n" +
+                "                \"range\":[\n" +
+                "\"数表\"\n" +
+                "                ],\n" +
+                "                \"startTime\":\"field\",\n" +
+                "                \"endTime\":\"fff\",\n" +
+                "                \"relationAttrs\":[\n" +
+                "                    {\n" +
+                "                        \"name\":\"kk\",\n" +
+                "                        \"tag\":\"边\",\n" +
+                "                        \"type\":\"string\",\n" +
+                "                        \"comment\":\"\"\n" +
+                "                    }\n" +
+                "                ]\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n";
 
 
 
@@ -84,6 +141,7 @@ public class YamlTransFunc {
                     TransPropertyRsp props = new TransPropertyRsp();
                     props.setProperty(tags[1]);
                     props.setMapField(Lists.newArrayList(column.getName()));
+                    propertyRsps.put(tags[1],props);
                 }
 
                 entityPropertyMap.put(tags[0],propertyRsps);
@@ -99,6 +157,7 @@ public class YamlTransFunc {
 
                 if(propertyRsps == null){
                     propertyRsps = new HashMap<>();
+                    attrMap.put(tags[0],propertyRsps);
                 }
 
                 if(propertyRsps.containsKey(tags[1])){
@@ -109,6 +168,7 @@ public class YamlTransFunc {
                     props.setProperty(tags[1]);
                     props.setDataType(attDataTypeMap.get(column.getType()));
                     props.setMapField(Lists.newArrayList(column.getName()));
+                    propertyRsps.put(tags[1],props);
                 }
             }
 
@@ -121,16 +181,30 @@ public class YamlTransFunc {
 
         for(Map.Entry<String,Map<String,TransPropertyRsp>> entry : entityPropertyMap.entrySet()){
 
-            for(Map<String,TransPropertyRsp> props : ents){
-                List<TransPropertyRsp> entTypes = Lists.newArrayList(props.values());
-                TransEntityConfigRsp entity = new TransEntityConfigRsp();
-                entity.setDataType("entity");
-                entity.setAttrs(Lists.newArrayList(attrMap.get(entry.getKey()).values()));
-                entity.setEntity(entTypes);
-                entity.setEntityType(entityTypeMap.get(entry.getKey()));
-
-                rs.add(entity);
+            TransEntityConfigRsp entity = new TransEntityConfigRsp();
+            List<TransPropertyRsp> entTypes = Lists.newArrayList(entry.getValue().values());
+            entity.setEntity(entTypes);
+            entity.setDataType("entity");
+            if(attrMap.get(entry.getKey()) != null && attrMap.get(entry.getKey()).values() != null){
+                Collection c = attrMap.get(entry.getKey()).values();
+                entity.setAttrs(new ArrayList<>(c));
+            }else{
+                entity.setAttrs(Lists.newArrayList());
             }
+
+            if(entityTypeMap.containsKey(entry.getKey())){
+
+                entity.setEntityType(entityTypeMap.get(entry.getKey()));
+            }else{
+
+                TransInsConfigRsp type = new TransInsConfigRsp();
+                type.setName(Lists.newArrayList(entry.getKey()));
+                type.setMeaningTag(Lists.newArrayList());
+                type.setNameIsEnum(false);
+                entity.setEntityType(type);
+            }
+
+            rs.add(entity);
         }
 
 
@@ -142,7 +216,11 @@ public class YamlTransFunc {
 
                 TransInsConfigRsp domainType = entityTypeMap.get(domain);
                 if(domainType == null){
-                    continue;
+                    TransInsConfigRsp type = new TransInsConfigRsp();
+                    type.setName(Lists.newArrayList(domain));
+                    type.setMeaningTag(Lists.newArrayList());
+                    type.setNameIsEnum(false);
+                    domainType = type;
                 }
 
 
@@ -155,7 +233,11 @@ public class YamlTransFunc {
 
                     TransInsConfigRsp rangeType = entityTypeMap.get(range);
                     if(rangeType == null){
-                        continue;
+                        TransInsConfigRsp type = new TransInsConfigRsp();
+                        type.setName(Lists.newArrayList(domain));
+                        type.setMeaningTag(Lists.newArrayList());
+                        type.setNameIsEnum(false);
+                        rangeType = type;
                     }
 
 
@@ -164,8 +246,10 @@ public class YamlTransFunc {
                     relationConfigRsp.setTimeTo(relationRsp.getEndTime());
                     relationConfigRsp.setDataType("relation");
                     relationConfigRsp.setEntityType(domainType);
-                    relationConfigRsp.setEntity(Lists.newArrayList(entityPropertyMap.get(domain).values()));
-                    relationConfigRsp.setValue(Lists.newArrayList(entityPropertyMap.get(range).values()));
+
+
+                    relationConfigRsp.setEntity(entityPropertyMap.get(domain).values().stream().map( s -> ConvertUtils.convert(TransPropertyRsp.class).apply(s)).collect(Collectors.toList()));
+                    relationConfigRsp.setValue(entityPropertyMap.get(range).values().stream().map( s -> ConvertUtils.convert(TransPropertyRsp.class).apply(s)).collect(Collectors.toList()));
                     relationConfigRsp.setValueType(rangeType);
 
                     List<CustomColumnRsp> relaAttrs = relationRsp.getRelationAttrs();
@@ -197,7 +281,7 @@ public class YamlTransFunc {
 
         }
 
-        return null;
+        return rs;
     }
 
     public static Map<String, JSONArray> tranTagConfig(String yamlStr) {
