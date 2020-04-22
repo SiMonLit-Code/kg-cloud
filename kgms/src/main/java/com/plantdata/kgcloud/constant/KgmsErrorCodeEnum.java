@@ -206,7 +206,9 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     UNZIP_ERROR(120745,"解压失败"),
 
     LABEL_ENUM_NOT_EMTRY(120746,"枚举值不能为空"),
+
     NOT_SELECT_MAP_TABLE(120747,"未选择映射表"),
+    MODEL_FILE_TITLE_ERROR(120748,"模式文件表头错误，请根据模板上传"),
             ;
     private final int errorCode;
 

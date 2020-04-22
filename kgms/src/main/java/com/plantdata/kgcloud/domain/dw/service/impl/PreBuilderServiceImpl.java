@@ -1923,25 +1923,25 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     continue;
                 }
                 if ( !org.springframework.util.StringUtils.hasText(relationName)) {
-                    excelParser.buildErrorMsg(row,"边属性关系名称为空",ExcelParser.RELATION_ATTR);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，边属性关系名称为空",ExcelParser.RELATION_ATTR);
                     continue;
                 }
                 if (!org.springframework.util.StringUtils.hasText(attrName)) {
-                    excelParser.buildErrorMsg(row,"边属性名为空",ExcelParser.RELATION_ATTR);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，边属性名为空",ExcelParser.RELATION_ATTR);
                     continue;
                 }
                 if (!org.springframework.util.StringUtils.hasText(attrType)) {
-                    excelParser.buildErrorMsg(row,"边属性类型为空",ExcelParser.RELATION_ATTR);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，边属性类型为空",ExcelParser.RELATION_ATTR);
                     continue;
                 }
                 if (!conceptMap.containsKey(relationDomain + relationMt)) {
-                    excelParser.buildErrorMsg(row,"边属性关系定义域不存在",ExcelParser.RELATION_ATTR);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，边属性关系定义域不存在",ExcelParser.RELATION_ATTR);
                     continue;
                 }
 
                 List<ModelExcelRsp.Relation> relationList = conceptMap.get(relationDomain + relationMt).getRelations();
                 if(relationList == null ||relationList.isEmpty()){
-                    excelParser.buildErrorMsg(row,"边属性关系不存在",ExcelParser.RELATION_ATTR);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，边属性关系不存在",ExcelParser.RELATION_ATTR);
                     continue;
                 }
 
@@ -1954,7 +1954,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 }
 
                 if(relation == null){
-                    excelParser.buildErrorMsg(row,"边属性关系不存在",ExcelParser.RELATION_ATTR);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，边属性关系不存在",ExcelParser.RELATION_ATTR);
                     continue;
                 }
 
@@ -1968,7 +1968,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 });
 
                 if(relationNameList.contains(attrName)){
-                    excelParser.buildErrorMsg(row,"边属性名已存在",ExcelParser.RELATION_ATTR);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，边属性名已存在",ExcelParser.RELATION_ATTR);
                     continue;
                 }
 
@@ -2003,21 +2003,21 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     continue;
                 }
                 if ( !org.springframework.util.StringUtils.hasText(domain)) {
-                    excelParser.buildErrorMsg(row,"关系定义域为空",ExcelParser.RELATION);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，关系定义域为空",ExcelParser.RELATION);
                     continue;
                 }
                 if (!org.springframework.util.StringUtils.hasText(fourColumn)) {
-                    excelParser.buildErrorMsg(row,"关系值域为空",ExcelParser.RELATION);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，关系值域为空",ExcelParser.RELATION);
                     continue;
                 }
                 String domainMeaningTag = excelParser.getCellValue(row.getCell(3));
                 String fiveColumn = excelParser.getCellValue(row.getCell(5));
                 if (!conceptMap.containsKey(domain + domainMeaningTag)) {
-                    excelParser.buildErrorMsg(row,"关系定义域不存在",ExcelParser.RELATION);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，关系定义域不存在",ExcelParser.RELATION);
                     continue;
                 }
                 if (!conceptMap.containsKey(fourColumn + fiveColumn)) {
-                    excelParser.buildErrorMsg(row,"关系值域不存在",ExcelParser.RELATION);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，关系值域不存在",ExcelParser.RELATION);
                     continue;
                 }
 
@@ -2025,17 +2025,17 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 List<String> attrNameList = getConceptAttrNames(conceptMap,domain,domainMeaningTag);
 
                 if(attrNameList.contains(attrName)){
-                    excelParser.buildErrorMsg(row,"关系名已存在",ExcelParser.ATTRIBUTE);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，关系名已存在",ExcelParser.ATTRIBUTE);
                     continue;
                 }
 
                 if(org.springframework.util.StringUtils.hasText(alias)){
 
                     if(attrName.equals(alias)){
-                        excelParser.buildErrorMsg(row,"关系名与别名冲突",ExcelParser.ATTRIBUTE);
+                        excelParser.buildErrorMsg(row,"第"+i+"行，关系名与别名冲突",ExcelParser.ATTRIBUTE);
                         continue;
                     }else if(attrNameList.contains(alias)){
-                        excelParser.buildErrorMsg(row,"关系别名已存在",ExcelParser.ATTRIBUTE);
+                        excelParser.buildErrorMsg(row,"第"+i+"行，关系别名已存在",ExcelParser.ATTRIBUTE);
                         continue;
                     }
 
@@ -2177,23 +2177,23 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     continue;
                 }
                 if (!org.springframework.util.StringUtils.hasText(domain)) {
-                    excelParser.buildErrorMsg(row,"属性定义域为空",ExcelParser.ATTRIBUTE);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，属性定义域为空",ExcelParser.ATTRIBUTE);
                     continue;
                 }
                 if (!org.springframework.util.StringUtils.hasText(fourColumn)) {
-                    excelParser.buildErrorMsg(row,"属性数据类型为空",ExcelParser.ATTRIBUTE);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，属性数据类型为空",ExcelParser.ATTRIBUTE);
                     continue;
                 }
                 String domainMeaningTag = excelParser.getCellValue(row.getCell(3));
                 String fiveColumn = excelParser.getCellValue(row.getCell(5));
                 if (!conceptMap.containsKey(domain + domainMeaningTag)) {
-                    excelParser.buildErrorMsg(row,"属性定义域不存在",ExcelParser.ATTRIBUTE);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，属性定义域不存在",ExcelParser.ATTRIBUTE);
                     continue;
                 }
                 Integer fourColumnId;
                 fourColumnId = DataTypeEnum.getDataType(fourColumn);
                 if (fourColumnId == null) {
-                    excelParser.buildErrorMsg(row,"属性数据类型不存在",ExcelParser.ATTRIBUTE);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，属性数据类型不存在",ExcelParser.ATTRIBUTE);
                     continue;
                 }
 
@@ -2204,17 +2204,17 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 List<String> attrNameList = getConceptAttrNames(conceptMap,domain,domainMeaningTag);
 
                 if(attrNameList.contains(attrName)){
-                    excelParser.buildErrorMsg(row,"属性名已存在",ExcelParser.ATTRIBUTE);
+                    excelParser.buildErrorMsg(row,"第"+i+"行，属性名已存在",ExcelParser.ATTRIBUTE);
                     continue;
                 }
 
                 if(org.springframework.util.StringUtils.hasText(alias)){
 
                     if(attrName.equals(alias)){
-                        excelParser.buildErrorMsg(row,"属性名与别名冲突",ExcelParser.ATTRIBUTE);
+                        excelParser.buildErrorMsg(row,"第"+i+"行，属性名与别名冲突",ExcelParser.ATTRIBUTE);
                         continue;
                     }else if(attrNameList.contains(alias)){
-                        excelParser.buildErrorMsg(row,"属性别名已存在",ExcelParser.ATTRIBUTE);
+                        excelParser.buildErrorMsg(row,"第"+i+"行，属性别名已存在",ExcelParser.ATTRIBUTE);
                         continue;
                     }
 
@@ -2252,13 +2252,13 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     continue;
                 }
                 if (Objects.equals(parentMeaningTag, sonMeaningTag) && Objects.equals(sonName, parentName)) {
-                    excelParser.buildErrorMsg(row, "父子概念不能一样",ExcelParser.CONCEPT);
+                    excelParser.buildErrorMsg(row, "第"+i+"行，父子概念不能一样",ExcelParser.CONCEPT);
                     continue;
                 }
 
                 ModelExcelRsp sonConcept;
                 if (conceptMap.containsKey(sonName + sonMeaningTag)) {
-                    excelParser.buildErrorMsg(row, "概念已存在",ExcelParser.CONCEPT);
+                    excelParser.buildErrorMsg(row, "第"+i+"行，概念已存在",ExcelParser.CONCEPT);
                     continue;
                 }
                 sonConcept = ModelExcelRsp.builder().name(sonName).meaningTag(sonMeaningTag).row(row).build();
@@ -2287,7 +2287,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             if (concept.getValue().getParentName() != null) {
                 String k = concept.getValue().getParentName() + concept.getValue().getParentMeaningTag();
                 if (!conceptMap.containsKey(k)) {
-                    excelParser.buildErrorMsg(concept.getValue().getRow(), "模式父概念不存在",ExcelParser.CONCEPT);
+                    excelParser.buildErrorMsg(concept.getValue().getRow(), "第"+concept.getValue().getRow().getRowNum()+"行，模式父概念不存在",ExcelParser.CONCEPT);
                     continue;
                 }
 
@@ -2295,7 +2295,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 getAllParentConcept(k, conceptMap, parentList);
 
                 if(parentList.contains(k)){
-                    excelParser.buildErrorMsg(concept.getValue().getRow(), "模式概念存在循环引用",ExcelParser.CONCEPT);
+                    excelParser.buildErrorMsg(concept.getValue().getRow(), "第"+concept.getValue().getRow().getRowNum()+"行，模式概念存在循环引用",ExcelParser.CONCEPT);
                     continue;
                 }
             }

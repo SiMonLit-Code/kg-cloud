@@ -104,7 +104,7 @@ public class ExcelParser {
             String cellValue = getCellValue(row.getCell(i));
             //只校验固定表头
             if(cellValue == null || !cellValue.trim().equals(title.get(i).trim())){
-                throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
+                throw BizException.of(KgmsErrorCodeEnum.MODEL_FILE_TITLE_ERROR);
             }
         }
 

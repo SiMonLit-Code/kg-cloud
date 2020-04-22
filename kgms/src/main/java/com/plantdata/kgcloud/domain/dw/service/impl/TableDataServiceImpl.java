@@ -115,6 +115,7 @@ public class TableDataServiceImpl implements TableDataService {
         }
 
         try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
+
             PageRequest pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
             List<Map<String, Object>> maps = provider.find(baseReq.getOffset(), baseReq.getLimit(), query);
             long count = provider.count(query);
