@@ -24,7 +24,6 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.data.entity.DWDataStatusDatail;
-import com.plantdata.kgcloud.domain.data.entity.DWDataTableName;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
@@ -2593,8 +2592,8 @@ public class DWServiceImpl implements DWService {
         bsons.add(Filters.eq("dbId", databaseId));
         bsons.add(Filters.eq("userId", userId));
         FindIterable<Document> findIterable = collection.find(Filters.and(bsons));
-        List<DWDataTableName> dwDataList = documentConverter.toBeans(findIterable, DWDataTableName.class);
-        List<String> collect = dwDataList.stream().map(DWDataTableName::getTableName).distinct().collect(Collectors.toList());
+        List<DWDataStatusDatail> dwDataList = documentConverter.toBeans(findIterable, DWDataStatusDatail.class);
+        List<String> collect = dwDataList.stream().map(DWDataStatusDatail::getTableName).distinct().collect(Collectors.toList());
         List<DWDataStatusDatail> dWDataRspList = new ArrayList<>();
         for (String dWData : collect) {
             List<Bson> bson = new ArrayList<>(3);

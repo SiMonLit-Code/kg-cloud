@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
 import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
+import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
@@ -32,4 +33,6 @@ public interface TableDataService {
     List<Map<String, Object>> statistic(String userId, Long datasetId, Long tableId, DwTableDataStatisticReq statisticReq);
 
     List<Map<String, Object>> search(String userId, Long datasetId, Long tableId, DwTableDataSearchReq searchReq);
+
+    void dataUpdate(DWDatabaseUpdateReq baseReq);
 }
