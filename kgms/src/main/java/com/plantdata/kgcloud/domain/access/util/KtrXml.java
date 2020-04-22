@@ -443,7 +443,7 @@ public class KtrXml {
                 "    <server>ipQAQ</server>\n" +
                 "    <type>typeQAQ</type>\n" +
                 "    <access>Native</access>\n" +
-                "    <database>dbnameQAQ</database>\n" +
+                "    <database>dbnameQAQzeroDateTimeBehavior=convertToNull</database>\n" +
                 "    <port>portQAQ</port>\n" +
                 "    <username>usernameQAQ</username>\n" +
                 "    <password>passwordQAQ</password>\n" +
