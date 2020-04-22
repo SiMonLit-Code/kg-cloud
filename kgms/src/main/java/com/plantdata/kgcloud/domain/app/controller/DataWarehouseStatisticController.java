@@ -57,7 +57,7 @@ public class DataWarehouseStatisticController implements SdkOpenApiInterface {
     @PostMapping("by3dTable")
     public ApiReturn<DataWarehouse3dTableRsp> statistic3dByTable(@Valid @RequestBody SqlQueryReq req) {
         String userId = SessionHolder.getUserId();
-        List<DWDatabaseRsp> a = dwServince.databaseTableList(userId);
+        //List<DWDatabaseRsp> a = dwServince.databaseTableList(userId);
         return ApiReturn.success(dataWarehouseStatisticService.statisticBy3DTable(req));
     }
 }

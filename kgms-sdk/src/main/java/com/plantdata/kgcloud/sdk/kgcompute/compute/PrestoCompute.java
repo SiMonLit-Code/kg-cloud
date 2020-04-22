@@ -50,6 +50,7 @@ public class PrestoCompute {
         try {
 
             Statement pstmt = conn.createStatement();
+            sql = "select * from dw_db_bj73pdk7_20520.paper1000 limit 10";
             rs = pstmt.executeQuery(sql);
             return wrapResultSet(rs);
 
