@@ -58,6 +58,14 @@ public class GraphConfQaServiceImpl implements GraphConfQaService {
     @Override
     public List<GraphConfQaRsp> findByKgName(String kgName) {
         List<GraphConfQa> all = graphConfQaRepository.findAll();
-        return all.stream().map(ConvertUtils.convert(GraphConfQaRsp.class)).collect(Collectors.toList());
+        List<GraphConfQa> newList = new ArrayList<>();
+        if(all != null){
+            for(GraphConfQa qa: all){
+                if(qa.getKgName().equals(kgName)){
+                    newList.add(qa);
+                }
+            }
+        }
+        return newList.stream().map(ConvertUtils.convert(GraphConfQaRsp.class)).collect(Collectors.toList());
     }
 }
