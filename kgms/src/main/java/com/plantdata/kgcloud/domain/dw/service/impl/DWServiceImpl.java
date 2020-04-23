@@ -846,6 +846,14 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
+    public DWDatabaseRsp findDatabaseByDataName(String dataName) {
+
+        Optional<DWDatabase> databaseOpt = dwRepository.findOne(Example.of(DWDatabase.builder().dataName(dataName).build()));
+
+        return ConvertUtils.convert(DWDatabaseRsp.class).apply(databaseOpt.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST)));
+    }
+
+    @Override
     public void upload(String userId, Long databaseId, Long tableId, MultipartFile file) {
 
         List<DataSetSchema> schemas = null;
@@ -1837,7 +1845,7 @@ public class DWServiceImpl implements DWService {
             }
 
 
-            preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), null);
+            preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), database.getTableLabels());
 
         }
         /*else if (DWDataFormat.isCustom(database.getDataFormat())) {
@@ -1993,9 +2001,7 @@ public class DWServiceImpl implements DWService {
 
     private void updateSchedulingConfig(DWDatabaseRsp database, DWTableRsp tableRsp, Long dwDataBaseId, String tableName, String cron, Integer isAll, String field) {
 
-        String ktrTaskName = AccessTaskType.KTR.getDisplayName() + "_" + dwDataBaseId + "_" + tableName + "_";
-
-        accessTaskService.updateTableSchedulingConfig(database, tableRsp, ktrTaskName, cron, isAll, field);
+        accessTaskService.updateTableSchedulingConfig(database, tableRsp, cron, isAll, field);
     }
 
     @Override
