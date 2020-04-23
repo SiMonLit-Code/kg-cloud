@@ -233,10 +233,11 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "conceptId", required = true, dataType = "long", paramType = "form", value = "概念id"),
             @ApiImplicitParam(name = "isDisplay", dataType = "boolean", defaultValue = "false", paramType = "form"),
+            @ApiImplicitParam(name = "isRangeDisplay", dataType = "boolean", defaultValue = "false", paramType = "form"),
     })
     public RestResp<TreeItemVo> modelStat(@Valid @ApiIgnore ModelStatParameter modelStatParameter) {
         ApiReturn<BasicConceptTreeRsp> rspApiReturn = appClient.visualModels(modelStatParameter.getKgName(), modelStatParameter.getConceptId(), modelStatParameter.getIsDisplay());
-        TreeItemVo treeItemVo = BasicConverter.convert(rspApiReturn, ConceptConverter::basicConceptTreeRspToTreeItemVo);
+        TreeItemVo treeItemVo = ConceptConverter.basicConceptTreeRspToTreeItemVoWithRangeOption(rspApiReturn.getData(),modelStatParameter.getIsRangeDisplay());
         return new RestResp<>(treeItemVo);
     }
 
