@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.domain.data.service.DataStoreService;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
@@ -65,6 +66,7 @@ public class DataStoreServiceImpl implements DataStoreService {
 
     @Autowired
     private UserClient userClient;
+
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private static final String DB_NAME = "check_data_db";
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
@@ -144,7 +146,7 @@ public class DataStoreServiceImpl implements DataStoreService {
         MongoCollection<Document> collection = getCollection();
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
-        List<Bson> bsons = new ArrayList<>(2);
+        List<Bson> bsons = new ArrayList<>(3);
         if (StringUtils.hasText(req.getDbName())) {
             bsons.add(Filters.eq("dbName", req.getDbName()));
         }
@@ -175,7 +177,6 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
     private void addDataStoreTitle(List<DataStoreRsp> dataStoreRsps) {
-
         if (dataStoreRsps == null || dataStoreRsps.isEmpty()) {
             return;
         }
@@ -234,26 +235,23 @@ public class DataStoreServiceImpl implements DataStoreService {
         //创建新的集合
         MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + req.getDbName()).getCollection(req.getDbTable());
         //查询旧集合
-        MongoCollection<Document> collectionLog = getCollection();
-
-        FindIterable<Document> documents = collectionLog.find(Filters.eq(MONGO_ID, req.getId()));
-        List<DataErrStore> list = documentConverter.toBeans(documents, DataErrStore.class);
-        if (null == list || list.isEmpty()) {
+        MongoCollection<Document> collectionOld = getCollection();
+        MongoCursor<Document> iterator = collectionOld.find(documentConverter.buildObjectId(req.getId())).iterator();
+        if (!iterator.hasNext()) {
             return;
         }
-        DataErrStore errStore = list.get(0);
-        Document document = documentConverter.toDocument(errStore);
+        Document document = iterator.next();
         document.remove("data");
-        Map<String, Object> data = errStore.getData();
+        Map<String, Object> data = filterData(req.getData());
+        data.put("createdate", DateUtils.formatDatetime());
         document.putAll(data);
-        document.put("createdate", DateUtils.formatDatetime());
         try {
             collection.insertOne(document);
         } catch (Exception e) {
             e.printStackTrace();
             throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
         }
-        collectionLog.deleteOne(Filters.eq("_id", req.getId()));
+        collectionOld.deleteOne(documentConverter.buildObjectId(req.getId()));
     }
 
 
@@ -273,18 +271,15 @@ public class DataStoreServiceImpl implements DataStoreService {
             Map map = JSON.parseObject(document.toJson(), Map.class);
             list.add(map);
         }
-
         return new BasePage<>(count, list);
     }
 
 
-    private Map<String, Object> isDataId(Map<String, Object> data) {
-        if (data.containsKey("_id")) {
-            data.put("err_id", data.get("_id") + "/");
-            data.remove("_id");
+    private Map<String, Object> filterData(Map<String, Object> data) {
+        if (data.containsKey(MONGO_ID)) {
+            data.put("err_id", data.get(MONGO_ID) + "///");
+            data.remove(MONGO_ID);
         }
         return data;
     }
-
-
 }
