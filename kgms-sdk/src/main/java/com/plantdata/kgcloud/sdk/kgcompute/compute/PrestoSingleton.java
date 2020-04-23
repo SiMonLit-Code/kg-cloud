@@ -16,12 +16,12 @@ public class PrestoSingleton {
         try {
             appConfig = ConfigService.getConfig("kgsdk");
             //String presto_conn_info = appConfig.getProperty("presto.server",null);
-            String presto_conn_info = "192.168.4.12:19130";
+            String presto_conn_info = "192.168.4.145:16666";
             String jdbc_url = "jdbc:presto://"+presto_conn_info+"/system/runtime";
             //String userName = appConfig.getProperty("presto.userName",null);
             //String password = appConfig.getProperty("presto.password",null);
-            String userName = "bj73pdk7";
-            String password = "111111";
+            String userName = "root";
+            String password = "";
             Class.forName("com.facebook.presto.jdbc.PrestoDriver");
             connection = DriverManager.getConnection(jdbc_url,userName,password);
         } catch (Exception e) {

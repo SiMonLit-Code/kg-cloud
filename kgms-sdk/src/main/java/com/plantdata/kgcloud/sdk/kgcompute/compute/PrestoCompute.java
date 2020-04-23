@@ -50,7 +50,7 @@ public class PrestoCompute {
         try {
 
             Statement pstmt = conn.createStatement();
-            sql = "select * from dw_db_bj73pdk7_20520.paper1000 limit 10";
+            sql = "select mongo_12.dw_db_bj73pdk7_6ab05.company_info.id,mongo_12.dw_db_bj73pdk7_6ab05.company_info.url, COUNT(mongo_12.dw_db_bj73pdk7_6ab05.company_info.createTime) from mongo_12.dw_db_bj73pdk7_6ab05.company_info GROUP BY id, url limit 10";
             rs = pstmt.executeQuery(sql);
             return wrapResultSet(rs);
 
