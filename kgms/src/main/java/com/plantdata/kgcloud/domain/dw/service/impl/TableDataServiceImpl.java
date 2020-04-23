@@ -7,10 +7,8 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.config.MongoProperties;
-import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.common.util.PatternUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -25,23 +23,30 @@ import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
+
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
+
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.TableDataService;
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
+import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
+import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
+import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
-import jodd.io.ZipUtil;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
@@ -63,7 +68,8 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static com.plantdata.kgcloud.domain.dw.service.impl.PreBuilderServiceImpl.bytesToFile;
 
 /**
  * @program: kg-cloud-kgms
@@ -119,6 +125,7 @@ public class TableDataServiceImpl implements TableDataService {
         }
 
         try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
+
             PageRequest pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
             List<Map<String, Object>> maps = provider.find(baseReq.getOffset(), baseReq.getLimit(), query);
             long count = provider.count(query);
@@ -231,14 +238,15 @@ public class TableDataServiceImpl implements TableDataService {
         fileTable.setDataBaseId(req.getDataBaseId());
 
         // 对压缩包进行解压
+        String zFile = "" + req.getPath().substring(req.getPath().lastIndexOf("/"));
+        bytesToFile(bytes, zFile);
         try {
             if ("rar".equals(fileTable.getType())) {
-                unRar(new File(req.getPath()), req.getPath().substring(0, req.getPath().lastIndexOf("/") + 1));
+                unRar(new File(zFile), req.getPath().substring(0, req.getPath().lastIndexOf("/") + 1));
             } else if ("zip".equals(fileTable.getType())) {
-                unZip(new File(req.getPath()), req.getPath().substring(0, req.getPath().lastIndexOf("/") + 1));
+                unZip(new File(zFile), req.getPath().substring(0, req.getPath().lastIndexOf("/") + 1));
             }
         } catch (Exception e) {
-            throw new BizException(KgmsErrorCodeEnum.UNZIP_ERROR);
         }
 
         return fileTableRepository.save(fileTable);
@@ -366,6 +374,12 @@ public class TableDataServiceImpl implements TableDataService {
                 entityFileRelation.setKeyword(fileTableReq.getKeyword());
                 entityFileRelation.setDescription(fileTableReq.getDescription());
                 entityFileRelationService.updateRelation(entityFileRelation);
+
+                String multiModalId = entityFileRelation.getMultiModalId();
+                MultiModal multiModal = new MultiModal();
+                multiModal.setId(multiModalId);
+                multiModal.setName(fileTableReq.getName());
+                entityService.updateMultiModal(entityFileRelation.getKgName(), multiModal);
             }
         }
 
@@ -404,14 +418,16 @@ public class TableDataServiceImpl implements TableDataService {
             fileTable.setPath(fastdfsTemplate.uploadFile(file).getFullPath());
 
             // 对压缩包进行解压
+            byte[] bytes = fastdfsTemplate.downloadFile(fileTable.getPath());
+            String zFile = "" + fileTable.getPath().substring(fileTable.getPath().lastIndexOf("/"));
+            bytesToFile(bytes, zFile);
             try {
                 if ("rar".equals(fileTable.getType())) {
-                    unRar(new File(fileTable.getPath()), fileTable.getPath().substring(0, fileTable.getPath().lastIndexOf("/") + 1));
+                    unRar(new File(zFile), fileTable.getPath().substring(0, fileTable.getPath().lastIndexOf("/") + 1));
                 } else if ("zip".equals(fileTable.getType())) {
-                    unZip(new File(fileTable.getPath()), fileTable.getPath().substring(0, fileTable.getPath().lastIndexOf("/") + 1));
+                    unZip(new File(zFile), fileTable.getPath().substring(0, fileTable.getPath().lastIndexOf("/") + 1));
                 }
             } catch (Exception e) {
-                throw new BizException(KgmsErrorCodeEnum.UNZIP_ERROR);
             }
 
             fileTableRepository.save(fileTable);

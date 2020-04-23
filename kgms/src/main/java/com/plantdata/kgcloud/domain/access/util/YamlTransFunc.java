@@ -3,69 +3,285 @@ package com.plantdata.kgcloud.domain.access.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.domain.access.rsp.*;
+import com.plantdata.kgcloud.domain.dw.rsp.CustomColumnRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.CustomRelationRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
+import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.yaml.snakeyaml.Yaml;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
 public class YamlTransFunc {
+
+
+    private static List<String> pbList = new ArrayList<>();
+    public static String ENUM_CONCEPT = "$concept";
+    private static Map<String,Integer> attDataTypeMap = new HashMap<>();
+
+    static {
+        pbList.add("name");
+        pbList.add("meaningTag");
+        pbList.add("img");
+        pbList.add("abs");
+        pbList.add("synonyms");
+
+
+        attDataTypeMap.put("int",1);
+        attDataTypeMap.put("float",2);
+        attDataTypeMap.put("double",2);
+        attDataTypeMap.put("datetime",4);
+        attDataTypeMap.put("date",41);
+        attDataTypeMap.put("time",42);
+        attDataTypeMap.put("string",5);
+        attDataTypeMap.put("map",8);
+        attDataTypeMap.put("link",9);
+        attDataTypeMap.put("text",10);
+    }
     private static Yaml yaml = new Yaml();
 
     public static void main(String[] args) {
         String yaml = "\n" +
-                "tables:\n" +
-                " - t_system: 系统\n" +
-                " - t_relation: 关联\n" +
-                " - t_trans_log: 交易记录\n" +
-                "t_system:\n" +
-                " relation:\n" +
-                " columns:\n" +
-                "    - system: { tag:  系统.名称 , type: text , explain: }\n" +
-                "    - MAC: { tag:  系统.MAC地址 , type: text , explain: }\n" +
-                "    - type: { tag: 系统.系统类型  , type: text , explain: }\n" +
-                "    - counter: { tag: 系统.计数  , type: text , explain: }\n" +
-                "    - status: { tag: 系统.状态  , type: text , explain: }\n" +
-                "    - createdate: { tag: 系统.创建时间  , type: date , explain: }\n" +
-                "t_relation:\n" +
-                " relation:\n" +
-                "    - 关联 > 拥有 > 系统\n" +
-                "    - 机房 > 所属数据中心 > 数据中心\n" +
-                "    - 机架 > 所属机房 > 机房\n" +
-                "    - 设备 > 所属机架 > 机架\n" +
-                "    - 系统 > 所属设备 > 设备\n" +
-                "    - 用户 > 使用 > 系统\n" +
-                "    - 用户 > 托管 > 设备\n" +
-                "    - 用户 > 拥有 > 席位\n" +
-                "    - 系统 > 席位 > 席位\n" +
-                " columns:\n" +
-                "    - system: { tag:  系统.名称 , type: text , explain: }\n" +
-                "    - user: { tag: 用户.名称  , type: text , explain: }\n" +
-                "    - dc: { tag:  数据中心.名称 , type: text , explain: }\n" +
-                "    - idc: { tag: 机房.名称  , type: text , explain: }\n" +
-                "    - rack: { tag: 机架.名称  , type: text , explain: }\n" +
-                "    - camera_stand: { tag:  关联.摄像头 , type: text , explain: }\n" +
-                "    - equipment: { tag:  设备.名称 , type: text , explain: }\n" +
-                "    - IP: { tag:  关联.名称    , type: text , explain: }\n" +
-                "    - seat: { tag:  席位.名称 , type: text , explain: }\n" +
-                "t_trans_log:\n" +
-                " relation:\n" +
-                " columns:\n" +
-                "    - id: { tag: 交易记录.id , type: int , explain: }\n" +
-                "    - seat: { tag: 席位.名称  , type: text , explain: 席位}\n" +
-                "    - buy_num: { tag: 交易记录.买入  , type: int , explain: }\n" +
-                "    - sale_num: { tag: 交易记录.卖出  , type: int , explain: }\n" +
-                "    - trust_buy_num: { tag:  交易记录.委托买入 , type: int , explain: }\n" +
-                "    - trust_sale_num: { tag: 交易记录.委托卖出  , type: int , explain: }\n" +
-                "    - deal_time: { tag: 交易记录.交易时间  , type: text , explain: }\n" +
-                "    - deal_price: { tag:  交易记录.交易价格 , type: string , explain: }\n" +
-                "    - create_time: { tag:  交易记录.创建时间 , type: text , explain: }\n" +
-                "    - name: { tag: 交易记录.名称  , type: text , explain: }\n";
+                "    {\n" +
+                "        \"tableName\":\"\",\n" +
+                "        \"columns\":[\n" +
+                "            {\n" +
+                "                \"name\":\"id1\",\n" +
+                "                \"tag\":\"数仓.id\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id2\",\n" +
+                "                \"tag\":\"数仓.name\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id3\",\n" +
+                "                \"tag\":\"数仓.字段\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id4\",\n" +
+                "                \"tag\":\"数表.name\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id5\",\n" +
+                "                \"tag\":\"数表.信息\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },            {\n" +
+                "                \"name\":\"id6\",\n" +
+                "                \"tag\":\"数表.$concept\",\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"relationRsps\":[\n" +
+                "            {\n" +
+                "                \"name\":\"关联\",\n" +
+                "                \"domain\":\"数仓\",\n" +
+                "                \"range\":[\n" +
+                "\"数表\"\n" +
+                "                ],\n" +
+                "                \"startTime\":\"field\",\n" +
+                "                \"endTime\":\"fff\",\n" +
+                "                \"relationAttrs\":[\n" +
+                "                    {\n" +
+                "                        \"name\":\"kk\",\n" +
+                "                        \"tag\":\"边\",\n" +
+                "                        \"type\":\"string\",\n" +
+                "                        \"comment\":\"\"\n" +
+                "                    }\n" +
+                "                ]\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n";
 
-        System.out.println(JSON.toJSONString(tranTagConfig(yaml)));
+
+
+        System.out.println(JSON.toJSONString(tranConfig(JacksonUtils.readValue(yaml,CustomTableRsp.class))));
+    }
+
+    public static List tranConfig(CustomTableRsp label){
+        List rs = new ArrayList<>();
+
+        if(label == null || label.getColumns()== null || label.getColumns().isEmpty()){
+            return rs;
+        }
+
+
+        Map<String,Map<String,TransPropertyRsp>> entityPropertyMap = new HashMap<>();
+        Map<String, TransInsConfigRsp> entityTypeMap = new HashMap<>();
+        Map<String,Map<String,TransAttrRsp>> attrMap = new HashMap<>();
+        for(CustomColumnRsp column : label.getColumns()){
+            if(column.getTag() == null){
+                continue;
+            }
+
+            String[] tags = column.getTag().split("\\.");
+
+            if(pbList.contains(tags[1])){
+                Map<String,TransPropertyRsp> propertyRsps = entityPropertyMap.get(tags[0]);
+
+                if(propertyRsps == null){
+                    propertyRsps = new HashMap<>();
+                }
+
+                if(propertyRsps.containsKey(tags[1])){
+                    TransPropertyRsp props = propertyRsps.get(tags[1]);
+                    props.getMapField().add(column.getName());
+                }else{
+                    TransPropertyRsp props = new TransPropertyRsp();
+                    props.setProperty(tags[1]);
+                    props.setMapField(Lists.newArrayList(column.getName()));
+                    propertyRsps.put(tags[1],props);
+                }
+
+                entityPropertyMap.put(tags[0],propertyRsps);
+            }else if(ENUM_CONCEPT.equals(tags[1])){
+                TransInsConfigRsp entityType = new TransInsConfigRsp();
+                entityType.setName(Lists.newArrayList(column.getName()));
+                entityType.setMeaningTag(Lists.newArrayList());
+                entityType.setNameIsEnum(true);
+
+                entityTypeMap.put(tags[0],entityType);
+            }else{
+                Map<String,TransAttrRsp> propertyRsps = attrMap.get(tags[0]);
+
+                if(propertyRsps == null){
+                    propertyRsps = new HashMap<>();
+                    attrMap.put(tags[0],propertyRsps);
+                }
+
+                if(propertyRsps.containsKey(tags[1])){
+                    TransAttrRsp props = propertyRsps.get(tags[1]);
+                    props.getMapField().add(column.getName());
+                }else{
+                    TransAttrRsp props = new TransAttrRsp();
+                    props.setProperty(tags[1]);
+                    props.setDataType(attDataTypeMap.get(column.getType()));
+                    props.setMapField(Lists.newArrayList(column.getName()));
+                    propertyRsps.put(tags[1],props);
+                }
+            }
+
+        }
+
+        Collection<Map<String,TransPropertyRsp>> ents = entityPropertyMap.values();
+        if(ents == null ||ents.isEmpty()){
+            return rs;
+        }
+
+        for(Map.Entry<String,Map<String,TransPropertyRsp>> entry : entityPropertyMap.entrySet()){
+
+            TransEntityConfigRsp entity = new TransEntityConfigRsp();
+            List<TransPropertyRsp> entTypes = Lists.newArrayList(entry.getValue().values());
+            entity.setEntity(entTypes);
+            entity.setDataType("entity");
+            if(attrMap.get(entry.getKey()) != null && attrMap.get(entry.getKey()).values() != null){
+                Collection c = attrMap.get(entry.getKey()).values();
+                entity.setAttrs(new ArrayList<>(c));
+            }else{
+                entity.setAttrs(Lists.newArrayList());
+            }
+
+            if(entityTypeMap.containsKey(entry.getKey())){
+
+                entity.setEntityType(entityTypeMap.get(entry.getKey()));
+            }else{
+
+                TransInsConfigRsp type = new TransInsConfigRsp();
+                type.setName(Lists.newArrayList(entry.getKey()));
+                type.setMeaningTag(Lists.newArrayList());
+                type.setNameIsEnum(false);
+                entity.setEntityType(type);
+            }
+
+            rs.add(entity);
+        }
+
+
+        if(label.getRelationRsps() != null && !label.getRelationRsps().isEmpty()){
+
+            for(CustomRelationRsp relationRsp : label.getRelationRsps()){
+
+                String domain = relationRsp.getDomain();
+
+                TransInsConfigRsp domainType = entityTypeMap.get(domain);
+                if(domainType == null){
+                    TransInsConfigRsp type = new TransInsConfigRsp();
+                    type.setName(Lists.newArrayList(domain));
+                    type.setMeaningTag(Lists.newArrayList());
+                    type.setNameIsEnum(false);
+                    domainType = type;
+                }
+
+
+                List<String> ranges = relationRsp.getRange();
+                if(ranges == null || ranges.isEmpty()){
+                    continue;
+                }
+
+                for(String range : ranges){
+
+                    TransInsConfigRsp rangeType = entityTypeMap.get(range);
+                    if(rangeType == null){
+                        TransInsConfigRsp type = new TransInsConfigRsp();
+                        type.setName(Lists.newArrayList(domain));
+                        type.setMeaningTag(Lists.newArrayList());
+                        type.setNameIsEnum(false);
+                        rangeType = type;
+                    }
+
+
+                    TransRelationConfigRsp relationConfigRsp = new TransRelationConfigRsp();
+                    relationConfigRsp.setTimeFrom(relationRsp.getStartTime());
+                    relationConfigRsp.setTimeTo(relationRsp.getEndTime());
+                    relationConfigRsp.setDataType("relation");
+                    relationConfigRsp.setEntityType(domainType);
+
+
+                    relationConfigRsp.setEntity(entityPropertyMap.get(domain).values().stream().map( s -> ConvertUtils.convert(TransPropertyRsp.class).apply(s)).collect(Collectors.toList()));
+                    relationConfigRsp.setValue(entityPropertyMap.get(range).values().stream().map( s -> ConvertUtils.convert(TransPropertyRsp.class).apply(s)).collect(Collectors.toList()));
+                    relationConfigRsp.setValueType(rangeType);
+
+                    List<CustomColumnRsp> relaAttrs = relationRsp.getRelationAttrs();
+                    List<TransAttrRsp> relas = new ArrayList<>();
+                    if(relaAttrs != null && !relaAttrs.isEmpty()){
+
+                        for(CustomColumnRsp relaAttr : relaAttrs){
+
+                            TransAttrRsp a = new TransAttrRsp();
+                            a.setProperty(relaAttr.getTag());
+                            a.setMapField(Lists.newArrayList(relaAttr.getName()));
+                            a.setDataType(attDataTypeMap.get(relaAttr.getType()));
+
+                            relas.add(a);
+                        }
+                    }
+
+
+                    TransInsConfigRsp rela = new TransInsConfigRsp();
+                    rela.setName(Lists.newArrayList(relationRsp.getName()));
+                    rela.setNameIsEnum(false);
+                    relationConfigRsp.setRela(rela);
+                    relationConfigRsp.setRelaAttrs(relas);
+
+                    rs.add(relationConfigRsp);
+                }
+
+            }
+
+        }
+
+        return rs;
     }
 
     public static Map<String, JSONArray> tranTagConfig(String yamlStr) {
@@ -310,6 +526,7 @@ public class YamlTransFunc {
         pbSet.put("同义词", "synonyms");
 
     }
+
 
 }
 

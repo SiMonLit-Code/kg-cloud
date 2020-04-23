@@ -23,10 +23,7 @@ import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
-import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
@@ -286,6 +283,10 @@ public class ImportServiceImpl implements ImportService {
         if (schemaRsp == null || schemaRsp.getTypes() == null || schemaRsp.getTypes().isEmpty()) {
             throw BizException.of(KgmsErrorCodeEnum.SCHEMA_CONCEPT_NOT_EXIST_ERROR);
         }
+        // 剔除不要的属性
+        List<AttributeDefinitionGroupRsp> attrGroups = schemaRsp.getAttrGroups();
+        attrGroups.clear();
+        attrGroups = null;
 
         String title = schemaRsp.getKgTitle() + "图谱实体概念模型";
         List<BaseConceptRsp> conceptList = schemaRsp.getTypes();
@@ -295,13 +296,13 @@ public class ImportServiceImpl implements ImportService {
             conceptMap.put(baseConceptRsp.getId(), baseConceptRsp.getName());
         }
 
-        Map<String, List<Map<String, String>>> dataMap = Maps.newHashMap();
+        Map<String, List<List<String>>> dataMap = Maps.newHashMap();
         for (BaseConceptRsp baseConceptRsp : conceptList) {
             Long conceptId = baseConceptRsp.getId();
             List<AttributeDefinitionRsp> collect = attrList == null ? new ArrayList<>() : attrList.stream()
                     .filter(attr -> conceptId.equals(attr.getDomainValue())).collect(Collectors.toList());
 
-            List<Map<String, String>> dataList = Lists.newArrayList();
+            List<List<String>> dataList = Lists.newArrayList();
 
             for (AttributeDefinitionRsp attr : collect) {
                 String rangeValue = attr.getRangeValue() == null ? "-" : attr.getRangeValue().stream()
@@ -316,23 +317,32 @@ public class ImportServiceImpl implements ImportService {
                     extraInfo = "-";
                 }
 
-                Map<String, String> map = Maps.newHashMap();
-                map.put("属性名", attr.getName());
-                map.put("属性类型", com.alibaba.excel.util.CollectionUtils.isEmpty(attr.getRangeValue()) ? "数值" : "对象");
-                map.put("值域", rangeValue);
-                map.put("边属性", extraInfo);
-                dataList.add(map);
+                List<String> list = Lists.newArrayList();
+                list.add(attr.getName());
+                list.add(CollectionUtils.isEmpty(attr.getRangeValue()) ? "数值" : "对象");
+                list.add(rangeValue);
+                list.add(extraInfo);
+                dataList.add(list);
             }
             if (collect.size() == 0) {
-                Map<String, String> map = Maps.newHashMap();
-                map.put("属性名", "-");
-                map.put("属性类型", "-");
-                map.put("值域", "-");
-                map.put("边属性", "-");
-                dataList.add(map);
+                List<String> list = Lists.newArrayList();
+                list.add("-");
+                list.add("-");
+                list.add("-");
+                list.add("-");
+                dataList.add(list);
             }
             dataMap.put(conceptMap.get(conceptId), dataList);
+            collect.clear();
+            collect = null;
         }
+        if (attrList != null) {
+            attrList.clear();
+        }
+        attrList = null;
+        conceptList.clear();
+        conceptList = null;
+        System.gc();
         try {
             XWPFDocument document = createWord(title, dataMap);
 
@@ -347,7 +357,7 @@ public class ImportServiceImpl implements ImportService {
         }
     }
 
-    private XWPFDocument createWord(String title, Map<String, List<Map<String, String>>> dataMap) throws IOException {
+    private XWPFDocument createWord(String title, Map<String, List<List<String>>> dataMap) throws IOException {
         XWPFDocument doc = new XWPFDocument();
         // 创建标题
         XWPFParagraph titleParagraph = doc.createParagraph();
@@ -360,7 +370,6 @@ public class ImportServiceImpl implements ImportService {
 
         Set<String> set = dataMap.keySet();
         for (String concept : set) {
-            List<Map<String, String>> list = dataMap.get(concept);
             // 创建表格
             XWPFTable table = doc.createTable(dataMap.get(concept).size() + 2, 4);
             // 设置列宽
@@ -404,11 +413,13 @@ public class ImportServiceImpl implements ImportService {
                     XWPFParagraph paragraph = table.getRow(currectRow).getCell(j).getParagraphArray(0);
                     paragraph.setAlignment(ParagraphAlignment.CENTER);
                     XWPFRun content = paragraph.createRun();
-                    content.setText(dataMap.get(concept).get(i).get(parameters.get(j)));
+                    content.setText(dataMap.get(concept).get(i).get(j));
                 }
             }
             // 换行
             doc.createParagraph();
+            dataMap.get(concept).clear();
+            System.gc();
         }
         return doc;
     }
