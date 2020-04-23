@@ -23,6 +23,14 @@ import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
+
+import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
+import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
+import com.plantdata.kgcloud.domain.edit.service.EntityService;
+import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
+import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
+
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
@@ -42,6 +50,7 @@ import com.plantdata.kgcloud.util.ConvertUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -54,6 +63,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.NotBlank;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -97,6 +107,9 @@ public class TableDataServiceImpl implements TableDataService {
     @Autowired
     private MongoClient mongoClient;
 
+
+    @Autowired
+    private DocumentConverter documentConverter;
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private static final int CREATE_WAY = 2;
     private static final int IS_WRITE_DW = 1;
@@ -104,7 +117,6 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq) {
-
         Map<String, Object> query = new HashMap<>();
         if (StringUtils.hasText(baseReq.getField()) && StringUtils.hasText(baseReq.getKw())) {
             Map<String, String> value = new HashMap<>();
@@ -427,8 +439,8 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public void dataUpdate(DWDatabaseUpdateReq baseReq) {
         String userId = SessionHolder.getUserId();
-        Optional<DWTable> optional = dwTableRepository.findOne(Example.of(DWTable.builder().id(baseReq.getTableId()).dwDataBaseId(baseReq.getDataBaseId()).build()));
-        DWTable table = optional.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST));
+        DWTable table = dwTableRepository.findOne(Example.of(DWTable.builder().id(baseReq.getTableId()).dwDataBaseId(baseReq.getDataBaseId()).build()))
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST));
         if (null == table.getCreateWay() || null == table.getIsWriteDW()) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
@@ -436,22 +448,23 @@ public class TableDataServiceImpl implements TableDataService {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
         DataOptProvider provider = getProvider(userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties);
-        Optional<DWDatabase> id = dwDatabaseRepository.findById(baseReq.getDataBaseId());
-        DWDatabase database = id.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
+        DWDatabase database = dwDatabaseRepository.findById(baseReq.getDataBaseId())
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
         MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
-        String objectId = baseReq.getId();
-        long count = collection.countDocuments(Filters.eq(MONGO_ID, objectId));
+        long count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
         Map<String, Object> data = baseReq.getData();
+        String mongoId = baseReq.getId();
         if (count == 0) {
-            data.put(MONGO_ID, objectId);
+            data.put(MONGO_ID, new ObjectId(mongoId));
             collection.insertOne(new Document(data));
             data.remove(MONGO_ID);
-            Document map = new Document(data);
-            provider.update(objectId, map);
+            Document document = new Document(data);
+            provider.update(mongoId, document);
         } else {
-            Document map = new Document(data);
-            collection.updateOne(Filters.eq(MONGO_ID, objectId), new Document("$set", map));
-            provider.update(objectId, map);
+            data.remove(MONGO_ID);
+            Document document = new Document(data);
+            collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", document));
+            provider.update(mongoId, document);
         }
     }
 }
