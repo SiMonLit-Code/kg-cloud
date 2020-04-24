@@ -250,6 +250,7 @@ public class DataStoreServiceImpl implements DataStoreService {
 
         Map<String, Object> data = filterDataId(req.getData());
         data.put("createdate", DateUtils.formatDatetime());
+        data.put("status", "Edit");
         document.putAll(data);
         try {
             collection.insertOne(document);
@@ -272,7 +273,6 @@ public class DataStoreServiceImpl implements DataStoreService {
         FindIterable<Document> findIterable;
         long count = collection.countDocuments();
         findIterable = collection.find().sort(Sorts.descending("createdate")).skip(page).limit(size);
-        List<Map<String, Object>> list = new ArrayList();
         List<DataStoreRsp> rspList = filterData(findIterable);
         return new BasePage(count, rspList);
     }
@@ -315,7 +315,7 @@ public class DataStoreServiceImpl implements DataStoreService {
             dataStoreRsp.setErrorReason((String) jsonObject.get("errorReason"));
             dataStoreRsp.setFields((String) jsonObject.get("fields"));
             dataStoreRsp.setTitle((String) jsonObject.get("title"));
-            dataStoreRsp.setId((String) jsonObject.get("dataId"));
+            dataStoreRsp.setId(jsonObject.get("_id").toString());
             HashMap<String, Object> map = new HashMap<>();
             map.put("data", getDataNode(document));
             dataStoreRsp.setData(map);
@@ -326,7 +326,6 @@ public class DataStoreServiceImpl implements DataStoreService {
 
     private JSONObject getDataNode(Document document) {
         JSONObject jsonObject = JSON.parseObject(document.toJson());
-        jsonObject.remove("_id");
         jsonObject.remove("id");
         jsonObject.remove("dbName");
         jsonObject.remove("title");
