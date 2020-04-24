@@ -495,7 +495,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         for(ModelRangeRsp r : modelRanges){
                             modelRangeIds.add(modelKgConceptIdMap.get(r.getRange().intValue()));
                         }
-                        if (ranges.containsAll(modelRanges)) {
+                        if (ranges.containsAll(modelRangeIds)) {
                             status = "完全匹配，可引入";
                             matchAttrRsp.setAttrId(attrDefinitionRsp.getId());
                             matchStatus = 3;
@@ -565,7 +565,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         }
 
 
-                        if (!matchModelRanges.isEmpty() && !quoteModelRanges.isEmpty() && quoteModelRanges.containsAll(matchRanges)) {
+                        if (!matchModelRanges.isEmpty() && !quoteModelRanges.isEmpty() && quoteModelRanges.containsAll(matchModelRanges)) {
                             status = "新增，可引入";
                             matchStatus = 3;
                         }else if(matchModelRanges.isEmpty() || quoteModelRanges.isEmpty()){
@@ -616,13 +616,18 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     } else {
 
                         //对象属性,值域已引入
-                        if (req.getConceptIds().containsAll(matchAttrRsp.getRange())) {
+                        List<ModelRangeRsp> matchRanges = matchAttrRsp.getRange();
+
+                        List<Integer> rangeIds = new ArrayList<>();
+                        for(ModelRangeRsp r : matchRanges){
+                            rangeIds.add(r.getRange().intValue());
+                        }
+                        if (req.getConceptIds().containsAll(rangeIds)) {
                             status = "新增，可引入";
                             matchStatus = 3;
                         } else {
 
                             String name = "";
-                            List<ModelRangeRsp> matchRanges = matchAttrRsp.getRange();
                             for(ModelRangeRsp r : matchRanges){
                                 if(!req.getConceptIds().contains(r.getRange().intValue())){
                                     name += r.getRangeName()+",";
@@ -690,7 +695,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 } else {
 
                     //对象属性,值域已引入
-                    if (req.getConceptIds().containsAll(matchAttrRsp.getRange())) {
+                    List<Integer> rangeIds = new ArrayList<>();
+                    for(ModelRangeRsp r : matchAttrRsp.getRange()){
+                        rangeIds.add(r.getRange().intValue());
+                    }
+
+                    if (req.getConceptIds().containsAll(rangeIds)) {
                         status = "新增，可引入";
                         matchStatus = 3;
                     } else {
