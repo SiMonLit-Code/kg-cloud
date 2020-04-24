@@ -250,7 +250,7 @@ public class DataStoreServiceImpl implements DataStoreService {
 
         Map<String, Object> data = filterDataId(req.getData());
         data.put("createdate", DateUtils.formatDatetime());
-        data.put("errorReason", "Edit");
+        data.put("status", "Edit");
         document.putAll(data);
         try {
             collection.insertOne(document);
@@ -315,10 +315,9 @@ public class DataStoreServiceImpl implements DataStoreService {
             dataStoreRsp.setErrorReason((String) jsonObject.get("errorReason"));
             dataStoreRsp.setFields((String) jsonObject.get("fields"));
             dataStoreRsp.setTitle((String) jsonObject.get("title"));
-            //dataStoreRsp.setId((String) jsonObject.get("_id"));
+            dataStoreRsp.setId(jsonObject.get("_id").toString());
             HashMap<String, Object> map = new HashMap<>();
             map.put("data", getDataNode(document));
-
             dataStoreRsp.setData(map);
             rspList.add(dataStoreRsp);
         }
