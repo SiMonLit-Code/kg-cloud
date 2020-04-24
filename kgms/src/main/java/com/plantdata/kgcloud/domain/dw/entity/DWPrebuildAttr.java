@@ -1,8 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.entity;
 
+import com.plantdata.kgcloud.domain.common.converter.IntegerListConverter;
 import com.plantdata.kgcloud.domain.common.converter.StringListConverter;
-import com.plantdata.kgcloud.domain.dataset.converter.DataTypeConverter;
-import com.plantdata.kgcloud.sdk.constant.DataType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -59,11 +58,8 @@ public class DWPrebuildAttr {
 
     @Basic
     @Column(name = "range_id")
-    private Integer range;
-
-    @Basic
-    @Column(name = "range_name")
-    private String rangeName;
+    @Convert(converter = IntegerListConverter.class)
+    private List<Integer> range;
 
     @Basic
     @Column(name = "alias")

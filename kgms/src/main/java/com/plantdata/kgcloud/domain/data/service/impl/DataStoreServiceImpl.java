@@ -12,9 +12,13 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.plantdata.kgcloud.bean.BasePage;
+import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MongoOperation;
+import com.plantdata.kgcloud.domain.access.entity.DWTask;
+import com.plantdata.kgcloud.domain.access.repository.DWTaskRepository;
+import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.data.bo.DataStoreBO;
 import com.plantdata.kgcloud.domain.data.entity.DataErrStore;
 import com.plantdata.kgcloud.domain.data.entity.DataStore;
@@ -38,9 +42,14 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,6 +72,9 @@ public class DataStoreServiceImpl implements DataStoreService {
 
     @Autowired
     private DWService dwService;
+
+    @Autowired
+    private AccessTaskService accessTaskService;
 
     @Autowired
     private UserClient userClient;
@@ -277,6 +289,7 @@ public class DataStoreServiceImpl implements DataStoreService {
         return new BasePage<>(count, list);
     }
 
+<<<<<<< HEAD
     /**
      * 设计表结构
      * <p>
@@ -288,6 +301,24 @@ public class DataStoreServiceImpl implements DataStoreService {
      * @param data
      * @return
      */
+=======
+    @Override
+    public void rerun(DtReq req) {
+
+        DWDatabaseRsp databaseRsp = dwService.findDatabaseByDataName(req.getDbName());
+
+        List<DWTask> all = accessTaskService.getTableTask(databaseRsp.getId(),req.getDbTable());
+
+        if(all == null || all.isEmpty()){
+            return;
+        }
+
+        List<String> resourceNames = all.stream().map(DWTask::getName).collect(Collectors.toList());
+
+        accessTaskService.addRerunTask(databaseRsp.getId(),req.getDbTable(),resourceNames);
+    }
+
+>>>>>>> 14d4f1887f154646a28099aae433689ecf057c51
 
     private Map<String, Object> filterData(Map<String, Object> data) {
         if (data.containsKey(MONGO_ID)) {

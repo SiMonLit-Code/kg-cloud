@@ -54,4 +54,6 @@ public interface DataStoreService {
     void updateErrData(DataStoreReq id);
 
     BasePage<Map<String, Object>> listErrDataStore(DataStoreScreenReq req);
+
+    void rerun(DtReq req);
 }

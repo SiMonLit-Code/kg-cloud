@@ -15,5 +15,4 @@ import java.util.List;
 public class TreeItemVo extends TreeItem {
 
     private List<Object> children = new ArrayList<>();
-    private List<Object> numAtts = new ArrayList<>();
 }

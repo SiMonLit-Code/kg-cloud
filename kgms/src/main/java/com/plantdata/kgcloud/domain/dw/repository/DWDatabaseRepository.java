@@ -23,4 +23,6 @@ public interface DWDatabaseRepository extends JpaRepository<DWDatabase, Long> {
     * @Date: 2020/3/13
     */
     Page<DWDatabase> findAll(Specification<DWDatabase> spec, Pageable pageable);
+
+    DWDatabase findByDataName(String dbName);
 }

@@ -57,6 +57,7 @@ import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -843,6 +844,14 @@ public class DWServiceImpl implements DWService {
 
         database.setTableLabels(tableLabels);
         dwRepository.save(database);
+    }
+
+    @Override
+    public DWDatabaseRsp findDatabaseByDataName(String dataName) {
+
+        Optional<DWDatabase> databaseOpt = dwRepository.findOne(Example.of(DWDatabase.builder().dataName(dataName).build()));
+
+        return ConvertUtils.convert(DWDatabaseRsp.class).apply(databaseOpt.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST)));
     }
 
     @Override
@@ -1818,7 +1827,7 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public void push(String userId, ModelPushReq req) {
+    public Integer push(String userId, ModelPushReq req) {
 
         DWDatabaseRsp database = getDetail(req.getId());
         if (!database.getUserId().equals(userId)) {
@@ -1837,9 +1846,12 @@ public class DWServiceImpl implements DWService {
             }
 
 
-            preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), null);
+            return preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), database.getTableLabels());
 
         }
+
+        return null;
+
         /*else if (DWDataFormat.isCustom(database.getDataFormat())) {
             //自定义
             String yamlContent = database.getYamlContent();
@@ -1993,9 +2005,7 @@ public class DWServiceImpl implements DWService {
 
     private void updateSchedulingConfig(DWDatabaseRsp database, DWTableRsp tableRsp, Long dwDataBaseId, String tableName, String cron, Integer isAll, String field) {
 
-        String ktrTaskName = AccessTaskType.KTR.getDisplayName() + "_" + dwDataBaseId + "_" + tableName + "_";
-
-        accessTaskService.updateTableSchedulingConfig(database, tableRsp, ktrTaskName, cron, isAll, field);
+        accessTaskService.updateTableSchedulingConfig(database, tableRsp, cron, isAll, field);
     }
 
     @Override
@@ -2308,7 +2318,14 @@ public class DWServiceImpl implements DWService {
                     PreBuilderAttrRsp attrRsp = new PreBuilderAttrRsp();
                     attrRsp.setAttrType(1);
                     attrRsp.setName(relationBean.getName());
-                    attrRsp.setRangeName(relationBean.getRange().iterator().next());
+
+                    List<ModelRangeRsp> rangeRsps = new ArrayList<>();
+                    if(relationBean.getRange() != null && !relationBean.getRange().isEmpty()){
+                        for(String r : relationBean.getRange()){
+                            rangeRsps.add(ModelRangeRsp.builder().rangeName(r).build());
+                        }
+                        attrRsp.setRange(rangeRsps);
+                    }
                     attrRsp.setTables(Lists.newArrayList(schema.getTableName()));
 
                     if (relationBean.getAttrs() != null && !relationBean.getAttrs().isEmpty()) {
