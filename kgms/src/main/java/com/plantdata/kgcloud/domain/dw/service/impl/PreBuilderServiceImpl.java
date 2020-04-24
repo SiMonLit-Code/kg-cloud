@@ -1470,7 +1470,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             }
 
             AttrDefinitionSearchReq attrDefinitionSearchReq = new AttrDefinitionSearchReq();
-            attrDefinitionSearchReq.setConceptId(conceptNameIdMap.get(schemaQuoteReq.getConceptName()));
+            attrDefinitionSearchReq.setConceptId(conceptNameIdMap.get(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag()));
             List<AttrDefinitionRsp> attrDefinitionRspList = attributeService.getAttrDefinitionByConceptId(kgName,attrDefinitionSearchReq);
             Map<String, AttrDefinitionRsp> attrMap = new HashMap<>();
             if (attrDefinitionRspList != null && !attrDefinitionRspList.isEmpty()) {
