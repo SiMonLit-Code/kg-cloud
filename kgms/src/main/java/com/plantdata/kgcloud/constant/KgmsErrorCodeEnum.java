@@ -161,7 +161,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     SCHEMA_PASER_CONCEPT_EXIST_ERROR(120723, "模式解析存在同名概念"),
 
-    TABLE_SCHEMA_MISMATCHING_STIPULATE(120724, "该表结构不符合要求"),
+    TABLE_SCHEMA_MISMATCHING_STIPULATE(120724, "结构不符合行业标准模板要求"),
 
     TABLE_NOT_EXIST_IN_DATABASE(120725, "打标文件中存在未添加表"),
 
