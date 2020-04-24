@@ -1440,6 +1440,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     }
                     ConceptAddReq conceptAddReq = new ConceptAddReq();
                     conceptAddReq.setName(schemaQuoteReq.getConceptName());
+                    conceptAddReq.setMeaningTag(schemaQuoteReq.getConceptMeaningTag());
                     conceptAddReq.setParentId(schemaQuoteReq.getPConceptId());
 
                     Long conceptId = graphEditService.createConcept(kgName, conceptAddReq);
@@ -1616,6 +1617,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             if (conceptNameIdMap.containsKey(concept.getPConceptName()+concept.getPConceptMeaningTag())) {
                 ConceptAddReq conceptAddReq = new ConceptAddReq();
                 conceptAddReq.setName(concept.getConceptName());
+                conceptAddReq.setMeaningTag(concept.getConceptMeaningTag());
                 conceptAddReq.setParentId(conceptNameIdMap.get(concept.getPConceptName()+concept.getPConceptMeaningTag()));
 
                 Long conceptId = graphEditService.createConcept(kgName, conceptAddReq);
