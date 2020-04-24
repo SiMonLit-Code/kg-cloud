@@ -345,7 +345,7 @@ public class CreateKtrFile {
 
             if(table.getIsAll() != null && !table.getIsAll().equals(1)){
 
-                sql.append(" WHERE true=${key} and ")
+                sql.append(" WHERE 'true'='${key}' and ")
                         .append(table.getQueryField())
                         .append(" &gt;= ")
                         .append("'${StartTime}'")
@@ -355,7 +355,7 @@ public class CreateKtrFile {
                         .append("'${EndTime}'");
 
             }else{
-                sql.append(" WHERE true=${key} ");
+                sql.append(" WHERE 'true'='${key}' ");
             }
 
             return sql.toString();
