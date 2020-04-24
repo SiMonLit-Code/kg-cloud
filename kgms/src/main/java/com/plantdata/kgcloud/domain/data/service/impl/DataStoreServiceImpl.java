@@ -81,7 +81,7 @@ public class DataStoreServiceImpl implements DataStoreService {
 
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private static final String DB_NAME = "check_data_db";
-    private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
+    private static final String DB_FIX_NAME_PREFIX = "dw_return_";
 
     private MongoCollection<Document> getCollection() {
         return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
@@ -253,6 +253,9 @@ public class DataStoreServiceImpl implements DataStoreService {
             return;
         }
         Document document = iterator.next();
+        if (Objects.equals(req.getData(), document.get("data"))) {
+            throw BizException.of(KgmsErrorCodeEnum.NO_DATA_CHANGE);
+        }
         document.remove("data");
         Map<String, Object> data = filterData(req.getData());
         data.put("createdate", DateUtils.formatDatetime());
@@ -285,6 +288,7 @@ public class DataStoreServiceImpl implements DataStoreService {
         }
         return new BasePage<>(count, list);
     }
+
 
     @Override
     public void rerun(DtReq req) {
