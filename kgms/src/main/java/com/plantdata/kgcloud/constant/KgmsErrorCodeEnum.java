@@ -23,7 +23,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DATASET_KEY_EXISTS(120106, "唯一标识已存在"),
     DATASET_EXPORT_FAIL(120107, "数据集导出失败"),
     DATASET_IMPORT_FAIL(120108, "数据集导入失败"),
-    DATASET_FIELD_ERROR(120109, "数据字段类型校验错误"),
+
     QUERYSETTING_NOT_EXISTS(120110, "规则配置不存在"),
 
     KTR_SAVE_FAIL(120113, "kettle文件生成失败"),
@@ -209,6 +209,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     NOT_SELECT_MAP_TABLE(120747,"未选择映射表"),
     MODEL_FILE_TITLE_ERROR(120748,"模式文件表头错误，请根据模板上传"),
+    NO_DATA_CHANGE(120749,"数据没有改动"),
             ;
     private final int errorCode;
 
