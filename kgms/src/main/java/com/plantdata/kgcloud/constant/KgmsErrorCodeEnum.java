@@ -209,6 +209,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     NOT_SELECT_MAP_TABLE(120747,"未选择映射表"),
     MODEL_FILE_TITLE_ERROR(120748,"模式文件表头错误，请根据模板上传"),
+    NO_DATA_CHANGE(120749,"数据没有改动"),
             ;
     private final int errorCode;
 

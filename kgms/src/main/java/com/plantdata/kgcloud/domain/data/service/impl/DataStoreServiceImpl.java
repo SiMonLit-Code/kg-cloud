@@ -254,7 +254,7 @@ public class DataStoreServiceImpl implements DataStoreService {
         }
         Document document = iterator.next();
         if (Objects.equals(req.getData(), document.get("data"))) {
-            throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
+            throw BizException.of(KgmsErrorCodeEnum.NO_DATA_CHANGE);
         }
         document.remove("data");
         Map<String, Object> data = filterData(req.getData());
