@@ -13,5 +13,5 @@ import java.util.List;
 public class DW3dTableRsp {
     private List<String> xAxis;
     private List<String> yAxis;
-    private List<List<Object>> series;
+    private List<DWStatisticTableSeries> series;
 }

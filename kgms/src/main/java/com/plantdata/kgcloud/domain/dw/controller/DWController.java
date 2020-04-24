@@ -258,6 +258,8 @@ public class DWController {
     @ApiOperation("统计数据二维/按表统计")
     @PostMapping("statistic/by2dTable")
     public ApiReturn<DW2dTableRsp> statistic2dByTable(@Valid @RequestBody SqlQueryReq req) {
+        String userId = SessionHolder.getUserId();
+        req.setDbName(dwServince.findById(userId,req.getDbId()).getDataName());
         return ApiReturn.success(dwServince.statisticBy2DTable(req));
     }
 
