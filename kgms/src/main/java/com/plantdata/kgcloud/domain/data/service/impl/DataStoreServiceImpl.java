@@ -12,15 +12,12 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.plantdata.kgcloud.bean.BasePage;
-import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MongoOperation;
 import com.plantdata.kgcloud.domain.access.entity.DWTask;
-import com.plantdata.kgcloud.domain.access.repository.DWTaskRepository;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.data.bo.DataStoreBO;
-import com.plantdata.kgcloud.domain.data.entity.DataErrStore;
 import com.plantdata.kgcloud.domain.data.entity.DataStore;
 import com.plantdata.kgcloud.domain.data.req.*;
 import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
@@ -30,26 +27,19 @@ import com.plantdata.kgcloud.domain.data.service.DataStoreService;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
-import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,7 +71,7 @@ public class DataStoreServiceImpl implements DataStoreService {
 
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private static final String DB_NAME = "check_data_db";
-    private static final String DB_FIX_NAME_PREFIX = "dw_return_";
+    private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
 
     private MongoCollection<Document> getCollection() {
         return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
@@ -257,7 +247,8 @@ public class DataStoreServiceImpl implements DataStoreService {
             throw BizException.of(KgmsErrorCodeEnum.NO_DATA_CHANGE);
         }
         document.remove("data");
-        Map<String, Object> data = filterData(req.getData());
+
+        Map<String, Object> data = filterDataId(req.getData());
         data.put("createdate", DateUtils.formatDatetime());
         document.putAll(data);
         try {
@@ -282,11 +273,8 @@ public class DataStoreServiceImpl implements DataStoreService {
         long count = collection.countDocuments();
         findIterable = collection.find().sort(Sorts.descending("createdate")).skip(page).limit(size);
         List<Map<String, Object>> list = new ArrayList();
-        for (Document document : findIterable) {
-            Map map = JSON.parseObject(document.toJson(), Map.class);
-            list.add(map);
-        }
-        return new BasePage<>(count, list);
+        List<DataStoreRsp> rspList = filterData(findIterable);
+        return new BasePage(count, rspList);
     }
 
 
@@ -295,23 +283,59 @@ public class DataStoreServiceImpl implements DataStoreService {
 
         DWDatabaseRsp databaseRsp = dwService.findDatabaseByDataName(req.getDbName());
 
-        List<DWTask> all = accessTaskService.getTableTask(databaseRsp.getId(),req.getDbTable());
+        List<DWTask> all = accessTaskService.getTableTask(databaseRsp.getId(), req.getDbTable());
 
-        if(all == null || all.isEmpty()){
+        if (all == null || all.isEmpty()) {
             return;
         }
 
         List<String> resourceNames = all.stream().map(DWTask::getName).collect(Collectors.toList());
 
-        accessTaskService.addRerunTask(databaseRsp.getId(),req.getDbTable(),resourceNames);
+        accessTaskService.addRerunTask(databaseRsp.getId(), req.getDbTable(), resourceNames);
     }
 
 
-    private Map<String, Object> filterData(Map<String, Object> data) {
+    private Map<String, Object> filterDataId(Map<String, Object> data) {
         if (data.containsKey(MONGO_ID)) {
             data.put("err_id", data.get(MONGO_ID) + "///");
             data.remove(MONGO_ID);
         }
         return data;
     }
+
+
+    private List<DataStoreRsp> filterData(FindIterable<Document> findIterable) {
+        List<DataStoreRsp> rspList = new ArrayList<>();
+        for (Document document : findIterable) {
+            JSONObject jsonObject = JSON.parseObject(document.toJson());
+            DataStoreRsp dataStoreRsp = new DataStoreRsp();
+            dataStoreRsp.setStatus((String) jsonObject.get("status"));
+            dataStoreRsp.setDbName((String) jsonObject.get("dbName"));
+            dataStoreRsp.setDbTable((String) jsonObject.get("dbTable"));
+            dataStoreRsp.setErrorReason((String) jsonObject.get("errorReason"));
+            dataStoreRsp.setFields((String) jsonObject.get("fields"));
+            dataStoreRsp.setTitle((String) jsonObject.get("title"));
+            dataStoreRsp.setId((String) jsonObject.get("dataId"));
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("data", getDataNode(document));
+            dataStoreRsp.setData(map);
+            rspList.add(dataStoreRsp);
+        }
+        return rspList;
+    }
+
+    private JSONObject getDataNode(Document document) {
+        JSONObject jsonObject = JSON.parseObject(document.toJson());
+        jsonObject.remove("_id");
+        jsonObject.remove("id");
+        jsonObject.remove("dbName");
+        jsonObject.remove("title");
+        jsonObject.remove("dbTable");
+        jsonObject.remove("fields");
+        jsonObject.remove("status");
+        jsonObject.remove("errorReason");
+        return jsonObject;
+    }
+
+
 }
