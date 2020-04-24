@@ -295,10 +295,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         Map<Integer, String> modelConceptNameMap = new HashMap<>();
+        Map<Integer, String> modelConceptName = new HashMap<>();
 
         //概念名称映射
         for (DWPrebuildConcept concept : concepts) {
             modelConceptNameMap.put(concept.getId(), concept.getName()+concept.getMeaningTag());
+            modelConceptName.put(concept.getId(), concept.getName());
         }
 
         List<Integer> findByConceptIds = concepts.stream().map(DWPrebuildConcept::getId).collect(Collectors.toList());
@@ -391,7 +393,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         for (PreBuilderMatchAttrRsp matchAttrRsp : matchAttrRspList) {
 
-            matchAttrRsp.setConceptName(modelConceptNameMap.get(matchAttrRsp.getConceptId()));
+            matchAttrRsp.setConceptName(modelConceptName.get(matchAttrRsp.getConceptId()));
 
             String status;
             Integer matchStatus;
