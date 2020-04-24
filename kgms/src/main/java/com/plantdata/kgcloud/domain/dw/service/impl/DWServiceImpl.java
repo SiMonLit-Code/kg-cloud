@@ -897,27 +897,47 @@ public class DWServiceImpl implements DWService {
                     }else{
                         schemas = tableSchemas;
                     }
-                    table.setSchema(schemas);
-                    table.setFields(transformFields(schemas));
+
+                    if (DWDataFormat.isPDdoc(database.getDataFormat())) {
+                        if(StringUtils.hasText(table.getPdSingleField())){
+                            checkPDDocSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
+                        }else{
+                            checkPDDocSchema(tableSchemas,null);
+                        }
+                    }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
+                        if(StringUtils.hasText(table.getPdSingleField())){
+                            checkPDD2rSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
+                        }else{
+                            checkPDD2rSchema(tableSchemas,null);
+                        }
+                    } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
+                        List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
+                        checkIndutrySchema(industrySchema, tableSchemas);
+                    }
+
+                    table.setSchema(tableSchemas);
+                    table.setFields(transformFields(tableSchemas));
                     tableRepository.save(table);
+                }else{
+
+                    if (DWDataFormat.isPDdoc(database.getDataFormat())) {
+                        if(StringUtils.hasText(table.getPdSingleField())){
+                            checkPDDocSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
+                        }else{
+                            checkPDDocSchema(tableSchemas,null);
+                        }
+                    }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
+                        if(StringUtils.hasText(table.getPdSingleField())){
+                            checkPDD2rSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
+                        }else{
+                            checkPDD2rSchema(tableSchemas,null);
+                        }
+                    } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
+                        List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
+                        checkIndutrySchema(industrySchema, tableSchemas);
+                    }
                 }
 
-                if (DWDataFormat.isPDdoc(database.getDataFormat())) {
-                    if(StringUtils.hasText(table.getPdSingleField())){
-                        checkPDDocSchema(schemas,Lists.newArrayList(table.getPdSingleField()));
-                    }else{
-                        checkPDDocSchema(schemas,null);
-                    }
-                }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
-                    if(StringUtils.hasText(table.getPdSingleField())){
-                        checkPDD2rSchema(schemas,Lists.newArrayList(table.getPdSingleField()));
-                    }else{
-                        checkPDD2rSchema(schemas,null);
-                    }
-                } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
-                    List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
-                    checkIndutrySchema(industrySchema, schemas);
-                }
                 tableName = table.getTableName();
 
             }
@@ -1336,20 +1356,20 @@ public class DWServiceImpl implements DWService {
                 List<DataSetSchema> schemaList = getIndustryTableSchema(databaseId, req.getTableName());
                 List<DataSetSchema> tableSchemaList = getTableSchema(database, req.getTbName());
                 if (schemaList == null) {
-                    schemaList = getTableSchema(database, req.getTbName());
+                    schemaList = tableSchemaList;
                 } else {
                     checkIndutrySchema(schemaList, tableSchemaList);
                 }
 
                 DWTable table = DWTable.builder()
                         .dwDataBaseId(databaseId)
-                        .schema(schemaList)
+                        .schema(tableSchemaList)
                         .tableName(req.getTbName())
                         .tbName(req.getTbName())
                         .title(req.getTbName())
                         .ktr(getIndustryTableKtr(databaseId, req.getTableName()))
                         .createWay(1)
-                        .fields(transformFields(schemaList))
+                        .fields(transformFields(tableSchemaList))
                         .mapper(req.getTableName())
                         .modelId(req.getModelId())
                         .build();
