@@ -32,7 +32,7 @@ public interface PreBuilderService {
 
     void update(String userId, Integer id, String status);
 
-    void createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, List<CustomTableRsp> labels);
+    Integer createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, List<CustomTableRsp> labels);
 
     List<String> getTypes(String userId,Boolean isManage);
 

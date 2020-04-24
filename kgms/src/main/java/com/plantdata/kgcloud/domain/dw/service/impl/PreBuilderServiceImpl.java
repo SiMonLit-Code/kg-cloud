@@ -1619,7 +1619,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public void createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, List<CustomTableRsp> labels) {
+    public Integer createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, List<CustomTableRsp> labels) {
 
         DWPrebuildModel model = DWPrebuildModel.builder()
                 .databaseId(database.getId())
@@ -1636,6 +1636,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         model = prebuildModelRepository.save(model);
 
         createSchemaModel(model.getId(), preBuilderConceptRspList);
+
+        return model.getId();
     }
 
     @Override

@@ -1827,7 +1827,7 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public void push(String userId, ModelPushReq req) {
+    public Integer push(String userId, ModelPushReq req) {
 
         DWDatabaseRsp database = getDetail(req.getId());
         if (!database.getUserId().equals(userId)) {
@@ -1846,9 +1846,12 @@ public class DWServiceImpl implements DWService {
             }
 
 
-            preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), database.getTableLabels());
+            return preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), database.getTableLabels());
 
         }
+
+        return null;
+
         /*else if (DWDataFormat.isCustom(database.getDataFormat())) {
             //自定义
             String yamlContent = database.getYamlContent();

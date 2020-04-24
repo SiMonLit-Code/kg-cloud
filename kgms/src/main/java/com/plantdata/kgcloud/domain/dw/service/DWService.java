@@ -51,7 +51,7 @@ public interface DWService {
 
     void tagUpload(Long databaseId, MultipartFile file);
 
-    void push(String userId, ModelPushReq req);
+    Integer push(String userId, ModelPushReq req);
 
     void setTableScheduling(String userId, DWTableSchedulingReq req);
 
