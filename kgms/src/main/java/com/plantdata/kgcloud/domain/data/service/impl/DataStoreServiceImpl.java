@@ -69,7 +69,7 @@ public class DataStoreServiceImpl implements DataStoreService {
 
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private static final String DB_NAME = "check_data_db";
-    private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
+    private static final String DB_FIX_NAME_PREFIX = "dw_return_";
 
     private MongoCollection<Document> getCollection() {
         return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
@@ -241,6 +241,9 @@ public class DataStoreServiceImpl implements DataStoreService {
             return;
         }
         Document document = iterator.next();
+        if (Objects.equals(req.getData(), document.get("data"))) {
+            throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
+        }
         document.remove("data");
         Map<String, Object> data = filterData(req.getData());
         data.put("createdate", DateUtils.formatDatetime());
@@ -274,6 +277,17 @@ public class DataStoreServiceImpl implements DataStoreService {
         return new BasePage<>(count, list);
     }
 
+    /**
+     * 设计表结构
+     * <p>
+     * DW_check_RULE：
+     * dw_id,table_id,is_Required,data_Length
+     * DW_check_RULE_OTHER：
+     * dw_check_rule_id, rule_name,rule,rele_message
+     *
+     * @param data
+     * @return
+     */
 
     private Map<String, Object> filterData(Map<String, Object> data) {
         if (data.containsKey(MONGO_ID)) {
