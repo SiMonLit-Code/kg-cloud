@@ -124,11 +124,11 @@ public class ConceptConverter extends BasicConverter {
                 treeItemVo.setChildren(new ArrayList<>());
             }
             for (BasicConceptTreeRsp.NumberAttr attr : treeRsp.getNumAttrs()) {
-                TreeItemVo item = new TreeItemVo();
-                item.setId(attr.getId().longValue());
+                EditAttDefBeanMole item = new EditAttDefBeanMole();
+                item.setId(attr.getId());
                 item.setName(attr.getName());
-                item.setParentId(attr.getConceptId());
-                item.setType(2);
+                item.setType("2");
+                item.setDataType(attr.getDataType());
                 treeItemVo.getChildren().add(item);
             }
         }
