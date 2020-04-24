@@ -1485,7 +1485,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 List<Long> rangeIds = new ArrayList<>();
                 if(modelRanges != null && !modelRanges.isEmpty()){
                     for(ModelRangeRsp rangeRsp: modelRanges){
-                        rangeIds.add(rangeRsp.getRange());
+                        rangeIds.add(conceptNameIdMap.get(rangeRsp.getRangeName()+rangeRsp.getMeaningTag()));
                     }
                 }
 
