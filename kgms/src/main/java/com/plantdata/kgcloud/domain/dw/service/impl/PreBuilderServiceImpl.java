@@ -616,13 +616,18 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     } else {
 
                         //对象属性,值域已引入
-                        if (req.getConceptIds().containsAll(matchAttrRsp.getRange())) {
+                        List<ModelRangeRsp> matchRanges = matchAttrRsp.getRange();
+
+                        List<Integer> rangeIds = new ArrayList<>();
+                        for(ModelRangeRsp r : matchRanges){
+                            rangeIds.add(r.getRange().intValue());
+                        }
+                        if (req.getConceptIds().containsAll(rangeIds)) {
                             status = "新增，可引入";
                             matchStatus = 3;
                         } else {
 
                             String name = "";
-                            List<ModelRangeRsp> matchRanges = matchAttrRsp.getRange();
                             for(ModelRangeRsp r : matchRanges){
                                 if(!req.getConceptIds().contains(r.getRange().intValue())){
                                     name += r.getRangeName()+",";
