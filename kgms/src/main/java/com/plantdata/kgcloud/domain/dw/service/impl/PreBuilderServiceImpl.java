@@ -2776,7 +2776,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 DWPrebuildAttr attr = new DWPrebuildAttr();
                 BeanUtils.copyProperties(attrRsp, attr);
 
-                attr.setConceptId(conceptMap.get(conceptRsp.getName()));
+                attr.setConceptId(conceptMap.get(conceptRsp.getName()+conceptRsp.getMeaningTag()));
                 attr.setModelId(modelId);
                 if (attrRsp.getAttrType().equals(1)) {
                     List<Integer> range = new ArrayList<>();
