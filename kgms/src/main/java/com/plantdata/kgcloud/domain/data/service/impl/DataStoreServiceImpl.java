@@ -289,19 +289,7 @@ public class DataStoreServiceImpl implements DataStoreService {
         return new BasePage<>(count, list);
     }
 
-<<<<<<< HEAD
-    /**
-     * 设计表结构
-     * <p>
-     * DW_check_RULE：
-     * dw_id,table_id,is_Required,data_Length
-     * DW_check_RULE_OTHER：
-     * dw_check_rule_id, rule_name,rule,rele_message
-     *
-     * @param data
-     * @return
-     */
-=======
+
     @Override
     public void rerun(DtReq req) {
 
@@ -318,7 +306,6 @@ public class DataStoreServiceImpl implements DataStoreService {
         accessTaskService.addRerunTask(databaseRsp.getId(),req.getDbTable(),resourceNames);
     }
 
->>>>>>> 14d4f1887f154646a28099aae433689ecf057c51
 
     private Map<String, Object> filterData(Map<String, Object> data) {
         if (data.containsKey(MONGO_ID)) {
