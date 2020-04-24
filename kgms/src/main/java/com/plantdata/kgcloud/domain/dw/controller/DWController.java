@@ -9,15 +9,12 @@ import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
-import com.plantdata.kgcloud.sdk.UserClient;
-import com.plantdata.kgcloud.sdk.req.DWConnceReq;
-import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
-import com.plantdata.kgcloud.sdk.req.DWTableReq;
-import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.*;
+import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -256,5 +253,19 @@ public class DWController {
     @PostMapping("/schema")
     public ApiReturn<List<DataSetSchema>> resolve(@RequestParam(value = "file") MultipartFile file) {
         return ApiReturn.success(dwServince.schemaResolve(file,null));
+    }
+
+    @ApiOperation("统计数据二维/按表统计")
+    @PostMapping("statistic/by2dTable")
+    public ApiReturn<DW2dTableRsp> statistic2dByTable(@Valid @RequestBody SqlQueryReq req) {
+        return ApiReturn.success(dwServince.statisticBy2DTable(req));
+    }
+
+    @ApiOperation("统计数据三维/按表统计")
+    @PostMapping("statistic/by3dTable")
+    public ApiReturn<DW3dTableRsp> statistic3dByTable(@Valid @RequestBody SqlQueryReq req) {
+        String userId = SessionHolder.getUserId();
+        DWDatabaseRsp a = dwServince.findById(userId,698);
+        return ApiReturn.success(dwServince.statisticBy3DTable(req));
     }
 }

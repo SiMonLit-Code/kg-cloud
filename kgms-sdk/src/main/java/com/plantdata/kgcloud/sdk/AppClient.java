@@ -51,8 +51,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.plantdata.kgcloud.sdk.rsp.DataWarehouse2dTableRsp;
-import com.plantdata.kgcloud.sdk.rsp.DataWarehouse3dTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.sdk.req.SqlQueryReq;
 
 import javax.validation.Valid;
@@ -427,8 +427,8 @@ public interface AppClient {
      * @param
      * @return .
      */
-    @PostMapping("dataWarehouse/statistic/by2dTable")
-    ApiReturn<DataWarehouse2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq req);
+    @PostMapping("dw/statistic/by2dTable")
+    ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq req);
 
     /**
      * 统计数据仓库三维/按表统计
@@ -436,6 +436,6 @@ public interface AppClient {
      * @param
      * @return .
      */
-    @PostMapping("dataWarehouse/statistic/by3dTable")
-    ApiReturn<DataWarehouse3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req);
+    @PostMapping("dw/statistic/by3dTable")
+    ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req);
 }

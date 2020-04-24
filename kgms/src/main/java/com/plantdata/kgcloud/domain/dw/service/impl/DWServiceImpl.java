@@ -25,6 +25,7 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dataset.provider.MongodbOptProvider;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
+import com.plantdata.kgcloud.domain.dw.controller.DWController;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
 import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
@@ -44,10 +45,12 @@ import com.plantdata.kgcloud.domain.dw.util.PaserYaml2SchemaUtil;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.DWDataFormat;
 import com.plantdata.kgcloud.sdk.constant.DataType;
-import com.plantdata.kgcloud.sdk.req.DWConnceReq;
-import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
-import com.plantdata.kgcloud.sdk.req.DWTableReq;
-import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.kgcompute.bean.chart.ChartTableBean;
+import com.plantdata.kgcloud.sdk.kgcompute.stat.PdStatServiceibit;
+import com.plantdata.kgcloud.sdk.kgcompute.stat.bean.PdStatBean;
+import com.plantdata.kgcloud.sdk.req.*;
+import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.DateUtils;
@@ -2063,5 +2066,83 @@ public class DWServiceImpl implements DWService {
             provider.batchInsert(mapList);
             mapList.clear();
         }
+    }
+
+    @Override
+    public DWDatabaseRsp findById(String userId,Integer tableId) {
+        DWDatabase probe = DWDatabase.builder()
+                .userId(SessionHolder.getUserId())
+                .build();
+        List<Long> idList = new ArrayList<>();
+        idList.add(tableId.longValue());
+        List<DWDatabase> all = dwRepository.findAllById(idList);
+        List<DWDatabaseRsp> result = all.stream().map(dw2rsp).collect(Collectors.toList());
+        if(result != null && result.size() > 0 && result.get(0).getUserId().equals(userId)) {
+            return result.get(0);
+        }else{
+            return null;
+        }
+    }
+
+    @Override
+    public DW2dTableRsp statisticBy2DTable(SqlQueryReq req) {
+        DWController dwController = new DWController();
+        dwController.findAll();
+        PdStatServiceibit pdStatService = new PdStatServiceibit();
+        PdStatBean pdStatBean = req.getQuery();
+        ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
+        DW2dTableRsp table = new DW2dTableRsp();
+        table.setXAxis(new ArrayList<>());
+        table.setSeries(new ArrayList<>());
+        List<String> xAxis = table.getXAxis();
+        List<Object> series = table.getSeries();
+        if(ctb.getData()!=null && ctb.getData().size() > 0){
+            for(List<Object> row : ctb.getData()){
+                int counter = 0;
+                for(Object obj : row){
+                    if(counter == 0){
+                        xAxis.add((String) obj);
+                        counter++;
+                    }else{
+                        series.add(obj);
+                    }
+                }
+            }
+        }
+        return  table;
+    }
+
+    @Override
+    public DW3dTableRsp statisticBy3DTable(SqlQueryReq req) {
+        PdStatServiceibit pdStatService = new PdStatServiceibit();
+        PdStatBean pdStatBean = req.getQuery();
+        ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
+        DW3dTableRsp table = new DW3dTableRsp();
+        table.setXAxis(new ArrayList<>());
+        table.setYAxis(new ArrayList<>());
+        table.setSeries(new ArrayList<>());
+        List<String> xAxis = table.getXAxis();
+        List<String> yAxis = table.getYAxis();
+        List<List<Object>> series = table.getSeries();
+        Set<String> xAxisNameSet = new HashSet<>();
+        Set<String> yAxisNameSet = new HashSet<>();
+        if(ctb.getData()!=null && ctb.getData().size() > 0){
+            for(List<Object> row : ctb.getData()){
+                List<Object> seriesData = new ArrayList<>();
+                seriesData.add(row.get(0));
+                seriesData.add(row.get(1));
+                seriesData.add(row.get(2));
+                series.add(seriesData);
+                xAxisNameSet.add((String)row.get(0));
+                yAxisNameSet.add((String)row.get(1));
+            }
+            for(String name: xAxisNameSet){
+                xAxis.add(name);
+            }
+            for(String name: yAxisNameSet){
+                yAxis.add(name);
+            }
+        }
+        return  table;
     }
 }
