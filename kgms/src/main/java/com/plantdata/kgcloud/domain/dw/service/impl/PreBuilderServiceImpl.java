@@ -1481,6 +1481,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                 Integer attrId;
 
+                List<ModelRangeRsp> modelRanges  = attrReq.getModelRange();
+                List<Long> rangeIds = new ArrayList<>();
+                if(modelRanges != null && !modelRanges.isEmpty()){
+                    for(ModelRangeRsp rangeRsp: modelRanges){
+                        rangeIds.add(rangeRsp.getRange());
+                    }
+                }
+
                 if (attrReq.getAttrId() != null) {
 
                     attrId = attrReq.getAttrId();
@@ -1498,7 +1506,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             continue;
                         }
                     } else {
-                        if (!a.getRangeValue().containsAll(attrReq.getRange())) {
+                        if (!a.getRangeValue().containsAll(rangeIds)) {
                             continue;
                         }
                     }
@@ -1527,7 +1535,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         attrDefinitionReq.setDataUnit(attrReq.getUnit());
                     } else {
 
-                        List<Long> rangeIds = attrReq.getRange();
+
 
                         attrDefinitionReq.setRangeValue(rangeIds);
                         attrDefinitionReq.setDirection(0);
