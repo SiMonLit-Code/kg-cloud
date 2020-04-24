@@ -35,10 +35,10 @@ public class SchemaQuoteAttrReq {
     private Integer dataType;
 
     @ApiModelProperty("原模式对象属性值域")
-    private List<Integer> modelRange;
+    private List<ModelRangeRsp> modelRange;
 
     @ApiModelProperty("对象属性值域")
-    private List<ModelRangeRsp> range;
+    private List<Long> range;
 
     @ApiModelProperty("属性别名")
     private String alias;
