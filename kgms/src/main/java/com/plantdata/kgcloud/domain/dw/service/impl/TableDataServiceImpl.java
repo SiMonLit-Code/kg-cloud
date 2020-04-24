@@ -458,12 +458,12 @@ public class TableDataServiceImpl implements TableDataService {
             data.put(MONGO_ID, new ObjectId(mongoId));
             data.put("dataName", database.getDataName());
             data.put("tableName", baseReq.getDataBaseId());
-            data.put("errorReason", "Edit");
+            data.put("status", "Edit");
             collection.insertOne(new Document(data));
             data.remove(MONGO_ID);
             data.remove("dataName");
             data.remove("tableName");
-            data.remove("errorReason");
+            data.remove("status");
             Document document = new Document(data);
             provider.update(mongoId, document);
         } else {
