@@ -272,7 +272,7 @@ public class DataStoreServiceImpl implements DataStoreService {
         if (StringUtils.isEmpty(req.getDbName()) || StringUtils.isEmpty(req.getDbTable())) {
             throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
         }
-        MongoCollection<Document> collection = mongoClient.getDatabase(req.getDbName()).getCollection(req.getDbTable());
+        MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + req.getDbName()).getCollection(req.getDbTable());
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
         FindIterable<Document> findIterable;
