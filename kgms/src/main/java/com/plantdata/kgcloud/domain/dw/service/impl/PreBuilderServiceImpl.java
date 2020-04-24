@@ -259,15 +259,15 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Override
     public Page<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq req) {
 
-        SchemaRsp schemaRsp = graphApplicationService.querySchema(req.getKgName());
+        List<BasicInfoVO> schemaRsp = graphApplicationService.conceptTree(req.getKgName(),0L,null);
 
         Map<String, Long> conceptNameMap = new HashMap<>();
 
         //概念名称映射属性名称与属性
-        if (schemaRsp != null && schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()) {
+        if (schemaRsp != null  && !schemaRsp.isEmpty()) {
 
-            schemaRsp.getTypes().forEach(c -> {
-                conceptNameMap.put(c.getName(), c.getId());
+            schemaRsp.forEach(c -> {
+                conceptNameMap.put(c.getName()+c.getMeaningTag(), c.getId());
             });
         }
 
@@ -282,6 +282,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             concepts = prebuildConceptRepository.findAll(Example.of(DWPrebuildConcept.builder().modelId(req.getModelId()).build()));
         }
 
+        List<DWPrebuildConcept> allConcepts = prebuildConceptRepository.findAll(Example.of(DWPrebuildConcept.builder().modelId(req.getModelId()).build()));
+        Map<Integer,DWPrebuildConcept> modelNameMap = new HashMap<>();
+        if(allConcepts != null && !allConcepts.isEmpty()){
+            for(DWPrebuildConcept c : allConcepts){
+                modelNameMap.put(c.getId(),c);
+            }
+        }
+
         if (concepts == null || concepts.isEmpty()) {
             return Page.empty();
         }
@@ -290,7 +298,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         //概念名称映射
         for (DWPrebuildConcept concept : concepts) {
-            modelConceptNameMap.put(concept.getId(), concept.getName());
+            modelConceptNameMap.put(concept.getId(), concept.getName()+concept.getMeaningTag());
         }
 
         List<Integer> findByConceptIds = concepts.stream().map(DWPrebuildConcept::getId).collect(Collectors.toList());
@@ -300,8 +308,31 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             return Page.empty();
         }
 
-        List<PreBuilderMatchAttrRsp> matchAttrRspList = attrs.stream().map(ConvertUtils.convert(PreBuilderMatchAttrRsp.class))
-                .collect(Collectors.toList());
+
+
+        List<PreBuilderMatchAttrRsp> matchAttrRspList = new ArrayList<>();
+        for(DWPrebuildAttr attr : attrs){
+
+            PreBuilderMatchAttrRsp attrRsp = new PreBuilderMatchAttrRsp();
+            BeanUtils.copyProperties(attr,attrRsp);
+            if(attr.getAttrType().equals(1)){
+
+                List<Integer> ranges = attr.getRange();
+                List<ModelRangeRsp> rangeRsps = new ArrayList<>();
+
+                for(Integer range : ranges){
+                    DWPrebuildConcept concept = modelNameMap.get(range);
+                    rangeRsps.add(ModelRangeRsp.builder().range(new Long(range)).rangeName(concept.getName()).meaningTag(concept.getMeaningTag()).build());
+                }
+                attrRsp.setRange(rangeRsps);
+            }
+
+            matchAttrRspList.add(attrRsp);
+
+        }
+//        List<PreBuilderMatchAttrRsp> matchAttrRspList = attrs.stream().map(ConvertUtils.convert(PreBuilderMatchAttrRsp.class))
+//                .collect(Collectors.toList());
+//
 
         Map<Integer, Long> modelKgConceptIdMap = new HashMap<>();
         Map<Integer, String> modelKgConceptNameMap = new HashMap<>();
@@ -373,10 +404,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 matchAttrRsp.setMatchStatus(matchStatus);
                 continue;
             }
-
-
-            //映射到图谱的概念名
-            String conceptName = matchAttrRsp.getConceptName();
 
             Long conceptId = modelKgConceptIdMap.get(matchAttrRsp.getConceptId());
 
