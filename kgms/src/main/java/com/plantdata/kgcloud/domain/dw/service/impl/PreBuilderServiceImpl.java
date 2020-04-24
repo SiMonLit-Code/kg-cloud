@@ -1420,6 +1420,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             });
         }
 
+        Map<Integer,Long> conceptIdMap = new HashMap<>();
         List<SchemaQuoteReq> needAddConcepts = new ArrayList<>();
 
         for (SchemaQuoteReq schemaQuoteReq : quoteConfigs) {
@@ -1447,9 +1448,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     schemaQuoteReq.setConceptId(conceptId);
                     schemaQuoteReq.setPConceptId(conceptNameIdMap.get(schemaQuoteReq.getPConceptName()+schemaQuoteReq.getPConceptMeaningTag()));
                     conceptNameIdMap.put(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag(), conceptId);
+                    conceptIdMap.put(schemaQuoteReq.getModelConceptId(),conceptId);
                 }
             } else {
                 conceptNameIdMap.put(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag(), schemaQuoteReq.getConceptId());
+                conceptIdMap.put(schemaQuoteReq.getModelConceptId(),schemaQuoteReq.getConceptId());
             }
 
         }
@@ -1486,7 +1489,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 List<Long> rangeIds = new ArrayList<>();
                 if(modelRanges != null && !modelRanges.isEmpty()){
                     for(ModelRangeRsp rangeRsp: modelRanges){
-                        rangeIds.add(conceptNameIdMap.get(rangeRsp.getRangeName()+rangeRsp.getMeaningTag()));
+                        rangeIds.add(conceptIdMap.get(rangeRsp.getRange().intValue()));
                     }
                 }
 
@@ -1537,7 +1540,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     } else {
 
 
-
+                        if(rangeIds == null || rangeIds.isEmpty()){
+                            continue;
+                        }
                         attrDefinitionReq.setRangeValue(rangeIds);
                         attrDefinitionReq.setDirection(0);
                         attrDefinitionReq.setDataType(0);
