@@ -57,6 +57,7 @@ import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -2314,7 +2315,14 @@ public class DWServiceImpl implements DWService {
                     PreBuilderAttrRsp attrRsp = new PreBuilderAttrRsp();
                     attrRsp.setAttrType(1);
                     attrRsp.setName(relationBean.getName());
-                    attrRsp.setRangeName(relationBean.getRange().iterator().next());
+
+                    List<ModelRangeRsp> rangeRsps = new ArrayList<>();
+                    if(relationBean.getRange() != null && !relationBean.getRange().isEmpty()){
+                        for(String r : relationBean.getRange()){
+                            rangeRsps.add(ModelRangeRsp.builder().rangeName(r).build());
+                        }
+                        attrRsp.setRange(rangeRsps);
+                    }
                     attrRsp.setTables(Lists.newArrayList(schema.getTableName()));
 
                     if (relationBean.getAttrs() != null && !relationBean.getAttrs().isEmpty()) {

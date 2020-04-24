@@ -118,11 +118,6 @@ public class DWGraphMap {
     private List<Long> range;
 
     @Basic
-    @Column(name = "`rangeName`")
-    @Convert(converter = StringListConverter.class)
-    private List<String> rangeName;
-
-    @Basic
     @Column(name = "`alias`")
     private String alias;
 

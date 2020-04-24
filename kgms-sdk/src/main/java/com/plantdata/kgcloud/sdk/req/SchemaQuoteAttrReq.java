@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req;
 
+import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,14 +34,11 @@ public class SchemaQuoteAttrReq {
     @ApiModelProperty("数值属性类型")
     private Integer dataType;
 
-    @ApiModelProperty("原模式对象属性值域id")
-    private Integer modelRange;
+    @ApiModelProperty("原模式对象属性值域")
+    private List<Integer> modelRange;
 
-    @ApiModelProperty("对象属性值域id")
-    private Long range;
-
-    @ApiModelProperty("对象属性值域名称")
-    private String rangeName;
+    @ApiModelProperty("对象属性值域")
+    private List<ModelRangeRsp> range;
 
     @ApiModelProperty("属性别名")
     private String alias;
