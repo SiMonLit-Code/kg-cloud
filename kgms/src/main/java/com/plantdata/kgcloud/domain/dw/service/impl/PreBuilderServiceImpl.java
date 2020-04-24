@@ -259,15 +259,15 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Override
     public Page<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq req) {
 
-        SchemaRsp schemaRsp = graphApplicationService.querySchema(req.getKgName());
+        List<BasicInfoVO> schemaRsp = graphApplicationService.conceptTree(req.getKgName(),0L,null);
 
         Map<String, Long> conceptNameMap = new HashMap<>();
 
         //概念名称映射属性名称与属性
-        if (schemaRsp != null && schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()) {
+        if (schemaRsp != null  && !schemaRsp.isEmpty()) {
 
-            schemaRsp.getTypes().forEach(c -> {
-                conceptNameMap.put(c.getName(), c.getId());
+            schemaRsp.forEach(c -> {
+                conceptNameMap.put(c.getName()+c.getMeaningTag(), c.getId());
             });
         }
 
@@ -276,10 +276,18 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         List<SchemaQuoteReq> existMap = getGraphMap(userId, req.getKgName(), true);
 
         List<DWPrebuildConcept> concepts;
-        if (req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()) {
+              if (req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()) {
             concepts = prebuildConceptRepository.findByModelAndConceptIds(req.getModelId(), req.getFindAttrConceptIds());
         } else {
             concepts = prebuildConceptRepository.findAll(Example.of(DWPrebuildConcept.builder().modelId(req.getModelId()).build()));
+        }
+
+        List<DWPrebuildConcept> allConcepts = prebuildConceptRepository.findAll(Example.of(DWPrebuildConcept.builder().modelId(req.getModelId()).build()));
+        Map<Integer,DWPrebuildConcept> modelNameMap = new HashMap<>();
+        if(allConcepts != null && !allConcepts.isEmpty()){
+            for(DWPrebuildConcept c : allConcepts){
+                modelNameMap.put(c.getId(),c);
+            }
         }
 
         if (concepts == null || concepts.isEmpty()) {
@@ -287,10 +295,12 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         Map<Integer, String> modelConceptNameMap = new HashMap<>();
+        Map<Integer, String> modelConceptName = new HashMap<>();
 
         //概念名称映射
         for (DWPrebuildConcept concept : concepts) {
-            modelConceptNameMap.put(concept.getId(), concept.getName());
+            modelConceptNameMap.put(concept.getId(), concept.getName()+concept.getMeaningTag());
+            modelConceptName.put(concept.getId(), concept.getName());
         }
 
         List<Integer> findByConceptIds = concepts.stream().map(DWPrebuildConcept::getId).collect(Collectors.toList());
@@ -300,8 +310,31 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             return Page.empty();
         }
 
-        List<PreBuilderMatchAttrRsp> matchAttrRspList = attrs.stream().map(ConvertUtils.convert(PreBuilderMatchAttrRsp.class))
-                .collect(Collectors.toList());
+
+
+        List<PreBuilderMatchAttrRsp> matchAttrRspList = new ArrayList<>();
+        for(DWPrebuildAttr attr : attrs){
+
+            PreBuilderMatchAttrRsp attrRsp = new PreBuilderMatchAttrRsp();
+            BeanUtils.copyProperties(attr,attrRsp);
+            if(attr.getAttrType().equals(1)){
+
+                List<Integer> ranges = attr.getRange();
+                List<ModelRangeRsp> rangeRsps = new ArrayList<>();
+
+                for(Integer range : ranges){
+                    DWPrebuildConcept concept = modelNameMap.get(range);
+                    rangeRsps.add(ModelRangeRsp.builder().range(new Long(range)).rangeName(concept.getName()).meaningTag(concept.getMeaningTag()).build());
+                }
+                attrRsp.setRange(rangeRsps);
+            }
+
+            matchAttrRspList.add(attrRsp);
+
+        }
+//        List<PreBuilderMatchAttrRsp> matchAttrRspList = attrs.stream().map(ConvertUtils.convert(PreBuilderMatchAttrRsp.class))
+//                .collect(Collectors.toList());
+//
 
         Map<Integer, Long> modelKgConceptIdMap = new HashMap<>();
         Map<Integer, String> modelKgConceptNameMap = new HashMap<>();
@@ -360,7 +393,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         for (PreBuilderMatchAttrRsp matchAttrRsp : matchAttrRspList) {
 
-            matchAttrRsp.setConceptName(modelConceptNameMap.get(matchAttrRsp.getConceptId()));
+            matchAttrRsp.setConceptName(modelConceptName.get(matchAttrRsp.getConceptId()));
 
             String status;
             Integer matchStatus;
@@ -373,10 +406,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 matchAttrRsp.setMatchStatus(matchStatus);
                 continue;
             }
-
-
-            //映射到图谱的概念名
-            String conceptName = matchAttrRsp.getConceptName();
 
             Long conceptId = modelKgConceptIdMap.get(matchAttrRsp.getConceptId());
 
@@ -510,19 +539,19 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         }
                     } else {
 
-                        //都为对象属性,值域一样
-                        List<Integer> modelRanges = schemaQuoteAttrReqList.get(0).getModelRange();
+                        //已经引入过的值域概念对应图谱的id
+                        List<ModelRangeRsp> modelRanges = schemaQuoteAttrReqList.get(0).getModelRange();
                         List<Long> quoteModelRanges = new ArrayList<>();
 
                         if(modelRanges != null){
-                            for(Integer r : modelRanges){
-
-                                if(modelKgConceptIdMap.containsKey(r)){
-                                    quoteModelRanges.add(modelKgConceptIdMap.get(r));
+                            for(ModelRangeRsp r : modelRanges){
+                                if(modelKgConceptIdMap.containsKey(r.getRange())){
+                                    quoteModelRanges.add(modelKgConceptIdMap.get(r.getRange()));
                                 }
                             }
                         }
 
+                        //需要引入的值域概念对应图谱的id
                         List<ModelRangeRsp> matchRanges = matchAttrRsp.getRange();
                         List<Long> matchModelRanges = new ArrayList<>();
                         if(matchRanges != null){
@@ -536,18 +565,18 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         }
 
 
-                        if (quoteModelRanges != null && !quoteModelRanges.isEmpty() && CollectionUtils.isEqualCollection(quoteModelRanges,matchRanges)) {
+                        if (!matchModelRanges.isEmpty() && !quoteModelRanges.isEmpty() && quoteModelRanges.containsAll(matchRanges)) {
                             status = "新增，可引入";
                             matchStatus = 3;
-                        }else if(quoteModelRanges == null || quoteModelRanges.isEmpty()){
+                        }else if(matchModelRanges.isEmpty() || quoteModelRanges.isEmpty()){
 
                             List<String> quoteModelRangeNames = new ArrayList<>();
 
                             if(modelRanges != null){
-                                for(Integer r : modelRanges){
+                                for(ModelRangeRsp r : modelRanges){
 
-                                    if(modelKgConceptNameMap.containsKey(r)){
-                                        quoteModelRangeNames.add(modelKgConceptNameMap.get(r));
+                                    if(modelKgConceptNameMap.containsKey(r.getRange())){
+                                        quoteModelRangeNames.add(modelKgConceptNameMap.get(r.getRange()));
                                     }
                                 }
                             }
@@ -563,7 +592,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                             }
 
-                            if(quoteModelRangeNames != null && !quoteModelRangeNames.isEmpty() && CollectionUtils.isEqualCollection(quoteModelRangeNames,matchModelRangeNames)){
+                            if(!quoteModelRangeNames.isEmpty() && quoteModelRangeNames.containsAll(matchModelRangeNames)){
                                 status = "新增，可引入";
                                 matchStatus = 3;
                             }else{
@@ -596,7 +625,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             List<ModelRangeRsp> matchRanges = matchAttrRsp.getRange();
                             for(ModelRangeRsp r : matchRanges){
                                 if(!req.getConceptIds().contains(r.getRange().intValue())){
-                                    name += modelConceptNameMap.get(r.getRange().intValue())+",";
+                                    name += r.getRangeName()+",";
                                 }
                             }
 
@@ -670,7 +699,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         List<ModelRangeRsp> matchRanges = matchAttrRsp.getRange();
                         for(ModelRangeRsp r : matchRanges){
                             if(!req.getConceptIds().contains(r.getRange().intValue())){
-                                name += modelConceptNameMap.get(r)+",";
+                                name += r.getRangeName()+",";
                             }
                         }
 
@@ -929,12 +958,15 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         BeanUtils.copyProperties(schemaQuoteAttrReq, graphMap);
 
                         if (schemaQuoteAttrReq.getAttrType().equals(1)) {
-                            graphMap.setModelRange(schemaQuoteAttrReq.getModelRange());
 
-                            List<Long> ranges = new ArrayList<>();
-                            for(ModelRangeRsp range : schemaQuoteAttrReq.getRange()){
-                                ranges.add(range.getRange());
+                            List<Integer> modelRanges = new ArrayList<>();
+                            for(ModelRangeRsp rangeRsp : schemaQuoteAttrReq.getModelRange()){
+                                modelRanges.add(rangeRsp.getRange().intValue());
                             }
+
+                            graphMap.setModelRange(modelRanges);
+
+                            List<Long> ranges = schemaQuoteAttrReq.getRange();
                             graphMap.setRange(ranges);
                         }
 
@@ -1485,19 +1517,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         attrDefinitionReq.setDataUnit(attrReq.getUnit());
                     } else {
 
-                        List<ModelRangeRsp> ranges = attrReq.getRange();
+                        List<Long> rangeIds = attrReq.getRange();
 
-                        List<Long> rangeIds = new ArrayList<>();
-                        for(ModelRangeRsp r : ranges){
-
-                            if(r.getRange() != null){
-                                rangeIds.add(r.getRange());
-                            }else{
-                                rangeIds.add(conceptNameIdMap.get(r.getRangeName()+r.getMeaningTag()));
-                                r.setRange(conceptNameIdMap.get(r.getRangeName()+r.getMeaningTag()));
-                            }
-                        }
-                        attrDefinitionReq.setRangeValue(Lists.newArrayList(rangeIds));
+                        attrDefinitionReq.setRangeValue(rangeIds);
                         attrDefinitionReq.setDirection(0);
                         attrDefinitionReq.setDataType(0);
                     }
@@ -1592,7 +1614,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     }
 
     @Override
-    public void createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, List<CustomTableRsp> labels) {
+    public Integer createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, List<CustomTableRsp> labels) {
 
         DWPrebuildModel model = DWPrebuildModel.builder()
                 .databaseId(database.getId())
@@ -1609,6 +1631,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         model = prebuildModelRepository.save(model);
 
         createSchemaModel(model.getId(), preBuilderConceptRspList);
+
+        return model.getId();
     }
 
     @Override
@@ -2467,12 +2491,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 BeanUtils.copyProperties(graphMap, schemaQuoteAttrReq);
 
                 if (schemaQuoteAttrReq.getAttrType().equals(1)) {
-                    schemaQuoteAttrReq.setModelRange(graphMap.getModelRange());
-                    List<ModelRangeRsp> ranges = new ArrayList<>();
-                    for(Long r : graphMap.getRange()){
-                        ranges.add(ModelRangeRsp.builder().range(r).build());
+
+                    List<ModelRangeRsp> modelRangeRsps = new ArrayList<>();
+                    for(Integer range : graphMap.getModelRange()){
+                        modelRangeRsps.add(ModelRangeRsp.builder().range(new Long(range)).build());
                     }
-                    schemaQuoteAttrReq.setRange(ranges);
+
+                    schemaQuoteAttrReq.setModelRange(modelRangeRsps);
+                    schemaQuoteAttrReq.setRange(graphMap.getRange());
                     schemaQuoteAttrReq.setRelationAttrs(new ArrayList<>());
                 }
 
@@ -2747,7 +2773,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 DWPrebuildAttr attr = new DWPrebuildAttr();
                 BeanUtils.copyProperties(attrRsp, attr);
 
-                attr.setConceptId(conceptMap.get(conceptRsp.getName()));
+                attr.setConceptId(conceptMap.get(conceptRsp.getName()+conceptRsp.getMeaningTag()));
                 attr.setModelId(modelId);
                 if (attrRsp.getAttrType().equals(1)) {
                     List<Integer> range = new ArrayList<>();
