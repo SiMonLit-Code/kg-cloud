@@ -265,7 +265,7 @@ public class DWController {
     @PostMapping("statistic/by3dTable")
     public ApiReturn<DW3dTableRsp> statistic3dByTable(@Valid @RequestBody SqlQueryReq req) {
         String userId = SessionHolder.getUserId();
-        DWDatabaseRsp a = dwServince.findById(userId,698);
+        req.setDbName(dwServince.findById(userId,req.getDbId()).getDataName());
         return ApiReturn.success(dwServince.statisticBy3DTable(req));
     }
 }

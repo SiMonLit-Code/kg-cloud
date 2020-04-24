@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.sdk.kgcompute.stat;
 
+import com.ctrip.framework.apollo.Config;
+import com.ctrip.framework.apollo.ConfigService;
 import com.plantdata.kgcloud.sdk.kgcompute.compute.PrestoCompute;
 import com.plantdata.kgcloud.sdk.kgcompute.stat.bean.*;
 import tech.ibit.sqlbuilder.*;
@@ -8,6 +10,7 @@ import tech.ibit.sqlbuilder.aggregate.*;
 import java.util.List;
 
 public class PdStatServiceibit {
+    static Config appConfig;
 
     private PrestoCompute prestoCompute = new PrestoCompute();
 
@@ -27,6 +30,9 @@ public class PdStatServiceibit {
 
         Sql sql = new Sql();
 
+        appConfig = ConfigService.getConfig("kgsdk");
+        String alias = appConfig.getProperty("presto.dwAlias",null);
+
         if (pdStatBean == null) {
             return null;
         }
@@ -34,7 +40,7 @@ public class PdStatServiceibit {
         //select + groupby
         if (pdStatBean.getDimensions() != null) {
             for (PdStatBaseBean dimension : pdStatBean.getDimensions()) {
-                IColumn column = getColumn(dimension);
+                IColumn column = getColumn(dimension,alias,dbName,tbName);
                 sql.select(column);
                 sql.groupBy(column);
             }
@@ -43,7 +49,7 @@ public class PdStatServiceibit {
         //select agg
         if (pdStatBean.getMeasures() != null) {
             for (PdStatBaseBean measure : pdStatBean.getMeasures()) {
-                IColumn column = getColumn(measure);
+                IColumn column = getColumn(measure,alias,dbName,tbName);
                 sql.select(column);
             }
         }
@@ -51,7 +57,7 @@ public class PdStatServiceibit {
         //where + having
         if (pdStatBean.getFilters() != null) {
             for (PdStatFilterBean filter : pdStatBean.getFilters()) {
-                IColumn column = getColumn(filter);
+                IColumn column = getColumn(filter,alias,dbName,tbName);
                 for (PdStatOneFilterBean pdStatOneFilterBean : filter.getFilter()) {
                     getCondition(sql, column, pdStatOneFilterBean);
                 }
@@ -61,14 +67,14 @@ public class PdStatServiceibit {
         // order by
         if (pdStatBean.getOrders() != null) {
             for (PdStatOrderBean order : pdStatBean.getOrders()) {
-                IColumn column = getColumn(order);
+                IColumn column = getColumn(order,alias,dbName,tbName);
                 NameOrderBy o = new NameOrderBy(column.getName(), PdStatBaseBean.OrderEnum.DESC.equals(order.getOrder()));
                 sql.orderBy(o);
             }
         }
 
         // from
-        sql.from(new Table("", dbName+"."+tbName));
+        sql.from(new Table("", alias+"."+dbName+"."+tbName));
 
         String sql_str = getCompeletedSql(sql.getSqlParams().getSql(), sql.getSqlParams().getParams());
 
@@ -80,15 +86,14 @@ public class PdStatServiceibit {
 
     }
 
-    private Table getTableByColumn(PdStatBaseBean pdstat) {
-
-        return new Table("", "mysql_145.cmdb.t_trans_log");
+    private Table getTableByColumn(PdStatBaseBean pdstat,String alias,String dbName,String tbName) {
+        return new Table("", alias+"."+dbName+"."+tbName);
 
     }
 
-    private IColumn getColumn(PdStatBaseBean pdstat) {
+    private IColumn getColumn(PdStatBaseBean pdstat,String alias,String dbName,String tbName) {
 
-        Table table = getTableByColumn(pdstat);
+        Table table = getTableByColumn(pdstat,alias,dbName,tbName);
         Column column = new Column(table, pdstat.getName());
 
         if (pdstat.getAggregator() == null) {
