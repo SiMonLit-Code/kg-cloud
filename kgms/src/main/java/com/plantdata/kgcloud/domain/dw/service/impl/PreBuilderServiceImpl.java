@@ -625,7 +625,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             List<ModelRangeRsp> matchRanges = matchAttrRsp.getRange();
                             for(ModelRangeRsp r : matchRanges){
                                 if(!req.getConceptIds().contains(r.getRange().intValue())){
-                                    name += modelConceptNameMap.get(r.getRange().intValue())+",";
+                                    name += r.getRangeName()+",";
                                 }
                             }
 
@@ -699,7 +699,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         List<ModelRangeRsp> matchRanges = matchAttrRsp.getRange();
                         for(ModelRangeRsp r : matchRanges){
                             if(!req.getConceptIds().contains(r.getRange().intValue())){
-                                name += modelConceptNameMap.get(r)+",";
+                                name += r.getRangeName()+",";
                             }
                         }
 
