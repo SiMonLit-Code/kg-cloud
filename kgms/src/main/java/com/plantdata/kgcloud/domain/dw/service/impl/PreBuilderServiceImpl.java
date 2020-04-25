@@ -1434,7 +1434,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     needAddConcepts.add(schemaQuoteReq);
                 } else {
 
-                    if (conceptNameIdMap.containsKey(schemaQuoteReq.getConceptName())) {
+                    if (conceptNameIdMap.containsKey(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag())) {
                         schemaQuoteReq.setConceptId(conceptNameIdMap.get(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag()));
                         schemaQuoteReq.setPConceptId(conceptNameIdMap.get(schemaQuoteReq.getPConceptName()+schemaQuoteReq.getPConceptMeaningTag()));
                         continue;
@@ -1614,7 +1614,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         while (it.hasNext()) {
             SchemaQuoteReq concept = it.next();
 
-            if (conceptNameIdMap.containsKey(concept.getConceptName())) {
+            if (conceptNameIdMap.containsKey(concept.getConceptName()+concept.getConceptMeaningTag())) {
                 concept.setConceptId(conceptNameIdMap.get(concept.getConceptName()+concept.getConceptMeaningTag()));
                 concept.setPConceptId(conceptNameIdMap.get(concept.getPConceptName()+concept.getPConceptMeaningTag()));
                 it.remove();
