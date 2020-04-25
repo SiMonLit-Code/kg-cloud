@@ -52,4 +52,13 @@ public interface DWClient {
      */
     @PostMapping("statistic/by3dTable")
     ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req);
+
+//    /**
+//     * 查找所有数据库
+//     *
+//     * @param
+//     * @return .
+//     */
+//    @PostMapping("statistic/by3dTable")
+//    ApiReturn<List<DWTableRsp>> findAll();
 }

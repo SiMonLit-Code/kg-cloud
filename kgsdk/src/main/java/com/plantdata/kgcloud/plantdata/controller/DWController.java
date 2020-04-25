@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.sdk.req.SqlQueryReq;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author cx
@@ -34,4 +35,16 @@ public class DWController implements SdkOldApiInterface {
     public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req) {
         return dwClient.statisticBy3dTable(req);
     }
+
+//    @ApiOperation("数仓-查找所有数据库")
+//    @GetMapping("/database/all")
+//    public ApiReturn<List<DWDatabaseRsp>> findAll() {
+//        return ApiReturn.success(dwServince.findAll(userId));
+//    }
+//
+//    @ApiOperation("数仓-查找所有数据库与表")
+//    @GetMapping("/database/table/list")
+//    public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
+//        return ApiReturn.success(dwServince.databaseTableList(userId));
+//    }
 }
