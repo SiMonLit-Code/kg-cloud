@@ -780,7 +780,7 @@ public class PaserYaml2SchemaUtil {
         List<YamlColumn> columnList = new ArrayList<>();
         for(CustomColumnRsp column : columns){
 
-            if(column.getTag() == null){
+            if(column.getTag() == null || StringUtils.isEmpty(column.getTag())){
                 continue;
             }
 

@@ -545,8 +545,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                         if(modelRanges != null){
                             for(ModelRangeRsp r : modelRanges){
-                                if(modelKgConceptIdMap.containsKey(r.getRange())){
-                                    quoteModelRanges.add(modelKgConceptIdMap.get(r.getRange()));
+                                if(modelKgConceptIdMap.containsKey(r.getRange().intValue())){
+                                    quoteModelRanges.add(modelKgConceptIdMap.get(r.getRange().intValue()));
                                 }
                             }
                         }
@@ -575,8 +575,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             if(modelRanges != null){
                                 for(ModelRangeRsp r : modelRanges){
 
-                                    if(modelKgConceptNameMap.containsKey(r.getRange())){
-                                        quoteModelRangeNames.add(modelKgConceptNameMap.get(r.getRange()));
+                                    if(modelKgConceptNameMap.containsKey(r.getRange().intValue())){
+                                        quoteModelRangeNames.add(modelKgConceptNameMap.get(r.getRange().intValue()));
                                     }
                                 }
                             }
@@ -585,8 +585,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             if(matchRanges != null){
 
                                 for(ModelRangeRsp r : matchRanges){
-                                    if(modelKgConceptNameMap.containsKey(r.getRange())){
-                                        matchModelRangeNames.add(modelKgConceptNameMap.get(r.getRange()));
+                                    if(modelKgConceptNameMap.containsKey(r.getRange().intValue())){
+                                        matchModelRangeNames.add(modelKgConceptNameMap.get(r.getRange().intValue()));
                                     }
                                 }
 
