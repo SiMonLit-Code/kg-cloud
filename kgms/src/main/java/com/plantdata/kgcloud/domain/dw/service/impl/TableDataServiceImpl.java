@@ -3,43 +3,56 @@ package com.plantdata.kgcloud.domain.dw.service.impl;
 import com.github.junrar.Archive;
 import com.github.junrar.rarfile.FileHeader;
 import com.google.common.collect.Maps;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.config.MongoProperties;
-import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
+import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.common.util.PatternUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
+import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
+import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
+import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
+import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
+
+import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
+
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.TableDataService;
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
+import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
+import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
+import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
-import jodd.io.ZipUtil;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -50,11 +63,13 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.NotBlank;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static com.plantdata.kgcloud.domain.dw.service.impl.PreBuilderServiceImpl.bytesToFile;
 
 /**
  * @program: kg-cloud-kgms
@@ -83,9 +98,25 @@ public class TableDataServiceImpl implements TableDataService {
     @Autowired
     private EntityService entityService;
 
+    @Autowired
+    DWTableRepository dwTableRepository;
+
+    @Autowired
+    DWDatabaseRepository dwDatabaseRepository;
+
+    @Autowired
+    private MongoClient mongoClient;
+
+
+    @Autowired
+    private DocumentConverter documentConverter;
+    private static final String MONGO_ID = CommonConstants.MongoConst.ID;
+    private static final int CREATE_WAY = 2;
+    private static final int IS_WRITE_DW = 1;
+    private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
+
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq) {
-
         Map<String, Object> query = new HashMap<>();
         if (StringUtils.hasText(baseReq.getField()) && StringUtils.hasText(baseReq.getKw())) {
             Map<String, String> value = new HashMap<>();
@@ -94,6 +125,7 @@ public class TableDataServiceImpl implements TableDataService {
         }
 
         try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
+
             PageRequest pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
             List<Map<String, Object>> maps = provider.find(baseReq.getOffset(), baseReq.getLimit(), query);
             long count = provider.count(query);
@@ -144,8 +176,8 @@ public class TableDataServiceImpl implements TableDataService {
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect)) {
             List<String> fields = CollectionUtils.isEmpty(searchReq.getFields()) ? provider.getFields() : searchReq.getFields();
             Map<String, String> searchMap = Maps.newHashMapWithExpectedSize(fields.size());
-            fields.forEach(a->searchMap.put(a,searchReq.getKw()));
-            return provider.search(searchMap,searchReq.getOffset(),searchReq.getLimit());
+            fields.forEach(a -> searchMap.put(a, searchReq.getKw()));
+            return provider.search(searchMap, searchReq.getOffset(), searchReq.getLimit());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -206,14 +238,15 @@ public class TableDataServiceImpl implements TableDataService {
         fileTable.setDataBaseId(req.getDataBaseId());
 
         // 对压缩包进行解压
+        String zFile = "" + req.getPath().substring(req.getPath().lastIndexOf("/"));
+        bytesToFile(bytes, zFile);
         try {
-            if ("rar".equals(fileTable.getType())){
-                unRar(new File(req.getPath()),req.getPath().substring(0,req.getPath().lastIndexOf("/")+1));
-            }else if ("zip".equals(fileTable.getType())){
-                unZip(new File(req.getPath()),req.getPath().substring(0,req.getPath().lastIndexOf("/")+1));
+            if ("rar".equals(fileTable.getType())) {
+                unRar(new File(zFile), req.getPath().substring(0, req.getPath().lastIndexOf("/") + 1));
+            } else if ("zip".equals(fileTable.getType())) {
+                unZip(new File(zFile), req.getPath().substring(0, req.getPath().lastIndexOf("/") + 1));
             }
         } catch (Exception e) {
-            throw new BizException(KgmsErrorCodeEnum.UNZIP_ERROR);
         }
 
         return fileTableRepository.save(fileTable);
@@ -341,6 +374,12 @@ public class TableDataServiceImpl implements TableDataService {
                 entityFileRelation.setKeyword(fileTableReq.getKeyword());
                 entityFileRelation.setDescription(fileTableReq.getDescription());
                 entityFileRelationService.updateRelation(entityFileRelation);
+
+                String multiModalId = entityFileRelation.getMultiModalId();
+                MultiModal multiModal = new MultiModal();
+                multiModal.setId(multiModalId);
+                multiModal.setName(fileTableReq.getName());
+                entityService.updateMultiModal(entityFileRelation.getKgName(), multiModal);
             }
         }
 
@@ -354,7 +393,7 @@ public class TableDataServiceImpl implements TableDataService {
             // 删除实体文件关联
             entityFileRelationService.deleteRelationByDwFileId(id);
             // 删除多模态文件记录
-            entityService.deleteMultiModal(relationByDwFileId.getKgName(),relationByDwFileId.getMultiModalId());
+            entityService.deleteMultiModal(relationByDwFileId.getKgName(), relationByDwFileId.getMultiModalId());
         }
     }
 
@@ -379,19 +418,53 @@ public class TableDataServiceImpl implements TableDataService {
             fileTable.setPath(fastdfsTemplate.uploadFile(file).getFullPath());
 
             // 对压缩包进行解压
+            byte[] bytes = fastdfsTemplate.downloadFile(fileTable.getPath());
+            String zFile = "" + fileTable.getPath().substring(fileTable.getPath().lastIndexOf("/"));
+            bytesToFile(bytes, zFile);
             try {
-                if ("rar".equals(fileTable.getType())){
-                    unRar(new File(fileTable.getPath()),fileTable.getPath().substring(0,fileTable.getPath().lastIndexOf("/")+1));
-                }else if ("zip".equals(fileTable.getType())){
-                    unZip(new File(fileTable.getPath()),fileTable.getPath().substring(0,fileTable.getPath().lastIndexOf("/")+1));
+                if ("rar".equals(fileTable.getType())) {
+                    unRar(new File(zFile), fileTable.getPath().substring(0, fileTable.getPath().lastIndexOf("/") + 1));
+                } else if ("zip".equals(fileTable.getType())) {
+                    unZip(new File(zFile), fileTable.getPath().substring(0, fileTable.getPath().lastIndexOf("/") + 1));
                 }
             } catch (Exception e) {
-                throw new BizException(KgmsErrorCodeEnum.UNZIP_ERROR);
             }
 
             fileTableRepository.save(fileTable);
         }
 
         return;
+    }
+
+    @Override
+    public void dataUpdate(DWDatabaseUpdateReq baseReq) {
+        String userId = SessionHolder.getUserId();
+        DWTable table = dwTableRepository.findOne(Example.of(DWTable.builder().id(baseReq.getTableId()).dwDataBaseId(baseReq.getDataBaseId()).build()))
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST));
+        if (null == table.getCreateWay() || null == table.getIsWriteDW()) {
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
+        }
+        if (!(table.getCreateWay() == CREATE_WAY && table.getIsWriteDW() == IS_WRITE_DW)) {
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
+        }
+        DataOptProvider provider = getProvider(userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties);
+        DWDatabase database = dwDatabaseRepository.findById(baseReq.getDataBaseId())
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
+        MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
+        long count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
+        Map<String, Object> data = baseReq.getData();
+        String mongoId = baseReq.getId();
+        if (count == 0) {
+            data.put(MONGO_ID, new ObjectId(mongoId));
+            collection.insertOne(new Document(data));
+            data.remove(MONGO_ID);
+            Document document = new Document(data);
+            provider.update(mongoId, document);
+        } else {
+            data.remove(MONGO_ID);
+            Document document = new Document(data);
+            collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", document));
+            provider.update(mongoId, document);
+        }
     }
 }

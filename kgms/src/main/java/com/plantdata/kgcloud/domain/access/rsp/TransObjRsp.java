@@ -8,12 +8,16 @@ import java.util.List;
  * @program: kg-cloud-kgms
  * @description:
  * @author: czj
- * @create: 2020-04-21 18:22
+ * @create: 2020-04-22 18:07
  **/
 @Data
-public class TransEntityConfigRsp  extends TransObjRsp{
+public class TransObjRsp {
+
+    private TransTraceRsp trace = new TransTraceRsp();
 
     private String dataType;
 
-    private List<TransAttrRsp> attrs;
+    private TransInsConfigRsp entityType;
+
+    private List<TransPropertyRsp> entity;
 }

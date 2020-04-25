@@ -80,6 +80,7 @@ public class CreateKtrFile {
         //错误数据接入
         String mongoErrorInput = IndustryKtrXml.mongoErrorInput;
 
+        boolean isMongo = true;
 
         if(table.getCreateWay().equals(1)){
             //远程表
@@ -105,6 +106,7 @@ public class CreateKtrFile {
                 connXml = IndustryKtrXml.connectionXml;
                 jsonFieldxml = IndustryKtrXml.jsonFieldxml;
                 inputXml = IndustryKtrXml.mysqlInputXml;
+                isMongo = false;
             }
         }else{
             //本地表
@@ -130,13 +132,9 @@ public class CreateKtrFile {
 
         }
 
-        boolean isMongo = true;
 
-        if(database.getDataType() != null && !database.getDataType().equals(1)){
-            isMongo = false;
-        }
         // 查询语句
-        String queryXml = getTableSql(database.getDataType(),table,tableName);
+        String queryXml = getTableSql(database.getDataType(),table,tableName,isMongo);
 
         inputXml = changeSql(inputXml, queryXml);
 
@@ -208,6 +206,7 @@ public class CreateKtrFile {
         //错误数据接入
         String mongoErrorInput = KtrXml.mongoErrorInput;
 
+        boolean isMongo = true;
 
         if(table.getCreateWay().equals(1)){
             //远程表
@@ -233,6 +232,7 @@ public class CreateKtrFile {
                 connXml = KtrXml.connectionXml;
                 jsonFieldxml = KtrXml.jsonFieldxml;
                 inputXml = KtrXml.mysqlInputXml;
+                isMongo = false;
             }
         }else{
             //本地表
@@ -259,14 +259,9 @@ public class CreateKtrFile {
         }
 
 
-        boolean isMongo = true;
-
-        if(database.getDataType() != null && !database.getDataType().equals(1)){
-            isMongo = false;
-        }
 
         // 查询语句
-        String queryXml = getTableSql(database.getDataType(),table,tableName);
+        String queryXml = getTableSql(database.getDataType(),table,tableName,isMongo);
 
         inputXml = changeSql(inputXml, queryXml);
 
@@ -322,12 +317,12 @@ public class CreateKtrFile {
         return kafkaxml.replace("kafkaQAQ", kafkaServers).replace("topicQAQ",kafkaTopic);
     }
 
-    private static String getTableSql(Integer dataType,DWTableRsp table,String tableName) {
+    private static String getTableSql(Integer dataType,DWTableRsp table,String tableName,Boolean isMongo) {
 
         StringBuilder sql = new StringBuilder();
 
 
-        if(dataType == null || DataType.MONGO.equals(DataType.findType(dataType))){
+        if(isMongo){
 
             if(table.getIsAll() == null || table.getIsAll().equals(1)){
 

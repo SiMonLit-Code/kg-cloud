@@ -24,7 +24,6 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.data.entity.DWDataStatusDatail;
-import com.plantdata.kgcloud.domain.data.entity.DWDataTableName;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
@@ -847,6 +846,14 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
+    public DWDatabaseRsp findDatabaseByDataName(String dataName) {
+
+        Optional<DWDatabase> databaseOpt = dwRepository.findOne(Example.of(DWDatabase.builder().dataName(dataName).build()));
+
+        return ConvertUtils.convert(DWDatabaseRsp.class).apply(databaseOpt.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST)));
+    }
+
+    @Override
     public void upload(String userId, Long databaseId, Long tableId, MultipartFile file) {
 
         List<DataSetSchema> schemas = null;
@@ -975,6 +982,7 @@ public class DWServiceImpl implements DWService {
                 value.put("tbName", tableName);
                 value.put("target", tableName);
                 value.put("userId", database.getUserId());
+                value.put("updateTime", now);
                 provider.insert(value);
             } else {
 
@@ -983,6 +991,7 @@ public class DWServiceImpl implements DWService {
 
                 count += sum;
                 value.put("W", new Long(count));
+                value.put("updateTime", now);
                 String id = value.get(MONGO_ID).toString();
                 value.remove(MONGO_ID);
                 provider.update(id, value);
@@ -1294,7 +1303,7 @@ public class DWServiceImpl implements DWService {
         for (RemoteTableAddReq req : reqList) {
 
             if (!StringUtils.hasText(req.getTbName())) {
-                throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
+                throw BizException.of(KgmsErrorCodeEnum.NOT_SELECT_MAP_TABLE);
             }
 
             Optional<DWTable> optTb = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).tbName(req.getTbName()).build()));
@@ -1836,7 +1845,7 @@ public class DWServiceImpl implements DWService {
             }
 
 
-            preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), null);
+            preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), database.getTableLabels());
 
         }
         /*else if (DWDataFormat.isCustom(database.getDataFormat())) {
@@ -1992,9 +2001,7 @@ public class DWServiceImpl implements DWService {
 
     private void updateSchedulingConfig(DWDatabaseRsp database, DWTableRsp tableRsp, Long dwDataBaseId, String tableName, String cron, Integer isAll, String field) {
 
-        String ktrTaskName = AccessTaskType.KTR.getDisplayName() + "_" + dwDataBaseId + "_" + tableName + "_";
-
-        accessTaskService.updateTableSchedulingConfig(database, tableRsp, ktrTaskName, cron, isAll, field);
+        accessTaskService.updateTableSchedulingConfig(database, tableRsp, cron, isAll, field);
     }
 
     @Override
@@ -2203,8 +2210,29 @@ public class DWServiceImpl implements DWService {
                 throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
             }
 
+            deleteCountData(databaseId,opt.get().getTableName());
+
             tableRepository.deleteById(tableId);
         }
+    }
+
+    private void deleteCountData(Long databaseId, String tableName) {
+        Map<String, Object> search = new HashMap<>();
+        search.put("dbId", databaseId);
+        search.put("tableName", tableName);
+        Map<String, Object> query = new HashMap<>();
+        query.put("search", search);
+        try(DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE, KETTLE_LOGS_COLLECTION)) {
+            List<Map<String, Object>> rs = provider.find(0,999999,query);
+            if(rs != null && !rs.isEmpty()){
+                List<String> ids = rs.stream().map(map -> map.get("_id").toString()).collect(Collectors.toList());
+                if(ids != null && !ids.isEmpty()){
+                    provider.batchDelete(ids);
+                }
+            }
+        }catch (Exception e){
+        }
+
     }
 
     private DataOptProvider getProvider(Boolean isLocal, String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
@@ -2593,8 +2621,8 @@ public class DWServiceImpl implements DWService {
         bsons.add(Filters.eq("dbId", databaseId));
         bsons.add(Filters.eq("userId", userId));
         FindIterable<Document> findIterable = collection.find(Filters.and(bsons));
-        List<DWDataTableName> dwDataList = documentConverter.toBeans(findIterable, DWDataTableName.class);
-        List<String> collect = dwDataList.stream().map(DWDataTableName::getTableName).distinct().collect(Collectors.toList());
+        List<DWDataStatusDatail> dwDataList = documentConverter.toBeans(findIterable, DWDataStatusDatail.class);
+        List<String> collect = dwDataList.stream().map(DWDataStatusDatail::getTableName).distinct().collect(Collectors.toList());
         List<DWDataStatusDatail> dWDataRspList = new ArrayList<>();
         for (String dWData : collect) {
             List<Bson> bson = new ArrayList<>(3);

@@ -35,7 +35,7 @@ public class MysqlOptProvider implements DataOptProvider {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
 
         dataSourceBuilder.driverClassName("com.mysql.jdbc.Driver");
-        dataSourceBuilder.url("jdbc:mysql://" + info.getAddresses().get(0) + "/" + info.getDatabase() + "?characterEncoding=utf8&useSSL=false&connectTimeout=1000&socketTimeout=1000");
+        dataSourceBuilder.url("jdbc:mysql://" + info.getAddresses().get(0) + "/" + info.getDatabase() + "?characterEncoding=utf8&useSSL=false&connectTimeout=1000&socketTimeout=1000&zeroDateTimeBehavior=convertToNull");
 
         dataSourceBuilder.username(info.getUsername());
         dataSourceBuilder.password(info.getPassword());

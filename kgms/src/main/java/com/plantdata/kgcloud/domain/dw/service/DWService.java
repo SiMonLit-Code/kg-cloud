@@ -98,4 +98,6 @@ public interface DWService {
     List<String> getTableFieldEnum(Long databaseId, String tableName, String field);
 
     void updateCustomLabel(Long databaseId, List<CustomTableRsp> customTableRsps);
+
+    DWDatabaseRsp findDatabaseByDataName(String dataName);
 }

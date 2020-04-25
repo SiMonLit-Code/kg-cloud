@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.access.service;
 
+import com.plantdata.kgcloud.domain.access.entity.DWTask;
 import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
@@ -33,5 +34,9 @@ public interface AccessTaskService {
 
     String createDwTask(String tableName,Long databaseId);
 
-    void updateTableSchedulingConfig(DWDatabaseRsp database, DWTableRsp table, String ktrTaskName, String cron, Integer isAll, String field);
+    void updateTableSchedulingConfig(DWDatabaseRsp database, DWTableRsp table, String cron, Integer isAll, String field);
+
+    List<DWTask> getTableTask(Long dbId, String tableName);
+
+    void addRerunTask(Long dbId, String tableName, List<String> resourceNames);
 }
