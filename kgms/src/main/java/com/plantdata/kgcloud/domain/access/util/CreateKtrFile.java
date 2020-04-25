@@ -325,8 +325,6 @@ public class CreateKtrFile {
         if(isMongo){
 
             if(table.getIsAll() == null || table.getIsAll().equals(1)){
-
-
                 return sql.toString();
             }else{
                 return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
