@@ -342,11 +342,15 @@ public class GraphMapServiceImpl implements GraphMapService {
                     //图谱中该属性的边属性不存在，删除订阅记录
                     for(DWGraphMapRelationAttr relationAttr : relationAttrList){
                         if(!relationAttrNames.contains(relationAttr.getName())){
-                            graphMapRelationAttrRepository.deleteById(relationAttr.getId());
+                            if(graphMapRelationAttrRepository.existsById(relationAttr.getId())){
+                                graphMapRelationAttrRepository.deleteById(relationAttr.getId());
+                            }
                         }
 
                         if(existRelationAttList.contains(relationAttr.getName()+relationAttr.getModelId()+relationAttr.getModelAttrId())){
-                            graphMapRelationAttrRepository.deleteById(relationAttr.getId());
+                            if(graphMapRelationAttrRepository.existsById(relationAttr.getId())) {
+                                graphMapRelationAttrRepository.deleteById(relationAttr.getId());
+                            }
                         }else{
                             existRelationAttList.add(relationAttr.getName()+relationAttr.getModelId()+relationAttr.getModelAttrId());
                         }
