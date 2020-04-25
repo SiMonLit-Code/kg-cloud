@@ -242,6 +242,10 @@ public class DWServiceImpl implements DWService {
                 }
 
                 for (ModelRelationBeanRsp relation : tagJson.getRelation()) {
+
+                    if(relation.getName() == null || relation.getName().isEmpty() ){
+                        continue;
+                    }
                     if (map.containsKey(relation.getDomain() + "-" + relation.getName())) {
                         ModelRelationBeanRsp rela = map.get(relation.getDomain() + "-" + relation.getName());
 
