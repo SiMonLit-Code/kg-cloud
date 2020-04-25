@@ -73,6 +73,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     private static final String DB_NAME = "check_data_db";
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
     private static final String DB_VIEW_STATUS = "Edit";
+
     private MongoCollection<Document> getCollection() {
         return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
     }
@@ -276,6 +277,7 @@ public class DataStoreServiceImpl implements DataStoreService {
         long count = collection.countDocuments();
         findIterable = collection.find().sort(Sorts.descending("createdate")).skip(page).limit(size);
         List<Map<String, Object>> maps = filterData(findIterable);
+
         return new BasePage(count, maps);
     }
 
@@ -315,8 +317,11 @@ public class DataStoreServiceImpl implements DataStoreService {
             document.remove("showData");
             map.putAll(rawData);
             map.put("data", document);
+            map.put("title", map.get("dbTitle"));
+            map.remove("dbTitle");
             list.add(map);
         }
+
         return list;
     }
 }
