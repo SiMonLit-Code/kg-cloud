@@ -708,16 +708,12 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
         }
 
-        List<CustomTableRsp> customTableRsps;
+        List<CustomTableRsp> customTableRsps = database.getTableLabels();
 
-        if(isDefault != null && isDefault){
-
+        if(customTableRsps == null || customTableRsps.isEmpty()){
             customTableRsps = ExampleYaml.createCustom(tables);
-
-        }else{
-
-            customTableRsps = database.getTableLabels();
         }
+
         return customTableRsps;
     }
 
@@ -879,7 +875,7 @@ public class DWServiceImpl implements DWService {
                 List<DataSetSchema> tableSchemas = schemaResolve(file, null);
                 if (schemas == null) {
 
-                    if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
+                    /*if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
                         if(tableSchemas != null && !tableSchemas.isEmpty()){
                             List<DataSetSchema> schemaList = new ArrayList<>(1);
                             for(DataSetSchema s: schemaList) {
@@ -895,9 +891,9 @@ public class DWServiceImpl implements DWService {
                         }
 
                     }else{
-                        schemas = tableSchemas;
-                    }
 
+                    }*/
+                    schemas = tableSchemas;
                     if (DWDataFormat.isPDdoc(database.getDataFormat())) {
                         if(StringUtils.hasText(table.getPdSingleField())){
                             checkPDDocSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
@@ -1067,12 +1063,8 @@ public class DWServiceImpl implements DWService {
         if (StringUtils.hasText(req.getTableName())) {
             schema = getIndustryTableSchema(req.getDwDataBaseId(), req.getTableName());
             target.setKtr(getIndustryTableKtr(req.getDwDataBaseId(), req.getTableName()));
-        } else if (DWDataFormat.isPDdoc(dwDatabase.getDataFormat()) || DWDataFormat.isPDd2r(dwDatabase.getDataFormat())) {
-            if (StringUtils.hasText(req.getField())) {
-                target.setPdSingleField(req.getField());
-            } else {
-                schema = schemaResolve(null, dwDatabase.getDataFormat());
-            }
+        } else if (StringUtils.hasText(req.getField()) && (DWDataFormat.isPDdoc(dwDatabase.getDataFormat()) || DWDataFormat.isPDd2r(dwDatabase.getDataFormat()))) {
+            target.setPdSingleField(req.getField());
         } else {
             schema = req.getSchemas();
         }
@@ -1355,11 +1347,7 @@ public class DWServiceImpl implements DWService {
 
                 List<DataSetSchema> schemaList = getIndustryTableSchema(databaseId, req.getTableName());
                 List<DataSetSchema> tableSchemaList = getTableSchema(database, req.getTbName());
-                if (schemaList == null) {
-                    schemaList = tableSchemaList;
-                } else {
-                    checkIndutrySchema(schemaList, tableSchemaList);
-                }
+                checkIndutrySchema(schemaList, tableSchemaList);
 
                 DWTable table = DWTable.builder()
                         .dwDataBaseId(databaseId)
@@ -1384,9 +1372,7 @@ public class DWServiceImpl implements DWService {
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
 
                     if(StringUtils.hasText(req.getField())){
-                        DataSetSchema dataSetSchema = req.getDataSetSchema();
-                        schemaList = Lists.newArrayList(dataSetSchema);
-                        fields = transformFields(schemaList);
+                        fields = Lists.newArrayList(req.getField());
                         checkPDDocSchema(schemaList,fields);
                     }else{
                         checkPDDocSchema(schemaList,null);
@@ -1394,11 +1380,8 @@ public class DWServiceImpl implements DWService {
 
                 }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
 
-
                     if(StringUtils.hasText(req.getField())){
-                        DataSetSchema dataSetSchema = req.getDataSetSchema();
-                        schemaList = Lists.newArrayList(dataSetSchema);
-                        fields = transformFields(schemaList);
+                        fields = Lists.newArrayList(req.getField());
                         checkPDD2rSchema(schemaList,fields);
                     }else{
                         checkPDD2rSchema(schemaList,null);

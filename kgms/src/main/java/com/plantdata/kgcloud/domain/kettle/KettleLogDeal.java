@@ -73,14 +73,24 @@ public class KettleLogDeal {
     public static KettleLogStatisticRsp parseKettleLogStatisticRsp(@NonNull MongoCursor<Document> data, @NonNull KettleLogStatisticTypeEnum statisticType, @NonNull List<String> tableNames) {
 
 
+        Long updateTime = 0L;
+
         List<KettleLogAggResultDTO> list = Lists.newArrayList();
-        data.forEachRemaining(a -> {
-            KettleLogAggResultDTO resultDTO = new KettleLogAggResultDTO();
-            Document idMap = a.get("_id", Document.class);
-            resultDTO.setSum(a.getLong(SUM));
-            resultDTO.set_id(new KettleLogAggResultDTO.IdClass(new Date(idMap.getLong("date")), new Date(idMap.getLong("updateDate")),idMap.getString("tbName"), idMap.getLong("dbId")));
-            list.add(resultDTO);
-        });
+        if(data != null ){
+            while (data.hasNext()){
+                Document a = data.next();
+                KettleLogAggResultDTO resultDTO = new KettleLogAggResultDTO();
+                Document idMap = a.get("_id", Document.class);
+                resultDTO.setSum(a.getLong(SUM));
+
+                Long time = idMap.getLong("updateDate");
+                if(updateTime < time){
+                    updateTime = time;
+                }
+                resultDTO.set_id(new KettleLogAggResultDTO.IdClass(new Date(idMap.getLong("date")), idMap.getString("tbName"), idMap.getLong("dbId")));
+                list.add(resultDTO);
+            }
+        }
 
         Map<String, List<KettleLogAggResultDTO>> groupDataMap = list.stream()
                 .collect(Collectors.groupingBy(a -> KettleLogAggResultDTO.formatByStatisticType(a.get_id().getDate(), statisticType)));
@@ -100,6 +110,6 @@ public class KettleLogDeal {
             map.put(key, collect);
         });
 
-        return new KettleLogStatisticRsp(list.get(0).get_id().getDate(),list.get(0).get_id().getUpdateDate(), map);
+        return new KettleLogStatisticRsp(list.get(0).get_id().getDate(),new Date(updateTime), map);
     }
 }

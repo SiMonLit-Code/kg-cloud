@@ -25,7 +25,6 @@ public class KettleLogAggResultDTO {
     @AllArgsConstructor
     public static class IdClass {
         private Date date;
-        private Date updateDate;
         private String tbName;
         private Long dbId;
     }
