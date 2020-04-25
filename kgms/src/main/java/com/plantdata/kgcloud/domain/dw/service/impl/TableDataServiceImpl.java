@@ -35,15 +35,10 @@ import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.TableDataService;
-import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
-import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
-import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
-import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -63,7 +58,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.validation.constraints.NotBlank;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -114,6 +108,7 @@ public class TableDataServiceImpl implements TableDataService {
     private static final int CREATE_WAY = 2;
     private static final int IS_WRITE_DW = 1;
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
+    private static final String DB_VIEW_STATUS = "Edit";
 
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq) {
@@ -454,23 +449,24 @@ public class TableDataServiceImpl implements TableDataService {
         long count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
         Map<String, Object> data = baseReq.getData();
         String mongoId = baseReq.getId();
+        Map<Object, Object> map = new HashMap<>();
+        map.put("dataName", database.getDataName());
+        map.put("tableName", baseReq.getDataBaseId());
+        map.put("status", DB_VIEW_STATUS);
+        data.put("showData", map);
         if (count == 0) {
             data.put(MONGO_ID, new ObjectId(mongoId));
-            data.put("dataName", database.getDataName());
-            data.put("tableName", baseReq.getDataBaseId());
-            data.put("status", "Edit");
             collection.insertOne(new Document(data));
             data.remove(MONGO_ID);
-            data.remove("dataName");
-            data.remove("tableName");
-            data.remove("status");
+            data.remove("showData");
             Document document = new Document(data);
             provider.update(mongoId, document);
         } else {
             data.remove(MONGO_ID);
-            Document document = new Document(data);
-            collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", document));
-            provider.update(mongoId, document);
+            collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
+            data.remove("showData");
+            provider.update(mongoId, new Document(data));
         }
     }
+
 }
