@@ -2212,6 +2212,7 @@ public class DWServiceImpl implements DWService {
             deleteCountData(databaseId,opt.get().getTableName());
 
             tableRepository.deleteById(tableId);
+
         }
     }
 

@@ -285,6 +285,10 @@ public class DataStoreServiceImpl implements DataStoreService {
     @Override
     public void rerun(DtReq req) {
 
+        if(req.getDbTable() == null || req.getDbName() == null){
+            throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
+        }
+
         DWDatabaseRsp databaseRsp = dwService.findDatabaseByDataName(req.getDbName());
 
         List<DWTask> all = accessTaskService.getTableTask(databaseRsp.getId(), req.getDbTable());
