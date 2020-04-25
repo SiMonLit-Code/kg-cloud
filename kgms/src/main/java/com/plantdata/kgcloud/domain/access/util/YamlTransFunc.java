@@ -470,11 +470,14 @@ public class YamlTransFunc {
         Map<String, TransInsConfigRsp> entityTypeMap = new HashMap<>();
         Map<String,Map<String,TransAttrRsp>> attrMap = new HashMap<>();
         for(CustomColumnRsp column : label.getColumns()){
-            if(column.getTag() == null){
+            if(column.getTag() == null || column.getTag().isEmpty()){
                 continue;
             }
 
             String[] tags = column.getTag().split("\\.");
+            if(tags.length != 2){
+                continue;
+            }
 
             if(pbList.contains(tags[1])){
                 Map<String,TransPropertyRsp> propertyRsps = entityPropertyMap.get(tags[0]);
