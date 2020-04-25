@@ -72,6 +72,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private static final String DB_NAME = "check_data_db";
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
+    private static final String DB_VIEW_STATUS = "Edit";
 
     private MongoCollection<Document> getCollection() {
         return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
@@ -238,6 +239,7 @@ public class DataStoreServiceImpl implements DataStoreService {
         MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + req.getDbName()).getCollection(req.getDbTable());
         //查询旧集合
         MongoCollection<Document> collectionOld = getCollection();
+
         MongoCursor<Document> iterator = collectionOld.find(documentConverter.buildObjectId(req.getId())).iterator();
         if (!iterator.hasNext()) {
             return;
@@ -247,13 +249,14 @@ public class DataStoreServiceImpl implements DataStoreService {
             throw BizException.of(KgmsErrorCodeEnum.NO_DATA_CHANGE);
         }
         document.remove("data");
-
+        document.remove(MONGO_ID);
+        document.append("status", DB_VIEW_STATUS).append("createdate", DateUtils.formatDatetime());
+        Document allDocument = new Document();
+        allDocument.append("showData", document);
         Map<String, Object> data = filterDataId(req.getData());
-        data.put("createdate", DateUtils.formatDatetime());
-        data.put("status", "Edit");
-        document.putAll(data);
+        allDocument.putAll(data);
         try {
-            collection.insertOne(document);
+            collection.insertOne(allDocument);
         } catch (Exception e) {
             e.printStackTrace();
             throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
@@ -263,7 +266,7 @@ public class DataStoreServiceImpl implements DataStoreService {
 
 
     @Override
-    public BasePage<Map<String, Object>> listErrDataStore(DataStoreScreenReq req) {
+    public BasePage listErrDataStore(DataStoreScreenReq req) {
         if (StringUtils.isEmpty(req.getDbName()) || StringUtils.isEmpty(req.getDbTable())) {
             throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
         }
@@ -273,8 +276,9 @@ public class DataStoreServiceImpl implements DataStoreService {
         FindIterable<Document> findIterable;
         long count = collection.countDocuments();
         findIterable = collection.find().sort(Sorts.descending("createdate")).skip(page).limit(size);
-        List<DataStoreRsp> rspList = filterData(findIterable);
-        return new BasePage(count, rspList);
+        List<Map<String, Object>> maps = filterData(findIterable);
+
+        return new BasePage(count, maps);
     }
 
 
@@ -304,37 +308,20 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
 
-    private List<DataStoreRsp> filterData(FindIterable<Document> findIterable) {
-        List<DataStoreRsp> rspList = new ArrayList<>();
+    private List<Map<String, Object>> filterData(FindIterable<Document> findIterable) {
+        List<Map<String, Object>> list = new ArrayList<>();
         for (Document document : findIterable) {
+            Map<String, Object> map = new HashMap<>();
             JSONObject jsonObject = JSON.parseObject(document.toJson());
-            DataStoreRsp dataStoreRsp = new DataStoreRsp();
-            dataStoreRsp.setStatus((String) jsonObject.get("status"));
-            dataStoreRsp.setDbName((String) jsonObject.get("dbName"));
-            dataStoreRsp.setDbTable((String) jsonObject.get("dbTable"));
-            dataStoreRsp.setErrorReason((String) jsonObject.get("errorReason"));
-            dataStoreRsp.setFields((String) jsonObject.get("fields"));
-            dataStoreRsp.setTitle((String) jsonObject.get("title"));
-            dataStoreRsp.setId(jsonObject.get("_id").toString());
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("data", getDataNode(document));
-            dataStoreRsp.setData(map);
-            rspList.add(dataStoreRsp);
+            Map rawData = JSON.parseObject(jsonObject.get("showData").toString(), Map.class);
+            document.remove("showData");
+            map.putAll(rawData);
+            map.put("data", document);
+            map.put("title", map.get("dbTitle"));
+            map.remove("dbTitle");
+            list.add(map);
         }
-        return rspList;
+
+        return list;
     }
-
-    private JSONObject getDataNode(Document document) {
-        JSONObject jsonObject = JSON.parseObject(document.toJson());
-        jsonObject.remove("id");
-        jsonObject.remove("dbName");
-        jsonObject.remove("title");
-        jsonObject.remove("dbTable");
-        jsonObject.remove("fields");
-        jsonObject.remove("status");
-        jsonObject.remove("errorReason");
-        return jsonObject;
-    }
-
-
 }
