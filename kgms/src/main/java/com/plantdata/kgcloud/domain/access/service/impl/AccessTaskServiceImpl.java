@@ -29,6 +29,7 @@ import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
+import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
@@ -281,11 +282,13 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                     throw BizException.of(KgmsErrorCodeEnum.PRE_BUILD_MODEL_NOT_EXIST);
                 }
                 DWPrebuildModel model = modelOpt.get();
-                String yamlContent = model.getYamlContent();
-                if(yamlContent != null && !yamlContent.isEmpty()){
-                    Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
-                    JSONArray tableTransfer = yamlTagMap.get(tableName);
-                    transferJson.put("transferConfig", tableTransfer);
+                if(model.getTableLabels() != null && !model.getTableLabels().isEmpty()){
+                    for(CustomTableRsp tableRsp : model.getTableLabels()){
+                        if(tableRsp.getTableName().equals(tableName)){
+                            transferJson.put("transferConfig", YamlTransFunc.tranConfig(tableRsp));
+                            break;
+                        }
+                    }
                 }
             }
 
