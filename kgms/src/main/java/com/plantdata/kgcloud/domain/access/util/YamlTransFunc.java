@@ -564,6 +564,10 @@ public class YamlTransFunc {
 
             for(CustomRelationRsp relationRsp : label.getRelationRsps()){
 
+                if(relationRsp.getName() == null || relationRsp.getName().isEmpty()){
+                    continue;
+                }
+
                 String domain = relationRsp.getDomain();
 
                 TransInsConfigRsp domainType = entityTypeMap.get(domain);
@@ -609,6 +613,9 @@ public class YamlTransFunc {
                     if(relaAttrs != null && !relaAttrs.isEmpty()){
 
                         for(CustomColumnRsp relaAttr : relaAttrs){
+                            if(relaAttr.getTag() == null || relaAttr.getTag().isEmpty()){
+                                continue;
+                            }
 
                             TransAttrRsp a = new TransAttrRsp();
                             a.setProperty(relaAttr.getTag());
