@@ -708,16 +708,12 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
         }
 
-        List<CustomTableRsp> customTableRsps;
+        List<CustomTableRsp> customTableRsps = database.getTableLabels();
 
-        if(isDefault != null && isDefault){
-
+        if(customTableRsps == null || customTableRsps.isEmpty()){
             customTableRsps = ExampleYaml.createCustom(tables);
-
-        }else{
-
-            customTableRsps = database.getTableLabels();
         }
+
         return customTableRsps;
     }
 
