@@ -1367,13 +1367,10 @@ public class DWServiceImpl implements DWService {
 
                 List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
 
-                List<String> fields = null;
-
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
 
                     if(StringUtils.hasText(req.getField())){
-                        fields = Lists.newArrayList(req.getField());
-                        checkPDDocSchema(schemaList,fields);
+                        checkPDDocSchema(schemaList,Lists.newArrayList(req.getField()));
                     }else{
                         checkPDDocSchema(schemaList,null);
                     }
@@ -1381,16 +1378,11 @@ public class DWServiceImpl implements DWService {
                 }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
 
                     if(StringUtils.hasText(req.getField())){
-                        fields = Lists.newArrayList(req.getField());
-                        checkPDD2rSchema(schemaList,fields);
+                        checkPDD2rSchema(schemaList,Lists.newArrayList(req.getField()));
                     }else{
                         checkPDD2rSchema(schemaList,null);
                     }
 
-                }
-
-                if(fields == null){
-                    fields = transformFields(schemaList);
                 }
 
 
@@ -1401,7 +1393,7 @@ public class DWServiceImpl implements DWService {
                         .tbName(req.getTbName())
                         .title(req.getTbName())
                         .createWay(1)
-                        .fields(fields)
+                        .fields(transformFields(schemaList))
                         .pdSingleField(req.getField())
                         .build();
 
