@@ -21,9 +21,11 @@ import java.util.*;
 @NoArgsConstructor
 public class KettleLogStatisticRsp {
 
-    public static final KettleLogStatisticRsp EMPTY = new KettleLogStatisticRsp(null, new LinkedHashMap<>());
+    public static final KettleLogStatisticRsp EMPTY = new KettleLogStatisticRsp(null,null, new LinkedHashMap<>());
     @ApiModelProperty("最后一次统计日期")
     private Date lastStatisticDate;
+    @ApiModelProperty("最后一次更新日期")
+    private Date updateTime;
     @ApiModelProperty("统计结果,k->日期 v")
     private LinkedHashMap<String, List<MeasureRsp>> result;
 

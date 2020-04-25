@@ -301,6 +301,8 @@ public class GraphMapServiceImpl implements GraphMapService {
             if(attrMapList != null && !attrMapList.isEmpty()){
                 deleteConcept(attrMapList);
             }
+
+            return ;
         }
 
         Map<Integer,AttributeDefinitionRsp> existAttrIds = schemaRsp.getAttrs().stream().collect(Collectors.toMap(AttributeDefinitionRsp::getId, Function.identity()));
@@ -330,7 +332,7 @@ public class GraphMapServiceImpl implements GraphMapService {
 
                     List<String> relationAttrNames = attr.getExtraInfos().stream().map(AttrExtraRsp::getName).collect(Collectors.toList());
 
-                    List<DWGraphMapRelationAttr> relationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().kgName(kgName).attrId(attr.getId()).build()));
+                    List<DWGraphMapRelationAttr> relationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().kgName(kgName).modelAttrId(graphMap.getModelAttrId()).build()));
 
                     //没有边属性订阅，跳过
                     if(relationAttrList == null || relationAttrList.isEmpty()){

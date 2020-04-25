@@ -57,6 +57,7 @@ public class KettleLogDeal {
 
         BasicDBObject basicDBObject = new BasicDBObject("tbName", "$tbName")
                 .append("date", "$logTimeStamp")
+                .append("updateDate", "$updateTime")
                 .append("dbId", "$dbId");
         list.add(Aggregates.match(match));
         list.add(Aggregates.group(basicDBObject, Accumulators.sum(SUM, "$W")));
@@ -77,7 +78,7 @@ public class KettleLogDeal {
             KettleLogAggResultDTO resultDTO = new KettleLogAggResultDTO();
             Document idMap = a.get("_id", Document.class);
             resultDTO.setSum(a.getLong(SUM));
-            resultDTO.set_id(new KettleLogAggResultDTO.IdClass(new Date(idMap.getLong("date")), idMap.getString("tbName"), idMap.getLong("dbId")));
+            resultDTO.set_id(new KettleLogAggResultDTO.IdClass(new Date(idMap.getLong("date")), new Date(idMap.getLong("updateDate")),idMap.getString("tbName"), idMap.getLong("dbId")));
             list.add(resultDTO);
         });
 
@@ -99,6 +100,6 @@ public class KettleLogDeal {
             map.put(key, collect);
         });
 
-        return new KettleLogStatisticRsp(list.get(0).get_id().getDate(), map);
+        return new KettleLogStatisticRsp(list.get(0).get_id().getDate(),list.get(0).get_id().getUpdateDate(), map);
     }
 }
