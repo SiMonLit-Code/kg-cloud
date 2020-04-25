@@ -51,6 +51,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
+import com.plantdata.kgcloud.sdk.req.SqlQueryReq;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -417,4 +420,22 @@ public interface AppClient {
      */
     @PostMapping("dataset/statistic/3dByTable")
     ApiReturn<DataSetStatisticRsp> statistic3dByTable(@Valid @RequestBody TableStatisticByDimensionalReq thirdDimensional);
+
+    /**
+     * 统计数据仓库二维/按表统计
+     *
+     * @param
+     * @return .
+     */
+    @PostMapping("dw/statistic/by2dTable")
+    ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq req);
+
+    /**
+     * 统计数据仓库三维/按表统计
+     *
+     * @param
+     * @return .
+     */
+    @PostMapping("dw/statistic/by3dTable")
+    ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req);
 }

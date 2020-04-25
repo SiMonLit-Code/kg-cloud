@@ -81,13 +81,11 @@ public class NlpController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "useEntity", required = true, dataType = "boolean", paramType = "form", value = "是否使用实体作为词典"),
             @ApiImplicitParam(name = "useAttr", required = true, dataType = "boolean", paramType = "form", value = "是否使用属性作为词典"),
     })
-    public RestResp<List<SegmentEntityBean>> recognition(@Valid @ApiIgnore RecognitionParameter param) {
-        Function<SegmentReq, ApiReturn<List<SegmentEntityRsp>>> returnFunction = a -> nlpClient.nerGraph(param.getKgName(), a);
-        List<SegmentEntityBean> entityBeans = returnFunction
-                .compose(NlpConverter::recognitionParameterToSegmentReq)
-                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, NlpConverter::segmentEntityRspToSegmentEntityBean)))
-                .apply(param);
-        return new RestResp<>(entityBeans);
+    public RestResp<PdDocument> recognition(@Valid @ApiIgnore RecognitionParameter param) {
+        Function<SegmentReq, ApiReturn<PdDocument>> returnFunction = a -> nlpClient.nerGraph(param.getKgName(), a);
+        ApiReturn<PdDocument> document = returnFunction
+                .compose(NlpConverter::recognitionParameterToSegmentReq).apply(param);
+        return new RestResp<>(document.getData());
     }
 
     @ApiOperation("图谱分词")
@@ -133,9 +131,9 @@ public class NlpController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "query", required = true, dataType = "string", paramType = "form", value = "待识别语句"),
             @ApiImplicitParam(name = "size", defaultValue = "5", dataType = "int", paramType = "query", value = "返回结果数量"),
     })
-    public RestResp<IntentDataBeanRsp> qaIntent(@Valid @ApiIgnore QaIntentParameter param) {
+    public RestResp<PdDocument> qaIntent(@Valid @ApiIgnore QaIntentParameter param) {
         Optional<IntentDataBeanRsp> intentDataBean = BasicConverter.apiReturnData(semanticClient.intent(param.getKgName(), param.getQuery(), param.getSize()));
-        return new RestResp<>(intentDataBean.orElse(new IntentDataBeanRsp()));
+        return new RestResp<>(NlpConverter2.intentDataBeanRspToPdDocument(intentDataBean.get()));
     }
 
     /**
