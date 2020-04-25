@@ -49,7 +49,7 @@ public class GraphCommonConverter extends BasicConverter {
         BasicInfo concept = conceptMap.get(conceptId);
         BasicInfo topConcept = ConceptConverter.getTopConcept(conceptId, conceptMap);
         if (concept == null || topConcept == null) {
-            log.error("conceptId:{}概念不存在", conceptId);
+            log.warn("conceptId:{}概念不存在", conceptId);
         }
         consumerIfNoNull(concept, a -> {
             entityRsp.setConceptName(a.getName());
