@@ -2315,6 +2315,10 @@ public class DWServiceImpl implements DWService {
                         throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
                     }
 
+                    if(relationBean.getName() == null || relationBean.getName().isEmpty()){
+                        continue;
+                    }
+
                     PreBuilderAttrRsp attrRsp = new PreBuilderAttrRsp();
                     attrRsp.setAttrType(1);
                     attrRsp.setName(relationBean.getName());
