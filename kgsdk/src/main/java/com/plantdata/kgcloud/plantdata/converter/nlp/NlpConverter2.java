@@ -1,13 +1,14 @@
 package com.plantdata.kgcloud.plantdata.converter.nlp;
 
 import com.hiekn.pddocument.bean.PdDocument;
-import com.hiekn.pddocument.bean.element.PdAnnotation;
-import com.hiekn.pddocument.bean.element.PdKeyword;
-import com.hiekn.pddocument.bean.element.PdSegment;
-import com.hiekn.pddocument.bean.element.PdEntity;
+import com.hiekn.pddocument.bean.element.*;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.GraphSegmentRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.ElementBean;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.ElementSeqBean;
+import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBeanRsp;
+import com.plantdata.kgcloud.plantdata.constant.DataTypeEnum;
 import lombok.NonNull;
 import java.util.List;
 import java.util.ArrayList;
@@ -155,6 +156,42 @@ public class NlpConverter2 {
             annotation.setScore(rsp.getScore());
             annotation.setClassId(rsp.getClassId());
             annotationList.add(annotation);
+        }
+        return document;
+    }
+
+    public static PdDocument intentDataBeanRspToPdDocument(@NonNull IntentDataBeanRsp list) {
+        PdDocument document = new PdDocument();
+        document.setPdEntity(new ArrayList<PdEntity>());
+        document.setPdConcept(new ArrayList<PdConcept>());
+        document.setPdAttribute(new ArrayList<PdAttribute>());
+        List<PdEntity> entityList = document.getPdEntity();
+        List<PdConcept> conceptList = document.getPdConcept();
+        List<PdAttribute> attributeList = document.getPdAttribute();
+        for(ElementSeqBean seqBean : list.getArray()){
+            for(ElementBean element : seqBean.getSequence()){
+                if(element.getType() == DataTypeEnum.CONCEPT.getValue()){
+                    PdConcept concept = new PdConcept();
+                    concept.setId(element.getId());
+                    concept.setName(element.getName());
+                    concept.setIndex(element.getPos());
+                    conceptList.add(concept);
+                }else if(element.getType() == DataTypeEnum.ENTITY.getValue()){
+                    PdEntity entity = new PdEntity();
+                    entity.setId(element.getId());
+                    entity.setName(element.getName());
+                    entity.setClassId(element.getClassId());
+                    entity.setIndex(element.getPos());
+                    entity.setMeaningTag(element.getMeaningTag());
+                    entityList.add(entity);
+                }else if(element.getType() == DataTypeEnum.ATTRIBUTE.getValue()){
+                    PdAttribute attribute = new PdAttribute();
+                    attribute.setAttId(element.getId());
+                    attribute.setName(element.getName());
+                    attribute.setIndex(element.getPos());
+                    attributeList.add(attribute);
+                }
+            }
         }
         return document;
     }

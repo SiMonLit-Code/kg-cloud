@@ -3,18 +3,16 @@ package com.plantdata.kgcloud.domain.access.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.access.rsp.*;
-import com.plantdata.kgcloud.domain.dw.rsp.CustomColumnRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.CustomRelationRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.CustomColumnRsp;
+import com.plantdata.kgcloud.sdk.rsp.CustomRelationRsp;
+import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 

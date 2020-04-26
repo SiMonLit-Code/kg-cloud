@@ -32,7 +32,7 @@ import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.TableDataService;

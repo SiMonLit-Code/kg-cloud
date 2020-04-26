@@ -3,11 +3,10 @@ package com.plantdata.kgcloud.domain.dw.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
-import com.plantdata.kgcloud.domain.dw.rsp.CustomColumnRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.CustomColumnRsp;
+import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
 

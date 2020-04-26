@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.dw.rsp;
+package com.plantdata.kgcloud.sdk.rsp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,14 +17,10 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ModelRelationBeanRsp {
+public class ModelRelationAttrBeanRsp {
 
     private String name;
 
-    private String domain;
-
-    private Set<String> range;
-
-    private Set<ModelRelationAttrBeanRsp> attrs;
+    private Integer dataType;
 
 }

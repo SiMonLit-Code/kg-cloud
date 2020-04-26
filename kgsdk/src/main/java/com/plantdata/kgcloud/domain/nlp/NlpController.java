@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.nlp;
 
+import com.google.common.collect.Lists;
 import com.hiekn.basicnlptools.hanlp.HanLPService;
+import com.hiekn.pddocument.bean.element.PdEntity;
 import com.hiekn.pddocument.bean.element.PdKeyword;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.NaturalLanguageProcessingInterface;
@@ -57,7 +59,7 @@ public class NlpController implements NaturalLanguageProcessingInterface {
 
     @ApiOperation(value = "图谱实体识别", notes = "实体识别，以知识图谱的实体，对输入文本进行命名实体识别。")
     @PostMapping("ner/graph/{kgName}")
-    public ApiReturn<List<SegmentEntityRsp>> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+    public ApiReturn<PdDocument> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                       @RequestBody SegmentReq segmentReq) {
         return nlpClient.nerGraph(kgName, segmentReq);
     }
@@ -84,11 +86,11 @@ public class NlpController implements NaturalLanguageProcessingInterface {
     @ApiOperation(value = "语义关联", notes = "语义关联接口。在给定的知识图谱中对输入的文本内容进行实体识别和消歧，" +
             "并基于schema进行文本意图识别，返回识别结果及相应权重。")
     @PostMapping("association")
-    public ApiReturn<IntentDataBeanRsp> intent(
+    public ApiReturn<PdDocument> intent(
             @ApiParam(value = "图谱名称") @RequestParam("kgName") String kgName,
             @ApiParam(value = "自然语言输入") @RequestParam("query") String query,
             @RequestParam(value = "size", defaultValue = "5") int size) {
-        return semanticClient.intent(kgName, query, size);
+        return ApiReturn.success(NlpConverter2.intentDataBeanRspToPdDocument(semanticClient.intent(kgName, query, size).getData()));
     }
 
     @ApiOperation(value = "繁体转换", notes = "繁体转换，将输入的文本转换为繁体中文")
