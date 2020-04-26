@@ -331,7 +331,7 @@ public class CreateKtrFile {
                 if(schemas == null || schemas.isEmpty()){
                     return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
                 }
-
+/*
                 for(DataSetSchema schema : schemas){
                     if(!schema.getField().equals(table.getQueryField())){
                         continue;
@@ -340,7 +340,7 @@ public class CreateKtrFile {
                     if(FieldType.findCode(schema.getType()).equals(FieldType.DATE)){
                         return KtrXml.mongoTimeQueryDateFieldXMl.replaceAll("timeFieldQAQ",table.getQueryField());
                     }
-                }
+                }*/
 
                 return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
             }
