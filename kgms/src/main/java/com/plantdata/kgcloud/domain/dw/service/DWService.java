@@ -103,12 +103,9 @@ public interface DWService {
 
     DWDatabaseRsp findDatabaseByDataName(String dataName);
 
-<<<<<<< HEAD
-=======
     DWDatabaseRsp findById(String userId,Integer dbId);
 
     DW2dTableRsp statisticBy2DTable(SqlQueryReq req);
 
     DW3dTableRsp statisticBy3DTable(SqlQueryReq req);
->>>>>>> e09807e3af3406b9d4e775e329aab496dabe439e
 }

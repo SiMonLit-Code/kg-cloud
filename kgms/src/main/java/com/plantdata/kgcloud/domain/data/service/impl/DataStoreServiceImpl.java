@@ -279,7 +279,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     @Override
     public void rerun(DtReq req) {
 
-        if(req.getDbTable() == null || req.getDbName() == null){
+        if (req.getDbTable() == null || req.getDbName() == null) {
             throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
         }
 
@@ -314,6 +314,7 @@ public class DataStoreServiceImpl implements DataStoreService {
             document.remove(DB_VIEW_DATA);
             map.putAll(rawData);
             map.put("data", document);
+            map.put("title", map.remove("dbTitle"));
             list.add(map);
         }
 
