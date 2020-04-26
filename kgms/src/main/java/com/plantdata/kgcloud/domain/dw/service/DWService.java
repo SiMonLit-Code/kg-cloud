@@ -90,8 +90,7 @@ public interface DWService {
 
     BasePage<TableLogListRsp> tableLogList(DWTableLogReq dwTableLogReq);
 
-    List<DWDataStatusRsp> DataStatusList(Long req);
-
+    List<DWDataStatusRsp> dataStatusList(Long databaseId);
     void updateTagJson(Long databaseId, List<TagJsonReq> tagJsonReqs);
 
     List<ModelSchemaConfigRsp> getTagJson(Long databaseId);
@@ -104,9 +103,12 @@ public interface DWService {
 
     DWDatabaseRsp findDatabaseByDataName(String dataName);
 
+<<<<<<< HEAD
+=======
     DWDatabaseRsp findById(String userId,Integer dbId);
 
     DW2dTableRsp statisticBy2DTable(SqlQueryReq req);
 
     DW3dTableRsp statisticBy3DTable(SqlQueryReq req);
+>>>>>>> e09807e3af3406b9d4e775e329aab496dabe439e
 }

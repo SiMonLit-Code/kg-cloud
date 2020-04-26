@@ -197,7 +197,6 @@ public class DWController {
     public ApiReturn updateTagJson(
             @PathVariable("databaseId") Long databaseId,
             @RequestBody List<TagJsonReq> tagJsonReqs) {
-
         dwServince.updateTagJson(databaseId, tagJsonReqs);
         return ApiReturn.success();
     }
@@ -206,23 +205,21 @@ public class DWController {
     @PatchMapping("/{databaseId}/get/tagjson")
     public ApiReturn<List<ModelSchemaConfigRsp>> getTagJson(
             @PathVariable("databaseId") Long databaseId) {
-
         return ApiReturn.success(dwServince.getTagJson(databaseId));
     }
 
     @ApiOperation("数仓-获取自定义类型打标 isDefault默认false，传true获取自动生成信息")
     @GetMapping("/get/custom/label")
     public ApiReturn<List<CustomTableRsp>> getCustomLabel(Long databaseId, Boolean isDefault) {
-
-        return ApiReturn.success(dwServince.getCustomLabel(databaseId,isDefault));
+        return ApiReturn.success(dwServince.getCustomLabel(databaseId, isDefault));
     }
 
     @ApiOperation("数仓-获取表字段枚举值")
     @GetMapping("/get/table/field/enum")
     public ApiReturn<List<String>> getTableFieldEnum(Long databaseId,
-            String tableName,String field) {
+                                                     String tableName, String field) {
 
-        return ApiReturn.success(dwServince.getTableFieldEnum(databaseId,tableName,field));
+        return ApiReturn.success(dwServince.getTableFieldEnum(databaseId, tableName, field));
     }
 
     @ApiOperation("数仓-更新自定义类型打标")
@@ -230,7 +227,7 @@ public class DWController {
     public ApiReturn updateCustomLabel(
             @PathVariable("databaseId") Long databaseId,
             @RequestBody List<CustomTableRsp> tableLabels) {
-        dwServince.updateCustomLabel(databaseId,tableLabels);
+        dwServince.updateCustomLabel(databaseId, tableLabels);
         return ApiReturn.success();
     }
 
@@ -239,8 +236,8 @@ public class DWController {
     public ApiReturn<Integer> push(@RequestBody ModelPushReq req) {
 
         String userId = SessionHolder.getUserId();
-       ;
-        return ApiReturn.success( dwServince.push(userId, req));
+        ;
+        return ApiReturn.success(dwServince.push(userId, req));
     }
 
     @ApiOperation("数仓-查看模式")
@@ -305,7 +302,7 @@ public class DWController {
     @ApiOperation("数仓-日志状态列表")
     @GetMapping("/database/status/{databaseId}")
     public ApiReturn DataStatusList(@PathVariable("databaseId") Long databaseId) {
-        return ApiReturn.success(dwServince.DataStatusList(databaseId));
+        return ApiReturn.success(dwServince.dataStatusList(databaseId));
     }
 
     @ApiOperation("数仓-数据库日志记录列表")

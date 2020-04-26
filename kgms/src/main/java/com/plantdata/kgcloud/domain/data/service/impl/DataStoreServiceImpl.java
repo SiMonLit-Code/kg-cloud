@@ -73,6 +73,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     private static final String DB_NAME = "check_data_db";
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
     private static final String DB_VIEW_STATUS = "Edit";
+    private static final String DB_VIEW_DATA = "showData";
 
     private MongoCollection<Document> getCollection() {
         return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
@@ -248,22 +249,15 @@ public class DataStoreServiceImpl implements DataStoreService {
         if (Objects.equals(req.getData(), document.get("data"))) {
             throw BizException.of(KgmsErrorCodeEnum.NO_DATA_CHANGE);
         }
-        document.remove("data");
-        document.remove(MONGO_ID);
-        document.append("status", DB_VIEW_STATUS).append("createdate", DateUtils.formatDatetime());
-        Document allDocument = new Document();
-        allDocument.append("showData", document);
-        Map<String, Object> data = filterDataId(req.getData());
-        allDocument.putAll(data);
+        Document allData = getAllData(document, req);
         try {
-            collection.insertOne(allDocument);
+            collection.insertOne(allData);
         } catch (Exception e) {
             e.printStackTrace();
             throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
         }
         collectionOld.deleteOne(documentConverter.buildObjectId(req.getId()));
     }
-
 
     @Override
     public BasePage listErrDataStore(DataStoreScreenReq req) {
@@ -305,8 +299,7 @@ public class DataStoreServiceImpl implements DataStoreService {
 
     private Map<String, Object> filterDataId(Map<String, Object> data) {
         if (data.containsKey(MONGO_ID)) {
-            data.put("err_id", data.get(MONGO_ID) + "///");
-            data.remove(MONGO_ID);
+            data.put("err_id", data.remove(MONGO_ID) + "/");
         }
         return data;
     }
@@ -317,15 +310,23 @@ public class DataStoreServiceImpl implements DataStoreService {
         for (Document document : findIterable) {
             Map<String, Object> map = new HashMap<>();
             JSONObject jsonObject = JSON.parseObject(document.toJson());
-            Map rawData = JSON.parseObject(jsonObject.get("showData").toString(), Map.class);
-            document.remove("showData");
+            Map rawData = JSON.parseObject(jsonObject.get(DB_VIEW_DATA).toString(), Map.class);
+            document.remove(DB_VIEW_DATA);
             map.putAll(rawData);
             map.put("data", document);
-            map.put("title", map.get("dbTitle"));
-            map.remove("dbTitle");
             list.add(map);
         }
 
         return list;
+    }
+
+    private Document getAllData(Document document, DataStoreReq req) {
+        document.remove("data");
+        document.remove(MONGO_ID);
+        document.append("status", DB_VIEW_STATUS).append("createdate", DateUtils.formatDatetime());
+        Document allDocument = new Document();
+        allDocument.append(DB_VIEW_DATA, document);
+        allDocument.putAll(filterDataId(req.getData()));
+        return allDocument;
     }
 }
