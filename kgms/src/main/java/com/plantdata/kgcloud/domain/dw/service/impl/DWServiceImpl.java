@@ -2159,7 +2159,12 @@ public class DWServiceImpl implements DWService {
         if (!database.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
-        return ConvertUtils.convert(DWDatabaseRsp.class).apply(database.get());
+
+        DWDatabaseRsp rsp = ConvertUtils.convert(DWDatabaseRsp.class).apply(database.get());
+        if(!rsp.getUserId().equals(userId)){
+            throw BizException.of(KgmsErrorCodeEnum.DW_PERMISSION_NOT_ENOUGH_ERROR);
+        }
+        return rsp;
     }
 
     @Override
