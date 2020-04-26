@@ -27,10 +27,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
 import com.hiekn.pddocument.bean.PdDocument;
@@ -81,13 +78,11 @@ public class NlpController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "useEntity", required = true, dataType = "boolean", paramType = "form", value = "是否使用实体作为词典"),
             @ApiImplicitParam(name = "useAttr", required = true, dataType = "boolean", paramType = "form", value = "是否使用属性作为词典"),
     })
-    public RestResp<List<SegmentEntityBean>> recognition(@Valid @ApiIgnore RecognitionParameter param) {
-        Function<SegmentReq, ApiReturn<List<SegmentEntityRsp>>> returnFunction = a -> nlpClient.nerGraph(param.getKgName(), a);
-        List<SegmentEntityBean> entityBeans = returnFunction
-                .compose(NlpConverter::recognitionParameterToSegmentReq)
-                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, NlpConverter::segmentEntityRspToSegmentEntityBean)))
-                .apply(param);
-        return new RestResp<>(entityBeans);
+    public RestResp<PdDocument> recognition(@Valid @ApiIgnore RecognitionParameter param) {
+        Function<SegmentReq, ApiReturn<PdDocument>> returnFunction = a -> nlpClient.nerGraph(param.getKgName(), a);
+        ApiReturn<PdDocument> document = returnFunction
+                .compose(NlpConverter::recognitionParameterToSegmentReq).apply(param);
+        return new RestResp<>(document.getData());
     }
 
     @ApiOperation("图谱分词")
@@ -133,9 +128,9 @@ public class NlpController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "query", required = true, dataType = "string", paramType = "form", value = "待识别语句"),
             @ApiImplicitParam(name = "size", defaultValue = "5", dataType = "int", paramType = "query", value = "返回结果数量"),
     })
-    public RestResp<IntentDataBeanRsp> qaIntent(@Valid @ApiIgnore QaIntentParameter param) {
+    public RestResp<PdDocument> qaIntent(@Valid @ApiIgnore QaIntentParameter param) {
         Optional<IntentDataBeanRsp> intentDataBean = BasicConverter.apiReturnData(semanticClient.intent(param.getKgName(), param.getQuery(), param.getSize()));
-        return new RestResp<>(intentDataBean.orElse(new IntentDataBeanRsp()));
+        return new RestResp<>(NlpConverter2.intentDataBeanRspToPdDocument(intentDataBean.get()));
     }
 
     /**
@@ -264,5 +259,18 @@ public class NlpController implements SdkOldApiInterface {
     public RestResp<PdDocument> summarize(@ApiParam(required = true) @RequestParam("input") String input,
                                             @ApiParam(required = true, value = " 句子个数") @RequestParam("size") Integer size) {
         return new RestResp<>(NlpConverter2.segmentToPdDocument(hanLPService.summarize(input, size),input));
+    }
+
+    /**
+     * 两个实体间语义距离查询
+     *
+     * @param
+     * @return
+     */
+    @ApiOperation("两个实体间语义距离查询")
+    @PostMapping("semantic/distance/score")
+    public ApiReturn<Double> semanticDistanceScore(@ApiParam(required = true) @RequestParam("kgName") String kgName,
+                                                   @ApiParam(required = true) @RequestParam("entityId1") Long entityIdOne, @ApiParam(required = true) @RequestParam("entityId2") Long entityIdTwo) {
+        return semanticClient.semanticDistanceScore(kgName, entityIdOne, entityIdTwo);
     }
 }

@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.req;
 
-import com.plantdata.kgcloud.domain.dw.rsp.ModelAttrBeanRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.ModelRelationBeanRsp;
+import com.plantdata.kgcloud.sdk.rsp.ModelAttrBeanRsp;
+import com.plantdata.kgcloud.sdk.rsp.ModelRelationBeanRsp;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
 import java.util.Set;
 
 @Data
