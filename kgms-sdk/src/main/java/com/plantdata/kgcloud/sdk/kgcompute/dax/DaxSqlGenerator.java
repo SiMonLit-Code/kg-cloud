@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.sdk.kgcompute.dax;
 
 import com.google.common.collect.Lists;
-import com.sun.deploy.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
