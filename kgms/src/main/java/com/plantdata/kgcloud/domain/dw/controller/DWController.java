@@ -236,11 +236,11 @@ public class DWController {
 
     @ApiOperation("数仓-模式发布")
     @PostMapping("/model/push")
-    public ApiReturn push(@RequestBody ModelPushReq req) {
+    public ApiReturn<Integer> push(@RequestBody ModelPushReq req) {
 
         String userId = SessionHolder.getUserId();
-        dwServince.push(userId, req);
-        return ApiReturn.success();
+       ;
+        return ApiReturn.success( dwServince.push(userId, req));
     }
 
     @ApiOperation("数仓-查看模式")

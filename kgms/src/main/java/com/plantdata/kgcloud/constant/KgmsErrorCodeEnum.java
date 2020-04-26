@@ -161,7 +161,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     SCHEMA_PASER_CONCEPT_EXIST_ERROR(120723, "模式解析存在同名概念"),
 
-    TABLE_SCHEMA_MISMATCHING_STIPULATE(120724, "该表结构不符合要求"),
+    TABLE_SCHEMA_MISMATCHING_STIPULATE(120724, "结构不符合要求"),
 
     TABLE_NOT_EXIST_IN_DATABASE(120725, "打标文件中存在未添加表"),
 
@@ -208,7 +208,12 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     LABEL_ENUM_NOT_EMTRY(120746,"枚举值不能为空"),
 
     NOT_SELECT_MAP_TABLE(120747,"未选择映射表"),
+
     MODEL_FILE_TITLE_ERROR(120748,"模式文件表头错误，请根据模板上传"),
+
+    NO_DATA_CHANGE(120749,"数据没有改动"),
+
+    EXECUTE_SQL_ERROR(120750,"SQL查询失败，请检查连接信息"),
             ;
     private final int errorCode;
 

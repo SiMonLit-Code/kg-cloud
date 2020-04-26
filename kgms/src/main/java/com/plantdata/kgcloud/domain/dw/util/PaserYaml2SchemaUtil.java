@@ -9,6 +9,8 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.*;
+import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
@@ -241,11 +243,14 @@ public class PaserYaml2SchemaUtil {
                     throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_RANGE_NOT_EXIST_ERROR);
                 }
 
+                List<ModelRangeRsp> rangeRsps = Lists.newArrayList(ModelRangeRsp.builder().rangeName(range).build());
+
+
                 PreBuilderConceptRsp conceptRsp = conceptRspMap.get(domain);
                 PreBuilderAttrRsp attrRsp = PreBuilderAttrRsp.builder()
                         .attrType(1)
                         .name(relation.getRelationName())
-                        .rangeName(range)
+                        .range(rangeRsps)
                         .tables(Lists.newArrayList(tableName))
                         .build();
 

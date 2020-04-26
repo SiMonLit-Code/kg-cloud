@@ -466,7 +466,7 @@ public class DataSetServiceImpl implements DataSetService {
             type = FieldType.STRING;
             return type;
         }
-        String string = val.toString();
+        String string = JacksonUtils.writeValueAsString(val);
         if (string.startsWith(JSON_START)) {
             try {
                 JacksonUtils.getInstance().readValue(string, ObjectNode.class);

@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
@@ -108,6 +109,7 @@ public class TableDataServiceImpl implements TableDataService {
     private static final int CREATE_WAY = 2;
     private static final int IS_WRITE_DW = 1;
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
+    private static final String DB_VIEW_STATUS = "Edit";
 
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq) {
@@ -448,17 +450,24 @@ public class TableDataServiceImpl implements TableDataService {
         long count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
         Map<String, Object> data = baseReq.getData();
         String mongoId = baseReq.getId();
+        Map<Object, Object> map = new HashMap<>();
+        map.put("dataName", database.getDataName());
+        map.put("tableName", baseReq.getDataBaseId());
+        map.put("status", DB_VIEW_STATUS);
+        data.put("showData", map);
         if (count == 0) {
             data.put(MONGO_ID, new ObjectId(mongoId));
             collection.insertOne(new Document(data));
             data.remove(MONGO_ID);
+            data.remove("showData");
             Document document = new Document(data);
             provider.update(mongoId, document);
         } else {
             data.remove(MONGO_ID);
-            Document document = new Document(data);
-            collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", document));
-            provider.update(mongoId, document);
+            collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
+            data.remove("showData");
+            provider.update(mongoId, new Document(data));
         }
     }
+
 }

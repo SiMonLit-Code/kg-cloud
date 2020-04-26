@@ -71,6 +71,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private static final String DB_NAME = "check_data_db";
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
+    private static final String DB_VIEW_STATUS = "Edit";
 
     private MongoCollection<Document> getCollection() {
         return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
@@ -237,17 +238,24 @@ public class DataStoreServiceImpl implements DataStoreService {
         MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + req.getDbName()).getCollection(req.getDbTable());
         //查询旧集合
         MongoCollection<Document> collectionOld = getCollection();
+
         MongoCursor<Document> iterator = collectionOld.find(documentConverter.buildObjectId(req.getId())).iterator();
         if (!iterator.hasNext()) {
             return;
         }
         Document document = iterator.next();
+        if (Objects.equals(req.getData(), document.get("data"))) {
+            throw BizException.of(KgmsErrorCodeEnum.NO_DATA_CHANGE);
+        }
         document.remove("data");
-        Map<String, Object> data = filterData(req.getData());
-        data.put("createdate", DateUtils.formatDatetime());
-        document.putAll(data);
+        document.remove(MONGO_ID);
+        document.append("status", DB_VIEW_STATUS).append("createdate", DateUtils.formatDatetime());
+        Document allDocument = new Document();
+        allDocument.append("showData", document);
+        Map<String, Object> data = filterDataId(req.getData());
+        allDocument.putAll(data);
         try {
-            collection.insertOne(document);
+            collection.insertOne(allDocument);
         } catch (Exception e) {
             e.printStackTrace();
             throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
@@ -257,46 +265,62 @@ public class DataStoreServiceImpl implements DataStoreService {
 
 
     @Override
-    public BasePage<Map<String, Object>> listErrDataStore(DataStoreScreenReq req) {
+    public BasePage listErrDataStore(DataStoreScreenReq req) {
         if (StringUtils.isEmpty(req.getDbName()) || StringUtils.isEmpty(req.getDbTable())) {
             throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
         }
-        MongoCollection<Document> collection = mongoClient.getDatabase(req.getDbName()).getCollection(req.getDbTable());
+        MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + req.getDbName()).getCollection(req.getDbTable());
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
         FindIterable<Document> findIterable;
         long count = collection.countDocuments();
         findIterable = collection.find().sort(Sorts.descending("createdate")).skip(page).limit(size);
-        List<Map<String, Object>> list = new ArrayList();
-        for (Document document : findIterable) {
-            Map map = JSON.parseObject(document.toJson(), Map.class);
-            list.add(map);
-        }
-        return new BasePage<>(count, list);
+        List<Map<String, Object>> maps = filterData(findIterable);
+
+        return new BasePage(count, maps);
     }
+
 
     @Override
     public void rerun(DtReq req) {
 
         DWDatabaseRsp databaseRsp = dwService.findDatabaseByDataName(req.getDbName());
 
-        List<DWTask> all = accessTaskService.getTableTask(databaseRsp.getId(),req.getDbTable());
+        List<DWTask> all = accessTaskService.getTableTask(databaseRsp.getId(), req.getDbTable());
 
-        if(all == null || all.isEmpty()){
+        if (all == null || all.isEmpty()) {
             return;
         }
 
         List<String> resourceNames = all.stream().map(DWTask::getName).collect(Collectors.toList());
 
-        accessTaskService.addRerunTask(databaseRsp.getId(),req.getDbTable(),resourceNames);
+        accessTaskService.addRerunTask(databaseRsp.getId(), req.getDbTable(), resourceNames);
     }
 
 
-    private Map<String, Object> filterData(Map<String, Object> data) {
+    private Map<String, Object> filterDataId(Map<String, Object> data) {
         if (data.containsKey(MONGO_ID)) {
             data.put("err_id", data.get(MONGO_ID) + "///");
             data.remove(MONGO_ID);
         }
         return data;
+    }
+
+
+    private List<Map<String, Object>> filterData(FindIterable<Document> findIterable) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Document document : findIterable) {
+            Map<String, Object> map = new HashMap<>();
+            JSONObject jsonObject = JSON.parseObject(document.toJson());
+            Map rawData = JSON.parseObject(jsonObject.get("showData").toString(), Map.class);
+            document.remove("showData");
+            map.putAll(rawData);
+            map.put("data", document);
+            map.put("title", map.get("dbTitle"));
+            map.remove("dbTitle");
+            list.add(map);
+        }
+
+        return list;
     }
 }
