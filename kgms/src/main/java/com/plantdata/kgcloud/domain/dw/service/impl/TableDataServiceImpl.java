@@ -43,6 +43,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
@@ -110,6 +111,7 @@ public class TableDataServiceImpl implements TableDataService {
     private static final int IS_WRITE_DW = 1;
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
     private static final String DB_VIEW_STATUS = "Edit";
+    private static final String DB_VIEW_DATA = "showData";
 
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq) {
@@ -455,18 +457,18 @@ public class TableDataServiceImpl implements TableDataService {
         map.put("dataName", database.getDataName());
         map.put("tableName", baseReq.getDataBaseId());
         map.put("status", DB_VIEW_STATUS);
-        data.put("showData", map);
+        data.put(DB_VIEW_DATA, map);
         if (count == 0) {
             data.put(MONGO_ID, new ObjectId(mongoId));
             collection.insertOne(new Document(data));
             data.remove(MONGO_ID);
-            data.remove("showData");
+            data.remove(DB_VIEW_DATA);
             Document document = new Document(data);
             provider.update(mongoId, document);
         } else {
             data.remove(MONGO_ID);
             collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
-            data.remove("showData");
+            data.remove(DB_VIEW_DATA);
             provider.update(mongoId, new Document(data));
         }
     }

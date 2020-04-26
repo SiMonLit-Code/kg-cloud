@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 import org.springframework.util.CollectionUtils;
 
@@ -258,6 +259,18 @@ public class MongodbOptProvider implements DataOptProvider {
             Map<String, Object> map = new HashMap<>(size);
             map.putAll(document);
             try {
+
+                if(map != null && !map.isEmpty()){
+
+                    Map<String,Object> newMap = new HashMap<>(map);
+                    for(Map.Entry<String,Object> entry : newMap.entrySet()){
+                        if(entry.getValue() instanceof Decimal128){
+                            Double d  = ((Decimal128)entry.getValue()).bigDecimalValue().doubleValue();
+                            map.put(entry.getKey(),d);
+                        }
+                    }
+                }
+
                 map.put(MONGO_ID, document.getObjectId(MONGO_ID).toHexString());
             } catch (ClassCastException e) {
                 map.put(MONGO_ID, document.getString(MONGO_ID));
