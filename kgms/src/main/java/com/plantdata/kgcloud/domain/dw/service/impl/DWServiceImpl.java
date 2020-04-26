@@ -243,7 +243,7 @@ public class DWServiceImpl implements DWService {
 
                 for (ModelRelationBeanRsp relation : tagJson.getRelation()) {
 
-                    if(relation.getName() == null || relation.getName().isEmpty() ){
+                    if (relation.getName() == null || relation.getName().isEmpty()) {
                         continue;
                     }
                     if (map.containsKey(relation.getDomain() + "-" + relation.getName())) {
@@ -257,11 +257,11 @@ public class DWServiceImpl implements DWService {
                         }
 
                         if (relation.getAttrs() != null && !relation.getAttrs().isEmpty()) {
-                            List<String> existName =  new ArrayList<>();
+                            List<String> existName = new ArrayList<>();
                             rela.getAttrs().forEach(s -> existName.add(s.getName()));
 
-                            relation.getAttrs().forEach(a ->{
-                                if(!existName.contains(a.getName())){
+                            relation.getAttrs().forEach(a -> {
+                                if (!existName.contains(a.getName())) {
                                     existName.add(a.getName());
                                     rela.getAttrs().add(a);
                                 }
@@ -714,7 +714,7 @@ public class DWServiceImpl implements DWService {
 
         List<CustomTableRsp> customTableRsps = database.getTableLabels();
 
-        if(customTableRsps == null || customTableRsps.isEmpty()){
+        if (customTableRsps == null || customTableRsps.isEmpty()) {
             customTableRsps = ExampleYaml.createCustom(tables);
         }
 
@@ -738,7 +738,7 @@ public class DWServiceImpl implements DWService {
         if (database.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
-                fieldEnums = getMongoAggr(database,tableName,field);
+                fieldEnums = getMongoAggr(database, tableName, field);
 
             } catch (Exception e) {
                 throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
@@ -748,7 +748,7 @@ public class DWServiceImpl implements DWService {
             DataSource dataSource = getDataSource(database);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-            String sql = getTableFieldEnumSql(database.getDataType(),tableName,field);
+            String sql = getTableFieldEnumSql(database.getDataType(), tableName, field);
 
             try {
                 fieldEnums = jdbcTemplate.queryForList(sql, String.class);
@@ -769,7 +769,7 @@ public class DWServiceImpl implements DWService {
         return fieldEnums;
     }
 
-    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName,String field) {
+    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field) {
         MongoClient mongoClient = null;
         try {
             //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
@@ -794,11 +794,11 @@ public class DWServiceImpl implements DWService {
             MongoDatabase mongoDatabase = mongoClient.getDatabase(dwDatabase.getDbName());
 
 
-            MongoCollection<Document> collection  = mongoDatabase.getCollection(tableName);
+            MongoCollection<Document> collection = mongoDatabase.getCollection(tableName);
             List<String> colls = new ArrayList<>();
 
             Document group = new Document();
-            group.put("$group", new Document("_id", "$"+field));
+            group.put("$group", new Document("_id", "$" + field));
             AggregateIterable<Document> aggr = collection.aggregate(Lists.newArrayList(group)).batchSize(50);
 
             MongoCursor<Document> cursor = aggr.iterator();
@@ -807,7 +807,7 @@ public class DWServiceImpl implements DWService {
                 Document item_doc = cursor.next();
                 Object value = item_doc.get("_id", Object.class);
 
-                colls.add(value+"");
+                colls.add(value + "");
             }
 
             return colls;
@@ -824,9 +824,9 @@ public class DWServiceImpl implements DWService {
 
     }
 
-    private String getTableFieldEnumSql(Integer dataType,String tableName,String field) {
+    private String getTableFieldEnumSql(Integer dataType, String tableName, String field) {
 
-        return "select "+field +" as field from " + tableName + " group by "+ field +" limit 50";
+        return "select " + field + " as field from " + tableName + " group by " + field + " limit 50";
     }
 
     @Override
@@ -899,16 +899,16 @@ public class DWServiceImpl implements DWService {
                     }*/
                     schemas = tableSchemas;
                     if (DWDataFormat.isPDdoc(database.getDataFormat())) {
-                        if(StringUtils.hasText(table.getPdSingleField())){
-                            checkPDDocSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
-                        }else{
-                            checkPDDocSchema(tableSchemas,null);
+                        if (StringUtils.hasText(table.getPdSingleField())) {
+                            checkPDDocSchema(tableSchemas, Lists.newArrayList(table.getPdSingleField()));
+                        } else {
+                            checkPDDocSchema(tableSchemas, null);
                         }
-                    }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
-                        if(StringUtils.hasText(table.getPdSingleField())){
-                            checkPDD2rSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
-                        }else{
-                            checkPDD2rSchema(tableSchemas,null);
+                    } else if (DWDataFormat.isPDd2r(database.getDataFormat())) {
+                        if (StringUtils.hasText(table.getPdSingleField())) {
+                            checkPDD2rSchema(tableSchemas, Lists.newArrayList(table.getPdSingleField()));
+                        } else {
+                            checkPDD2rSchema(tableSchemas, null);
                         }
                     } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
                         List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
@@ -918,19 +918,19 @@ public class DWServiceImpl implements DWService {
                     table.setSchema(tableSchemas);
                     table.setFields(transformFields(tableSchemas));
                     tableRepository.save(table);
-                }else{
+                } else {
 
                     if (DWDataFormat.isPDdoc(database.getDataFormat())) {
-                        if(StringUtils.hasText(table.getPdSingleField())){
-                            checkPDDocSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
-                        }else{
-                            checkPDDocSchema(tableSchemas,null);
+                        if (StringUtils.hasText(table.getPdSingleField())) {
+                            checkPDDocSchema(tableSchemas, Lists.newArrayList(table.getPdSingleField()));
+                        } else {
+                            checkPDDocSchema(tableSchemas, null);
                         }
-                    }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
-                        if(StringUtils.hasText(table.getPdSingleField())){
-                            checkPDD2rSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
-                        }else{
-                            checkPDD2rSchema(tableSchemas,null);
+                    } else if (DWDataFormat.isPDd2r(database.getDataFormat())) {
+                        if (StringUtils.hasText(table.getPdSingleField())) {
+                            checkPDD2rSchema(tableSchemas, Lists.newArrayList(table.getPdSingleField()));
+                        } else {
+                            checkPDD2rSchema(tableSchemas, null);
                         }
                     } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
                         List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
@@ -987,7 +987,7 @@ public class DWServiceImpl implements DWService {
         search.put("userId", database.getUserId());
         Map<String, Object> query = new HashMap<>();
         query.put("search", search);
-        try(DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE, KETTLE_LOGS_COLLECTION)) {
+        try (DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE, KETTLE_LOGS_COLLECTION)) {
             List<Map<String, Object>> rs = provider.find(0, 1, query);
             if (rs == null || rs.isEmpty()) {
 
@@ -1018,7 +1018,7 @@ public class DWServiceImpl implements DWService {
                 provider.update(id, value);
 
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
 
     }
@@ -1097,7 +1097,7 @@ public class DWServiceImpl implements DWService {
             return beanSchema(PdDocument.class);
         }
 
-        if(DWDataFormat.isPDd2r(dataFormat)){
+        if (DWDataFormat.isPDd2r(dataFormat)) {
             return beanSchema(Pdd2rBean.class);
         }
 
@@ -1116,17 +1116,17 @@ public class DWServiceImpl implements DWService {
             DataSetSchema schema = new DataSetSchema();
             schema.setField(name);
             try {
-                if(field.getType() == Integer.class){
+                if (field.getType() == Integer.class) {
                     schema.setType(FieldType.INTEGER.getCode());
-                }else if(field.getType() == Long.class){
+                } else if (field.getType() == Long.class) {
                     schema.setType(FieldType.LONG.getCode());
-                }else if(field.getType() == String.class){
+                } else if (field.getType() == String.class) {
                     schema.setType(FieldType.STRING.getCode());
-                }else if(field.getType() == Date.class){
+                } else if (field.getType() == Date.class) {
                     schema.setType(FieldType.DATE.getCode());
-                }else if(field.getType() == List.class || field.getType() == Set.class){
+                } else if (field.getType() == List.class || field.getType() == Set.class) {
                     schema.setType(FieldType.ARRAY.getCode());
-                }else{
+                } else {
                     schema.setType(FieldType.STRING.getCode());
                 }
             } catch (Exception e) {
@@ -1179,7 +1179,7 @@ public class DWServiceImpl implements DWService {
 
         List<String> tables;
 
-        Map<String,List<DataSetSchema>> schemaMap = new HashMap<>();
+        Map<String, List<DataSetSchema>> schemaMap = new HashMap<>();
         if (dwDatabase.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
@@ -1211,11 +1211,11 @@ public class DWServiceImpl implements DWService {
         }
 
 
-        if(tables != null && !tables.isEmpty()){
+        if (tables != null && !tables.isEmpty()) {
 
-            for(String table : tables){
+            for (String table : tables) {
                 List<DataSetSchema> schemas = getTableSchema(dwDatabase, table);
-                schemaMap.put(table,schemas);
+                schemaMap.put(table, schemas);
             }
 
         }
@@ -1236,7 +1236,7 @@ public class DWServiceImpl implements DWService {
             for (String t : tables) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("tableName", t);
-                jsonObject.put("schema",schemaMap.get(t));
+                jsonObject.put("schema", schemaMap.get(t));
                 if (existList.contains(t)) {
                     jsonObject.put("status", 1);
                 } else {
@@ -1373,18 +1373,18 @@ public class DWServiceImpl implements DWService {
 
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
 
-                    if(StringUtils.hasText(req.getField())){
-                        checkPDDocSchema(schemaList,Lists.newArrayList(req.getField()));
-                    }else{
-                        checkPDDocSchema(schemaList,null);
+                    if (StringUtils.hasText(req.getField())) {
+                        checkPDDocSchema(schemaList, Lists.newArrayList(req.getField()));
+                    } else {
+                        checkPDDocSchema(schemaList, null);
                     }
 
-                }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
+                } else if (DWDataFormat.isPDd2r(database.getDataFormat())) {
 
-                    if(StringUtils.hasText(req.getField())){
-                        checkPDD2rSchema(schemaList,Lists.newArrayList(req.getField()));
-                    }else{
-                        checkPDD2rSchema(schemaList,null);
+                    if (StringUtils.hasText(req.getField())) {
+                        checkPDD2rSchema(schemaList, Lists.newArrayList(req.getField()));
+                    } else {
+                        checkPDD2rSchema(schemaList, null);
                     }
 
                 }
@@ -1409,13 +1409,13 @@ public class DWServiceImpl implements DWService {
 
     }
 
-    private void checkPDD2rSchema(List<DataSetSchema> schemaList,List<String> fields) {
+    private void checkPDD2rSchema(List<DataSetSchema> schemaList, List<String> fields) {
         if (schemaList == null || schemaList.isEmpty()) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_SCHEMA_MISMATCHING_STIPULATE);
         }
         boolean flag = false;
 
-        if(fields != null && fields.size() == 1){
+        if (fields != null && fields.size() == 1) {
 
             for (DataSetSchema dataSetSchema : schemaList) {
                 if (Objects.equals(dataSetSchema.getField(), fields.get(0))) {
@@ -1424,7 +1424,7 @@ public class DWServiceImpl implements DWService {
                 }
             }
 
-        }else {
+        } else {
             for (DataSetSchema dataSetSchema : schemaList) {
                 if (Objects.equals(dataSetSchema.getField(), "entities")
                         || Objects.equals(dataSetSchema.getField(), "relations")) {
@@ -1441,7 +1441,7 @@ public class DWServiceImpl implements DWService {
         }
     }
 
-    private void checkPDDocSchema(List<DataSetSchema> schemaList,List<String> fields) {
+    private void checkPDDocSchema(List<DataSetSchema> schemaList, List<String> fields) {
 
         if (schemaList == null || schemaList.isEmpty()) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_SCHEMA_MISMATCHING_STIPULATE);
@@ -1449,7 +1449,7 @@ public class DWServiceImpl implements DWService {
 
         boolean flag = false;
 
-        if(fields != null && fields.size() == 1){
+        if (fields != null && fields.size() == 1) {
 
             for (DataSetSchema dataSetSchema : schemaList) {
                 if (Objects.equals(dataSetSchema.getField(), fields.get(0))) {
@@ -1458,7 +1458,7 @@ public class DWServiceImpl implements DWService {
                 }
             }
 
-        }else{
+        } else {
             for (DataSetSchema dataSetSchema : schemaList) {
                 if (Objects.equals(dataSetSchema.getField(), "pdEntity")
                         || Objects.equals(dataSetSchema.getField(), "pdRelation")
@@ -1807,14 +1807,14 @@ public class DWServiceImpl implements DWService {
                 }
             });
             return schemas;
-        } else if(DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) {
+        } else if (DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) {
 
             return database.getTagJson();
 
-        }else if(DWDataFormat.isCustom(database.getDataFormat())){
+        } else if (DWDataFormat.isCustom(database.getDataFormat())) {
 
             List<CustomTableRsp> tableRsps = database.getTableLabels();
-            if(tableRsps == null || tableRsps.isEmpty()){
+            if (tableRsps == null || tableRsps.isEmpty()) {
                 return new ArrayList<>();
             }
 
@@ -2213,7 +2213,7 @@ public class DWServiceImpl implements DWService {
                 throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
             }
 
-            deleteCountData(databaseId,opt.get().getTableName());
+            deleteCountData(databaseId, opt.get().getTableName());
 
             tableRepository.deleteById(tableId);
 
@@ -2226,15 +2226,15 @@ public class DWServiceImpl implements DWService {
         search.put("tableName", tableName);
         Map<String, Object> query = new HashMap<>();
         query.put("search", search);
-        try(DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE, KETTLE_LOGS_COLLECTION)) {
-            List<Map<String, Object>> rs = provider.find(0,999999,query);
-            if(rs != null && !rs.isEmpty()){
+        try (DataOptProvider provider = getProvider(KETTLE_LOGS_DATABASE, KETTLE_LOGS_COLLECTION)) {
+            List<Map<String, Object>> rs = provider.find(0, 999999, query);
+            if (rs != null && !rs.isEmpty()) {
                 List<String> ids = rs.stream().map(map -> map.get("_id").toString()).collect(Collectors.toList());
-                if(ids != null && !ids.isEmpty()){
+                if (ids != null && !ids.isEmpty()) {
                     provider.batchDelete(ids);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
 
     }
@@ -2315,7 +2315,7 @@ public class DWServiceImpl implements DWService {
                         throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
                     }
 
-                    if(relationBean.getName() == null || relationBean.getName().isEmpty()){
+                    if (relationBean.getName() == null || relationBean.getName().isEmpty()) {
                         continue;
                     }
 
@@ -2324,8 +2324,8 @@ public class DWServiceImpl implements DWService {
                     attrRsp.setName(relationBean.getName());
 
                     List<ModelRangeRsp> rangeRsps = new ArrayList<>();
-                    if(relationBean.getRange() != null && !relationBean.getRange().isEmpty()){
-                        for(String r : relationBean.getRange()){
+                    if (relationBean.getRange() != null && !relationBean.getRange().isEmpty()) {
+                        for (String r : relationBean.getRange()) {
                             rangeRsps.add(ModelRangeRsp.builder().rangeName(r).build());
                         }
                         attrRsp.setRange(rangeRsps);
@@ -2629,28 +2629,22 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public List<DWDataStatusRsp> DataStatusList(Long databaseId) {
+    public List<DWDataStatusRsp> dataStatusList(Long databaseId) {
         MongoCollection<Document> collection = mongoClient.getDatabase(KETTLE_LOGS_DATABASE).getCollection(KETTLE_LOGS_RECODE);
         String userId = SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId();
-        List<Bson> bsons = new ArrayList<>(2);
-        bsons.add(Filters.eq("dbId", databaseId));
-        bsons.add(Filters.eq("userId", userId));
-        FindIterable<Document> findIterable = collection.find(Filters.and(bsons));
-        List<DWDataStatusDatail> dwDataList = documentConverter.toBeans(findIterable, DWDataStatusDatail.class);
-        List<String> collect = dwDataList.stream().map(DWDataStatusDatail::getTableName).distinct().collect(Collectors.toList());
+        AggregateIterable<Document> aggregate = collection.aggregate(
+                Arrays.asList(new Document("$match", new Document("dbId", databaseId).append("userId", userId)),
+                        new Document("$group", new Document("_id", "$tableName").append("firstDate",
+                                new Document("$max", "logTimeStamp")).append("data", new Document("$max", "$$ROOT")))));
         List<DWDataStatusDatail> dWDataRspList = new ArrayList<>();
-        for (String dWData : collect) {
-            List<Bson> bson = new ArrayList<>(3);
-            bson.add(Filters.eq("dbId", databaseId));
-            bson.add(Filters.eq("tableName", dWData));
-            bson.add(Filters.eq("userId", userId));
-            FindIterable<Document> dWDataDocuments = collection.find(Filters.and(bson)).sort(Sorts.descending("logTimeStamp")).limit(1);
-            List<DWDataStatusDatail> data = documentConverter.toBeans(dWDataDocuments, DWDataStatusDatail.class);
-            if (null != data && data.size() != 0) {
-                dWDataRspList.add(data.get(0));
-            }
+        for (Document doc : aggregate) {
+            JSONObject json = JSONObject.parseObject(doc.toJson()).getJSONObject("data");
+            DWDataStatusDatail datail = new DWDataStatusDatail();
+            datail.setLevel(json.getString("level"));
+            datail.setLogTimeStamp(json.getString("logTimeStamp"));
+            datail.setTableName(json.getString("tableName"));
+            dWDataRspList.add(datail);
         }
-        List<DWDataStatusRsp> dWDataRsps = MapperUtils.map(dWDataRspList, DWDataStatusRsp.class);
-        return dWDataRsps;
+        return MapperUtils.map(dWDataRspList, DWDataStatusRsp.class);
     }
 }
