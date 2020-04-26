@@ -242,6 +242,10 @@ public class DWServiceImpl implements DWService {
                 }
 
                 for (ModelRelationBeanRsp relation : tagJson.getRelation()) {
+
+                    if(relation.getName() == null || relation.getName().isEmpty() ){
+                        continue;
+                    }
                     if (map.containsKey(relation.getDomain() + "-" + relation.getName())) {
                         ModelRelationBeanRsp rela = map.get(relation.getDomain() + "-" + relation.getName());
 
@@ -708,16 +712,12 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
         }
 
-        List<CustomTableRsp> customTableRsps;
+        List<CustomTableRsp> customTableRsps = database.getTableLabels();
 
-        if(isDefault != null && isDefault){
-
+        if(customTableRsps == null || customTableRsps.isEmpty()){
             customTableRsps = ExampleYaml.createCustom(tables);
-
-        }else{
-
-            customTableRsps = database.getTableLabels();
         }
+
         return customTableRsps;
     }
 
@@ -879,7 +879,7 @@ public class DWServiceImpl implements DWService {
                 List<DataSetSchema> tableSchemas = schemaResolve(file, null);
                 if (schemas == null) {
 
-                    if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
+                    /*if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
                         if(tableSchemas != null && !tableSchemas.isEmpty()){
                             List<DataSetSchema> schemaList = new ArrayList<>(1);
                             for(DataSetSchema s: schemaList) {
@@ -895,9 +895,9 @@ public class DWServiceImpl implements DWService {
                         }
 
                     }else{
-                        schemas = tableSchemas;
-                    }
 
+                    }*/
+                    schemas = tableSchemas;
                     if (DWDataFormat.isPDdoc(database.getDataFormat())) {
                         if(StringUtils.hasText(table.getPdSingleField())){
                             checkPDDocSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
@@ -1067,12 +1067,8 @@ public class DWServiceImpl implements DWService {
         if (StringUtils.hasText(req.getTableName())) {
             schema = getIndustryTableSchema(req.getDwDataBaseId(), req.getTableName());
             target.setKtr(getIndustryTableKtr(req.getDwDataBaseId(), req.getTableName()));
-        } else if (DWDataFormat.isPDdoc(dwDatabase.getDataFormat()) || DWDataFormat.isPDd2r(dwDatabase.getDataFormat())) {
-            if (StringUtils.hasText(req.getField())) {
-                target.setPdSingleField(req.getField());
-            } else {
-                schema = schemaResolve(null, dwDatabase.getDataFormat());
-            }
+        } else if (StringUtils.hasText(req.getField()) && (DWDataFormat.isPDdoc(dwDatabase.getDataFormat()) || DWDataFormat.isPDd2r(dwDatabase.getDataFormat()))) {
+            target.setPdSingleField(req.getField());
         } else {
             schema = req.getSchemas();
         }
@@ -1355,11 +1351,7 @@ public class DWServiceImpl implements DWService {
 
                 List<DataSetSchema> schemaList = getIndustryTableSchema(databaseId, req.getTableName());
                 List<DataSetSchema> tableSchemaList = getTableSchema(database, req.getTbName());
-                if (schemaList == null) {
-                    schemaList = tableSchemaList;
-                } else {
-                    checkIndutrySchema(schemaList, tableSchemaList);
-                }
+                checkIndutrySchema(schemaList, tableSchemaList);
 
                 DWTable table = DWTable.builder()
                         .dwDataBaseId(databaseId)
@@ -1379,35 +1371,22 @@ public class DWServiceImpl implements DWService {
 
                 List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
 
-                List<String> fields = null;
-
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
 
                     if(StringUtils.hasText(req.getField())){
-                        DataSetSchema dataSetSchema = req.getDataSetSchema();
-                        schemaList = Lists.newArrayList(dataSetSchema);
-                        fields = transformFields(schemaList);
-                        checkPDDocSchema(schemaList,fields);
+                        checkPDDocSchema(schemaList,Lists.newArrayList(req.getField()));
                     }else{
                         checkPDDocSchema(schemaList,null);
                     }
 
                 }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
 
-
                     if(StringUtils.hasText(req.getField())){
-                        DataSetSchema dataSetSchema = req.getDataSetSchema();
-                        schemaList = Lists.newArrayList(dataSetSchema);
-                        fields = transformFields(schemaList);
-                        checkPDD2rSchema(schemaList,fields);
+                        checkPDD2rSchema(schemaList,Lists.newArrayList(req.getField()));
                     }else{
                         checkPDD2rSchema(schemaList,null);
                     }
 
-                }
-
-                if(fields == null){
-                    fields = transformFields(schemaList);
                 }
 
 
@@ -1418,7 +1397,7 @@ public class DWServiceImpl implements DWService {
                         .tbName(req.getTbName())
                         .title(req.getTbName())
                         .createWay(1)
-                        .fields(fields)
+                        .fields(transformFields(schemaList))
                         .pdSingleField(req.getField())
                         .build();
 
@@ -2237,6 +2216,7 @@ public class DWServiceImpl implements DWService {
             deleteCountData(databaseId,opt.get().getTableName());
 
             tableRepository.deleteById(tableId);
+
         }
     }
 
@@ -2333,6 +2313,10 @@ public class DWServiceImpl implements DWService {
 
                     if (!conceptRspMap.containsKey(domain)) {
                         throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
+                    }
+
+                    if(relationBean.getName() == null || relationBean.getName().isEmpty()){
+                        continue;
                     }
 
                     PreBuilderAttrRsp attrRsp = new PreBuilderAttrRsp();

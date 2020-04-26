@@ -545,8 +545,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                         if(modelRanges != null){
                             for(ModelRangeRsp r : modelRanges){
-                                if(modelKgConceptIdMap.containsKey(r.getRange())){
-                                    quoteModelRanges.add(modelKgConceptIdMap.get(r.getRange()));
+                                if(modelKgConceptIdMap.containsKey(r.getRange().intValue())){
+                                    quoteModelRanges.add(modelKgConceptIdMap.get(r.getRange().intValue()));
                                 }
                             }
                         }
@@ -575,8 +575,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             if(modelRanges != null){
                                 for(ModelRangeRsp r : modelRanges){
 
-                                    if(modelKgConceptNameMap.containsKey(r.getRange())){
-                                        quoteModelRangeNames.add(modelKgConceptNameMap.get(r.getRange()));
+                                    if(modelKgConceptNameMap.containsKey(r.getRange().intValue())){
+                                        quoteModelRangeNames.add(modelKgConceptNameMap.get(r.getRange().intValue()));
                                     }
                                 }
                             }
@@ -585,8 +585,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             if(matchRanges != null){
 
                                 for(ModelRangeRsp r : matchRanges){
-                                    if(modelKgConceptNameMap.containsKey(r.getRange())){
-                                        matchModelRangeNames.add(modelKgConceptNameMap.get(r.getRange()));
+                                    if(modelKgConceptNameMap.containsKey(r.getRange().intValue())){
+                                        matchModelRangeNames.add(modelKgConceptNameMap.get(r.getRange().intValue()));
                                     }
                                 }
 
@@ -1420,6 +1420,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             });
         }
 
+        Map<Integer,Long> conceptIdMap = new HashMap<>();
         List<SchemaQuoteReq> needAddConcepts = new ArrayList<>();
 
         for (SchemaQuoteReq schemaQuoteReq : quoteConfigs) {
@@ -1433,22 +1434,25 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                     needAddConcepts.add(schemaQuoteReq);
                 } else {
 
-                    if (conceptNameIdMap.containsKey(schemaQuoteReq.getConceptName())) {
+                    if (conceptNameIdMap.containsKey(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag())) {
                         schemaQuoteReq.setConceptId(conceptNameIdMap.get(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag()));
                         schemaQuoteReq.setPConceptId(conceptNameIdMap.get(schemaQuoteReq.getPConceptName()+schemaQuoteReq.getPConceptMeaningTag()));
                         continue;
                     }
                     ConceptAddReq conceptAddReq = new ConceptAddReq();
                     conceptAddReq.setName(schemaQuoteReq.getConceptName());
+                    conceptAddReq.setMeaningTag(schemaQuoteReq.getConceptMeaningTag());
                     conceptAddReq.setParentId(schemaQuoteReq.getPConceptId());
 
                     Long conceptId = graphEditService.createConcept(kgName, conceptAddReq);
                     schemaQuoteReq.setConceptId(conceptId);
                     schemaQuoteReq.setPConceptId(conceptNameIdMap.get(schemaQuoteReq.getPConceptName()+schemaQuoteReq.getPConceptMeaningTag()));
                     conceptNameIdMap.put(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag(), conceptId);
+                    conceptIdMap.put(schemaQuoteReq.getModelConceptId(),conceptId);
                 }
             } else {
                 conceptNameIdMap.put(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag(), schemaQuoteReq.getConceptId());
+                conceptIdMap.put(schemaQuoteReq.getModelConceptId(),schemaQuoteReq.getConceptId());
             }
 
         }
@@ -1470,7 +1474,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             }
 
             AttrDefinitionSearchReq attrDefinitionSearchReq = new AttrDefinitionSearchReq();
-            attrDefinitionSearchReq.setConceptId(conceptNameIdMap.get(schemaQuoteReq.getConceptName()));
+            attrDefinitionSearchReq.setConceptId(conceptNameIdMap.get(schemaQuoteReq.getConceptName()+schemaQuoteReq.getConceptMeaningTag()));
             List<AttrDefinitionRsp> attrDefinitionRspList = attributeService.getAttrDefinitionByConceptId(kgName,attrDefinitionSearchReq);
             Map<String, AttrDefinitionRsp> attrMap = new HashMap<>();
             if (attrDefinitionRspList != null && !attrDefinitionRspList.isEmpty()) {
@@ -1480,6 +1484,14 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             for (SchemaQuoteAttrReq attrReq : schemaQuoteReq.getAttrs()) {
 
                 Integer attrId;
+
+                List<ModelRangeRsp> modelRanges  = attrReq.getModelRange();
+                List<Long> rangeIds = new ArrayList<>();
+                if(modelRanges != null && !modelRanges.isEmpty()){
+                    for(ModelRangeRsp rangeRsp: modelRanges){
+                        rangeIds.add(conceptIdMap.get(rangeRsp.getRange().intValue()));
+                    }
+                }
 
                 if (attrReq.getAttrId() != null) {
 
@@ -1498,7 +1510,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                             continue;
                         }
                     } else {
-                        if (!a.getRangeValue().containsAll(attrReq.getRange())) {
+                        if (!a.getRangeValue().containsAll(rangeIds)) {
                             continue;
                         }
                     }
@@ -1527,8 +1539,10 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                         attrDefinitionReq.setDataUnit(attrReq.getUnit());
                     } else {
 
-                        List<Long> rangeIds = attrReq.getRange();
 
+                        if(rangeIds == null || rangeIds.isEmpty()){
+                            continue;
+                        }
                         attrDefinitionReq.setRangeValue(rangeIds);
                         attrDefinitionReq.setDirection(0);
                         attrDefinitionReq.setDataType(0);
@@ -1600,7 +1614,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         while (it.hasNext()) {
             SchemaQuoteReq concept = it.next();
 
-            if (conceptNameIdMap.containsKey(concept.getConceptName())) {
+            if (conceptNameIdMap.containsKey(concept.getConceptName()+concept.getConceptMeaningTag())) {
                 concept.setConceptId(conceptNameIdMap.get(concept.getConceptName()+concept.getConceptMeaningTag()));
                 concept.setPConceptId(conceptNameIdMap.get(concept.getPConceptName()+concept.getPConceptMeaningTag()));
                 it.remove();
@@ -1608,6 +1622,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             if (conceptNameIdMap.containsKey(concept.getPConceptName()+concept.getPConceptMeaningTag())) {
                 ConceptAddReq conceptAddReq = new ConceptAddReq();
                 conceptAddReq.setName(concept.getConceptName());
+                conceptAddReq.setMeaningTag(concept.getConceptMeaningTag());
                 conceptAddReq.setParentId(conceptNameIdMap.get(concept.getPConceptName()+concept.getPConceptMeaningTag()));
 
                 Long conceptId = graphEditService.createConcept(kgName, conceptAddReq);

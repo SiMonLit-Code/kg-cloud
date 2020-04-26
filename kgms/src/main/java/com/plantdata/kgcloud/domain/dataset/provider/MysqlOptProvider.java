@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
 import com.mongodb.*;
+import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
@@ -13,13 +14,11 @@ import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -109,8 +108,13 @@ public class MysqlOptProvider implements DataOptProvider {
             sql += " limit " + offset + "," + size;
         }
 
-        List<Map<String, Object>> rs = jdbcTemplate.queryForList(sql);
-        return rs;
+        try {
+            List<Map<String, Object>> rs = jdbcTemplate.queryForList(sql);
+            return rs;
+        }catch (DataAccessException e){
+            throw BizException.of(KgmsErrorCodeEnum.EXECUTE_SQL_ERROR);
+        }
+
     }
 
     @Override
