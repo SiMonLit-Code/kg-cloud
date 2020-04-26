@@ -333,13 +333,13 @@ public class DataSetServiceImpl implements DataSetService {
             target.setTbName(rsp.getTbName());
             target = dataSetRepository.save(target);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_PDTEXT_ERROR);
         }
         return dataSet2rsp.apply(target);
     }
 
-    private void checkUserLimit(String userId){
+    private void checkUserLimit(String userId) {
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
         if (data != null) {
             DataSet probe = new DataSet();
@@ -403,7 +403,7 @@ public class DataSetServiceImpl implements DataSetService {
                         if (val != null) {
                             FieldType type = readType(val);
                             dataSetSchema.setType(type.getCode());
-                        }else{
+                        } else {
                             dataSetSchema.setType(1);
                         }
                         dataSetSchemaMap.put(entry.getKey(), dataSetSchema);
@@ -462,7 +462,7 @@ public class DataSetServiceImpl implements DataSetService {
     @Override
     public FieldType readType(Object val) {
         FieldType type = null;
-        if(val == null){
+        if (val == null) {
             type = FieldType.STRING;
             return type;
         }
@@ -503,38 +503,40 @@ public class DataSetServiceImpl implements DataSetService {
             type = FieldType.FLOAT;
         } else {
             try {
+                string = val.toString();
                 Integer.parseInt(string);
                 type = FieldType.INTEGER;
-            }catch (Exception e){
+
+            } catch (Exception e) {
                 try {
                     Long.parseLong(string);
                     type = FieldType.LONG;
-                }catch (Exception e1){
+                } catch (Exception e1) {
                     try {
                         Double.parseDouble(string);
                         type = FieldType.DOUBLE;
-                    }catch (Exception e4){
+                    } catch (Exception e4) {
                         try {
                             String date = "\\d{4}-\\d{2}-\\d{2}";
                             String time = "\\d{2}:\\d{2}:\\d{2}";
                             String dateTime = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
-                            if (Pattern.matches(date, string)) {
-                                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                            if (Pattern.matches(dateTime, string)) {
+                                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                                 type = FieldType.DATE;
                             } else if (Pattern.matches(time, string)) {
                                 LocalTime.parse(string, DateTimeFormatter.ofPattern("HH:mm:ss"));
                                 type = FieldType.DATE;
-                            } else if (Pattern.matches(dateTime, string)) {
-                                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                            } else if (Pattern.matches(date, string)) {
+                                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 type = FieldType.DATE;
                             }
-                        }catch (Exception e2){
+                        } catch (Exception e2) {
                         }
                     }
                 }
             }
 
-            if(type == null){
+            if (type == null) {
                 type = FieldType.STRING;
             }
         }
