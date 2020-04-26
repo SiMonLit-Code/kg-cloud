@@ -1086,6 +1086,16 @@ public class KtrXml {
                 "    \"$exists\":${key}\n" +
                 "  }\n" +
                 "}\n";
+
+        static String mongoTimeQueryDateFieldXMl = "{\n" +
+                "    \"timeFieldQAQ\": {\n" +
+                "        \"$gte\": ISODate(\"${StartTime}\"),\n" +
+                "        \"$lt\": ISODate(\"${EndTime}\"}\n" +
+                "    },\n" +
+                "  \"_id\": {\n" +
+                "    \"$exists\":${key}\n" +
+                "  }\n" +
+                "}\n";
     }
 
 

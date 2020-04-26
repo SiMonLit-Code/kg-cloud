@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.access.entity.DWTask;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.data.entity.DWDataStatusDatail;
@@ -884,25 +885,8 @@ public class DWServiceImpl implements DWService {
                 List<DataSetSchema> tableSchemas = schemaResolve(file, null);
                 if (schemas == null) {
 
-                    /*if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
-                        if(tableSchemas != null && !tableSchemas.isEmpty()){
-                            List<DataSetSchema> schemaList = new ArrayList<>(1);
-                            for(DataSetSchema s: schemaList) {
-                                if(table.getPdSingleField().equals(s.getField())){
-                                    schemaList.add(s);
-                                    break;
-                                }
-                            }
-
-                            if(!schemaList.isEmpty()){
-                                schemas = schemaList;
-                            }
-                        }
-
-                    }else{
-
-                    }*/
                     schemas = tableSchemas;
+                    addFileUploadSchema(schemas);
                     if (DWDataFormat.isPDdoc(database.getDataFormat())) {
                         if (StringUtils.hasText(table.getPdSingleField())) {
                             checkPDDocSchema(tableSchemas, Lists.newArrayList(table.getPdSingleField()));
@@ -976,6 +960,22 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
         }
 
+    }
+
+    private void addFileUploadSchema(List<DataSetSchema> schemas) {
+        if(schemas == null || schemas.isEmpty()){
+            return;
+        }
+
+        DataSetSchema updateTime = new DataSetSchema();
+        updateTime.setField(DataConst.UPDATE_AT);
+        updateTime.setType(FieldType.STRING.getCode());
+        schemas.add(updateTime);
+
+        DataSetSchema createTime = new DataSetSchema();
+        createTime.setField(DataConst.CREATE_AT);
+        createTime.setType(FieldType.STRING.getCode());
+        schemas.add(createTime);
     }
 
     private void writeInsertCount(DWDatabaseRsp database, String tableName, Long sum) {
@@ -2229,12 +2229,20 @@ public class DWServiceImpl implements DWService {
                 throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
             }
 
-            deleteCountData(databaseId, opt.get().getTableName());
+            try {
+                deleteCountData(databaseId, opt.get().getTableName());
+            }catch (Exception e){}
+
+            try {
+                accessTaskService.deleteTaskByDW(databaseId,opt.get().getTableName());
+            }catch (Exception e){}
+
 
             tableRepository.deleteById(tableId);
 
         }
     }
+
 
     private void deleteCountData(Long databaseId, String tableName) {
         Map<String, Object> search = new HashMap<>();
