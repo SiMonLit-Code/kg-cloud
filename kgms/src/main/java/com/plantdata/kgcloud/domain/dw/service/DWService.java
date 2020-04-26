@@ -9,14 +9,9 @@ import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
+import com.plantdata.kgcloud.sdk.rsp.*;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.sdk.req.*;
-import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
-import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -4,6 +4,7 @@ import com.hiekn.basicnlptools.hanlp.HanLPService;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.DWClient;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -36,15 +37,15 @@ public class DWController implements SdkOldApiInterface {
         return dwClient.statisticBy3dTable(req);
     }
 
-//    @ApiOperation("数仓-查找所有数据库")
-//    @GetMapping("/database/all")
-//    public ApiReturn<List<DWDatabaseRsp>> findAll() {
-//        return ApiReturn.success(dwServince.findAll(userId));
-//    }
-//
-//    @ApiOperation("数仓-查找所有数据库与表")
-//    @GetMapping("/database/table/list")
-//    public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
-//        return ApiReturn.success(dwServince.databaseTableList(userId));
-//    }
+    @ApiOperation("数仓-查找所有数据库")
+    @GetMapping("/database/all")
+    public ApiReturn<List<DWDatabaseRsp>> findAll() {
+        return dwClient.findAll();
+    }
+
+    @ApiOperation("数仓-查找所有数据库与表")
+    @GetMapping("/database/table/list")
+    public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
+        return dwClient.databaseTableList();
+    }
 }

@@ -91,6 +91,7 @@ public class SemanticController implements SdkOpenApiInterface {
     @PostMapping("distance/score/{kgName}")
     public ApiReturn<Double> semanticDistanceScore(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                    @RequestParam("entityIdOne") Long entityIdOne, @RequestParam("entityIdTwo") Long entityIdTwo) {
+        RestResp<Double> a = semanticApi.distanceScore(KGUtil.dbName(kgName), entityIdOne, entityIdTwo);
         Optional<Double> distanceOpt = RestRespConverter.convert(semanticApi.distanceScore(KGUtil.dbName(kgName), entityIdOne, entityIdTwo));
         return ApiReturn.success(distanceOpt.orElse(NumberUtils.DOUBLE_ZERO));
     }

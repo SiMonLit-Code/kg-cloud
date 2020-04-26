@@ -27,10 +27,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
 import com.hiekn.pddocument.bean.PdDocument;
@@ -262,5 +259,18 @@ public class NlpController implements SdkOldApiInterface {
     public RestResp<PdDocument> summarize(@ApiParam(required = true) @RequestParam("input") String input,
                                             @ApiParam(required = true, value = " 句子个数") @RequestParam("size") Integer size) {
         return new RestResp<>(NlpConverter2.segmentToPdDocument(hanLPService.summarize(input, size),input));
+    }
+
+    /**
+     * 两个实体间语义距离查询
+     *
+     * @param
+     * @return
+     */
+    @ApiOperation("两个实体间语义距离查询")
+    @PostMapping("semantic/distance/score")
+    public ApiReturn<Double> semanticDistanceScore(@ApiParam(required = true) @RequestParam("kgName") String kgName,
+                                                   @ApiParam(required = true) @RequestParam("entityId1") Long entityIdOne, @ApiParam(required = true) @RequestParam("entityId2") Long entityIdTwo) {
+        return semanticClient.semanticDistanceScore(kgName, entityIdOne, entityIdTwo);
     }
 }

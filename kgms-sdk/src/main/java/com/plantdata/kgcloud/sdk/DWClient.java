@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
 import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
@@ -53,12 +54,21 @@ public interface DWClient {
     @PostMapping("statistic/by3dTable")
     ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req);
 
-//    /**
-//     * 查找所有数据库
-//     *
-//     * @param
-//     * @return .
-//     */
-//    @PostMapping("statistic/by3dTable")
-//    ApiReturn<List<DWTableRsp>> findAll();
+    /**
+     * 查找所有数据库
+     *
+     * @param
+     * @return .
+     */
+    @GetMapping("database/all")
+    public ApiReturn<List<DWDatabaseRsp>> findAll();
+
+    /**
+     * 查找所有数据库和表
+     *
+     * @param
+     * @return .
+     */
+    @GetMapping("database/table/list")
+    ApiReturn<List<DWDatabaseRsp>> databaseTableList();
 }
