@@ -293,8 +293,9 @@ public class AttributeServiceImpl implements AttributeService {
                                            RelationSearchMetaReq metaReq) {
         FilterRelationFrom filterRelationFrom = ConvertUtils.convert(FilterRelationFrom.class).apply(relationSearchReq);
         Integer size = relationSearchReq.getSize();
-        filterRelationFrom.setSkip((relationSearchReq.getPage() - 1) * size);
-        filterRelationFrom.setLimit(size);
+        Integer page = (relationSearchReq.getPage() - 1) * size;
+        filterRelationFrom.setSkip(page);
+        filterRelationFrom.setLimit(size + 1);
         Map<String, Object> metaFilters = new HashMap<>(4);
         if (StringUtils.hasText(metaReq.getSource())) {
             Map<String, Object> mongoOperation = new HashMap<>();
@@ -318,9 +319,13 @@ public class AttributeServiceImpl implements AttributeService {
         Optional<List<RelationVO>> optional = RestRespConverter.convert(restResp);
         List<RelationRsp> relationRsps =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserRelationMeta).collect(Collectors.toList());
-        Optional<Integer> count = RestRespConverter.convertCount(restResp);
+        int count = relationRsps.size();
+        if (count > size) {
+            relationRsps.remove(size.intValue());
+            count += page;
+        }
         return new PageImpl<>(relationRsps, PageRequest.of(relationSearchReq.getPage() - 1,
-                size), count.get());
+                size), count);
     }
 
     @Override

@@ -1,11 +1,8 @@
 package com.plantdata.kgcloud.domain.access.util;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
-import com.plantdata.kgcloud.domain.dw.entity.DWTable;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.constant.DataType;
 
 import java.io.IOException;

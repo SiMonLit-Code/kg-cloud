@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.dw.rsp;
+package com.plantdata.kgcloud.sdk.rsp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;

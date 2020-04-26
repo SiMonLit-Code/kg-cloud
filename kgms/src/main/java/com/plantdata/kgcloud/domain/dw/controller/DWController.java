@@ -4,16 +4,19 @@ import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.req.*;
-import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
+import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.ModelSchemaConfigRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.*;
+import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -306,5 +309,21 @@ public class DWController {
     @GetMapping("/database/tableLogList")
     public ApiReturn tableLogList(@Valid DWTableLogReq dwTableLogReq) {
         return ApiReturn.success(dwServince.tableLogList(dwTableLogReq));
+    }
+
+    @ApiOperation("统计数据二维/按表统计")
+    @PostMapping("statistic/by2dTable")
+    public ApiReturn<DW2dTableRsp> statistic2dByTable(@Valid @RequestBody SqlQueryReq req) {
+        String userId = SessionHolder.getUserId();
+        req.setDbName(dwServince.findById(userId,req.getDbId()).getDataName());
+        return ApiReturn.success(dwServince.statisticBy2DTable(req));
+    }
+
+    @ApiOperation("统计数据三维/按表统计")
+    @PostMapping("statistic/by3dTable")
+    public ApiReturn<DW3dTableRsp> statistic3dByTable(@Valid @RequestBody SqlQueryReq req) {
+        String userId = SessionHolder.getUserId();
+        req.setDbName(dwServince.findById(userId,req.getDbId()).getDataName());
+        return ApiReturn.success(dwServince.statisticBy3DTable(req));
     }
 }

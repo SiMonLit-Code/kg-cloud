@@ -9,6 +9,9 @@ import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.*;
+import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
+import com.plantdata.kgcloud.sdk.req.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -100,4 +103,12 @@ public interface DWService {
 
     DWDatabaseRsp findDatabaseByDataName(String dataName);
 
+<<<<<<< HEAD
+=======
+    DWDatabaseRsp findById(String userId,Integer dbId);
+
+    DW2dTableRsp statisticBy2DTable(SqlQueryReq req);
+
+    DW3dTableRsp statisticBy3DTable(SqlQueryReq req);
+>>>>>>> e09807e3af3406b9d4e775e329aab496dabe439e
 }
