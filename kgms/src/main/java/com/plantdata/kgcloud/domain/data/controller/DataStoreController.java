@@ -66,9 +66,16 @@ public class DataStoreController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("数仓错误数据修正列表")
+    @ApiOperation("数仓错误数据更新列表")
     @GetMapping("/err/list")
     public ApiReturn listErrDataStore(DataStoreScreenReq req) {
         return ApiReturn.success(dataStoreService.listErrDataStore(req));
+    }
+
+    @ApiOperation("数仓错误数据重新消费")
+    @GetMapping("/rerun")
+    public ApiReturn rerun(DtReq req) {
+        dataStoreService.rerun(req);
+        return ApiReturn.success();
     }
 }

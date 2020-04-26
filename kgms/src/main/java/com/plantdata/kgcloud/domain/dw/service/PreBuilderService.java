@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderUpdateReq;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
+import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.sdk.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderMatchAttrReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
@@ -35,7 +32,7 @@ public interface PreBuilderService {
 
     void update(String userId, Integer id, String status);
 
-    void createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, String yamlContent);
+    Integer createModel(DWDatabaseRsp database, List<PreBuilderConceptRsp> preBuilderConceptRspList, String modelType, List<CustomTableRsp> labels);
 
     List<String> getTypes(String userId,Boolean isManage);
 

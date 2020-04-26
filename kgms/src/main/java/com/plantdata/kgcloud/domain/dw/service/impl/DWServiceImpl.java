@@ -57,6 +57,7 @@ import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -241,6 +242,10 @@ public class DWServiceImpl implements DWService {
                 }
 
                 for (ModelRelationBeanRsp relation : tagJson.getRelation()) {
+
+                    if(relation.getName() == null || relation.getName().isEmpty() ){
+                        continue;
+                    }
                     if (map.containsKey(relation.getDomain() + "-" + relation.getName())) {
                         ModelRelationBeanRsp rela = map.get(relation.getDomain() + "-" + relation.getName());
 
@@ -707,16 +712,12 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR);
         }
 
-        List<CustomTableRsp> customTableRsps;
+        List<CustomTableRsp> customTableRsps = database.getTableLabels();
 
-        if(isDefault != null && isDefault){
-
+        if(customTableRsps == null || customTableRsps.isEmpty()){
             customTableRsps = ExampleYaml.createCustom(tables);
-
-        }else{
-
-            customTableRsps = database.getTableLabels();
         }
+
         return customTableRsps;
     }
 
@@ -846,6 +847,14 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
+    public DWDatabaseRsp findDatabaseByDataName(String dataName) {
+
+        Optional<DWDatabase> databaseOpt = dwRepository.findOne(Example.of(DWDatabase.builder().dataName(dataName).build()));
+
+        return ConvertUtils.convert(DWDatabaseRsp.class).apply(databaseOpt.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST)));
+    }
+
+    @Override
     public void upload(String userId, Long databaseId, Long tableId, MultipartFile file) {
 
         List<DataSetSchema> schemas = null;
@@ -870,7 +879,7 @@ public class DWServiceImpl implements DWService {
                 List<DataSetSchema> tableSchemas = schemaResolve(file, null);
                 if (schemas == null) {
 
-                    if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
+                    /*if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
                         if(tableSchemas != null && !tableSchemas.isEmpty()){
                             List<DataSetSchema> schemaList = new ArrayList<>(1);
                             for(DataSetSchema s: schemaList) {
@@ -886,29 +895,49 @@ public class DWServiceImpl implements DWService {
                         }
 
                     }else{
-                        schemas = tableSchemas;
+
+                    }*/
+                    schemas = tableSchemas;
+                    if (DWDataFormat.isPDdoc(database.getDataFormat())) {
+                        if(StringUtils.hasText(table.getPdSingleField())){
+                            checkPDDocSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
+                        }else{
+                            checkPDDocSchema(tableSchemas,null);
+                        }
+                    }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
+                        if(StringUtils.hasText(table.getPdSingleField())){
+                            checkPDD2rSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
+                        }else{
+                            checkPDD2rSchema(tableSchemas,null);
+                        }
+                    } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
+                        List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
+                        checkIndutrySchema(industrySchema, tableSchemas);
                     }
-                    table.setSchema(schemas);
-                    table.setFields(transformFields(schemas));
+
+                    table.setSchema(tableSchemas);
+                    table.setFields(transformFields(tableSchemas));
                     tableRepository.save(table);
+                }else{
+
+                    if (DWDataFormat.isPDdoc(database.getDataFormat())) {
+                        if(StringUtils.hasText(table.getPdSingleField())){
+                            checkPDDocSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
+                        }else{
+                            checkPDDocSchema(tableSchemas,null);
+                        }
+                    }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
+                        if(StringUtils.hasText(table.getPdSingleField())){
+                            checkPDD2rSchema(tableSchemas,Lists.newArrayList(table.getPdSingleField()));
+                        }else{
+                            checkPDD2rSchema(tableSchemas,null);
+                        }
+                    } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
+                        List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
+                        checkIndutrySchema(industrySchema, tableSchemas);
+                    }
                 }
 
-                if (DWDataFormat.isPDdoc(database.getDataFormat())) {
-                    if(StringUtils.hasText(table.getPdSingleField())){
-                        checkPDDocSchema(schemas,Lists.newArrayList(table.getPdSingleField()));
-                    }else{
-                        checkPDDocSchema(schemas,null);
-                    }
-                }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
-                    if(StringUtils.hasText(table.getPdSingleField())){
-                        checkPDD2rSchema(schemas,Lists.newArrayList(table.getPdSingleField()));
-                    }else{
-                        checkPDD2rSchema(schemas,null);
-                    }
-                } else if (DWDataFormat.isStandard(database.getDataFormat()) && StringUtils.hasText(table.getMapper())) {
-                    List<DataSetSchema> industrySchema = getIndustryTableSchema(databaseId, table.getMapper());
-                    checkIndutrySchema(industrySchema, schemas);
-                }
                 tableName = table.getTableName();
 
             }
@@ -1038,12 +1067,8 @@ public class DWServiceImpl implements DWService {
         if (StringUtils.hasText(req.getTableName())) {
             schema = getIndustryTableSchema(req.getDwDataBaseId(), req.getTableName());
             target.setKtr(getIndustryTableKtr(req.getDwDataBaseId(), req.getTableName()));
-        } else if (DWDataFormat.isPDdoc(dwDatabase.getDataFormat()) || DWDataFormat.isPDd2r(dwDatabase.getDataFormat())) {
-            if (StringUtils.hasText(req.getField())) {
-                target.setPdSingleField(req.getField());
-            } else {
-                schema = schemaResolve(null, dwDatabase.getDataFormat());
-            }
+        } else if (StringUtils.hasText(req.getField()) && (DWDataFormat.isPDdoc(dwDatabase.getDataFormat()) || DWDataFormat.isPDd2r(dwDatabase.getDataFormat()))) {
+            target.setPdSingleField(req.getField());
         } else {
             schema = req.getSchemas();
         }
@@ -1326,21 +1351,17 @@ public class DWServiceImpl implements DWService {
 
                 List<DataSetSchema> schemaList = getIndustryTableSchema(databaseId, req.getTableName());
                 List<DataSetSchema> tableSchemaList = getTableSchema(database, req.getTbName());
-                if (schemaList == null) {
-                    schemaList = getTableSchema(database, req.getTbName());
-                } else {
-                    checkIndutrySchema(schemaList, tableSchemaList);
-                }
+                checkIndutrySchema(schemaList, tableSchemaList);
 
                 DWTable table = DWTable.builder()
                         .dwDataBaseId(databaseId)
-                        .schema(schemaList)
+                        .schema(tableSchemaList)
                         .tableName(req.getTbName())
                         .tbName(req.getTbName())
                         .title(req.getTbName())
                         .ktr(getIndustryTableKtr(databaseId, req.getTableName()))
                         .createWay(1)
-                        .fields(transformFields(schemaList))
+                        .fields(transformFields(tableSchemaList))
                         .mapper(req.getTableName())
                         .modelId(req.getModelId())
                         .build();
@@ -1350,35 +1371,22 @@ public class DWServiceImpl implements DWService {
 
                 List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
 
-                List<String> fields = null;
-
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
 
                     if(StringUtils.hasText(req.getField())){
-                        DataSetSchema dataSetSchema = req.getDataSetSchema();
-                        schemaList = Lists.newArrayList(dataSetSchema);
-                        fields = transformFields(schemaList);
-                        checkPDDocSchema(schemaList,fields);
+                        checkPDDocSchema(schemaList,Lists.newArrayList(req.getField()));
                     }else{
                         checkPDDocSchema(schemaList,null);
                     }
 
                 }else if(DWDataFormat.isPDd2r(database.getDataFormat())){
 
-
                     if(StringUtils.hasText(req.getField())){
-                        DataSetSchema dataSetSchema = req.getDataSetSchema();
-                        schemaList = Lists.newArrayList(dataSetSchema);
-                        fields = transformFields(schemaList);
-                        checkPDD2rSchema(schemaList,fields);
+                        checkPDD2rSchema(schemaList,Lists.newArrayList(req.getField()));
                     }else{
                         checkPDD2rSchema(schemaList,null);
                     }
 
-                }
-
-                if(fields == null){
-                    fields = transformFields(schemaList);
                 }
 
 
@@ -1389,7 +1397,7 @@ public class DWServiceImpl implements DWService {
                         .tbName(req.getTbName())
                         .title(req.getTbName())
                         .createWay(1)
-                        .fields(fields)
+                        .fields(transformFields(schemaList))
                         .pdSingleField(req.getField())
                         .build();
 
@@ -1818,7 +1826,7 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public void push(String userId, ModelPushReq req) {
+    public Integer push(String userId, ModelPushReq req) {
 
         DWDatabaseRsp database = getDetail(req.getId());
         if (!database.getUserId().equals(userId)) {
@@ -1837,9 +1845,12 @@ public class DWServiceImpl implements DWService {
             }
 
 
-            preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), null);
+            return preBuilderService.createModel(database, preBuilderConceptRspList, req.getModelType(), database.getTableLabels());
 
         }
+
+        return null;
+
         /*else if (DWDataFormat.isCustom(database.getDataFormat())) {
             //自定义
             String yamlContent = database.getYamlContent();
@@ -1993,9 +2004,7 @@ public class DWServiceImpl implements DWService {
 
     private void updateSchedulingConfig(DWDatabaseRsp database, DWTableRsp tableRsp, Long dwDataBaseId, String tableName, String cron, Integer isAll, String field) {
 
-        String ktrTaskName = AccessTaskType.KTR.getDisplayName() + "_" + dwDataBaseId + "_" + tableName + "_";
-
-        accessTaskService.updateTableSchedulingConfig(database, tableRsp, ktrTaskName, cron, isAll, field);
+        accessTaskService.updateTableSchedulingConfig(database, tableRsp, cron, isAll, field);
     }
 
     @Override
@@ -2207,6 +2216,7 @@ public class DWServiceImpl implements DWService {
             deleteCountData(databaseId,opt.get().getTableName());
 
             tableRepository.deleteById(tableId);
+
         }
     }
 
@@ -2305,10 +2315,21 @@ public class DWServiceImpl implements DWService {
                         throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
                     }
 
+                    if(relationBean.getName() == null || relationBean.getName().isEmpty()){
+                        continue;
+                    }
+
                     PreBuilderAttrRsp attrRsp = new PreBuilderAttrRsp();
                     attrRsp.setAttrType(1);
                     attrRsp.setName(relationBean.getName());
-                    attrRsp.setRangeName(relationBean.getRange().iterator().next());
+
+                    List<ModelRangeRsp> rangeRsps = new ArrayList<>();
+                    if(relationBean.getRange() != null && !relationBean.getRange().isEmpty()){
+                        for(String r : relationBean.getRange()){
+                            rangeRsps.add(ModelRangeRsp.builder().rangeName(r).build());
+                        }
+                        attrRsp.setRange(rangeRsps);
+                    }
                     attrRsp.setTables(Lists.newArrayList(schema.getTableName()));
 
                     if (relationBean.getAttrs() != null && !relationBean.getAttrs().isEmpty()) {

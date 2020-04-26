@@ -9,10 +9,12 @@ import com.plantdata.kgcloud.domain.access.rsp.*;
 import com.plantdata.kgcloud.domain.dw.rsp.CustomColumnRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.CustomRelationRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -45,7 +47,411 @@ public class YamlTransFunc {
     private static Yaml yaml = new Yaml();
 
     public static void main(String[] args) {
-        String yaml = "";
+        String yaml = "[\n" +
+                "    {\n" +
+                "        \"tableName\":\"t_trans_log\",\n" +
+                "        \"typeEnum\":null,\n" +
+                "        \"columns\":[\n" +
+                "            {\n" +
+                "                \"name\":\"id\",\n" +
+                "                \"tag\":\"席位.id\",\n" +
+                "                \"type\":\"int\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"seat\",\n" +
+                "                \"tag\":\"席位.name\",\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"席位\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"buy_num\",\n" +
+                "                \"tag\":\"席位.价格\",\n" +
+                "                \"type\":\"int\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"sale_num\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"int\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"trust_buy_num\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"int\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"trust_sale_num\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"int\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"deal_time\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"deal_price\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"string\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"create_time\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"name\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"relationRsps\":null\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"tableName\":\"t_rack_a\",\n" +
+                "        \"typeEnum\":null,\n" +
+                "        \"columns\":[\n" +
+                "            {\n" +
+                "                \"name\":\"rack\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"dc\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"idc\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"rack_capacity\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"row\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"column\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"enabled\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"on_position\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"power_type\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"hz\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"two_circuit_feed\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"lease_type\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"kw\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"create_date\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"date\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"update_date\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"date\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"desc\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"relationRsps\":null\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"tableName\":\"t_system\",\n" +
+                "        \"typeEnum\":null,\n" +
+                "        \"columns\":[\n" +
+                "            {\n" +
+                "                \"name\":\"system\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"MAC\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"type\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"counter\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"status\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"createdate\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"date\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"relationRsps\":null\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"tableName\":\"t_relation\",\n" +
+                "        \"typeEnum\":null,\n" +
+                "        \"columns\":[\n" +
+                "            {\n" +
+                "                \"name\":\"system\",\n" +
+                "                \"tag\":\"系统.name\",\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"系统\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"user\",\n" +
+                "                \"tag\":\"用户.name\",\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"用户\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"dc\",\n" +
+                "                \"tag\":\"数据中心.name\",\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"数据中心\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"idc\",\n" +
+                "                \"tag\":\"机房.name\",\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"机房\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"rack\",\n" +
+                "                \"tag\":\"机架.name\",\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"机架\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"camera_stand\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"equipment\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"设备\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"IP\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"ip\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"seat\",\n" +
+                "                \"tag\":\"机柜.$concept\",\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"席位\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"relationRsps\":[\n" +
+                "            {\n" +
+                "                \"domain\":\"机柜\",\n" +
+                "                \"endTime\":\"\",\n" +
+                "                \"name\":\"所属机房\",\n" +
+                "                \"range\":[\n" +
+                "                    \"机房\"\n" +
+                "                ],\n" +
+                "                \"relationAttrs\":[\n" +
+                "                    {\n" +
+                "                        \"comment\":\"\",\n" +
+                "                        \"name\":\"IP\",\n" +
+                "                        \"tag\":\"机柜IP\",\n" +
+                "                        \"type\":\"\"\n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"startTime\":\"\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"tableName\":\"t_idc\",\n" +
+                "        \"typeEnum\":null,\n" +
+                "        \"columns\":[\n" +
+                "            {\n" +
+                "                \"name\":\"idc\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"dc\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"relationRsps\":null\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"tableName\":\"t_equipment\",\n" +
+                "        \"typeEnum\":null,\n" +
+                "        \"columns\":[\n" +
+                "            {\n" +
+                "                \"name\":\"ID\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"equipment\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"model\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"type\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"image_url\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"interspace\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"int\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"power\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"int\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"createDate\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"relationRsps\":null\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"tableName\":\"t_dc\",\n" +
+                "        \"typeEnum\":null,\n" +
+                "        \"columns\":[\n" +
+                "            {\n" +
+                "                \"name\":\"dc\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"数据中心\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"locality\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"地点\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"type\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"类型\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"network_access\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"网络地址\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\":\"ddress\",\n" +
+                "                \"tag\":null,\n" +
+                "                \"type\":\"text\",\n" +
+                "                \"comment\":\"\"\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"relationRsps\":null\n" +
+                "    }\n" +
+                "]";
 
 
 
@@ -64,11 +470,14 @@ public class YamlTransFunc {
         Map<String, TransInsConfigRsp> entityTypeMap = new HashMap<>();
         Map<String,Map<String,TransAttrRsp>> attrMap = new HashMap<>();
         for(CustomColumnRsp column : label.getColumns()){
-            if(column.getTag() == null){
+            if(column.getTag() == null || column.getTag().isEmpty()){
                 continue;
             }
 
             String[] tags = column.getTag().split("\\.");
+            if(tags.length != 2){
+                continue;
+            }
 
             if(pbList.contains(tags[1])){
                 Map<String,TransPropertyRsp> propertyRsps = entityPropertyMap.get(tags[0]);
@@ -84,6 +493,7 @@ public class YamlTransFunc {
                     TransPropertyRsp props = new TransPropertyRsp();
                     props.setProperty(tags[1]);
                     props.setMapField(Lists.newArrayList(column.getName()));
+                    propertyRsps.put(tags[1],props);
                 }
 
                 entityPropertyMap.put(tags[0],propertyRsps);
@@ -99,6 +509,7 @@ public class YamlTransFunc {
 
                 if(propertyRsps == null){
                     propertyRsps = new HashMap<>();
+                    attrMap.put(tags[0],propertyRsps);
                 }
 
                 if(propertyRsps.containsKey(tags[1])){
@@ -109,6 +520,7 @@ public class YamlTransFunc {
                     props.setProperty(tags[1]);
                     props.setDataType(attDataTypeMap.get(column.getType()));
                     props.setMapField(Lists.newArrayList(column.getName()));
+                    propertyRsps.put(tags[1],props);
                 }
             }
 
@@ -121,16 +533,30 @@ public class YamlTransFunc {
 
         for(Map.Entry<String,Map<String,TransPropertyRsp>> entry : entityPropertyMap.entrySet()){
 
-            for(Map<String,TransPropertyRsp> props : ents){
-                List<TransPropertyRsp> entTypes = Lists.newArrayList(props.values());
-                TransEntityConfigRsp entity = new TransEntityConfigRsp();
-                entity.setDataType("entity");
-                entity.setAttrs(Lists.newArrayList(attrMap.get(entry.getKey()).values()));
-                entity.setEntity(entTypes);
-                entity.setEntityType(entityTypeMap.get(entry.getKey()));
-
-                rs.add(entity);
+            TransEntityConfigRsp entity = new TransEntityConfigRsp();
+            List<TransPropertyRsp> entTypes = Lists.newArrayList(entry.getValue().values());
+            entity.setEntity(entTypes);
+            entity.setDataType("entity");
+            if(attrMap.get(entry.getKey()) != null && attrMap.get(entry.getKey()).values() != null){
+                Collection c = attrMap.get(entry.getKey()).values();
+                entity.setAttrs(new ArrayList<>(c));
+            }else{
+                entity.setAttrs(Lists.newArrayList());
             }
+
+            if(entityTypeMap.containsKey(entry.getKey())){
+
+                entity.setEntityType(entityTypeMap.get(entry.getKey()));
+            }else{
+
+                TransInsConfigRsp type = new TransInsConfigRsp();
+                type.setName(Lists.newArrayList(entry.getKey()));
+                type.setMeaningTag(Lists.newArrayList());
+                type.setNameIsEnum(false);
+                entity.setEntityType(type);
+            }
+
+            rs.add(entity);
         }
 
 
@@ -138,11 +564,19 @@ public class YamlTransFunc {
 
             for(CustomRelationRsp relationRsp : label.getRelationRsps()){
 
+                if(relationRsp.getName() == null || relationRsp.getName().isEmpty()){
+                    continue;
+                }
+
                 String domain = relationRsp.getDomain();
 
                 TransInsConfigRsp domainType = entityTypeMap.get(domain);
                 if(domainType == null){
-                    continue;
+                    TransInsConfigRsp type = new TransInsConfigRsp();
+                    type.setName(Lists.newArrayList(domain));
+                    type.setMeaningTag(Lists.newArrayList());
+                    type.setNameIsEnum(false);
+                    domainType = type;
                 }
 
 
@@ -155,7 +589,11 @@ public class YamlTransFunc {
 
                     TransInsConfigRsp rangeType = entityTypeMap.get(range);
                     if(rangeType == null){
-                        continue;
+                        TransInsConfigRsp type = new TransInsConfigRsp();
+                        type.setName(Lists.newArrayList(domain));
+                        type.setMeaningTag(Lists.newArrayList());
+                        type.setNameIsEnum(false);
+                        rangeType = type;
                     }
 
 
@@ -164,8 +602,10 @@ public class YamlTransFunc {
                     relationConfigRsp.setTimeTo(relationRsp.getEndTime());
                     relationConfigRsp.setDataType("relation");
                     relationConfigRsp.setEntityType(domainType);
-                    relationConfigRsp.setEntity(Lists.newArrayList(entityPropertyMap.get(domain).values()));
-                    relationConfigRsp.setValue(Lists.newArrayList(entityPropertyMap.get(range).values()));
+
+
+                    relationConfigRsp.setEntity(entityPropertyMap.get(domain).values().stream().map( s -> ConvertUtils.convert(TransPropertyRsp.class).apply(s)).collect(Collectors.toList()));
+                    relationConfigRsp.setValue(entityPropertyMap.get(range).values().stream().map( s -> ConvertUtils.convert(TransPropertyRsp.class).apply(s)).collect(Collectors.toList()));
                     relationConfigRsp.setValueType(rangeType);
 
                     List<CustomColumnRsp> relaAttrs = relationRsp.getRelationAttrs();
@@ -173,6 +613,9 @@ public class YamlTransFunc {
                     if(relaAttrs != null && !relaAttrs.isEmpty()){
 
                         for(CustomColumnRsp relaAttr : relaAttrs){
+                            if(relaAttr.getTag() == null || relaAttr.getTag().isEmpty()){
+                                continue;
+                            }
 
                             TransAttrRsp a = new TransAttrRsp();
                             a.setProperty(relaAttr.getTag());
@@ -197,7 +640,7 @@ public class YamlTransFunc {
 
         }
 
-        return null;
+        return rs;
     }
 
     public static Map<String, JSONArray> tranTagConfig(String yamlStr) {

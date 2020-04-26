@@ -16,7 +16,6 @@ import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -234,11 +233,11 @@ public class DWController {
 
     @ApiOperation("数仓-模式发布")
     @PostMapping("/model/push")
-    public ApiReturn push(@RequestBody ModelPushReq req) {
+    public ApiReturn<Integer> push(@RequestBody ModelPushReq req) {
 
         String userId = SessionHolder.getUserId();
-        dwServince.push(userId, req);
-        return ApiReturn.success();
+       ;
+        return ApiReturn.success( dwServince.push(userId, req));
     }
 
     @ApiOperation("数仓-查看模式")

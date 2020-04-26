@@ -29,6 +29,7 @@ import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
+import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
@@ -40,9 +41,12 @@ import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.UUIDUtils;
+import org.redisson.api.RedissonClient;
+import org.redisson.client.RedisClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.domain.Specification;
@@ -89,6 +93,9 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
     @Value("${topic.channel.check}")
     private String kafkaCheckTopic;
+
+
+
 
     private static Map<String,String> cronMap = new HashMap<>();
 
@@ -275,11 +282,13 @@ public class AccessTaskServiceImpl implements AccessTaskService {
                     throw BizException.of(KgmsErrorCodeEnum.PRE_BUILD_MODEL_NOT_EXIST);
                 }
                 DWPrebuildModel model = modelOpt.get();
-                String yamlContent = model.getYamlContent();
-                if(yamlContent != null && !yamlContent.isEmpty()){
-                    Map<String, JSONArray> yamlTagMap = YamlTransFunc.tranTagConfig(yamlContent);
-                    JSONArray tableTransfer = yamlTagMap.get(tableName);
-                    transferJson.put("transferConfig", tableTransfer);
+                if(model.getTableLabels() != null && !model.getTableLabels().isEmpty()){
+                    for(CustomTableRsp tableRsp : model.getTableLabels()){
+                        if(tableRsp.getTableName().equals(tableName)){
+                            transferJson.put("transferConfig", YamlTransFunc.tranConfig(tableRsp));
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -440,26 +449,15 @@ public class AccessTaskServiceImpl implements AccessTaskService {
     }
 
     @Override
-    public void updateTableSchedulingConfig(DWDatabaseRsp database, DWTableRsp table, String ktrTaskName, String cron, Integer isAll, String field) {
+    public void updateTableSchedulingConfig(DWDatabaseRsp database, DWTableRsp table, String cron, Integer isAll, String field) {
 
-        Specification<DWTask> specification = new Specification<DWTask>() {
-            @Override
-            public Predicate toPredicate(Root<DWTask> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-
-                List<Predicate> predicates = new ArrayList<>();
-
-                Predicate likename = criteriaBuilder.like(root.get("name").as(String.class), ktrTaskName + "%");
-                predicates.add(likename);
-
-                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-            }
-        };
-
-        List<DWTask> all = taskRepository.findAll(specification);
+        List<DWTask> all = getTableTask(database.getId(),table.getTableName());
 
         if(all == null || all.isEmpty()){
             return;
         }
+
+        String ktrTaskName = AccessTaskType.KTR.getDisplayName() + "_" + database.getId() + "_" + table.getTableName() + "_";
 
         for(DWTask task : all){
 
@@ -480,6 +478,43 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
         }
 
+    }
+
+    @Override
+    public List<DWTask> getTableTask(Long dbId, String tableName) {
+        String ktrTaskName = AccessTaskType.KTR.getDisplayName() + "_" + dbId + "_" + tableName + "_";
+        Specification<DWTask> specification = new Specification<DWTask>() {
+            @Override
+            public Predicate toPredicate(Root<DWTask> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+
+                List<Predicate> predicates = new ArrayList<>();
+
+                Predicate likename = criteriaBuilder.like(root.get("name").as(String.class), ktrTaskName + "%");
+                predicates.add(likename);
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            }
+        };
+
+        return taskRepository.findAll(specification);
+    }
+
+    @Override
+    public void addRerunTask(Long dbId, String tableName, List<String> resourceNames) {
+
+        String obj = cacheManager.getCache(ChannelRedisEnum.ERROR_RERUN.getType()).get(dbId+"_"+tableName,String::new);
+
+        JSONArray array = new JSONArray();
+        if(obj != null && !obj.isEmpty()){
+            array = JacksonUtils.readValue(obj,JSONArray.class);
+        }
+        for(String resourceName : resourceNames){
+
+            if(!array.contains(resourceName)){
+                array.add(resourceName);
+            }
+        }
+        cacheManager.getCache(ChannelRedisEnum.ERROR_RERUN.getType()).put(dbId+"_"+tableName,array);
     }
 
     private List<ResourceReq> transformConfig(DataAccessTaskConfigReq config,Map<String,String> taskId2TypeMap) {
