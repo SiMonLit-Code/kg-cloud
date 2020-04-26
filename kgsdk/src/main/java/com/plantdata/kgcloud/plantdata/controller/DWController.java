@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
+import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.exception.SdkException;
 import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.bean.chart.ChartTableBean;
 import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.PdStatServiceibit;
 import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.bean.PdStatBean;
@@ -31,6 +34,13 @@ public class DWController implements SdkOldApiInterface {
     @ApiOperation("统计数据仓库二维/按表统计")
     @PostMapping("statistic/by2dTable")
     public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq req) {
+        if(req.getQuery().getDimensions() == null
+                || req.getQuery().getMeasures() == null
+                || req.getQuery().getMeasures().size() != 1
+                || (req.getQuery().getDimensions().size() != 1
+                        && req.getQuery().getDimensions().size() != 2)){
+            throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
+        }
         req.setDbName(dwClient.findById(req.getDbId()+"").getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
@@ -55,12 +65,12 @@ public class DWController implements SdkOldApiInterface {
                 int indexCounter = 0;
                 int seriesCounter = 0;
                 for (List<Object> row : ctb.getData()) {
-                    if(!indexMap.containsKey(row.get(0)+"")){
+                    if(!indexMap.containsKey(row.get(0))){
                         indexMap.put((String)row.get(0),indexCounter);
                         table.getXAxis().add((String)row.get(0));
                         indexCounter++;
                     }
-                    if(!seriesMap.containsKey(row.get(1)+"")){
+                    if(!seriesMap.containsKey(row.get(1))){
                         seriesMap.put((String)row.get(1),seriesCounter);
                         seriesCounter++;
                     }
@@ -79,6 +89,8 @@ public class DWController implements SdkOldApiInterface {
                     series.getData().set(indexMap.get(row.get(0)),row.get(2));
                 }
             }
+        }else if(ctb == null){
+            throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
         return  ApiReturn.success(table);
     }
@@ -86,6 +98,13 @@ public class DWController implements SdkOldApiInterface {
     @ApiOperation("统计数据仓库三维/按表统计")
     @PostMapping("statistic/by3dTable")
     public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req) {
+        if(req.getQuery().getDimensions() == null
+                || req.getQuery().getMeasures() == null
+                || req.getQuery().getMeasures().size() != 1
+                || (req.getQuery().getDimensions().size() != 2
+                && req.getQuery().getDimensions().size() != 3)){
+            throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
+        }
         req.setDbName(dwClient.findById(req.getDbId()+"").getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
@@ -123,7 +142,7 @@ public class DWController implements SdkOldApiInterface {
                 Map<String,Integer> seriesMap = new HashMap<>();
                 int counter = 0;
                 for (List<Object> row : ctb.getData()) {
-                    if(!seriesMap.containsKey(row.get(2)+"")){
+                    if(!seriesMap.containsKey(row.get(2))){
                         seriesMap.put((String)row.get(2),counter);
                         DWStatisticTableSeries s = new DWStatisticTableSeries();
                         s.setName((String)row.get(2));
@@ -148,6 +167,8 @@ public class DWController implements SdkOldApiInterface {
                     yAxis.add(name);
                 }
             }
+        }else if(ctb == null){
+            throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
         return  ApiReturn.success(table);
     }

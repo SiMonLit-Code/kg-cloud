@@ -7,14 +7,12 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
 
 public class PrestoSingleton {
-    static Config appConfig;
 
     private static Connection connection = null;
 
     private static void init(){
         try {
-            appConfig = ConfigService.getConfig("kgsdk");
-            String presto_conn_info = appConfig.getProperty("presto.server",null);
+            String presto_conn_info = "192.168.4.145:16666";
             String jdbc_url = "jdbc:presto://"+presto_conn_info+"/system/runtime";
             String userName = "root";
             String password = "";
