@@ -5,11 +5,10 @@
     <parent>
         <artifactId>kg-cloud-parent</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.0.2</version>
+        <version>3.0.5</version>
         <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.plantdata</groupId>
     <artifactId>kg-cloud-kgms</artifactId>
     <version>3.0.53-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -23,9 +22,9 @@
 
     <properties>
         <next-tag.version>3.0.52</next-tag.version>
-        <next-develop.version>3.0.53-SNAPSHOT</next-develop.version>
+        <next-develop.version>3.0-SNAPSHOT</next-develop.version>
 
-        <kg-cloud-parent.version>3.0.2</kg-cloud-parent.version>
+        <kg-cloud-parent.version>3.0.5</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
         <kg-services-sdk.version>3.0.0-SNAPSHOT</kg-services-sdk.version>
         <kgtext-sdk.version>3.0.18</kgtext-sdk.version>
