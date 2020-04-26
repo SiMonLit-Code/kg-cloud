@@ -31,7 +31,7 @@ public class GraphConfQaServiceImpl implements GraphConfQaService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<GraphConfQaRsp> saveQa(String kgName, List<GraphConfQaReq> reqs) {
-        graphConfQaRepository.deleteAll();
+        graphConfQaRepository.deleteByKgName(kgName);
         List<GraphConfQa> list = new ArrayList<>();
         for (GraphConfQaReq req : reqs) {
             GraphConfQa targe = new GraphConfQa();

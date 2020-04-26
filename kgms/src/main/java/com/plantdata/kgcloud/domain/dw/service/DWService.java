@@ -9,6 +9,9 @@ import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.*;
+import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
+import com.plantdata.kgcloud.sdk.req.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -100,4 +103,10 @@ public interface DWService {
     void updateCustomLabel(Long databaseId, List<CustomTableRsp> customTableRsps);
 
     DWDatabaseRsp findDatabaseByDataName(String dataName);
+
+    DWDatabaseRsp findById(String userId,Integer dbId);
+
+    DW2dTableRsp statisticBy2DTable(SqlQueryReq req);
+
+    DW3dTableRsp statisticBy3DTable(SqlQueryReq req);
 }

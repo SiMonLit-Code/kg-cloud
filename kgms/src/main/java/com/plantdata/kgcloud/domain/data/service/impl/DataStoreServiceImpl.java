@@ -24,7 +24,7 @@ import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
 import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 import com.plantdata.kgcloud.domain.data.service.DataStoreSender;
 import com.plantdata.kgcloud.domain.data.service.DataStoreService;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;

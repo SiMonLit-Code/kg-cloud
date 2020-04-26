@@ -18,5 +18,21 @@
             <artifactId>kg-cloud-web</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>tech.ibit</groupId>
+            <artifactId>sql-builder</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.58</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hiekn</groupId>
+            <artifactId>pd-document</artifactId>
+            <version>2.0.9</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>
