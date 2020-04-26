@@ -904,7 +904,6 @@ public class DWServiceImpl implements DWService {
                     table.setFields(transformFields(tableSchemas));
                     tableRepository.save(table);
                 } else {
-
                     if (DWDataFormat.isPDdoc(database.getDataFormat())) {
                         if (StringUtils.hasText(table.getPdSingleField())) {
                             checkPDDocSchema(tableSchemas, Lists.newArrayList(table.getPdSingleField()));
@@ -1117,23 +1116,17 @@ public class DWServiceImpl implements DWService {
             DataSetSchema schema = new DataSetSchema();
             schema.setField(name);
             try {
-                if (field.getType() == Integer.class) {
+                if(field.getType() == Integer.class){
                     schema.setType(FieldType.INTEGER.getCode());
-                } else if (field.getType() == Long.class) {
+                }else if(field.getType() == Long.class){
                     schema.setType(FieldType.LONG.getCode());
-                } else if (field.getType() == Float.class) {
-                    schema.setType(FieldType.FLOAT.getCode());
-                } else if (field.getType() == Double.class) {
-                    schema.setType(FieldType.DOUBLE.getCode());
-                } else if (field.getType() == Map.class) {
-                    schema.setType(FieldType.OBJECT.getCode());
-                } else if (field.getType() == String.class) {
+                }else if(field.getType() == String.class){
                     schema.setType(FieldType.STRING.getCode());
-                } else if (field.getType() == Date.class) {
+                }else if(field.getType() == Date.class){
                     schema.setType(FieldType.DATE.getCode());
-                } else if (field.getType() == List.class || field.getType() == Set.class) {
+                }else if(field.getType() == List.class || field.getType() == Set.class){
                     schema.setType(FieldType.ARRAY.getCode());
-                } else {
+                }else{
                     schema.setType(FieldType.STRING.getCode());
                 }
             } catch (Exception e) {
