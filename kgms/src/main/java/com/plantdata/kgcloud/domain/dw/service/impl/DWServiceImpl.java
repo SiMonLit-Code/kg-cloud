@@ -1125,6 +1125,12 @@ public class DWServiceImpl implements DWService {
                     schema.setType(FieldType.INTEGER.getCode());
                 } else if (field.getType() == Long.class) {
                     schema.setType(FieldType.LONG.getCode());
+                } else if (field.getType() == Float.class) {
+                    schema.setType(FieldType.FLOAT.getCode());
+                } else if (field.getType() == Double.class) {
+                    schema.setType(FieldType.DOUBLE.getCode());
+                } else if (field.getType() == Map.class) {
+                    schema.setType(FieldType.OBJECT.getCode());
                 } else if (field.getType() == String.class) {
                     schema.setType(FieldType.STRING.getCode());
                 } else if (field.getType() == Date.class) {
@@ -2654,7 +2660,7 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public DWDatabaseRsp findById(String userId,Integer tableId) {
+    public DWDatabaseRsp findById(String userId, Integer tableId) {
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
@@ -2662,9 +2668,9 @@ public class DWServiceImpl implements DWService {
         idList.add(tableId.longValue());
         List<DWDatabase> all = dwRepository.findAllById(idList);
         List<DWDatabaseRsp> result = all.stream().map(dw2rsp).collect(Collectors.toList());
-        if(result != null && result.size() > 0 && result.get(0).getUserId().equals(userId)) {
+        if (result != null && result.size() > 0 && result.get(0).getUserId().equals(userId)) {
             return result.get(0);
-        }else{
+        } else {
             return null;
         }
     }
@@ -2673,13 +2679,13 @@ public class DWServiceImpl implements DWService {
     public DW2dTableRsp statisticBy2DTable(SqlQueryReq req) {
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
+        ChartTableBean ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
         DW2dTableRsp table = new DW2dTableRsp();
         table.setXAxis(new ArrayList<>());
         table.setSeries(new ArrayList<>());
         List<String> xAxis = table.getXAxis();
-        if(ctb != null && ctb.getData()!=null && ctb.getData().size() > 0){
-            if(req.getQuery().getDimensions().size()==1) {
+        if (ctb != null && ctb.getData() != null && ctb.getData().size() > 0) {
+            if (req.getQuery().getDimensions().size() == 1) {
                 DWStatisticTableSeries s = new DWStatisticTableSeries();
                 table.getSeries().add(s);
                 s.setName("分组1");
@@ -2688,45 +2694,45 @@ public class DWServiceImpl implements DWService {
                     xAxis.add((String) row.get(0));
                     s.getData().add(row.get(1));
                 }
-            }else if(req.getQuery().getDimensions().size()==2) {
-                Map<String,Integer> seriesMap = new HashMap<>();
-                Map<String,Integer> indexMap = new HashMap<>();
+            } else if (req.getQuery().getDimensions().size() == 2) {
+                Map<String, Integer> seriesMap = new HashMap<>();
+                Map<String, Integer> indexMap = new HashMap<>();
                 int indexCounter = 0;
                 int seriesCounter = 0;
                 for (List<Object> row : ctb.getData()) {
-                    if(!indexMap.containsKey(row.get(0)+"")){
-                        indexMap.put((String)row.get(0),indexCounter);
-                        table.getXAxis().add((String)row.get(0));
+                    if (!indexMap.containsKey(row.get(0) + "")) {
+                        indexMap.put((String) row.get(0), indexCounter);
+                        table.getXAxis().add((String) row.get(0));
                         indexCounter++;
                     }
-                    if(!seriesMap.containsKey(row.get(1)+"")){
-                        seriesMap.put((String)row.get(1),seriesCounter);
+                    if (!seriesMap.containsKey(row.get(1) + "")) {
+                        seriesMap.put((String) row.get(1), seriesCounter);
                         seriesCounter++;
                     }
                 }
-                for(String seriesKey : seriesMap.keySet()){
+                for (String seriesKey : seriesMap.keySet()) {
                     DWStatisticTableSeries s = new DWStatisticTableSeries();
                     s.setName(seriesKey);
                     s.setData(new ArrayList<Object>());
                     table.getSeries().add(s);
-                    for(String indexKey : indexMap.keySet()){
+                    for (String indexKey : indexMap.keySet()) {
                         s.getData().add(null);
                     }
                 }
                 for (List<Object> row : ctb.getData()) {
-                    DWStatisticTableSeries series = (DWStatisticTableSeries)table.getSeries().get(seriesMap.get(row.get(1)));
-                    series.getData().set(indexMap.get(row.get(0)),row.get(2));
+                    DWStatisticTableSeries series = (DWStatisticTableSeries) table.getSeries().get(seriesMap.get(row.get(1)));
+                    series.getData().set(indexMap.get(row.get(0)), row.get(2));
                 }
             }
         }
-        return  table;
+        return table;
     }
 
     @Override
     public DW3dTableRsp statisticBy3DTable(SqlQueryReq req) {
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
+        ChartTableBean ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
         DW3dTableRsp table = new DW3dTableRsp();
         table.setXAxis(new ArrayList<>());
         table.setYAxis(new ArrayList<>());
@@ -2735,8 +2741,8 @@ public class DWServiceImpl implements DWService {
         List<String> yAxis = table.getYAxis();
         Set<String> xAxisNameSet = new HashSet<>();
         Set<String> yAxisNameSet = new HashSet<>();
-        if(ctb != null && ctb.getData()!=null && ctb.getData().size() > 0){
-            if(req.getQuery().getDimensions().size()==2) {
+        if (ctb != null && ctb.getData() != null && ctb.getData().size() > 0) {
+            if (req.getQuery().getDimensions().size() == 2) {
                 DWStatisticTableSeries s = new DWStatisticTableSeries();
                 table.getSeries().add(s);
                 s.setName("分组1");
@@ -2756,14 +2762,14 @@ public class DWServiceImpl implements DWService {
                 for (String name : yAxisNameSet) {
                     yAxis.add(name);
                 }
-            }else if(req.getQuery().getDimensions().size()==3) {
-                Map<String,Integer> seriesMap = new HashMap<>();
+            } else if (req.getQuery().getDimensions().size() == 3) {
+                Map<String, Integer> seriesMap = new HashMap<>();
                 int counter = 0;
                 for (List<Object> row : ctb.getData()) {
-                    if(!seriesMap.containsKey(row.get(2)+"")){
-                        seriesMap.put((String)row.get(2),counter);
+                    if (!seriesMap.containsKey(row.get(2) + "")) {
+                        seriesMap.put((String) row.get(2), counter);
                         DWStatisticTableSeries s = new DWStatisticTableSeries();
-                        s.setName((String)row.get(2));
+                        s.setName((String) row.get(2));
                         s.setData(new ArrayList<>());
                         table.getSeries().add(s);
                         counter++;
@@ -2786,6 +2792,6 @@ public class DWServiceImpl implements DWService {
                 }
             }
         }
-        return  table;
+        return table;
     }
 }
