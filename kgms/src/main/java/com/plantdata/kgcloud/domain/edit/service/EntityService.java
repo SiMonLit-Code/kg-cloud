@@ -66,26 +66,10 @@ public interface EntityService {
      * 删除多模态数据
      *
      * @param kgName
-     * @param modalId
+     * @param relationId
      * @return
      */
-    void deleteMultiModal(String kgName, String modalId);
-
-    /**
-     * 删除多模态数据
-     *
-     * @param kgName
-     * @param modalId
-     * @return
-     */
-    void deleteMultiModalOnly(String kgName, String modalId);
-
-    /**
-     * 更新多模态数据
-     * @param kgName
-     * @param multiModal
-     */
-    void updateMultiModal(String kgName, MultiModal multiModal);
+    void deleteMultiModal(String kgName, Integer relationId);
 
     /**
      * 实体列表

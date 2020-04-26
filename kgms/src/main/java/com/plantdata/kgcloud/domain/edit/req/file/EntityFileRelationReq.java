@@ -23,6 +23,9 @@ public class EntityFileRelationReq {
     @ApiModelProperty(value = "文件类型")
     private String type;
 
+    @ApiModelProperty(value = "文件路径")
+    private String dataHref;
+
     @ApiModelProperty(value = "关键词")
     private String keyword;
 
@@ -32,9 +35,5 @@ public class EntityFileRelationReq {
     @NotNull(message = "数仓文件ID不能为空")
     @ApiModelProperty(value = "数仓文件ID")
     private Integer dwFileId;
-
-    @NotNull(message = "多模态mongo文件ID不能为空")
-    @ApiModelProperty(value = "多模态mongo文件ID")
-    private String multiModalId;
 
 }
