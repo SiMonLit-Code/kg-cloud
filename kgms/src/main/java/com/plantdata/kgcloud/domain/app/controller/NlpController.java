@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.controller;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityLinkingFrom;
 import ai.plantdata.kg.api.pub.resp.TaggingItemVO;
+import com.hiekn.pddocument.bean.PdDocument;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
@@ -57,9 +58,9 @@ public class NlpController implements SdkOpenApiInterface {
 
     @ApiOperation("图谱实体识别")
     @PostMapping("ner/graph/{kgName}")
-    public ApiReturn<List<SegmentEntityRsp>> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                                      @Valid @RequestBody SegmentReq segmentReq) {
-        return ApiReturn.success(nlpService.segment(kgName, segmentReq));
+    public ApiReturn<PdDocument> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                          @Valid @RequestBody SegmentReq segmentReq) {
+        return ApiReturn.success(nlpService.segment2(kgName, segmentReq));
     }
 
     @ApiOperation(value = "图谱分词",notes = "图谱分词，以知识图谱的实体，对输入文本进行分词。")

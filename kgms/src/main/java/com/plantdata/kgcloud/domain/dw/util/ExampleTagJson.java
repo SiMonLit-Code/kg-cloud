@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.domain.dw.util;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 
 import java.util.ArrayList;
 import java.util.List;

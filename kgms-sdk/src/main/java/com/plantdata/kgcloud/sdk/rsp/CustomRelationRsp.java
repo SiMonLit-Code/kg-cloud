@@ -1,5 +1,6 @@
-package com.plantdata.kgcloud.domain.dw.rsp;
+package com.plantdata.kgcloud.sdk.rsp;
 
+import com.plantdata.kgcloud.sdk.rsp.CustomColumnRsp;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

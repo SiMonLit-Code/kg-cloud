@@ -1,8 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.converter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
+import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 
 import javax.persistence.AttributeConverter;

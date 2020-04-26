@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service;
 
+import com.hiekn.pddocument.bean.PdDocument;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.SegmentEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;
@@ -41,4 +42,13 @@ public interface NlpService {
      * @return
      */
     List<SegmentEntityRsp> segment(String kgName, SegmentReq segmentReq);
+
+    /**
+     * 图谱实体识别2
+     *
+     * @param kgName
+     * @param segmentReq
+     * @return
+     */
+    PdDocument segment2(String kgName, SegmentReq segmentReq);
 }

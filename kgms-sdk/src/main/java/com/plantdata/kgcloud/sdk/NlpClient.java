@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk;
 
+import com.hiekn.pddocument.bean.PdDocument;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
@@ -62,7 +63,7 @@ public interface NlpClient {
      * @return
      */
     @PostMapping("ner/graph/{kgName}")
-    ApiReturn<List<SegmentEntityRsp>> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
-                                               @Valid @RequestBody SegmentReq segmentReq);
+    ApiReturn<PdDocument> nerGraph(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                   @Valid @RequestBody SegmentReq segmentReq);
 
 }

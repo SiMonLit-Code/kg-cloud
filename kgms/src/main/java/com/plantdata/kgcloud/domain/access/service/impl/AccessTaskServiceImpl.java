@@ -29,9 +29,9 @@ import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
-import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.GraphMapService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -515,6 +515,130 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             }
         }
         cacheManager.getCache(ChannelRedisEnum.ERROR_RERUN.getType()).put(dbId+"_"+tableName,array);
+    }
+
+    @Override
+    public void addDeleteTask(List<String> resourceNames) {
+
+        if(resourceNames == null || resourceNames.isEmpty()){
+            return;
+        }
+
+        String obj = cacheManager.getCache(ChannelRedisEnum.DELETE.getType()).get(ChannelRedisEnum.DELETE.getType(),String::new);
+
+        JSONArray array = new JSONArray();
+        if(obj != null && !obj.isEmpty()){
+            array = JacksonUtils.readValue(obj,JSONArray.class);
+        }
+        for(String resourceName : resourceNames){
+
+            if(!array.contains(resourceName)){
+                array.add(resourceName);
+            }
+        }
+        cacheManager.getCache(ChannelRedisEnum.DELETE.getType()).put(ChannelRedisEnum.DELETE.getType(),array);
+    }
+
+    @Override
+    public List<DWTask> getTransferTaskByResourceNames(List<String> transfTasks) {
+
+        return taskRepository.findAllByNameIn(transfTasks);
+    }
+
+    @Override
+    public void deleteTaskByDW(Long databaseId, String tableName) {
+
+        List<DWTask> all = getTableTask(databaseId,tableName);
+        if(all == null || all.isEmpty()){
+            return;
+        }
+
+        List<String>resourceNames = new ArrayList<>();
+        List<String> transfTasks = new ArrayList<>();
+
+        for(DWTask task : all){
+
+            resourceNames.add(task.getName());
+
+            if(task.getOutputs() != null && !task.getOutputs().isEmpty()){
+                transfTasks.addAll(task.getOutputs());
+            }
+        }
+
+        List<DWTask> transferTask = getTransferTaskByResourceNames(transfTasks);
+        if(transferTask != null && !transferTask.isEmpty()){
+            for(DWTask task : all){
+
+                resourceNames.add(task.getName());
+
+                if(task.getOutputs() != null && !task.getOutputs().isEmpty()){
+                    resourceNames.addAll(task.getOutputs());
+                }
+                if(task.getDistributeOriginalData() != null && !task.getDistributeOriginalData().isEmpty()){
+                    resourceNames.addAll(task.getDistributeOriginalData());
+                }
+            }
+        }
+
+        addDeleteTask(resourceNames);
+
+    }
+
+    @Override
+    public void deleteTaskByKG(String kgName) {
+        List<DWTask> all = getKGTask(kgName);
+        if(all == null || all.isEmpty()){
+            return;
+        }
+
+        List<String>resourceNames = new ArrayList<>();
+        List<String> transfTasks = new ArrayList<>();
+
+        for(DWTask task : all){
+
+            resourceNames.add(task.getName());
+
+            if(task.getOutputs() != null && !task.getOutputs().isEmpty()){
+                transfTasks.addAll(task.getOutputs());
+            }
+        }
+
+        List<DWTask> transferTask = getTransferTaskByResourceNames(transfTasks);
+        if(transferTask != null && !transferTask.isEmpty()){
+            for(DWTask task : all){
+
+                resourceNames.add(task.getName());
+
+                if(task.getOutputs() != null && !task.getOutputs().isEmpty()){
+                    resourceNames.addAll(task.getOutputs());
+                }
+                if(task.getDistributeOriginalData() != null && !task.getDistributeOriginalData().isEmpty()){
+                    resourceNames.addAll(task.getDistributeOriginalData());
+                }
+            }
+        }
+
+        addDeleteTask(resourceNames);
+    }
+
+    private List<DWTask> getKGTask(String kgName) {
+
+        String ktrTaskName = kgName;
+        Specification<DWTask> specification = new Specification<DWTask>() {
+            @Override
+            public Predicate toPredicate(Root<DWTask> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+
+                List<Predicate> predicates = new ArrayList<>();
+
+                Predicate likename = criteriaBuilder.like(root.get("name").as(String.class), ktrTaskName + "%");
+                predicates.add(likename);
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            }
+        };
+
+        return taskRepository.findAll(specification);
+
     }
 
     private List<ResourceReq> transformConfig(DataAccessTaskConfigReq config,Map<String,String> taskId2TypeMap) {
