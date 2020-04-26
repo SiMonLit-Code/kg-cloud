@@ -1,7 +1,7 @@
-package com.plantdata.kgcloud.sdk.req;
+package com.plantdata.kgcloud.plantdata.req.dw;
 
 import lombok.Data;
-import com.plantdata.kgcloud.sdk.kgcompute.stat.bean.PdStatBean;
+import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.bean.PdStatBean;
 
 @Data
 public class SqlQueryReq {

@@ -1,8 +1,8 @@
-package com.plantdata.kgcloud.sdk.kgcompute.stat;
+package com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat;
 
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.sdk.kgcompute.compute.PrestoCompute;
-import com.plantdata.kgcloud.sdk.kgcompute.stat.bean.*;
+import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.compute.PrestoCompute;
+import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.bean.*;
 
 import java.util.List;
 

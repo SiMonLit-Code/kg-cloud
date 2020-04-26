@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.access.entity.DWTask;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.data.entity.DWDataStatusDatail;
@@ -58,10 +59,6 @@ import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.*;
-import com.plantdata.kgcloud.sdk.kgcompute.bean.chart.ChartTableBean;
-import com.plantdata.kgcloud.sdk.kgcompute.stat.PdStatServiceibit;
-import com.plantdata.kgcloud.sdk.kgcompute.stat.bean.PdStatBean;
-import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -884,25 +881,8 @@ public class DWServiceImpl implements DWService {
                 List<DataSetSchema> tableSchemas = schemaResolve(file, null);
                 if (schemas == null) {
 
-                    /*if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
-                        if(tableSchemas != null && !tableSchemas.isEmpty()){
-                            List<DataSetSchema> schemaList = new ArrayList<>(1);
-                            for(DataSetSchema s: schemaList) {
-                                if(table.getPdSingleField().equals(s.getField())){
-                                    schemaList.add(s);
-                                    break;
-                                }
-                            }
-
-                            if(!schemaList.isEmpty()){
-                                schemas = schemaList;
-                            }
-                        }
-
-                    }else{
-
-                    }*/
                     schemas = tableSchemas;
+                    addFileUploadSchema(schemas);
                     if (DWDataFormat.isPDdoc(database.getDataFormat())) {
                         if (StringUtils.hasText(table.getPdSingleField())) {
                             checkPDDocSchema(tableSchemas, Lists.newArrayList(table.getPdSingleField()));
@@ -924,7 +904,6 @@ public class DWServiceImpl implements DWService {
                     table.setFields(transformFields(tableSchemas));
                     tableRepository.save(table);
                 } else {
-
                     if (DWDataFormat.isPDdoc(database.getDataFormat())) {
                         if (StringUtils.hasText(table.getPdSingleField())) {
                             checkPDDocSchema(tableSchemas, Lists.newArrayList(table.getPdSingleField()));
@@ -976,6 +955,22 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
         }
 
+    }
+
+    private void addFileUploadSchema(List<DataSetSchema> schemas) {
+        if(schemas == null || schemas.isEmpty()){
+            return;
+        }
+
+        DataSetSchema updateTime = new DataSetSchema();
+        updateTime.setField(DataConst.UPDATE_AT);
+        updateTime.setType(FieldType.STRING.getCode());
+        schemas.add(updateTime);
+
+        DataSetSchema createTime = new DataSetSchema();
+        createTime.setField(DataConst.CREATE_AT);
+        createTime.setType(FieldType.STRING.getCode());
+        schemas.add(createTime);
     }
 
     private void writeInsertCount(DWDatabaseRsp database, String tableName, Long sum) {
@@ -1121,23 +1116,17 @@ public class DWServiceImpl implements DWService {
             DataSetSchema schema = new DataSetSchema();
             schema.setField(name);
             try {
-                if (field.getType() == Integer.class) {
+                if(field.getType() == Integer.class){
                     schema.setType(FieldType.INTEGER.getCode());
-                } else if (field.getType() == Long.class) {
+                }else if(field.getType() == Long.class){
                     schema.setType(FieldType.LONG.getCode());
-                } else if (field.getType() == Float.class) {
-                    schema.setType(FieldType.FLOAT.getCode());
-                } else if (field.getType() == Double.class) {
-                    schema.setType(FieldType.DOUBLE.getCode());
-                } else if (field.getType() == Map.class) {
-                    schema.setType(FieldType.OBJECT.getCode());
-                } else if (field.getType() == String.class) {
+                }else if(field.getType() == String.class){
                     schema.setType(FieldType.STRING.getCode());
-                } else if (field.getType() == Date.class) {
+                }else if(field.getType() == Date.class){
                     schema.setType(FieldType.DATE.getCode());
-                } else if (field.getType() == List.class || field.getType() == Set.class) {
+                }else if(field.getType() == List.class || field.getType() == Set.class){
                     schema.setType(FieldType.ARRAY.getCode());
-                } else {
+                }else{
                     schema.setType(FieldType.STRING.getCode());
                 }
             } catch (Exception e) {
@@ -2229,12 +2218,20 @@ public class DWServiceImpl implements DWService {
                 throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
             }
 
-            deleteCountData(databaseId, opt.get().getTableName());
+            try {
+                deleteCountData(databaseId, opt.get().getTableName());
+            }catch (Exception e){}
+
+            try {
+                accessTaskService.deleteTaskByDW(databaseId,opt.get().getTableName());
+            }catch (Exception e){}
+
 
             tableRepository.deleteById(tableId);
 
         }
     }
+
 
     private void deleteCountData(Long databaseId, String tableName) {
         Map<String, Object> search = new HashMap<>();
@@ -2665,138 +2662,19 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public DWDatabaseRsp findById(String userId, Integer tableId) {
+    public DWDatabaseRsp findById(String tableId) {
+        String userId = SessionHolder.getUserId();
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
         List<Long> idList = new ArrayList<>();
-        idList.add(tableId.longValue());
+        idList.add(Long.valueOf(tableId));
         List<DWDatabase> all = dwRepository.findAllById(idList);
         List<DWDatabaseRsp> result = all.stream().map(dw2rsp).collect(Collectors.toList());
-        if (result != null && result.size() > 0 && result.get(0).getUserId().equals(userId)) {
+        if(result != null && result.size() > 0 && result.get(0).getUserId().equals(userId)) {
             return result.get(0);
-        } else {
+        }else{
             return null;
         }
-    }
-
-    @Override
-    public DW2dTableRsp statisticBy2DTable(SqlQueryReq req) {
-        PdStatServiceibit pdStatService = new PdStatServiceibit();
-        PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
-        DW2dTableRsp table = new DW2dTableRsp();
-        table.setXAxis(new ArrayList<>());
-        table.setSeries(new ArrayList<>());
-        List<String> xAxis = table.getXAxis();
-        if (ctb != null && ctb.getData() != null && ctb.getData().size() > 0) {
-            if (req.getQuery().getDimensions().size() == 1) {
-                DWStatisticTableSeries s = new DWStatisticTableSeries();
-                table.getSeries().add(s);
-                s.setName("分组1");
-                s.setData(new ArrayList<>());
-                for (List<Object> row : ctb.getData()) {
-                    xAxis.add((String) row.get(0));
-                    s.getData().add(row.get(1));
-                }
-            } else if (req.getQuery().getDimensions().size() == 2) {
-                Map<String, Integer> seriesMap = new HashMap<>();
-                Map<String, Integer> indexMap = new HashMap<>();
-                int indexCounter = 0;
-                int seriesCounter = 0;
-                for (List<Object> row : ctb.getData()) {
-                    if (!indexMap.containsKey(row.get(0) + "")) {
-                        indexMap.put((String) row.get(0), indexCounter);
-                        table.getXAxis().add((String) row.get(0));
-                        indexCounter++;
-                    }
-                    if (!seriesMap.containsKey(row.get(1) + "")) {
-                        seriesMap.put((String) row.get(1), seriesCounter);
-                        seriesCounter++;
-                    }
-                }
-                for (String seriesKey : seriesMap.keySet()) {
-                    DWStatisticTableSeries s = new DWStatisticTableSeries();
-                    s.setName(seriesKey);
-                    s.setData(new ArrayList<Object>());
-                    table.getSeries().add(s);
-                    for (String indexKey : indexMap.keySet()) {
-                        s.getData().add(null);
-                    }
-                }
-                for (List<Object> row : ctb.getData()) {
-                    DWStatisticTableSeries series = (DWStatisticTableSeries) table.getSeries().get(seriesMap.get(row.get(1)));
-                    series.getData().set(indexMap.get(row.get(0)), row.get(2));
-                }
-            }
-        }
-        return table;
-    }
-
-    @Override
-    public DW3dTableRsp statisticBy3DTable(SqlQueryReq req) {
-        PdStatServiceibit pdStatService = new PdStatServiceibit();
-        PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
-        DW3dTableRsp table = new DW3dTableRsp();
-        table.setXAxis(new ArrayList<>());
-        table.setYAxis(new ArrayList<>());
-        table.setSeries(new ArrayList<>());
-        List<String> xAxis = table.getXAxis();
-        List<String> yAxis = table.getYAxis();
-        Set<String> xAxisNameSet = new HashSet<>();
-        Set<String> yAxisNameSet = new HashSet<>();
-        if (ctb != null && ctb.getData() != null && ctb.getData().size() > 0) {
-            if (req.getQuery().getDimensions().size() == 2) {
-                DWStatisticTableSeries s = new DWStatisticTableSeries();
-                table.getSeries().add(s);
-                s.setName("分组1");
-                s.setData(new ArrayList<>());
-                for (List<Object> row : ctb.getData()) {
-                    List<Object> seriesData = new ArrayList<>();
-                    seriesData.add(row.get(0));
-                    seriesData.add(row.get(1));
-                    seriesData.add(row.get(2));
-                    s.getData().add(seriesData);
-                    xAxisNameSet.add((String) row.get(0));
-                    yAxisNameSet.add((String) row.get(1));
-                }
-                for (String name : xAxisNameSet) {
-                    xAxis.add(name);
-                }
-                for (String name : yAxisNameSet) {
-                    yAxis.add(name);
-                }
-            } else if (req.getQuery().getDimensions().size() == 3) {
-                Map<String, Integer> seriesMap = new HashMap<>();
-                int counter = 0;
-                for (List<Object> row : ctb.getData()) {
-                    if (!seriesMap.containsKey(row.get(2) + "")) {
-                        seriesMap.put((String) row.get(2), counter);
-                        DWStatisticTableSeries s = new DWStatisticTableSeries();
-                        s.setName((String) row.get(2));
-                        s.setData(new ArrayList<>());
-                        table.getSeries().add(s);
-                        counter++;
-                    }
-                }
-                for (List<Object> row : ctb.getData()) {
-                    List<Object> seriesData = new ArrayList<>();
-                    seriesData.add(row.get(0));
-                    seriesData.add(row.get(1));
-                    seriesData.add(row.get(3));
-                    table.getSeries().get(seriesMap.get(row.get(2))).getData().add(seriesData);
-                    xAxisNameSet.add((String) row.get(0));
-                    yAxisNameSet.add((String) row.get(1));
-                }
-                for (String name : xAxisNameSet) {
-                    xAxis.add(name);
-                }
-                for (String name : yAxisNameSet) {
-                    yAxis.add(name);
-                }
-            }
-        }
-        return table;
     }
 }
