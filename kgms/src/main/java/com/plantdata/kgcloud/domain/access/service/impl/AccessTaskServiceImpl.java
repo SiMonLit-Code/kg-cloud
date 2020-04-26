@@ -29,6 +29,7 @@ import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
+import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
