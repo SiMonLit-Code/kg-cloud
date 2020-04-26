@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.kgcompute.bean.chart;
+package com.plantdata.kgcloud.plantdata.utilCode.kgcompute.bean.chart;
 
 import java.util.List;
 

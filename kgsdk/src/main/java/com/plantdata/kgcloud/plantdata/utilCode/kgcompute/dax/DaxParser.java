@@ -1,8 +1,8 @@
-package com.plantdata.kgcloud.sdk.kgcompute.dax;
+package com.plantdata.kgcloud.plantdata.utilCode.kgcompute.dax;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Sets;
-import com.plantdata.kgcloud.sdk.kgcompute.bean.SchemaModelBean;
+import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.bean.SchemaModelBean;
 
 import java.util.ArrayList;
 import java.util.List;

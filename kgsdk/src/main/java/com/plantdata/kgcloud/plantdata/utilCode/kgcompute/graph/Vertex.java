@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.kgcompute.graph;
+package com.plantdata.kgcloud.plantdata.utilCode.kgcompute.graph;
 
 public class Vertex implements Comparable<Vertex> {
 

@@ -1,8 +1,8 @@
-package com.plantdata.kgcloud.sdk.kgcompute.bean;
+package com.plantdata.kgcloud.plantdata.utilCode.kgcompute.bean;
 
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.sdk.kgcompute.graph.Graph;
-import com.plantdata.kgcloud.sdk.kgcompute.graph.Vertex;
+import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.graph.Graph;
+import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.graph.Vertex;
 
 import java.util.Arrays;
 import java.util.Map;
