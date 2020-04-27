@@ -151,6 +151,44 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
     @Override
+    public List<DbAndTableRsp> listErrDataNameSearch() {
+        String userId = SessionHolder.getUserId();
+        //查询出该用户下的所有表
+        List<DWDatabase> all = dwDatabaseRepository.findByUserId(userId);
+        //没有没有查询到,直接返回
+        if (all == null || all.size() == 0) {
+            return null;
+        }
+        Map<String, String> map = new HashMap();
+        //使用map封装该用户下 所有表和 数仓标题  注意 OOM
+        for (DWDatabase dw : all) {
+            map.put(dw.getDataName(), dw.getTitle());
+
+        }
+        //过滤 只保存 该用户的 表名称
+        List<String> allList = all.stream().map(DWDatabase::getDataName).distinct().collect(Collectors.toList());
+        allList.forEach(s -> s.replace(DB_FIX_NAME_PREFIX, s));
+        //在mongo中查询出 所有的表名
+        List<String> database = mongoClient.getDatabaseNames();
+        //找到以return前缀开头的表
+        List<String> filterList = database.stream().filter(s -> s.startsWith(DB_FIX_NAME_PREFIX)).collect(Collectors.toList());
+        //去交集得出结果
+        List<String> intersection = (List<String>) CollectionUtils.intersection(database, filterList);
+        List<DbAndTableRsp> rsps = new ArrayList<>();
+        for (String a : intersection) {
+            DbAndTableRsp tableRsp = new DbAndTableRsp();
+
+            String title = map.get(a.replaceFirst(DB_FIX_NAME_PREFIX, ""));
+            tableRsp.setDbName(a);
+            tableRsp.setDbTitle(title);
+            tableRsp.setDbTable(Arrays.asList(userId));
+            rsps.add(tableRsp);
+        }
+        return rsps;
+
+    }
+
+    @Override
     public BasePage<DataStoreRsp> listDataStore(DataStoreScreenReq req) {
         MongoCollection<Document> collection = getCollection();
         Integer size = req.getSize();
@@ -337,40 +375,4 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
 
-    @Override
-    public Map<String, String> listErrDataNameSearch() {
-        String userId = SessionHolder.getUserId();
-        //查询出该用户下的所有表
-        List<DWDatabase> all = dwDatabaseRepository.findByUserId(userId);
-        //没有没有查询到,直接返回
-        if (all == null || all.size() == 0) {
-            return null;
-        }
-        Map<String, String> map = new HashMap();
-        //使用map封装该用户下 所有表和 数仓标题  注意 OOM
-        for (DWDatabase dw : all) {
-            map.put(dw.getDataName(), dw.getTitle());
-
-        }
-        //过滤 只保存 该用户的 表名称
-        List<String> allList = all.stream().map(DWDatabase::getDataName).distinct().collect(Collectors.toList());
-        allList.forEach(s -> s.replace(DB_FIX_NAME_PREFIX, s));
-        //在mongo中查询出 所有的表名
-        List<String> database = mongoClient.getDatabaseNames();
-        //找到以return前缀开头的表
-        List<String> filterList = database.stream().filter(s -> s.startsWith(DB_FIX_NAME_PREFIX)).collect(Collectors.toList());
-        //去交集得出结果
-        List<String> intersection = (List<String>) CollectionUtils.intersection(database, filterList);
-        Map<String, String> mapRsp = new HashMap<>();
-        for (String a : intersection) {
-            String title = map.get(a.replaceFirst(DB_FIX_NAME_PREFIX, ""));
-            if (!StringUtils.isEmpty(title)) {
-                mapRsp.put(title + "(" + a + ")", userId);
-            } else {
-                mapRsp.put(a, userId);
-            }
-        }
-        return mapRsp;
-
-    }
 }
