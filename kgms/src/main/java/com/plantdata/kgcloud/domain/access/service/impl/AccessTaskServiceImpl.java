@@ -259,7 +259,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             }
 
 
-            resourceConfig.put("timeType",timeType);
+            configJson.put("timeType",timeType);
         }
         configJson.put("resourceConfig_",resourceConfig);
 
