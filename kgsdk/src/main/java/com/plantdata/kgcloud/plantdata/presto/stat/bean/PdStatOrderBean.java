@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.bean;
+package com.plantdata.kgcloud.plantdata.presto.stat.bean;
 
 public class PdStatOrderBean extends PdStatBaseBean {
 
