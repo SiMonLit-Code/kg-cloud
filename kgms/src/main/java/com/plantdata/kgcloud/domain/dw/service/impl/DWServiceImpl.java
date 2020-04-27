@@ -745,7 +745,7 @@ public class DWServiceImpl implements DWService {
         }
 
         List<String> fieldEnums;
-        if (database.getDataType().equals(DataType.MONGO.getDataType())) {
+        if (database.getDataType() == null || database.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
                 fieldEnums = getMongoAggr(database, tableName, field);
@@ -1128,17 +1128,17 @@ public class DWServiceImpl implements DWService {
             DataSetSchema schema = new DataSetSchema();
             schema.setField(name);
             try {
-                if(field.getType() == Integer.class){
+                if (field.getType() == Integer.class) {
                     schema.setType(FieldType.INTEGER.getCode());
-                }else if(field.getType() == Long.class){
+                } else if (field.getType() == Long.class) {
                     schema.setType(FieldType.LONG.getCode());
-                }else if(field.getType() == String.class){
+                } else if (field.getType() == String.class) {
                     schema.setType(FieldType.STRING.getCode());
-                }else if(field.getType() == Date.class){
+                } else if (field.getType() == Date.class) {
                     schema.setType(FieldType.DATE.getCode());
-                }else if(field.getType() == List.class || field.getType() == Set.class){
+                } else if (field.getType() == List.class || field.getType() == Set.class) {
                     schema.setType(FieldType.ARRAY.getCode());
-                }else{
+                } else {
                     schema.setType(FieldType.STRING.getCode());
                 }
             } catch (Exception e) {
@@ -2422,8 +2422,7 @@ public class DWServiceImpl implements DWService {
 
                     DataSetSchema dataSetSchema = new DataSetSchema();
                     dataSetSchema.setField(field);
-
-                    dataSetSchema.setType(ExampleYaml.readType(column.getValue()).getCode());
+                    dataSetSchema.setType(dataSetService.readType(column.getValue()).getCode());
                     rsList.add(dataSetSchema);
                 }
 
@@ -2652,6 +2651,7 @@ public class DWServiceImpl implements DWService {
         List<Bson> bsons = new ArrayList<>(2);
         bsons.add(Filters.eq("userId", userId));
         bsons.add(Filters.eq("tableName", req.getTableName()));
+        bsons.add(Filters.eq("dbId", req.getDbId()));
         FindIterable<Document> findIterable;
         long count = 0;
         count = collection.countDocuments(Filters.and(bsons));

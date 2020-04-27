@@ -10,6 +10,7 @@ import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -43,6 +44,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.DateUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
@@ -135,6 +137,10 @@ public class TableDataServiceImpl implements TableDataService {
 
     private DataOptProvider getProvider(String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
 
+        return getProvider(false,userId,datasetId,tableId,mongoProperties);
+    }
+    private DataOptProvider getProvider(boolean isLocal,String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
+
         DWDatabaseRsp database = dwService.getDetail(datasetId);
 
         if (database == null) {
@@ -146,7 +152,7 @@ public class TableDataServiceImpl implements TableDataService {
             throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
         }
 
-        DataOptConnect connect = DataOptConnect.of(database, table, mongoProperties);
+        DataOptConnect connect = DataOptConnect.of(isLocal,database, table, mongoProperties);
         return DataOptProviderFactory.createProvider(connect);
     }
 
@@ -433,32 +439,41 @@ public class TableDataServiceImpl implements TableDataService {
         if (table.getCreateWay() != CREATE_WAY && (table.getIsWriteDW() == null || table.getIsWriteDW() != IS_WRITE_DW)) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
-        DataOptProvider provider = getProvider(userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties);
-        DWDatabase database = dwDatabaseRepository.findById(baseReq.getDataBaseId())
-                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
-        MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
-        long count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
-        Map<String, Object> data = baseReq.getData();
-        String mongoId = baseReq.getId();
-        Map<Object, Object> map = new HashMap<>();
-        map.put("dbName", database.getDataName());
-        map.put("tableId", baseReq.getDataBaseId());
-        map.put("dataFrom", "dw");
-        map.put("status", DB_VIEW_STATUS);
-        data.put(DB_VIEW_DATA, map);
-        if (count == 0) {
-            data.put(MONGO_ID, new ObjectId(mongoId));
-            collection.insertOne(new Document(data));
-            data.remove(MONGO_ID);
-            data.remove(DB_VIEW_DATA);
-            Document document = new Document(data);
-            provider.update(mongoId, document);
-        } else {
-            data.remove(MONGO_ID);
-            collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
-            data.remove(DB_VIEW_DATA);
-            provider.update(mongoId, new Document(data));
+
+
+        try(DataOptProvider provider = getProvider(true,userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties)) {
+
+            DWDatabase database = dwDatabaseRepository.findById(baseReq.getDataBaseId())
+                    .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
+            MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
+            long count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
+            Map<String, Object> data = baseReq.getData();
+            String mongoId = baseReq.getId();
+            Map<Object, Object> map = new HashMap<>();
+            map.put("dbName", database.getDataName());
+            map.put("tableId", baseReq.getDataBaseId());
+            map.put("dataFrom", "dw");
+            map.put("status", DB_VIEW_STATUS);
+            data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
+            data.put(DB_VIEW_DATA, map);
+            if (count == 0) {
+                data.put(MONGO_ID, new ObjectId(mongoId));
+                collection.insertOne(new Document(data));
+                data.remove(MONGO_ID);
+                data.remove(DB_VIEW_DATA);
+                Document document = new Document(data);
+                provider.update(mongoId, document);
+            } else {
+                data.remove(MONGO_ID);
+                collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
+                data.remove(DB_VIEW_DATA);
+                provider.update(mongoId, new Document(data));
+            }
+
+        }catch (Exception e){
         }
+        ;
+
     }
 
 }

@@ -1,15 +1,26 @@
 package com.plantdata.kgcloud.domain.access.util;
 
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.config.MongoProperties;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
+import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
+import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
+import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
+import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.constant.DataType;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.List;
+import java.util.*;
 
 public class CreateKtrFile {
 
@@ -133,7 +144,7 @@ public class CreateKtrFile {
 
 
         // 查询语句
-        String queryXml = getTableSql(database.getDataType(),table,tableName,isMongo);
+        String queryXml = getTableSql(database,table,tableName,isMongo,mongoAddrs,mongoUserrname,mongoPassword);
 
         inputXml = changeSql(inputXml, queryXml);
 
@@ -260,7 +271,7 @@ public class CreateKtrFile {
 
 
         // 查询语句
-        String queryXml = getTableSql(database.getDataType(),table,tableName,isMongo);
+        String queryXml = getTableSql(database,table,tableName,isMongo,mongoAddrs,mongoUserrname,mongoPassword);
 
         inputXml = changeSql(inputXml, queryXml);
 
@@ -316,7 +327,7 @@ public class CreateKtrFile {
         return kafkaxml.replace("kafkaQAQ", kafkaServers).replace("topicQAQ",kafkaTopic);
     }
 
-    private static String getTableSql(Integer dataType,DWTableRsp table,String tableName,Boolean isMongo) {
+    private static String getTableSql(DWDatabaseRsp databaseRsp,DWTableRsp table,String tableName,Boolean isMongo,String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
 
         StringBuilder sql = new StringBuilder();
 
@@ -324,23 +335,16 @@ public class CreateKtrFile {
         if(isMongo){
 
             if(table.getIsAll() == null || table.getIsAll().equals(1)){
-                return sql.toString();
+
+                return KtrXml.mongoAllQueryXMl;
+//                return sql.toString();
             }else{
 
-                List<DataSetSchema> schemas = table.getSchema();
-                if(schemas == null || schemas.isEmpty()){
-                    return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
-                }
-/*
-                for(DataSetSchema schema : schemas){
-                    if(!schema.getField().equals(table.getQueryField())){
-                        continue;
-                    }
+                FieldType fieldType = getFileType(databaseRsp,table,table.getQueryField(),mongoAddrs,mongoUserrname,mongoPassword);
 
-                    if(FieldType.findCode(schema.getType()).equals(FieldType.DATE)){
-                        return KtrXml.mongoTimeQueryDateFieldXMl.replaceAll("timeFieldQAQ",table.getQueryField());
-                    }
-                }*/
+                if(FieldType.DATE.equals(fieldType)){
+                    return KtrXml.mongoTimeQueryDateFieldXMl.replaceAll("timeFieldQAQ",table.getQueryField());
+                }
 
                 return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
             }
@@ -375,6 +379,46 @@ public class CreateKtrFile {
         }
 
 
+    }
+
+    private static FieldType getFileType(DWDatabaseRsp databaseRsp, DWTableRsp table, String field, String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
+
+        DataSet dataSet;
+        //远程
+        if(table.getCreateWay().equals(1)){
+            dataSet = DataSet.builder()
+                    .addr(databaseRsp.getAddr())
+                    .username(databaseRsp.getUsername())
+                    .password(databaseRsp.getPassword())
+                    .tbName(table.getTbName())
+                    .dbName(databaseRsp.getDbName())
+                    .build();
+        }else{
+            //本地
+            dataSet = DataSet.builder()
+                    .addr(CollectionUtils.arrayToList(mongoAddrs))
+                    .username(mongoUserrname)
+                    .password(mongoPassword)
+                    .tbName(table.getTableName())
+                    .dbName(databaseRsp.getDataName())
+                    .build();
+        }
+
+        try (DataOptProvider provider = DataOptProviderFactory.createProvider(DataOptConnect.of(dataSet))) {
+
+            List<Map<String, Object>> maps = provider.find(0,1, null);
+            if(maps == null || maps.isEmpty()){
+                return FieldType.STRING;
+            }
+
+            Map<String,Object> map = maps.get(0);
+            if(map.containsKey(field) && map.get(field) instanceof Date){
+                return FieldType.DATE;
+            }
+        } catch (IOException e) {
+        }
+
+        return FieldType.STRING;
     }
 
     /**

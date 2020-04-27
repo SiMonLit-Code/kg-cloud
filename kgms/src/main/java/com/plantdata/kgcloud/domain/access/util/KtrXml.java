@@ -1077,6 +1077,12 @@ public class KtrXml {
                 "    </GUI>\n" +
                 "  </step>";
 
+        static String mongoAllQueryXMl = "{\n" +
+                "  \"_id\": {\n" +
+                "    \"$exists\":${key}\n" +
+                "  }\n" +
+                "}\n";
+
         static String mongoTimeQueryXMl = "{\n" +
                 "    \"timeFieldQAQ\": {\n" +
                 "        \"$gte\": \"${StartTime}\",\n" +

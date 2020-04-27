@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.CreateKtrFile;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
+import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWGraphMap;
 import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
@@ -29,6 +30,7 @@ import com.plantdata.kgcloud.domain.dw.repository.DWGraphMapRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.GraphMapReq;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
@@ -235,7 +237,22 @@ public class AccessTaskServiceImpl implements AccessTaskService {
         resourceConfig.put("tableName",tableName);
         resourceConfig.put("dbId",databaseId);
         resourceConfig.put("userId",SessionHolder.getUserId());
-//        resourceConfig.put("pdSingleField",table.getPdSingleField());
+
+        if(table.getQueryField() != null && !table.getQueryField().isEmpty()){
+
+            Integer timeType = 1;
+            for(DataSetSchema schema : table.getSchema()){
+                if(schema.getField().equals(table.getQueryField())){
+                    if(FieldType.LONG.equals(FieldType.findCode(schema.getType()))){
+                        timeType = 2;
+                    }
+
+                    break;
+                }
+            }
+
+            resourceConfig.put("timeType",timeType);
+        }
         configJson.put("resourceConfig_",resourceConfig);
 
         return configJson.toString();
