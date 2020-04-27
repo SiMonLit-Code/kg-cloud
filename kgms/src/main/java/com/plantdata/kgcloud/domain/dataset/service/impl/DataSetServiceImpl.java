@@ -472,6 +472,9 @@ public class DataSetServiceImpl implements DataSetService {
                 JacksonUtils.getInstance().readValue(string, ObjectNode.class);
                 type = FieldType.OBJECT;
             } catch (Exception e) {
+                if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                    type = FieldType.TEXT;
+                }
                 type = FieldType.STRING;
             }
         } else if (string.startsWith(ARRAY_START)) {
@@ -481,6 +484,9 @@ public class DataSetServiceImpl implements DataSetService {
                     });
                     type = FieldType.STRING_ARRAY;
                 } catch (Exception e) {
+                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                        type = FieldType.TEXT;
+                    }
                     type = FieldType.STRING;
                 }
             } else {
@@ -488,6 +494,9 @@ public class DataSetServiceImpl implements DataSetService {
                     JacksonUtils.getInstance().readValue(string, ArrayNode.class);
                     type = FieldType.ARRAY;
                 } catch (Exception e) {
+                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                        type = FieldType.TEXT;
+                    }
                     type = FieldType.STRING;
                 }
             }
@@ -537,6 +546,9 @@ public class DataSetServiceImpl implements DataSetService {
             }
 
             if (type == null) {
+                if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                    type = FieldType.TEXT;
+                }
                 type = FieldType.STRING;
             }
         }
