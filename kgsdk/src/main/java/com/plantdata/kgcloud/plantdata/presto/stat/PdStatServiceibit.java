@@ -1,9 +1,7 @@
-package com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat;
+package com.plantdata.kgcloud.plantdata.presto.stat;
 
-import com.ctrip.framework.apollo.Config;
-import com.ctrip.framework.apollo.ConfigService;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.compute.PrestoCompute;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.bean.*;
+import com.plantdata.kgcloud.plantdata.presto.compute.PrestoCompute;
+import com.plantdata.kgcloud.plantdata.presto.stat.bean.*;
 import tech.ibit.sqlbuilder.*;
 import tech.ibit.sqlbuilder.aggregate.*;
 
