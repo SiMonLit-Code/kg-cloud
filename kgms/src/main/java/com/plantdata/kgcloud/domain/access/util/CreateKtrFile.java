@@ -404,7 +404,9 @@ public class CreateKtrFile {
                     .build();
         }
 
-        try (DataOptProvider provider = DataOptProviderFactory.createProvider(DataOptConnect.of(dataSet))) {
+        DataOptConnect dataOptConnect =DataOptConnect.of(dataSet);
+        dataOptConnect.setDataType(DataType.MONGO);
+        try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect)) {
 
             List<Map<String, Object>> maps = provider.find(0,1, null);
             if(maps == null || maps.isEmpty()){
