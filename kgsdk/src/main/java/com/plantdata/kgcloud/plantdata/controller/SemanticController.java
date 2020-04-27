@@ -2,16 +2,23 @@ package com.plantdata.kgcloud.plantdata.controller;
 
 
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.hiekn.pddocument.bean.PdDocument;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
+import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter;
+import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
 import com.plantdata.kgcloud.plantdata.converter.semantic.QaConverter;
 import com.plantdata.kgcloud.plantdata.converter.semantic.ReasonConverter;
+import com.plantdata.kgcloud.plantdata.req.nlp.AnnotationParameter;
 import com.plantdata.kgcloud.plantdata.req.reason.InferenceParameter;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
+import com.plantdata.kgcloud.sdk.NlpClient;
 import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.SemanticClient;
+import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
+import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -41,6 +50,8 @@ public class SemanticController implements SdkOldApiInterface {
     private SemanticClient semanticClient;
     @Autowired
     private ReasoningClient reasoningClient;
+    @Autowired
+    public NlpClient nlpClient;
 
     @ApiOperation("意图图谱生成")
     @GetMapping("kbqa/init")
@@ -81,5 +92,20 @@ public class SemanticController implements SdkOldApiInterface {
         return new RestResp<>(BasicConverter.apiReturnData(reasoning).orElse(new GraphReasoningResultRsp()));
     }
 
-
+    @ApiOperation("文本语义标注")
+    @PostMapping("annotation")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", dataType = "string", paramType = "query", value = "kgName"),
+            @ApiImplicitParam(name = "text", dataType = "string", paramType = "form", value = "待标注文本"),
+            @ApiImplicitParam(name = "conceptIds", dataType = "string", paramType = "form", value = "标注范围，格式为json数组格式的概念列表"),
+    })
+    public RestResp<PdDocument> annotation(@Valid @ApiIgnore AnnotationParameter param) {
+        Function<EntityLinkingReq, ApiReturn<List<TaggingItemRsp>>> returnFunction = a -> nlpClient.tagging(param.getKgName(), a);
+        Optional<List<TaggingItemRsp>> opt = returnFunction
+                .compose(NlpConverter::annotationParameterToEntityLinkingReq)
+                .andThen(BasicConverter::apiReturnData)
+                .apply(param);
+        PdDocument document = NlpConverter2.annotationToPdDocument(opt.orElse(Collections.emptyList()));
+        return new RestResp<>(document);
+    }
 }
