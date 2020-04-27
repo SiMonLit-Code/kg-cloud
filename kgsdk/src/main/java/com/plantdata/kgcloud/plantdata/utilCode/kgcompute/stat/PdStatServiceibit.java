@@ -17,8 +17,6 @@ public class PdStatServiceibit {
 
         String sql = pdStatToSql(pdStatBean,dbName,tbName);
 
-        System.out.println(sql);
-
         Object rs = prestoCompute.compute(sql);
 
         return rs;
