@@ -113,7 +113,7 @@ public class TableDataServiceImpl implements TableDataService {
     private static final int IS_WRITE_DW = 1;
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
     private static final String DB_VIEW_STATUS = "Edit";
-    private static final String DB_VIEW_DATA = "showData";
+    private static final String DB_VIEW_DATA = "_showData";
 
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq) {
