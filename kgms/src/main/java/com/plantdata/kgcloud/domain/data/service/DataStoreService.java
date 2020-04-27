@@ -51,9 +51,12 @@ public interface DataStoreService {
      * @param ids
      */
     void sendData(List<String> ids);
+
     void updateErrData(DataStoreReq id);
 
     BasePage<Map<String, Object>> listErrDataStore(DataStoreScreenReq req);
 
     void rerun(DtReq req);
+
+    List<DbAndTableRsp>  listErrDataNameSearch();
 }

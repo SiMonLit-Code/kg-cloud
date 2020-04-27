@@ -13,20 +13,24 @@ import java.util.List;
  */
 public interface EntityFileRelationService {
 
+    Page<EntityFileRelationRsp> listRelation(String kgName, EntityFileRelationQueryReq req);
+
     void createRelation(String kgName, EntityFileRelationReq req);
 
     void updateRelation(EntityFileRelation req);
 
-    void deleteRelation(List<Integer> idList);
+    void updateRelations(List<EntityFileRelation> relations);
 
-    Page<EntityFileRelationRsp> listRelation(String kgName, EntityFileRelationQueryReq req);
+    void deleteRelation(List<Integer> idList);
 
     void deleteRelationByDwFileId(Integer dwFileId);
 
-    void deleteRelationByMultiModalId(String multiModalId);
+    void deleteById(Integer id);
 
-    EntityFileRelation getRelationByDwFileId(Integer dwFileId);
+    List<EntityFileRelation> getRelationByDwFileId(Integer dwFileId);
 
-    EntityFileRelation getRelationByMultiModalId(String multiModalId);
+    List<EntityFileRelation> getRelationByKgNameAndEntityId(String kgName,Long entityId);
+
+    List<EntityFileRelation> getRelationByKgNameAndEntityIdIn(String kgName,List<Long> entityIds);
 
 }
