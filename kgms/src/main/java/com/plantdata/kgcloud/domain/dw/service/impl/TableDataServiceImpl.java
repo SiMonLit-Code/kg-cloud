@@ -441,8 +441,9 @@ public class TableDataServiceImpl implements TableDataService {
         Map<String, Object> data = baseReq.getData();
         String mongoId = baseReq.getId();
         Map<Object, Object> map = new HashMap<>();
-        map.put("dataName", database.getDataName());
-        map.put("tableName", baseReq.getDataBaseId());
+        map.put("dbName", database.getDataName());
+        map.put("tableId", baseReq.getDataBaseId());
+        map.put("dataFrom", "dw");
         map.put("status", DB_VIEW_STATUS);
         data.put(DB_VIEW_DATA, map);
         if (count == 0) {
