@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoOptions;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
@@ -24,7 +22,6 @@ import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 import com.plantdata.kgcloud.domain.data.service.DataStoreSender;
 import com.plantdata.kgcloud.domain.data.service.DataStoreService;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
-import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
@@ -40,7 +37,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -79,7 +75,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     private static final String DB_NAME = "check_data_db";
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
     private static final String DB_VIEW_STATUS = "Edit";
-    private static final String DB_VIEW_DATA = "showData";
+    private static final String DB_VIEW_DATA = "_showData";
 
     private MongoCollection<Document> getCollection() {
         return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
@@ -160,14 +156,14 @@ public class DataStoreServiceImpl implements DataStoreService {
         if (all == null || all.size() == 0) {
             return null;
         }
-        Map<String, String> map = new HashMap();
+        Map<String, DWDatabase> map = new HashMap(all.size());
         //使用map封装该用户下 所有表和 数仓标题  注意 OOM
         for (DWDatabase dw : all) {
-            map.put(dw.getDataName(), dw.getTitle());
+            map.put(dw.getDataName(), dw);
         }
-        //过滤 只保存 该用户的 表名称
+        //过滤 只保存该用户的表名称
         List<String> allList = all.stream().map(DWDatabase::getDataName).distinct().collect(Collectors.toList());
-        List<String> strList = new ArrayList<>();
+        List<String> strList = new LinkedList<>();
         for (String str : allList) {
             String s = DB_FIX_NAME_PREFIX + str;
             strList.add(s);
@@ -178,11 +174,11 @@ public class DataStoreServiceImpl implements DataStoreService {
         List<String> filterList = database.stream().filter(s -> s.startsWith(DB_FIX_NAME_PREFIX)).collect(Collectors.toList());
         //取交集得出结果
         List<String> intersection = (List<String>) CollectionUtils.intersection(strList, filterList);
-        List<DbAndTableRsp> rsps = new ArrayList<>();
+        List<DbAndTableRsp> rsps = new LinkedList<>();
         for (String a : intersection) {
             DbAndTableRsp tableRsp = new DbAndTableRsp();
             String s = a.replaceFirst(DB_FIX_NAME_PREFIX, "");
-            String title = map.get(s);
+            String title = map.get(s).getTitle();
             tableRsp.setDbName(s);
             tableRsp.setDbTitle(title);
             Set<String> db = mongoClient.getDB(a).getCollectionNames();
