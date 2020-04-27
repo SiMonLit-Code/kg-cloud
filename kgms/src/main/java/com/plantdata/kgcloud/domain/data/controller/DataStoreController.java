@@ -78,4 +78,13 @@ public class DataStoreController {
         dataStoreService.rerun(req);
         return ApiReturn.success();
     }
+
+    @ApiOperation("数仓错误数据下拉搜索")
+    @GetMapping("/search")
+
+    public ApiReturn listErrDataNameSearch() {
+
+        return ApiReturn.success(dataStoreService.listErrDataNameSearch());
+    }
+
 }
