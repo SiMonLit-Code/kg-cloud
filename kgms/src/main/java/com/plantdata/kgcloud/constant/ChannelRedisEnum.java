@@ -16,6 +16,7 @@ public enum  ChannelRedisEnum {
     ARRANGE_KEY("channel_resourceArrange"),
     KTR_CONFIG_KEY("channel_resourceKtrConfig"),
     ERROR_RERUN("channel_resourceRerun"),
+    DELETE("channel_resourceDelete"),
     ;
 
     private String type;

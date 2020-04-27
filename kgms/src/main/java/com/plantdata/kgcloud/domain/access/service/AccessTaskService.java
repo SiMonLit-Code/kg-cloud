@@ -38,4 +38,12 @@ public interface AccessTaskService {
     List<DWTask> getTableTask(Long dbId, String tableName);
 
     void addRerunTask(Long dbId, String tableName, List<String> resourceNames);
+
+    void addDeleteTask(List<String> resourceNames);
+
+    List<DWTask> getTransferTaskByResourceNames(List<String> transfTasks);
+
+    void deleteTaskByDW(Long databaseId, String tableName);
+
+    void deleteTaskByKG(String kgName);
 }
