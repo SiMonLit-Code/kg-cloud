@@ -16,10 +16,11 @@ public class PrestoSingleton {
         try {
             appConfig = ConfigService.getConfig("kgsdk");
             String presto_conn_info = appConfig.getProperty("presto.server",null);
-            String jdbc_url = "jdbc:presto://"+presto_conn_info+"/system/runtime";
-            String userName = "root";
-            String password = "";
-            Class.forName("com.facebook.presto.jdbc.PrestoDriver");
+            String path = appConfig.getProperty("presto.path",null);
+            String jdbc_url = "jdbc:presto://"+presto_conn_info+path;
+            String userName = appConfig.getProperty("presto.user",null);
+            String password = appConfig.getProperty("presto.password",null);
+            Class.forName(appConfig.getProperty("presto.class-name",null));
             connection = DriverManager.getConnection(jdbc_url,userName,password);
         } catch (Exception e) {
             e.printStackTrace();
