@@ -14,4 +14,9 @@ public class DWTableLogReq extends BaseReq {
     @NotBlank(message = "数据表名不能为空")
     private String tableName;
 
+    @ApiModelProperty("数据库名")
+    @NotBlank(message = "数据库名不能为空")
+    private String dataName;
+
+
 }
