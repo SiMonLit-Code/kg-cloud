@@ -487,7 +487,6 @@ public class TableDataServiceImpl implements TableDataService {
                 data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
                 data.put(DB_VIEW_DATA, map);
                 if (count == 0) {
-                    data.put(MONGO_ID, new ObjectId(mongoId));
                     collection.insertOne(new Document(data));
                     data.remove(MONGO_ID);
                     data.remove(DB_VIEW_DATA);
@@ -495,7 +494,7 @@ public class TableDataServiceImpl implements TableDataService {
                     collectionLog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", document));
                 } else {
                     data.remove(MONGO_ID);
-                    collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
+                    collection.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", new Document(data)));
                     data.remove(DB_VIEW_DATA);
                     collectionLog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", new Document(data)));
                 }
