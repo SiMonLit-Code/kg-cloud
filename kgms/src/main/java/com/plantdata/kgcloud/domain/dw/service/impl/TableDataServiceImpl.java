@@ -47,6 +47,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -442,11 +443,21 @@ public class TableDataServiceImpl implements TableDataService {
         if (table.getCreateWay() != CREATE_WAY && (table.getIsWriteDW() == null || table.getIsWriteDW() != IS_WRITE_DW)) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
-        DataOptProvider provider = getProvider(userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties);
+
+
         DWDatabase database = dwDatabaseRepository.findById(baseReq.getDataBaseId())
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
         MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
-        long count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
+        MongoCollection<Document> collectionlog = mongoClient.getDatabase( database.getDataName()).getCollection(table.getTableName());
+
+        long count;
+        try {
+
+            count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
+        } catch (Exception e) {
+
+            count = collection.countDocuments(Filters.eq("_id", baseReq.getId()));
+        }
         Map<String, Object> data = baseReq.getData();
         String mongoId = baseReq.getId();
         Map<Object, Object> map = new HashMap<>();
@@ -456,18 +467,18 @@ public class TableDataServiceImpl implements TableDataService {
         map.put("status", DB_VIEW_STATUS);
         data.put(DB_VIEW_DATA, map);
         if (count == 0) {
-            data.put(MONGO_ID, new ObjectId(mongoId));
+            data.put(MONGO_ID, mongoId);
             collection.insertOne(new Document(data));
             data.remove(MONGO_ID);
             data.remove(DB_VIEW_DATA);
             Document document = new Document(data);
-            provider.update(mongoId, document);
+            collectionlog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", document));
+
         } else {
             data.remove(MONGO_ID);
-            collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
+            collection.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", new Document(data)));
             data.remove(DB_VIEW_DATA);
-            provider.update(mongoId, new Document(data));
+            collectionlog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", new Document(data)));
         }
     }
-
 }
