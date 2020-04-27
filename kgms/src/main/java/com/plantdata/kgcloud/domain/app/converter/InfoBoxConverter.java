@@ -3,14 +3,13 @@ package com.plantdata.kgcloud.domain.app.converter;
 import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
 import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
-import ai.plantdata.kg.api.edit.resp.RelationAttrValueVO;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
+import ai.plantdata.kg.api.pub.resp.RelationVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
-import com.plantdata.kgcloud.sdk.constant.AttrDefinitionTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
@@ -85,50 +84,24 @@ public class InfoBoxConverter extends BasicConverter {
         return infoBoxRsp;
     }
 
-    public static InfoBoxRsp entityToInfoBoxRsp(EntityVO entity, List<MultiModalRsp> modalRsps) {
-        List<EntityAttributeValueVO> objAttrList = Lists.newArrayList();
-        List<EntityAttributeValueVO> resObjAttrList = Lists.newArrayList();
-        List<EntityAttributeValueVO> otherDataAttrList = Lists.newArrayList();
-        //属性
-        if (!CollectionUtils.isEmpty(entity.getAttrValue())) {
-            entity.getAttrValue().forEach(a -> {
-                if (a.getType() != null && AttrDefinitionTypeEnum.OBJECT.fetchId().equals(a.getType())) {
-                    if (a.getDomainValue() == null) {
-                        return;
-                    }
-                    EntityAttributeValueVO copy;
-                    if (!CollectionUtils.isEmpty(a.getObjectValues())) {
-                        //正向对象属性
-                        copy = copy(a, EntityAttributeValueVO.class);
-                        copy.setObjectValues(a.getObjectValues());
-                        objAttrList.add(copy);
-                    }
-                    if (!CollectionUtils.isEmpty(a.getReverseObjectValues())) {
-                        //反向对象属性
-                        copy = copy(a, EntityAttributeValueVO.class);
-                        copy.setReverseObjectValues(a.getReverseObjectValues());
-                        resObjAttrList.add(copy);
-                    }
-                } else {
-                    otherDataAttrList.add(a);
-                }
-            });
-        }
+    public static InfoBoxRsp entityToInfoBoxRsp(EntityVO entity, List<MultiModalRsp> modalRsps, List<RelationVO> relationList,
+                                                List<RelationVO> reverseRelationList) {
+
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
         //设置父概念
         infoBoxRsp.setParents(listToRsp(entity.getParent(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //设置子概念
         infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //基本字段
-        infoBoxRsp.setSelf(voToSelf(entity, otherDataAttrList, modalRsps));
-        // 正向对象属性
-        consumerIfNoNull(objAttrList, a -> infoBoxRsp.setAttrs(listToRsp(a, InfoBoxConverter::attrValToInfoBoxAttrRsp)));
-        // 反向对象属性
-        consumerIfNoNull(resObjAttrList, a -> infoBoxRsp.setReAttrs(listToRsp(resObjAttrList, InfoBoxConverter::attrValToInfoBoxAttrRsp)));
+        infoBoxRsp.setSelf(voToSelf(entity, entity.getAttrValue(), modalRsps));
+        //对象属性
+        BasicConverter.consumerIfNoNull(relationList, a -> infoBoxRsp.setAttrs(convertObjectAttr(a, false)));
+        //反向对象属性
+        BasicConverter.consumerIfNoNull(reverseRelationList, a -> infoBoxRsp.setReAttrs(convertObjectAttr(a, true)));
         return infoBoxRsp;
     }
 
-    private static EntityLinksRsp voToSelf(EntityVO entity, List<EntityAttributeValueVO> dataAttrList,List<MultiModalRsp> modalRsps) {
+    private static EntityLinksRsp voToSelf(EntityVO entity, List<EntityAttributeValueVO> dataAttrList, List<MultiModalRsp> modalRsps) {
         EntityLinksRsp self = EntityConverter.entityVoToBasicEntityRsp(entity, new EntityLinksRsp());
         if (StringUtils.isNotEmpty(entity.getImageUrl())) {
             self.setImgUrl(entity.getImageUrl());
@@ -148,32 +121,36 @@ public class InfoBoxConverter extends BasicConverter {
         //设置数值,私有属性
         consumerIfNoNull(dataAttrList, a -> fillAttr(extraList, a));
         self.setExtraList(extraList);
-        if (!CollectionUtils.isEmpty(modalRsps)){
+        if (!CollectionUtils.isEmpty(modalRsps)) {
             self.setMultiModals(modalRsps);
         }
         return self;
     }
 
-    private static InfoBoxRsp.InfoBoxAttrRsp attrValToInfoBoxAttrRsp(EntityAttributeValueVO attrVal) {
+    private static List<InfoBoxRsp.InfoBoxAttrRsp> convertObjectAttr(@NonNull List<RelationVO> relationVOList, boolean reverse) {
+        return relationVOList.stream().collect(Collectors.groupingBy(RelationVO::getAttrId))
+                .entrySet().stream()
+                .map(entry -> attrValToInfoBoxAttrRsp(entry.getValue(), entry.getKey(), entry.getValue().get(0).getAttrName(), reverse))
+                .collect(Collectors.toList());
+    }
+
+    private static InfoBoxRsp.InfoBoxAttrRsp attrValToInfoBoxAttrRsp(List<RelationVO> relationList, Integer attrId, String attrDefName, boolean reverse) {
         InfoBoxRsp.InfoBoxAttrRsp objectAttributeRsp = new InfoBoxRsp.InfoBoxAttrRsp();
-        if (CollectionUtils.isEmpty(attrVal.getObjectValues()) && CollectionUtils.isEmpty(attrVal.getReverseObjectValues())) {
-            return null;
-        }
-        consumerIfNoNull(attrVal.getObjectValues(), a -> objectAttributeRsp.setEntityList(listToRsp(a, InfoBoxConverter::relationAttrValueVOToEntity)));
-        consumerIfNoNull(attrVal.getReverseObjectValues(), a -> objectAttributeRsp.setEntityList(listToRsp(a, InfoBoxConverter::relationAttrValueVOToEntity)));
-        objectAttributeRsp.setAttrDefId(attrVal.getId());
-        objectAttributeRsp.setAttrDefName(attrVal.getName());
+        consumerIfNoNull(relationList, a -> objectAttributeRsp.setEntityList(listToRsp(a, b -> InfoBoxConverter.relationAttrValueVOToEntity(b, reverse))));
+        objectAttributeRsp.setAttrDefId(attrId);
+        objectAttributeRsp.setAttrDefName(attrDefName);
         return objectAttributeRsp;
     }
 
-    private static PromptEntityRsp relationAttrValueVOToEntity(@NonNull RelationAttrValueVO attrValueVO) {
+    private static PromptEntityRsp relationAttrValueVOToEntity(@NonNull RelationVO relationVO, boolean reverse) {
+        BasicInfo entity = reverse ? relationVO.getFrom() : relationVO.getTo();
         PromptEntityRsp promptEntityRsp = new PromptEntityRsp();
-        promptEntityRsp.setId(attrValueVO.getId());
-        promptEntityRsp.setConceptId(attrValueVO.getConceptId());
-        promptEntityRsp.setMeaningTag(attrValueVO.getMeaningTag());
-        promptEntityRsp.setName(attrValueVO.getName());
+        promptEntityRsp.setId(entity.getId());
+        promptEntityRsp.setConceptId(entity.getConceptId());
+        promptEntityRsp.setMeaningTag(entity.getMeaningTag());
+        promptEntityRsp.setName(entity.getName());
         promptEntityRsp.setQa(false);
-        EntityTypeEnum entityTypeEnum = EntityTypeEnum.parseById(attrValueVO.getType());
+        EntityTypeEnum entityTypeEnum = EntityTypeEnum.parseById(entity.getType());
         promptEntityRsp.setType(entityTypeEnum);
         return promptEntityRsp;
     }
