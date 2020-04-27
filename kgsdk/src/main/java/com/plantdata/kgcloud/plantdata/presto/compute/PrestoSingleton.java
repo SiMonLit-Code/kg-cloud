@@ -4,6 +4,8 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,15 +15,36 @@ public class PrestoSingleton {
 
     private static Connection connection = null;
 
-    @Value("${presto.ip:}")
+    static Config appConfig;
+
     private static String ip;
-    @Value("${presto.port:}")
     private static String port;
-    @Value("${presto.user:}")
     private static  String user;
-    @Value("${presto.password:}")
     private static  String password;
 
+    @SuppressWarnings("static-access")
+    @Value("${presto.ip}")
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    @SuppressWarnings("static-access")
+    @Value("${presto.port}")
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    @SuppressWarnings("static-access")
+    @Value("${presto.user}")
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    @SuppressWarnings("static-access")
+    @Value("${presto.password}")
+    public void setPaasword(String password) {
+        this.password = password;
+    }
     private static void init(){
         try {
             String jdbc_url = "jdbc:presto://"+ip+":"+port+"/system/runtime";
