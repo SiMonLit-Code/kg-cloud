@@ -289,6 +289,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         List<Integer> templateIds = database.getStandardTemplateId();
 
         if (templateIds == null || templateIds.isEmpty()) {
@@ -324,6 +328,10 @@ public class DWServiceImpl implements DWService {
     private String getIndustryTableKtr(Long databaseId, String tableName) {
 
         DWDatabaseRsp database = getDetail(databaseId);
+
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
 
         List<Integer> templateIds = database.getStandardTemplateId();
 
@@ -1035,6 +1043,10 @@ public class DWServiceImpl implements DWService {
         BeanUtils.copyProperties(req, target);
 
         DWDatabaseRsp dwDatabase = getDetail(req.getDwDataBaseId());
+
+        if(dwDatabase == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
 
         Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDwDataBaseId()).tableName(req.getTitle()).build()));
 
@@ -1771,6 +1783,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(id);
 
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         userId = userClient.getCurrentUserDetail().getData().getId();
         if (!database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
@@ -1829,7 +1845,7 @@ public class DWServiceImpl implements DWService {
     public Integer push(String userId, ModelPushReq req) {
 
         DWDatabaseRsp database = getDetail(req.getId());
-        if (!database.getUserId().equals(userId)) {
+        if (database == null || !database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
@@ -2014,6 +2030,10 @@ public class DWServiceImpl implements DWService {
         }
 
         DWDatabaseRsp database = getDetail(databaseId);
+
+        if(database == null){
+            throw  BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
 
         //不是PD类型数据库不用上传tagjson
         if ((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && file.getOriginalFilename().endsWith(".json")) {

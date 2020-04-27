@@ -57,7 +57,8 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         graphQuality.setKgName(kgName);
         graphQuality.setSelfId(selfId);
         Optional<GraphQuality> optional = graphQualityRepository.findOne(Example.of(graphQuality));
-        return optional.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_QUALITY_NOT_EXIST));
+//        return optional.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.GRAPH_QUALITY_NOT_EXIST));
+        return optional.orElseGet(() -> graphQuality);
     }
 
     @Override
