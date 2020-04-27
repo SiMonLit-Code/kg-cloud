@@ -399,7 +399,7 @@ public class CreateKtrFile {
 
     }
 
-    private static FieldType getFileType(DWDatabaseRsp databaseRsp, DWTableRsp table, String field, String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
+    public static FieldType getFileType(DWDatabaseRsp databaseRsp, DWTableRsp table, String field, String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
 
         DataSet dataSet;
         //远程
