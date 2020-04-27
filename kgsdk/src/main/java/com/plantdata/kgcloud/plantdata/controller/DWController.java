@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.plantdata.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.module.DWStatisticInterface;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.plantdata.presto.bean.chart.ChartTableBean;
 import com.plantdata.kgcloud.plantdata.presto.stat.PdStatServiceibit;
@@ -24,12 +25,12 @@ import java.util.*;
  */
 @RestController("DWController")
 @RequestMapping("sdk/dw")
-public class DWController implements SdkOldApiInterface {
+public class DWController implements DWStatisticInterface {
 
     @Autowired
     public DWClient dwClient;
 
-    @ApiOperation("统计数据仓库二维/按表统计")
+    @ApiOperation(value = "统计数据仓库(二维)", notes = "以二维表的形式统计数据仓库")
     @PostMapping("statistic/by2dTable")
     public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq req) {
         if(req.getQuery().getDimensions() == null
@@ -99,7 +100,7 @@ public class DWController implements SdkOldApiInterface {
         return  ApiReturn.success(table);
     }
 
-    @ApiOperation("统计数据仓库三维/按表统计")
+    @ApiOperation(value = "统计数据仓库(三维)", notes = "以三维表的形式统计数据仓库")
     @PostMapping("statistic/by3dTable")
     public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req) {
         if(req.getQuery().getDimensions() == null
@@ -183,13 +184,13 @@ public class DWController implements SdkOldApiInterface {
         return  ApiReturn.success(table);
     }
 
-    @ApiOperation("数仓-查找所有数据库")
+    @ApiOperation(value = "数仓-查找所有数据库", notes = "查找用户创建的所有数仓数据库")
     @GetMapping("/database/list")
     public ApiReturn<List<DWDatabaseRsp>> findAll() {
         return dwClient.findAll();
     }
 
-    @ApiOperation("数仓-查找所有数据库与表")
+    @ApiOperation(value = "数仓-查找所有数据库与表", notes = "查找用户创建的所有数仓数据库与表")
     @GetMapping("/databaseAndTable/list")
     public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
         return dwClient.databaseTableList();
