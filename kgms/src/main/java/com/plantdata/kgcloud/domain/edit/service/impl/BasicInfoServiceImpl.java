@@ -18,6 +18,7 @@ import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
 import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -32,6 +33,8 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
@@ -43,6 +46,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
@@ -109,6 +113,9 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Autowired
     private DocumentConverter documentConverter;
+
+    @Autowired
+    private EntityFileRelationService entityFileRelationService;
 
     @Override
     public Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq) {
@@ -195,19 +202,17 @@ public class BasicInfoServiceImpl implements BasicInfoService {
      */
     @Override
     public List<MultiModalRsp> listMultiModels(String kgName, Long entityId) {
-        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
-        MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
-        FindIterable<Document> findIterable = collection.find(Filters.eq("entity_id", entityId));
-        return documentConverter.toBeans(findIterable, MultiModalRsp.class);
+        List<EntityFileRelation> relationList = entityFileRelationService.getRelationByKgNameAndEntityId(kgName, entityId);
+        return relationList.stream().map(ConvertUtils.convert(MultiModalRsp.class)).collect(Collectors.toList());
     }
 
     @Override
     public Map<Long, List<MultiModalRsp>> listMultiModels(String kgName, List<Long> entityIds) {
-        MongoDatabase mongoDatabase = mongoClient.getDatabase(KGUtil.dbName(kgName));
-        MongoCollection<Document> collection = mongoDatabase.getCollection(KgmsConstants.MULTI_MODAL);
-        FindIterable<Document> findIterable = collection.find(Filters.in("entity_id", entityIds));
-        List<MultiModalRsp> multiModalRsps = documentConverter.toBeans(findIterable, MultiModalRsp.class);
-        return multiModalRsps.stream().filter(Objects::nonNull).collect(Collectors.groupingBy(MultiModalRsp::getEntityId));
+        List<EntityFileRelation> relationList = entityFileRelationService.getRelationByKgNameAndEntityIdIn(kgName, entityIds);
+
+        List<MultiModalRsp> list = relationList.stream().map(ConvertUtils.convert(MultiModalRsp.class)).collect(Collectors.toList());
+
+        return list.stream().filter(Objects::nonNull).collect(Collectors.groupingBy(MultiModalRsp::getEntityId));
     }
 
     @Override

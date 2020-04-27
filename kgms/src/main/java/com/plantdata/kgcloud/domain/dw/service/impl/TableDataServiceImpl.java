@@ -366,19 +366,15 @@ public class TableDataServiceImpl implements TableDataService {
             fileTableRepository.save(fileTable);
 
             // 更新关联表
-            EntityFileRelation entityFileRelation = entityFileRelationService.getRelationByDwFileId(fileTable.getId());
-            if (entityFileRelation != null) {
-                entityFileRelation.setName(fileTableReq.getName());
-                entityFileRelation.setKeyword(fileTableReq.getKeyword());
-                entityFileRelation.setDescription(fileTableReq.getDescription());
-                entityFileRelationService.updateRelation(entityFileRelation);
-
-                String multiModalId = entityFileRelation.getMultiModalId();
-                MultiModal multiModal = new MultiModal();
-                multiModal.setId(multiModalId);
-                multiModal.setName(fileTableReq.getName());
-                entityService.updateMultiModal(entityFileRelation.getKgName(), multiModal);
+            List<EntityFileRelation> relationList = entityFileRelationService.getRelationByDwFileId(fileTable.getId());
+            if (!CollectionUtils.isEmpty(relationList)) {
+                relationList.forEach(s->{
+                    s.setName(fileTableReq.getName());
+                    s.setKeyword(fileTableReq.getKeyword());
+                    s.setDescription(fileTableReq.getDescription());
+                });
             }
+            entityFileRelationService.updateRelations(relationList);
         }
 
     }
@@ -386,13 +382,8 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public void fileDelete(Integer id) {
         fileTableRepository.deleteById(id);
-        EntityFileRelation relationByDwFileId = entityFileRelationService.getRelationByDwFileId(id);
-        if (relationByDwFileId != null) {
-            // 删除实体文件关联
-            entityFileRelationService.deleteRelationByDwFileId(id);
-            // 删除多模态文件记录
-            entityService.deleteMultiModal(relationByDwFileId.getKgName(), relationByDwFileId.getMultiModalId());
-        }
+        // 删除实体文件关联
+        entityFileRelationService.deleteRelationByDwFileId(id);
     }
 
     @Override

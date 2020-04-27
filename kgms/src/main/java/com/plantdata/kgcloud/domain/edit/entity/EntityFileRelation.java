@@ -45,6 +45,10 @@ public class EntityFileRelation {
     private String type;
 
     @Basic
+    @Column(name = "data_href")
+    private String dataHref;
+
+    @Basic
     @Column(name = "`keyword`")
     private String keyword;
 
