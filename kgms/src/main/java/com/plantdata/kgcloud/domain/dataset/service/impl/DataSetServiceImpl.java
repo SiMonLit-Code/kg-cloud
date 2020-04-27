@@ -542,13 +542,11 @@ public class DataSetServiceImpl implements DataSetService {
                             } else if (Pattern.matches(date, string)) {
                                 LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 type = FieldType.DATE;
-                            }
-                        } catch (Exception e2) {
-
-                            try {
+                            }else{
                                 format.parse(string);
                                 type = FieldType.DATETIME;
-                            }catch (Exception e3){}
+                            }
+                        } catch (Exception e2) {
                         }
                     }
                 }
