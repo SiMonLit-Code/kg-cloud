@@ -474,8 +474,9 @@ public class DataSetServiceImpl implements DataSetService {
             } catch (Exception e) {
                 if (!StringUtils.isEmpty(string) && string.length() > 50) {
                     type = FieldType.TEXT;
+                }else{
+                    type = FieldType.STRING;
                 }
-                type = FieldType.STRING;
             }
         } else if (string.startsWith(ARRAY_START)) {
             if (string.startsWith(ARRAY_STRING_START)) {
@@ -486,8 +487,9 @@ public class DataSetServiceImpl implements DataSetService {
                 } catch (Exception e) {
                     if (!StringUtils.isEmpty(string) && string.length() > 50) {
                         type = FieldType.TEXT;
+                    }else{
+                        type = FieldType.STRING;
                     }
-                    type = FieldType.STRING;
                 }
             } else {
                 try {
@@ -496,8 +498,9 @@ public class DataSetServiceImpl implements DataSetService {
                 } catch (Exception e) {
                     if (!StringUtils.isEmpty(string) && string.length() > 50) {
                         type = FieldType.TEXT;
+                    }else{
+                        type = FieldType.STRING;
                     }
-                    type = FieldType.STRING;
                 }
             }
         } else if (val instanceof Integer) {
@@ -527,14 +530,10 @@ public class DataSetServiceImpl implements DataSetService {
                     } catch (Exception e4) {
                         try {
                             String date = "\\d{4}-\\d{2}-\\d{2}";
-                            String time = "\\d{2}:\\d{2}:\\d{2}";
                             String dateTime = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
                             if (Pattern.matches(dateTime, string)) {
                                 LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                                type = FieldType.DATE;
-                            } else if (Pattern.matches(time, string)) {
-                                LocalTime.parse(string, DateTimeFormatter.ofPattern("HH:mm:ss"));
-                                type = FieldType.DATE;
+                                type = FieldType.DATETIME;
                             } else if (Pattern.matches(date, string)) {
                                 LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 type = FieldType.DATE;
@@ -548,8 +547,9 @@ public class DataSetServiceImpl implements DataSetService {
             if (type == null) {
                 if (!StringUtils.isEmpty(string) && string.length() > 50) {
                     type = FieldType.TEXT;
+                }else{
+                    type = FieldType.STRING;
                 }
-                type = FieldType.STRING;
             }
         }
         return type;

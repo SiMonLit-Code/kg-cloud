@@ -135,64 +135,6 @@ public class ExampleYaml {
     }
 
 
-    public static FieldType readType(Object val) {
-        FieldType type;
-        if (val == null) {
-            return FieldType.STRING;
-        }
-        String string = val.toString();
-        if (string.startsWith(JSON_START)) {
-            try {
-                JacksonUtils.getInstance().readValue(string, ObjectNode.class);
-                type = FieldType.OBJECT;
-            } catch (Exception e) {
-                if (!StringUtils.isEmpty(string) && string.length() > 50) {
-                    type = FieldType.TEXT;
-                }
-                type = FieldType.STRING;
-            }
-        } else if (string.startsWith(ARRAY_START)) {
-            if (string.startsWith(ARRAY_STRING_START)) {
-                try {
-                    JacksonUtils.getInstance().readValue(string, new TypeReference<List<String>>() {
-                    });
-                    type = FieldType.STRING_ARRAY;
-                } catch (Exception e) {
-                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
-                        type = FieldType.TEXT;
-                    }
-                    type = FieldType.STRING;
-                }
-            } else {
-                try {
-                    JacksonUtils.getInstance().readValue(string, ArrayNode.class);
-                    type = FieldType.ARRAY;
-                } catch (Exception e) {
-                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
-                        type = FieldType.TEXT;
-                    }
-                    type = FieldType.STRING;
-                }
-            }
-        } else if (val instanceof Integer) {
-            type = FieldType.INTEGER;
-        } else if (val instanceof Long) {
-            type = FieldType.LONG;
-        } else if (val instanceof Date) {
-            type = FieldType.DATE;
-        } else if (val instanceof Double) {
-            type = FieldType.DOUBLE;
-        } else if (val instanceof Float) {
-            type = FieldType.FLOAT;
-        } else {
-            if (!StringUtils.isEmpty(string) && string.length() > 50) {
-                type = FieldType.TEXT;
-            }
-            type = FieldType.STRING;
-        }
-        return type;
-    }
-
     public static FieldType readMysqlType(String string) {
         FieldType type;
         if (string.startsWith(LONG)) {

@@ -13,47 +13,23 @@ public class PrestoSingleton {
 
     private static Connection connection = null;
 
-    static Config appConfig;
-
+    @Value("${presto.ip:}")
     private static String ip;
+    @Value("${presto.port:}")
     private static String port;
+    @Value("${presto.user:}")
     private static  String user;
+    @Value("${presto.password:}")
     private static  String password;
-
-    @SuppressWarnings("static-access")
-    @Value("${presto.ip}")
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    @SuppressWarnings("static-access")
-    @Value("${presto.port}")
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    @SuppressWarnings("static-access")
-    @Value("${presto.user}")
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    @SuppressWarnings("static-access")
-    @Value("${presto.password}")
-    public void setPaasword(String password) {
-        this.password = password;
-    }
 
     private static void init(){
         try {
-            //appConfig = ConfigService.getConfig("kgsdk");
             String jdbc_url = "jdbc:presto://"+ip+":"+port+"/system/runtime";
-            String userName = user;
-            if(password !=null && password.equals("none")){
+            if(password ==null || "none".equals(password)){
                 password = "";
             }
             Class.forName("com.facebook.presto.jdbc.PrestoDriver");
-            connection = DriverManager.getConnection(jdbc_url,userName,password);
+            connection = DriverManager.getConnection(jdbc_url,user,password);
         } catch (Exception e) {
             e.printStackTrace();
         }
