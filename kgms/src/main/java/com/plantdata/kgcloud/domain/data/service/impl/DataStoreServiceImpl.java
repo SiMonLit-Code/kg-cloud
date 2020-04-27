@@ -164,7 +164,6 @@ public class DataStoreServiceImpl implements DataStoreService {
         //使用map封装该用户下 所有表和 数仓标题  注意 OOM
         for (DWDatabase dw : all) {
             map.put(dw.getDataName(), dw.getTitle());
-
         }
         //过滤 只保存 该用户的 表名称
         List<String> allList = all.stream().map(DWDatabase::getDataName).distinct().collect(Collectors.toList());
@@ -173,13 +172,14 @@ public class DataStoreServiceImpl implements DataStoreService {
         List<String> database = mongoClient.getDatabaseNames();
         //找到以return前缀开头的表
         List<String> filterList = database.stream().filter(s -> s.startsWith(DB_FIX_NAME_PREFIX)).collect(Collectors.toList());
-        //去交集得出结果
+        //取交集得出结果
         List<String> intersection = (List<String>) CollectionUtils.intersection(database, filterList);
         List<DbAndTableRsp> rsps = new ArrayList<>();
         for (String a : intersection) {
             DbAndTableRsp tableRsp = new DbAndTableRsp();
-            String title = map.get(a.replaceFirst(DB_FIX_NAME_PREFIX, ""));
-            tableRsp.setDbName(a);
+            String s = a.replaceFirst(DB_FIX_NAME_PREFIX, "");
+            String title = map.get(s);
+            tableRsp.setDbName(s);
             tableRsp.setDbTitle(title);
             Set<String> db = mongoClient.getDB(a).getCollectionNames();
             ArrayList<String> list = new ArrayList<>(db);
@@ -187,7 +187,6 @@ public class DataStoreServiceImpl implements DataStoreService {
             rsps.add(tableRsp);
         }
         return rsps;
-
     }
 
     @Override
