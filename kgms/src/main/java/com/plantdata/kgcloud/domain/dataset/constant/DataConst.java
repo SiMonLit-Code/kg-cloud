@@ -50,4 +50,7 @@ public interface DataConst {
 
     String FLOAT = "{\"type\":\"float\"}";
     JsonNode JSON_FLOAT = JacksonUtils.readValue(FLOAT, JsonNode.class);
+
+    String DATE_TIME = "{\"type\":\"datetime\",\"format\": \"yyyy-MM-dd||HH:mm:ss\"}";
+    JsonNode JSON_DATETIME = JacksonUtils.readValue(DATE_TIME, JsonNode.class);
 }
