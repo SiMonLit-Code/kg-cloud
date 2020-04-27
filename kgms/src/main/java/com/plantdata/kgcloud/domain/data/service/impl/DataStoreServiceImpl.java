@@ -167,13 +167,17 @@ public class DataStoreServiceImpl implements DataStoreService {
         }
         //过滤 只保存 该用户的 表名称
         List<String> allList = all.stream().map(DWDatabase::getDataName).distinct().collect(Collectors.toList());
-        allList.forEach(s -> s.replace(DB_FIX_NAME_PREFIX, s));
+        List<String> strList = new ArrayList<>();
+        for (String str : allList) {
+            String s = DB_FIX_NAME_PREFIX + str;
+            strList.add(s);
+        }
         //在mongo中查询出 所有的表名
         List<String> database = mongoClient.getDatabaseNames();
         //找到以return前缀开头的表
         List<String> filterList = database.stream().filter(s -> s.startsWith(DB_FIX_NAME_PREFIX)).collect(Collectors.toList());
         //取交集得出结果
-        List<String> intersection = (List<String>) CollectionUtils.intersection(database, filterList);
+        List<String> intersection = (List<String>) CollectionUtils.intersection(strList, filterList);
         List<DbAndTableRsp> rsps = new ArrayList<>();
         for (String a : intersection) {
             DbAndTableRsp tableRsp = new DbAndTableRsp();
