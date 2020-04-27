@@ -2651,7 +2651,7 @@ public class DWServiceImpl implements DWService {
         List<Bson> bsons = new ArrayList<>(2);
         bsons.add(Filters.eq("userId", userId));
         bsons.add(Filters.eq("tableName", req.getTableName()));
-        bsons.add(Filters.eq("dataName", req.getDataName()));
+        bsons.add(Filters.eq("dbId", req.getDbId()));
         FindIterable<Document> findIterable;
         long count = 0;
         count = collection.countDocuments(Filters.and(bsons));
