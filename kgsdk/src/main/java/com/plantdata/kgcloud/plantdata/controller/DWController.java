@@ -11,6 +11,8 @@ import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatBean;
 import com.plantdata.kgcloud.sdk.DWClient;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWStatisticTableSeries;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
 import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.plantdata.req.dw.SqlQueryReq;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.*;
