@@ -2393,7 +2393,6 @@ public class DWServiceImpl implements DWService {
 
                     DataSetSchema dataSetSchema = new DataSetSchema();
                     dataSetSchema.setField(field);
-
                     dataSetSchema.setType(ExampleYaml.readType(column.getValue()).getCode());
                     rsList.add(dataSetSchema);
                 }

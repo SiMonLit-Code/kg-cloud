@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.util.JacksonUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
@@ -34,20 +35,21 @@ public class ExampleYaml {
     private final static String DATE = "date";
     private final static String TIMESTAMP = "timestamp";
 
-    private static Map<Integer,String> attDataTypeMap = new HashMap<>();
+    private static Map<Integer, String> attDataTypeMap = new HashMap<>();
+
     static {
 
-        attDataTypeMap.put(0,"int");
-        attDataTypeMap.put(1,"string");
-        attDataTypeMap.put(2,"int");
-        attDataTypeMap.put(3,"date");
-        attDataTypeMap.put(8,"double");
-        attDataTypeMap.put(9,"float");
-        attDataTypeMap.put(10,"text");
+        attDataTypeMap.put(0, "int");
+        attDataTypeMap.put(1, "string");
+        attDataTypeMap.put(2, "int");
+        attDataTypeMap.put(3, "date");
+        attDataTypeMap.put(8, "double");
+        attDataTypeMap.put(9, "float");
+        attDataTypeMap.put(10, "text");
     }
 
 
-    public static byte[] create(List<DWTableRsp> tableRspList){
+    public static byte[] create(List<DWTableRsp> tableRspList) {
 
         StringBuilder yaml = new StringBuilder();
 
@@ -62,20 +64,20 @@ public class ExampleYaml {
 
         yaml.append("tables:").append("\r\n");
 
-        addTables(yaml,tableRspList);
+        addTables(yaml, tableRspList);
 
-        for(DWTableRsp tableRsp : tableRspList){
-            addTableColumns(yaml,tableRsp);
+        for (DWTableRsp tableRsp : tableRspList) {
+            addTableColumns(yaml, tableRsp);
         }
 
         return yaml.toString().getBytes();
     }
 
-    public static List<CustomTableRsp> createCustom(List<DWTableRsp> tableRspList){
+    public static List<CustomTableRsp> createCustom(List<DWTableRsp> tableRspList) {
 
         List<CustomTableRsp> tableRsps = new ArrayList<>(tableRspList.size());
 
-        for(DWTableRsp tableRsp : tableRspList){
+        for (DWTableRsp tableRsp : tableRspList) {
             tableRsps.add(addTableColumns(tableRsp));
         }
 
@@ -87,8 +89,8 @@ public class ExampleYaml {
         List<CustomColumnRsp> customColumnRsps = new ArrayList<>();
 
         List<DataSetSchema> fields = tableRsp.getSchema();
-        if(fields != null && !fields.isEmpty()){
-            for(DataSetSchema field : fields){
+        if (fields != null && !fields.isEmpty()) {
+            for (DataSetSchema field : fields) {
                 String type = getGraphType(field.getType());
                 customColumnRsps.add(CustomColumnRsp.builder()
                         .name(field.getField())
@@ -108,8 +110,8 @@ public class ExampleYaml {
         yaml.append(" columns:").append("\r\n");
 
         List<DataSetSchema> fields = tableRsp.getSchema();
-        if(fields != null && !fields.isEmpty()){
-            for(DataSetSchema field : fields){
+        if (fields != null && !fields.isEmpty()) {
+            for (DataSetSchema field : fields) {
                 String type = getGraphType(field.getType());
                 yaml.append("    - ").append(field.getField()).append(": { tag:   , type: ").append(type).append(" , explain: ").append(field.getDesc()).append("}").append("\r\n");
             }
@@ -119,15 +121,15 @@ public class ExampleYaml {
 
     private static String getGraphType(Integer type) {
 
-        if(attDataTypeMap.containsKey(type)){
+        if (attDataTypeMap.containsKey(type)) {
             return attDataTypeMap.get(type);
-        }else{
+        } else {
             return "string";
         }
     }
 
     private static void addTables(StringBuilder yaml, List<DWTableRsp> tableRspList) {
-        for(DWTableRsp tableRsp : tableRspList){
+        for (DWTableRsp tableRsp : tableRspList) {
             yaml.append(" - ").append(tableRsp.getTableName()).append(": ").append(tableRsp.getTitle()).append("\r\n");
         }
     }
@@ -135,7 +137,7 @@ public class ExampleYaml {
 
     public static FieldType readType(Object val) {
         FieldType type;
-        if(val == null){
+        if (val == null) {
             return FieldType.STRING;
         }
         String string = val.toString();
@@ -144,6 +146,9 @@ public class ExampleYaml {
                 JacksonUtils.getInstance().readValue(string, ObjectNode.class);
                 type = FieldType.OBJECT;
             } catch (Exception e) {
+                if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                    type = FieldType.TEXT;
+                }
                 type = FieldType.STRING;
             }
         } else if (string.startsWith(ARRAY_START)) {
@@ -153,6 +158,9 @@ public class ExampleYaml {
                     });
                     type = FieldType.STRING_ARRAY;
                 } catch (Exception e) {
+                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                        type = FieldType.TEXT;
+                    }
                     type = FieldType.STRING;
                 }
             } else {
@@ -160,6 +168,9 @@ public class ExampleYaml {
                     JacksonUtils.getInstance().readValue(string, ArrayNode.class);
                     type = FieldType.ARRAY;
                 } catch (Exception e) {
+                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                        type = FieldType.TEXT;
+                    }
                     type = FieldType.STRING;
                 }
             }
@@ -174,6 +185,9 @@ public class ExampleYaml {
         } else if (val instanceof Float) {
             type = FieldType.FLOAT;
         } else {
+            if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                type = FieldType.TEXT;
+            }
             type = FieldType.STRING;
         }
         return type;
@@ -187,24 +201,24 @@ public class ExampleYaml {
             type = FieldType.INTEGER;
         } else if (string.startsWith(VARCHAR)) {
             try {
-                Integer size = Integer.parseInt(string.substring(string.indexOf("(")+1,string.lastIndexOf(")")));
-                if(size > 50){
+                Integer size = Integer.parseInt(string.substring(string.indexOf("(") + 1, string.lastIndexOf(")")));
+                if (size > 50) {
                     type = FieldType.TEXT;
-                }else{
+                } else {
                     type = FieldType.STRING;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 type = FieldType.STRING;
             }
         } else if (string.startsWith(CHAR)) {
             try {
-                Integer size = Integer.parseInt(string.substring(string.indexOf("(")+1,string.lastIndexOf(")")));
-                if(size > 50){
+                Integer size = Integer.parseInt(string.substring(string.indexOf("(") + 1, string.lastIndexOf(")")));
+                if (size > 50) {
                     type = FieldType.TEXT;
-                }else{
+                } else {
                     type = FieldType.STRING;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 type = FieldType.STRING;
             }
         } else if (string.startsWith(TEXT)) {
