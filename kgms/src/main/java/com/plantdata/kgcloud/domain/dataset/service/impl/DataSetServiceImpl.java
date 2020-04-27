@@ -50,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -72,6 +73,9 @@ public class DataSetServiceImpl implements DataSetService {
     private final static String JSON_START = "{";
     private final static String ARRAY_START = "[";
     private final static String ARRAY_STRING_START = "[\"";
+    private final static SimpleDateFormat format = new SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
     private final Function<DataSet, DataSetRsp> dataSet2rsp = (s) -> {
         DataSetRsp dataSetRsp = new DataSetRsp();
         BeanUtils.copyProperties(s, dataSetRsp);
@@ -540,6 +544,11 @@ public class DataSetServiceImpl implements DataSetService {
                                 type = FieldType.DATE;
                             }
                         } catch (Exception e2) {
+
+                            try {
+                                format.parse(string);
+                                type = FieldType.DATETIME;
+                            }catch (Exception e3){}
                         }
                     }
                 }
