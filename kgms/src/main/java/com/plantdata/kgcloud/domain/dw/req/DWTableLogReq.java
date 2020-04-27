@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel("数仓状态日志统计")
@@ -14,9 +15,9 @@ public class DWTableLogReq extends BaseReq {
     @NotBlank(message = "数据表名不能为空")
     private String tableName;
 
-    @ApiModelProperty("数据库名")
-    @NotBlank(message = "数据库名不能为空")
-    private String dataName;
+    @ApiModelProperty("数据库id")
+    @NotNull(message = "数据库id不能为空")
+    private Long dbId;
 
 
 }

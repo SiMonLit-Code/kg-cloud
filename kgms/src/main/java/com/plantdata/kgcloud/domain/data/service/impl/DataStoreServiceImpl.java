@@ -360,9 +360,9 @@ public class DataStoreServiceImpl implements DataStoreService {
             Map rawData = JSON.parseObject(jsonObject.get(DB_VIEW_DATA).toString(), Map.class);
             document.remove(DB_VIEW_DATA);
             String dataFrom = rawData.get("dataFrom") + "";
-            DataStore dataStore = null;
+            DataStore dataStore;
+            //数据来源是 数仓数据修改
             if (Objects.equals(dataFrom, "dw")) {
-                //数据来源是 数仓数据修改
                 dataStore = new DataStore();
                 dataStore.setDbName(rawData.get("dbName") + "");
                 dataStore.setStatus(DB_VIEW_STATUS);
@@ -371,7 +371,6 @@ public class DataStoreServiceImpl implements DataStoreService {
                 dataStore = documentConverter.toBean(new Document(rawData), DataStore.class);
 
             }
-
             dataStore.setId(document.getObjectId("_id").toHexString());
             document.remove(MONGO_ID);
             dataStore.setData(JSONObject.toJSONString(document));

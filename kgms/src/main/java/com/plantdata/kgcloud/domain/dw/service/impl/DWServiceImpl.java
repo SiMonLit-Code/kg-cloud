@@ -2671,10 +2671,10 @@ public class DWServiceImpl implements DWService {
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
         String userId = SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId();
-        List<Bson> bsons = new ArrayList<>(2);
+        List<Bson> bsons = new ArrayList<>(3);
         bsons.add(Filters.eq("userId", userId));
         bsons.add(Filters.eq("tableName", req.getTableName()));
-        bsons.add(Filters.eq("dataName", req.getDataName()));
+        bsons.add(Filters.eq("dbId", req.getDbId()));
         FindIterable<Document> findIterable;
         long count = 0;
         count = collection.countDocuments(Filters.and(bsons));
