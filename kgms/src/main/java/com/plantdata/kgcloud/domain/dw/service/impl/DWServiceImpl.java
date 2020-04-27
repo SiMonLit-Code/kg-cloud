@@ -745,7 +745,7 @@ public class DWServiceImpl implements DWService {
         }
 
         List<String> fieldEnums;
-        if (database.getDataType().equals(DataType.MONGO.getDataType())) {
+        if (database.getDataType() == null || database.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
                 fieldEnums = getMongoAggr(database, tableName, field);
