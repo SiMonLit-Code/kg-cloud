@@ -49,6 +49,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -433,12 +434,48 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Override
     public void dataUpdate(DWDatabaseUpdateReq baseReq) {
-        String userId = SessionHolder.getUserId();
+       // String userId = SessionHolder.getUserId();
         DWTable table = dwTableRepository.findOne(Example.of(DWTable.builder().id(baseReq.getTableId()).dwDataBaseId(baseReq.getDataBaseId()).build()))
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST));
         if (table.getCreateWay() != CREATE_WAY && (table.getIsWriteDW() == null || table.getIsWriteDW() != IS_WRITE_DW)) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
+<<<<<<< HEAD
+        DWDatabase database = dwDatabaseRepository.findById(baseReq.getDataBaseId())
+                .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
+        MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
+        MongoCollection<Document> collectionLog = mongoClient.getDatabase(database.getDataName()).getCollection(table.getTableName());
+        long count;
+        try {
+            count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
+        } catch (Exception e) {
+            count = collection.countDocuments(Filters.eq(baseReq.getId()));
+        }
+        if (baseReq.getId().length() <= 32) {
+
+            Map<String, Object> data = baseReq.getData();
+            String mongoId = baseReq.getId();
+            Map<Object, Object> map = new HashMap<>();
+            map.put("dbName", database.getDataName());
+            map.put("tableId", baseReq.getDataBaseId());
+            map.put("dataFrom", "dw");
+            map.put("status", DB_VIEW_STATUS);
+            data.put(DB_VIEW_DATA, map);
+            if (count == 0) {
+              //  data.put(MONGO_ID, new ObjectId(mongoId));
+                collection.insertOne(new Document(data));
+                data.remove(MONGO_ID);
+                data.remove(DB_VIEW_DATA);
+                collectionLog.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
+            } else {
+                data.remove(MONGO_ID);
+                collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
+                data.remove(DB_VIEW_DATA);
+                collectionLog.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
+
+            }
+        } else {
+=======
 
 
         try(DataOptProvider provider = getProvider(true,userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties)) {
@@ -447,6 +484,7 @@ public class TableDataServiceImpl implements TableDataService {
                     .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
             MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
             long count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
+>>>>>>> 3a3e6b97d634600955aceb721bb4a7b29607ff62
             Map<String, Object> data = baseReq.getData();
             String mongoId = baseReq.getId();
             Map<Object, Object> map = new HashMap<>();
@@ -454,19 +492,37 @@ public class TableDataServiceImpl implements TableDataService {
             map.put("tableId", baseReq.getDataBaseId());
             map.put("dataFrom", "dw");
             map.put("status", DB_VIEW_STATUS);
+<<<<<<< HEAD
+            data.put(DB_VIEW_DATA, map);
+            if (count == 0) {
+                data.put(MONGO_ID, mongoId);
+=======
             data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
             data.put(DB_VIEW_DATA, map);
             if (count == 0) {
                 data.put(MONGO_ID, new ObjectId(mongoId));
+>>>>>>> 3a3e6b97d634600955aceb721bb4a7b29607ff62
                 collection.insertOne(new Document(data));
                 data.remove(MONGO_ID);
                 data.remove(DB_VIEW_DATA);
                 Document document = new Document(data);
+<<<<<<< HEAD
+                collectionLog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", document));
+
+=======
                 provider.update(mongoId, document);
+>>>>>>> 3a3e6b97d634600955aceb721bb4a7b29607ff62
             } else {
                 data.remove(MONGO_ID);
                 collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
                 data.remove(DB_VIEW_DATA);
+<<<<<<< HEAD
+                collectionLog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", new Document(data)));
+
+            }
+
+        }
+=======
                 provider.update(mongoId, new Document(data));
             }
 
@@ -475,5 +531,7 @@ public class TableDataServiceImpl implements TableDataService {
         ;
 
     }
+>>>>>>> 3a3e6b97d634600955aceb721bb4a7b29607ff62
 
+    }
 }

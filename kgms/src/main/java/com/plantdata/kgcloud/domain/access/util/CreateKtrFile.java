@@ -20,12 +20,15 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CreateKtrFile {
 
     private static final int RADIX = 16;
     private static final String SEED = "0933910847463829827159347601486730416058";
+    private final static SimpleDateFormat format = new SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     /**
      * 功能执行方法
@@ -340,10 +343,25 @@ public class CreateKtrFile {
 //                return sql.toString();
             }else{
 
-                FieldType fieldType = getFileType(databaseRsp,table,table.getQueryField(),mongoAddrs,mongoUserrname,mongoPassword);
+                List<DataSetSchema> schemas = table.getSchema();
 
-                if(FieldType.DATE.equals(fieldType)){
-                    return KtrXml.mongoTimeQueryDateFieldXMl.replaceAll("timeFieldQAQ",table.getQueryField());
+                boolean isDateField = false;
+                for(DataSetSchema schema : schemas){
+                    if(schema.getField().equals(table.getQueryField())){
+                        if(schema.getType() == FieldType.DATE.getCode() || schema.getType() == FieldType.DATETIME.getCode()){
+                            isDateField = true;
+                        }
+                        break;
+                    }
+                }
+
+                if(isDateField){
+
+                    FieldType fieldType = getFileType(databaseRsp,table,table.getQueryField(),mongoAddrs,mongoUserrname,mongoPassword);
+
+                    if(FieldType.DATE.equals(fieldType)){
+                        return KtrXml.mongoTimeQueryDateFieldXMl.replaceAll("timeFieldQAQ",table.getQueryField());
+                    }
                 }
 
                 return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
@@ -381,7 +399,7 @@ public class CreateKtrFile {
 
     }
 
-    private static FieldType getFileType(DWDatabaseRsp databaseRsp, DWTableRsp table, String field, String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
+    public static FieldType getFileType(DWDatabaseRsp databaseRsp, DWTableRsp table, String field, String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
 
         DataSet dataSet;
         //远程
@@ -414,10 +432,11 @@ public class CreateKtrFile {
             }
 
             Map<String,Object> map = maps.get(0);
-            if(map.containsKey(field) && map.get(field) instanceof Date){
+            if(map.containsKey(field) ){
+                format.parse(map.get(field)+"");
                 return FieldType.DATE;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
         }
 
         return FieldType.STRING;

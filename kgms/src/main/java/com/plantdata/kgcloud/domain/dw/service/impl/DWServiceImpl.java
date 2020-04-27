@@ -109,6 +109,7 @@ public class DWServiceImpl implements DWService {
     private final static String KETTLE_LOGS_COLLECTION = "logs_data";
     private final static String KETTLE_LOGS_RECODE = "logs_data_recode";
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
+
     @Autowired
     private MongoClient mongoClient;
     @Autowired
