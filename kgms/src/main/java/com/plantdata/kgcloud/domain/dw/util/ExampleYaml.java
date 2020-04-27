@@ -168,13 +168,13 @@ public class ExampleYaml {
         } else if (string.startsWith(LONGTEXT)) {
             type = FieldType.TEXT;
         } else if (string.startsWith(DATETIME)) {
-            type = FieldType.DATE;
+            type = FieldType.DATETIME;
         } else if (string.startsWith(SHORT)) {
             type = FieldType.INTEGER;
         } else if (string.startsWith(DATE)) {
             type = FieldType.DATE;
         } else if (string.startsWith(TIMESTAMP)) {
-            type = FieldType.DATE;
+            type = FieldType.DATETIME;
         } else {
             type = FieldType.STRING;
         }

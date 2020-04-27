@@ -10,6 +10,7 @@ import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -43,6 +44,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.DateUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
@@ -445,6 +447,7 @@ public class TableDataServiceImpl implements TableDataService {
         map.put("tableId", baseReq.getDataBaseId());
         map.put("dataFrom", "dw");
         map.put("status", DB_VIEW_STATUS);
+        map.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
         data.put(DB_VIEW_DATA, map);
         if (count == 0) {
             data.put(MONGO_ID, new ObjectId(mongoId));
