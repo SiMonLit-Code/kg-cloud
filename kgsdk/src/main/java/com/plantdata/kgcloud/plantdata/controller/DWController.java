@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.module.DWStatisticInterface;
@@ -32,7 +33,9 @@ public class DWController implements DWStatisticInterface {
 
     @ApiOperation(value = "统计数据仓库(二维)", notes = "以二维表的形式统计数据仓库")
     @PostMapping("statistic/by2dTable")
-    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq req) {
+    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestParam("input") String reqStr) {
+        JSONObject jsStr = JSONObject.parseObject(reqStr);
+        SqlQueryReq req = JSONObject.toJavaObject(jsStr,SqlQueryReq.class);
         if(req.getQuery().getDimensions() == null
                 || req.getQuery().getMeasures() == null
                 || req.getQuery().getMeasures().size() != 1
@@ -102,7 +105,9 @@ public class DWController implements DWStatisticInterface {
 
     @ApiOperation(value = "统计数据仓库(三维)", notes = "以三维表的形式统计数据仓库")
     @PostMapping("statistic/by3dTable")
-    public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req) {
+    public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestParam("input") String reqStr) {
+        JSONObject jsStr = JSONObject.parseObject(reqStr);
+        SqlQueryReq req = JSONObject.toJavaObject(jsStr,SqlQueryReq.class);
         if(req.getQuery().getDimensions() == null
                 || req.getQuery().getMeasures() == null
                 || req.getQuery().getMeasures().size() != 1
