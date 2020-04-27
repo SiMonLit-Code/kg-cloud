@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.rsp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.ModelSchemaConfigRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

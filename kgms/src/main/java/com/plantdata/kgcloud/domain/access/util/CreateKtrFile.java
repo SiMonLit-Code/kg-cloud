@@ -1,11 +1,10 @@
 package com.plantdata.kgcloud.domain.access.util;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
-import com.plantdata.kgcloud.domain.dw.entity.DWTable;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
+import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.constant.DataType;
 
 import java.io.IOException;
@@ -327,6 +326,22 @@ public class CreateKtrFile {
             if(table.getIsAll() == null || table.getIsAll().equals(1)){
                 return sql.toString();
             }else{
+
+                List<DataSetSchema> schemas = table.getSchema();
+                if(schemas == null || schemas.isEmpty()){
+                    return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
+                }
+/*
+                for(DataSetSchema schema : schemas){
+                    if(!schema.getField().equals(table.getQueryField())){
+                        continue;
+                    }
+
+                    if(FieldType.findCode(schema.getType()).equals(FieldType.DATE)){
+                        return KtrXml.mongoTimeQueryDateFieldXMl.replaceAll("timeFieldQAQ",table.getQueryField());
+                    }
+                }*/
+
                 return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
             }
 

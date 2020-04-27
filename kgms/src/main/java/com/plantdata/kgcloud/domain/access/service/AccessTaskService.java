@@ -2,10 +2,9 @@ package com.plantdata.kgcloud.domain.access.service;
 
 import com.plantdata.kgcloud.domain.access.entity.DWTask;
 import com.plantdata.kgcloud.domain.access.rsp.DWTaskRsp;
-import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.req.DataAccessTaskConfigReq;
 
 import java.util.List;
@@ -39,4 +38,12 @@ public interface AccessTaskService {
     List<DWTask> getTableTask(Long dbId, String tableName);
 
     void addRerunTask(Long dbId, String tableName, List<String> resourceNames);
+
+    void addDeleteTask(List<String> resourceNames);
+
+    List<DWTask> getTransferTaskByResourceNames(List<String> transfTasks);
+
+    void deleteTaskByDW(Long databaseId, String tableName);
+
+    void deleteTaskByKG(String kgName);
 }

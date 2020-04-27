@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.pub.SemanticApi;
 import ai.plantdata.kg.api.pub.req.SemanticSegFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.SemanticSegWordVO;
+import cn.hiboot.mcn.core.model.result.RestResp;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
@@ -12,7 +13,10 @@ import com.google.common.collect.Maps;
 import com.hiekn.ierule.service.RuleModelService;
 import com.hiekn.ierule.service.RuleModelServiceImpl;
 import com.hiekn.pddocument.bean.PdDocument;
+import com.hiekn.pddocument.bean.element.PdAttribute;
+import com.hiekn.pddocument.bean.element.PdConcept;
 import com.hiekn.pddocument.bean.element.PdEntity;
+import com.hiekn.pddocument.bean.element.PdValue;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.SegmentConverter;
@@ -200,6 +204,78 @@ public class NlpServiceImpl implements NlpService {
         List<SegmentEntityRsp> segmentEntityList = SegmentConverter.entityVoToSegmentEntityDto(entityOpt.get(), scoreMap, wordMap);
         segmentEntityList.sort(Comparator.comparing(SegmentEntityRsp::getScore));
         return segmentEntityList;
+
+    }
+
+
+    @Override
+    public PdDocument segment2(String kgName, SegmentReq segmentReq) {
+        SemanticSegFrom semanticSegFrom = SegmentConverter.segmentReqToSemanticSegFrom(segmentReq);
+        Optional<List<SemanticSegWordVO>> segWordOpt = RestRespConverter.convert(semanticApi.seg(KGUtil.dbName(kgName), semanticSegFrom));
+
+        PdDocument document = new PdDocument();
+
+        List<Long> entityIdList = Lists.newArrayList();
+        List<PdConcept> conceptList = new ArrayList<>();
+        List<PdAttribute> attributeList = new ArrayList<>();
+        List<PdEntity> entityList = new ArrayList<>();
+        Map<Long, Double> scoreMap = Maps.newHashMap();
+        Map<Long, String> wordMap = new HashMap<>();
+        for (SemanticSegWordVO seg : segWordOpt.get()) {
+            String word = seg.getWord();
+            if (!CollectionUtils.isEmpty(seg.getConceptIdList())) {
+                PdConcept concept = new PdConcept();
+                concept.setId(seg.getConceptIdList().get(0));
+                concept.setName(word);
+                concept.setIndex(seg.getPos());
+                conceptList.add(concept);
+            }
+            if (!CollectionUtils.isEmpty(seg.getAttributeIdList())) {
+                PdAttribute attribute = new PdAttribute();
+                attribute.setAttId(new Long(seg.getAttributeIdList().get(0)));
+                attribute.setName(word);
+                attribute.setIndex(seg.getPos());
+                attributeList.add(attribute);
+            }
+            if (!CollectionUtils.isEmpty(seg.getEntityIdList())) {
+                BasicConverter.applyIfTrue(segmentReq.getUseEntity(), seg.getEntityIdList(), entityIdList::addAll);
+                int bound = seg.getEntityIdList().size();
+                IntStream.range(0, bound).forEach(i -> {
+                    scoreMap.put(seg.getEntityIdList().get(i), seg.getEntityScoreList().get(i));
+                    wordMap.put(seg.getEntityIdList().get(i), word);
+                });
+            }
+        }
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList,true)));
+
+        List<SegmentEntityRsp> segmentEntityList = SegmentConverter.entityVoToSegmentEntityDto(entityOpt.get(), scoreMap, wordMap);
+        segmentEntityList.sort(Comparator.comparing(SegmentEntityRsp::getScore));
+        for(SegmentEntityRsp entity : segmentEntityList){
+            PdEntity pdEntity = new PdEntity();
+            pdEntity.setId(entity.getId());
+            pdEntity.setName(entity.getWord());
+            pdEntity.setClassId(entity.getConceptId());
+            pdEntity.setMeaningTag(entity.getMeaningTag());
+            pdEntity.setImgUrl(entity.getImgUrl());
+            pdEntity.setStartTime(entity.getStartTime());
+            pdEntity.setEndTime(entity.getEndTime());
+            pdEntity.setCreationTime(entity.getCreationTime());
+            pdEntity.setScore(entity.getScore());
+            if(entity.getSynonym() != null) {
+                List<PdValue> valueList = new ArrayList<>();
+                for (String synonymName : entity.getSynonym()) {
+                    PdValue value = new PdValue();
+                    value.setName(synonymName);
+                    valueList.add(value);
+                }
+                pdEntity.setSynonyms(valueList);
+            }
+            entityList.add(pdEntity);
+        }
+        document.setPdEntity(entityList);
+        document.setPdAttribute(attributeList);
+        document.setPdConcept(conceptList);
+        return document;
 
     }
 

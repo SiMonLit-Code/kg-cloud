@@ -9,10 +9,10 @@ import com.plantdata.kgcloud.sdk.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderMatchAttrReq;
 import com.plantdata.kgcloud.sdk.req.PreBuilderSearchReq;
 import com.plantdata.kgcloud.sdk.req.SchemaQuoteReq;
+import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import org.springframework.data.domain.Page;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public interface PreBuilderService {

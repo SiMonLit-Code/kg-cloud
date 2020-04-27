@@ -827,14 +827,7 @@ public class KtrXml {
                 "      <servlet_output>N</servlet_output>\n" +
                 "    </file>\n" +
                 "    <fields>\n" +
-                "      <field>\n" +
-                "        <name>idc</name>\n" +
-                "        <element>idc</element>\n" +
-                "      </field>\n" +
-                "      <field>\n" +
-                "        <name>dc</name>\n" +
-                "        <element>dc</element>\n" +
-                "      </field>\n" +
+                "      fieldsQAQ"+
                 "    </fields>\n" +
                 "    <attributes/>\n" +
                 "    <cluster_schema/>\n" +
@@ -1088,6 +1081,16 @@ public class KtrXml {
                 "    \"timeFieldQAQ\": {\n" +
                 "        \"$gte\": \"${StartTime}\",\n" +
                 "        \"$lt\": \"${EndTime}\"\n" +
+                "    },\n" +
+                "  \"_id\": {\n" +
+                "    \"$exists\":${key}\n" +
+                "  }\n" +
+                "}\n";
+
+        static String mongoTimeQueryDateFieldXMl = "{\n" +
+                "    \"timeFieldQAQ\": {\n" +
+                "        \"$gte\": ISODate(\"${StartTime}\"),\n" +
+                "        \"$lt\": ISODate(\"${EndTime}\"}\n" +
                 "    },\n" +
                 "  \"_id\": {\n" +
                 "    \"$exists\":${key}\n" +

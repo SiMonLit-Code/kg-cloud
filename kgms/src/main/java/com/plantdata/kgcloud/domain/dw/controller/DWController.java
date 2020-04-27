@@ -4,19 +4,22 @@ import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.req.*;
-import com.plantdata.kgcloud.domain.dw.rsp.CustomTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWDatabaseRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.DWTableRsp;
-import com.plantdata.kgcloud.domain.dw.rsp.ModelSchemaConfigRsp;
+import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
+import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.ModelSchemaConfigRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.sdk.req.DWConnceReq;
 import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
+import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -194,7 +197,6 @@ public class DWController {
     public ApiReturn updateTagJson(
             @PathVariable("databaseId") Long databaseId,
             @RequestBody List<TagJsonReq> tagJsonReqs) {
-
         dwServince.updateTagJson(databaseId, tagJsonReqs);
         return ApiReturn.success();
     }
@@ -203,23 +205,21 @@ public class DWController {
     @PatchMapping("/{databaseId}/get/tagjson")
     public ApiReturn<List<ModelSchemaConfigRsp>> getTagJson(
             @PathVariable("databaseId") Long databaseId) {
-
         return ApiReturn.success(dwServince.getTagJson(databaseId));
     }
 
     @ApiOperation("数仓-获取自定义类型打标 isDefault默认false，传true获取自动生成信息")
     @GetMapping("/get/custom/label")
     public ApiReturn<List<CustomTableRsp>> getCustomLabel(Long databaseId, Boolean isDefault) {
-
-        return ApiReturn.success(dwServince.getCustomLabel(databaseId,isDefault));
+        return ApiReturn.success(dwServince.getCustomLabel(databaseId, isDefault));
     }
 
     @ApiOperation("数仓-获取表字段枚举值")
     @GetMapping("/get/table/field/enum")
     public ApiReturn<List<String>> getTableFieldEnum(Long databaseId,
-            String tableName,String field) {
+                                                     String tableName, String field) {
 
-        return ApiReturn.success(dwServince.getTableFieldEnum(databaseId,tableName,field));
+        return ApiReturn.success(dwServince.getTableFieldEnum(databaseId, tableName, field));
     }
 
     @ApiOperation("数仓-更新自定义类型打标")
@@ -227,7 +227,7 @@ public class DWController {
     public ApiReturn updateCustomLabel(
             @PathVariable("databaseId") Long databaseId,
             @RequestBody List<CustomTableRsp> tableLabels) {
-        dwServince.updateCustomLabel(databaseId,tableLabels);
+        dwServince.updateCustomLabel(databaseId, tableLabels);
         return ApiReturn.success();
     }
 
@@ -236,8 +236,8 @@ public class DWController {
     public ApiReturn<Integer> push(@RequestBody ModelPushReq req) {
 
         String userId = SessionHolder.getUserId();
-       ;
-        return ApiReturn.success( dwServince.push(userId, req));
+        ;
+        return ApiReturn.success(dwServince.push(userId, req));
     }
 
     @ApiOperation("数仓-查看模式")
@@ -302,12 +302,18 @@ public class DWController {
     @ApiOperation("数仓-日志状态列表")
     @GetMapping("/database/status/{databaseId}")
     public ApiReturn DataStatusList(@PathVariable("databaseId") Long databaseId) {
-        return ApiReturn.success(dwServince.DataStatusList(databaseId));
+        return ApiReturn.success(dwServince.dataStatusList(databaseId));
     }
 
     @ApiOperation("数仓-数据库日志记录列表")
     @GetMapping("/database/tableLogList")
     public ApiReturn tableLogList(@Valid DWTableLogReq dwTableLogReq) {
         return ApiReturn.success(dwServince.tableLogList(dwTableLogReq));
+    }
+
+    @ApiOperation("根据数仓id获得数仓名")
+    @PostMapping("database/byId/{dbId}")
+    public DWDatabaseRsp findById(@PathVariable("dbId") String dbId){
+        return dwServince.findById(dbId);
     }
 }
