@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoOptions;
 import com.mongodb.client.*;
@@ -177,11 +178,12 @@ public class DataStoreServiceImpl implements DataStoreService {
         List<DbAndTableRsp> rsps = new ArrayList<>();
         for (String a : intersection) {
             DbAndTableRsp tableRsp = new DbAndTableRsp();
-
             String title = map.get(a.replaceFirst(DB_FIX_NAME_PREFIX, ""));
             tableRsp.setDbName(a);
             tableRsp.setDbTitle(title);
-            tableRsp.setDbTable(Arrays.asList(userId));
+            Set<String> db = mongoClient.getDB(a).getCollectionNames();
+            ArrayList<String> list = new ArrayList<>(db);
+            tableRsp.setDbTable(list);
             rsps.add(tableRsp);
         }
         return rsps;
@@ -351,7 +353,6 @@ public class DataStoreServiceImpl implements DataStoreService {
             JSONObject jsonObject = JSON.parseObject(document.toJson());
             Map rawData = JSON.parseObject(jsonObject.get(DB_VIEW_DATA).toString(), Map.class);
             Object dbData = document.remove(DB_VIEW_DATA);
-
             DataStore dataStore = documentConverter.toBean(new Document(rawData), DataStore.class);
             dataStore.setId(document.getObjectId("_id").toHexString());
             dataStore.setData(JSONObject.toJSONString(dbData));
@@ -371,6 +372,4 @@ public class DataStoreServiceImpl implements DataStoreService {
         allDocument.putAll(filterDataId(req.getData()));
         return allDocument;
     }
-
-
 }

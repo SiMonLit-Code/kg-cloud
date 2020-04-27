@@ -439,11 +439,7 @@ public class TableDataServiceImpl implements TableDataService {
         String userId = SessionHolder.getUserId();
         DWTable table = dwTableRepository.findOne(Example.of(DWTable.builder().id(baseReq.getTableId()).dwDataBaseId(baseReq.getDataBaseId()).build()))
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST));
-//        if (null == table.getCreateWay() || null == table.getIsWriteDW()) {
-//            throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
-//        }
-
-        if (table.getCreateWay() != CREATE_WAY  && (table.getIsWriteDW() == null || table.getIsWriteDW() != IS_WRITE_DW)) {
+        if (table.getCreateWay() != CREATE_WAY && (table.getIsWriteDW() == null || table.getIsWriteDW() != IS_WRITE_DW)) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
         DataOptProvider provider = getProvider(userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties);
