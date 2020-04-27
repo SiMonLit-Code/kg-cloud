@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
-import com.alibaba.excel.util.CollectionUtils;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.repository.EntityFileRelationRepository;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
@@ -15,17 +14,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -38,13 +32,27 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     private EntityFileRelationRepository entityFileRelationRepository;
     @Autowired
     private BasicInfoService basicInfoService;
-    @Autowired
-    private EntityService entityService;
+
+    @Override
+    public Page<EntityFileRelationRsp> listRelation(String kgName, EntityFileRelationQueryReq req) {
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+        Page<EntityFileRelation> list = entityFileRelationRepository.getByKgNameAndNameContaining(kgName, req.getName(), pageable);
+        Page<EntityFileRelationRsp> rspList = list.map(ConvertUtils.convert(EntityFileRelationRsp.class));
+
+        List<Long> entityIdList = list.get().map(EntityFileRelation::getEntityId).collect(Collectors.toList());
+
+        Map<Long, String> nameMap = basicInfoService.listByIds(kgName, entityIdList)
+                .stream().collect(Collectors.toMap(BasicInfoRsp::getId, BasicInfoRsp::getName, (k1, k2) -> k1));
+
+        for (EntityFileRelationRsp relation : rspList) {
+            relation.setEntityName(nameMap.get(relation.getEntityId()));
+        }
+        return rspList;
+    }
 
     @Override
     public void createRelation(String kgName, EntityFileRelationReq req) {
-        EntityFileRelation relation = new EntityFileRelation();
-        BeanUtils.copyProperties(req, relation);
+        EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(req);
         relation.setKgName(kgName);
         relation.setCreateAt(new Date());
         entityFileRelationRepository.save(relation);
@@ -56,68 +64,44 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
-    @Transactional
-    public void deleteRelation(List<Integer> idList) {
-        List<EntityFileRelation> list = entityFileRelationRepository.findAllById(idList);
-        for (EntityFileRelation relation : list){
-            entityService.deleteMultiModalOnly(relation.getKgName(), relation.getMultiModalId());
-            entityFileRelationRepository.deleteRelationByDwFileId(relation.getDwFileId());
-        }
+    public void updateRelations(List<EntityFileRelation> relations) {
+        entityFileRelationRepository.saveAll(relations);
     }
 
     @Override
-    public Page<EntityFileRelationRsp> listRelation(String kgName, EntityFileRelationQueryReq req) {
-        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
-        Specification<EntityFileRelation> specification = new Specification<EntityFileRelation>() {
-            @Override
-            public Predicate toPredicate(Root<EntityFileRelation> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-
-                List<Predicate> predicates = new ArrayList<>();
-
-                Predicate predicate = criteriaBuilder.equal(root.get("kgName").as(String.class), kgName);
-                predicates.add(predicate);
-
-                if (req.getName() != null) {
-                    Predicate name = criteriaBuilder.like(root.get("name").as(String.class), "%" + req.getName() + "%");
-                    predicates.add(name);
-                }
-
-                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-            }
-        };
-        Page<EntityFileRelation> list = entityFileRelationRepository.findAll(specification, pageable);
-        Page<EntityFileRelationRsp> rspList = list.map(ConvertUtils.convert(EntityFileRelationRsp.class));
-        List<Long> entityIdList = list.get().map(EntityFileRelation::getEntityId).collect(Collectors.toList());
-        List<BasicInfoRsp> basicInfoRsps = basicInfoService.listByIds(kgName, entityIdList);
-        for (EntityFileRelationRsp entityFileRelationRsp : rspList) {
-            List<BasicInfoRsp> collect = basicInfoRsps.stream()
-                    .filter(entity -> entity.getId().equals(entityFileRelationRsp.getEntityId())).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(collect)) {
-                entityFileRelationRsp.setEntityName(collect.get(0).getName());
-            }
+    @Transactional
+    public void deleteRelation(List<Integer> idList) {
+        List<EntityFileRelation> list = entityFileRelationRepository.findAllById(idList);
+        for (EntityFileRelation relation : list) {
+            entityFileRelationRepository.deleteByDwFileId(relation.getDwFileId());
         }
-        return rspList;
     }
 
     @Override
     @Transactional
     public void deleteRelationByDwFileId(Integer dwFileId) {
-        entityFileRelationRepository.deleteRelationByDwFileId(dwFileId);
+        entityFileRelationRepository.deleteByDwFileId(dwFileId);
     }
 
     @Override
     @Transactional
-    public void deleteRelationByMultiModalId(String multiModalId) {
-        entityFileRelationRepository.deleteRelationByMultiModalId(multiModalId);
+    public void deleteById(Integer id) {
+        entityFileRelationRepository.deleteById(id);
     }
 
     @Override
-    public EntityFileRelation getRelationByDwFileId(Integer dwFileId) {
-        return entityFileRelationRepository.getRelationByDwFileId(dwFileId);
+    public List<EntityFileRelation> getRelationByDwFileId(Integer dwFileId) {
+        return entityFileRelationRepository.getByDwFileId(dwFileId);
     }
 
     @Override
-    public EntityFileRelation getRelationByMultiModalId(String multiModalId) {
-        return entityFileRelationRepository.getRelationByMultiModalId(multiModalId);
+    public List<EntityFileRelation> getRelationByKgNameAndEntityId(String kgName, Long entityId) {
+        return entityFileRelationRepository.getByKgNameAndEntityId(kgName, entityId);
     }
+
+    @Override
+    public List<EntityFileRelation> getRelationByKgNameAndEntityIdIn(String kgName, List<Long> entityIds) {
+        return entityFileRelationRepository.getByKgNameAndEntityIdIn(kgName, entityIds);
+    }
+
 }

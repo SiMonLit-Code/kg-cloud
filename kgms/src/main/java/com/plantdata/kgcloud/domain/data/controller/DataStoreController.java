@@ -29,7 +29,11 @@ public class DataStoreController {
     @ApiOperation("数据库与表列表")
     @GetMapping("/dt")
     public ApiReturn<List<DbAndTableRsp>> listDataStore(DtReq req) {
-        return ApiReturn.success(dataStoreService.listAll(req));
+        if (1 == req.getStatus()) {
+            return ApiReturn.success(dataStoreService.listErrDataNameSearch());
+        } else {
+            return ApiReturn.success(dataStoreService.listAll(req));
+        }
     }
 
     @ApiOperation("数仓列表")
@@ -78,4 +82,6 @@ public class DataStoreController {
         dataStoreService.rerun(req);
         return ApiReturn.success();
     }
+
+
 }

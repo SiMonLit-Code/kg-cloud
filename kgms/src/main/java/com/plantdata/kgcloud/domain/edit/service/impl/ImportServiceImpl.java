@@ -342,7 +342,6 @@ public class ImportServiceImpl implements ImportService {
         attrList = null;
         conceptList.clear();
         conceptList = null;
-        System.gc();
         try {
             XWPFDocument document = createWord(title, dataMap);
 
@@ -419,7 +418,6 @@ public class ImportServiceImpl implements ImportService {
             // 换行
             doc.createParagraph();
             dataMap.get(concept).clear();
-            System.gc();
         }
         return doc;
     }

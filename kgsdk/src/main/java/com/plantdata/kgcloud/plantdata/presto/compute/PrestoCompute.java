@@ -1,8 +1,8 @@
-package com.plantdata.kgcloud.plantdata.utilCode.kgcompute.compute;
+package com.plantdata.kgcloud.plantdata.presto.compute;
 
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.bean.chart.ChartTableBean;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.dax.DaxContext;
+import com.plantdata.kgcloud.plantdata.presto.bean.chart.ChartTableBean;
+import com.plantdata.kgcloud.plantdata.presto.dax.DaxContext;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

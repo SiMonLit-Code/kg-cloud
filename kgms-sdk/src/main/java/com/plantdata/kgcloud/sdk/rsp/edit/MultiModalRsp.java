@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 public class MultiModalRsp {
 
-    private String id;
+    private Integer id;
 
     @ApiModelProperty("实体id")
     @JsonAlias("entity_id")

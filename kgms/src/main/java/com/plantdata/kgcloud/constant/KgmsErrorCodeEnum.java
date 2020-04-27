@@ -129,7 +129,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     DATABASE_DATAFORMAT_ERROR(120707, "数据库创建类型不适用该功能"),
 
-    TAG_JSON_PASER_ERROR(120708, "数据库TAG_JSON解析错误"),
+    TAG_JSON_PASER_ERROR(120708, "数据库打标解析错误"),
 
     FILE_SCHEMAPASER_ERROR(120709, "文件schema解析错误"),
 

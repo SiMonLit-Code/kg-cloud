@@ -366,19 +366,15 @@ public class TableDataServiceImpl implements TableDataService {
             fileTableRepository.save(fileTable);
 
             // 更新关联表
-            EntityFileRelation entityFileRelation = entityFileRelationService.getRelationByDwFileId(fileTable.getId());
-            if (entityFileRelation != null) {
-                entityFileRelation.setName(fileTableReq.getName());
-                entityFileRelation.setKeyword(fileTableReq.getKeyword());
-                entityFileRelation.setDescription(fileTableReq.getDescription());
-                entityFileRelationService.updateRelation(entityFileRelation);
-
-                String multiModalId = entityFileRelation.getMultiModalId();
-                MultiModal multiModal = new MultiModal();
-                multiModal.setId(multiModalId);
-                multiModal.setName(fileTableReq.getName());
-                entityService.updateMultiModal(entityFileRelation.getKgName(), multiModal);
+            List<EntityFileRelation> relationList = entityFileRelationService.getRelationByDwFileId(fileTable.getId());
+            if (!CollectionUtils.isEmpty(relationList)) {
+                relationList.forEach(s->{
+                    s.setName(fileTableReq.getName());
+                    s.setKeyword(fileTableReq.getKeyword());
+                    s.setDescription(fileTableReq.getDescription());
+                });
             }
+            entityFileRelationService.updateRelations(relationList);
         }
 
     }
@@ -386,13 +382,8 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public void fileDelete(Integer id) {
         fileTableRepository.deleteById(id);
-        EntityFileRelation relationByDwFileId = entityFileRelationService.getRelationByDwFileId(id);
-        if (relationByDwFileId != null) {
-            // 删除实体文件关联
-            entityFileRelationService.deleteRelationByDwFileId(id);
-            // 删除多模态文件记录
-            entityService.deleteMultiModal(relationByDwFileId.getKgName(), relationByDwFileId.getMultiModalId());
-        }
+        // 删除实体文件关联
+        entityFileRelationService.deleteRelationByDwFileId(id);
     }
 
     @Override
@@ -439,11 +430,7 @@ public class TableDataServiceImpl implements TableDataService {
         String userId = SessionHolder.getUserId();
         DWTable table = dwTableRepository.findOne(Example.of(DWTable.builder().id(baseReq.getTableId()).dwDataBaseId(baseReq.getDataBaseId()).build()))
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST));
-//        if (null == table.getCreateWay() || null == table.getIsWriteDW()) {
-//            throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
-//        }
-
-        if (table.getCreateWay() != CREATE_WAY  && (table.getIsWriteDW() == null || table.getIsWriteDW() != IS_WRITE_DW)) {
+        if (table.getCreateWay() != CREATE_WAY && (table.getIsWriteDW() == null || table.getIsWriteDW() != IS_WRITE_DW)) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
         DataOptProvider provider = getProvider(userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties);
@@ -454,8 +441,9 @@ public class TableDataServiceImpl implements TableDataService {
         Map<String, Object> data = baseReq.getData();
         String mongoId = baseReq.getId();
         Map<Object, Object> map = new HashMap<>();
-        map.put("dataName", database.getDataName());
-        map.put("tableName", baseReq.getDataBaseId());
+        map.put("dbName", database.getDataName());
+        map.put("tableId", baseReq.getDataBaseId());
+        map.put("dataFrom", "dw");
         map.put("status", DB_VIEW_STATUS);
         data.put(DB_VIEW_DATA, map);
         if (count == 0) {

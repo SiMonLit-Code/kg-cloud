@@ -3,14 +3,12 @@ package com.plantdata.kgcloud.plantdata.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.exception.SdkException;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.bean.chart.ChartTableBean;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.PdStatServiceibit;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.bean.PdStatBean;
+import com.plantdata.kgcloud.plantdata.presto.bean.chart.ChartTableBean;
+import com.plantdata.kgcloud.plantdata.presto.stat.PdStatServiceibit;
+import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatBean;
 import com.plantdata.kgcloud.sdk.DWClient;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWStatisticTableSeries;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +39,13 @@ public class DWController implements SdkOldApiInterface {
                         && req.getQuery().getDimensions().size() != 2)){
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
-        req.setDbName(dwClient.findById(req.getDbId()+"").getDataName());
+        DWDatabaseRsp dataBase = dwClient.findById(req.getDbId()+"");
+        if(dataBase == null){
+            throw BizException.of(SdkErrorCodeEnum.DB_NOT_EXIST);
+        }else if(dataBase.getDbName()!= null){
+            throw BizException.of(SdkErrorCodeEnum.REMOTE_DB_NOT_SUPPORTED);
+        }
+        req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
         ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
@@ -105,7 +109,13 @@ public class DWController implements SdkOldApiInterface {
                 && req.getQuery().getDimensions().size() != 3)){
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
-        req.setDbName(dwClient.findById(req.getDbId()+"").getDataName());
+        DWDatabaseRsp dataBase = dwClient.findById(req.getDbId()+"");
+        if(dataBase == null){
+            throw BizException.of(SdkErrorCodeEnum.DB_NOT_EXIST);
+        }else if(dataBase.getDbName()!= null){
+            throw BizException.of(SdkErrorCodeEnum.REMOTE_DB_NOT_SUPPORTED);
+        }
+        req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
         ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
@@ -174,13 +184,13 @@ public class DWController implements SdkOldApiInterface {
     }
 
     @ApiOperation("数仓-查找所有数据库")
-    @GetMapping("/database/all")
+    @GetMapping("/database/list")
     public ApiReturn<List<DWDatabaseRsp>> findAll() {
         return dwClient.findAll();
     }
 
     @ApiOperation("数仓-查找所有数据库与表")
-    @GetMapping("/database/table/list")
+    @GetMapping("/databaseAndTable/list")
     public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
         return dwClient.databaseTableList();
     }

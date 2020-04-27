@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.plantdata.utilCode.kgcompute.bean.chart;
+package com.plantdata.kgcloud.plantdata.presto.bean.chart;
 
 import com.google.common.collect.Lists;
 
