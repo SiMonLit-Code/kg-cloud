@@ -350,8 +350,8 @@ public class CreateKtrFile {
                     if(schema.getField().equals(table.getQueryField())){
                         if(schema.getType() == FieldType.DATE.getCode() || schema.getType() == FieldType.DATETIME.getCode()){
                             isDateField = true;
-                            break;
                         }
+                        break;
                     }
                 }
 
