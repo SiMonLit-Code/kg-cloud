@@ -744,11 +744,21 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
+        DWTableRsp tableRsp = findTableByTableName(SessionHolder.getUserId(),databaseId,tableName);
+
+        if(tableRsp == null){
+            return new ArrayList<>();
+        }
+
         List<String> fieldEnums;
         if (database.getDataType() == null || database.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
-                fieldEnums = getMongoAggr(database, tableName, field);
+                if(tableRsp.getCreateWay().equals(1)){
+                    fieldEnums = getMongoAggr(database, tableName, field,false);
+                }else{
+                    fieldEnums = getMongoAggr(database, tableName, field,true);
+                }
 
             } catch (Exception e) {
                 throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
@@ -779,29 +789,35 @@ public class DWServiceImpl implements DWService {
         return fieldEnums;
     }
 
-    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field) {
-        MongoClient mongoClient = null;
+    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field,boolean isLocal) {
+        MongoClient client = null;
         try {
-            //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
-            //ServerAddress()两个参数分别为 服务器地址 和 端口
-            ServerAddress serverAddress = new ServerAddress(dwDatabase.getAddr().get(0).split(":")[0], Integer.parseInt(dwDatabase.getAddr().get(0).split(":")[1]));
-            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
-            addrs.add(serverAddress);
+            MongoDatabase mongoDatabase;
+            if(!isLocal){
 
-            //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
+                //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
+                //ServerAddress()两个参数分别为 服务器地址 和 端口
+                ServerAddress serverAddress = new ServerAddress(dwDatabase.getAddr().get(0).split(":")[0], Integer.parseInt(dwDatabase.getAddr().get(0).split(":")[1]));
+                List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+                addrs.add(serverAddress);
 
-            if (StringUtils.hasText(dwDatabase.getUsername()) && StringUtils.hasText(dwDatabase.getPassword())) {
-                MongoCredential credential = MongoCredential.createScramSha1Credential(dwDatabase.getUsername(), dwDatabase.getDbName(), dwDatabase.getPassword().toCharArray());
-                List<MongoCredential> credentials = new ArrayList<MongoCredential>();
-                credentials.add(credential);
-                mongoClient = new MongoClient(addrs, credentials);
-            } else {
-                mongoClient = new MongoClient(addrs);
+                //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
+
+                if (StringUtils.hasText(dwDatabase.getUsername()) && StringUtils.hasText(dwDatabase.getPassword())) {
+                    MongoCredential credential = MongoCredential.createScramSha1Credential(dwDatabase.getUsername(), dwDatabase.getDbName(), dwDatabase.getPassword().toCharArray());
+                    List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+                    credentials.add(credential);
+                    client = new MongoClient(addrs, credentials);
+                } else {
+                    client = new MongoClient(addrs);
+                }
+
+                //通过连接认证获取MongoDB连接
+                // 连接到数据库
+                mongoDatabase = client.getDatabase(dwDatabase.getDbName());
+            }else{
+                mongoDatabase = mongoClient.getDatabase(dwDatabase.getDataName());
             }
-
-            //通过连接认证获取MongoDB连接
-            // 连接到数据库
-            MongoDatabase mongoDatabase = mongoClient.getDatabase(dwDatabase.getDbName());
 
 
             MongoCollection<Document> collection = mongoDatabase.getCollection(tableName);
@@ -817,6 +833,9 @@ public class DWServiceImpl implements DWService {
                 Document item_doc = cursor.next();
                 Object value = item_doc.get("_id", Object.class);
 
+                if(value == null){
+                    continue;
+                }
                 colls.add(value + "");
             }
 
@@ -824,9 +843,9 @@ public class DWServiceImpl implements DWService {
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
         } finally {
-            if (mongoClient != null) {
+            if (client != null) {
                 try {
-                    mongoClient.close();
+                    client.close();
                 } catch (Exception e) {
                 }
             }
@@ -1965,6 +1984,10 @@ public class DWServiceImpl implements DWService {
     public DWTableRsp findTableByTableName(String userId, Long databaseId, String tableName) {
 
         Optional<DWTable> dwTable = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
+
+        if(!dwTable.isPresent()){
+            return null;
+        }
 
         return ConvertUtils.convert(DWTableRsp.class).apply(dwTable.get());
     }
