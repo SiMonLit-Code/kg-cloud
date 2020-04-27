@@ -493,7 +493,8 @@ public class DataSetServiceImpl implements DataSetService {
                 }
             } else {
                 try {
-                    JacksonUtils.getInstance().readValue(string, ArrayNode.class);
+                    JacksonUtils.getInstance().readValue(string,new TypeReference<List<Object>>() {
+                    });
                     type = FieldType.ARRAY;
                 } catch (Exception e) {
                     if (!StringUtils.isEmpty(string) && string.length() > 50) {
