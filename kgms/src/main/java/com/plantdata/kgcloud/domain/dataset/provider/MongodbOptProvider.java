@@ -23,10 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,6 +46,8 @@ public class MongodbOptProvider implements DataOptProvider {
     private final MongoClient client;
     private final String database;
     private final String table;
+    private final static SimpleDateFormat format = new SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     public MongodbOptProvider(DataOptConnect info) {
         List<ServerAddress> addressList = info.getAddresses().stream()
@@ -258,6 +262,27 @@ public class MongodbOptProvider implements DataOptProvider {
             Map<String, Object> map = new HashMap<>(size);
             map.putAll(document);
             try {
+
+                if(map != null && !map.isEmpty()){
+
+                    Map<String,Object> newMap = new HashMap<>(map);
+                    for(Map.Entry<String,Object> entry : newMap.entrySet()){
+                        if(entry.getValue() instanceof Decimal128){
+                            Double d  = ((Decimal128)entry.getValue()).bigDecimalValue().doubleValue();
+                            map.put(entry.getKey(),d);
+                        }else if(entry.getValue() instanceof Date){
+
+                            try {
+                                format.setCalendar(new GregorianCalendar(
+                                        new SimpleTimeZone(0, "GMT")));
+                                String date = format.format((Date)entry.getValue());
+                                map.put(entry.getKey(),date);
+                            }catch (Exception e){}
+
+                        }
+                    }
+                }
+
                 map.put(MONGO_ID, document.getObjectId(MONGO_ID).toHexString());
             } catch (ClassCastException e) {
                 map.put(MONGO_ID, document.getString(MONGO_ID));

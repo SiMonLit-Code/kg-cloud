@@ -10,6 +10,7 @@ import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -43,6 +44,7 @@ import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.DateUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
@@ -136,6 +138,10 @@ public class TableDataServiceImpl implements TableDataService {
 
     private DataOptProvider getProvider(String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
 
+        return getProvider(false,userId,datasetId,tableId,mongoProperties);
+    }
+    private DataOptProvider getProvider(boolean isLocal,String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
+
         DWDatabaseRsp database = dwService.getDetail(datasetId);
 
         if (database == null) {
@@ -147,7 +153,7 @@ public class TableDataServiceImpl implements TableDataService {
             throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
         }
 
-        DataOptConnect connect = DataOptConnect.of(database, table, mongoProperties);
+        DataOptConnect connect = DataOptConnect.of(isLocal,database, table, mongoProperties);
         return DataOptProviderFactory.createProvider(connect);
     }
 
@@ -367,19 +373,15 @@ public class TableDataServiceImpl implements TableDataService {
             fileTableRepository.save(fileTable);
 
             // 更新关联表
-            EntityFileRelation entityFileRelation = entityFileRelationService.getRelationByDwFileId(fileTable.getId());
-            if (entityFileRelation != null) {
-                entityFileRelation.setName(fileTableReq.getName());
-                entityFileRelation.setKeyword(fileTableReq.getKeyword());
-                entityFileRelation.setDescription(fileTableReq.getDescription());
-                entityFileRelationService.updateRelation(entityFileRelation);
-
-                String multiModalId = entityFileRelation.getMultiModalId();
-                MultiModal multiModal = new MultiModal();
-                multiModal.setId(multiModalId);
-                multiModal.setName(fileTableReq.getName());
-                entityService.updateMultiModal(entityFileRelation.getKgName(), multiModal);
+            List<EntityFileRelation> relationList = entityFileRelationService.getRelationByDwFileId(fileTable.getId());
+            if (!CollectionUtils.isEmpty(relationList)) {
+                relationList.forEach(s->{
+                    s.setName(fileTableReq.getName());
+                    s.setKeyword(fileTableReq.getKeyword());
+                    s.setDescription(fileTableReq.getDescription());
+                });
             }
+            entityFileRelationService.updateRelations(relationList);
         }
 
     }
@@ -387,13 +389,8 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public void fileDelete(Integer id) {
         fileTableRepository.deleteById(id);
-        EntityFileRelation relationByDwFileId = entityFileRelationService.getRelationByDwFileId(id);
-        if (relationByDwFileId != null) {
-            // 删除实体文件关联
-            entityFileRelationService.deleteRelationByDwFileId(id);
-            // 删除多模态文件记录
-            entityService.deleteMultiModal(relationByDwFileId.getKgName(), relationByDwFileId.getMultiModalId());
-        }
+        // 删除实体文件关联
+        entityFileRelationService.deleteRelationByDwFileId(id);
     }
 
     @Override
@@ -443,6 +440,7 @@ public class TableDataServiceImpl implements TableDataService {
         if (table.getCreateWay() != CREATE_WAY && (table.getIsWriteDW() == null || table.getIsWriteDW() != IS_WRITE_DW)) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
+<<<<<<< HEAD
         DWDatabase database = dwDatabaseRepository.findById(baseReq.getDataBaseId())
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
         MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
@@ -477,6 +475,16 @@ public class TableDataServiceImpl implements TableDataService {
 
             }
         } else {
+=======
+
+
+        try(DataOptProvider provider = getProvider(true,userId, baseReq.getDataBaseId(), baseReq.getTableId(), mongoProperties)) {
+
+            DWDatabase database = dwDatabaseRepository.findById(baseReq.getDataBaseId())
+                    .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
+            MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
+            long count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
+>>>>>>> 3a3e6b97d634600955aceb721bb4a7b29607ff62
             Map<String, Object> data = baseReq.getData();
             String mongoId = baseReq.getId();
             Map<Object, Object> map = new HashMap<>();
@@ -484,24 +492,46 @@ public class TableDataServiceImpl implements TableDataService {
             map.put("tableId", baseReq.getDataBaseId());
             map.put("dataFrom", "dw");
             map.put("status", DB_VIEW_STATUS);
+<<<<<<< HEAD
             data.put(DB_VIEW_DATA, map);
             if (count == 0) {
                 data.put(MONGO_ID, mongoId);
+=======
+            data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
+            data.put(DB_VIEW_DATA, map);
+            if (count == 0) {
+                data.put(MONGO_ID, new ObjectId(mongoId));
+>>>>>>> 3a3e6b97d634600955aceb721bb4a7b29607ff62
                 collection.insertOne(new Document(data));
                 data.remove(MONGO_ID);
                 data.remove(DB_VIEW_DATA);
                 Document document = new Document(data);
+<<<<<<< HEAD
                 collectionLog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", document));
 
+=======
+                provider.update(mongoId, document);
+>>>>>>> 3a3e6b97d634600955aceb721bb4a7b29607ff62
             } else {
                 data.remove(MONGO_ID);
                 collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
                 data.remove(DB_VIEW_DATA);
+<<<<<<< HEAD
                 collectionLog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", new Document(data)));
 
             }
 
         }
+=======
+                provider.update(mongoId, new Document(data));
+            }
+
+        }catch (Exception e){
+        }
+        ;
+
+    }
+>>>>>>> 3a3e6b97d634600955aceb721bb4a7b29607ff62
 
     }
 }

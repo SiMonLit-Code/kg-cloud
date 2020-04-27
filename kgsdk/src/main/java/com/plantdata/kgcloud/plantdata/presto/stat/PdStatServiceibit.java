@@ -1,24 +1,19 @@
-package com.plantdata.kgcloud.sdk.kgcompute.stat;
+package com.plantdata.kgcloud.plantdata.presto.stat;
 
-import com.ctrip.framework.apollo.Config;
-import com.ctrip.framework.apollo.ConfigService;
-import com.plantdata.kgcloud.sdk.kgcompute.compute.PrestoCompute;
-import com.plantdata.kgcloud.sdk.kgcompute.stat.bean.*;
+import com.plantdata.kgcloud.plantdata.presto.compute.PrestoCompute;
+import com.plantdata.kgcloud.plantdata.presto.stat.bean.*;
 import tech.ibit.sqlbuilder.*;
 import tech.ibit.sqlbuilder.aggregate.*;
 
 import java.util.List;
 
 public class PdStatServiceibit {
-    static Config appConfig;
 
     private PrestoCompute prestoCompute = new PrestoCompute();
 
     public Object excute(PdStatBean pdStatBean,String dbName,String tbName) {
 
         String sql = pdStatToSql(pdStatBean,dbName,tbName);
-
-        System.out.println(sql);
 
         Object rs = prestoCompute.compute(sql);
 
@@ -30,8 +25,7 @@ public class PdStatServiceibit {
 
         Sql sql = new Sql();
 
-        appConfig = ConfigService.getConfig("kgsdk");
-        String alias = appConfig.getProperty("presto.dwAlias",null);
+        String alias = "mongo_12";
 
         if (pdStatBean == null) {
             return null;

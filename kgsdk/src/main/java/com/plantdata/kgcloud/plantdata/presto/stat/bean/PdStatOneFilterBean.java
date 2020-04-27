@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.kgcompute.stat.bean;
+package com.plantdata.kgcloud.plantdata.presto.stat.bean;
 
 import java.util.List;
 

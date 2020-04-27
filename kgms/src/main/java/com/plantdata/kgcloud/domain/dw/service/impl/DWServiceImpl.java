@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.constant.AccessTaskType;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.access.entity.DWTask;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.data.entity.DWDataStatusDatail;
@@ -58,10 +59,6 @@ import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
 import com.plantdata.kgcloud.sdk.req.DWTableReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.rsp.*;
-import com.plantdata.kgcloud.sdk.kgcompute.bean.chart.ChartTableBean;
-import com.plantdata.kgcloud.sdk.kgcompute.stat.PdStatServiceibit;
-import com.plantdata.kgcloud.sdk.kgcompute.stat.bean.PdStatBean;
-import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -112,6 +109,7 @@ public class DWServiceImpl implements DWService {
     private final static String KETTLE_LOGS_COLLECTION = "logs_data";
     private final static String KETTLE_LOGS_RECODE = "logs_data_recode";
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
+
     @Autowired
     private MongoClient mongoClient;
     @Autowired
@@ -292,6 +290,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         List<Integer> templateIds = database.getStandardTemplateId();
 
         if (templateIds == null || templateIds.isEmpty()) {
@@ -327,6 +329,10 @@ public class DWServiceImpl implements DWService {
     private String getIndustryTableKtr(Long databaseId, String tableName) {
 
         DWDatabaseRsp database = getDetail(databaseId);
+
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
 
         List<Integer> templateIds = database.getStandardTemplateId();
 
@@ -739,11 +745,21 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
+        DWTableRsp tableRsp = findTableByTableName(SessionHolder.getUserId(),databaseId,tableName);
+
+        if(tableRsp == null){
+            return new ArrayList<>();
+        }
+
         List<String> fieldEnums;
-        if (database.getDataType().equals(DataType.MONGO.getDataType())) {
+        if (database.getDataType() == null || database.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
-                fieldEnums = getMongoAggr(database, tableName, field);
+                if(tableRsp.getCreateWay().equals(1)){
+                    fieldEnums = getMongoAggr(database, tableName, field,false);
+                }else{
+                    fieldEnums = getMongoAggr(database, tableName, field,true);
+                }
 
             } catch (Exception e) {
                 throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
@@ -774,29 +790,35 @@ public class DWServiceImpl implements DWService {
         return fieldEnums;
     }
 
-    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field) {
-        MongoClient mongoClient = null;
+    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field,boolean isLocal) {
+        MongoClient client = null;
         try {
-            //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
-            //ServerAddress()两个参数分别为 服务器地址 和 端口
-            ServerAddress serverAddress = new ServerAddress(dwDatabase.getAddr().get(0).split(":")[0], Integer.parseInt(dwDatabase.getAddr().get(0).split(":")[1]));
-            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
-            addrs.add(serverAddress);
+            MongoDatabase mongoDatabase;
+            if(!isLocal){
 
-            //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
+                //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
+                //ServerAddress()两个参数分别为 服务器地址 和 端口
+                ServerAddress serverAddress = new ServerAddress(dwDatabase.getAddr().get(0).split(":")[0], Integer.parseInt(dwDatabase.getAddr().get(0).split(":")[1]));
+                List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+                addrs.add(serverAddress);
 
-            if (StringUtils.hasText(dwDatabase.getUsername()) && StringUtils.hasText(dwDatabase.getPassword())) {
-                MongoCredential credential = MongoCredential.createScramSha1Credential(dwDatabase.getUsername(), dwDatabase.getDbName(), dwDatabase.getPassword().toCharArray());
-                List<MongoCredential> credentials = new ArrayList<MongoCredential>();
-                credentials.add(credential);
-                mongoClient = new MongoClient(addrs, credentials);
-            } else {
-                mongoClient = new MongoClient(addrs);
+                //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
+
+                if (StringUtils.hasText(dwDatabase.getUsername()) && StringUtils.hasText(dwDatabase.getPassword())) {
+                    MongoCredential credential = MongoCredential.createScramSha1Credential(dwDatabase.getUsername(), dwDatabase.getDbName(), dwDatabase.getPassword().toCharArray());
+                    List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+                    credentials.add(credential);
+                    client = new MongoClient(addrs, credentials);
+                } else {
+                    client = new MongoClient(addrs);
+                }
+
+                //通过连接认证获取MongoDB连接
+                // 连接到数据库
+                mongoDatabase = client.getDatabase(dwDatabase.getDbName());
+            }else{
+                mongoDatabase = mongoClient.getDatabase(dwDatabase.getDataName());
             }
-
-            //通过连接认证获取MongoDB连接
-            // 连接到数据库
-            MongoDatabase mongoDatabase = mongoClient.getDatabase(dwDatabase.getDbName());
 
 
             MongoCollection<Document> collection = mongoDatabase.getCollection(tableName);
@@ -812,6 +834,9 @@ public class DWServiceImpl implements DWService {
                 Document item_doc = cursor.next();
                 Object value = item_doc.get("_id", Object.class);
 
+                if(value == null){
+                    continue;
+                }
                 colls.add(value + "");
             }
 
@@ -819,9 +844,9 @@ public class DWServiceImpl implements DWService {
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
         } finally {
-            if (mongoClient != null) {
+            if (client != null) {
                 try {
-                    mongoClient.close();
+                    client.close();
                 } catch (Exception e) {
                 }
             }
@@ -884,25 +909,8 @@ public class DWServiceImpl implements DWService {
                 List<DataSetSchema> tableSchemas = schemaResolve(file, null);
                 if (schemas == null) {
 
-                    /*if((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && StringUtils.hasText(table.getPdSingleField()) ){
-                        if(tableSchemas != null && !tableSchemas.isEmpty()){
-                            List<DataSetSchema> schemaList = new ArrayList<>(1);
-                            for(DataSetSchema s: schemaList) {
-                                if(table.getPdSingleField().equals(s.getField())){
-                                    schemaList.add(s);
-                                    break;
-                                }
-                            }
-
-                            if(!schemaList.isEmpty()){
-                                schemas = schemaList;
-                            }
-                        }
-
-                    }else{
-
-                    }*/
                     schemas = tableSchemas;
+                    addFileUploadSchema(schemas);
                     if (DWDataFormat.isPDdoc(database.getDataFormat())) {
                         if (StringUtils.hasText(table.getPdSingleField())) {
                             checkPDDocSchema(tableSchemas, Lists.newArrayList(table.getPdSingleField()));
@@ -977,6 +985,22 @@ public class DWServiceImpl implements DWService {
 
     }
 
+    private void addFileUploadSchema(List<DataSetSchema> schemas) {
+        if(schemas == null || schemas.isEmpty()){
+            return;
+        }
+
+        DataSetSchema updateTime = new DataSetSchema();
+        updateTime.setField(DataConst.UPDATE_AT);
+        updateTime.setType(FieldType.STRING.getCode());
+        schemas.add(updateTime);
+
+        DataSetSchema createTime = new DataSetSchema();
+        createTime.setField(DataConst.CREATE_AT);
+        createTime.setType(FieldType.STRING.getCode());
+        schemas.add(createTime);
+    }
+
     private void writeInsertCount(DWDatabaseRsp database, String tableName, Long sum) {
 
         if (sum == null || sum.equals(0L)) {
@@ -1039,6 +1063,10 @@ public class DWServiceImpl implements DWService {
         BeanUtils.copyProperties(req, target);
 
         DWDatabaseRsp dwDatabase = getDetail(req.getDwDataBaseId());
+
+        if(dwDatabase == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
 
         Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDwDataBaseId()).tableName(req.getTitle()).build()));
 
@@ -1775,6 +1803,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(id);
 
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         userId = userClient.getCurrentUserDetail().getData().getId();
         if (!database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
@@ -1833,7 +1865,7 @@ public class DWServiceImpl implements DWService {
     public Integer push(String userId, ModelPushReq req) {
 
         DWDatabaseRsp database = getDetail(req.getId());
-        if (!database.getUserId().equals(userId)) {
+        if (database == null || !database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
@@ -1954,6 +1986,10 @@ public class DWServiceImpl implements DWService {
 
         Optional<DWTable> dwTable = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
 
+        if(!dwTable.isPresent()){
+            return null;
+        }
+
         return ConvertUtils.convert(DWTableRsp.class).apply(dwTable.get());
     }
 
@@ -2018,6 +2054,10 @@ public class DWServiceImpl implements DWService {
         }
 
         DWDatabaseRsp database = getDetail(databaseId);
+
+        if(database == null){
+            throw  BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
 
         //不是PD类型数据库不用上传tagjson
         if ((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && file.getOriginalFilename().endsWith(".json")) {
@@ -2152,7 +2192,12 @@ public class DWServiceImpl implements DWService {
         if (!database.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
-        return ConvertUtils.convert(DWDatabaseRsp.class).apply(database.get());
+
+        DWDatabaseRsp rsp = ConvertUtils.convert(DWDatabaseRsp.class).apply(database.get());
+        if(!rsp.getUserId().equals(userId)){
+            throw BizException.of(KgmsErrorCodeEnum.DW_PERMISSION_NOT_ENOUGH_ERROR);
+        }
+        return rsp;
     }
 
     @Override
@@ -2217,12 +2262,20 @@ public class DWServiceImpl implements DWService {
                 throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
             }
 
-            deleteCountData(databaseId, opt.get().getTableName());
+            try {
+                deleteCountData(databaseId, opt.get().getTableName());
+            }catch (Exception e){}
+
+            try {
+                accessTaskService.deleteTaskByDW(databaseId,opt.get().getTableName());
+            }catch (Exception e){}
+
 
             tableRepository.deleteById(tableId);
 
         }
     }
+
 
     private void deleteCountData(Long databaseId, String tableName) {
         Map<String, Object> search = new HashMap<>();
@@ -2393,7 +2446,7 @@ public class DWServiceImpl implements DWService {
 
                     DataSetSchema dataSetSchema = new DataSetSchema();
                     dataSetSchema.setField(field);
-                    dataSetSchema.setType(ExampleYaml.readType(column.getValue()).getCode());
+                    dataSetSchema.setType(dataSetService.readType(column.getValue()).getCode());
                     rsList.add(dataSetSchema);
                 }
 
@@ -2653,138 +2706,19 @@ public class DWServiceImpl implements DWService {
     }
 
     @Override
-    public DWDatabaseRsp findById(String userId, Integer tableId) {
+    public DWDatabaseRsp findById(String tableId) {
+        String userId = SessionHolder.getUserId();
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
         List<Long> idList = new ArrayList<>();
-        idList.add(tableId.longValue());
+        idList.add(Long.valueOf(tableId));
         List<DWDatabase> all = dwRepository.findAllById(idList);
         List<DWDatabaseRsp> result = all.stream().map(dw2rsp).collect(Collectors.toList());
-        if (result != null && result.size() > 0 && result.get(0).getUserId().equals(userId)) {
+        if(result != null && result.size() > 0 && result.get(0).getUserId().equals(userId)) {
             return result.get(0);
-        } else {
+        }else{
             return null;
         }
-    }
-
-    @Override
-    public DW2dTableRsp statisticBy2DTable(SqlQueryReq req) {
-        PdStatServiceibit pdStatService = new PdStatServiceibit();
-        PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
-        DW2dTableRsp table = new DW2dTableRsp();
-        table.setXAxis(new ArrayList<>());
-        table.setSeries(new ArrayList<>());
-        List<String> xAxis = table.getXAxis();
-        if (ctb != null && ctb.getData() != null && ctb.getData().size() > 0) {
-            if (req.getQuery().getDimensions().size() == 1) {
-                DWStatisticTableSeries s = new DWStatisticTableSeries();
-                table.getSeries().add(s);
-                s.setName("分组1");
-                s.setData(new ArrayList<>());
-                for (List<Object> row : ctb.getData()) {
-                    xAxis.add((String) row.get(0));
-                    s.getData().add(row.get(1));
-                }
-            } else if (req.getQuery().getDimensions().size() == 2) {
-                Map<String, Integer> seriesMap = new HashMap<>();
-                Map<String, Integer> indexMap = new HashMap<>();
-                int indexCounter = 0;
-                int seriesCounter = 0;
-                for (List<Object> row : ctb.getData()) {
-                    if (!indexMap.containsKey(row.get(0) + "")) {
-                        indexMap.put((String) row.get(0), indexCounter);
-                        table.getXAxis().add((String) row.get(0));
-                        indexCounter++;
-                    }
-                    if (!seriesMap.containsKey(row.get(1) + "")) {
-                        seriesMap.put((String) row.get(1), seriesCounter);
-                        seriesCounter++;
-                    }
-                }
-                for (String seriesKey : seriesMap.keySet()) {
-                    DWStatisticTableSeries s = new DWStatisticTableSeries();
-                    s.setName(seriesKey);
-                    s.setData(new ArrayList<Object>());
-                    table.getSeries().add(s);
-                    for (String indexKey : indexMap.keySet()) {
-                        s.getData().add(null);
-                    }
-                }
-                for (List<Object> row : ctb.getData()) {
-                    DWStatisticTableSeries series = (DWStatisticTableSeries) table.getSeries().get(seriesMap.get(row.get(1)));
-                    series.getData().set(indexMap.get(row.get(0)), row.get(2));
-                }
-            }
-        }
-        return table;
-    }
-
-    @Override
-    public DW3dTableRsp statisticBy3DTable(SqlQueryReq req) {
-        PdStatServiceibit pdStatService = new PdStatServiceibit();
-        PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
-        DW3dTableRsp table = new DW3dTableRsp();
-        table.setXAxis(new ArrayList<>());
-        table.setYAxis(new ArrayList<>());
-        table.setSeries(new ArrayList<>());
-        List<String> xAxis = table.getXAxis();
-        List<String> yAxis = table.getYAxis();
-        Set<String> xAxisNameSet = new HashSet<>();
-        Set<String> yAxisNameSet = new HashSet<>();
-        if (ctb != null && ctb.getData() != null && ctb.getData().size() > 0) {
-            if (req.getQuery().getDimensions().size() == 2) {
-                DWStatisticTableSeries s = new DWStatisticTableSeries();
-                table.getSeries().add(s);
-                s.setName("分组1");
-                s.setData(new ArrayList<>());
-                for (List<Object> row : ctb.getData()) {
-                    List<Object> seriesData = new ArrayList<>();
-                    seriesData.add(row.get(0));
-                    seriesData.add(row.get(1));
-                    seriesData.add(row.get(2));
-                    s.getData().add(seriesData);
-                    xAxisNameSet.add((String) row.get(0));
-                    yAxisNameSet.add((String) row.get(1));
-                }
-                for (String name : xAxisNameSet) {
-                    xAxis.add(name);
-                }
-                for (String name : yAxisNameSet) {
-                    yAxis.add(name);
-                }
-            } else if (req.getQuery().getDimensions().size() == 3) {
-                Map<String, Integer> seriesMap = new HashMap<>();
-                int counter = 0;
-                for (List<Object> row : ctb.getData()) {
-                    if (!seriesMap.containsKey(row.get(2) + "")) {
-                        seriesMap.put((String) row.get(2), counter);
-                        DWStatisticTableSeries s = new DWStatisticTableSeries();
-                        s.setName((String) row.get(2));
-                        s.setData(new ArrayList<>());
-                        table.getSeries().add(s);
-                        counter++;
-                    }
-                }
-                for (List<Object> row : ctb.getData()) {
-                    List<Object> seriesData = new ArrayList<>();
-                    seriesData.add(row.get(0));
-                    seriesData.add(row.get(1));
-                    seriesData.add(row.get(3));
-                    table.getSeries().get(seriesMap.get(row.get(2))).getData().add(seriesData);
-                    xAxisNameSet.add((String) row.get(0));
-                    yAxisNameSet.add((String) row.get(1));
-                }
-                for (String name : xAxisNameSet) {
-                    xAxis.add(name);
-                }
-                for (String name : yAxisNameSet) {
-                    yAxis.add(name);
-                }
-            }
-        }
-        return table;
     }
 }

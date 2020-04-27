@@ -1,13 +1,13 @@
 package com.plantdata.kgcloud.domain.edit.repository;
 
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 /**
  * @author EYE
@@ -16,17 +16,14 @@ public interface EntityFileRelationRepository extends JpaRepository<EntityFileRe
 
     Page<EntityFileRelation> findAll(Specification<EntityFileRelation> spec, Pageable pageable);
 
-    @Modifying
-    @Query(value = "delete from entity_file_relation where dw_file_id = :dwFileId", nativeQuery = true)
-    void deleteRelationByDwFileId(@Param("dwFileId") Integer dwFileId);
+    Page<EntityFileRelation> getByKgNameAndNameContaining(String kgName, String name, Pageable pageable);
 
     @Modifying
-    @Query(value = "delete from entity_file_relation where multi_modal_id = :multiModalId", nativeQuery = true)
-    void deleteRelationByMultiModalId(@Param("multiModalId") String multiModalId);
+    void deleteByDwFileId(Integer dwFileId);
 
-    @Query(value = "select * from entity_file_relation where dw_file_id = :dwFileId", nativeQuery = true)
-    EntityFileRelation getRelationByDwFileId(@Param("dwFileId") Integer dwFileId);
+    List<EntityFileRelation> getByDwFileId(Integer dwFileId);
 
-    @Query(value = "select * from entity_file_relation where multi_modal_id = :multiModalId", nativeQuery = true)
-    EntityFileRelation getRelationByMultiModalId(@Param("multiModalId") String multiModalId);
+    List<EntityFileRelation> getByKgNameAndEntityId(String kgName, Long entityId);
+
+    List<EntityFileRelation> getByKgNameAndEntityIdIn(String kgName, List<Long> entityIds);
 }

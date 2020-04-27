@@ -59,100 +59,9 @@ public class PaserYaml2SchemaUtil {
 
         //yaml转json
         Yaml yaml = new Yaml();
-        String document = "tables:\n" +
-                " - t_trans_log: 成交记录表\n" +
-                " - t_system: 系统表\n" +
-                " - t_relation: 关系表\n" +
-                " - t_rack_a: 机柜信息表\n" +
-                " - t_idc: 机房表\n" +
-                " - t_equipment: 设备表\n" +
-                " - t_dc: 数据中心表\n" +
-                "t_trans_log:\n" +
-                " relation:\n" +
-                "     - 席位 > 产生 > 成交记录\n" +
-                " columns:\n" +
-                "    - seat: { tag: 席位.名称   , type: text , explain: 席位}\n" +
-                "    - buy_num: { tag: 成交记录.买成交量   , type: int , explain: }\n" +
-                "    - sale_num: { tag: 成交记录.卖成交量   , type: int , explain: }\n" +
-                "    - trust_buy_num: { tag: 成交记录.委托买次数   , type: int , explain: }\n" +
-                "    - trust_sale_num: { tag: 成交记录.委托卖次数   , type: int , explain: }\n" +
-                "    - deal_time: { tag: 成交记录.成交时间   , type: text , explain: }\n" +
-                "    - deal_price: { tag: 成交记录.成交单价   , type: string , explain: }\n" +
-                "    - name: { tag: 成交记录.名称   , type: text , explain: }\n" +
-                "t_system:\n" +
-                " relation:\n" +
-                " columns:\n" +
-                "    - system: { tag: 系统.名称   , type: text , explain: }\n" +
-                "    - MAC: { tag: 系统.MAC   , type: text , explain: }\n" +
-                "    - type: { tag: 系统.类型   , type: text , explain: }\n" +
-                "    - status: { tag: 系统.状态   , type: text , explain: }\n" +
-                "t_relation:\n" +
-                " relation:\n" +
-                "    - 机房 > 所属数据中心 > 数据中心\n" +
-                "    - 机柜 > 所属机房 > 机房\n" +
-                "    - 设备 > 所属机柜 > 机柜\n" +
-                "    - 系统 > 所属设备 > 设备\n" +
-                "    - 会员 > 使用 > 系统\n" +
-                "    - 会员 > 托管 > 设备\n" +
-                "    - 会员 > 拥有 > 席位\n" +
-                "    - 系统 > 席位 > 席位\n" +
-                " columns:\n" +
-                "    - system: { tag: 系统.名称   , type: text , explain: 系统}\n" +
-                "    - user: { tag: 会员.名称   , type: text , explain: 用户}\n" +
-                "    - dc: { tag: 数据中心.名称   , type: text , explain: 数据中心}\n" +
-                "    - idc: { tag: 机房.名称   , type: text , explain: 机房}\n" +
-                "    - rack: { tag: 机柜.名称   , type: text , explain: 机架}\n" +
-                "    - camera_stand: { tag: 机位.名称   , type: text , explain: }\n" +
-                "    - equipment: { tag: 设备.名称   , type: text , explain: 设备}\n" +
-                "    - IP: { tag: IP.名称   , type: text , explain: ip}\n" +
-                "    - seat: { tag: 席位.名称   , type: text , explain: 席位}\n" +
-                "t_rack_a:\n" +
-                " relation:\n" +
-                "    - 机柜 > 所属机房 > 机房\n" +
-                "    - 机柜 > 所属数据中心 > 数据中心\n" +
-                " columns:\n" +
-                "    - rack: { tag: 机柜.名称   , type: text , explain: }\n" +
-                "    - dc: { tag: 数据中心.名称   , type: text , explain: }\n" +
-                "    - idc: { tag: 机房.名称   , type: text , explain: }\n" +
-                "    - rack_capacity: { tag: 机柜.机柜容量   , type: text , explain: }\n" +
-                "    - row: { tag: <所属机房>.所属行   , type: text , explain: }\n" +
-                "    - column: { tag: <所属机房>.所属列   , type: text , explain: }\n" +
-                "    - enabled: { tag: 机柜.启用状态   , type: text , explain: }\n" +
-                "    - on_position: { tag: 机柜.通电状态   , type: text , explain: }\n" +
-                "    - power_type: { tag: 机柜.电源类型   , type: text , explain: }\n" +
-                "    - hz: { tag: 机柜.电流类型   , type: text , explain: }\n" +
-                "    - two_circuit_feed: { tag: 机柜.是否双路供电   , type: text , explain: }\n" +
-                "    - lease_type: { tag: 机柜.租赁类型   , type: text , explain: }\n" +
-                "    - kw: { tag: 机柜.最大额定功率   , type: text , explain: }\n" +
-                "t_idc:\n" +
-                " relation:\n" +
-                "     - 机房 > 所属数据中心 > 数据中心\n" +
-                " columns:\n" +
-                "    - idc: { tag: 机房.名称   , type: text , explain: }\n" +
-                "    - dc: { tag: 数据中心.名称   , type: text , explain: }\n" +
-                "t_equipment:\n" +
-                " relation:\n" +
-                " columns:\n" +
-                "    - equipment: { tag: 设备.名称   , type: text , explain: }\n" +
-                "    - model: { tag: 设备.型号   , type: text , explain: }\n" +
-                "    - image_url: { tag: 设备.图片  , type: text , explain: }\n" +
-                "    - interspace: { tag: 设备.空间   , type: int , explain: }\n" +
-                "    - power: { tag: 设备.功率   , type: int , explain: }\n" +
-                "    - createDate: { tag: 设备.创建时间   , type: text , explain: }\n" +
-                "t_dc:\n" +
-                " relation:\n" +
-                "    - 数据中心 > 所在地区 > 地区\n" +
-                "    - 数据中心 > 地址 > 地址\n" +
-                " columns:\n" +
-                "    - dc: { tag: 数据中心.名称   , type: text , explain: 数据中心}\n" +
-                "    - locality: { tag: 地区.名称   , type: text , explain: 地点}\n" +
-                "    - type: { tag: 数据中心.类型   , type: text , explain: 类型}\n" +
-                "    - network_access: { tag: 数据中心.网络接入   , type: text , explain: 网络地址}\n" +
-                "    - ddress: { tag: 地址.名称   , type: text , explain: }\n";
-        Map a = (Map<String, Object>) yaml.load(document);
+        String document = "[{\"tableName\":\"t_trans_log\",\"typeEnum\":null,\"columns\":[{\"name\":\"id\",\"tag\":null,\"type\":\"int\",\"comment\":\"\"},{\"name\":\"seat\",\"tag\":\"席位.name\",\"type\":\"text\",\"comment\":\"席位\"},{\"name\":\"buy_num\",\"tag\":\"成交记录.买成交量\",\"type\":\"int\",\"comment\":\"\"},{\"name\":\"sale_num\",\"tag\":\"成交记录.卖成交量\",\"type\":\"int\",\"comment\":\"\"},{\"name\":\"trust_buy_num\",\"tag\":\"成交记录.委托买次数\",\"type\":\"int\",\"comment\":\"\"},{\"name\":\"trust_sale_num\",\"tag\":\"成交记录.委托卖次数\",\"type\":\"int\",\"comment\":\"\"},{\"name\":\"deal_time\",\"tag\":\"成交记录.成交时间\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"deal_price\",\"tag\":\"成交记录.成交单价\",\"type\":\"string\",\"comment\":\"\"},{\"name\":\"create_time\",\"tag\":null,\"type\":\"text\",\"comment\":\"\"},{\"name\":\"name\",\"tag\":\"成交记录.name\",\"type\":\"text\",\"comment\":\"\"}],\"relationRsps\":[{\"name\":\"产生\",\"domain\":\"席位\",\"range\":[\"成交记录\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]}]},{\"tableName\":\"t_system\",\"typeEnum\":null,\"columns\":[{\"name\":\"system\",\"tag\":\"系统.name\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"MAC\",\"tag\":\"系统.MAC\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"type\",\"tag\":\"系统.类型\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"counter\",\"tag\":null,\"type\":\"text\",\"comment\":\"\"},{\"name\":\"status\",\"tag\":\"系统.状态\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"createdate\",\"tag\":null,\"type\":\"date\",\"comment\":\"\"}],\"relationRsps\":null},{\"tableName\":\"t_relation\",\"typeEnum\":null,\"columns\":[{\"name\":\"system\",\"tag\":\"系统.name\",\"type\":\"text\",\"comment\":\"系统\"},{\"name\":\"user\",\"tag\":\"会员.name\",\"type\":\"text\",\"comment\":\"用户\"},{\"name\":\"dc\",\"tag\":\"数据中心.name\",\"type\":\"text\",\"comment\":\"数据中心\"},{\"name\":\"idc\",\"tag\":\"机房.name\",\"type\":\"text\",\"comment\":\"机房\"},{\"name\":\"rack\",\"tag\":\"机柜.name\",\"type\":\"text\",\"comment\":\"机架\"},{\"name\":\"camera_stand\",\"tag\":\"机位.name\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"equipment\",\"tag\":\"设备.name\",\"type\":\"text\",\"comment\":\"设备\"},{\"name\":\"IP\",\"tag\":\"IP.name\",\"type\":\"text\",\"comment\":\"ip\"},{\"name\":\"seat\",\"tag\":\"席位.name\",\"type\":\"text\",\"comment\":\"席位\"}],\"relationRsps\":[{\"name\":\"使用\",\"domain\":\"会员\",\"range\":[\"系统\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"系统\",\"range\":[\"数据中心\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"系统\",\"range\":[\"机房\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"系统\",\"range\":[\"机柜\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"系统\",\"range\":[\"机位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"所属设备\",\"domain\":\"系统\",\"range\":[\"设备\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"系统\",\"range\":[\"IP\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"席位\",\"domain\":\"系统\",\"range\":[\"席位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"会员\",\"range\":[\"数据中心\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"会员\",\"range\":[\"机房\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"会员\",\"range\":[\"机柜\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"会员\",\"range\":[\"机位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"托管\",\"domain\":\"设备\",\"range\":[\"会员\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"会员\",\"range\":[\"IP\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"拥有\",\"domain\":\"会员\",\"range\":[\"席位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"所属数据中心\",\"domain\":\"机房\",\"range\":[\"数据中心\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"数据中心\",\"range\":[\"机柜\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"数据中心\",\"range\":[\"机位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"数据中心\",\"range\":[\"设备\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"数据中心\",\"range\":[\"IP\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"数据中心\",\"range\":[\"席位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"所属机房\",\"domain\":\"机柜\",\"range\":[\"机房\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机房\",\"range\":[\"机位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机房\",\"range\":[\"设备\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机房\",\"range\":[\"IP\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机房\",\"range\":[\"席位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机柜\",\"range\":[\"机位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"所属机柜\",\"domain\":\"设备\",\"range\":[\"机柜\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机柜\",\"range\":[\"IP\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机柜\",\"range\":[\"席位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机位\",\"range\":[\"设备\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机位\",\"range\":[\"IP\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"机位\",\"range\":[\"席位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"设备\",\"range\":[\"IP\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"设备\",\"range\":[\"席位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"IP\",\"range\":[\"席位\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]}]},{\"tableName\":\"t_rack_a\",\"typeEnum\":null,\"columns\":[{\"name\":\"rack\",\"tag\":\"机柜.name\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"dc\",\"tag\":\"数据中心.name\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"idc\",\"tag\":\"机房.name\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"rack_capacity\",\"tag\":\"机柜.机柜容量\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"row\",\"tag\":null,\"type\":\"text\",\"comment\":\"\"},{\"name\":\"column\",\"tag\":null,\"type\":\"text\",\"comment\":\"\"},{\"name\":\"enabled\",\"tag\":\"机柜.启用状态\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"on_position\",\"tag\":\"机柜.通电状态\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"power_type\",\"tag\":\"机柜.电源类型\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"hz\",\"tag\":\"机柜.电流类型\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"two_circuit_feed\",\"tag\":\"机柜.是否双路供电\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"lease_type\",\"tag\":\"机柜.租赁类型\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"kw\",\"tag\":\"机柜.最大额定功率\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"create_date\",\"tag\":null,\"type\":\"date\",\"comment\":\"\"},{\"name\":\"update_date\",\"tag\":null,\"type\":\"date\",\"comment\":\"\"},{\"name\":\"desc\",\"tag\":null,\"type\":\"text\",\"comment\":\"\"}],\"relationRsps\":[{\"name\":\"所属数据中心\",\"domain\":\"机柜\",\"range\":[\"数据中心\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"所属机房\",\"domain\":\"机柜\",\"range\":[\"机房\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"数据中心\",\"range\":[\"机房\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]}]},{\"tableName\":\"t_idc\",\"typeEnum\":null,\"columns\":[{\"name\":\"idc\",\"tag\":\"机房.name·\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"dc\",\"tag\":\"数据中心.name\",\"type\":\"text\",\"comment\":\"\"}],\"relationRsps\":[{\"name\":\"所属数据中心\",\"domain\":\"机房\",\"range\":[\"数据中心\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]}]},{\"tableName\":\"t_equipment\",\"typeEnum\":null,\"columns\":[{\"name\":\"ID\",\"tag\":null,\"type\":\"text\",\"comment\":\"\"},{\"name\":\"equipment\",\"tag\":\"设备.name\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"model\",\"tag\":\"设备.型号\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"type\",\"tag\":null,\"type\":\"text\",\"comment\":\"\"},{\"name\":\"image_url\",\"tag\":\"设备.图片\",\"type\":\"text\",\"comment\":\"\"},{\"name\":\"interspace\",\"tag\":\"设备.空间\",\"type\":\"int\",\"comment\":\"\"},{\"name\":\"power\",\"tag\":\"设备.功率\",\"type\":\"int\",\"comment\":\"\"},{\"name\":\"createDate\",\"tag\":\"设备.创建时间\",\"type\":\"text\",\"comment\":\"\"}],\"relationRsps\":null},{\"tableName\":\"t_dc\",\"typeEnum\":null,\"columns\":[{\"name\":\"dc\",\"tag\":\"数据中心.name\",\"type\":\"text\",\"comment\":\"数据中心\"},{\"name\":\"locality\",\"tag\":\"地区.name\",\"type\":\"text\",\"comment\":\"地点\"},{\"name\":\"type\",\"tag\":\"数据中心.类型\",\"type\":\"text\",\"comment\":\"类型\"},{\"name\":\"network_access\",\"tag\":\"数据中心.网络接入\",\"type\":\"text\",\"comment\":\"网络地址\"},{\"name\":\"ddress\",\"tag\":\"地址.name\",\"type\":\"text\",\"comment\":\"\"}],\"relationRsps\":[{\"name\":\"所在地区\",\"domain\":\"数据中心\",\"range\":[\"地区\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"地址\",\"domain\":\"数据中心\",\"range\":[\"地址\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]},{\"name\":\"\",\"domain\":\"地区\",\"range\":[\"地址\"],\"startTime\":\"\",\"endTime\":\"\",\"relationAttrs\":[{\"name\":\"\",\"tag\":\"\",\"type\":\"\",\"comment\":\"\"}]}]}]";
 //        System.out.println(JacksonUtils.writeValueAsString(a));
         JSONObject jsonObject = new JSONObject();
-        jsonObject.putAll(a);
         System.out.println(JSON.toJSONString(parserYaml2TagJson(jsonObject,null)));
     }
 
@@ -315,7 +224,7 @@ public class PaserYaml2SchemaUtil {
                         if(attr.getAttrType().equals(1)){
                             List<PreBuilderRelationAttrRsp> relationAttrRsps = attr.getRelationAttrs();
 
-                            if(relationAttrRsps != null && relationAttrRsps.isEmpty()){
+                            if(relationAttrRsps != null && !relationAttrRsps.isEmpty()){
 
                                 if(relation.getRelationAttrs() == null){
                                     relation.setRelationAttrs(new ArrayList<>());

@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MultiModal {
-    private String id;
+    private Integer id;
 
     @ApiModelProperty("实体id")
     @JsonAlias("entity_id")
