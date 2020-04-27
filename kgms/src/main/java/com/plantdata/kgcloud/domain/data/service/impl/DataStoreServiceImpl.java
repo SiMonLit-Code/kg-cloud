@@ -232,9 +232,12 @@ public class DataStoreServiceImpl implements DataStoreService {
         if (dataStoreRsps == null || dataStoreRsps.isEmpty()) {
             return;
         }
+
         Map<String, String> dataMap = Maps.newHashMap();
         for (DataStoreRsp dataStore : dataStoreRsps) {
+
             String dataName = dataStore.getDbName();
+
             if (dataMap.containsKey(dataName)) {
                 dataStore.setTitle(dataMap.get(dataName));
             } else {
@@ -355,10 +358,23 @@ public class DataStoreServiceImpl implements DataStoreService {
         for (Document document : findIterable) {
             JSONObject jsonObject = JSON.parseObject(document.toJson());
             Map rawData = JSON.parseObject(jsonObject.get(DB_VIEW_DATA).toString(), Map.class);
-            Object dbData = document.remove(DB_VIEW_DATA);
-            DataStore dataStore = documentConverter.toBean(new Document(rawData), DataStore.class);
+            document.remove(DB_VIEW_DATA);
+            String dataFrom = rawData.get("dataFrom") + "";
+            DataStore dataStore = null;
+            if (Objects.equals(dataFrom, "dw")) {
+                //数据来源是 数仓数据修改
+                dataStore = new DataStore();
+                dataStore.setDbName(rawData.get("dbName") + "");
+                dataStore.setStatus(DB_VIEW_STATUS);
+
+            } else {
+                dataStore = documentConverter.toBean(new Document(rawData), DataStore.class);
+
+            }
+
             dataStore.setId(document.getObjectId("_id").toHexString());
-            dataStore.setData(JSONObject.toJSONString(dbData));
+            document.remove(MONGO_ID);
+            dataStore.setData(JSONObject.toJSONString(document));
             list.add(dataStore);
         }
         List<DataStoreRsp> dataStoreRsps = MapperUtils.map(list, DataStoreRsp.class);
