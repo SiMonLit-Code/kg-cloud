@@ -313,11 +313,8 @@ public class DataStoreServiceImpl implements DataStoreService {
         FindIterable<Document> findIterable;
         long count = collection.countDocuments();
         findIterable = collection.find().sort(Sorts.descending("createdate")).skip(page).limit(size);
-        List<Map<String, Object>> maps = filterData(findIterable);
-
-        return new BasePage(count, maps);
+        return new BasePage(count, filterData(findIterable));
     }
-
 
     @Override
     public void rerun(DtReq req) {
@@ -348,20 +345,21 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
 
-    private List<Map<String, Object>> filterData(FindIterable<Document> findIterable) {
-        List<Map<String, Object>> list = new ArrayList<>();
+    private List<DataStoreRsp> filterData(FindIterable<Document> findIterable) {
+        List<DataStore> list = new ArrayList<>();
         for (Document document : findIterable) {
-            Map<String, Object> map = new HashMap<>();
             JSONObject jsonObject = JSON.parseObject(document.toJson());
             Map rawData = JSON.parseObject(jsonObject.get(DB_VIEW_DATA).toString(), Map.class);
-            document.remove(DB_VIEW_DATA);
-            map.putAll(rawData);
-            map.put("data", document);
-            map.put("title", map.remove("dbTitle"));
-            list.add(map);
-        }
+            Object dbData = document.remove(DB_VIEW_DATA);
 
-        return list;
+            DataStore dataStore = documentConverter.toBean(new Document(rawData), DataStore.class);
+            dataStore.setId(document.getObjectId("_id").toHexString());
+            dataStore.setData(JSONObject.toJSONString(dbData));
+            list.add(dataStore);
+        }
+        List<DataStoreRsp> dataStoreRsps = MapperUtils.map(list, DataStoreRsp.class);
+        addDataStoreTitle(dataStoreRsps);
+        return dataStoreRsps;
     }
 
     private Document getAllData(Document document, DataStoreReq req) {
