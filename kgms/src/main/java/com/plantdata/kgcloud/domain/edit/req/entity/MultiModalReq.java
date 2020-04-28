@@ -20,8 +20,8 @@ public class MultiModalReq {
     @ApiModelProperty("文件名称")
     private String name;
 
-    @ApiModelProperty("数据连接")
-    private String dataHref;
+    @ApiModelProperty("文件路径")
+    private String path;
 
     @ApiModelProperty("缩略图路径")
     private String thumbPath;
@@ -39,7 +39,7 @@ public class MultiModalReq {
     private Long tableId;
 
     @ApiModelProperty("数仓文件id(上传类型为1传值)")
-    private Integer dwFileId;
+    private String dwFileId;
 
     @ApiModelProperty("关键词")
     private String keyword;

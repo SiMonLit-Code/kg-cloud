@@ -43,6 +43,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.StatisticsReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
@@ -202,13 +203,13 @@ public class BasicInfoServiceImpl implements BasicInfoService {
      */
     @Override
     public List<MultiModalRsp> listMultiModels(String kgName, Long entityId) {
-        List<EntityFileRelation> relationList = entityFileRelationService.getRelationByKgNameAndEntityId(kgName, entityId);
+        List<EntityFileRsp> relationList = entityFileRelationService.getRelationByKgNameAndEntityId(kgName, entityId);
         return relationList.stream().map(ConvertUtils.convert(MultiModalRsp.class)).collect(Collectors.toList());
     }
 
     @Override
     public Map<Long, List<MultiModalRsp>> listMultiModels(String kgName, List<Long> entityIds) {
-        List<EntityFileRelation> relationList = entityFileRelationService.getRelationByKgNameAndEntityIdIn(kgName, entityIds);
+        List<EntityFileRsp> relationList = entityFileRelationService.getRelationByKgNameAndEntityIdIn(kgName, entityIds);
 
         List<MultiModalRsp> list = relationList.stream().map(ConvertUtils.convert(MultiModalRsp.class)).collect(Collectors.toList());
 

@@ -1,10 +1,13 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
-import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
+import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
+import com.plantdata.kgcloud.domain.edit.rsp.DWFileRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRelationRsp;
-import org.springframework.data.domain.Page;
+import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,24 +16,23 @@ import java.util.List;
  */
 public interface EntityFileRelationService {
 
-    Page<EntityFileRelationRsp> listRelation(String kgName, EntityFileRelationQueryReq req);
+    BasePage<DWFileRsp> listRelation(String kgName, EntityFileRelationQueryReq req);
 
     void createRelation(String kgName, EntityFileRelationReq req);
 
-    void updateRelation(EntityFileRelation req);
+    void deleteRelation(List<String> idList);
 
-    void updateRelations(List<EntityFileRelation> relations);
+    void deleteRelationByDwFileId(String dwFileId);
 
-    void deleteRelation(List<Integer> idList);
+    void deleteById(String id);
 
-    void deleteRelationByDwFileId(Integer dwFileId);
+    List<EntityFileRelationRsp> getRelationByDwFileId(String dwFileId);
 
-    void deleteById(Integer id);
+    List<EntityFileRsp> getRelationByKgNameAndEntityId(String kgName, Long entityId);
 
-    List<EntityFileRelation> getRelationByDwFileId(Integer dwFileId);
+    List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName,List<Long> entityIds);
 
-    List<EntityFileRelation> getRelationByKgNameAndEntityId(String kgName,Long entityId);
+    void addIndex(String kgName, Integer indexType, MultipartFile file);
 
-    List<EntityFileRelation> getRelationByKgNameAndEntityIdIn(String kgName,List<Long> entityIds);
-
+    void updateIndex(String kgName, IndexRelationReq req);
 }

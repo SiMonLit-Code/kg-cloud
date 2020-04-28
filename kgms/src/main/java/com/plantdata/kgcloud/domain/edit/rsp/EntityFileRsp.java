@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.rsp.edit;
+package com.plantdata.kgcloud.domain.edit.rsp;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.annotations.ApiModelProperty;
@@ -6,13 +6,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @Author: LinHo
- * @Date: 2020/3/23 10:33
- * @Description:
+ * @author: lp
  */
 @Setter
 @Getter
-public class MultiModalRsp {
+public class EntityFileRsp {
 
     private String id;
 
