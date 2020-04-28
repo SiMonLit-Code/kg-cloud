@@ -2707,7 +2707,8 @@ public class DWServiceImpl implements DWService {
 
     @Override
     public DWDatabaseRsp findById(String tableId) {
-        String userId = SessionHolder.getUserId();
+        String userId =userClient.getCurrentUserDetail().getData().getId();
+        //String userId = SessionHolder.getUserId();
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
