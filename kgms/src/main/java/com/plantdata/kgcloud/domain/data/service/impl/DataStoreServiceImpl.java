@@ -353,7 +353,7 @@ public class DataStoreServiceImpl implements DataStoreService {
         List<DataStore> list = new ArrayList<>();
         for (Document document : findIterable) {
             JSONObject jsonObject = JSON.parseObject(document.toJson());
-            Map rawData = JSON.parseObject(jsonObject.get(DB_VIEW_DATA).toString(), Map.class);
+            Map rawData = JSON.parseObject(jsonObject.get(DB_VIEW_DATA) + "", Map.class);
             document.remove(DB_VIEW_DATA);
             String dataFrom = rawData.get("dataFrom") + "";
             DataStore dataStore;
@@ -367,7 +367,7 @@ public class DataStoreServiceImpl implements DataStoreService {
                 dataStore = documentConverter.toBean(new Document(rawData), DataStore.class);
 
             }
-            dataStore.setId(document.getObjectId("_id").toHexString());
+            // dataStore.setId(document.getObjectId("_id").toHexString());
             document.remove(MONGO_ID);
             dataStore.setData(JSONObject.toJSONString(document));
             list.add(dataStore);
