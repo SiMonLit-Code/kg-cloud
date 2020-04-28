@@ -89,10 +89,18 @@ public class TableDataController {
 
     @ApiOperation("文件数仓-删除")
     @PatchMapping("/file/delete/{id}")
-    public ApiReturn<FilePathRsp> fileDelete(
+    public ApiReturn fileDelete(
             @PathVariable("id") String id) {
 
         tableDataService.fileDelete(id);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("文件数仓-批量删除")
+    @PatchMapping("/file/delete/batch")
+    public ApiReturn fileDeleteBatch(
+            @RequestBody List<String> ids) {
+        tableDataService.fileDeleteBatch(ids);
         return ApiReturn.success();
     }
 

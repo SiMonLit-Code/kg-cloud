@@ -29,6 +29,8 @@ public interface TableDataService {
 
     void fileDelete(String id);
 
+    void fileDeleteBatch(List<String> ids);
+
     void fileAddBatch(DWFileTableBatchReq fileTableReq, MultipartFile[] files);
 
     List<Map<String, Object>> statistic(String userId, Long datasetId, Long tableId, DwTableDataStatisticReq statisticReq);

@@ -60,6 +60,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -209,11 +210,20 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public Map<Long, List<MultiModalRsp>> listMultiModels(String kgName, List<Long> entityIds) {
-        List<EntityFileRsp> relationList = entityFileRelationService.getRelationByKgNameAndEntityIdIn(kgName, entityIds);
+        List<EntityFileRsp> relationList = entityFileRelationService.getRelationByKgNameAndEntityIdIn(kgName, entityIds, 0);
 
         List<MultiModalRsp> list = relationList.stream().map(ConvertUtils.convert(MultiModalRsp.class)).collect(Collectors.toList());
 
         return list.stream().filter(Objects::nonNull).collect(Collectors.groupingBy(MultiModalRsp::getEntityId));
+    }
+
+    @Override
+    public Map<Long, List<KnowledgeIndexRsp>> listKnowledgeIndexs(String kgName, List<Long> entityIds) {
+        List<EntityFileRsp> relationList = entityFileRelationService.getRelationByKgNameAndEntityIdIn(kgName, entityIds, 1);
+
+        List<KnowledgeIndexRsp> list = relationList.stream().map(ConvertUtils.convert(KnowledgeIndexRsp.class)).collect(Collectors.toList());
+
+        return list.stream().filter(Objects::nonNull).collect(Collectors.groupingBy(KnowledgeIndexRsp::getEntityId));
     }
 
     @Override

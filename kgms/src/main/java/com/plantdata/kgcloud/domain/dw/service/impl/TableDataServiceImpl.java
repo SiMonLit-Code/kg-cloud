@@ -383,6 +383,12 @@ public class TableDataServiceImpl implements TableDataService {
     }
 
     @Override
+    public void fileDeleteBatch(List<String> ids) {
+        MongoCollection<Document> collection = getCollection(DWFileConstants.FILE);
+        collection.deleteMany(Filters.in("_id",ids));
+    }
+
+    @Override
     public void fileAddBatch(DWFileTableBatchReq fileTableReq, MultipartFile[] files) {
 
         if (files == null || files.length == 0) {
