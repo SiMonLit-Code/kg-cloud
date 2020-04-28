@@ -138,6 +138,10 @@ public class EntityServiceImpl implements EntityService {
     public MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq) {
         logSender.setActionId();
 
+        if (!entityFileRelationService.checkSize(kgName,multiModalReq.getEntityId())){
+            throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
+        }
+
         DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(multiModalReq);
         if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
             // 创建实体文件关联
@@ -189,6 +193,13 @@ public class EntityServiceImpl implements EntityService {
                 multiModalReqs.stream().map(ConvertUtils.convert(MultiModal.class)).collect(Collectors.toList());
 
         for (MultiModalReq multiModalReq : multiModalReqs) {
+
+            if (!entityFileRelationService.checkSize(kgName,multiModalReq.getEntityId())){
+                throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
+            }
+            if (!entityFileRelationService.checkExist(kgName, multiModalReq.getEntityId(), multiModalReq.getDwFileId())) {
+                throw BizException.of(KgmsErrorCodeEnum.RELATION_IS_EXIST);
+            }
 
             if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
                 // 创建实体文件关联

@@ -176,11 +176,11 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         int pageNo = (req.getPage() - 1) * size;
         List<Bson> aggLs = new ArrayList<>();
         aggLs.add(Aggregates.lookup(DWFileConstants.RELATION, "_id", "dwFileId", "relationList"));
-        if (StringUtils.isNotBlank(req.getName())) {
-            aggLs.add(Aggregates.match(Filters.elemMatch("relationList", Filters.eq("kgName", kgName))));
-        }
+        aggLs.add(Aggregates.match(Filters.elemMatch("relationList", Filters.eq("kgName", kgName))));
         aggLs.add(Aggregates.match(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$"))));
-        aggLs.add(Aggregates.match(Filters.eq("indexType", req.getIndexType())));
+        if (req.getIndexType() != null) {
+            aggLs.add(Aggregates.match(Filters.eq("indexType", req.getIndexType())));
+        }
         aggLs.add(Aggregates.skip(pageNo));
         aggLs.add(Aggregates.limit(size + 1));
         MongoCollection<Document> collection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
@@ -279,9 +279,10 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
-    public List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName, List<Long> entityIds) {
+    public List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName, List<Long> entityIds, Integer type) {
         List<Bson> bsons = new ArrayList<>(2);
         bsons.add(Filters.in("entityId", entityIds));
+        bsons.add(Filters.eq("kgName", kgName));
         bsons.add(Filters.eq("kgName", kgName));
         MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
         MongoCursor<Document> cursor = database.getCollection(DWFileConstants.RELATION).find(Filters.and(bsons)).iterator();
@@ -289,15 +290,26 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         while (cursor.hasNext()) {
             Document doc = cursor.next();
             ObjectId objectId = doc.getObjectId("dwFileId");
-            Document document = database.getCollection(DWFileConstants.FILE).find(Filters.eq(CommonConstants.MongoConst.ID, objectId)).first();
+            List<Bson> query = new ArrayList<>(2);
+            query.add(Filters.eq(CommonConstants.MongoConst.ID, objectId));
+            query.add(Filters.in("indexType", Lists.newArrayList(1, 2)));
+            Document document = database.getCollection(DWFileConstants.FILE).find(Filters.and(query)).first();
             if (document != null) {
                 EntityFileRsp entityFileRsp = new EntityFileRsp();
                 entityFileRsp.setId(doc.getObjectId("_id").toString());
                 entityFileRsp.setEntityId(doc.getLong("entityId"));
-                entityFileRsp.setName(document.getString("name"));
-                entityFileRsp.setPath(document.getString("path"));
-                entityFileRsp.setThumbPath(document.getString("thumbPath"));
-                entityFileRsp.setType(document.getString("type"));
+                if (type == 0) {
+                    entityFileRsp.setName(document.getString("name"));
+                    entityFileRsp.setPath(document.getString("path"));
+                    entityFileRsp.setThumbPath(document.getString("thumbPath"));
+                    entityFileRsp.setType(document.getString("type"));
+                } else if (type == 1) {
+                    entityFileRsp.setTitle(document.getString("title"));
+                    entityFileRsp.setKeyword(document.getString("keyword"));
+                    entityFileRsp.setDescription(document.getString("description"));
+                    entityFileRsp.setUrl(document.getString("url"));
+                    entityFileRsp.setIndexType(document.getInteger("indexType"));
+                }
                 list.add(entityFileRsp);
             }
         }
@@ -345,17 +357,57 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     @Override
     public void updateIndex(String kgName, IndexRelationReq req) {
         List<Document> list = new ArrayList<>(req.getEntityIds().size());
-
+        MongoCollection<Document> collection = getCollection();
         for (Long entityId : req.getEntityIds()) {
+            if (!checkSize(kgName, entityId)) {
+                throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
+            }
+            if (!checkExist(kgName, entityId, req.getDwFileId())) {
+                throw BizException.of(KgmsErrorCodeEnum.RELATION_IS_EXIST);
+            }
             EntityFileRelation relation = new EntityFileRelation();
             relation.setKgName(kgName);
             relation.setCreateTime(new Date());
             relation.setEntityId(entityId);
             Document document = documentConverter.toDocument(relation);
             document.put("dwFileId", new ObjectId(req.getDwFileId()));
-            list.add(document);
+            collection.insertOne(document);
         }
-        getCollection().insertMany(list);
+    }
+
+    @Override
+    public boolean checkExist(String kgName, Long entityId, String dwFileId) {
+        List<Bson> query = new ArrayList<>(3);
+        query.add(Filters.eq("kgName", kgName));
+        query.add(Filters.eq("entityId", entityId));
+        query.add(Filters.eq("dwFileId", new ObjectId(dwFileId)));
+        Document first = getCollection().find(Filters.and(query)).first();
+        return first == null;
+    }
+
+    @Override
+    public boolean checkSize(String kgName, Long entityId) {
+        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
+        List<Bson> query = new ArrayList<>(2);
+        query.add(Filters.eq("kgName", kgName));
+        query.add(Filters.eq("entityId", entityId));
+        MongoCursor<Document> iterator = database.getCollection(DWFileConstants.FILE).find(Filters.and(query)).iterator();
+        Set<String> dwFileIdList = new HashSet<>();
+        while (iterator.hasNext()) {
+            Document document = iterator.next();
+            dwFileIdList.add(document.getObjectId("dwFileId").toString());
+        }
+
+        long size = 0L;
+        MongoCursor<Document> fileIterator = database.getCollection(DWFileConstants.RELATION).find(Filters.in("_id", dwFileIdList)).iterator();
+        while (fileIterator.hasNext()) {
+            Document document = fileIterator.next();
+            Long fileSize = document.getLong("fileSize");
+            if (fileSize != null) {
+                size += fileSize;
+            }
+        }
+        return size <= 20971520L;
     }
 
 }

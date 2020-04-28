@@ -30,9 +30,13 @@ public interface EntityFileRelationService {
 
     List<EntityFileRsp> getRelationByKgNameAndEntityId(String kgName, Long entityId);
 
-    List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName,List<Long> entityIds);
+    List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName,List<Long> entityIds, Integer type);
 
     void addIndex(String kgName, Integer indexType, MultipartFile file);
 
     void updateIndex(String kgName, IndexRelationReq req);
+
+    boolean checkExist(String kgName, Long entityId, String dwFileId);
+
+    boolean checkSize(String kgName, Long entityId);
 }
