@@ -6,6 +6,9 @@ import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.CommonConstants;
@@ -45,6 +48,7 @@ import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.DateUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
@@ -435,68 +439,44 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Override
     public void dataUpdate(DWDatabaseUpdateReq baseReq) {
-        // String userId = SessionHolder.getUserId();
         DWTable table = dwTableRepository.findOne(Example.of(DWTable.builder().id(baseReq.getTableId()).dwDataBaseId(baseReq.getDataBaseId()).build()))
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST));
         if (table.getCreateWay() != CREATE_WAY && (table.getIsWriteDW() == null || table.getIsWriteDW() != IS_WRITE_DW)) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CREATE_WAY_ERROR);
         }
-
         DWDatabase database = dwDatabaseRepository.findById(baseReq.getDataBaseId())
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST));
         MongoCollection<Document> collection = mongoClient.getDatabase(DB_FIX_NAME_PREFIX + database.getDataName()).getCollection(table.getTableName());
         MongoCollection<Document> collectionLog = mongoClient.getDatabase(database.getDataName()).getCollection(table.getTableName());
-        long count;
-        try {
-            count = collection.countDocuments(documentConverter.buildObjectId(baseReq.getId()));
-        } catch (Exception e) {
-            count = collection.countDocuments(Filters.eq(baseReq.getId()));
-        }
-        if (baseReq.getId().length() <= 32) {
 
-            Map<String, Object> data = baseReq.getData();
-            String mongoId = baseReq.getId();
-            Map<Object, Object> map = new HashMap<>();
-            map.put("dbName", database.getDataName());
-            map.put("tableId", baseReq.getDataBaseId());
-            map.put("dataFrom", "dw");
-            map.put("status", DB_VIEW_STATUS);
-            data.put(DB_VIEW_DATA, map);
-            if (count == 0) {
-                collection.insertOne(new Document(data));
-                data.remove(MONGO_ID);
-                data.remove(DB_VIEW_DATA);
-                collectionLog.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
-            } else {
-                data.remove(MONGO_ID);
-                collection.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
-                data.remove(DB_VIEW_DATA);
-                collectionLog.updateOne(Filters.eq(MONGO_ID, new ObjectId(mongoId)), new Document("$set", new Document(data)));
-            }
+        Map<String, Object> data = baseReq.getData();
+        String mongoId = baseReq.getId();
+        Map<Object, Object> map = new HashMap<>();
+        map.put("dbName", database.getDataName());
+        map.put("dataFrom", "dw");
+        map.put("status", DB_VIEW_STATUS);
+        data.put(DB_VIEW_DATA, map);
+
+        collection.insertOne(new Document(data));
+        data.remove(mongoId);
+        data.remove(DB_VIEW_DATA);
+        update(data, mongoId, collectionLog);
+
+
+    }
+
+    public void update(Map<String, Object> data, String mongoId, MongoCollection<Document> collectionLog) {
+        Object id;
+        if (ObjectId.isValid(mongoId)) {
+            id = new ObjectId(mongoId);
         } else {
-            Map<String, Object> data = baseReq.getData();
-            String mongoId = baseReq.getId();
-            Map<Object, Object> map = new HashMap<>();
-            map.put("dbName", database.getDataName());
-            map.put("tableId", baseReq.getDataBaseId());
-            map.put("dataFrom", "dw");
-            map.put("status", DB_VIEW_STATUS);
-            data.put(DB_VIEW_DATA, map);
-                if (count == 0) {
-                    collection.insertOne(new Document(data));
-                    data.remove(MONGO_ID);
-                    data.remove(DB_VIEW_DATA);
-                    Document document = new Document(data);
-                    collectionLog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", document));
-                } else {
-                    data.remove(MONGO_ID);
-                    collection.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", new Document(data)));
-                    data.remove(DB_VIEW_DATA);
-                    collectionLog.updateOne(Filters.eq(MONGO_ID, mongoId), new Document("$set", new Document(data)));
-                }
-            }
-
+            id = mongoId;
         }
-
-
+        List<Bson> bsonList = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            Bson set = Updates.set(entry.getKey(), Document.parse(JacksonUtils.writeValueAsString(entry)));
+            bsonList.add(set);
+        }
+        collectionLog.updateMany(Filters.eq(MONGO_ID, id), Updates.combine(bsonList), new UpdateOptions().upsert(true));
+    }
 }
