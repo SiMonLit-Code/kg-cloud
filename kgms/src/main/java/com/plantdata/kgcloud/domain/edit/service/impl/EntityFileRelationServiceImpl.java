@@ -263,6 +263,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         while (cursor.hasNext()) {
             Document doc = cursor.next();
             ObjectId objectId = doc.getObjectId("dwFileId");
+            List<Bson> query = new ArrayList<>(2);
+            query.add(Filters.eq(CommonConstants.MongoConst.ID, objectId));
+            query.add(Filters.eq("indexType", 0));
             Document document = database.getCollection(DWFileConstants.FILE).find(Filters.eq(CommonConstants.MongoConst.ID, objectId)).first();
             if (document != null) {
                 EntityFileRsp entityFileRsp = new EntityFileRsp();
@@ -283,7 +286,6 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         List<Bson> bsons = new ArrayList<>(2);
         bsons.add(Filters.in("entityId", entityIds));
         bsons.add(Filters.eq("kgName", kgName));
-        bsons.add(Filters.eq("kgName", kgName));
         MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
         MongoCursor<Document> cursor = database.getCollection(DWFileConstants.RELATION).find(Filters.and(bsons)).iterator();
         List<EntityFileRsp> list = Lists.newArrayList();
@@ -292,7 +294,11 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             ObjectId objectId = doc.getObjectId("dwFileId");
             List<Bson> query = new ArrayList<>(2);
             query.add(Filters.eq(CommonConstants.MongoConst.ID, objectId));
-            query.add(Filters.in("indexType", Lists.newArrayList(1, 2)));
+            if (type == 1) {
+                query.add(Filters.in("indexType", Lists.newArrayList(1, 2)));
+            } else if (type == 0) {
+                query.add(Filters.eq("indexType", 0));
+            }
             Document document = database.getCollection(DWFileConstants.FILE).find(Filters.and(query)).first();
             if (document != null) {
                 EntityFileRsp entityFileRsp = new EntityFileRsp();
