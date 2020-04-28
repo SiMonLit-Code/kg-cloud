@@ -1,22 +1,26 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.module.DWStatisticInterface;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.exception.SdkException;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.bean.chart.ChartTableBean;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.PdStatServiceibit;
-import com.plantdata.kgcloud.plantdata.utilCode.kgcompute.stat.bean.PdStatBean;
+import com.plantdata.kgcloud.plantdata.presto.bean.chart.ChartTableBean;
+import com.plantdata.kgcloud.plantdata.presto.stat.PdStatServiceibit;
+import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatBean;
 import com.plantdata.kgcloud.sdk.DWClient;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWStatisticTableSeries;
-import com.plantdata.kgcloud.security.SessionHolder;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
 import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.plantdata.req.dw.SqlQueryReq;
+import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -26,14 +30,19 @@ import java.util.*;
  */
 @RestController("DWController")
 @RequestMapping("sdk/dw")
-public class DWController implements SdkOldApiInterface {
+public class DWController implements DWStatisticInterface {
 
     @Autowired
     public DWClient dwClient;
 
-    @ApiOperation("统计数据仓库二维/按表统计")
+    @ApiOperation(value = "统计数据仓库(二维)", notes = "以二维表的形式统计数据仓库")
     @PostMapping("statistic/by2dTable")
-    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq req) {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "query", required = true, dataType = "string", paramType = "form", value = "输入对象")
+    })
+    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @ApiIgnore QaKbqaParameter param) {
+        JSONObject jsStr = JSONObject.parseObject(param.getQuery());
+        SqlQueryReq req = JSONObject.toJavaObject(jsStr,SqlQueryReq.class);
         if(req.getQuery().getDimensions() == null
                 || req.getQuery().getMeasures() == null
                 || req.getQuery().getMeasures().size() != 1
@@ -41,7 +50,13 @@ public class DWController implements SdkOldApiInterface {
                         && req.getQuery().getDimensions().size() != 2)){
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
-        req.setDbName(dwClient.findById(req.getDbId()+"").getDataName());
+        DWDatabaseRsp dataBase = dwClient.findById(req.getDbId()+"");
+        if(dataBase == null){
+            throw BizException.of(SdkErrorCodeEnum.DB_NOT_EXIST);
+        }else if(dataBase.getDbName()!= null){
+            throw BizException.of(SdkErrorCodeEnum.REMOTE_DB_NOT_SUPPORTED);
+        }
+        req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
         ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
@@ -95,9 +110,14 @@ public class DWController implements SdkOldApiInterface {
         return  ApiReturn.success(table);
     }
 
-    @ApiOperation("统计数据仓库三维/按表统计")
+    @ApiOperation(value = "统计数据仓库(三维)", notes = "以三维表的形式统计数据仓库")
     @PostMapping("statistic/by3dTable")
-    public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestBody SqlQueryReq req) {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "query", required = true, dataType = "string", paramType = "form", value = "输入对象")
+    })
+    public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @ApiIgnore QaKbqaParameter param) {
+        JSONObject jsStr = JSONObject.parseObject(param.getQuery());
+        SqlQueryReq req = JSONObject.toJavaObject(jsStr,SqlQueryReq.class);
         if(req.getQuery().getDimensions() == null
                 || req.getQuery().getMeasures() == null
                 || req.getQuery().getMeasures().size() != 1
@@ -105,7 +125,13 @@ public class DWController implements SdkOldApiInterface {
                 && req.getQuery().getDimensions().size() != 3)){
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
-        req.setDbName(dwClient.findById(req.getDbId()+"").getDataName());
+        DWDatabaseRsp dataBase = dwClient.findById(req.getDbId()+"");
+        if(dataBase == null){
+            throw BizException.of(SdkErrorCodeEnum.DB_NOT_EXIST);
+        }else if(dataBase.getDbName()!= null){
+            throw BizException.of(SdkErrorCodeEnum.REMOTE_DB_NOT_SUPPORTED);
+        }
+        req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
         ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
@@ -173,14 +199,14 @@ public class DWController implements SdkOldApiInterface {
         return  ApiReturn.success(table);
     }
 
-    @ApiOperation("数仓-查找所有数据库")
-    @GetMapping("/database/all")
+    @ApiOperation(value = "数仓-查找所有数据库", notes = "查找用户创建的所有数仓数据库")
+    @GetMapping("/database/list")
     public ApiReturn<List<DWDatabaseRsp>> findAll() {
         return dwClient.findAll();
     }
 
-    @ApiOperation("数仓-查找所有数据库与表")
-    @GetMapping("/database/table/list")
+    @ApiOperation(value = "数仓-查找所有数据库与表", notes = "查找用户创建的所有数仓数据库与表")
+    @GetMapping("/databaseAndTable/list")
     public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
         return dwClient.databaseTableList();
     }

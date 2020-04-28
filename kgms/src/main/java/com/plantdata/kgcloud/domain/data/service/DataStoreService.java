@@ -58,5 +58,5 @@ public interface DataStoreService {
 
     void rerun(DtReq req);
 
-    Map<String, String> listErrDataNameSearch();
+    List<DbAndTableRsp>  listErrDataNameSearch();
 }

@@ -104,6 +104,7 @@ public class DWServiceImpl implements DWService {
     private final static String KETTLE_LOGS_COLLECTION = "logs_data";
     private final static String KETTLE_LOGS_RECODE = "logs_data_recode";
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
+
     @Autowired
     private MongoClient mongoClient;
     @Autowired
@@ -284,6 +285,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         List<Integer> templateIds = database.getStandardTemplateId();
 
         if (templateIds == null || templateIds.isEmpty()) {
@@ -319,6 +324,10 @@ public class DWServiceImpl implements DWService {
     private String getIndustryTableKtr(Long databaseId, String tableName) {
 
         DWDatabaseRsp database = getDetail(databaseId);
+
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
 
         List<Integer> templateIds = database.getStandardTemplateId();
 
@@ -725,11 +734,21 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
+        DWTableRsp tableRsp = findTableByTableName(SessionHolder.getUserId(),databaseId,tableName);
+
+        if(tableRsp == null){
+            return new ArrayList<>();
+        }
+
         List<String> fieldEnums;
-        if (database.getDataType().equals(DataType.MONGO.getDataType())) {
+        if (database.getDataType() == null || database.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
-                fieldEnums = getMongoAggr(database, tableName, field);
+                if(tableRsp.getCreateWay().equals(1)){
+                    fieldEnums = getMongoAggr(database, tableName, field,false);
+                }else{
+                    fieldEnums = getMongoAggr(database, tableName, field,true);
+                }
 
             } catch (Exception e) {
                 throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
@@ -760,29 +779,35 @@ public class DWServiceImpl implements DWService {
         return fieldEnums;
     }
 
-    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field) {
-        MongoClient mongoClient = null;
+    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field,boolean isLocal) {
+        MongoClient client = null;
         try {
-            //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
-            //ServerAddress()两个参数分别为 服务器地址 和 端口
-            ServerAddress serverAddress = new ServerAddress(dwDatabase.getAddr().get(0).split(":")[0], Integer.parseInt(dwDatabase.getAddr().get(0).split(":")[1]));
-            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
-            addrs.add(serverAddress);
+            MongoDatabase mongoDatabase;
+            if(!isLocal){
 
-            //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
+                //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
+                //ServerAddress()两个参数分别为 服务器地址 和 端口
+                ServerAddress serverAddress = new ServerAddress(dwDatabase.getAddr().get(0).split(":")[0], Integer.parseInt(dwDatabase.getAddr().get(0).split(":")[1]));
+                List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+                addrs.add(serverAddress);
 
-            if (StringUtils.hasText(dwDatabase.getUsername()) && StringUtils.hasText(dwDatabase.getPassword())) {
-                MongoCredential credential = MongoCredential.createScramSha1Credential(dwDatabase.getUsername(), dwDatabase.getDbName(), dwDatabase.getPassword().toCharArray());
-                List<MongoCredential> credentials = new ArrayList<MongoCredential>();
-                credentials.add(credential);
-                mongoClient = new MongoClient(addrs, credentials);
-            } else {
-                mongoClient = new MongoClient(addrs);
+                //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
+
+                if (StringUtils.hasText(dwDatabase.getUsername()) && StringUtils.hasText(dwDatabase.getPassword())) {
+                    MongoCredential credential = MongoCredential.createScramSha1Credential(dwDatabase.getUsername(), dwDatabase.getDbName(), dwDatabase.getPassword().toCharArray());
+                    List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+                    credentials.add(credential);
+                    client = new MongoClient(addrs, credentials);
+                } else {
+                    client = new MongoClient(addrs);
+                }
+
+                //通过连接认证获取MongoDB连接
+                // 连接到数据库
+                mongoDatabase = client.getDatabase(dwDatabase.getDbName());
+            }else{
+                mongoDatabase = mongoClient.getDatabase(dwDatabase.getDataName());
             }
-
-            //通过连接认证获取MongoDB连接
-            // 连接到数据库
-            MongoDatabase mongoDatabase = mongoClient.getDatabase(dwDatabase.getDbName());
 
 
             MongoCollection<Document> collection = mongoDatabase.getCollection(tableName);
@@ -798,6 +823,9 @@ public class DWServiceImpl implements DWService {
                 Document item_doc = cursor.next();
                 Object value = item_doc.get("_id", Object.class);
 
+                if(value == null){
+                    continue;
+                }
                 colls.add(value + "");
             }
 
@@ -805,9 +833,9 @@ public class DWServiceImpl implements DWService {
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
         } finally {
-            if (mongoClient != null) {
+            if (client != null) {
                 try {
-                    mongoClient.close();
+                    client.close();
                 } catch (Exception e) {
                 }
             }
@@ -1025,6 +1053,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp dwDatabase = getDetail(req.getDwDataBaseId());
 
+        if(dwDatabase == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDwDataBaseId()).tableName(req.getTitle()).build()));
 
         if (opt.isPresent()) {
@@ -1105,17 +1137,17 @@ public class DWServiceImpl implements DWService {
             DataSetSchema schema = new DataSetSchema();
             schema.setField(name);
             try {
-                if(field.getType() == Integer.class){
+                if (field.getType() == Integer.class) {
                     schema.setType(FieldType.INTEGER.getCode());
-                }else if(field.getType() == Long.class){
+                } else if (field.getType() == Long.class) {
                     schema.setType(FieldType.LONG.getCode());
-                }else if(field.getType() == String.class){
+                } else if (field.getType() == String.class) {
                     schema.setType(FieldType.STRING.getCode());
-                }else if(field.getType() == Date.class){
+                } else if (field.getType() == Date.class) {
                     schema.setType(FieldType.DATE.getCode());
-                }else if(field.getType() == List.class || field.getType() == Set.class){
+                } else if (field.getType() == List.class || field.getType() == Set.class) {
                     schema.setType(FieldType.ARRAY.getCode());
-                }else{
+                } else {
                     schema.setType(FieldType.STRING.getCode());
                 }
             } catch (Exception e) {
@@ -1760,6 +1792,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(id);
 
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         userId = userClient.getCurrentUserDetail().getData().getId();
         if (!database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
@@ -1818,7 +1854,7 @@ public class DWServiceImpl implements DWService {
     public Integer push(String userId, ModelPushReq req) {
 
         DWDatabaseRsp database = getDetail(req.getId());
-        if (!database.getUserId().equals(userId)) {
+        if (database == null || !database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
@@ -1939,6 +1975,10 @@ public class DWServiceImpl implements DWService {
 
         Optional<DWTable> dwTable = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
 
+        if(!dwTable.isPresent()){
+            return null;
+        }
+
         return ConvertUtils.convert(DWTableRsp.class).apply(dwTable.get());
     }
 
@@ -2003,6 +2043,10 @@ public class DWServiceImpl implements DWService {
         }
 
         DWDatabaseRsp database = getDetail(databaseId);
+
+        if(database == null){
+            throw  BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
 
         //不是PD类型数据库不用上传tagjson
         if ((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && file.getOriginalFilename().endsWith(".json")) {
@@ -2385,8 +2429,7 @@ public class DWServiceImpl implements DWService {
 
                     DataSetSchema dataSetSchema = new DataSetSchema();
                     dataSetSchema.setField(field);
-
-                    dataSetSchema.setType(ExampleYaml.readType(column.getValue()).getCode());
+                    dataSetSchema.setType(dataSetService.readType(column.getValue()).getCode());
                     rsList.add(dataSetSchema);
                 }
 
@@ -2612,9 +2655,10 @@ public class DWServiceImpl implements DWService {
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
         String userId = SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId();
-        List<Bson> bsons = new ArrayList<>(2);
+        List<Bson> bsons = new ArrayList<>(3);
         bsons.add(Filters.eq("userId", userId));
         bsons.add(Filters.eq("tableName", req.getTableName()));
+        bsons.add(Filters.eq("dbId", req.getDbId()));
         FindIterable<Document> findIterable;
         long count = 0;
         count = collection.countDocuments(Filters.and(bsons));
@@ -2646,7 +2690,8 @@ public class DWServiceImpl implements DWService {
 
     @Override
     public DWDatabaseRsp findById(String tableId) {
-        String userId = SessionHolder.getUserId();
+        String userId =userClient.getCurrentUserDetail().getData().getId();
+        //String userId = SessionHolder.getUserId();
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
                 .build();

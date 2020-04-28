@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoOptions;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
@@ -23,7 +22,6 @@ import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 import com.plantdata.kgcloud.domain.data.service.DataStoreSender;
 import com.plantdata.kgcloud.domain.data.service.DataStoreService;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
-import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
@@ -39,7 +37,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -78,7 +75,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     private static final String DB_NAME = "check_data_db";
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
     private static final String DB_VIEW_STATUS = "Edit";
-    private static final String DB_VIEW_DATA = "showData";
+    private static final String DB_VIEW_DATA = "_showData";
 
     private MongoCollection<Document> getCollection() {
         return mongoClient.getDatabase(DB_NAME).getCollection(SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId());
@@ -151,6 +148,48 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
     @Override
+    public List<DbAndTableRsp> listErrDataNameSearch() {
+        String userId = SessionHolder.getUserId();
+        //查询出该用户下的所有表
+        List<DWDatabase> all = dwDatabaseRepository.findByUserId(userId);
+        //没有没有查询到,直接返回
+        if (all == null || all.size() == 0) {
+            return null;
+        }
+        Map<String, DWDatabase> map = new HashMap(all.size());
+        //使用map封装该用户下 所有表和 数仓标题  注意 OOM
+        for (DWDatabase dw : all) {
+            map.put(dw.getDataName(), dw);
+        }
+        //过滤 只保存该用户的表名称
+        List<String> allList = all.stream().map(DWDatabase::getDataName).distinct().collect(Collectors.toList());
+        List<String> strList = new LinkedList<>();
+        for (String str : allList) {
+            String s = DB_FIX_NAME_PREFIX + str;
+            strList.add(s);
+        }
+        //在mongo中查询出 所有的表名
+        List<String> database = mongoClient.getDatabaseNames();
+        //找到以return前缀开头的表
+        List<String> filterList = database.stream().filter(s -> s.startsWith(DB_FIX_NAME_PREFIX)).collect(Collectors.toList());
+        //取交集得出结果
+        List<String> intersection = (List<String>) CollectionUtils.intersection(strList, filterList);
+        List<DbAndTableRsp> rsps = new LinkedList<>();
+        for (String a : intersection) {
+            DbAndTableRsp tableRsp = new DbAndTableRsp();
+            String s = a.replaceFirst(DB_FIX_NAME_PREFIX, "");
+            String title = map.get(s).getTitle();
+            tableRsp.setDbName(s);
+            tableRsp.setDbTitle(title);
+            Set<String> db = mongoClient.getDB(a).getCollectionNames();
+            ArrayList<String> list = new ArrayList<>(db);
+            tableRsp.setDbTable(list);
+            rsps.add(tableRsp);
+        }
+        return rsps;
+    }
+
+    @Override
     public BasePage<DataStoreRsp> listDataStore(DataStoreScreenReq req) {
         MongoCollection<Document> collection = getCollection();
         Integer size = req.getSize();
@@ -189,9 +228,12 @@ public class DataStoreServiceImpl implements DataStoreService {
         if (dataStoreRsps == null || dataStoreRsps.isEmpty()) {
             return;
         }
+
         Map<String, String> dataMap = Maps.newHashMap();
         for (DataStoreRsp dataStore : dataStoreRsps) {
+
             String dataName = dataStore.getDbName();
+
             if (dataMap.containsKey(dataName)) {
                 dataStore.setTitle(dataMap.get(dataName));
             } else {
@@ -275,11 +317,8 @@ public class DataStoreServiceImpl implements DataStoreService {
         FindIterable<Document> findIterable;
         long count = collection.countDocuments();
         findIterable = collection.find().sort(Sorts.descending("createdate")).skip(page).limit(size);
-        List<Map<String, Object>> maps = filterData(findIterable);
-
-        return new BasePage(count, maps);
+        return new BasePage(count, filterData(findIterable));
     }
-
 
     @Override
     public void rerun(DtReq req) {
@@ -310,20 +349,32 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
 
-    private List<Map<String, Object>> filterData(FindIterable<Document> findIterable) {
-        List<Map<String, Object>> list = new ArrayList<>();
+    private List<DataStoreRsp> filterData(FindIterable<Document> findIterable) {
+        List<DataStore> list = new ArrayList<>();
         for (Document document : findIterable) {
-            Map<String, Object> map = new HashMap<>();
             JSONObject jsonObject = JSON.parseObject(document.toJson());
-            Map rawData = JSON.parseObject(jsonObject.get(DB_VIEW_DATA).toString(), Map.class);
+            Map rawData = JSON.parseObject(jsonObject.get(DB_VIEW_DATA) + "", Map.class);
             document.remove(DB_VIEW_DATA);
-            map.putAll(rawData);
-            map.put("data", document);
-            map.put("title", map.remove("dbTitle"));
-            list.add(map);
-        }
+            String dataFrom = rawData.get("dataFrom") + "";
+            DataStore dataStore;
+            //数据来源是 数仓数据修改
+            if (Objects.equals(dataFrom, "dw")) {
+                dataStore = new DataStore();
+                dataStore.setDbName(rawData.get("dbName") + "");
+                dataStore.setStatus(DB_VIEW_STATUS);
 
-        return list;
+            } else {
+                dataStore = documentConverter.toBean(new Document(rawData), DataStore.class);
+
+            }
+            // dataStore.setId(document.getObjectId("_id").toHexString());
+            document.remove(MONGO_ID);
+            dataStore.setData(JSONObject.toJSONString(document));
+            list.add(dataStore);
+        }
+        List<DataStoreRsp> dataStoreRsps = MapperUtils.map(list, DataStoreRsp.class);
+        addDataStoreTitle(dataStoreRsps);
+        return dataStoreRsps;
     }
 
     private Document getAllData(Document document, DataStoreReq req) {
@@ -334,43 +385,5 @@ public class DataStoreServiceImpl implements DataStoreService {
         allDocument.append(DB_VIEW_DATA, document);
         allDocument.putAll(filterDataId(req.getData()));
         return allDocument;
-    }
-
-
-    @Override
-    public Map<String, String> listErrDataNameSearch() {
-        String userId = SessionHolder.getUserId();
-        //查询出该用户下的所有表
-        List<DWDatabase> all = dwDatabaseRepository.findByUserId(userId);
-        //没有没有查询到,直接返回
-        if (all == null || all.size() == 0) {
-            return null;
-        }
-        Map<String, String> map = new HashMap();
-        //使用map封装该用户下 所有表和 数仓标题  注意 OOM
-        for (DWDatabase dw : all) {
-            map.put(dw.getDataName(), dw.getTitle());
-
-        }
-        //过滤 只保存 该用户的 表名称
-        List<String> allList = all.stream().map(DWDatabase::getDataName).distinct().collect(Collectors.toList());
-        allList.forEach(s -> s.replace(DB_FIX_NAME_PREFIX, s));
-        //在mongo中查询出 所有的表名
-        List<String> database = mongoClient.getDatabaseNames();
-        //找到以return前缀开头的表
-        List<String> filterList = database.stream().filter(s -> s.startsWith(DB_FIX_NAME_PREFIX)).collect(Collectors.toList());
-        //去交集得出结果
-        List<String> intersection = (List<String>) CollectionUtils.intersection(database, filterList);
-        Map<String, String> mapRsp = new HashMap<>();
-        for (String a : intersection) {
-            String title = map.get(a.replaceFirst(DB_FIX_NAME_PREFIX, ""));
-            if (!StringUtils.isEmpty(title)) {
-                mapRsp.put(title + "(" + a + ")", userId);
-            } else {
-                mapRsp.put(a, userId);
-            }
-        }
-        return mapRsp;
-
     }
 }

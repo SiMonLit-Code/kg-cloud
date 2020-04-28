@@ -22,4 +22,8 @@ public class DtReq {
     private String dbTable;
 
 
+    @ApiModelProperty("状态标识 1=已修改 0=错误")
+    private int status;
+
+
 }
