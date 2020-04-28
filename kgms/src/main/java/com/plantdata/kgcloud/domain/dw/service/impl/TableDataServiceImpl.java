@@ -231,12 +231,20 @@ public class TableDataServiceImpl implements TableDataService {
         byte[] bytes = fastdfsTemplate.downloadFile(req.getPath());
 
         DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(req);
-        fileTable.setFileSize(new Long(bytes.length));
+        fileTable.setFileSize((long) bytes.length);
         fileTable.setUserId(SessionHolder.getUserId());
         if (req.getFileName() != null && req.getFileName().contains(".")) {
             fileTable.setType(req.getFileName().substring(req.getFileName().lastIndexOf(".") + 1));
         }
-        fileTable.setDataBaseId(req.getDataBaseId());
+        fileTable.setTitle(req.getFileName());
+        fileTable.setIndexType(0);
+        fileTable.setUserId(SessionHolder.getUserId());
+        fileTable.setCreateTime(new Date());
+        Document document = documentConverter.toDocument(fileTable);
+        MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
+        mongoCollection.insertOne(document);
+        DWFileTable dwFileTable = documentConverter.toBean(document,DWFileTable.class);
+
 
         // 对压缩包进行解压
         String zFile = "" + req.getPath().substring(req.getPath().lastIndexOf("/"));
@@ -250,7 +258,7 @@ public class TableDataServiceImpl implements TableDataService {
         } catch (Exception e) {
         }
 
-        return fileTableRepository.save(fileTable);
+        return dwFileTable;
     }
 
     public void unZip(File zipFile, String outDir) throws Exception {
