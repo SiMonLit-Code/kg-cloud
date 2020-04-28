@@ -9,20 +9,15 @@ import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.MongoApi;
+import ai.plantdata.kg.api.pub.RelationApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
+import ai.plantdata.kg.api.pub.resp.RelationVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
-import com.plantdata.kgcloud.domain.app.converter.AttrDefConverter;
-import com.plantdata.kgcloud.domain.app.converter.AttrDefGroupConverter;
-import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.app.converter.ComplexGraphAnalysisConverter;
-import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
-import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
-import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
-import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
+import com.plantdata.kgcloud.domain.app.converter.*;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
@@ -60,6 +55,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.DictRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -119,6 +115,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private BasicInfoService basicInfoService;
     @Autowired
     private DomainDictService domainDictService;
+    @Autowired
+    private RelationApi relationApi;
 
     @Override
     public SchemaRsp querySchema(String kgName) {
@@ -257,29 +255,30 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         detailFilter.setEntity(true);
         //概念
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
-        if(entityListOpt.isPresent() && req.getRelationAttrs()) {
-            RelationListFrom relationListFrom = new RelationListFrom();
-            relationListFrom.setEntityId(req.getIds().get(0));
-            BasicReq basicReq = new BasicReq();
-            basicReq.setId(req.getIds().get(0));
-            basicReq.setIsEntity(true);
-            relationListFrom.setConceptId(basicInfoService.getDetails(kgName,basicReq).getConceptId());
-            entityListOpt.get().get(0).setAttrValue(conceptEntityApi.relationList(kgName,relationListFrom).getData());
-        }
-
         detailFilter.setEntity(false);
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> conceptListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
-        List<Long> entityIds = new ArrayList<>();
+
         entityListOpt.ifPresent(entityList ->
         {
-            entityList.forEach(entity ->entityIds.add(entity.getId()));
+            List<Long> entityIds = entityList.stream().map(ai.plantdata.kg.api.edit.resp.EntityVO::getId).collect(Collectors.toList());
+
             BasicConverter.consumerIfNoNull(req.getAllowAttrs(), allowAttrIds -> entityList.forEach(entity -> {
                 BasicConverter.consumerIfNoNull(entity.getAttrValue(),
                         a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
             Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(kgName, entityIds);
+            Map<Long, List<KnowledgeIndexRsp>> indexMap = basicInfoService.listKnowledgeIndexs(kgName, entityIds);
+            //查询对象属性
+            Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
+            Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
+            Map<Long, List<RelationVO>> reverseMap = Maps.newHashMap();
+            relationOpt.ifPresent(relations -> relations.forEach(a -> {
+                positiveMap.computeIfAbsent(a.getFrom().getId(), v -> Lists.newArrayList()).add(a);
+                reverseMap.computeIfAbsent(a.getTo().getId(), v -> Lists.newArrayList()).add(a);
+            }));
             BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
-                    a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()))), infoBoxRspList::addAll);
+                    a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()), indexMap.get(a.getId()),
+                            positiveMap.get(a.getId()), reverseMap.get(a.getId()))), infoBoxRspList::addAll);
 
         });
         conceptListOpt.ifPresent(conceptList ->

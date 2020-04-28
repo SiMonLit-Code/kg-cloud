@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.service;
 
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
 import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
@@ -22,11 +23,13 @@ public interface TableDataService {
 
     DWFileTable fileAdd(DWFileTableReq req);
 
-    Page<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq);
+    BasePage<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq);
 
     void fileUpdate(DWFileTableUpdateReq fileTableReq);
 
-    void fileDelete(Integer id);
+    void fileDelete(String id);
+
+    void fileDeleteBatch(List<String> ids);
 
     void fileAddBatch(DWFileTableBatchReq fileTableReq, MultipartFile[] files);
 

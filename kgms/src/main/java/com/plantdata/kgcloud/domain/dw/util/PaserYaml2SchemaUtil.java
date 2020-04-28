@@ -224,7 +224,7 @@ public class PaserYaml2SchemaUtil {
                         if(attr.getAttrType().equals(1)){
                             List<PreBuilderRelationAttrRsp> relationAttrRsps = attr.getRelationAttrs();
 
-                            if(relationAttrRsps != null && relationAttrRsps.isEmpty()){
+                            if(relationAttrRsps != null && !relationAttrRsps.isEmpty()){
 
                                 if(relation.getRelationAttrs() == null){
                                     relation.setRelationAttrs(new ArrayList<>());

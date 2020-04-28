@@ -1077,6 +1077,12 @@ public class KtrXml {
                 "    </GUI>\n" +
                 "  </step>";
 
+        static String mongoAllQueryXMl = "{\n" +
+                "  \"_id\": {\n" +
+                "    \"$exists\":${key}\n" +
+                "  }\n" +
+                "}\n";
+
         static String mongoTimeQueryXMl = "{\n" +
                 "    \"timeFieldQAQ\": {\n" +
                 "        \"$gte\": \"${StartTime}\",\n" +
@@ -1089,8 +1095,8 @@ public class KtrXml {
 
         static String mongoTimeQueryDateFieldXMl = "{\n" +
                 "    \"timeFieldQAQ\": {\n" +
-                "        \"$gte\": ISODate(\"${StartTime}\"),\n" +
-                "        \"$lt\": ISODate(\"${EndTime}\"}\n" +
+                "        \"$gte\": {\"$date\":\"${StartTime}\"},\n" +
+                "        \"$lt\": {\"$date\":\"${EndTime}\"}\n" +
                 "    },\n" +
                 "  \"_id\": {\n" +
                 "    \"$exists\":${key}\n" +

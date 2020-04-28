@@ -36,6 +36,4 @@ public class BasicEntityRsp implements MetaDataInterface {
     private Date endTime;
     @ApiModelProperty("创建时间")
     private String creationTime;
-    @ApiModelProperty(value = "多模态数据")
-    private List<MultiModalRsp> multiModals;
 }

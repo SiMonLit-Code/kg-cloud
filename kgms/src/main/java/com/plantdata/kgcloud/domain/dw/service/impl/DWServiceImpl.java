@@ -17,11 +17,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.config.MongoProperties;
-import com.plantdata.kgcloud.constant.AccessTaskType;
-import com.plantdata.kgcloud.constant.CommonConstants;
-import com.plantdata.kgcloud.constant.KgmsConstants;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.access.entity.DWTask;
+import com.plantdata.kgcloud.constant.*;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.data.entity.DWDataStatusDatail;
@@ -33,11 +29,9 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dataset.provider.MongodbOptProvider;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
-import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
 import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
-import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.*;
@@ -45,6 +39,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.dw.service.StandardTemplateService;
+import com.plantdata.kgcloud.domain.dw.service.TableDataService;
 import com.plantdata.kgcloud.domain.dw.util.ExampleTagJson;
 import com.plantdata.kgcloud.domain.dw.util.ExampleYaml;
 import com.plantdata.kgcloud.domain.dw.util.PaserYaml2SchemaUtil;
@@ -109,6 +104,7 @@ public class DWServiceImpl implements DWService {
     private final static String KETTLE_LOGS_COLLECTION = "logs_data";
     private final static String KETTLE_LOGS_RECODE = "logs_data_recode";
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
+
     @Autowired
     private MongoClient mongoClient;
     @Autowired
@@ -134,13 +130,13 @@ public class DWServiceImpl implements DWService {
     private MongoProperties mongoProperties;
 
     @Autowired
-    private DWFileTableRepository fileTableRepository;
-
-    @Autowired
     private DWPrebuildModelRepository modelRepository;
 
     @Autowired
     private UserClient userClient;
+
+    @Autowired
+    private TableDataService tableDataService;
 
     private final Function<DWDatabase, DWDatabaseRsp> dw2rsp = (s) -> {
         DWDatabaseRsp dwRsp = new DWDatabaseRsp();
@@ -289,6 +285,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         List<Integer> templateIds = database.getStandardTemplateId();
 
         if (templateIds == null || templateIds.isEmpty()) {
@@ -324,6 +324,10 @@ public class DWServiceImpl implements DWService {
     private String getIndustryTableKtr(Long databaseId, String tableName) {
 
         DWDatabaseRsp database = getDetail(databaseId);
+
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
 
         List<Integer> templateIds = database.getStandardTemplateId();
 
@@ -564,14 +568,8 @@ public class DWServiceImpl implements DWService {
 
         if (DWDataFormat.isFile(dwOpt.get().getDataFormat())) {
             //文件系统
-
-            List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().tableId(tableId).build()));
-            if (files != null && !files.isEmpty()) {
-
-                for (DWFileTable file : files) {
-                    fileTableRepository.deleteById(file.getId());
-                }
-            }
+            MongoCollection<Document> mongoCollection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
+            mongoCollection.deleteMany(Filters.eq("tableId", tableId));
         } else {
 
             Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).id(tableId).build()));
@@ -736,11 +734,21 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
+        DWTableRsp tableRsp = findTableByTableName(SessionHolder.getUserId(),databaseId,tableName);
+
+        if(tableRsp == null){
+            return new ArrayList<>();
+        }
+
         List<String> fieldEnums;
-        if (database.getDataType().equals(DataType.MONGO.getDataType())) {
+        if (database.getDataType() == null || database.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
-                fieldEnums = getMongoAggr(database, tableName, field);
+                if(tableRsp.getCreateWay().equals(1)){
+                    fieldEnums = getMongoAggr(database, tableName, field,false);
+                }else{
+                    fieldEnums = getMongoAggr(database, tableName, field,true);
+                }
 
             } catch (Exception e) {
                 throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
@@ -771,29 +779,35 @@ public class DWServiceImpl implements DWService {
         return fieldEnums;
     }
 
-    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field) {
-        MongoClient mongoClient = null;
+    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field,boolean isLocal) {
+        MongoClient client = null;
         try {
-            //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
-            //ServerAddress()两个参数分别为 服务器地址 和 端口
-            ServerAddress serverAddress = new ServerAddress(dwDatabase.getAddr().get(0).split(":")[0], Integer.parseInt(dwDatabase.getAddr().get(0).split(":")[1]));
-            List<ServerAddress> addrs = new ArrayList<ServerAddress>();
-            addrs.add(serverAddress);
+            MongoDatabase mongoDatabase;
+            if(!isLocal){
 
-            //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
+                //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
+                //ServerAddress()两个参数分别为 服务器地址 和 端口
+                ServerAddress serverAddress = new ServerAddress(dwDatabase.getAddr().get(0).split(":")[0], Integer.parseInt(dwDatabase.getAddr().get(0).split(":")[1]));
+                List<ServerAddress> addrs = new ArrayList<ServerAddress>();
+                addrs.add(serverAddress);
 
-            if (StringUtils.hasText(dwDatabase.getUsername()) && StringUtils.hasText(dwDatabase.getPassword())) {
-                MongoCredential credential = MongoCredential.createScramSha1Credential(dwDatabase.getUsername(), dwDatabase.getDbName(), dwDatabase.getPassword().toCharArray());
-                List<MongoCredential> credentials = new ArrayList<MongoCredential>();
-                credentials.add(credential);
-                mongoClient = new MongoClient(addrs, credentials);
-            } else {
-                mongoClient = new MongoClient(addrs);
+                //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
+
+                if (StringUtils.hasText(dwDatabase.getUsername()) && StringUtils.hasText(dwDatabase.getPassword())) {
+                    MongoCredential credential = MongoCredential.createScramSha1Credential(dwDatabase.getUsername(), dwDatabase.getDbName(), dwDatabase.getPassword().toCharArray());
+                    List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+                    credentials.add(credential);
+                    client = new MongoClient(addrs, credentials);
+                } else {
+                    client = new MongoClient(addrs);
+                }
+
+                //通过连接认证获取MongoDB连接
+                // 连接到数据库
+                mongoDatabase = client.getDatabase(dwDatabase.getDbName());
+            }else{
+                mongoDatabase = mongoClient.getDatabase(dwDatabase.getDataName());
             }
-
-            //通过连接认证获取MongoDB连接
-            // 连接到数据库
-            MongoDatabase mongoDatabase = mongoClient.getDatabase(dwDatabase.getDbName());
 
 
             MongoCollection<Document> collection = mongoDatabase.getCollection(tableName);
@@ -809,6 +823,9 @@ public class DWServiceImpl implements DWService {
                 Document item_doc = cursor.next();
                 Object value = item_doc.get("_id", Object.class);
 
+                if(value == null){
+                    continue;
+                }
                 colls.add(value + "");
             }
 
@@ -816,9 +833,9 @@ public class DWServiceImpl implements DWService {
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.REMOTE_TABLE_FIND_ERROR);
         } finally {
-            if (mongoClient != null) {
+            if (client != null) {
                 try {
-                    mongoClient.close();
+                    client.close();
                 } catch (Exception e) {
                 }
             }
@@ -1036,6 +1053,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp dwDatabase = getDetail(req.getDwDataBaseId());
 
+        if(dwDatabase == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDwDataBaseId()).tableName(req.getTitle()).build()));
 
         if (opt.isPresent()) {
@@ -1116,17 +1137,17 @@ public class DWServiceImpl implements DWService {
             DataSetSchema schema = new DataSetSchema();
             schema.setField(name);
             try {
-                if(field.getType() == Integer.class){
+                if (field.getType() == Integer.class) {
                     schema.setType(FieldType.INTEGER.getCode());
-                }else if(field.getType() == Long.class){
+                } else if (field.getType() == Long.class) {
                     schema.setType(FieldType.LONG.getCode());
-                }else if(field.getType() == String.class){
+                } else if (field.getType() == String.class) {
                     schema.setType(FieldType.STRING.getCode());
-                }else if(field.getType() == Date.class){
+                } else if (field.getType() == Date.class) {
                     schema.setType(FieldType.DATE.getCode());
-                }else if(field.getType() == List.class || field.getType() == Set.class){
+                } else if (field.getType() == List.class || field.getType() == Set.class) {
                     schema.setType(FieldType.ARRAY.getCode());
-                }else{
+                } else {
                     schema.setType(FieldType.STRING.getCode());
                 }
             } catch (Exception e) {
@@ -1771,6 +1792,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(id);
 
+        if(database == null){
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         userId = userClient.getCurrentUserDetail().getData().getId();
         if (!database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
@@ -1829,7 +1854,7 @@ public class DWServiceImpl implements DWService {
     public Integer push(String userId, ModelPushReq req) {
 
         DWDatabaseRsp database = getDetail(req.getId());
-        if (!database.getUserId().equals(userId)) {
+        if (database == null || !database.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
@@ -1950,6 +1975,10 @@ public class DWServiceImpl implements DWService {
 
         Optional<DWTable> dwTable = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
 
+        if(!dwTable.isPresent()){
+            return null;
+        }
+
         return ConvertUtils.convert(DWTableRsp.class).apply(dwTable.get());
     }
 
@@ -2015,6 +2044,10 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
+        if(database == null){
+            throw  BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        }
+
         //不是PD类型数据库不用上传tagjson
         if ((DWDataFormat.isPDd2r(database.getDataFormat()) || DWDataFormat.isPDdoc(database.getDataFormat())) && file.getOriginalFilename().endsWith(".json")) {
             tagUpload(databaseId, file);
@@ -2049,7 +2082,12 @@ public class DWServiceImpl implements DWService {
 
     private Long setTableFileCount(Long tbId, Long dbId) {
 
-        return fileTableRepository.count(Example.of(DWFileTable.builder().tableId(tbId).dataBaseId(dbId).build()));
+        MongoCollection<Document> mongoCollection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
+        List<Bson> bsons = new ArrayList<>(2);
+        bsons.add(Filters.eq("dataBaseId", dbId));
+        bsons.add(Filters.eq("tableId", tbId));
+        long count = mongoCollection.countDocuments(Filters.and(bsons));
+        return mongoCollection.countDocuments(Filters.and(bsons));
 
     }
 
@@ -2165,13 +2203,8 @@ public class DWServiceImpl implements DWService {
 
         if (DWDataFormat.isFile(dwOpt.get().getDataFormat())) {
             //文件系统
-            List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().dataBaseId(id).build()));
-            if (files != null && !files.isEmpty()) {
-
-                for (DWFileTable file : files) {
-                    fileTableRepository.deleteById(file.getId());
-                }
-            }
+            MongoCollection<Document> mongoCollection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
+            mongoCollection.deleteMany(Filters.eq("dataBaseId", id));
         }
 
 
@@ -2198,14 +2231,8 @@ public class DWServiceImpl implements DWService {
 
         if (DWDataFormat.isFile(dwOpt.get().getDataFormat())) {
             //文件系统
-
-            List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().tableId(tableId).build()));
-            if (files != null && !files.isEmpty()) {
-
-                for (DWFileTable file : files) {
-                    fileTableRepository.deleteById(file.getId());
-                }
-            }
+            MongoCollection<Document> mongoCollection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
+            mongoCollection.deleteMany(Filters.eq("tableId", tableId));
         }
 
 
@@ -2402,8 +2429,7 @@ public class DWServiceImpl implements DWService {
 
                     DataSetSchema dataSetSchema = new DataSetSchema();
                     dataSetSchema.setField(field);
-
-                    dataSetSchema.setType(ExampleYaml.readType(column.getValue()).getCode());
+                    dataSetSchema.setType(dataSetService.readType(column.getValue()).getCode());
                     rsList.add(dataSetSchema);
                 }
 
@@ -2629,9 +2655,10 @@ public class DWServiceImpl implements DWService {
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
         String userId = SessionHolder.getUserId() == null ? userClient.getCurrentUserDetail().getData().getId() : SessionHolder.getUserId();
-        List<Bson> bsons = new ArrayList<>(2);
+        List<Bson> bsons = new ArrayList<>(3);
         bsons.add(Filters.eq("userId", userId));
         bsons.add(Filters.eq("tableName", req.getTableName()));
+        bsons.add(Filters.eq("dbId", req.getDbId()));
         FindIterable<Document> findIterable;
         long count = 0;
         count = collection.countDocuments(Filters.and(bsons));
@@ -2663,7 +2690,8 @@ public class DWServiceImpl implements DWService {
 
     @Override
     public DWDatabaseRsp findById(String tableId) {
-        String userId = SessionHolder.getUserId();
+        String userId =userClient.getCurrentUserDetail().getData().getId();
+        //String userId = SessionHolder.getUserId();
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
                 .build();

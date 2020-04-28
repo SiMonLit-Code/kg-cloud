@@ -5,6 +5,8 @@ import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.TagRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DictRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +32,10 @@ public class EntityLinksRsp extends BasicEntityRsp {
     private List<EntityLinkVO> entityLinks;
     @ApiModelProperty("领域词")
     private List<DictRsp> dictList;
+    @ApiModelProperty(value = "多模态数据")
+    private List<MultiModalRsp> multiModals;
+    @ApiModelProperty("知识标引")
+    private List<KnowledgeIndexRsp> knowledgeIndexs;
 
     @Setter
     @Getter

@@ -50,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -72,6 +73,9 @@ public class DataSetServiceImpl implements DataSetService {
     private final static String JSON_START = "{";
     private final static String ARRAY_START = "[";
     private final static String ARRAY_STRING_START = "[\"";
+    private final static SimpleDateFormat format = new SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
     private final Function<DataSet, DataSetRsp> dataSet2rsp = (s) -> {
         DataSetRsp dataSetRsp = new DataSetRsp();
         BeanUtils.copyProperties(s, dataSetRsp);
@@ -472,7 +476,11 @@ public class DataSetServiceImpl implements DataSetService {
                 JacksonUtils.getInstance().readValue(string, ObjectNode.class);
                 type = FieldType.OBJECT;
             } catch (Exception e) {
-                type = FieldType.STRING;
+                if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                    type = FieldType.TEXT;
+                }else{
+                    type = FieldType.STRING;
+                }
             }
         } else if (string.startsWith(ARRAY_START)) {
             if (string.startsWith(ARRAY_STRING_START)) {
@@ -481,14 +489,23 @@ public class DataSetServiceImpl implements DataSetService {
                     });
                     type = FieldType.STRING_ARRAY;
                 } catch (Exception e) {
-                    type = FieldType.STRING;
+                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                        type = FieldType.TEXT;
+                    }else{
+                        type = FieldType.STRING;
+                    }
                 }
             } else {
                 try {
-                    JacksonUtils.getInstance().readValue(string, ArrayNode.class);
+                    JacksonUtils.getInstance().readValue(string,new TypeReference<List<Object>>() {
+                    });
                     type = FieldType.ARRAY;
                 } catch (Exception e) {
-                    type = FieldType.STRING;
+                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                        type = FieldType.TEXT;
+                    }else{
+                        type = FieldType.STRING;
+                    }
                 }
             }
         } else if (val instanceof Integer) {
@@ -518,17 +535,16 @@ public class DataSetServiceImpl implements DataSetService {
                     } catch (Exception e4) {
                         try {
                             String date = "\\d{4}-\\d{2}-\\d{2}";
-                            String time = "\\d{2}:\\d{2}:\\d{2}";
                             String dateTime = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
                             if (Pattern.matches(dateTime, string)) {
                                 LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                                type = FieldType.DATE;
-                            } else if (Pattern.matches(time, string)) {
-                                LocalTime.parse(string, DateTimeFormatter.ofPattern("HH:mm:ss"));
-                                type = FieldType.DATE;
+                                type = FieldType.DATETIME;
                             } else if (Pattern.matches(date, string)) {
                                 LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 type = FieldType.DATE;
+                            }else{
+                                format.parse(string);
+                                type = FieldType.DATETIME;
                             }
                         } catch (Exception e2) {
                         }
@@ -537,7 +553,11 @@ public class DataSetServiceImpl implements DataSetService {
             }
 
             if (type == null) {
-                type = FieldType.STRING;
+                if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                    type = FieldType.TEXT;
+                }else{
+                    type = FieldType.STRING;
+                }
             }
         }
         return type;

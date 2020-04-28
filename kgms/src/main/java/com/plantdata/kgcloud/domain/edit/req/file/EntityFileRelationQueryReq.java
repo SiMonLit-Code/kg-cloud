@@ -17,4 +17,7 @@ public class EntityFileRelationQueryReq extends BaseReq {
     @ApiModelProperty(value = "文件名")
     private String name;
 
+    @ApiModelProperty(value = "标引类型")
+    private Integer indexType;
+
 }
