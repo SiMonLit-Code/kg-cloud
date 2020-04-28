@@ -456,27 +456,33 @@ public class TableDataServiceImpl implements TableDataService {
         map.put("dataFrom", "dw");
         map.put("status", DB_VIEW_STATUS);
         data.put(DB_VIEW_DATA, map);
-
-        collection.insertOne(new Document(data));
+        Object id = getMongoId(baseReq.getId());
+        update(data, id, collection);
         data.remove(mongoId);
         data.remove(DB_VIEW_DATA);
-        update(data, mongoId, collectionLog);
+        update(data, id, collectionLog);
 
 
     }
 
-    public void update(Map<String, Object> data, String mongoId, MongoCollection<Document> collectionLog) {
+
+    public Object getMongoId(String mongoId) {
         Object id;
         if (ObjectId.isValid(mongoId)) {
             id = new ObjectId(mongoId);
         } else {
             id = mongoId;
         }
+        return id;
+    }
+
+    public void update(Map<String, Object> data, Object mongoId, MongoCollection<Document> collectionLog) {
+        Document parse = Document.parse(JacksonUtils.writeValueAsString(data));
         List<Bson> bsonList = new ArrayList<>();
-        for (Map.Entry<String, Object> entry : data.entrySet()) {
-            Bson set = Updates.set(entry.getKey(), Document.parse(JacksonUtils.writeValueAsString(entry)));
+        for (Map.Entry<String, Object> entry : parse.entrySet()) {
+            Bson set = Updates.set(entry.getKey(),entry.getValue());
             bsonList.add(set);
         }
-        collectionLog.updateMany(Filters.eq(MONGO_ID, id), Updates.combine(bsonList), new UpdateOptions().upsert(true));
+        collectionLog.updateMany(Filters.eq(MONGO_ID, mongoId), Updates.combine(bsonList), new UpdateOptions().upsert(true));
     }
 }
