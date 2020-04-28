@@ -482,10 +482,6 @@ public class TableDataServiceImpl implements TableDataService {
             map.put("dataFrom", "dw");
             map.put("status", DB_VIEW_STATUS);
             data.put(DB_VIEW_DATA, map);
-            if (count == 0) {
-                data.put(MONGO_ID, mongoId);
-                data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
-                data.put(DB_VIEW_DATA, map);
                 if (count == 0) {
                     collection.insertOne(new Document(data));
                     data.remove(MONGO_ID);
@@ -502,6 +498,5 @@ public class TableDataServiceImpl implements TableDataService {
 
         }
 
-    }
 
 }
