@@ -192,7 +192,6 @@ public class DataStoreServiceImpl implements DataStoreService {
             String keyWord = egrularEscape(req.getKeyword());
             bsons.add(Filters.regex("errorReason", keyWord));
         }
-        Filters.regex("errorReason", req.getKeyword());
         FindIterable<Document> findIterable;
         long count = 0;
         if (bsons.isEmpty()) {
