@@ -1957,9 +1957,9 @@ public class DWServiceImpl implements DWService {
 
         if (StringUtils.hasText(table.getTableName())) {
 
-            table.setSchedulingSwitch(req.getSchedulingSwitch());
-
-            tableRepository.save(table);
+//            table.setSchedulingSwitch(req.getSchedulingSwitch());
+//
+//            tableRepository.save(table);
 
             //增量没字段不开启
             if (table.getIsAll() != null && table.getIsAll().equals(2) && table.getQueryField() == null) {
