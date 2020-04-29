@@ -23,7 +23,7 @@ public interface TableDataService {
 
     DWFileTable fileAdd(DWFileTableReq req);
 
-    BasePage<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq);
+    Page<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq);
 
     void fileUpdate(DWFileTableUpdateReq fileTableReq);
 

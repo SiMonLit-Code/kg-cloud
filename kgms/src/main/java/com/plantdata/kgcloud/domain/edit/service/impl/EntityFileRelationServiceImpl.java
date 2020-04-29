@@ -7,7 +7,6 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.constant.DWFileConstants;
@@ -38,6 +37,9 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -142,23 +144,25 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         return mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.RELATION);
     }
 
-    DWFileRsp convertToDWFileRsp(Document document) {
+    DWFileRsp convertToDWFileRsp(Document document, String kgName) {
         DWFileRsp dwFileRsp = DWFileRsp.builder().id(document.getObjectId("_id").toString())
                 .title(document.getString("title")).indexType(document.getInteger("indexType"))
                 .keyword(document.getString("keyword"))
                 .description(document.getString("description")).url("url").build();
-        List<EntityFileRelationRsp> list = convertToEntityFileRelationRspList((List<Document>) document.get("relationList"));
+        List<EntityFileRelationRsp> list = convertToEntityFileRelationRspList((List<Document>) document.get("relationList"), kgName);
         dwFileRsp.setRelationList(list);
         return dwFileRsp;
     }
 
-    List<EntityFileRelationRsp> convertToEntityFileRelationRspList(List<Document> documents) {
+    List<EntityFileRelationRsp> convertToEntityFileRelationRspList(List<Document> documents, String kgName) {
         List<EntityFileRelationRsp> list = Lists.newArrayList();
         for (Document document : documents) {
-            EntityFileRelationRsp relationRsp = EntityFileRelationRsp.builder().id(document.getObjectId("_id").toString())
-                    .kgName(document.getString("kgName")).entityId(document.getLong("entityId"))
-                    .dwFileId(document.getObjectId("dwFileId").toString()).createTime(document.getDate("createTime")).build();
-            list.add(relationRsp);
+            if (document.getString("kgName").equals(kgName)) {
+                EntityFileRelationRsp relationRsp = EntityFileRelationRsp.builder().id(document.getObjectId("_id").toString())
+                        .kgName(document.getString("kgName")).entityId(document.getLong("entityId"))
+                        .dwFileId(document.getObjectId("dwFileId").toString()).createTime(document.getDate("createTime")).build();
+                list.add(relationRsp);
+            }
         }
         return list;
     }
@@ -170,14 +174,17 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
-    public BasePage<DWFileRsp> listRelation(String kgName, EntityFileRelationQueryReq req) {
+    public Page<DWFileRsp> listRelation(String kgName, EntityFileRelationQueryReq req) {
 
         int size = req.getSize();
         int pageNo = (req.getPage() - 1) * size;
         List<Bson> aggLs = new ArrayList<>();
         aggLs.add(Aggregates.lookup(DWFileConstants.RELATION, "_id", "dwFileId", "relationList"));
-        aggLs.add(Aggregates.match(Filters.elemMatch("relationList", Filters.eq("kgName", kgName))));
-        aggLs.add(Aggregates.match(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$"))));
+        // aggLs.add(Filters.or(Aggregates.match(Filters.elemMatch("relationList", Filters.eq("kgName", kgName))),
+        //         Aggregates.match(Filters.exists("relationList", true))));
+        if (StringUtils.isNotBlank(req.getName())) {
+            aggLs.add(Aggregates.match(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$"))));
+        }
         if (req.getIndexType() != null) {
             aggLs.add(Aggregates.match(Filters.eq("indexType", req.getIndexType())));
         }
@@ -189,7 +196,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         List<DWFileRsp> list = Lists.newArrayList();
         List<Long> entityIds = Lists.newArrayList();
         iterator.forEachRemaining(s -> {
-            DWFileRsp dwFileRsp = convertToDWFileRsp(s);
+            DWFileRsp dwFileRsp = convertToDWFileRsp(s, kgName);
             if (dwFileRsp.getRelationList() != null) {
                 entityIds.addAll(dwFileRsp.getRelationList().stream().map(EntityFileRelationRsp::getEntityId).collect(Collectors.toList()));
             }
@@ -211,8 +218,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         int count = list.size();
         if (count > size) {
             list.remove(size);
+            count += pageNo;
         }
-        return new BasePage<>(count, list);
+        return new PageImpl<>(list, PageRequest.of(req.getPage() - 1, size), count);
     }
 
     @Override
@@ -227,8 +235,8 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
     @Override
     public void deleteRelation(List<String> idList) {
-        List<Bson> query = idList.stream().map(id -> documentConverter.buildObjectId(id)).collect(Collectors.toList());
-        getCollection().deleteMany(Filters.and(query));
+        List<ObjectId> collect = idList.stream().map(ObjectId::new).collect(Collectors.toList());
+        getCollection().deleteMany(Filters.in("_id", collect));
     }
 
     @Override

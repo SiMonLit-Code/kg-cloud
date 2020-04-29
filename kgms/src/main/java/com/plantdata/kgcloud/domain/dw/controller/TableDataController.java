@@ -107,7 +107,7 @@ public class TableDataController {
 
     @ApiOperation("文件数仓-分页条件查询")
     @PatchMapping("/file/list/{dataBaseId}/{tableId}")
-    public ApiReturn<BasePage<DWFileTableRsp>> getFileData(
+    public ApiReturn<Page<DWFileTableRsp>> getFileData(
             @PathVariable("tableId") Long tableId,
             @PathVariable("dataBaseId") Long dataBaseId,
             DataOptQueryReq baseReq) {
