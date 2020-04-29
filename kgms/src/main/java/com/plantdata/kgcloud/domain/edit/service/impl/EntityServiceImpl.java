@@ -171,15 +171,12 @@ public class EntityServiceImpl implements EntityService {
         GraphLog graphLog = new GraphLog();
         graphLog.setBatch(ThreadLocalUtils.getBatchNo());
         graphLog.setScope(GraphLogScope.MULTI_DATA);
-        if(GraphLogOperation.UPDATE.equals(operation)){
-            EntityMultiDataSegment segment = new EntityMultiDataSegment();
-            segment.setId(multiModal.getEntityId());
-            graphLog.setNewValue(segment);
-            graphLog.setOperation(GraphLogOperation.ADD);
+        if(GraphLogOperation.DELETE.equals(operation)){
+            graphLog.setOldValue(transform(multiModal));
         }else{
             graphLog.setNewValue(transform(multiModal));
-            graphLog.setOperation(operation);
         }
+        graphLog.setOperation(operation);
         logSender.sendKgLog(kgDbName, graphLog);
     }
 
@@ -236,7 +233,7 @@ public class EntityServiceImpl implements EntityService {
         logSender.setActionId();
         // 删除实体文件关联
         MultiModal multiModal = entityFileRelationService.getMultiModalById(relationId);
-        sendMsg(kgName, multiModal, GraphLogOperation.UPDATE);
+        sendMsg(kgName, multiModal, GraphLogOperation.DELETE);
         entityFileRelationService.deleteById(relationId);
         logSender.remove();
     }
