@@ -41,7 +41,7 @@ public class PrestoCompute {
         return null;
     }
 
-    public Object compute(String sql){
+    public Object compute(String sql)throws SQLException{
 
         Connection conn = PrestoSingleton.getConnection();
 
@@ -53,7 +53,9 @@ public class PrestoCompute {
             rs = pstmt.executeQuery(sql);
             return wrapResultSet(rs);
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            throw e;
+        } catch(Exception e){
             e.printStackTrace();
         } finally {
             if(rs!=null){
