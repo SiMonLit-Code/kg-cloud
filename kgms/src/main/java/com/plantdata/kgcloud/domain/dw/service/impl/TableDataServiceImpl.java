@@ -134,20 +134,93 @@ public class TableDataServiceImpl implements TableDataService {
         try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
 
             PageRequest pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
+            DWTable table = dwService.getTableDetail(tableId);
             List<Map<String, Object>> maps = provider.find(baseReq.getOffset(), baseReq.getLimit(), query);
+            List<Map<String, Object>> mapResult = new ArrayList<>();
+            for (int i = 0; i < maps.size(); i++) {
+                Map<String, Object> map = maps.get(i);
+
+                Map<String, Object> result = filterSchema(table, map);
+
+                mapResult.add(result);
+            }
             long count = provider.count(query);
-            return new PageImpl<>(maps, pageable, count);
+            return new PageImpl<>(mapResult, pageable, count);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
         }
     }
 
-    private DataOptProvider getProvider(String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
+    // TODO
+    @Override
+    public Map<String, Object> getDataById(String userId, Long datasetId, Long tableId, String dataId) {
+        try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
+            //从Mongodb中取得这条数据
+            Map<String, Object> one = provider.findOne(dataId);
+            DWTable table = dwService.getTableDetail(tableId);
+            if (table == null) {
+                throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+            }
+
+            //遍历这条数据里所有的key value
+            return filterSchema(table, one);
+
+        } catch (IOException e) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+        }
+    }
+
+    private Map<String, Object> filterSchema(DWTable table, Map<String, Object> one) {
+
+        //得到这条数据的Schema
+        List<DataSetSchema> schema = table.getSchema();
+        //把Schema信息放入到这个Map集合中.  Key=id,value=object
+        Map<String, DataSetSchema> schemaMap = new HashMap<>();
+        for (DataSetSchema o : schema) {
+            schemaMap.put(o.getField(), o);
+        }
+        Map<String, Object> result = new HashMap<>();
+
+        //遍历这条数据里所有的key value
+        for (Map.Entry<String, Object> entry : one.entrySet()) {
+            //如果schema中有这条数据的key
+            DataSetSchema scm = schemaMap.get(entry.getKey());
+            if (scm != null) {
+                if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
+                        Objects.equals(scm.getType(), FieldType.FLOAT.getCode())) {
+                    BigDecimal value = new BigDecimal(entry.getValue().toString());
+                    if (value.compareTo(new BigDecimal(value.intValue())) == 0) {
+                        DecimalFormat f = new DecimalFormat("##.0");
+                        result.put(entry.getKey(), f.format(value));
+                    } else {
+                        result.put(entry.getKey(), value);
+                    }
+                }
+                //如果类型是时间类型。为了前端方便校验 需要转换为标准格式。
+                else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode())) {
+                    SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
+                    String value = dataString.format(date);
+                    result.put(entry.getKey(), value);
+                } else {
+                    result.put(entry.getKey(), entry.getValue());
+                }
+            } else {
+                result.put(entry.getKey(), entry.getValue());
+            }
+
+        }
+        return result;
+    }
+
+    private DataOptProvider getProvider(String userId, Long datasetId, Long tableId, MongoProperties
+            mongoProperties) {
 
         return getProvider(false, userId, datasetId, tableId, mongoProperties);
     }
 
-    private DataOptProvider getProvider(boolean isLocal, String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
+    private DataOptProvider getProvider(boolean isLocal, String userId, Long datasetId, Long
+            tableId, MongoProperties mongoProperties) {
 
         DWDatabaseRsp database = dwService.getDetail(datasetId);
 
@@ -165,7 +238,8 @@ public class TableDataServiceImpl implements TableDataService {
     }
 
     @Override
-    public List<Map<String, Object>> statistic(String userId, Long datasetId, Long tableId, DwTableDataStatisticReq statisticReq) {
+    public List<Map<String, Object>> statistic(String userId, Long datasetId, Long tableId, DwTableDataStatisticReq
+            statisticReq) {
         try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
             return provider.aggregateStatistics(statisticReq.getFilterMap(), statisticReq.getGroupMap(), statisticReq.getSortMap());
         } catch (Exception e) {
@@ -175,7 +249,8 @@ public class TableDataServiceImpl implements TableDataService {
     }
 
     @Override
-    public List<Map<String, Object>> search(String userId, Long datasetId, Long tableId, DwTableDataSearchReq searchReq) {
+    public List<Map<String, Object>> search(String userId, Long datasetId, Long tableId, DwTableDataSearchReq
+            searchReq) {
         DWDatabaseRsp database = dwService.getDetail(datasetId);
         if (database == null) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
@@ -196,57 +271,6 @@ public class TableDataServiceImpl implements TableDataService {
         return Collections.emptyList();
     }
 
-    @Override
-    public Map<String, Object> getDataById(String userId, Long datasetId, Long tableId, String dataId) {
-        try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
-            //从Mongodb中取得这条数据
-            Map<String, Object> one = provider.findOne(dataId);
-            DWTable table = dwService.getTableDetail(tableId);
-            if (table == null) {
-                throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
-            }
-            //得到这条数据的Schema
-            List<DataSetSchema> schema = table.getSchema();
-            //把Schema信息放入到这个Map集合中.  Key=id,value=object
-            Map<String, DataSetSchema> schemaMap = new HashMap<>();
-            for (DataSetSchema o : schema) {
-                schemaMap.put(o.getField(), o);
-            }
-            Map<String, Object> result = new HashMap<>();
-
-            //遍历这条数据里所有的key value
-            for (Map.Entry<String, Object> entry : one.entrySet()) {
-                //如果schema中有这条数据的key
-                DataSetSchema scm = schemaMap.get(entry.getKey());
-                if (scm != null) {
-                    if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
-                            Objects.equals(scm.getType(), FieldType.FLOAT.getCode())) {
-                        BigDecimal value = new BigDecimal(entry.getValue().toString());
-                        if (value.compareTo(new BigDecimal(value.intValue())) == 0) {
-                            DecimalFormat f = new DecimalFormat("##.0");
-                            result.put(entry.getKey(), f.format(value));
-                        } else {
-                            result.put(entry.getKey(), value);
-                        }
-                    }
-                    //如果类型是时间类型。为了前端方便校验 需要转换为标准格式。
-                    else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode())) {
-                        SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
-                        String value = dataString.format(date);
-                        result.put(entry.getKey(), value);
-                    } else {
-                        result.put(entry.getKey(), entry.getValue());
-                    }
-                } else {
-                    result.put(entry.getKey(), entry.getValue());
-                }
-            }
-            return result;
-        } catch (IOException e) {
-            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
-        }
-    }
     @Override
     public DWFileTable fileAdd(DWFileTableReq req) {
 
@@ -493,7 +517,7 @@ public class TableDataServiceImpl implements TableDataService {
         Document parse = Document.parse(JacksonUtils.writeValueAsString(data));
         List<Bson> bsonList = new ArrayList<>();
         for (Map.Entry<String, Object> entry : parse.entrySet()) {
-            Bson set = Updates.set(entry.getKey(),entry.getValue());
+            Bson set = Updates.set(entry.getKey(), entry.getValue());
             bsonList.add(set);
         }
         collectionLog.updateMany(Filters.eq(MONGO_ID, mongoId), Updates.combine(bsonList), new UpdateOptions().upsert(true));
