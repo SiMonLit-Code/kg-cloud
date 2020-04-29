@@ -23,6 +23,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +60,11 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     private MongoClient mongoClient;
     @Autowired
     private DocumentConverter documentConverter;
+
+    @Autowired
+    private UserClient userClient;
+
+
 
     public static List<LinkedHashMap<String, String>> readExcel(MultipartFile file, Integer indexType) throws IOException {
         // 返回的map
@@ -276,7 +282,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
     @Override
     public MultiModal getMultiModalById(String id) {
-        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
+
+        String userId = userClient.getCurrentUserDetail().getData().getId();
+        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + userId);
         Document document = database.getCollection(DWFileConstants.RELATION).find(Filters.eq("_id", new ObjectId(id))).first();
         if (document != null) {
             ObjectId dwFileId = document.getObjectId("dwFileId");
