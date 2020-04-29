@@ -185,7 +185,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
         List<Bson> aggLs = new ArrayList<>();
         aggLs.add(Aggregates.skip(pageNo));
-        aggLs.add(Aggregates.limit(size + 1));
+        aggLs.add(Aggregates.limit(size + 2));
         if (StringUtils.isNotBlank(req.getName())) {
             aggLs.add(Aggregates.match(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$"))));
         }
