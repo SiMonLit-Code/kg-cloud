@@ -5,13 +5,14 @@ import com.plantdata.kgcloud.plantdata.presto.stat.bean.*;
 import tech.ibit.sqlbuilder.*;
 import tech.ibit.sqlbuilder.aggregate.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class PdStatServiceibit {
 
     private PrestoCompute prestoCompute = new PrestoCompute();
 
-    public Object excute(PdStatBean pdStatBean,String dbName,String tbName) {
+    public Object excute(PdStatBean pdStatBean,String dbName,String tbName) throws SQLException {
 
         String sql = pdStatToSql(pdStatBean,dbName,tbName);
 
