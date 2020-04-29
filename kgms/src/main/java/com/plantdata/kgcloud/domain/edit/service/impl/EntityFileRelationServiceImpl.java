@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.entity.KnowledgeIndex;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
@@ -22,6 +23,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +60,11 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     private MongoClient mongoClient;
     @Autowired
     private DocumentConverter documentConverter;
+
+    @Autowired
+    private UserClient userClient;
+
+
 
     public static List<LinkedHashMap<String, String>> readExcel(MultipartFile file, Integer indexType) throws IOException {
         // 返回的map
@@ -262,9 +269,36 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
+    public void deleteIndex(String kgName, List<String> idList) {
+        List<ObjectId> collect = idList.stream().map(ObjectId::new).collect(Collectors.toList());
+        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
+        database.getCollection(DWFileConstants.INDEX).deleteMany(Filters.in("_id", collect));
+        deleteRelationByDwFileIds(collect);
+    }
+
+    public void deleteRelationByDwFileIds(List<ObjectId> dwFileIds) {
+        getCollection().deleteMany(Filters.in("dwFileId", dwFileIds));
+    }
+
+    @Override
+    public MultiModal getMultiModalById(String id) {
+        String userId = SessionHolder.getUserId();
+//        String userId = userClient.getCurrentUserDetail().getData().getId();
+        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + userId);
+        Document document = database.getCollection(DWFileConstants.RELATION).find(Filters.eq("_id", new ObjectId(id))).first();
+        if (document != null) {
+            ObjectId dwFileId = document.getObjectId("dwFileId");
+            Document file = database.getCollection(DWFileConstants.FILE).find(Filters.eq("_id", dwFileId)).first();
+            MultiModal multiModal = documentConverter.toBean(file, MultiModal.class);
+            multiModal.setEntityId(document.getLong("entityId"));
+            return multiModal;
+        }
+        return null;
+    }
+
+    @Override
     public List<EntityFileRelationRsp> getRelationByDwFileId(String dwFileId) {
-        MongoCollection<Document> mongoCollection = getCollection();
-        MongoCursor<Document> cursor = mongoCollection.find(Filters.eq("dwFileId", new ObjectId(dwFileId))).iterator();
+        MongoCursor<Document> cursor = getCollection().find(Filters.eq("dwFileId", new ObjectId(dwFileId))).iterator();
         List<EntityFileRelationRsp> list = Lists.newArrayList();
         if (cursor.hasNext()) {
             list.add(convertToEntityFileRelationRsp(cursor.next()));

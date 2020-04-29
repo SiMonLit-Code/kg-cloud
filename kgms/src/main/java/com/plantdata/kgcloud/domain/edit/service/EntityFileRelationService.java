@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
@@ -26,6 +27,10 @@ public interface EntityFileRelationService {
 
     void deleteById(String id);
 
+    void deleteIndex(String kgName, List<String> idList);
+
+    MultiModal getMultiModalById(String id);
+
     List<EntityFileRelationRsp> getRelationByDwFileId(String dwFileId);
 
     List<EntityFileRsp> getRelationByKgNameAndEntityId(String kgName, Long entityId);
@@ -39,4 +44,5 @@ public interface EntityFileRelationService {
     boolean checkExist(String kgName, Long entityId, String dwFileId);
 
     boolean checkSize(String kgName, Long entityId);
+
 }
