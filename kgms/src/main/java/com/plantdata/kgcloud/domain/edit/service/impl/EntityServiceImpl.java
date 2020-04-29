@@ -175,10 +175,11 @@ public class EntityServiceImpl implements EntityService {
             EntityMultiDataSegment segment = new EntityMultiDataSegment();
             segment.setId(multiModal.getEntityId());
             graphLog.setNewValue(segment);
+            graphLog.setOperation(GraphLogOperation.ADD);
         }else{
             graphLog.setNewValue(transform(multiModal));
+            graphLog.setOperation(operation);
         }
-        graphLog.setOperation(operation);
         logSender.sendKgLog(kgDbName, graphLog);
     }
 
