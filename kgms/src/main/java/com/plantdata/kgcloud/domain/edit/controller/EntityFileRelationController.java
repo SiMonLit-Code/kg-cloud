@@ -89,4 +89,12 @@ public class EntityFileRelationController {
         return ApiReturn.success();
     }
 
+    @ApiOperation("实体文件管理-批量删除标引")
+    @PostMapping("/{kgName}/delete/index")
+    public ApiReturn deleteIndex(@PathVariable String kgName,
+                                 @RequestBody List<String> idList) {
+        entityFileRelationService.deleteIndex(kgName, idList);
+        return ApiReturn.success();
+    }
+
 }
