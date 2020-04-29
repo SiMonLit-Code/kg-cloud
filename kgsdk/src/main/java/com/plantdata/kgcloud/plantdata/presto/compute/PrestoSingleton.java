@@ -17,36 +17,13 @@ public class PrestoSingleton {
 
     static Config appConfig;
 
-    private static String ip;
-    private static String port;
-    private static  String user;
-    private static  String password;
-
-    @SuppressWarnings("static-access")
-    @Value("${presto.ip}")
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    @SuppressWarnings("static-access")
-    @Value("${presto.port}")
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    @SuppressWarnings("static-access")
-    @Value("${presto.user}")
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    @SuppressWarnings("static-access")
-    @Value("${presto.password}")
-    public void setPaasword(String password) {
-        this.password = password;
-    }
     private static void init(){
         try {
+            appConfig = ConfigService.getConfig("kgsdk");
+            String ip = appConfig.getProperty("presto.ip",null);
+            String port = appConfig.getProperty("presto.port",null);
+            String user = appConfig.getProperty("presto.user",null);
+            String password = appConfig.getProperty("presto.password",null);
             String jdbc_url = "jdbc:presto://"+ip+":"+port+"/system/runtime";
             if(password ==null || "none".equals(password)){
                 password = "";
