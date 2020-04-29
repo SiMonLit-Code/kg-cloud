@@ -496,6 +496,29 @@ public class AccessTaskServiceImpl implements AccessTaskService {
             configJson.put("updateTime",System.currentTimeMillis());
             configJson.put("cron",cronMap.get(table.getCron()));
             configJson.put("isAll",table.getIsAll() == null ? 1 : table.getIsAll());
+            if(table.getQueryField() != null && !table.getQueryField().isEmpty()){
+
+                Integer timeType = 1;
+
+                FieldType type = CreateKtrFile.getFileType(database,table,table.getQueryField(),mongoProperties.getAddrs(),mongoProperties.getUsername(),mongoProperties.getPassword());
+
+                if(type.equals(FieldType.DATE)){
+                    timeType = 3;
+                }else{
+                    for(DataSetSchema schema : table.getSchema()){
+                        if(schema.getField().equals(table.getQueryField())){
+                            if(FieldType.LONG.equals(FieldType.findCode(schema.getType()))){
+                                timeType = 2;
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
+
+                configJson.put("timeType",timeType);
+            }
 
             taskRsp.setConfig(configJson.toJSONString());
 

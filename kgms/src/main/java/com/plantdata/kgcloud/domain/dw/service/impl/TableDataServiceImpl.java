@@ -453,6 +453,7 @@ public class TableDataServiceImpl implements TableDataService {
         update(data, id, collection);
         data.remove(mongoId);
         data.remove(DB_VIEW_DATA);
+        data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
         update(data, id, collectionLog);
 
 
