@@ -185,7 +185,7 @@ public class TableDataServiceImpl implements TableDataService {
                     }
                 }
                 //如果类型是时间类型。为了前端方便校验 需要转换为标准格式。
-                else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode())) {
+                else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode()) && entry.getValue() != null) {
                     SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
                     String value = dataString.format(date);
