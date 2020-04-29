@@ -10,14 +10,10 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
-import com.mongodb.client.result.UpdateResult;
-import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.DWFileConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -46,16 +42,17 @@ import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
-import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -68,8 +65,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
 import static com.plantdata.kgcloud.domain.dw.service.impl.PreBuilderServiceImpl.bytesToFile;
 
 /**
@@ -107,8 +102,8 @@ public class TableDataServiceImpl implements TableDataService {
     @Autowired
     private DocumentConverter documentConverter;
 
-    private MongoCollection<Document> getCollection(String collection) {
-        return mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(collection);
+    private MongoCollection<Document> getCollection() {
+        return mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
     }
 
     @Override
@@ -241,8 +236,7 @@ public class TableDataServiceImpl implements TableDataService {
         fileTable.setUserId(SessionHolder.getUserId());
         fileTable.setCreateTime(new Date());
         Document document = documentConverter.toDocument(fileTable);
-        MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
-        mongoCollection.insertOne(document);
+        getCollection().insertOne(document);
         DWFileTable dwFileTable = documentConverter.toBean(document,DWFileTable.class);
 
 
@@ -331,8 +325,6 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public Page<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq) {
 
-        MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
-
         Integer size = baseReq.getSize();
         Integer page = (baseReq.getPage() - 1) * size;
         List<Bson> bsons = new ArrayList<>(3);
@@ -342,7 +334,7 @@ public class TableDataServiceImpl implements TableDataService {
         bsons.add(Filters.eq("dataBaseId", databaseId));
         bsons.add(Filters.eq("tableId", tableId));
 
-        FindIterable<Document> findIterable = mongoCollection.find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime",-1));
+        FindIterable<Document> findIterable = getCollection().find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime",-1));
         List<DWFileTable> dwFileTables = documentConverter.toBeans(findIterable, DWFileTable.class);
         List<DWFileTableRsp> dataStoreRsps = dwFileTables.stream().map(ConvertUtils.convert(DWFileTableRsp.class)).collect(Collectors.toList());
         int count = dataStoreRsps.size();
@@ -356,7 +348,7 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Override
     public void fileUpdate(DWFileTableUpdateReq fileTableReq) {
-        MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
+        MongoCollection<Document> mongoCollection = getCollection();
         MongoCursor<Document> cursor = mongoCollection.find(documentConverter.buildObjectId(fileTableReq.getId())).iterator();
         if (!cursor.hasNext()) {
             return;
@@ -376,17 +368,15 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Override
     public void fileDelete(String id) {
-        MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
-        mongoCollection.deleteOne(documentConverter.buildObjectId(id));
+        getCollection().deleteOne(documentConverter.buildObjectId(id));
         // 删除实体文件关联
         entityFileRelationService.deleteRelationByDwFileId(id);
     }
 
     @Override
     public void fileDeleteBatch(List<String> ids) {
-        MongoCollection<Document> collection = getCollection(DWFileConstants.FILE);
         List<ObjectId> collect = ids.stream().map(ObjectId::new).collect(Collectors.toList());
-        collection.deleteMany(Filters.in("_id",collect));
+        getCollection().deleteMany(Filters.in("_id",collect));
     }
 
     @Override
@@ -411,8 +401,7 @@ public class TableDataServiceImpl implements TableDataService {
             fileTable.setPath(fastdfsTemplate.uploadFile(file).getFullPath());
             fileTable.setCreateTime(new Date());
             Document document = documentConverter.toDocument(fileTable);
-            MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
-            mongoCollection.insertOne(document);
+            getCollection().insertOne(document);
 
             // 对压缩包进行解压
             byte[] bytes = fastdfsTemplate.downloadFile(fileTable.getPath());

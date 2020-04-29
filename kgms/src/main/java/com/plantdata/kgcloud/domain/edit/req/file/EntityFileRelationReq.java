@@ -21,4 +21,7 @@ public class EntityFileRelationReq {
     @ApiModelProperty("数仓文件ID")
     private String dwFileId;
 
+    @ApiModelProperty("标引类型(0：文件,1：文本,2：链接)")
+    private Integer indexType;
+
 }

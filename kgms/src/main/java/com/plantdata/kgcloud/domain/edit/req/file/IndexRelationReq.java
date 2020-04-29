@@ -17,8 +17,10 @@ public class IndexRelationReq {
     @ApiModelProperty("实体ids")
     private List<Long> entityIds;
 
-    @NotNull(message = "标引文件ID不能为空")
     @ApiModelProperty("标引文件ID")
     private String dwFileId;
+
+    @ApiModelProperty("标引类型")
+    private Integer indexType;
 
 }

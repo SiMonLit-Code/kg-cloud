@@ -26,8 +26,11 @@ public class EntityFileRelationRsp {
     @ApiModelProperty("实体名称")
     private String entityName;
 
-    @ApiModelProperty("数仓文件ID")
+    @ApiModelProperty("标引文件ID")
     private String dwFileId;
+
+    @ApiModelProperty("标引类型(0：文件,1：文本,2：链接)")
+    private Integer indexType;
 
     @ApiModelProperty("创建时间")
     private Date createTime;

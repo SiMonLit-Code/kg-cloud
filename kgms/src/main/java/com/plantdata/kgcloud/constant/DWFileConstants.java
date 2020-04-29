@@ -10,6 +10,8 @@ public class DWFileConstants {
     public static final String DW_PREFIX = "dw_file_";
     // 文件数据表名称
     public static final String FILE = "file";
+    // 标引内容标名称
+    public static final String INDEX = "index";
     // 实体文件关联表名称
     public static final String RELATION = "relation";
 }

@@ -146,6 +146,7 @@ public class EntityServiceImpl implements EntityService {
         if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
             // 创建实体文件关联
             EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
+            relation.setIndexType(0);
             entityFileRelationService.createRelation(kgName, relation);
         } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
             // 创建数仓文件记录
@@ -155,6 +156,7 @@ public class EntityServiceImpl implements EntityService {
             // 创建实体文件关联
             EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
             relation.setDwFileId(dwFileTable.getId());
+            relation.setIndexType(0);
             entityFileRelationService.createRelation(kgName, relation);
         }
         sendMsg(kgName, ConvertUtils.convert(MultiModal.class).apply(fileTable));
@@ -205,6 +207,7 @@ public class EntityServiceImpl implements EntityService {
                 // 创建实体文件关联
                 EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
                 entityFileRelationReq.setDwFileId(multiModalReq.getDwFileId());
+                entityFileRelationReq.setIndexType(0);
                 entityFileRelationService.createRelation(kgName, entityFileRelationReq);
             } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
                 // 创建数仓文件记录
@@ -214,6 +217,7 @@ public class EntityServiceImpl implements EntityService {
                 // 创建实体文件关联
                 EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
                 entityFileRelationReq.setDwFileId(dwFileTable.getId());
+                entityFileRelationReq.setIndexType(0);
                 entityFileRelationService.createRelation(kgName, entityFileRelationReq);
             }
         }
