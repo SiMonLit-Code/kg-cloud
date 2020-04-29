@@ -159,7 +159,10 @@ public class EntityServiceImpl implements EntityService {
             relation.setIndexType(0);
             entityFileRelationService.createRelation(kgName, relation);
         }
-        sendMsg(kgName, ConvertUtils.convert(MultiModal.class).apply(fileTable));
+
+        MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(fileTable);
+        multiModal.setEntityId(multiModalReq.getEntityId());
+        sendMsg(kgName, multiModal);
         logSender.remove();
         return ConvertUtils.convert(MultiModalRsp.class).apply(fileTable);
     }
