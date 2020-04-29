@@ -4,22 +4,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.req.*;
+import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.rsp.CustomTableRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWTableRsp;
 import com.plantdata.kgcloud.sdk.rsp.ModelSchemaConfigRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
-import com.plantdata.kgcloud.sdk.req.DWConnceReq;
-import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
-import com.plantdata.kgcloud.sdk.req.DWTableReq;
-import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
-import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -90,6 +84,27 @@ public class DWController {
         dwServince.setTableScheduling(userId, req);
         return ApiReturn.success();
     }
+
+
+
+
+    @ApiOperation("搜索-数仓-设置表调度开关")
+    @PostMapping("/set/kgsearch/scheduling")
+    public ApiReturn setKgsearchScheduling(@Valid @RequestBody DWTableSchedulingReq req) {
+        String userId = SessionHolder.getUserId();
+        dwServince.setSearchScheduling(userId, req);
+        return ApiReturn.success();
+    }
+
+
+
+
+
+
+
+
+
+
 
     @ApiOperation("数仓-删除数仓")
     @DeleteMapping("/delete/database/{id}")

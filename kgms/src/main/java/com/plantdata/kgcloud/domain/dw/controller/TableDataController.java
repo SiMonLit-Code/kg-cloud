@@ -49,6 +49,29 @@ public class TableDataController {
         return ApiReturn.success(tableDataService.getData(userId, databaseId, tableId, baseReq));
     }
 
+    @ApiOperation("数仓数据-分页条件查询")
+    @PostMapping("/list/{databaseId}/{tableId}")
+    public ApiReturn<Page<Map<String, Object>>> getData2(
+            @PathVariable("tableId") Long tableId,
+            @PathVariable("databaseId") Long databaseId,
+            DataOptQueryReq baseReq) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(tableDataService.getData(userId, databaseId, tableId, baseReq));
+    }
+
+    @ApiOperation("搜索-数仓数据-分页条件查询")
+    @PostMapping("/columnListSearch/{databaseId}/{tableId}")
+    public ApiReturn<Map<String, Object>> getDataSearch(
+            @PathVariable("tableId") Long tableId,
+            @PathVariable("databaseId") Long databaseId,
+            DataOptQueryReq baseReq) {
+        String userId = SessionHolder.getUserId();
+        Page<Map<String, Object>> datas = tableDataService.getData(userId, databaseId, tableId, baseReq);
+        datas.getContent();
+        return ApiReturn.success(datas.getContent().get(0));
+    }
+
+
     @ApiOperation("数仓数据-根据Id查询")
     @PatchMapping("/{databaseId}/{tableId}/{dataId}")
     public ApiReturn<Map<String, Object>> findById(
