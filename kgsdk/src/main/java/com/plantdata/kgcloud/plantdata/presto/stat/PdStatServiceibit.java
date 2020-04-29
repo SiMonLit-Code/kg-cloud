@@ -1,7 +1,10 @@
 package com.plantdata.kgcloud.plantdata.presto.stat;
 
+import com.ctrip.framework.apollo.Config;
+import com.ctrip.framework.apollo.ConfigService;
 import com.plantdata.kgcloud.plantdata.presto.compute.PrestoCompute;
 import com.plantdata.kgcloud.plantdata.presto.stat.bean.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,14 +16,7 @@ import java.util.List;
 
 @Component
 public class PdStatServiceibit {
-
-    private static  String alias;
-
-    @SuppressWarnings("static-access")
-    @Value("${presto.dw.alias}")
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
+    Config appConfig = ConfigService.getConfig("kgsdk");
 
     private PrestoCompute prestoCompute = new PrestoCompute();
 
@@ -35,6 +31,8 @@ public class PdStatServiceibit {
 
 
     private String pdStatToSql(PdStatBean pdStatBean,String dbName,String tbName) {
+
+        String alias = appConfig.getProperty("presto.dw.alias",null);
 
         Sql sql = new Sql();
 
