@@ -329,7 +329,7 @@ public class TableDataServiceImpl implements TableDataService {
     }
 
     @Override
-    public BasePage<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq) {
+    public Page<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq) {
 
         MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
 
@@ -348,10 +348,10 @@ public class TableDataServiceImpl implements TableDataService {
         int count = dataStoreRsps.size();
         if (count > size){
             dataStoreRsps.remove(size.intValue());
-            count++;
+            count += page;
         }
 
-        return new BasePage<>(count, dataStoreRsps);
+        return new PageImpl<>(dataStoreRsps, PageRequest.of(baseReq.getPage() - 1, size), count);
     }
 
     @Override
@@ -385,7 +385,8 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public void fileDeleteBatch(List<String> ids) {
         MongoCollection<Document> collection = getCollection(DWFileConstants.FILE);
-        collection.deleteMany(Filters.in("_id",ids));
+        List<ObjectId> collect = ids.stream().map(ObjectId::new).collect(Collectors.toList());
+        collection.deleteMany(Filters.in("_id",collect));
     }
 
     @Override

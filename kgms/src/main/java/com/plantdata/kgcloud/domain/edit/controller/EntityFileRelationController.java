@@ -13,6 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,8 +33,8 @@ public class EntityFileRelationController {
 
     @ApiOperation("实体文件管理-查询关系列表")
     @PostMapping("/{kgName}/list/relation")
-    public ApiReturn<BasePage<DWFileRsp>> listRelation(@PathVariable String kgName,
-                                                       @RequestBody EntityFileRelationQueryReq req) {
+    public ApiReturn<Page<DWFileRsp>> listRelation(@PathVariable String kgName,
+                                                   @RequestBody EntityFileRelationQueryReq req) {
         return ApiReturn.success(entityFileRelationService.listRelation(kgName, req));
     }
 
