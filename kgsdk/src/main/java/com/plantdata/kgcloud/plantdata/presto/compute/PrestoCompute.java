@@ -12,7 +12,8 @@ import java.util.List;
 
 public class PrestoCompute {
 
-    public Object compute(String sql)throws SQLException{
+
+    public Object compute(String sql){
 
         Connection conn = PrestoSingleton.getConnection();
 
@@ -26,9 +27,7 @@ public class PrestoCompute {
             rs = pstmt.executeQuery(sql);
             return wrapResultSet(rs);
 
-        } catch (SQLException e) {
-            throw e;
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if(rs!=null){
@@ -41,13 +40,6 @@ public class PrestoCompute {
             if(pstmt!=null){
                 try {
                     pstmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(conn!=null){
-                try {
-                    conn.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
