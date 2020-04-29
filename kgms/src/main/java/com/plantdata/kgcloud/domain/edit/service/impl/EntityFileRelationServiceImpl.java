@@ -190,8 +190,6 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         int pageNo = (req.getPage() - 1) * size;
 
         List<Bson> aggLs = new ArrayList<>();
-        aggLs.add(Aggregates.skip(pageNo));
-        aggLs.add(Aggregates.limit(size + 2));
         if (StringUtils.isNotBlank(req.getName())) {
             aggLs.add(Aggregates.match(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$"))));
         }
@@ -200,11 +198,15 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         if (req.getIndexType() == 1 || req.getIndexType() == 2) {
             aggLs.add(Aggregates.lookup(DWFileConstants.RELATION, "_id", "dwFileId", "relationList"));
             aggLs.add(Aggregates.match(Filters.eq("indexType", req.getIndexType())));
+            aggLs.add(Aggregates.skip(pageNo));
+            aggLs.add(Aggregates.limit(size + 1));
             MongoCollection<Document> collection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.INDEX);
             iterator = collection.aggregate(aggLs).iterator();
         } else if (req.getIndexType() == 0) {
             aggLs.add(Aggregates.lookup(DWFileConstants.RELATION, "_id", "dwFileId", "relationList"));
             aggLs.add(Aggregates.match(Filters.exists("relationList.0")));
+            aggLs.add(Aggregates.skip(pageNo));
+            aggLs.add(Aggregates.limit(size + 1));
             MongoCollection<Document> collection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
             iterator = collection.aggregate(aggLs).iterator();
         }
