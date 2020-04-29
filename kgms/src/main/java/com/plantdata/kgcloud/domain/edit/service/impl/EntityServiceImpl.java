@@ -229,7 +229,7 @@ public class EntityServiceImpl implements EntityService {
         logSender.setActionId();
         // 删除实体文件关联
         MultiModal multiModal = entityFileRelationService.getMultiModalById(relationId);
-        sendMsg(kgName, multiModal, GraphLogOperation.UPDATE);
+        sendMsg(kgName, multiModal, GraphLogOperation.ADD);
         entityFileRelationService.deleteById(relationId);
         logSender.remove();
     }
