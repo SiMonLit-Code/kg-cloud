@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.entity.KnowledgeIndex;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
@@ -262,9 +263,32 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
+    public void deleteIndex(String kgName, List<String> idList) {
+        List<ObjectId> collect = idList.stream().map(ObjectId::new).collect(Collectors.toList());
+        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
+        database.getCollection(DWFileConstants.INDEX).deleteMany(Filters.in("_id", collect));
+        deleteRelationByDwFileIds(collect);
+    }
+
+    public void deleteRelationByDwFileIds(List<ObjectId> dwFileIds) {
+        getCollection().deleteMany(Filters.in("dwFileId", dwFileIds));
+    }
+
+    @Override
+    public MultiModal getMultiModalById(String id) {
+        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
+        Document document = database.getCollection(DWFileConstants.RELATION).find(Filters.eq("_id", new ObjectId(id))).first();
+        if (document != null) {
+            ObjectId dwFileId = document.getObjectId("dwFileId");
+            Document file = database.getCollection(DWFileConstants.FILE).find(Filters.eq("_id", dwFileId)).first();
+            return documentConverter.toBean(file, MultiModal.class);
+        }
+        return null;
+    }
+
+    @Override
     public List<EntityFileRelationRsp> getRelationByDwFileId(String dwFileId) {
-        MongoCollection<Document> mongoCollection = getCollection();
-        MongoCursor<Document> cursor = mongoCollection.find(Filters.eq("dwFileId", new ObjectId(dwFileId))).iterator();
+        MongoCursor<Document> cursor = getCollection().find(Filters.eq("dwFileId", new ObjectId(dwFileId))).iterator();
         List<EntityFileRelationRsp> list = Lists.newArrayList();
         if (cursor.hasNext()) {
             list.add(convertToEntityFileRelationRsp(cursor.next()));
