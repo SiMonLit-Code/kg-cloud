@@ -281,7 +281,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         if (document != null) {
             ObjectId dwFileId = document.getObjectId("dwFileId");
             Document file = database.getCollection(DWFileConstants.FILE).find(Filters.eq("_id", dwFileId)).first();
-            return documentConverter.toBean(file, MultiModal.class);
+            MultiModal multiModal = documentConverter.toBean(file, MultiModal.class);
+            multiModal.setEntityId(document.getLong("entityId"));
+            return multiModal;
         }
         return null;
     }
