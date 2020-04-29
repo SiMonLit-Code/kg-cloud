@@ -17,11 +17,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.config.MongoProperties;
-import com.plantdata.kgcloud.constant.AccessTaskType;
-import com.plantdata.kgcloud.constant.CommonConstants;
-import com.plantdata.kgcloud.constant.KgmsConstants;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.access.entity.DWTask;
+import com.plantdata.kgcloud.constant.*;
 import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.access.util.YamlTransFunc;
 import com.plantdata.kgcloud.domain.data.entity.DWDataStatusDatail;
@@ -33,11 +29,9 @@ import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.dataset.provider.MongodbOptProvider;
 import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
-import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
 import com.plantdata.kgcloud.domain.dw.entity.DWPrebuildModel;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
-import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWPrebuildModelRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.*;
@@ -45,6 +39,7 @@ import com.plantdata.kgcloud.domain.dw.rsp.*;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.dw.service.StandardTemplateService;
+import com.plantdata.kgcloud.domain.dw.service.TableDataService;
 import com.plantdata.kgcloud.domain.dw.util.ExampleTagJson;
 import com.plantdata.kgcloud.domain.dw.util.ExampleYaml;
 import com.plantdata.kgcloud.domain.dw.util.PaserYaml2SchemaUtil;
@@ -135,13 +130,13 @@ public class DWServiceImpl implements DWService {
     private MongoProperties mongoProperties;
 
     @Autowired
-    private DWFileTableRepository fileTableRepository;
-
-    @Autowired
     private DWPrebuildModelRepository modelRepository;
 
     @Autowired
     private UserClient userClient;
+
+    @Autowired
+    private TableDataService tableDataService;
 
     private final Function<DWDatabase, DWDatabaseRsp> dw2rsp = (s) -> {
         DWDatabaseRsp dwRsp = new DWDatabaseRsp();
@@ -573,14 +568,8 @@ public class DWServiceImpl implements DWService {
 
         if (DWDataFormat.isFile(dwOpt.get().getDataFormat())) {
             //文件系统
-
-            List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().tableId(tableId).build()));
-            if (files != null && !files.isEmpty()) {
-
-                for (DWFileTable file : files) {
-                    fileTableRepository.deleteById(file.getId());
-                }
-            }
+            MongoCollection<Document> mongoCollection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
+            mongoCollection.deleteMany(Filters.eq("tableId", tableId));
         } else {
 
             Optional<DWTable> opt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(databaseId).id(tableId).build()));
@@ -2093,7 +2082,12 @@ public class DWServiceImpl implements DWService {
 
     private Long setTableFileCount(Long tbId, Long dbId) {
 
-        return fileTableRepository.count(Example.of(DWFileTable.builder().tableId(tbId).dataBaseId(dbId).build()));
+        MongoCollection<Document> mongoCollection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
+        List<Bson> bsons = new ArrayList<>(2);
+        bsons.add(Filters.eq("dataBaseId", dbId));
+        bsons.add(Filters.eq("tableId", tbId));
+        long count = mongoCollection.countDocuments(Filters.and(bsons));
+        return mongoCollection.countDocuments(Filters.and(bsons));
 
     }
 
@@ -2209,13 +2203,8 @@ public class DWServiceImpl implements DWService {
 
         if (DWDataFormat.isFile(dwOpt.get().getDataFormat())) {
             //文件系统
-            List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().dataBaseId(id).build()));
-            if (files != null && !files.isEmpty()) {
-
-                for (DWFileTable file : files) {
-                    fileTableRepository.deleteById(file.getId());
-                }
-            }
+            MongoCollection<Document> mongoCollection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
+            mongoCollection.deleteMany(Filters.eq("dataBaseId", id));
         }
 
 
@@ -2242,14 +2231,8 @@ public class DWServiceImpl implements DWService {
 
         if (DWDataFormat.isFile(dwOpt.get().getDataFormat())) {
             //文件系统
-
-            List<DWFileTable> files = fileTableRepository.findAll(Example.of(DWFileTable.builder().tableId(tableId).build()));
-            if (files != null && !files.isEmpty()) {
-
-                for (DWFileTable file : files) {
-                    fileTableRepository.deleteById(file.getId());
-                }
-            }
+            MongoCollection<Document> mongoCollection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
+            mongoCollection.deleteMany(Filters.eq("tableId", tableId));
         }
 
 
@@ -2707,7 +2690,8 @@ public class DWServiceImpl implements DWService {
 
     @Override
     public DWDatabaseRsp findById(String tableId) {
-        String userId = SessionHolder.getUserId();
+        String userId =userClient.getCurrentUserDetail().getData().getId();
+        //String userId = SessionHolder.getUserId();
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
                 .build();

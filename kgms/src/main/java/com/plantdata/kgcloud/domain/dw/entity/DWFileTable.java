@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.dw.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,69 +19,55 @@ import java.util.Date;
  * @author: czj
  * @create: 2020-03-30 19:52
  **/
-@Data
-@Entity
-@Builder
-@Table(name = "dw_file_table")
-@AllArgsConstructor
-@NoArgsConstructor
-@DynamicInsert
-@DynamicUpdate
-@EntityListeners(AuditingEntityListener.class)
+@Setter
+@Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DWFileTable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer id;
+    private String id;
 
-    @Basic
-    @Column(name = "`name`")
+    @ApiModelProperty("文件名称")
     private String name;
 
-    @Basic
-    @Column(name = "create_at")
-    @CreatedDate
-    private Date createAt;
-
-    @Basic
-    @Column(name = "update_at")
-    @LastModifiedDate
-    private Date updateAt;
-
-    @Basic
-    @Column(name = "`path`")
+    @ApiModelProperty("文件路径")
     private String path;
 
-    @Basic
-    @Column(name = "`type`")
+    @ApiModelProperty("缩略图路径")
+    private String thumbPath;
+
+    @ApiModelProperty("文件类型")
     private String type;
 
-    @Basic
-    @Column(name = "`file_size`")
+    @ApiModelProperty("文件大小")
     private Long fileSize;
 
-    @Basic
-    @Column(name = "`keyword`")
+    @ApiModelProperty("标引类型(0：文件,1：文本,2：链接)")
+    private Integer indexType;
+
+    @ApiModelProperty("标题")
+    private String title;
+
+    @ApiModelProperty("关键词")
     private String keyword;
 
-    @Basic
-    @Column(name = "`description`")
+    @ApiModelProperty("简介")
     private String description;
 
-    @Basic
-    @Column(name = "`owner`")
+    @ApiModelProperty("链接")
+    private String url;
+
+    @ApiModelProperty("拥有者")
     private String owner;
 
-    @Basic
-    @Column(name = "`user_id`")
+    @ApiModelProperty("用户ID")
     private String userId;
 
-    @Basic
-    @Column(name = "`table_id`")
+    @ApiModelProperty("所属文件夹")
     private Long tableId;
 
-    @Basic
-    @Column(name = "`database_id`")
+    @ApiModelProperty("数仓id")
     private Long dataBaseId;
+
+    @ApiModelProperty("创建时间")
+    private Date createTime;
 }

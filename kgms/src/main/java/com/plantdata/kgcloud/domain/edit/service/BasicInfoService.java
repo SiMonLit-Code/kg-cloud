@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 
@@ -88,6 +89,15 @@ public interface BasicInfoService {
      * @return
      */
     Map<Long,List<MultiModalRsp>> listMultiModels(String kgName, List<Long> entityIds);
+
+    /**
+     * 批量查询知识标引
+     * @param kgName
+     * @param entityIds
+     * @return
+     */
+    Map<Long, List<KnowledgeIndexRsp>> listKnowledgeIndexs(String kgName, List<Long> entityIds);
+
 
     /**
      * 更新概念或实体摘要

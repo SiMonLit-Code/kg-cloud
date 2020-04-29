@@ -69,7 +69,7 @@ public interface EntityService {
      * @param relationId
      * @return
      */
-    void deleteMultiModal(String kgName, Integer relationId);
+    void deleteMultiModal(String kgName, String relationId);
 
     /**
      * 实体列表
