@@ -282,8 +282,8 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
     @Override
     public MultiModal getMultiModalById(String id) {
-
-        String userId = userClient.getCurrentUserDetail().getData().getId();
+        String userId = SessionHolder.getUserId();
+//        String userId = userClient.getCurrentUserDetail().getData().getId();
         MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + userId);
         Document document = database.getCollection(DWFileConstants.RELATION).find(Filters.eq("_id", new ObjectId(id))).first();
         if (document != null) {

@@ -28,9 +28,9 @@ public class EditPermission {
 
     @Autowired
     private GraphService graphService;
-
-    @Autowired
-    private UserClient userClient;
+//
+//    @Autowired
+//    private UserClient userClient;
 
     @Pointcut("execution(* com.plantdata.kgcloud.domain.edit.controller.*.*(..)) && !@annotation" +
             "(EditPermissionUnwanted)")
@@ -51,8 +51,8 @@ public class EditPermission {
     public Object check(ProceedingJoinPoint p) throws Throwable {
         Object[] args = p.getArgs();
         String kgName = (String) args[0];
-//        String userId = SessionHolder.getUserId();
-        String userId = userClient.getCurrentUserDetail().getData().getId();
+        String userId = SessionHolder.getUserId();
+//        String userId = userClient.getCurrentUserDetail().getData().getId();
         log.info("kgName : " + kgName);
         log.info("userId : " + userId);
         try {
