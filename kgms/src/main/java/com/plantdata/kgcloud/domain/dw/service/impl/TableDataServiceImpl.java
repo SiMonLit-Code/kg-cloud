@@ -14,6 +14,8 @@ import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.DWFileConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.data.utils.StringToDateUtil;
+import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
@@ -61,6 +63,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -183,19 +186,24 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public Map<String, Object> getDataById(String userId, Long datasetId, Long tableId, String dataId) {
         try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
+            //从Mongodb中取得这条数据
             Map<String, Object> one = provider.findOne(dataId);
             DWTable table = dwService.getTableDetail(tableId);
             if (table == null) {
                 throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
             }
+            //得到这条数据的Schema
             List<DataSetSchema> schema = table.getSchema();
+            //把Schema信息放入到这个Map集合中.  Key=id,value=object
             Map<String, DataSetSchema> schemaMap = new HashMap<>();
             for (DataSetSchema o : schema) {
                 schemaMap.put(o.getField(), o);
             }
             Map<String, Object> result = new HashMap<>();
 
+            //遍历这条数据里所有的key value
             for (Map.Entry<String, Object> entry : one.entrySet()) {
+                //如果schema中有这条数据的key
                 DataSetSchema scm = schemaMap.get(entry.getKey());
                 if (scm != null) {
                     if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
@@ -207,6 +215,13 @@ public class TableDataServiceImpl implements TableDataService {
                         } else {
                             result.put(entry.getKey(), value);
                         }
+                    }
+                    //如果类型是时间类型。为了前端方便校验 需要转换为标准格式。
+                    else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode())) {
+                        SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
+                        String value = dataString.format(date);
+                        result.put(entry.getKey(), value);
                     } else {
                         result.put(entry.getKey(), entry.getValue());
                     }
@@ -219,7 +234,6 @@ public class TableDataServiceImpl implements TableDataService {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
         }
     }
-
     @Override
     public DWFileTable fileAdd(DWFileTableReq req) {
 
@@ -442,6 +456,7 @@ public class TableDataServiceImpl implements TableDataService {
         update(data, id, collection);
         data.remove(mongoId);
         data.remove(DB_VIEW_DATA);
+        data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
         update(data, id, collectionLog);
 
 

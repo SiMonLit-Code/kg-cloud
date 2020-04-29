@@ -1086,7 +1086,7 @@ public class DWServiceImpl implements DWService {
         //本地库创建结构
         List<DataSetSchema> schema = null;
         if (StringUtils.hasText(req.getTableName())) {
-            schema = getIndustryTableSchema(req.getDwDataBaseId(), req.getTableName());
+//            schema = getIndustryTableSchema(req.getDwDataBaseId(), req.getTableName());
             target.setKtr(getIndustryTableKtr(req.getDwDataBaseId(), req.getTableName()));
         } else if (StringUtils.hasText(req.getField()) && (DWDataFormat.isPDdoc(dwDatabase.getDataFormat()) || DWDataFormat.isPDd2r(dwDatabase.getDataFormat()))) {
             target.setPdSingleField(req.getField());

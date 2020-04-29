@@ -21,6 +21,7 @@ public enum SdkErrorCodeEnum implements ErrorCode {
     JSON_NOT_FIT(130001, "JSON格式或字段不符合接口要求"),
     DB_NOT_EXIST(130002, "数据库不存在"),
     REMOTE_DB_NOT_SUPPORTED(130003, "暂不支持查询远程数据库"),
+    SQL_ERROR(130004, "连接sql服务器出错"),
     ;
 
     private final int errorCode;
