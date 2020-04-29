@@ -63,7 +63,7 @@ public class DWController implements DWStatisticInterface {
         ChartTableBean ctb = null;
         try {
             ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
-        }catch(SQLException e){
+        }catch(Exception e){
             throw new BizException(130004,"message: "+e.getMessage()+" detail: "+e.getCause().getMessage());
         }
         DW2dTableRsp table = new DW2dTableRsp();
@@ -144,7 +144,7 @@ public class DWController implements DWStatisticInterface {
         ChartTableBean ctb = null;
         try {
             ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
-        }catch(SQLException e){
+        }catch(Exception e){
             throw new BizException(130004,"message: "+e.getMessage()+" detail: "+e.getCause().getMessage());
         }
         DW3dTableRsp table = new DW3dTableRsp();

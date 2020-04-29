@@ -13,7 +13,7 @@ import java.util.List;
 public class PrestoCompute {
 
 
-    public Object compute(String sql)throws SQLException{
+    public Object compute(String sql)throws Exception{
 
         Connection conn = PrestoSingleton.getConnection();
 
@@ -30,7 +30,7 @@ public class PrestoCompute {
         } catch(SQLException e){
             throw e;
         } catch(Exception e) {
-            e.printStackTrace();
+            throw e;
         } finally {
             if(rs!=null){
                 try {
@@ -48,7 +48,7 @@ public class PrestoCompute {
             }
         }
 
-        return null;
+        //return null;
     }
 
     private ChartTableBean wrapResultSet(ResultSet rs) throws Exception{
