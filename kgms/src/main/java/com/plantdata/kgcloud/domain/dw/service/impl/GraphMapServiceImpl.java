@@ -22,6 +22,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -329,7 +330,6 @@ public class GraphMapServiceImpl implements GraphMapService {
 
 
                     List<String> relationAttrNames = attr.getExtraInfos().stream().map(AttrExtraRsp::getName).collect(Collectors.toList());
-
                     List<DWGraphMapRelationAttr> relationAttrList = graphMapRelationAttrRepository.findAll(Example.of(DWGraphMapRelationAttr.builder().kgName(kgName).modelAttrId(graphMap.getModelAttrId()).build()));
 
                     //没有边属性订阅，跳过

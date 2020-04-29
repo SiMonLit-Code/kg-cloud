@@ -12,7 +12,7 @@ public class PdStatServiceibit {
 
     private PrestoCompute prestoCompute = new PrestoCompute();
 
-    public Object excute(PdStatBean pdStatBean,String dbName,String tbName) throws SQLException {
+    public Object excute(PdStatBean pdStatBean,String dbName,String tbName) throws Exception {
 
         String sql = pdStatToSql(pdStatBean,dbName,tbName);
 

@@ -1016,6 +1016,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
                                 DWGraphMapRelationAttr graphMapRelationAttr = new DWGraphMapRelationAttr();
                                 BeanUtils.copyProperties(schemaQuoteRelationAttrReq, graphMapRelationAttr);
+                                graphMapRelationAttr.setId(null);
                                 graphMapRelationAttr.setTableName(tableName);
                                 graphMapRelationAttr.setDataBaseId(modelDataBaseId);
                                 graphMapRelationAttr.setSchedulingSwitch(0);
