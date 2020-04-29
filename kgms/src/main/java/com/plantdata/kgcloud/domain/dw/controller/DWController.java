@@ -316,4 +316,11 @@ public class DWController {
     public DWDatabaseRsp findById(@PathVariable("dbId") String dbId){
         return dwServince.findById(dbId);
     }
+
+    @ApiOperation("根据表名获得表详情")
+    @GetMapping("database/table/{dbId}/{tableName}")
+    public DWTableRsp findTableByTableName(@PathVariable("dbId") String dbId,@PathVariable("tableName") String tableName){
+        String userId = SessionHolder.getUserId();
+        return dwServince.findTableByTableName(userId,Long.valueOf(dbId),tableName);
+    }
 }
