@@ -21,7 +21,6 @@ import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
 import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 import com.plantdata.kgcloud.domain.data.service.DataStoreSender;
 import com.plantdata.kgcloud.domain.data.service.DataStoreService;
-import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
@@ -189,9 +188,11 @@ public class DataStoreServiceImpl implements DataStoreService {
         }
 
         if (!StringUtils.isEmpty(req.getKeyword())) {
-            bsons.add(Filters.regex("errorReason", req.getKeyword()));
+            //对特殊字符进行转义
+            String keyWord = egrularEscape(req.getKeyword());
+            bsons.add(Filters.regex("errorReason", keyWord));
         }
-
+        Filters.regex("errorReason", req.getKeyword());
         FindIterable<Document> findIterable;
         long count = 0;
         if (bsons.isEmpty()) {
@@ -370,5 +371,19 @@ public class DataStoreServiceImpl implements DataStoreService {
         allDocument.append(DB_VIEW_DATA, document);
         allDocument.putAll(filterDataId(req.getData()));
         return allDocument;
+    }
+
+
+    public static String egrularEscape(String keyword) {
+        if (!StringUtils.isEmpty(keyword)) {
+            String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
+            for (String key : fbsArr) {
+                if (keyword.contains(key)) {
+                    keyword = keyword.replace(key, "\\\\" + key);
+                }
+            }
+        }
+        return keyword;
+
     }
 }
