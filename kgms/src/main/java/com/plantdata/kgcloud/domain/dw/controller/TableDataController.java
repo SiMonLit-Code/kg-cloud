@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
@@ -88,10 +89,18 @@ public class TableDataController {
 
     @ApiOperation("文件数仓-删除")
     @PatchMapping("/file/delete/{id}")
-    public ApiReturn<FilePathRsp> fileDelete(
-            @PathVariable("id") Integer id) {
+    public ApiReturn fileDelete(
+            @PathVariable("id") String id) {
 
         tableDataService.fileDelete(id);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("文件数仓-批量删除")
+    @PatchMapping("/file/delete/batch")
+    public ApiReturn fileDeleteBatch(
+            @RequestBody List<String> ids) {
+        tableDataService.fileDeleteBatch(ids);
         return ApiReturn.success();
     }
 

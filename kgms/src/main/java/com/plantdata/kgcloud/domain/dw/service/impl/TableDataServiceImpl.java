@@ -4,14 +4,15 @@ import com.github.junrar.Archive;
 import com.github.junrar.rarfile.FileHeader;
 import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
-import com.mongodb.client.result.UpdateResult;
-import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.CommonConstants;
+import com.plantdata.kgcloud.constant.DWFileConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.data.utils.StringToDateUtil;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
@@ -23,56 +24,50 @@ import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
-import com.plantdata.kgcloud.domain.dw.repository.DWFileTableRepository;
 import com.plantdata.kgcloud.domain.dw.repository.DWTableRepository;
 import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
-
-import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
-import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
-import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
-import com.plantdata.kgcloud.domain.edit.service.EntityService;
-import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
-import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
-
-import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
 import com.plantdata.kgcloud.domain.dw.service.TableDataService;
-import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
+import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
+import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
+import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
+import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
+import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.plantdata.kgcloud.domain.dw.service.impl.PreBuilderServiceImpl.bytesToFile;
 
@@ -85,42 +80,35 @@ import static com.plantdata.kgcloud.domain.dw.service.impl.PreBuilderServiceImpl
 @Service
 public class TableDataServiceImpl implements TableDataService {
 
-    @Autowired
-    private DWService dwService;
-
-    @Autowired
-    private MongoProperties mongoProperties;
-
-    @Autowired
-    private FastdfsTemplate fastdfsTemplate;
-
-    @Autowired
-    private DWFileTableRepository fileTableRepository;
-
-    @Autowired
-    private EntityFileRelationService entityFileRelationService;
-
-    @Autowired
-    private EntityService entityService;
-
-    @Autowired
-    DWTableRepository dwTableRepository;
-
-    @Autowired
-    DWDatabaseRepository dwDatabaseRepository;
-
-    @Autowired
-    private MongoClient mongoClient;
-
-
-    @Autowired
-    private DocumentConverter documentConverter;
     private static final String MONGO_ID = CommonConstants.MongoConst.ID;
     private static final int CREATE_WAY = 2;
     private static final int IS_WRITE_DW = 1;
     private static final String DB_FIX_NAME_PREFIX = "dw_rerun_";
     private static final String DB_VIEW_STATUS = "Edit";
-    private static final String DB_VIEW_DATA = "_showData";
+    private static final String DB_VIEW_DATA = "showData";
+    @Autowired
+    DWTableRepository dwTableRepository;
+
+    @Autowired
+    DWDatabaseRepository dwDatabaseRepository;
+    @Autowired
+    private DWService dwService;
+    @Autowired
+    private MongoProperties mongoProperties;
+    @Autowired
+    private FastdfsTemplate fastdfsTemplate;
+    @Autowired
+    private EntityFileRelationService entityFileRelationService;
+    @Autowired
+    private EntityService entityService;
+    @Autowired
+    private MongoClient mongoClient;
+    @Autowired
+    private DocumentConverter documentConverter;
+
+    private MongoCollection<Document> getCollection() {
+        return mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
+    }
 
     @Override
     public Page<Map<String, Object>> getData(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq) {
@@ -197,7 +185,7 @@ public class TableDataServiceImpl implements TableDataService {
                     }
                 }
                 //如果类型是时间类型。为了前端方便校验 需要转换为标准格式。
-                else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode())) {
+                else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode()) && entry.getValue() != null) {
                     SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
                     String value = dataString.format(date);
@@ -277,12 +265,19 @@ public class TableDataServiceImpl implements TableDataService {
         byte[] bytes = fastdfsTemplate.downloadFile(req.getPath());
 
         DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(req);
-        fileTable.setFileSize(new Long(bytes.length));
+        fileTable.setFileSize((long) bytes.length);
         fileTable.setUserId(SessionHolder.getUserId());
         if (req.getFileName() != null && req.getFileName().contains(".")) {
             fileTable.setType(req.getFileName().substring(req.getFileName().lastIndexOf(".") + 1));
         }
-        fileTable.setDataBaseId(req.getDataBaseId());
+        fileTable.setTitle(req.getFileName());
+        fileTable.setIndexType(0);
+        fileTable.setUserId(SessionHolder.getUserId());
+        fileTable.setCreateTime(new Date());
+        Document document = documentConverter.toDocument(fileTable);
+        getCollection().insertOne(document);
+        DWFileTable dwFileTable = documentConverter.toBean(document,DWFileTable.class);
+
 
         // 对压缩包进行解压
         String zFile = "" + req.getPath().substring(req.getPath().lastIndexOf("/"));
@@ -296,7 +291,7 @@ public class TableDataServiceImpl implements TableDataService {
         } catch (Exception e) {
         }
 
-        return fileTableRepository.save(fileTable);
+        return dwFileTable;
     }
 
     public void unZip(File zipFile, String outDir) throws Exception {
@@ -369,70 +364,58 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public Page<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq) {
 
-        PageRequest pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), Sort.by(Sort.Order.desc("createAt")));
+        Integer size = baseReq.getSize();
+        Integer page = (baseReq.getPage() - 1) * size;
+        List<Bson> bsons = new ArrayList<>(3);
+        if (StringUtils.hasText(baseReq.getKw())) {
+            bsons.add(Filters.regex("name", Pattern.compile("^.*" + baseReq.getKw() + ".*$")));
+        }
+        bsons.add(Filters.eq("dataBaseId", databaseId));
+        bsons.add(Filters.eq("tableId", tableId));
 
-        Specification<DWFileTable> specification = new Specification<DWFileTable>() {
-            @Override
-            public Predicate toPredicate(Root<DWFileTable> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+        FindIterable<Document> findIterable = getCollection().find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime",-1));
+        List<DWFileTable> dwFileTables = documentConverter.toBeans(findIterable, DWFileTable.class);
+        List<DWFileTableRsp> dataStoreRsps = dwFileTables.stream().map(ConvertUtils.convert(DWFileTableRsp.class)).collect(Collectors.toList());
+        int count = dataStoreRsps.size();
+        if (count > size){
+            dataStoreRsps.remove(size.intValue());
+            count += page;
+        }
 
-                List<Predicate> predicates = new ArrayList<>();
-
-                if (!com.alibaba.excel.util.StringUtils.isEmpty(baseReq.getKw())) {
-
-                    Predicate likename = criteriaBuilder.like(root.get("name").as(String.class), "%" + baseReq.getKw() + "%");
-                    predicates.add(likename);
-                }
-
-                Predicate databaseIdPre = criteriaBuilder.equal(root.get("dataBaseId").as(Long.class), databaseId);
-                predicates.add(databaseIdPre);
-
-                Predicate tableIdPre = criteriaBuilder.equal(root.get("tableId").as(Long.class), tableId);
-                predicates.add(tableIdPre);
-
-                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-            }
-        };
-
-        Page<DWFileTable> all = fileTableRepository.findAll(specification, pageable);
-
-        Page<DWFileTableRsp> map = all.map(ConvertUtils.convert(DWFileTableRsp.class));
-
-        return map;
+        return new PageImpl<>(dataStoreRsps, PageRequest.of(baseReq.getPage() - 1, size), count);
     }
 
     @Override
     public void fileUpdate(DWFileTableUpdateReq fileTableReq) {
-
-        Optional<DWFileTable> opt = fileTableRepository.findById(fileTableReq.getId());
-
-        if (opt.isPresent()) {
-
-            DWFileTable fileTable = opt.get();
-            fileTable.setName(fileTableReq.getName());
-            fileTable.setOwner(fileTableReq.getOwner());
-            fileTable.setKeyword(fileTableReq.getKeyword());
-            fileTable.setDescription(fileTableReq.getDescription());
-            fileTableRepository.save(fileTable);
-
-            // 更新关联表
-            List<EntityFileRelation> relationList = entityFileRelationService.getRelationByDwFileId(fileTable.getId());
-            if (!CollectionUtils.isEmpty(relationList)) {
-                relationList.forEach(s -> {
-                    s.setName(fileTableReq.getName());
-                    s.setKeyword(fileTableReq.getKeyword());
-                    s.setDescription(fileTableReq.getDescription());
-                });
-            }
-            entityFileRelationService.updateRelations(relationList);
+        MongoCollection<Document> mongoCollection = getCollection();
+        MongoCursor<Document> cursor = mongoCollection.find(documentConverter.buildObjectId(fileTableReq.getId())).iterator();
+        if (!cursor.hasNext()) {
+            return;
         }
-
+        Document document = cursor.next();
+        DWFileTable dwFileTable = documentConverter.toBean(document, DWFileTable.class);
+        String id = dwFileTable.getId();
+        dwFileTable.setId(null);
+        dwFileTable.setName(fileTableReq.getName());
+        dwFileTable.setTitle(fileTableReq.getName() + "." + dwFileTable.getType());
+        dwFileTable.setKeyword(fileTableReq.getKeyword());
+        dwFileTable.setDescription(fileTableReq.getDescription());
+        dwFileTable.setOwner(fileTableReq.getOwner());
+        Document newDocument = documentConverter.toDocument(dwFileTable);
+        mongoCollection.updateOne(documentConverter.buildObjectId(id), new Document("$set", newDocument));
     }
 
     @Override
-    public void fileDelete(Integer id) {
-        fileTableRepository.deleteById(id);
+    public void fileDelete(String id) {
+        getCollection().deleteOne(documentConverter.buildObjectId(id));
         // 删除实体文件关联
         entityFileRelationService.deleteRelationByDwFileId(id);
+    }
+
+    @Override
+    public void fileDeleteBatch(List<String> ids) {
+        List<ObjectId> collect = ids.stream().map(ObjectId::new).collect(Collectors.toList());
+        getCollection().deleteMany(Filters.in("_id",collect));
     }
 
     @Override
@@ -452,8 +435,12 @@ public class TableDataServiceImpl implements TableDataService {
             } else {
                 fileTable.setName(file.getOriginalFilename());
             }
-            fileTable.setDataBaseId(fileTableReq.getDataBaseId());
+            fileTable.setTitle(file.getOriginalFilename());
+            fileTable.setIndexType(0);
             fileTable.setPath(fastdfsTemplate.uploadFile(file).getFullPath());
+            fileTable.setCreateTime(new Date());
+            Document document = documentConverter.toDocument(fileTable);
+            getCollection().insertOne(document);
 
             // 对压缩包进行解压
             byte[] bytes = fastdfsTemplate.downloadFile(fileTable.getPath());
@@ -468,10 +455,7 @@ public class TableDataServiceImpl implements TableDataService {
             } catch (Exception e) {
             }
 
-            fileTableRepository.save(fileTable);
         }
-
-        return;
     }
 
     @Override
@@ -497,6 +481,7 @@ public class TableDataServiceImpl implements TableDataService {
         update(data, id, collection);
         data.remove(mongoId);
         data.remove(DB_VIEW_DATA);
+        data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
         update(data, id, collectionLog);
 
 

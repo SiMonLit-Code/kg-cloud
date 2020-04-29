@@ -95,7 +95,7 @@ public class EntityController {
     @ApiOperation("实体-多模态数据-删除")
     @PostMapping("/{kgName}/multi/modal/{relationId}/delete")
     public ApiReturn deleteMultiModal(@PathVariable("kgName") String kgName,
-                                      @PathVariable("relationId") Integer relationId) {
+                                      @PathVariable("relationId") String relationId) {
         entityService.deleteMultiModal(kgName, relationId);
         return ApiReturn.success();
     }

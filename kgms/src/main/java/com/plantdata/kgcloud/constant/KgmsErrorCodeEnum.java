@@ -216,6 +216,16 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     EXECUTE_SQL_ERROR(120750,"SQL查询失败，请检查连接信息"),
 
     DW_PERMISSION_NOT_ENOUGH_ERROR(120751, "没有该数仓的操作权限"),
+
+    EXCEL_TYPE_ERROR(120752,"excel文件格式错误"),
+
+    FILE_SIZE_OVER(120753,"文件关联大小不能超过20M"),
+
+    RELATION_IS_EXIST(120754,"文件关联已存在"),
+
+    EXCEL_DATA_ERROR(120755,"表头内容错误"),
+
+    EXCEL_DATA_NULL(120756,"excel数据为空"),
             ;
     private final int errorCode;
 

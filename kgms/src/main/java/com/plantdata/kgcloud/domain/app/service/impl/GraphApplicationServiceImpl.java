@@ -55,6 +55,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.DictRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -266,6 +267,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                         a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
             Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(kgName, entityIds);
+            Map<Long, List<KnowledgeIndexRsp>> indexMap = basicInfoService.listKnowledgeIndexs(kgName, entityIds);
             //查询对象属性
             Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
             Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
@@ -275,7 +277,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 reverseMap.computeIfAbsent(a.getTo().getId(), v -> Lists.newArrayList()).add(a);
             }));
             BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
-                    a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()),
+                    a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()), indexMap.get(a.getId()),
                             positiveMap.get(a.getId()), reverseMap.get(a.getId()))), infoBoxRspList::addAll);
 
         });

@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -10,63 +12,27 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * @author EYE
+ * @author lp
  */
 @Data
-@Entity
-@Builder
-@Table(name = "entity_file_relation")
-@AllArgsConstructor
-@NoArgsConstructor
-@DynamicInsert
-@DynamicUpdate
-@EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EntityFileRelation {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer id;
+    private String id;
 
-    @Basic
-    @Column(name = "kg_name")
+    @ApiModelProperty("图谱名称")
     private String kgName;
 
-    @Basic
-    @Column(name = "entity_id")
+    @ApiModelProperty("实体ID")
     private Long entityId;
 
-    @Basic
-    @Column(name = "`name`")
-    private String name;
+    @ApiModelProperty("标引文件ID")
+    private String dwFileId;
 
-    @Basic
-    @Column(name = "`type`")
-    private String type;
+    @ApiModelProperty("标引类型(0：文件,1：文本,2：链接)")
+    private Integer indexType;
 
-    @Basic
-    @Column(name = "data_href")
-    private String dataHref;
-
-    @Basic
-    @Column(name = "`keyword`")
-    private String keyword;
-
-    @Basic
-    @Column(name = "`description`")
-    private String description;
-
-    @Basic
-    @Column(name = "dw_file_id")
-    private Integer dwFileId;
-
-    @Basic
-    @Column(name = "multi_modal_id")
-    private String multiModalId;
-
-    @Basic
-    @Column(name = "create_at")
-    @CreatedDate
-    private Date createAt;
+    @ApiModelProperty("创建时间")
+    private Date createTime;
 
 }

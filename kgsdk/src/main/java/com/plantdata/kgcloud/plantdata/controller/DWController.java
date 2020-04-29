@@ -11,14 +11,19 @@ import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatBean;
 import com.plantdata.kgcloud.sdk.DWClient;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.sdk.rsp.DWStatisticTableSeries;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.plantdata.kgcloud.sdk.rsp.DW2dTableRsp;
 import com.plantdata.kgcloud.sdk.rsp.DW3dTableRsp;
 import com.plantdata.kgcloud.plantdata.req.dw.SqlQueryReq;
+import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -33,8 +38,11 @@ public class DWController implements DWStatisticInterface {
 
     @ApiOperation(value = "统计数据仓库(二维)", notes = "以二维表的形式统计数据仓库")
     @PostMapping("statistic/by2dTable")
-    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestParam("input") String reqStr) {
-        JSONObject jsStr = JSONObject.parseObject(reqStr);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "query", required = true, dataType = "string", paramType = "form", value = "输入对象")
+    })
+    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @ApiIgnore QaKbqaParameter param) {
+        JSONObject jsStr = JSONObject.parseObject(param.getQuery());
         SqlQueryReq req = JSONObject.toJavaObject(jsStr,SqlQueryReq.class);
         if(req.getQuery().getDimensions() == null
                 || req.getQuery().getMeasures() == null
@@ -52,7 +60,12 @@ public class DWController implements DWStatisticInterface {
         req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
+        ChartTableBean ctb = null;
+        try {
+            ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
+        }catch(Exception e){
+            throw new BizException(130004,"message: "+e.getMessage()+" detail: "+e.getCause().getMessage());
+        }
         DW2dTableRsp table = new DW2dTableRsp();
         table.setXAxis(new ArrayList<>());
         table.setSeries(new ArrayList<>());
@@ -97,7 +110,8 @@ public class DWController implements DWStatisticInterface {
                     series.getData().set(indexMap.get(row.get(0)),row.get(2));
                 }
             }
-        }else if(ctb == null){
+        }
+        else if(ctb == null){
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
         return  ApiReturn.success(table);
@@ -105,8 +119,11 @@ public class DWController implements DWStatisticInterface {
 
     @ApiOperation(value = "统计数据仓库(三维)", notes = "以三维表的形式统计数据仓库")
     @PostMapping("statistic/by3dTable")
-    public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @RequestParam("input") String reqStr) {
-        JSONObject jsStr = JSONObject.parseObject(reqStr);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "query", required = true, dataType = "string", paramType = "form", value = "输入对象")
+    })
+    public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @ApiIgnore QaKbqaParameter param) {
+        JSONObject jsStr = JSONObject.parseObject(param.getQuery());
         SqlQueryReq req = JSONObject.toJavaObject(jsStr,SqlQueryReq.class);
         if(req.getQuery().getDimensions() == null
                 || req.getQuery().getMeasures() == null
@@ -124,7 +141,12 @@ public class DWController implements DWStatisticInterface {
         req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
+        ChartTableBean ctb = null;
+        try {
+            ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
+        }catch(Exception e){
+            throw new BizException(130004,"message: "+e.getMessage()+" detail: "+e.getCause().getMessage());
+        }
         DW3dTableRsp table = new DW3dTableRsp();
         table.setXAxis(new ArrayList<>());
         table.setYAxis(new ArrayList<>());

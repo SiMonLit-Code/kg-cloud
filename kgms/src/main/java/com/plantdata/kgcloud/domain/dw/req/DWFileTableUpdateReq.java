@@ -13,7 +13,7 @@ import lombok.Data;
 public class DWFileTableUpdateReq {
 
     @ApiModelProperty("id")
-    private Integer id;
+    private String id;
 
     @ApiModelProperty("文件名称")
     private String name;

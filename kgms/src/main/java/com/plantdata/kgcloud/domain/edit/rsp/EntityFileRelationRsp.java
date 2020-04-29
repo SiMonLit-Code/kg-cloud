@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.edit.rsp;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
@@ -10,40 +11,28 @@ import java.util.Date;
  * @author EYE
  */
 @Data
+@Builder
 @ApiModel("实体文件关联")
 public class EntityFileRelationRsp {
 
-    @ApiModelProperty(value = "实体文件关联id")
-    private Integer id;
+    private String id;
 
-    @ApiModelProperty(value = "图谱名称")
+    @ApiModelProperty("图谱名称")
     private String kgName;
 
-    @ApiModelProperty(value = "实体id")
+    @ApiModelProperty("实体ID")
     private Long entityId;
 
-    @ApiModelProperty(value = "实体名")
+    @ApiModelProperty("实体名称")
     private String entityName;
 
-    @ApiModelProperty(value = "文件名")
-    private String name;
+    @ApiModelProperty("标引文件ID")
+    private String dwFileId;
 
-    @ApiModelProperty(value = "文件类型")
-    private String type;
+    @ApiModelProperty("标引类型(0：文件,1：文本,2：链接)")
+    private Integer indexType;
 
-    @ApiModelProperty(value = "关键词")
-    private String keyword;
-
-    @ApiModelProperty(value = "简介")
-    private String description;
-
-    @ApiModelProperty(value = "数仓文件ID")
-    private Integer dwFileId;
-
-    @ApiModelProperty(value = "多模态mongo文件ID")
-    private String multiModalId;
-
-    @ApiModelProperty(value = "创建时间")
-    private Date createAt;
+    @ApiModelProperty("创建时间")
+    private Date createTime;
 
 }
