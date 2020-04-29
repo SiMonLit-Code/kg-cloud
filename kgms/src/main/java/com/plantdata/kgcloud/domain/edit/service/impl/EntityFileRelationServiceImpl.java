@@ -8,7 +8,6 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.constant.CommonConstants;
-import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.constant.DWFileConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
@@ -115,7 +114,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             cellNames[m] = cell.getStringCellValue();
         }
         List<String> name = Lists.newArrayList(cellNames);
-        if (!name.contains("title") || (indexType == 1 && !name.contains("content")) || (indexType == 2 && !name.contains("url"))){
+        if (!name.contains("title") || (indexType == 1 && !name.contains("content")) || (indexType == 2 && !name.contains("url"))) {
             throw BizException.of(KgmsErrorCodeEnum.EXCEL_READ_ERROR);
         }
         // 从第二行起遍历每一行
@@ -352,11 +351,11 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                 List<Document> list = new ArrayList<>(dataList.size());
                 for (LinkedHashMap<String, String> map : dataList) {
                     DWFileTable dwFileTable = new DWFileTable();
-                    if (indexType == 1) {
-                        dwFileTable.setDescription(map.get("content"));
-                    } else if (indexType == 2) {
-                        dwFileTable.setUrl(map.get("url"));
-                    }
+                    // if (indexType == 1) {
+                    dwFileTable.setDescription(map.get("content"));
+                    // } else if (indexType == 2) {
+                    dwFileTable.setUrl(map.get("url"));
+                    // }
                     dwFileTable.setTitle(map.get("title"));
                     dwFileTable.setCreateTime(new Date());
                     dwFileTable.setIndexType(indexType);
