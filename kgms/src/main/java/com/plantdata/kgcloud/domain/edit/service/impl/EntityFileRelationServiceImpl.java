@@ -61,7 +61,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     @Autowired
     private DocumentConverter documentConverter;
 
-    public static List<LinkedHashMap<String, String>> readExcel(MultipartFile file) throws IOException {
+    public static List<LinkedHashMap<String, String>> readExcel(MultipartFile file, Integer indexType) throws IOException {
         // 返回的map
         LinkedHashMap<String, String> excelMap = new LinkedHashMap<>();
 
@@ -114,6 +114,10 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             // 取得该列的字符串值
             cellNames[m] = cell.getStringCellValue();
         }
+        List<String> name = Lists.newArrayList(cellNames);
+        if (!name.contains("title") || (indexType == 1 && !name.contains("content")) || (indexType == 2 && !name.contains("url"))){
+            throw BizException.of(KgmsErrorCodeEnum.EXCEL_READ_ERROR);
+        }
         // 从第二行起遍历每一行
         for (int j = 1; j <= rowNum; j++) {
             // 一行数据对于一个Map
@@ -148,7 +152,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         DWFileRsp dwFileRsp = DWFileRsp.builder().id(document.getObjectId("_id").toString())
                 .title(document.getString("title")).indexType(document.getInteger("indexType"))
                 .keyword(document.getString("keyword"))
-                .description(document.getString("description")).url("url").build();
+                .description(document.getString("description")).url(document.getString("url")).build();
         List<EntityFileRelationRsp> list = convertToEntityFileRelationRspList((List<Document>) document.get("relationList"), kgName);
         dwFileRsp.setRelationList(list);
         return dwFileRsp;
@@ -334,13 +338,13 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     public void addIndex(String kgName, Integer indexType, MultipartFile file) {
         String fileName = file.getOriginalFilename();
         if (StringUtils.isBlank(fileName)) {
-            throw BizException.of(CommonErrorCode.BAD_REQUEST);
+            throw BizException.of(KgmsErrorCodeEnum.EXCEL_READ_ERROR);
         }
         String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
         if (suffix.equals("xlsx") || suffix.equals("xls")) {
             List<LinkedHashMap<String, String>> dataList;
             try {
-                dataList = readExcel(file);
+                dataList = readExcel(file, indexType);
             } catch (IOException e) {
                 throw BizException.of(KgmsErrorCodeEnum.EXCEL_READ_ERROR);
             }
@@ -364,6 +368,8 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                 }
                 MongoCollection<Document> collection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
                 collection.insertMany(list);
+            } else {
+                throw BizException.of(KgmsErrorCodeEnum.EXCEL_READ_ERROR);
             }
         }
     }
