@@ -2,13 +2,25 @@ package com.plantdata.kgcloud.plantdata.presto.stat;
 
 import com.plantdata.kgcloud.plantdata.presto.compute.PrestoCompute;
 import com.plantdata.kgcloud.plantdata.presto.stat.bean.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RestController;
 import tech.ibit.sqlbuilder.*;
 import tech.ibit.sqlbuilder.aggregate.*;
 
 import java.sql.SQLException;
 import java.util.List;
 
+@Component
 public class PdStatServiceibit {
+
+    private static  String alias;
+
+    @SuppressWarnings("static-access")
+    @Value("${presto.dw.alias}")
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
     private PrestoCompute prestoCompute = new PrestoCompute();
 
@@ -25,8 +37,6 @@ public class PdStatServiceibit {
     private String pdStatToSql(PdStatBean pdStatBean,String dbName,String tbName) {
 
         Sql sql = new Sql();
-
-        String alias = "mongo_12";
 
         if (pdStatBean == null) {
             return null;
