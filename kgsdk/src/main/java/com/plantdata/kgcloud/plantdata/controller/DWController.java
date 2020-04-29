@@ -110,7 +110,8 @@ public class DWController implements DWStatisticInterface {
                     series.getData().set(indexMap.get(row.get(0)),row.get(2));
                 }
             }
-        }else if(ctb == null){
+        }
+        else if(ctb == null){
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
         return  ApiReturn.success(table);
