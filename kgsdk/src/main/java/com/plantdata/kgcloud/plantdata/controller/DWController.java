@@ -52,7 +52,8 @@ public class DWController implements DWStatisticInterface {
         DWTableRsp tableDetail = dwClient.findTableByTableName(String.valueOf(req.getDbId()),req.getTbName());
         if(dataBase == null){
             throw BizException.of(SdkErrorCodeEnum.DB_NOT_EXIST);
-        }else if(tableDetail.getCreateWay() == 1 && tableDetail.getIsWriteDW() == 0){
+        }else if(tableDetail.getCreateWay() == 2 || (tableDetail.getCreateWay() == 1 && tableDetail.getIsWriteDW() != null && tableDetail.getIsWriteDW() ==1 )){
+        }else{
             throw BizException.of(SdkErrorCodeEnum.REMOTE_TABLE_NOT_SUPPORTED);
         }
         req.setDbName(dataBase.getDataName());
@@ -134,7 +135,8 @@ public class DWController implements DWStatisticInterface {
         DWTableRsp tableDetail = dwClient.findTableByTableName(String.valueOf(req.getDbId()),req.getTbName());
         if(dataBase == null){
             throw BizException.of(SdkErrorCodeEnum.DB_NOT_EXIST);
-        }else if(tableDetail.getCreateWay() == 1 && tableDetail.getIsWriteDW() == 0){
+        }else if(tableDetail.getCreateWay() == 2 || (tableDetail.getCreateWay() == 1 && tableDetail.getIsWriteDW() != null && tableDetail.getIsWriteDW() ==1 )){
+        }else{
             throw BizException.of(SdkErrorCodeEnum.REMOTE_TABLE_NOT_SUPPORTED);
         }
         req.setDbName(dataBase.getDataName());
