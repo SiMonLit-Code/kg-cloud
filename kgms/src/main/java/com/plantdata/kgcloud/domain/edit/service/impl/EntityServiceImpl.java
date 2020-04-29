@@ -154,7 +154,10 @@ public class EntityServiceImpl implements EntityService {
             relation.setIndexType(0);
             entityFileRelationService.createRelation(kgName, relation);
         }
-        sendMsg(kgName, ConvertUtils.convert(MultiModal.class).apply(fileTable), GraphLogOperation.ADD);
+
+        MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(fileTable);
+        multiModal.setEntityId(multiModalReq.getEntityId());
+        sendMsg(kgName, multiModal, GraphLogOperation.ADD);
         logSender.remove();
         return ConvertUtils.convert(MultiModalRsp.class).apply(fileTable);
     }
@@ -168,8 +171,12 @@ public class EntityServiceImpl implements EntityService {
         GraphLog graphLog = new GraphLog();
         graphLog.setBatch(ThreadLocalUtils.getBatchNo());
         graphLog.setScope(GraphLogScope.MULTI_DATA);
+        if(GraphLogOperation.DELETE.equals(operation)){
+            graphLog.setOldValue(transform(multiModal));
+        }else{
+            graphLog.setNewValue(transform(multiModal));
+        }
         graphLog.setOperation(operation);
-        graphLog.setNewValue(transform(multiModal));
         logSender.sendKgLog(kgDbName, graphLog);
     }
 
