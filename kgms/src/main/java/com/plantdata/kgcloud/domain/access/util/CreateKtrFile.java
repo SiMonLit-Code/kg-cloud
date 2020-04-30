@@ -401,9 +401,13 @@ public class CreateKtrFile {
 
     public static FieldType getFileType(DWDatabaseRsp databaseRsp, DWTableRsp table, String field, String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
 
+
         DataSet dataSet;
         //远程
         if(table.getCreateWay().equals(1)){
+            if(!DataType.MONGO.equals(DataType.findType(databaseRsp.getDataType()))){
+                return FieldType.STRING;
+            }
             dataSet = DataSet.builder()
                     .addr(databaseRsp.getAddr())
                     .username(databaseRsp.getUsername())
