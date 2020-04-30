@@ -341,7 +341,7 @@ public class ExcelParser {
                     break;
             }
         }
-        return result == null ? null : result.toString();
+        return result == null ? "" : result.toString();
     }
 
     public String getCellValue(Cell cell, Integer type) {
