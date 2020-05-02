@@ -151,7 +151,11 @@ public class LinkShareServiceImpl implements LinkShareService {
             selfSharedRsp.setSelf(false);
         }
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
+        if(data !=null){
         selfSharedRsp.setSharePermission(data.getShareable());
+        }else {
+            selfSharedRsp.setSharePermission(false);
+        }
         LinkShare linkShare = getOne(kgName, spaId);
         Boolean shared = linkShare.getShared();
         if (shared != null) {
