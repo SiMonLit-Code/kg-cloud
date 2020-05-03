@@ -2022,7 +2022,7 @@ public class DWServiceImpl implements DWService {
             if (StringUtils.hasText(table.getMapper())) {
                 accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, null, diss, null, resourceName);
             } else {
-                accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, null, null, diss, resourceName);
+                accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, diss, null, diss, resourceName);
             }
         }
     }
