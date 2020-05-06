@@ -198,6 +198,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         if (req.getIndexType() == 1 || req.getIndexType() == 2) {
             aggLs.add(Aggregates.lookup(DWFileConstants.RELATION, "_id", "dwFileId", "relationList"));
             aggLs.add(Aggregates.match(Filters.eq("indexType", req.getIndexType())));
+            aggLs.add(Aggregates.match(Filters.eq("kgName", kgName)));
             aggLs.add(Aggregates.skip(pageNo));
             aggLs.add(Aggregates.limit(size + 1));
             MongoCollection<Document> collection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.INDEX);
