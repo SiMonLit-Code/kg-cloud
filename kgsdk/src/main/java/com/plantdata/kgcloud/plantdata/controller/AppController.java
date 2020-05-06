@@ -100,7 +100,7 @@ public class AppController implements SdkOldApiInterface {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "id", required = true, dataType = "long", paramType = "form", value = "实体id"),
-            @ApiImplicitParam(name = "isRelationAtts", dataType = "boolean", defaultValue = "true", paramType = "form", value = "是否读取对象属性,默认true"),
+            @ApiImplicitParam(name = "isRelationAtts", dataType = "boolean", defaultValue = "false", paramType = "form", value = "是否读取对象属性,默认false"),
             @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "查询指定的属性，格式为json数组格式，默认为读取全部"),
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts为空时生效"),
     })
@@ -118,7 +118,7 @@ public class AppController implements SdkOldApiInterface {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "实体id列表"),
-            @ApiImplicitParam(name = "isRelationAtts", dataType = "boolean", defaultValue = "true", paramType = "form", value = "是否读取对象属性,默认true"),
+            @ApiImplicitParam(name = "isRelationAtts", dataType = "boolean", defaultValue = "false", paramType = "form", value = "是否读取对象属性,默认false"),
             @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "查询指定的属性，格式为json数组格式，默认为读取全部"),
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts为空时生效"),
     })
