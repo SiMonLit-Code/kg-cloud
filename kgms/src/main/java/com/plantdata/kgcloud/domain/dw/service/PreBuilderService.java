@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.dw.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
+import com.plantdata.kgcloud.domain.dw.req.PreBuilderCountReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderUpdateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
@@ -46,4 +47,5 @@ public interface PreBuilderService {
 
     void updateStatusByDatabaseId(Long databaseId, int status);
 
+    PreBuilderCountReq matchAttrCount(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq);
 }

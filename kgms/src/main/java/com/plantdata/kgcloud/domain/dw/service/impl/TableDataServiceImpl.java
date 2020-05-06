@@ -188,7 +188,10 @@ public class TableDataServiceImpl implements TableDataService {
                 else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode()) && entry.getValue() != null) {
                     SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
-                    String value = dataString.format(date);
+                    String value = null;
+                    if(date != null){
+                        value  = dataString.format(date);
+                    }
                     result.put(entry.getKey(), value);
                 } else if (Objects.equals(scm.getType(), FieldType.DATE.getCode()) && entry.getValue() != null) {
                     SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd");

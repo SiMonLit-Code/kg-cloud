@@ -7,7 +7,10 @@ import com.plantdata.kgcloud.domain.common.module.DWStatisticInterface;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.plantdata.presto.bean.chart.ChartTableBean;
 import com.plantdata.kgcloud.plantdata.presto.stat.PdStatServiceibit;
+import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatBaseBean;
 import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatBean;
+import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatFilterBean;
+import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatOrderBean;
 import com.plantdata.kgcloud.sdk.DWClient;
 import com.plantdata.kgcloud.sdk.rsp.*;
 import io.swagger.annotations.ApiImplicitParam;
@@ -56,6 +59,7 @@ public class DWController implements DWStatisticInterface {
         }else{
             throw BizException.of(SdkErrorCodeEnum.REMOTE_TABLE_NOT_SUPPORTED);
         }
+        escape(req);
         req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
@@ -139,6 +143,7 @@ public class DWController implements DWStatisticInterface {
         }else{
             throw BizException.of(SdkErrorCodeEnum.REMOTE_TABLE_NOT_SUPPORTED);
         }
+        escape(req);
         req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
@@ -222,5 +227,34 @@ public class DWController implements DWStatisticInterface {
     @GetMapping("/databaseAndTable/list")
     public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
         return dwClient.databaseTableList();
+    }
+
+    public void escape(SqlQueryReq req){
+        if(req != null && req.getQuery() != null){
+            List<PdStatBaseBean> dimensions = req.getQuery().getDimensions();
+            List<PdStatBaseBean> measures = req.getQuery().getMeasures();
+            List<PdStatFilterBean> filters = req.getQuery().getFilters();
+            List<PdStatOrderBean> orders = req.getQuery().getOrders();
+//            if(dimensions != null){
+//                for(PdStatBaseBean dimension : dimensions){
+//                    //dimension.setName("'"+dimension.getName()+"'");
+//                }
+//            }
+//            if(measures != null){
+//                for(PdStatBaseBean measure : measures){
+//                    measure.setName("'"+measure.getName()+"'");
+//                }
+//            }
+//            if(filters != null){
+//                for(PdStatBaseBean filter : filters){
+//                    filter.setName("'"+filter.getName()+"'");
+//                }
+//            }
+//            if(orders != null){
+//                for(PdStatBaseBean order : orders){
+//                    order.setName("'"+order.getName()+"'");
+//                }
+//            }
+        }
     }
 }

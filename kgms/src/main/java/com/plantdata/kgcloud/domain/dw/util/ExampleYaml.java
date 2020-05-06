@@ -34,6 +34,7 @@ public class ExampleYaml {
     private final static String SHORT = "tinyint";
     private final static String DATE = "date";
     private final static String TIMESTAMP = "timestamp";
+    private final static String DOUBLE = "double";
 
     private static Map<Integer, String> attDataTypeMap = new HashMap<>();
 
@@ -46,6 +47,7 @@ public class ExampleYaml {
         attDataTypeMap.put(8, "double");
         attDataTypeMap.put(9, "float");
         attDataTypeMap.put(10, "text");
+        attDataTypeMap.put(13, "date");
     }
 
 
@@ -175,7 +177,9 @@ public class ExampleYaml {
             type = FieldType.DATE;
         } else if (string.startsWith(TIMESTAMP)) {
             type = FieldType.DATETIME;
-        } else {
+        } else if(string.startsWith(DOUBLE)){
+            type = FieldType.DOUBLE;
+        }else {
             type = FieldType.STRING;
         }
         return type;

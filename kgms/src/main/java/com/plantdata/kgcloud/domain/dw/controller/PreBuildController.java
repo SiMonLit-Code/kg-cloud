@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.converter.JsonNodeConverter;
 import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
+import com.plantdata.kgcloud.domain.dw.req.PreBuilderCountReq;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.dw.service.PreBuilderService;
@@ -35,6 +36,13 @@ public class PreBuildController {
     public ApiReturn<Page<PreBuilderSearchRsp>> findModel(@RequestBody PreBuilderSearchReq preBuilderSearchReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.findModel(userId,preBuilderSearchReq));
+    }
+
+    @ApiOperation("预构建模式-匹配属性统计")
+    @PostMapping("/match/attr/count")
+    public ApiReturn<PreBuilderCountReq> matchAttrCount(@RequestBody PreBuilderMatchAttrReq preBuilderMatchAttrReq) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(preBuilderService.matchAttrCount(userId,preBuilderMatchAttrReq));
     }
 
     @ApiOperation("预构建模式-获取数据库模式")

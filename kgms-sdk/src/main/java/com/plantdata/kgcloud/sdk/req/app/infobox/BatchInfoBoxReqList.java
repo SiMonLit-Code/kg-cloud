@@ -22,12 +22,12 @@ public class BatchInfoBoxReqList implements AttrDefListKeyReqInterface {
     @ApiModelProperty(value = "实体id、概念id", required = true)
     @NotNull
     private List<Long> ids;
-    @ApiModelProperty(value = "是否读取对象属性,默认true")
+    @ApiModelProperty(value = "是否读取对象属性,默认false")
     @ChooseCheck(value = "[true,false]", type = String.class, name = "relationAttrs", isBlank = true)
-    private Boolean relationAttrs = true;
-    @ApiModelProperty("是否读取反向对象属性,默认true")
+    private Boolean relationAttrs = false;
+    @ApiModelProperty("是否读取反向对象属性,默认false")
     @ChooseCheck(value = "[true,false]", type = String.class, name = "relationAttrs", isBlank = true)
-    private Boolean reverseRelationAttrs = true;
+    private Boolean reverseRelationAttrs = false;
     @ApiModelProperty("查询指定的属性，格式为json数组格式 例：[1,2]，默认为读取全部")
     private List<Integer> allowAttrs;
     @ApiModelProperty("指定的属性的唯一标识 allowAttrs为空时生效 例：[\"key1\",\"key2\"]")

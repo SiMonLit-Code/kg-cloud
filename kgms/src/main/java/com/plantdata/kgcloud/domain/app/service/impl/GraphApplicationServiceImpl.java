@@ -270,12 +270,21 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             Map<Long, List<KnowledgeIndexRsp>> indexMap = basicInfoService.listKnowledgeIndexs(kgName, entityIds);
             //查询对象属性
             Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
+            if(relationOpt.isPresent() && relationOpt.get().size() > 10){
+                relationOpt = Optional.ofNullable(relationOpt.get().subList(0,10));
+            }
             Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
             Map<Long, List<RelationVO>> reverseMap = Maps.newHashMap();
-            relationOpt.ifPresent(relations -> relations.forEach(a -> {
-                positiveMap.computeIfAbsent(a.getFrom().getId(), v -> Lists.newArrayList()).add(a);
-                reverseMap.computeIfAbsent(a.getTo().getId(), v -> Lists.newArrayList()).add(a);
-            }));
+            if(req.getRelationAttrs()) {
+                relationOpt.ifPresent(relations -> relations.forEach(a -> {
+                    positiveMap.computeIfAbsent(a.getFrom().getId(), v -> Lists.newArrayList()).add(a);
+                }));
+            }
+            if(req.getReverseRelationAttrs()) {
+                relationOpt.ifPresent(relations -> relations.forEach(a -> {
+                    reverseMap.computeIfAbsent(a.getTo().getId(), v -> Lists.newArrayList()).add(a);
+                }));
+            }
             BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
                     a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()), indexMap.get(a.getId()),
                             positiveMap.get(a.getId()), reverseMap.get(a.getId()))), infoBoxRspList::addAll);
