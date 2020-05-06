@@ -28,16 +28,24 @@ public class ApkAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        String requestUri = httpServletRequest.getRequestURI();
         String apk = WebUtils.getKgApk(httpServletRequest);
-        if (StringUtils.isEmpty(apk)) {
-            log.debug("ApkAuthFilter reject request uri [{}]", requestUri);
-            WebUtils.sendResponse(httpServletResponse, ApiReturn.fail(CommonErrorCode.BAD_REQUEST));
+        if (!StringUtils.hasText(apk)) {
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            return;
+        }
+        if(StringUtils.hasText(CurrentUser.getToken())){
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            return;
+        }
+        String authorization = WebUtils.getAuthorization(httpServletRequest);
+        if(StringUtils.hasText(authorization)){
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
         //非管理员需要登录(兼容旧接口)
         Optional<LoginRsp> loginOpt = login(apk, httpServletResponse);
         if (!loginOpt.isPresent()) {
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
         LoginRsp loginRsp = loginOpt.get();
