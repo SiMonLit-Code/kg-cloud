@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.domain.dw.entity.*;
 import com.plantdata.kgcloud.domain.dw.parser.ExcelParser;
 import com.plantdata.kgcloud.domain.dw.repository.*;
 import com.plantdata.kgcloud.domain.dw.req.ModelPushReq;
+import com.plantdata.kgcloud.domain.dw.req.PreBuilderCountReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.dw.req.PreBuilderUpdateReq;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
@@ -188,7 +189,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Override
     public Page<PreBuilderSearchRsp> findModel(final String userId, PreBuilderSearchReq req) {
 
-        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(),SortUtil.buildSort(req.getSorts()));
 
         if (!req.isGraph() && !req.isManage() && !req.isUser() && !req.isDw()) {
             return Page.empty();
@@ -260,6 +262,22 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Override
     public Page<PreBuilderMatchAttrRsp> matchAttr(String userId, PreBuilderMatchAttrReq req) {
 
+        List<PreBuilderMatchAttrRsp> matchAttrRspList = getMatchAttrList(userId,req);
+
+        if(matchAttrRspList != null && req.getMatchStatus() != null){
+            matchAttrRspList = matchAttrRspList.stream().filter(attr -> req.getMatchStatus().equals(attr.getMatchStatus())).collect(Collectors.toList());
+        }
+
+        List<PreBuilderMatchAttrRsp> rsList = subList(matchAttrRspList,req.getPage(),req.getSize());
+
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+        Page<PreBuilderMatchAttrRsp> page = new PageImpl<>(rsList, pageable, matchAttrRspList.size());
+
+        return page;
+    }
+
+    private List<PreBuilderMatchAttrRsp> getMatchAttrList(String userId, PreBuilderMatchAttrReq req) {
+
         List<BasicInfoVO> schemaRsp = graphApplicationService.conceptTree(req.getKgName(),0L,null);
 
         Map<String, Long> conceptNameMap = new HashMap<>();
@@ -277,7 +295,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         List<SchemaQuoteReq> existMap = getGraphMap(userId, req.getKgName(), true);
 
         List<DWPrebuildConcept> concepts;
-              if (req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()) {
+        if (req.getFindAttrConceptIds() != null && !req.getFindAttrConceptIds().isEmpty()) {
             concepts = prebuildConceptRepository.findByModelAndConceptIds(req.getModelId(), req.getFindAttrConceptIds());
         } else {
             concepts = prebuildConceptRepository.findAll(Example.of(DWPrebuildConcept.builder().modelId(req.getModelId()).build()));
@@ -292,7 +310,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         if (concepts == null || concepts.isEmpty()) {
-            return Page.empty();
+            return Lists.newArrayList();
         }
 
         Map<Integer, String> modelConceptNameMap = new HashMap<>();
@@ -308,7 +326,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         List<DWPrebuildAttr> attrs = prebuildAttrRepository.findByConceptIds(findByConceptIds);
         if (attrs == null || attrs.isEmpty()) {
-            return Page.empty();
+            return  Lists.newArrayList();
         }
 
 
@@ -834,16 +852,8 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         }
 
-        if(matchAttrRspList != null && req.getMatchStatus() != null){
-            matchAttrRspList = matchAttrRspList.stream().filter(attr -> req.getMatchStatus().equals(attr.getMatchStatus())).collect(Collectors.toList());
-        }
+        return matchAttrRspList;
 
-        List<PreBuilderMatchAttrRsp> rsList = subList(matchAttrRspList,req.getPage(),req.getSize());
-
-        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
-        Page<PreBuilderMatchAttrRsp> page = new PageImpl<>(rsList, pageable, matchAttrRspList.size());
-
-        return page;
     }
 
     private List<PreBuilderMatchAttrRsp> subList(List<PreBuilderMatchAttrRsp> matchAttrRspList, Integer page, Integer size) {
@@ -1167,12 +1177,39 @@ public class PreBuilderServiceImpl implements PreBuilderService {
             model.setModelType(req.getModelType());
             prebuildModelRepository.save(model);
         }
+
     }
 
     @Override
     @Transactional
     public void updateStatusByDatabaseId(Long databaseId, int status) {
         prebuildModelRepository.updateStatusByDatabaseId(databaseId,status);
+    }
+
+    @Override
+    public PreBuilderCountReq matchAttrCount(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq) {
+        List<PreBuilderMatchAttrRsp> matchAttrList = getMatchAttrList(userId,preBuilderMatchAttrReq);
+
+        Integer all = 0;
+        Integer introduction = 0;
+        Integer haveIntroduction = 0;
+        Integer conflict = 0;
+
+        if(matchAttrList != null && !matchAttrList.isEmpty()){
+            for(PreBuilderMatchAttrRsp attr : matchAttrList){
+                if(attr.getMatchStatus().equals(1)){
+                    introduction++;
+                }else if(attr.getMatchStatus().equals(2)){
+                    conflict++;
+                }else if(attr.getMatchStatus().equals(3)){
+                    haveIntroduction++;
+                }
+
+                all++;
+            }
+        }
+
+        return PreBuilderCountReq.builder().all(all).introduction(introduction).haveIntroduction(haveIntroduction).conflict(conflict).build();
     }
 
     private void addSchema2PreBuilder(SchemaRsp schemaRsp, Integer modelId) {
