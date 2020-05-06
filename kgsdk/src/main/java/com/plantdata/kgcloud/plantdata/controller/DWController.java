@@ -23,6 +23,7 @@ import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -59,7 +60,12 @@ public class DWController implements DWStatisticInterface {
         req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
+        ChartTableBean ctb = null;
+        try {
+            ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
+        }catch(Exception e){
+            throw new BizException(130004,"message: "+e.getMessage()+" detail: "+e.getCause().getMessage());
+        }
         DW2dTableRsp table = new DW2dTableRsp();
         table.setXAxis(new ArrayList<>());
         table.setSeries(new ArrayList<>());
@@ -104,7 +110,8 @@ public class DWController implements DWStatisticInterface {
                     series.getData().set(indexMap.get(row.get(0)),row.get(2));
                 }
             }
-        }else if(ctb == null){
+        }
+        else if(ctb == null){
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
         return  ApiReturn.success(table);
@@ -134,7 +141,12 @@ public class DWController implements DWStatisticInterface {
         req.setDbName(dataBase.getDataName());
         PdStatServiceibit pdStatService = new PdStatServiceibit();
         PdStatBean pdStatBean = req.getQuery();
-        ChartTableBean ctb = (ChartTableBean)pdStatService.excute(pdStatBean,req.getDbName(),req.getTbName());
+        ChartTableBean ctb = null;
+        try {
+            ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
+        }catch(Exception e){
+            throw new BizException(130004,"message: "+e.getMessage()+" detail: "+e.getCause().getMessage());
+        }
         DW3dTableRsp table = new DW3dTableRsp();
         table.setXAxis(new ArrayList<>());
         table.setYAxis(new ArrayList<>());

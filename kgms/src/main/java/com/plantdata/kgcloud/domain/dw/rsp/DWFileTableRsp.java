@@ -43,9 +43,6 @@ public class DWFileTableRsp {
     @ApiModelProperty("简介")
     private String description;
 
-    @ApiModelProperty("链接")
-    private String url;
-
     @ApiModelProperty("拥有者")
     private String owner;
 

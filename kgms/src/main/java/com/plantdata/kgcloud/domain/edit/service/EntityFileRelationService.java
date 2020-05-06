@@ -1,12 +1,13 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
-import com.plantdata.kgcloud.bean.BasePage;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
 import com.plantdata.kgcloud.domain.edit.rsp.DWFileRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRelationRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public interface EntityFileRelationService {
 
-    BasePage<DWFileRsp> listRelation(String kgName, EntityFileRelationQueryReq req);
+    Page<DWFileRsp> listRelation(String kgName, EntityFileRelationQueryReq req);
 
     void createRelation(String kgName, EntityFileRelationReq req);
 
@@ -25,6 +26,10 @@ public interface EntityFileRelationService {
     void deleteRelationByDwFileId(String dwFileId);
 
     void deleteById(String id);
+
+    void deleteIndex(String kgName, List<String> idList);
+
+    MultiModal getMultiModalById(String id);
 
     List<EntityFileRelationRsp> getRelationByDwFileId(String dwFileId);
 
@@ -39,4 +44,5 @@ public interface EntityFileRelationService {
     boolean checkExist(String kgName, Long entityId, String dwFileId);
 
     boolean checkSize(String kgName, Long entityId);
+
 }

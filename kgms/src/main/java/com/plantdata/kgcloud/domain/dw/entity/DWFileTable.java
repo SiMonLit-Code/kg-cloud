@@ -1,16 +1,10 @@
 package com.plantdata.kgcloud.domain.dw.entity;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -52,9 +46,6 @@ public class DWFileTable {
 
     @ApiModelProperty("简介")
     private String description;
-
-    @ApiModelProperty("链接")
-    private String url;
 
     @ApiModelProperty("拥有者")
     private String owner;

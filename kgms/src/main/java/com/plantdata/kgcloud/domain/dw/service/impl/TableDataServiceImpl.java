@@ -10,13 +10,11 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
-import com.mongodb.client.result.UpdateResult;
-import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.config.MongoProperties;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.DWFileConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.data.utils.StringToDateUtil;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
@@ -48,14 +46,16 @@ import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -64,12 +64,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
 import static com.plantdata.kgcloud.domain.dw.service.impl.PreBuilderServiceImpl.bytesToFile;
 
 /**
@@ -107,8 +106,8 @@ public class TableDataServiceImpl implements TableDataService {
     @Autowired
     private DocumentConverter documentConverter;
 
-    private MongoCollection<Document> getCollection(String collection) {
-        return mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(collection);
+    private MongoCollection<Document> getCollection() {
+        return mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
     }
 
     @Override
@@ -123,20 +122,93 @@ public class TableDataServiceImpl implements TableDataService {
         try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
 
             PageRequest pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
+            DWTable table = dwService.getTableDetail(tableId);
             List<Map<String, Object>> maps = provider.find(baseReq.getOffset(), baseReq.getLimit(), query);
+            List<Map<String, Object>> mapResult = new ArrayList<>();
+            for (int i = 0; i < maps.size(); i++) {
+                Map<String, Object> map = maps.get(i);
+
+                Map<String, Object> result = filterSchema(table, map);
+
+                mapResult.add(result);
+            }
             long count = provider.count(query);
-            return new PageImpl<>(maps, pageable, count);
+            return new PageImpl<>(mapResult, pageable, count);
         } catch (IOException e) {
             throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
         }
     }
 
-    private DataOptProvider getProvider(String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
+    // TODO
+    @Override
+    public Map<String, Object> getDataById(String userId, Long datasetId, Long tableId, String dataId) {
+        try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
+            //从Mongodb中取得这条数据
+            Map<String, Object> one = provider.findOne(dataId);
+            DWTable table = dwService.getTableDetail(tableId);
+            if (table == null) {
+                throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+            }
+
+            //遍历这条数据里所有的key value
+            return filterSchema(table, one);
+
+        } catch (IOException e) {
+            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
+        }
+    }
+
+    private Map<String, Object> filterSchema(DWTable table, Map<String, Object> one) {
+
+        //得到这条数据的Schema
+        List<DataSetSchema> schema = table.getSchema();
+        //把Schema信息放入到这个Map集合中.  Key=id,value=object
+        Map<String, DataSetSchema> schemaMap = new HashMap<>();
+        for (DataSetSchema o : schema) {
+            schemaMap.put(o.getField(), o);
+        }
+        Map<String, Object> result = new HashMap<>();
+
+        //遍历这条数据里所有的key value
+        for (Map.Entry<String, Object> entry : one.entrySet()) {
+            //如果schema中有这条数据的key
+            DataSetSchema scm = schemaMap.get(entry.getKey());
+            if (scm != null) {
+                if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
+                        Objects.equals(scm.getType(), FieldType.FLOAT.getCode())) {
+                    BigDecimal value = new BigDecimal(entry.getValue().toString());
+                    if (value.compareTo(new BigDecimal(value.intValue())) == 0) {
+                        DecimalFormat f = new DecimalFormat("##.0");
+                        result.put(entry.getKey(), f.format(value));
+                    } else {
+                        result.put(entry.getKey(), value);
+                    }
+                }
+                //如果类型是时间类型。为了前端方便校验 需要转换为标准格式。
+                else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode())) {
+                    SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
+                    String value = dataString.format(date);
+                    result.put(entry.getKey(), value);
+                } else {
+                    result.put(entry.getKey(), entry.getValue());
+                }
+            } else {
+                result.put(entry.getKey(), entry.getValue());
+            }
+
+        }
+        return result;
+    }
+
+    private DataOptProvider getProvider(String userId, Long datasetId, Long tableId, MongoProperties
+            mongoProperties) {
 
         return getProvider(false, userId, datasetId, tableId, mongoProperties);
     }
 
-    private DataOptProvider getProvider(boolean isLocal, String userId, Long datasetId, Long tableId, MongoProperties mongoProperties) {
+    private DataOptProvider getProvider(boolean isLocal, String userId, Long datasetId, Long
+            tableId, MongoProperties mongoProperties) {
 
         DWDatabaseRsp database = dwService.getDetail(datasetId);
 
@@ -154,7 +226,8 @@ public class TableDataServiceImpl implements TableDataService {
     }
 
     @Override
-    public List<Map<String, Object>> statistic(String userId, Long datasetId, Long tableId, DwTableDataStatisticReq statisticReq) {
+    public List<Map<String, Object>> statistic(String userId, Long datasetId, Long tableId, DwTableDataStatisticReq
+            statisticReq) {
         try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
             return provider.aggregateStatistics(statisticReq.getFilterMap(), statisticReq.getGroupMap(), statisticReq.getSortMap());
         } catch (Exception e) {
@@ -164,7 +237,8 @@ public class TableDataServiceImpl implements TableDataService {
     }
 
     @Override
-    public List<Map<String, Object>> search(String userId, Long datasetId, Long tableId, DwTableDataSearchReq searchReq) {
+    public List<Map<String, Object>> search(String userId, Long datasetId, Long tableId, DwTableDataSearchReq
+            searchReq) {
         DWDatabaseRsp database = dwService.getDetail(datasetId);
         if (database == null) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
@@ -186,46 +260,6 @@ public class TableDataServiceImpl implements TableDataService {
     }
 
     @Override
-    public Map<String, Object> getDataById(String userId, Long datasetId, Long tableId, String dataId) {
-        try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
-            Map<String, Object> one = provider.findOne(dataId);
-            DWTable table = dwService.getTableDetail(tableId);
-            if (table == null) {
-                throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
-            }
-            List<DataSetSchema> schema = table.getSchema();
-            Map<String, DataSetSchema> schemaMap = new HashMap<>();
-            for (DataSetSchema o : schema) {
-                schemaMap.put(o.getField(), o);
-            }
-            Map<String, Object> result = new HashMap<>();
-
-            for (Map.Entry<String, Object> entry : one.entrySet()) {
-                DataSetSchema scm = schemaMap.get(entry.getKey());
-                if (scm != null) {
-                    if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
-                            Objects.equals(scm.getType(), FieldType.FLOAT.getCode())) {
-                        BigDecimal value = new BigDecimal(entry.getValue().toString());
-                        if (value.compareTo(new BigDecimal(value.intValue())) == 0) {
-                            DecimalFormat f = new DecimalFormat("##.0");
-                            result.put(entry.getKey(), f.format(value));
-                        } else {
-                            result.put(entry.getKey(), value);
-                        }
-                    } else {
-                        result.put(entry.getKey(), entry.getValue());
-                    }
-                } else {
-                    result.put(entry.getKey(), entry.getValue());
-                }
-            }
-            return result;
-        } catch (IOException e) {
-            throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_ERROR);
-        }
-    }
-
-    @Override
     public DWFileTable fileAdd(DWFileTableReq req) {
 
         byte[] bytes = fastdfsTemplate.downloadFile(req.getPath());
@@ -241,8 +275,7 @@ public class TableDataServiceImpl implements TableDataService {
         fileTable.setUserId(SessionHolder.getUserId());
         fileTable.setCreateTime(new Date());
         Document document = documentConverter.toDocument(fileTable);
-        MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
-        mongoCollection.insertOne(document);
+        getCollection().insertOne(document);
         DWFileTable dwFileTable = documentConverter.toBean(document,DWFileTable.class);
 
 
@@ -329,9 +362,7 @@ public class TableDataServiceImpl implements TableDataService {
     }
 
     @Override
-    public BasePage<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq) {
-
-        MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
+    public Page<DWFileTableRsp> getFileData(String userId, Long databaseId, Long tableId, DataOptQueryReq baseReq) {
 
         Integer size = baseReq.getSize();
         Integer page = (baseReq.getPage() - 1) * size;
@@ -342,21 +373,21 @@ public class TableDataServiceImpl implements TableDataService {
         bsons.add(Filters.eq("dataBaseId", databaseId));
         bsons.add(Filters.eq("tableId", tableId));
 
-        FindIterable<Document> findIterable = mongoCollection.find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime",-1));
+        FindIterable<Document> findIterable = getCollection().find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime",-1));
         List<DWFileTable> dwFileTables = documentConverter.toBeans(findIterable, DWFileTable.class);
         List<DWFileTableRsp> dataStoreRsps = dwFileTables.stream().map(ConvertUtils.convert(DWFileTableRsp.class)).collect(Collectors.toList());
         int count = dataStoreRsps.size();
         if (count > size){
             dataStoreRsps.remove(size.intValue());
-            count++;
+            count += page;
         }
 
-        return new BasePage<>(count, dataStoreRsps);
+        return new PageImpl<>(dataStoreRsps, PageRequest.of(baseReq.getPage() - 1, size), count);
     }
 
     @Override
     public void fileUpdate(DWFileTableUpdateReq fileTableReq) {
-        MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
+        MongoCollection<Document> mongoCollection = getCollection();
         MongoCursor<Document> cursor = mongoCollection.find(documentConverter.buildObjectId(fileTableReq.getId())).iterator();
         if (!cursor.hasNext()) {
             return;
@@ -376,16 +407,15 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Override
     public void fileDelete(String id) {
-        MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
-        mongoCollection.deleteOne(documentConverter.buildObjectId(id));
+        getCollection().deleteOne(documentConverter.buildObjectId(id));
         // 删除实体文件关联
         entityFileRelationService.deleteRelationByDwFileId(id);
     }
 
     @Override
     public void fileDeleteBatch(List<String> ids) {
-        MongoCollection<Document> collection = getCollection(DWFileConstants.FILE);
-        collection.deleteMany(Filters.in("_id",ids));
+        List<ObjectId> collect = ids.stream().map(ObjectId::new).collect(Collectors.toList());
+        getCollection().deleteMany(Filters.in("_id",collect));
     }
 
     @Override
@@ -410,8 +440,7 @@ public class TableDataServiceImpl implements TableDataService {
             fileTable.setPath(fastdfsTemplate.uploadFile(file).getFullPath());
             fileTable.setCreateTime(new Date());
             Document document = documentConverter.toDocument(fileTable);
-            MongoCollection<Document> mongoCollection = getCollection(DWFileConstants.FILE);
-            mongoCollection.insertOne(document);
+            getCollection().insertOne(document);
 
             // 对压缩包进行解压
             byte[] bytes = fastdfsTemplate.downloadFile(fileTable.getPath());
@@ -452,6 +481,7 @@ public class TableDataServiceImpl implements TableDataService {
         update(data, id, collection);
         data.remove(mongoId);
         data.remove(DB_VIEW_DATA);
+        data.put(DataConst.UPDATE_AT, DateUtils.formatDatetime());
         update(data, id, collectionLog);
 
 
@@ -472,7 +502,7 @@ public class TableDataServiceImpl implements TableDataService {
         Document parse = Document.parse(JacksonUtils.writeValueAsString(data));
         List<Bson> bsonList = new ArrayList<>();
         for (Map.Entry<String, Object> entry : parse.entrySet()) {
-            Bson set = Updates.set(entry.getKey(),entry.getValue());
+            Bson set = Updates.set(entry.getKey(), entry.getValue());
             bsonList.add(set);
         }
         collectionLog.updateMany(Filters.eq(MONGO_ID, mongoId), Updates.combine(bsonList), new UpdateOptions().upsert(true));

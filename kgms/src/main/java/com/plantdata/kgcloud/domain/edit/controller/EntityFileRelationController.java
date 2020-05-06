@@ -13,6 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,8 +33,8 @@ public class EntityFileRelationController {
 
     @ApiOperation("实体文件管理-查询关系列表")
     @PostMapping("/{kgName}/list/relation")
-    public ApiReturn<BasePage<DWFileRsp>> listRelation(@PathVariable String kgName,
-                                                       @RequestBody EntityFileRelationQueryReq req) {
+    public ApiReturn<Page<DWFileRsp>> listRelation(@PathVariable String kgName,
+                                                   @RequestBody EntityFileRelationQueryReq req) {
         return ApiReturn.success(entityFileRelationService.listRelation(kgName, req));
     }
 
@@ -85,6 +86,14 @@ public class EntityFileRelationController {
     public ApiReturn updateIndex(@PathVariable String kgName,
                                     @Valid @RequestBody IndexRelationReq req) {
         entityFileRelationService.updateIndex(kgName, req);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("实体文件管理-批量删除标引")
+    @PostMapping("/{kgName}/delete/index")
+    public ApiReturn deleteIndex(@PathVariable String kgName,
+                                 @RequestBody List<String> idList) {
+        entityFileRelationService.deleteIndex(kgName, idList);
         return ApiReturn.success();
     }
 

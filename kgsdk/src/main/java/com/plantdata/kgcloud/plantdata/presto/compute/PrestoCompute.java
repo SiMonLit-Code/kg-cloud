@@ -12,49 +12,25 @@ import java.util.List;
 
 public class PrestoCompute {
 
-    public Object compute(DaxContext dc){
 
-        String sql = dc.sql;
-
-        Connection conn = PrestoSingleton.getConnection();
-
-        ResultSet rs = null;
-
-        try {
-
-            Statement stmt = conn.createStatement();
-            rs = stmt.executeQuery(sql);
-            return wrapResultSet(rs);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if(rs!=null){
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public Object compute(String sql){
+    public Object compute(String sql)throws Exception{
 
         Connection conn = PrestoSingleton.getConnection();
 
         ResultSet rs = null;
 
+        Statement pstmt = null;
+
         try {
 
-            Statement pstmt = conn.createStatement();
+            pstmt = conn.createStatement();
             rs = pstmt.executeQuery(sql);
             return wrapResultSet(rs);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch(SQLException e){
+            throw e;
+        } catch(Exception e) {
+            throw e;
         } finally {
             if(rs!=null){
                 try {
@@ -63,9 +39,16 @@ public class PrestoCompute {
                     e.printStackTrace();
                 }
             }
+            if(pstmt!=null){
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
-        return null;
+        //return null;
     }
 
     private ChartTableBean wrapResultSet(ResultSet rs) throws Exception{

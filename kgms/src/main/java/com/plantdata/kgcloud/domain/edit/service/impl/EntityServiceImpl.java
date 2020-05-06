@@ -11,8 +11,6 @@ import cn.hiboot.mcn.core.model.result.RestResp;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import com.plantdata.graph.logging.core.GraphLog;
 import com.plantdata.graph.logging.core.GraphLogOperation;
 import com.plantdata.graph.logging.core.GraphLogScope;
@@ -30,7 +28,6 @@ import com.plantdata.kgcloud.domain.dw.service.TableDataService;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.OpenEntityConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
@@ -62,10 +59,8 @@ import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -138,7 +133,7 @@ public class EntityServiceImpl implements EntityService {
     public MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq) {
         logSender.setActionId();
 
-        if (!entityFileRelationService.checkSize(kgName,multiModalReq.getEntityId())){
+        if (!entityFileRelationService.checkSize(kgName, multiModalReq.getEntityId())) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
         }
 
@@ -146,6 +141,7 @@ public class EntityServiceImpl implements EntityService {
         if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
             // 创建实体文件关联
             EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
+            relation.setIndexType(0);
             entityFileRelationService.createRelation(kgName, relation);
         } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
             // 创建数仓文件记录
@@ -155,14 +151,18 @@ public class EntityServiceImpl implements EntityService {
             // 创建实体文件关联
             EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
             relation.setDwFileId(dwFileTable.getId());
+            relation.setIndexType(0);
             entityFileRelationService.createRelation(kgName, relation);
         }
-        sendMsg(kgName, ConvertUtils.convert(MultiModal.class).apply(fileTable));
+
+        MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(fileTable);
+        multiModal.setEntityId(multiModalReq.getEntityId());
+        sendMsg(kgName, multiModal, GraphLogOperation.ADD);
         logSender.remove();
         return ConvertUtils.convert(MultiModalRsp.class).apply(fileTable);
     }
 
-    private void sendMsg(String kgName, MultiModal multiModal) {
+    private void sendMsg(String kgName, MultiModal multiModal, GraphLogOperation operation) {
         if (!logSender.isEnableLog()) {
             return;
         }
@@ -171,8 +171,12 @@ public class EntityServiceImpl implements EntityService {
         GraphLog graphLog = new GraphLog();
         graphLog.setBatch(ThreadLocalUtils.getBatchNo());
         graphLog.setScope(GraphLogScope.MULTI_DATA);
-        graphLog.setOperation(GraphLogOperation.ADD);
-        graphLog.setNewValue(transform(multiModal));
+        if(GraphLogOperation.DELETE.equals(operation)){
+            graphLog.setOldValue(transform(multiModal));
+        }else{
+            graphLog.setNewValue(transform(multiModal));
+        }
+        graphLog.setOperation(operation);
         logSender.sendKgLog(kgDbName, graphLog);
     }
 
@@ -194,7 +198,7 @@ public class EntityServiceImpl implements EntityService {
 
         for (MultiModalReq multiModalReq : multiModalReqs) {
 
-            if (!entityFileRelationService.checkSize(kgName,multiModalReq.getEntityId())){
+            if (!entityFileRelationService.checkSize(kgName, multiModalReq.getEntityId())) {
                 throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
             }
             if (!entityFileRelationService.checkExist(kgName, multiModalReq.getEntityId(), multiModalReq.getDwFileId())) {
@@ -205,6 +209,7 @@ public class EntityServiceImpl implements EntityService {
                 // 创建实体文件关联
                 EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
                 entityFileRelationReq.setDwFileId(multiModalReq.getDwFileId());
+                entityFileRelationReq.setIndexType(0);
                 entityFileRelationService.createRelation(kgName, entityFileRelationReq);
             } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
                 // 创建数仓文件记录
@@ -214,11 +219,12 @@ public class EntityServiceImpl implements EntityService {
                 // 创建实体文件关联
                 EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
                 entityFileRelationReq.setDwFileId(dwFileTable.getId());
+                entityFileRelationReq.setIndexType(0);
                 entityFileRelationService.createRelation(kgName, entityFileRelationReq);
             }
         }
 
-        multiModals.forEach(modal -> sendMsg(kgName, modal));
+        multiModals.forEach(modal -> sendMsg(kgName, modal, GraphLogOperation.ADD));
         logSender.remove();
     }
 
@@ -226,8 +232,9 @@ public class EntityServiceImpl implements EntityService {
     public void deleteMultiModal(String kgName, String relationId) {
         logSender.setActionId();
         // 删除实体文件关联
+        MultiModal multiModal = entityFileRelationService.getMultiModalById(relationId);
+        sendMsg(kgName, multiModal, GraphLogOperation.DELETE);
         entityFileRelationService.deleteById(relationId);
-        logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
         logSender.remove();
     }
 

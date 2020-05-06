@@ -21,7 +21,6 @@ import com.plantdata.kgcloud.domain.data.rsp.DataStoreRsp;
 import com.plantdata.kgcloud.domain.data.rsp.DbAndTableRsp;
 import com.plantdata.kgcloud.domain.data.service.DataStoreSender;
 import com.plantdata.kgcloud.domain.data.service.DataStoreService;
-import com.plantdata.kgcloud.domain.dw.entity.DWDatabase;
 import com.plantdata.kgcloud.domain.dw.repository.DWDatabaseRepository;
 import com.plantdata.kgcloud.sdk.rsp.DWDatabaseRsp;
 import com.plantdata.kgcloud.domain.dw.service.DWService;
@@ -151,34 +150,19 @@ public class DataStoreServiceImpl implements DataStoreService {
     public List<DbAndTableRsp> listErrDataNameSearch() {
         String userId = SessionHolder.getUserId();
         //查询出该用户下的所有表
-        List<DWDatabase> all = dwDatabaseRepository.findByUserId(userId);
-        //没有没有查询到,直接返回
-        if (all == null || all.size() == 0) {
-            return null;
-        }
-        Map<String, DWDatabase> map = new HashMap(all.size());
-        //使用map封装该用户下 所有表和 数仓标题  注意 OOM
-        for (DWDatabase dw : all) {
-            map.put(dw.getDataName(), dw);
-        }
-        //过滤 只保存该用户的表名称
-        List<String> allList = all.stream().map(DWDatabase::getDataName).distinct().collect(Collectors.toList());
+        Map<String, String> allDb = new HashMap();
+        dwDatabaseRepository.findByUserId(userId).stream().forEach(a -> allDb.put(a.getDataName(), a.getTitle()));
         List<String> strList = new LinkedList<>();
-        for (String str : allList) {
-            String s = DB_FIX_NAME_PREFIX + str;
-            strList.add(s);
-        }
+        allDb.keySet().stream().forEach(s -> strList.add(DB_FIX_NAME_PREFIX + s));
         //在mongo中查询出 所有的表名
-        List<String> database = mongoClient.getDatabaseNames();
-        //找到以return前缀开头的表
-        List<String> filterList = database.stream().filter(s -> s.startsWith(DB_FIX_NAME_PREFIX)).collect(Collectors.toList());
+        List<String> filterList = mongoClient.getDatabaseNames().stream().filter(s -> s.startsWith(DB_FIX_NAME_PREFIX)).collect(Collectors.toList());
         //取交集得出结果
-        List<String> intersection = (List<String>) CollectionUtils.intersection(strList, filterList);
+        Collection<String> result = CollectionUtils.intersection(strList, filterList);
         List<DbAndTableRsp> rsps = new LinkedList<>();
-        for (String a : intersection) {
+        for (String a : result) {
             DbAndTableRsp tableRsp = new DbAndTableRsp();
             String s = a.replaceFirst(DB_FIX_NAME_PREFIX, "");
-            String title = map.get(s).getTitle();
+            String title = allDb.get(s);
             tableRsp.setDbName(s);
             tableRsp.setDbTitle(title);
             Set<String> db = mongoClient.getDB(a).getCollectionNames();
@@ -204,9 +188,10 @@ public class DataStoreServiceImpl implements DataStoreService {
         }
 
         if (!StringUtils.isEmpty(req.getKeyword())) {
-            bsons.add(Filters.regex("errorReason", req.getKeyword()));
+            //对特殊字符进行转义
+            String keyWord = egrularEscape(req.getKeyword());
+            bsons.add(Filters.regex("errorReason", keyWord));
         }
-
         FindIterable<Document> findIterable;
         long count = 0;
         if (bsons.isEmpty()) {
@@ -385,5 +370,19 @@ public class DataStoreServiceImpl implements DataStoreService {
         allDocument.append(DB_VIEW_DATA, document);
         allDocument.putAll(filterDataId(req.getData()));
         return allDocument;
+    }
+
+
+    public static String egrularEscape(String keyword) {
+        if (!StringUtils.isEmpty(keyword)) {
+            String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
+            for (String key : fbsArr) {
+                if (keyword.contains(key)) {
+                    keyword = keyword.replace(key, "\\\\" + key);
+                }
+            }
+        }
+        return keyword;
+
     }
 }
