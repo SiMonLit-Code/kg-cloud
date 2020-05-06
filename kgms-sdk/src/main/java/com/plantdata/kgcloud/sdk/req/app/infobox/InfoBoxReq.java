@@ -21,8 +21,8 @@ public class InfoBoxReq {
     @NotNull
     @ApiModelProperty(value = "实体id", required = true)
     private Long id;
-    @ApiModelProperty("是否读取关系属性 默认 true")
-    private Boolean relationAttrs = true;
+    @ApiModelProperty("是否读取关系属性 默认 false")
+    private Boolean relationAttrs = false;
     @ApiModelProperty("允许的属性id")
     private List<Integer> allowAttrs;
     @ApiModelProperty("允许的属性key")
