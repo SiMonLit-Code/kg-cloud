@@ -373,7 +373,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
 
-    public static String egrularEscape(String keyword) {
+    public  String egrularEscape(String keyword) {
         if (!StringUtils.isEmpty(keyword)) {
             String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
             for (String key : fbsArr) {

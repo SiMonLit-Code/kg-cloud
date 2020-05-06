@@ -185,8 +185,13 @@ public class TableDataServiceImpl implements TableDataService {
                     }
                 }
                 //如果类型是时间类型。为了前端方便校验 需要转换为标准格式。
-                else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode())) {
+                else if (Objects.equals(scm.getType(), FieldType.DATETIME.getCode()) && entry.getValue() != null) {
                     SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
+                    String value = dataString.format(date);
+                    result.put(entry.getKey(), value);
+                } else if (Objects.equals(scm.getType(), FieldType.DATE.getCode()) && entry.getValue() != null) {
+                    SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd");
                     Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
                     String value = dataString.format(date);
                     result.put(entry.getKey(), value);
@@ -276,7 +281,7 @@ public class TableDataServiceImpl implements TableDataService {
         fileTable.setCreateTime(new Date());
         Document document = documentConverter.toDocument(fileTable);
         getCollection().insertOne(document);
-        DWFileTable dwFileTable = documentConverter.toBean(document,DWFileTable.class);
+        DWFileTable dwFileTable = documentConverter.toBean(document, DWFileTable.class);
 
 
         // 对压缩包进行解压
@@ -373,11 +378,11 @@ public class TableDataServiceImpl implements TableDataService {
         bsons.add(Filters.eq("dataBaseId", databaseId));
         bsons.add(Filters.eq("tableId", tableId));
 
-        FindIterable<Document> findIterable = getCollection().find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime",-1));
+        FindIterable<Document> findIterable = getCollection().find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime", -1));
         List<DWFileTable> dwFileTables = documentConverter.toBeans(findIterable, DWFileTable.class);
         List<DWFileTableRsp> dataStoreRsps = dwFileTables.stream().map(ConvertUtils.convert(DWFileTableRsp.class)).collect(Collectors.toList());
         int count = dataStoreRsps.size();
-        if (count > size){
+        if (count > size) {
             dataStoreRsps.remove(size.intValue());
             count += page;
         }
@@ -415,7 +420,7 @@ public class TableDataServiceImpl implements TableDataService {
     @Override
     public void fileDeleteBatch(List<String> ids) {
         List<ObjectId> collect = ids.stream().map(ObjectId::new).collect(Collectors.toList());
-        getCollection().deleteMany(Filters.in("_id",collect));
+        getCollection().deleteMany(Filters.in("_id", collect));
     }
 
     @Override
