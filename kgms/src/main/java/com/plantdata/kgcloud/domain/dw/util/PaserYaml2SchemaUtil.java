@@ -562,15 +562,20 @@ public class PaserYaml2SchemaUtil {
 
                 for(CustomRelationRsp relation : label.getRelationRsps()){
 
+                    if(relation.getName() == null || relation.getName().trim().isEmpty()){
+                        continue;
+                    }
                     String domain = relation.getDomain();
                     List<String> range = relation.getRange();
 
                     if(!entity.contains(domain)){
-                        throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_DOMAIN_NOT_EXIST_ERROR);
+                        continue;
+//                        throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_DOMAIN_NOT_EXIST_ERROR);
                     }
 
                     if(!entity.containsAll(range)){
-                        throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_RANGE_NOT_EXIST_ERROR);
+                        continue;
+//                        throw BizException.of(KgmsErrorCodeEnum.YAML_ATTR_RANGE_NOT_EXIST_ERROR);
                     }
 
 
@@ -690,37 +695,43 @@ public class PaserYaml2SchemaUtil {
         List<YamlColumn> columnList = new ArrayList<>();
         for(CustomColumnRsp column : columns){
 
-            if(column.getTag() == null || StringUtils.isEmpty(column.getTag())){
+            if(column.getTag() == null || StringUtils.isEmpty(column.getTag().trim())){
                 continue;
             }
 
             if(fields == null || fields.isEmpty()){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
+                continue;
+//                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
             }
 
             if(!fields.contains(column.getName())){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
+                continue;
+//                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMS_NOT_EXIST_IN_TABLE);
             }
 
 
             if(StringUtils.isEmpty(column.getTag())){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_NOT_EXIST);
+                continue;
+//                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_NOT_EXIST);
             }
 
             String[] tags = column.getTag().split("\\.");
 
             if(tags.length != 2){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_PARSER_ERROR);
+                continue;
+//                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TAG_PARSER_ERROR);
             }
 
             String type = column.getType();
 
             if(StringUtils.isEmpty(type)){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_NOT_EXIST);
+                continue;
+//                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_NOT_EXIST);
             }
 
             if(!attDataTypeMap.containsKey(type)){
-                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_PARSER_ERROR);
+                continue;
+//                throw BizException.of(KgmsErrorCodeEnum.YAML_COLUMN_TYPE_PARSER_ERROR);
             }
 
 
