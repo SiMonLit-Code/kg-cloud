@@ -205,6 +205,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         } else if (req.getIndexType() == 0) {
             aggLs.add(Aggregates.lookup(DWFileConstants.RELATION, "_id", "dwFileId", "relationList"));
             aggLs.add(Aggregates.match(Filters.exists("relationList.0")));
+            aggLs.add(Aggregates.match(Filters.elemMatch("relationList", Filters.regex("kgName", kgName))));
             aggLs.add(Aggregates.skip(pageNo));
             aggLs.add(Aggregates.limit(size + 1));
             MongoCollection<Document> collection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
