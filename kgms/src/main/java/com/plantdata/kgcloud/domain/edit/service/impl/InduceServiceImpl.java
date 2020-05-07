@@ -102,6 +102,9 @@ public class InduceServiceImpl implements InduceService {
 
     @Override
     public void inducePublic(String kgName, InducePublicReq inducePublicReq) {
+        if (inducePublicReq.getType().equals(1)){
+            inducePublicReq.setDataType(0);
+        }
         InduceAttributeFrom induceAttributeFrom =
                 ConvertUtils.convert(InduceAttributeFrom.class).apply(inducePublicReq);
         RestRespConverter.convertVoid(induceApi.induceAttribute(KGUtil.dbName(kgName), induceAttributeFrom));
