@@ -47,9 +47,10 @@ public class ApkAuthFilter extends OncePerRequestFilter {
                 OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) oauth.getDetails();
                 CurrentUser.setAdmin(false);
                 CurrentUser.setToken(details.getTokenType() + " " + details.getTokenValue());
+                filterChain.doFilter(request, response);
+                return;
             }
-            filterChain.doFilter(request, response);
-            return;
+
         }
 
         String apk = WebUtils.getKgApk(request);
