@@ -50,7 +50,6 @@ public class ApkAuthFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
-
         }
 
         String apk = WebUtils.getKgApk(request);
@@ -58,15 +57,7 @@ public class ApkAuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        if(StringUtils.hasText(CurrentUser.getToken())){
-            filterChain.doFilter(request, response);
-            return;
-        }
-        String authorization = WebUtils.getAuthorization(request);
-        if(StringUtils.hasText(authorization)){
-            filterChain.doFilter(request, response);
-            return;
-        }
+
         //非管理员需要登录(兼容旧接口)
         Optional<LoginRsp> loginOpt = login(apk, response);
         if (!loginOpt.isPresent()) {
