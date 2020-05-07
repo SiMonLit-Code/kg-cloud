@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableResourceServer
@@ -30,7 +31,7 @@ public class SsoSecurityConfig extends ResourceServerConfigurerAdapter {
         if (ignorePaths != null && ignorePaths.length > 0) {
             http.authorizeRequests().antMatchers(ignorePaths).permitAll();
         }
-        http.addFilterBefore(apkAuthFilter, AnonymousAuthenticationFilter.class);
+        http.addFilterBefore(apkAuthFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
 }
