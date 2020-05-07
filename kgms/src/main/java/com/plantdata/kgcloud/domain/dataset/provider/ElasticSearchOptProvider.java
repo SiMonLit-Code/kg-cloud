@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
 import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.exception.BizException;
@@ -115,13 +115,14 @@ public class ElasticSearchOptProvider implements DataOptProvider {
         return fields;
     }
 
-    private ObjectNode buildQuery(Integer offset, Integer limit, Map<String, Object> query) {
+    private ObjectNode buildQuery(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
         ObjectNode queryNode = objectMapper.createObjectNode();
         if (offset != null && offset >= 0) {
             queryNode.put("from", offset);
         }
         int size = limit != null && limit > 0 ? limit : 10;
         queryNode.put("size", size);
+        BasicConverter.consumerIfNoNull(sort, a -> queryNode.putPOJO("sort", sort));
         if (CollectionUtils.isEmpty(query)) {
             return queryNode;
         }
@@ -130,13 +131,6 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     private ObjectNode handleQuery(ObjectNode queryNode, Map<String, Object> query) {
         for (Map.Entry<String, Object> entry : query.entrySet()) {
-            if (Objects.equals(entry.getKey(), "sort")) {
-                if (entry.getValue() == null) {
-                    queryNode.put("sort", DataConst.CREATE_AT);
-                } else {
-                    queryNode.putPOJO("sort", entry.getValue());
-                }
-            }
             if (Objects.equals(entry.getKey(), "query")) {
                 queryNode.putPOJO("query", entry.getValue());
             }
@@ -171,18 +165,13 @@ public class ElasticSearchOptProvider implements DataOptProvider {
 
     @Override
     public List<Map<String, Object>> findWithSort(Integer offset, Integer limit, Map<String, Object> query, Map<String, Object> sort) {
-        if (!CollectionUtils.isEmpty(sort)) {
-            query.put("sort", sort.get("sort"));
-        }
-
         List<Map<String, Object>> mapList = new ArrayList<>();
         String endpoint = "/" + database + "/" + type + "/_search";
         if (!StringUtils.hasText(type)) {
             endpoint = "/" + database + "/_search";
         }
-
         Request request = new Request(RequestMethod.POST.toString(), endpoint);
-        ObjectNode queryNode = buildQuery(offset, limit, query);
+        ObjectNode queryNode = buildQuery(offset, limit, query, sort);
         NStringEntity entity = new NStringEntity(JacksonUtils.writeValueAsString(queryNode), ContentType.APPLICATION_JSON);
         request.setEntity(entity);
         Optional<String> send = send(request);
@@ -202,7 +191,7 @@ public class ElasticSearchOptProvider implements DataOptProvider {
     public long count(Map<String, Object> query) {
         String endpoint = "/" + database + "/" + type + "/_search?_source=false";
         Request request = new Request(POST, endpoint);
-        ObjectNode queryNode = buildQuery(null, null, query);
+        ObjectNode queryNode = buildQuery(null, null, query,null);
         NStringEntity entity = new NStringEntity(JacksonUtils.writeValueAsString(queryNode), ContentType.APPLICATION_JSON);
         request.setEntity(entity);
         Optional<String> send = send(request);

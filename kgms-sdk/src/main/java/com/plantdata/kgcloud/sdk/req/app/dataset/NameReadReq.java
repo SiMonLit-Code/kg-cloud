@@ -1,8 +1,11 @@
 package com.plantdata.kgcloud.sdk.req.app.dataset;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Map;
 
 /**
  * @author cjw
@@ -12,6 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @ApiModel
-public class NameReadReq extends BaseTableReq{
+public class NameReadReq extends BaseTableReq {
     private String dataName;
 }
