@@ -50,7 +50,7 @@ public class GraphLogServiceImpl implements GraphLogService {
             query = Filters.eq("serviceEnum", req.getServiceEnum().name());
         }
         if (req.getStartTime() != null) {
-            query = Filters.and(query, Filters.gte("createTime", req.getServiceEnum()));
+            query = Filters.and(query, Filters.gte("createTime", req.getStartTime()));
         }
         if (req.getEndTime() != null) {
             query = Filters.and(query, Filters.lte("createTime", req.getEndTime()));
