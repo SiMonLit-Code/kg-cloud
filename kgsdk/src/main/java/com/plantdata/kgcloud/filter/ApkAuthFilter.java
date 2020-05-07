@@ -8,7 +8,11 @@ import com.plantdata.kgcloud.sdk.rsp.LoginRsp;
 import com.plantdata.kgcloud.util.WebUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
@@ -21,6 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 
 @Slf4j
@@ -29,6 +34,9 @@ public class ApkAuthFilter extends OncePerRequestFilter {
     private static final String ADMIN_APK = "03c7a9376254ebb8a6b27706194";
     @Autowired
     private SsoClient ssoClient;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -67,6 +75,12 @@ public class ApkAuthFilter extends OncePerRequestFilter {
         LoginRsp loginRsp = loginOpt.get();
         CurrentUser.setAdmin(loginRsp.isAdmin());
         CurrentUser.setToken(loginRsp.getToken());
+
+
+        UsernamePasswordAuthenticationToken result =
+                new UsernamePasswordAuthenticationToken("a","b", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+        eventPublisher.publishEvent(new AuthenticationSuccessEvent(result));
+        SecurityContextHolder.getContext().setAuthentication(result);
         filterChain.doFilter(request, response);
     }
 

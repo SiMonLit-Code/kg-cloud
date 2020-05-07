@@ -26,7 +26,8 @@ public class SsoSecurityConfig extends ResourceServerConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers(WebUtils.DEFAULT_IGNORE)
                 .permitAll()
-                .anyRequest().anonymous();
+                .anyRequest()
+                .authenticated();
         if (ignorePaths != null && ignorePaths.length > 0) {
             http.authorizeRequests().antMatchers(ignorePaths).permitAll();
         }
