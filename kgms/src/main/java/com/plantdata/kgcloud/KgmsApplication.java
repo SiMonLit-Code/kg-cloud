@@ -26,11 +26,6 @@ public class KgmsApplication extends SpringBootServletInitializer {
         SpringApplication.run(KgmsApplication.class, args);
     }
 
-    @Bean
-    public Logger.Level feignLoggerLevel() {
-        return Logger.Level.FULL;
-    }
-
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(KgmsApplication.class);

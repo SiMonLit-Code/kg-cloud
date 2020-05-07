@@ -61,7 +61,7 @@ public class ModelController {
 
         List<TableSchemaRsp> ls;
         try {
-            ls = JacksonUtils.getInstance().readValue(str, new TypeReference<TableSchemaRsp>(){});
+            ls = JacksonUtils.getInstance().readValue(str, new TypeReference<List<TableSchemaRsp>>(){});
         } catch (IOException e) {
             throw BizException.of(CommonErrorCode.BAD_REQUEST);
         }

@@ -131,24 +131,7 @@ public class LinkShareServiceImpl implements LinkShareService {
         if (!StringUtils.hasText(token)) {
             selfSharedRsp.setLogin(false);
         }
-        String user = null;
-        try {
-            user = jwtClient.parseClaimUserId(token);
-        } catch (Exception e) {
-        }
-
-        if (user == null) {
-            selfSharedRsp.setLogin(false);
-        } else {
-            selfSharedRsp.setLogin(true);
-        }
-        if (user != null && userId != null) {
-            if (Objects.equals(user, userId)) {
-                selfSharedRsp.setSelf(true);
-            }
-        } else {
-            selfSharedRsp.setSelf(false);
-        }
+        selfSharedRsp.setSelf(true);
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
         if(data !=null){
             selfSharedRsp.setSharePermission(data.getShareable());
