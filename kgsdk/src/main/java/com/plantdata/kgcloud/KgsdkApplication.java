@@ -11,14 +11,12 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 
 /**
  * @author wanglong
  */
 @EnableDiscoveryClient
-@SpringBootApplication(scanBasePackages = CommonConstants.WebConst.ROOT_PKG, exclude= {DataSourceAutoConfiguration.class})
+@SpringBootApplication(scanBasePackages = CommonConstants.WebConst.ROOT_PKG, exclude = {DataSourceAutoConfiguration.class})
 @EnableApolloConfig
 @EnableFeignClients(basePackages = {CommonConstants.FeignConst.BASE_PKG, CommonConstants.FeignConst.PUBLIC_PKG})
 public class KgsdkApplication extends SpringBootServletInitializer {
