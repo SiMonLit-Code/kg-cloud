@@ -97,6 +97,9 @@ public class InfoBoxConverter extends BasicConverter {
         List<EntityLink> entityLinks = toListNoNull(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
         consumerIfNoNull(entityLinks, a -> oldBean.setEntityLinks(Sets.newHashSet(a)));
         oldBean.setExtra(toListNoNull(entityLinksRsp.getExtraList(), InfoBoxConverter::extraRspToExtraKVBean));
+        consumerIfNoNull(entityLinksRsp.getMultiModals(),oldBean::setMultiModals);
+        consumerIfNoNull(entityLinksRsp.getKnowledgeIndexs(),oldBean::setKnowledgeIndexs);
+        consumerIfNoNull(entityLinksRsp.getDictList(),oldBean::setDictList);
         return oldBean;
     }
 

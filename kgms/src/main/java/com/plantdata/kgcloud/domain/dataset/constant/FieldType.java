@@ -64,14 +64,25 @@ public enum FieldType {
             String string = obj.toString();
             String date = "\\d{4}-\\d{2}-\\d{2}";
             String time = "\\d{2}:\\d{2}:\\d{2}";
-            String dateTime = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
             if (Pattern.matches(date, string)) {
                 LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 return string;
             } else if (Pattern.matches(time, string)) {
                 LocalTime.parse(string, DateTimeFormatter.ofPattern("HH:mm:ss"));
                 return string;
-            } else if (Pattern.matches(dateTime, string)) {
+            } else {
+                throw new RuntimeException();
+            }
+        }
+    },
+    DATETIME(13, DataConst.JSON_DATE) {
+        @Override
+        public Object deserialize(Object obj) throws Exception {
+            String string = obj.toString();
+            String date = "\\d{4}-\\d{2}-\\d{2}";
+            String time = "\\d{2}:\\d{2}:\\d{2}";
+            String dateTime = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
+            if (Pattern.matches(dateTime, string)) {
                 LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                 return string;
             } else {
@@ -116,6 +127,12 @@ public enum FieldType {
         public Object deserialize(Object obj) throws Exception {
             BigDecimal bigDecimal = new BigDecimal(obj.toString());
             return bigDecimal.floatValue();
+        }
+    },
+    TEXT(10, DataConst.JSON_INDEX) {
+        @Override
+        public Object deserialize(Object obj) throws Exception {
+            return null;
         }
     };
 

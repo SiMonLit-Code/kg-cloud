@@ -43,7 +43,14 @@ public class JsonUtils {
     }
 
     public static <T> T objToNewObj(Object o, Class<T> clazz) {
-        return JacksonUtils.readValue(JacksonUtils.writeValueAsString(o), clazz);
+        ObjectMapper instance = JacksonUtils.getInstance();
+        instance.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            return instance.readValue(JacksonUtils.writeValueAsString(o), clazz);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static <T> T parseObj(String json, Class<T> clazz) {

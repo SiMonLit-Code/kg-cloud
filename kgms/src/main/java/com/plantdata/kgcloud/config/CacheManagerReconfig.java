@@ -3,6 +3,8 @@ package com.plantdata.kgcloud.config;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.client.codec.StringCodec;
+import org.redisson.codec.SerializationCodec;
 import org.redisson.spring.cache.CacheConfig;
 import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ public class CacheManagerReconfig {
         config.put(CACHE_GRAPH_KGNAME, new CacheConfig(60 * 60 * 1000, 30 * 60 * 1000));
         RedissonSpringCacheManager redissonSpringCacheManager = (RedissonSpringCacheManager) cacheManager;
         redissonSpringCacheManager.setConfig(config);
+        redissonSpringCacheManager.setCodec(new StringCodec());
         log.debug("重写CacheManager缓存配置成功，config=[{}]", JacksonUtils.writeValueAsString(config));
     }
 }

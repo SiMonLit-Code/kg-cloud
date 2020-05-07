@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.converter;
 import ai.plantdata.kg.api.edit.req.BatchQueryRelationFrom;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
+import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -41,15 +42,15 @@ public class RelationConverter extends BasicConverter {
         queryRelationFrom.setDirection(searchReq.getDirection());
         //时间筛选
         Map<String, Object> attrTimeFilters = Maps.newHashMap();
-        consumerIfNoNull(searchReq.getAttrTimeFrom(),a->{
+        consumerIfNoNull(searchReq.getAttrTimeFrom(), a -> {
             DateUtils.checkDataMap(a);
-            attrTimeFilters.put("attr_time_from",a);
+            attrTimeFilters.put("attr_time_from", a);
         });
-        consumerIfNoNull(searchReq.getAttrTimeTo(),a-> {
+        consumerIfNoNull(searchReq.getAttrTimeTo(), a -> {
             DateUtils.checkDataMap(a);
             attrTimeFilters.put("attr_time_to", a);
         });
-        consumerIfNoNull(attrTimeFilters,queryRelationFrom::setAttrTimeFilters);
+        consumerIfNoNull(attrTimeFilters, queryRelationFrom::setAttrTimeFilters);
         return queryRelationFrom;
 
     }
@@ -71,7 +72,7 @@ public class RelationConverter extends BasicConverter {
 
     public static AggRelationFrom edgeAttrPromptReqToAggRelationFrom(EdgeAttrPromptReq req) {
         AggRelationFrom from = new AggRelationFrom();
-        from.setSkip( req.getOffset());
+        from.setSkip(req.getOffset());
         from.setLimit(req.getLimit());
         from.setSeqNo(req.getSeqNo());
         from.setAttrId(req.getAttrId());
@@ -86,6 +87,14 @@ public class RelationConverter extends BasicConverter {
             from.setSortDirection(SortTypeEnum.ASC.getValue());
         }
         return from;
+    }
+
+    public static FilterRelationFrom buildEntityIdsQuery(List<Long> entityIds) {
+        FilterRelationFrom relationFrom = new FilterRelationFrom();
+        relationFrom.setEntityIds(entityIds);
+        relationFrom.setSkip(0);
+        relationFrom.setLimit(Integer.MAX_VALUE);
+        return relationFrom;
     }
 
 

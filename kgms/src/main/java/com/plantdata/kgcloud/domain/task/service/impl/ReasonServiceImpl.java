@@ -1,14 +1,18 @@
 package com.plantdata.kgcloud.domain.task.service.impl;
 
 
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.UpdateManyModel;
 import com.mongodb.client.model.UpdateOptions;
 import com.plantdata.graph.logging.core.GraphLog;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import com.plantdata.graph.logging.core.segment.*;
+import com.plantdata.graph.logging.core.segment.AttributeSegment;
+import com.plantdata.graph.logging.core.segment.PrivateAttributeSegment;
+import com.plantdata.graph.logging.core.segment.PrivateRelationSegment;
+import com.plantdata.graph.logging.core.segment.RelationSegment;
+import com.plantdata.graph.logging.core.segment.Segment;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
@@ -19,16 +23,18 @@ import com.plantdata.kgcloud.domain.task.dto.TripleBean;
 import com.plantdata.kgcloud.domain.task.service.ReasonService;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.BsonDocument;
 import org.bson.Document;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -184,21 +190,20 @@ public class ReasonServiceImpl implements ReasonService {
         if (ls == null || ls.isEmpty()) {
             return;
         }
-        List<UpdateManyModel<Document>> requests = ls.stream().map(s -> new UpdateManyModel<Document>(
-                new Bson() {
-                    @Override
-                    public <TDocument> BsonDocument toBsonDocument(Class<TDocument> aClass, CodecRegistry codecRegistry) {
-                        Document doc = new Document();
-                        for (String field : fieldArr) {
-                            doc.append(field, s.get(field));
-                        }
-                        return doc.toBsonDocument(aClass, codecRegistry);
-                    }
-                },
-                new Document("$set", s),
-                new UpdateOptions().upsert(true)
-        )).collect(Collectors.toList());
-        client.getDatabase(database).getCollection(collection).bulkWrite(requests);
+        if (collection.contains("object")) {
+            client.getDatabase(database).getCollection(collection).insertMany(Lists.newArrayList(ls));
+        } else {
+            List<UpdateManyModel<Document>> requests = ls.stream().map(s -> {
+                Document filter = new Document();
+                for (String field : fieldArr) {
+                    filter.append(field, s.get(field));
+                }
+                Document update = new Document("$set", s);
+                UpdateOptions upsert = new UpdateOptions().upsert(true);
+                return new UpdateManyModel<Document>(filter, update, upsert);
+            }).collect(Collectors.toList());
+            client.getDatabase(database).getCollection(collection).bulkWrite(requests);
+        }
     }
 
     private String getCollection(int dataType) {

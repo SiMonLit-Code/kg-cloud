@@ -100,8 +100,133 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     PERMISSION_NOT_ENOUGH_ERROR(120509, "没有该图谱的编辑权限"),
 
     RDF_EXPORT_ERROR(120510, "rdf导出错误"),
-    ;
 
+    GRAPH_QUALITY_NOT_EXIST(120511, "图谱质量不存在"),
+
+    ILLEGAL_PARAM(120512, "参数不合法"),
+
+    STANDARD_TEMPLATE_NOT_EXIST(120601, "行业标准模板不存在"),
+
+    PRE_BUILD_MODEL_NOT_EXIST(120602, "预构建模式不存在"),
+
+    PERMISSION_NOT_MODEL_UPLOAD_ERROR(120603, "没有模式上传权限"),
+
+    MODEL_PARSER_ERROR(120604, "模式解析错误"),
+
+    CYCLE_CONCEPT_EXIST(120605, "模式存在循环概念"),
+
+    DW_DATABASE_NOT_EXIST(120701, "数仓数据库不存在"),
+
+    DW_TABLE_CREATE_ERROR(120702, "数仓数据表生成失败"),
+
+    DW_TABLE_NOT_EXIST(120703, "数仓数据表不存在"),
+
+    YAML_PARSE_ERROR(120704, "yaml文件格式错误"),
+
+    REMOTE_TABLE_FIND_ERROR(120705, "获取远程表错误"),
+
+    TABLE_CREATE_WAY_ERROR(120706, "表创建方式不适用该功能"),
+
+    DATABASE_DATAFORMAT_ERROR(120707, "数据库创建类型不适用该功能"),
+
+    TAG_JSON_PASER_ERROR(120708, "数据库打标解析错误"),
+
+    FILE_SCHEMAPASER_ERROR(120709, "文件schema解析错误"),
+
+    EMTRY_MODEL_PUDH_ERROR(120710, "空模式不能发布"),
+
+    MAP_TABLE_EXIST(120711, "映射的行业表已存在"),
+
+    REMOTE_TABLE_EXIST(120712, "该远程表已存在"),
+
+    TABLE_NAME_EXIST(120713, "该表名已存在"),
+
+    TABLE_CONNECT_ERROR(120714, "表连接失败"),
+
+    EMTRY_TABLE_NOT_UPLOAD_MODEL_ERROR(120715, "tableName不存在，请先创建再上传模式"),
+
+    EXAMPLE_FILE_DOWNLOAD_ERROR(120716, "示例文件下载失败"),
+
+    SCHEMA_PARENT_CONCEPT_NOT_EXIST_ERROR(120717, "模式父概念不存在"),
+
+    SCHEMA_CONCEPT_CIRCULAR_REFERENCE_ERROR(120718, "模式存在循环引用"),
+
+    SCHEMA_PASER_LACK_REQUIRES_ERROR(120719, "模式解析缺少必填项"),
+
+    SCHEMA_PASER_DOMAIN_NOT_EXIST_ERROR(120720, "模式解析定义域不存在"),
+
+    SCHEMA_PASER_RANGE_NOT_EXIST_ERROR(120721, "模式解析值域不存在"),
+
+    SCHEMA_PASER_DATATYPE_NOT_EXIST_ERROR(120722, "模式解析数据类型不存在"),
+
+    SCHEMA_PASER_CONCEPT_EXIST_ERROR(120723, "模式解析存在同名概念"),
+
+    TABLE_SCHEMA_MISMATCHING_STIPULATE(120724, "结构不符合要求"),
+
+    TABLE_NOT_EXIST_IN_DATABASE(120725, "打标文件中存在未添加表"),
+
+    YAML_FILE_EMTRY_ERROR(120726, "yaml文件为空，请检查后再上传"),
+
+    YAML_TABLES_NOT_EXIST_ERROR(120727, "yaml缺少tables字段"),
+
+    YAML_TABLES_IS_EMTRY_ERROR(120728, "yaml文件tables信息为空"),
+
+    YAML_ATTR_DOMAIN_NOT_EXIST_ERROR(120729, "定义域不存在"),
+
+    YAML_ATTR_RANGE_NOT_EXIST_ERROR(120730, "值域不存在"),
+
+    YAML_COLUMN_IS_EMTRY_ERROR(120731, "colums为空"),
+
+    YAML_COLUMN_TAG_PARSER_ERROR(120732, "colums字段中tag格式不正确"),
+
+    YAML_COLUMN_TAG_NOT_EXIST(120733, "colums字段中tag不存在或数据为空"),
+
+    YAML_COLUMN_TYPE_NOT_EXIST(120734, "colums字段中type不存在或数据为空"),
+
+    YAML_COLUMN_TYPE_PARSER_ERROR(120735, "colums字段中type枚举错误"),
+
+    YAML_COLUMN_NOT_EXIST_CONCEPT(120736, "colums字段没有定义概念"),
+
+    YAML_COLUMN_NOT_EXIST_CONCEPT_NAME(120737, "colums字段没有定义概念名称信息"),
+
+    YAML_RELATION_PARSER_ERROR(120738, "yaml文件relation字段格式不正确"),
+
+    YAML_TABLES_CONFIG_IS_EMTRY_ERROR(120739, "yaml文件tables信息未配置"),
+
+    TAG_ATTR_TYPE_PARSER_ERROR(120740, "属性dataType枚举错误"),
+
+    YAML_COLUMS_NOT_EXIST_IN_TABLE(120741, "colums字段在表中不存在"),
+
+    DATA_STORE_STATISTIC_TYPE_ERROR(120742, "统计类型错误"),
+
+    DW_OUT_LIMIT(120743, "超过数仓创建限制,请联系管理员"),
+
+    SCHEMA_CONCEPT_NOT_EXIST_ERROR(120744,"图谱没有定义概念"),
+
+    UNZIP_ERROR(120745,"解压失败"),
+
+    LABEL_ENUM_NOT_EMTRY(120746,"枚举值不能为空"),
+
+    NOT_SELECT_MAP_TABLE(120747,"未选择映射表"),
+
+    MODEL_FILE_TITLE_ERROR(120748,"模式文件表头错误，请根据模板上传"),
+
+    NO_DATA_CHANGE(120749,"数据没有改动"),
+
+    EXECUTE_SQL_ERROR(120750,"SQL查询失败，请检查连接信息"),
+
+    DW_PERMISSION_NOT_ENOUGH_ERROR(120751, "没有该数仓的操作权限"),
+
+    EXCEL_TYPE_ERROR(120752,"excel文件格式错误"),
+
+    FILE_SIZE_OVER(120753,"文件关联大小不能超过20M"),
+
+    RELATION_IS_EXIST(120754,"文件关联已存在"),
+
+    EXCEL_DATA_ERROR(120755,"表头内容错误"),
+
+    EXCEL_DATA_NULL(120756,"excel数据为空"),
+            ;
     private final int errorCode;
 
     private final String message;

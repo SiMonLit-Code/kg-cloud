@@ -5,25 +5,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteEdgeObjectReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityAttrReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ReliabilityModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ScoreModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.SourceModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
@@ -40,6 +22,7 @@ import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EntityModifyReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -94,6 +77,29 @@ public class EntityController {
         return ApiReturn.success();
     }
 
+    @ApiOperation("实体-多模态数据-添加")
+    @PostMapping("/{kgName}/multi/modal")
+    public ApiReturn<MultiModalRsp> addMultiModal(@PathVariable("kgName") String kgName,
+                                                  @RequestBody MultiModalReq multiModalReq) {
+        return ApiReturn.success(entityService.addMultiModal(kgName, multiModalReq));
+    }
+
+    @ApiOperation("实体-多模态数据-批量添加")
+    @PostMapping("/{kgName}/multi/modal/batch")
+    public ApiReturn batchAddMultiModal(@PathVariable("kgName") String kgName,
+                                        @RequestBody List<MultiModalReq> multiModalReqs) {
+        entityService.batchAddMultiModal(kgName, multiModalReqs);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("实体-多模态数据-删除")
+    @PostMapping("/{kgName}/multi/modal/{relationId}/delete")
+    public ApiReturn deleteMultiModal(@PathVariable("kgName") String kgName,
+                                      @PathVariable("relationId") String relationId) {
+        entityService.deleteMultiModal(kgName, relationId);
+        return ApiReturn.success();
+    }
+
     @ApiOperation("实体-修改-实体名称,消歧")
     @PostMapping("/{kgName}/update")
     @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
@@ -113,7 +119,7 @@ public class EntityController {
     @ApiOperation("实体-删除-根据实体ids批量删除")
     @PostMapping("/{kgName}/batch/delete")
     public ApiReturn<List<DeleteResult>> batchDeleteEntities(@PathVariable("kgName") String kgName,
-                                                             @RequestParam(value = "isTrace",defaultValue = "false") Boolean isTrace,
+                                                             @RequestParam(value = "isTrace", defaultValue = "false") Boolean isTrace,
                                                              @RequestBody List<Long> ids) {
         return ApiReturn.success(entityService.deleteByIds(kgName, isTrace, ids));
     }

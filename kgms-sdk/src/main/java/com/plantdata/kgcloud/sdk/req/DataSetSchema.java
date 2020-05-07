@@ -24,8 +24,12 @@ public class DataSetSchema {
     private String field;
 
     @NotNull
-    @ApiModelProperty("类型 1 mongo 2 es 3 pd_document")
+    @ApiModelProperty("类型 0 mysql 1 mongo 2 es 3 pd_document")
     private Integer type;
+
+    @NotNull
+    @ApiModelProperty("字段描述")
+    private String desc;
 
     @ApiModelProperty("是否可索引 0否  1是 ")
     private int isIndex;

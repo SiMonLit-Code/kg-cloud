@@ -24,4 +24,6 @@ public class AdditionalRsp {
     private String color;
     @ApiModelProperty("私有属性")
     private Map<String, Object> extra;
+    @ApiModelProperty("是否开启gis")
+    private Boolean isOpenGis;
 }

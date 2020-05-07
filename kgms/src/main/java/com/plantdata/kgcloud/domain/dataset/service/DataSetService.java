@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dataset.service;
 
+import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
 import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
 import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
 import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
@@ -141,5 +142,7 @@ public interface DataSetService {
      * @return
      */
     List<DataSetSchema> schemaResolve(Integer dataType, MultipartFile file);
+
+    FieldType readType(Object val);
 
 }

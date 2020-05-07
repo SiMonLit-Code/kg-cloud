@@ -5,12 +5,12 @@
     <parent>
         <artifactId>kg-cloud-parent</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.0.7-SNAPSHOT</version>
+        <version>3.1.0</version>
         <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.0.55-SNAPSHOT</version>
+    <version>3.2.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -21,18 +21,18 @@
     </modules>
 
     <properties>
-        <next-tag.version>3.0.54</next-tag.version>
-        <next-develop.version>3.0.55-SNAPSHOT</next-develop.version>
-
-        <kg-cloud-parent.version>3.0.7-SNAPSHOT</kg-cloud-parent.version>
+        <next-tag.version>3.2.4</next-tag.version>
+        <next-develop.version>3.2.5-SNAPSHOT</next-develop.version>
+        <kg-cloud-parent.version>3.1.0</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
-        <kg-services-sdk.version>3.0.0-SNAPSHOT</kg-services-sdk.version>
-        <kgtext-sdk.version>3.0.18</kgtext-sdk.version>
-        <kgcomponent-sdk.version>3.0.0</kgcomponent-sdk.version>
+        <kg-cloud-kguser.version>3.2.0-SNAPSHOT</kg-cloud-kguser.version>
+        <kg-usersdk.version>3.0.5</kg-usersdk.version>
+        <kg-services-sdk.version>3.1.0-SNAPSHOT</kg-services-sdk.version>
+        <kgtext-sdk.version>3.0.11-SNAPSHOT</kgtext-sdk.version>
+        <kgcomponent-sdk.version>3.0.0-SNAPSHOT</kgcomponent-sdk.version>
     </properties>
     <dependencyManagement>
         <dependencies>
-
             <!-- ********** kgms 依赖 *************-->
             <dependency>
                 <groupId>com.plantdata</groupId>
@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>com.plantdata.log</groupId>
                 <artifactId>graph-logging</artifactId>
-                <version>3.0.23</version>
+                <version>3.1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -103,7 +103,7 @@
             <dependency>
                 <groupId>com.plantdata</groupId>
                 <artifactId>kguser-sdk</artifactId>
-                <version>${kg-cloud-public.version}</version>
+                <version>${kg-cloud-kguser.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.plantdata</groupId>

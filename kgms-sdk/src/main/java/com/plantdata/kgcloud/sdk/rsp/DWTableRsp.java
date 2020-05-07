@@ -1,0 +1,58 @@
+package com.plantdata.kgcloud.sdk.rsp;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
+
+@Data
+@JsonIgnoreProperties({"ktr"})
+public class DWTableRsp {
+
+    private Long id;
+
+    private String title;
+
+    private String tbName;
+
+    private String tableName;
+
+    private String dbName;
+
+    private String dataName;
+
+    private List<String> fields;
+
+    private List<DataSetSchema> schema;
+
+    private Integer createWay;
+
+    private Long dwDataBaseId;
+
+    private String queryField;
+
+    private String mapper;
+
+    private String cron;
+
+    private Integer isAll;
+
+    private Integer schedulingSwitch;
+
+    private String ktr;
+
+    private Integer isWriteDW;
+
+    private Integer modelId;
+
+    private Date createAt;
+
+    private Date updateAt;
+
+    private Long fileCount;
+
+    private String pdSingleField;
+
+}

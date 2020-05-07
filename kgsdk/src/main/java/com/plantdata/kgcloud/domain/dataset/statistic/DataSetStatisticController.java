@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
 import com.plantdata.kgcloud.sdk.rsp.common.BasicValueRsp;
 import com.plantdata.kgcloud.sdk.rsp.common.KgStatisticRsp;
+import com.plantdata.kgcloud.sdk.rsp.common.MeasureValueRsp;
 import com.plantdata.kgcloud.sdk.rsp.common.MultiMeasureStatisticResultRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author cjw 2019-11-04 14:49:07
@@ -35,7 +37,7 @@ public class DataSetStatisticController implements DataSetStatisticInterface {
     @Autowired
     private ComponentStatisticClient componentStatisticClient;
 
-    @ApiOperation(value = "搜索数据集统计(二维)",notes = "对搜索数据集进行统计，仅支持二维统计，返回KV格式或兼容Echarts的格式。")
+    @ApiOperation(value = "搜索数据集统计(二维)", notes = "对搜索数据集进行统计，仅支持二维统计，返回KV格式或兼容Echarts的格式。")
     @PostMapping("2d/{dataName}")
     public ApiReturn<DataSetStatisticRsp> statistic2d(
             @ApiParam("数据集唯一标识") @PathVariable("dataName") String dataName,
@@ -44,7 +46,7 @@ public class DataSetStatisticController implements DataSetStatisticInterface {
         return appClient.statistic2d(dataName, twoDimensional);
     }
 
-    @ApiOperation(value = "搜索数据集统计(三维)",notes = "对搜索数据集进行统计，仅支持三维统计，返回KV格式或兼容Echarts的格式。")
+    @ApiOperation(value = "搜索数据集统计(三维)", notes = "对搜索数据集进行统计，仅支持三维统计，返回KV格式或兼容Echarts的格式。")
     @PostMapping("3d/{dataName}")
     public ApiReturn<DataSetStatisticRsp> statistic3d(@ApiParam("数据集唯一标识") @PathVariable("dataName") String dataName,
                                                       @Valid @RequestBody StatisticByDimensionalReq twoDimensional) {
@@ -63,16 +65,20 @@ public class DataSetStatisticController implements DataSetStatisticInterface {
         return appClient.statistic3dByTable(thirdDimensional);
     }
 
-    @ApiOperation(value = "数据集统计",notes = "按照数据集指定字段进行统计支持筛选和模糊搜索")
-    @PostMapping("data/{dataSetId}")
-    public     ApiReturn<KgStatisticRsp<MultiMeasureStatisticResultRsp>>  dataSetStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetStatisticReq statisticReq) {
-        return componentStatisticClient.dataSetStatistic(dataSetId, statisticReq);
+    @ApiOperation(value = "数据集统计", notes = "按照数据集指定字段进行统计支持筛选和模糊搜索")
+    @PostMapping({"/{dataStoreId}/{tableId}"})
+    ApiReturn<KgStatisticRsp<MultiMeasureStatisticResultRsp>> dataSetStatistic(@PathVariable("dataStoreId") Long dataStoreId,
+                                                                               @PathVariable("tableId") Long tableId,
+                                                                               @RequestBody @Valid DataSetStatisticReq statisticReq) {
+        return componentStatisticClient.dataSetStatistic(dataStoreId, tableId, statisticReq);
     }
 
-    @ApiOperation(value = "数据集数字统计",notes = "对数据集某个字段的值进行计数或求和")
-    @PostMapping("number/{dataSetId}")
-    public ApiReturn<BasicValueRsp> dataSetNumberStatistic(@PathVariable Long dataSetId, @RequestBody @Valid DataSetCountReq countReq) {
-        return componentStatisticClient.dataSetNumberStatistic(dataSetId, countReq);
+    @ApiOperation(value = "数据集数字统计", notes = "对数据集某个字段的值进行计数或求和")
+    @PostMapping("number/{dataStoreId}/{tableId}")
+    public ApiReturn<List<MeasureValueRsp>> dataSetNumberStatistic(@PathVariable("dataStoreId") Long dataStoreId,
+                                                                   @PathVariable("tableId") Long tableId,
+                                                                   @RequestBody @Valid DataSetCountReq countReq) {
+        return componentStatisticClient.dataSetNumberStatistic(dataStoreId, tableId, countReq);
     }
 
 }

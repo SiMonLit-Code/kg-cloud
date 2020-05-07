@@ -64,6 +64,9 @@ public class SemanticController implements SdkOpenApiInterface {
     public ApiReturn<IntentDataBeanRsp> intent(@ApiParam("图谱名称") @RequestParam("kgName") String kgName,
                                                @ApiParam("自然语言输入") @RequestParam("query") String query,
                                                @RequestParam(value = "size", defaultValue = "5") int size) {
+        query = query.replaceAll("&ldquo;","“");
+        query = query.replaceAll("&rdquo;","”");
+        query = query.replaceAll("&quot;","\"");
         Optional<IntentDataBean> dataBean = RestRespConverter.convert(questionAnswersApi.intent(kgName,KGUtil.dbName(kgName), query, size));
         if (!dataBean.isPresent()) {
             return ApiReturn.success(new IntentDataBeanRsp());
@@ -88,6 +91,7 @@ public class SemanticController implements SdkOpenApiInterface {
     @PostMapping("distance/score/{kgName}")
     public ApiReturn<Double> semanticDistanceScore(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                    @RequestParam("entityIdOne") Long entityIdOne, @RequestParam("entityIdTwo") Long entityIdTwo) {
+        RestResp<Double> a = semanticApi.distanceScore(KGUtil.dbName(kgName), entityIdOne, entityIdTwo);
         Optional<Double> distanceOpt = RestRespConverter.convert(semanticApi.distanceScore(KGUtil.dbName(kgName), entityIdOne, entityIdTwo));
         return ApiReturn.success(distanceOpt.orElse(NumberUtils.DOUBLE_ZERO));
     }

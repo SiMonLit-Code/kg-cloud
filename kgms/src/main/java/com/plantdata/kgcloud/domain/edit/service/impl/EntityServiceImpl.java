@@ -2,68 +2,41 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
-import ai.plantdata.kg.api.edit.req.AttributePrivateDataFrom;
-import ai.plantdata.kg.api.edit.req.AttributeValueFrom;
-import ai.plantdata.kg.api.edit.req.BasicInfoListFrom;
-import ai.plantdata.kg.api.edit.req.DeleteRelationFrom;
-import ai.plantdata.kg.api.edit.req.EdgeObjectValueFrom;
-import ai.plantdata.kg.api.edit.req.EdgeValueFrom;
-import ai.plantdata.kg.api.edit.req.EntityPrivateRelationFrom;
-import ai.plantdata.kg.api.edit.req.EntityRelationFrom;
-import ai.plantdata.kg.api.edit.req.MetaDataOptionFrom;
-import ai.plantdata.kg.api.edit.req.ObjectAttributeValueFrom;
-import ai.plantdata.kg.api.edit.req.RelationListFrom;
-import ai.plantdata.kg.api.edit.req.UpdateRelationFrom;
-import ai.plantdata.kg.api.edit.resp.BatchDeleteAttrValueVO;
-import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
-import ai.plantdata.kg.api.edit.resp.BatchEntityVO;
-import ai.plantdata.kg.api.edit.resp.BatchResult;
-import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
-import ai.plantdata.kg.api.edit.resp.EntityVO;
+import ai.plantdata.kg.api.edit.req.*;
+import ai.plantdata.kg.api.edit.resp.*;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityTagFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.mongodb.MongoClient;
+import com.plantdata.graph.logging.core.GraphLog;
+import com.plantdata.graph.logging.core.GraphLogOperation;
+import com.plantdata.graph.logging.core.GraphLogScope;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import com.plantdata.kgcloud.constant.AttributeValueType;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.constant.MetaDataInfo;
-import com.plantdata.kgcloud.constant.MongoOperation;
-import com.plantdata.kgcloud.constant.TaskStatus;
-import com.plantdata.kgcloud.constant.TaskType;
+import com.plantdata.graph.logging.core.segment.EntityMultiDataSegment;
+import com.plantdata.kgcloud.constant.*;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
+import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
+import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
+import com.plantdata.kgcloud.domain.dw.service.TableDataService;
+import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.OpenEntityConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteEdgeObjectReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityAttrReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ReliabilityModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ScoreModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.SourceModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.*;
+import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
@@ -85,6 +58,7 @@ import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,15 +70,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -140,6 +106,18 @@ public class EntityServiceImpl implements EntityService {
     @Autowired
     private TaskGraphStatusService taskGraphStatusService;
 
+    @Autowired
+    private MongoClient mongoClient;
+
+    @Autowired
+    private DocumentConverter documentConverter;
+
+    @Autowired
+    private TableDataService tableDataService;
+
+    @Autowired
+    private EntityFileRelationService entityFileRelationService;
+
     @Override
     public void addMultipleConcept(String kgName, Long conceptId, Long entityId) {
         RestRespConverter.convertVoid(conceptEntityApi.addMultipleConcept(KGUtil.dbName(kgName), conceptId, entityId));
@@ -149,6 +127,115 @@ public class EntityServiceImpl implements EntityService {
     public void deleteMultipleConcept(String kgName, Long conceptId, Long entityId) {
         RestRespConverter.convertVoid(conceptEntityApi.deleteMultipleConcept(KGUtil.dbName(kgName), conceptId,
                 entityId));
+    }
+
+    @Override
+    public MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq) {
+        logSender.setActionId();
+
+        if (!entityFileRelationService.checkSize(kgName, multiModalReq.getEntityId())) {
+            throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
+        }
+
+        DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(multiModalReq);
+        if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
+            // 创建实体文件关联
+            EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
+            relation.setIndexType(0);
+            entityFileRelationService.createRelation(kgName, relation);
+        } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
+            // 创建数仓文件记录
+            DWFileTableReq dwFileTableReq = ConvertUtils.convert(DWFileTableReq.class).apply(multiModalReq);
+            dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
+            DWFileTable dwFileTable = tableDataService.fileAdd(dwFileTableReq);
+            // 创建实体文件关联
+            EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
+            relation.setDwFileId(dwFileTable.getId());
+            relation.setIndexType(0);
+            entityFileRelationService.createRelation(kgName, relation);
+        }
+
+        MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(fileTable);
+        multiModal.setEntityId(multiModalReq.getEntityId());
+        sendMsg(kgName, multiModal, GraphLogOperation.ADD);
+        logSender.remove();
+        return ConvertUtils.convert(MultiModalRsp.class).apply(fileTable);
+    }
+
+    private void sendMsg(String kgName, MultiModal multiModal, GraphLogOperation operation) {
+        if (!logSender.isEnableLog()) {
+            return;
+        }
+        String kgDbName = KGUtil.dbName(kgName);
+        logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+        GraphLog graphLog = new GraphLog();
+        graphLog.setBatch(ThreadLocalUtils.getBatchNo());
+        graphLog.setScope(GraphLogScope.MULTI_DATA);
+        if(GraphLogOperation.DELETE.equals(operation)){
+            graphLog.setOldValue(transform(multiModal));
+        }else{
+            graphLog.setNewValue(transform(multiModal));
+        }
+        graphLog.setOperation(operation);
+        logSender.sendKgLog(kgDbName, graphLog);
+    }
+
+    private EntityMultiDataSegment transform(MultiModal modal) {
+        EntityMultiDataSegment segment = new EntityMultiDataSegment();
+        segment.setId(modal.getEntityId());
+        segment.setDataHref(modal.getDataHref());
+        segment.setName(modal.getName());
+        segment.setType(modal.getType());
+        segment.setThumpPath(modal.getThumbPath());
+        return segment;
+    }
+
+    @Override
+    public void batchAddMultiModal(String kgName, List<MultiModalReq> multiModalReqs) {
+        logSender.setActionId();
+        List<MultiModal> multiModals =
+                multiModalReqs.stream().map(ConvertUtils.convert(MultiModal.class)).collect(Collectors.toList());
+
+        for (MultiModalReq multiModalReq : multiModalReqs) {
+
+            if (!entityFileRelationService.checkSize(kgName, multiModalReq.getEntityId())) {
+                throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
+            }
+            if (!entityFileRelationService.checkExist(kgName, multiModalReq.getEntityId(), multiModalReq.getDwFileId())) {
+                throw BizException.of(KgmsErrorCodeEnum.RELATION_IS_EXIST);
+            }
+
+            if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
+                // 创建实体文件关联
+                EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
+                entityFileRelationReq.setDwFileId(multiModalReq.getDwFileId());
+                entityFileRelationReq.setIndexType(0);
+                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+            } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
+                // 创建数仓文件记录
+                DWFileTableReq dwFileTableReq = ConvertUtils.convert(DWFileTableReq.class).apply(multiModalReq);
+                dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
+                DWFileTable dwFileTable = tableDataService.fileAdd(dwFileTableReq);
+                // 创建实体文件关联
+                EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
+                entityFileRelationReq.setDwFileId(dwFileTable.getId());
+                entityFileRelationReq.setIndexType(0);
+                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+            }
+        }
+
+        multiModals.forEach(modal -> sendMsg(kgName, modal, GraphLogOperation.ADD));
+        logSender.remove();
+    }
+
+    @Override
+    public void deleteMultiModal(String kgName, String relationId) {
+        logSender.setActionId();
+        // 删除实体文件关联
+        MultiModal multiModal = entityFileRelationService.getMultiModalById(relationId);
+        sendMsg(kgName, multiModal, GraphLogOperation.DELETE);
+        entityFileRelationService.deleteById(relationId);
+        logSender.remove();
     }
 
     @Override
@@ -167,7 +254,7 @@ public class EntityServiceImpl implements EntityService {
         List<BasicInfoRsp> basicInfoRspList =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
         int count = basicInfoRspList.size();
-        if (count > size){
+        if (count > size) {
             basicInfoRspList.remove(size.intValue());
             count += page;
         }
@@ -235,10 +322,10 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public List<DeleteResult> deleteByIds(String kgName, Boolean isTrace, List<Long> ids) {
         logSender.setActionId();
-        if (isTrace){
+        if (isTrace) {
             logSender.sendLog(kgName, ServiceEnum.ENTITY_TRACE);
-        }else {
-            logSender.sendLog(kgName,ServiceEnum.ENTITY_EDIT);
+        } else {
+            logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
         }
         Optional<List<BatchDeleteResult>> optional =
                 RestRespConverter.convert(batchApi.deleteEntities(KGUtil.dbName(kgName), ids));
@@ -355,11 +442,22 @@ public class EntityServiceImpl implements EntityService {
         } else if ("".equals(toTime)) {
             conceptEntityApi.deleteMetaData(KGUtil.dbName(kgName), entityId, Collections.singletonList(20));
         }
+        BasicInfoRsp details = basicInfoService.getDetails(kgName, new BasicReq(entityId, true));
+        fromTime = hasValue(fromTime, details.getFromTime());
+        toTime = hasValue(toTime, details.getToTime());
         if (StringUtils.hasText(fromTime) && StringUtils.hasText(toTime) && fromTime.compareTo(toTime) > 0) {
             throw BizException.of(KgmsErrorCodeEnum.TIME_FORM_MORE_THAN_TO);
         }
-        if (!CollectionUtils.isEmpty(metadata)){
+        if (!CollectionUtils.isEmpty(metadata)) {
             conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
+        }
+    }
+
+    private String hasValue(String oldTime, String nowTime) {
+        if (StringUtils.hasText(oldTime)) {
+            return oldTime;
+        } else {
+            return nowTime;
         }
     }
 
@@ -520,7 +618,7 @@ public class EntityServiceImpl implements EntityService {
         String reliability = updateRelationMetaReq.getReliability();
         if (Objects.nonNull(reliability)) {
             metaData.put(MetaDataInfo.RELIABILITY.getFieldName(),
-                   "".equals(reliability)? "" : Double.parseDouble(reliability));
+                    "".equals(reliability) ? "" : Double.parseDouble(reliability));
         }
         if (Objects.nonNull(updateRelationMetaReq.getSourceReason())) {
             metaData.put(MetaDataInfo.SOURCE_REASON.getFieldName(), updateRelationMetaReq.getSourceReason());

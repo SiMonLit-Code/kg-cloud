@@ -1,11 +1,14 @@
 package com.plantdata.kgcloud.domain.edit.aop;
 
+import com.facebook.presto.jdbc.internal.spi.function.AggregationState;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.protocol.types.Field;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -25,6 +28,9 @@ public class EditPermission {
 
     @Autowired
     private GraphService graphService;
+//
+//    @Autowired
+//    private UserClient userClient;
 
     @Pointcut("execution(* com.plantdata.kgcloud.domain.edit.controller.*.*(..)) && !@annotation" +
             "(EditPermissionUnwanted)")
@@ -45,9 +51,12 @@ public class EditPermission {
     public Object check(ProceedingJoinPoint p) throws Throwable {
         Object[] args = p.getArgs();
         String kgName = (String) args[0];
+        String userId = SessionHolder.getUserId();
+//        String userId = userClient.getCurrentUserDetail().getData().getId();
         log.info("kgName : " + kgName);
+        log.info("userId : " + userId);
         try {
-            GraphRsp graphRsp = graphService.findById(SessionHolder.getUserId(), kgName);
+            GraphRsp graphRsp = graphService.findById(userId, kgName);
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.PERMISSION_NOT_ENOUGH_ERROR);
         }

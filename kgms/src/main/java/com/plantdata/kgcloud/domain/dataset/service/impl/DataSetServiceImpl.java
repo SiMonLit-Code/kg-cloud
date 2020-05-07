@@ -25,12 +25,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.KgtextClient;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.constant.DataType;
-import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
-import com.plantdata.kgcloud.sdk.req.DataSetPageReq;
-import com.plantdata.kgcloud.sdk.req.DataSetPdReq;
-import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.sdk.req.DataSetSdkReq;
-import com.plantdata.kgcloud.sdk.req.DataSetUpdateReq;
+import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.rsp.CorpusSetInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
 import com.plantdata.kgcloud.sdk.rsp.DataSetUpdateRsp;
@@ -55,18 +50,13 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -83,6 +73,9 @@ public class DataSetServiceImpl implements DataSetService {
     private final static String JSON_START = "{";
     private final static String ARRAY_START = "[";
     private final static String ARRAY_STRING_START = "[\"";
+    private final static SimpleDateFormat format = new SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
     private final Function<DataSet, DataSetRsp> dataSet2rsp = (s) -> {
         DataSetRsp dataSetRsp = new DataSetRsp();
         BeanUtils.copyProperties(s, dataSetRsp);
@@ -344,13 +337,13 @@ public class DataSetServiceImpl implements DataSetService {
             target.setTbName(rsp.getTbName());
             target = dataSetRepository.save(target);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.DATASET_CONNECT_PDTEXT_ERROR);
         }
         return dataSet2rsp.apply(target);
     }
 
-    private void checkUserLimit(String userId){
+    private void checkUserLimit(String userId) {
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
         if (data != null) {
             DataSet probe = new DataSet();
@@ -410,7 +403,13 @@ public class DataSetServiceImpl implements DataSetService {
                     for (Map.Entry<Integer, String> entry : headMap.entrySet()) {
                         DataSetSchema dataSetSchema = new DataSetSchema();
                         dataSetSchema.setField(entry.getValue());
-                        dataSetSchema.setType(1);
+                        Object val = entry.getValue();
+                        if (val != null) {
+                            FieldType type = readType(val);
+                            dataSetSchema.setType(type.getCode());
+                        } else {
+                            dataSetSchema.setType(1);
+                        }
                         dataSetSchemaMap.put(entry.getKey(), dataSetSchema);
                     }
                 }
@@ -464,15 +463,24 @@ public class DataSetServiceImpl implements DataSetService {
         }
     }
 
-    private FieldType readType(Object val) {
-        FieldType type;
-        String string = val.toString();
+    @Override
+    public FieldType readType(Object val) {
+        FieldType type = null;
+        if (val == null) {
+            type = FieldType.STRING;
+            return type;
+        }
+        String string = JacksonUtils.writeValueAsString(val);
         if (string.startsWith(JSON_START)) {
             try {
                 JacksonUtils.getInstance().readValue(string, ObjectNode.class);
                 type = FieldType.OBJECT;
             } catch (Exception e) {
-                type = FieldType.STRING;
+                if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                    type = FieldType.TEXT;
+                }else{
+                    type = FieldType.STRING;
+                }
             }
         } else if (string.startsWith(ARRAY_START)) {
             if (string.startsWith(ARRAY_STRING_START)) {
@@ -481,14 +489,23 @@ public class DataSetServiceImpl implements DataSetService {
                     });
                     type = FieldType.STRING_ARRAY;
                 } catch (Exception e) {
-                    type = FieldType.STRING;
+                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                        type = FieldType.TEXT;
+                    }else{
+                        type = FieldType.STRING;
+                    }
                 }
             } else {
                 try {
-                    JacksonUtils.getInstance().readValue(string, ArrayNode.class);
+                    JacksonUtils.getInstance().readValue(string,new TypeReference<List<Object>>() {
+                    });
                     type = FieldType.ARRAY;
                 } catch (Exception e) {
-                    type = FieldType.STRING;
+                    if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                        type = FieldType.TEXT;
+                    }else{
+                        type = FieldType.STRING;
+                    }
                 }
             }
         } else if (val instanceof Integer) {
@@ -502,7 +519,46 @@ public class DataSetServiceImpl implements DataSetService {
         } else if (val instanceof Float) {
             type = FieldType.FLOAT;
         } else {
-            type = FieldType.STRING;
+            try {
+                string = val.toString();
+                Integer.parseInt(string);
+                type = FieldType.INTEGER;
+
+            } catch (Exception e) {
+                try {
+                    Long.parseLong(string);
+                    type = FieldType.LONG;
+                } catch (Exception e1) {
+                    try {
+                        Double.parseDouble(string);
+                        type = FieldType.DOUBLE;
+                    } catch (Exception e4) {
+                        try {
+                            String date = "\\d{4}-\\d{2}-\\d{2}";
+                            String dateTime = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
+                            if (Pattern.matches(dateTime, string)) {
+                                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                type = FieldType.DATETIME;
+                            } else if (Pattern.matches(date, string)) {
+                                LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                                type = FieldType.DATE;
+                            }else{
+                                format.parse(string);
+                                type = FieldType.DATETIME;
+                            }
+                        } catch (Exception e2) {
+                        }
+                    }
+                }
+            }
+
+            if (type == null) {
+                if (!StringUtils.isEmpty(string) && string.length() > 50) {
+                    type = FieldType.TEXT;
+                }else{
+                    type = FieldType.STRING;
+                }
+            }
         }
         return type;
     }

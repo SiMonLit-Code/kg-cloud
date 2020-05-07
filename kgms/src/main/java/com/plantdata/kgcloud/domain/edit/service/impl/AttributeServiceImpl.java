@@ -320,7 +320,7 @@ public class AttributeServiceImpl implements AttributeService {
         List<RelationRsp> relationRsps =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserRelationMeta).collect(Collectors.toList());
         int count = relationRsps.size();
-        if (count > size){
+        if (count > size) {
             relationRsps.remove(size.intValue());
             count += page;
         }

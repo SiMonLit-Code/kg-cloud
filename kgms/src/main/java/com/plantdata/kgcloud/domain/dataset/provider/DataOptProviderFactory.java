@@ -31,4 +31,27 @@ public class DataOptProviderFactory {
         }
         return provider;
     }
+
+    public static DataOptProvider createProvider(DataOptConnect info) {
+
+        DataOptProvider provider;
+        switch (info.getDataType()) {
+            case MYSQL:
+                provider = new MysqlOptProvider(info);
+                break;
+            case MONGO:
+                provider = new MongodbOptProvider(info);
+                break;
+            case ELASTIC:
+                provider = new ElasticSearchOptProvider(info);
+                break;
+            case PD_DOCUMENT:
+                provider = new PdDocumentOptProvider(info);
+                break;
+            default:
+                provider = new NopProvider();
+                break;
+        }
+        return provider;
+    }
 }

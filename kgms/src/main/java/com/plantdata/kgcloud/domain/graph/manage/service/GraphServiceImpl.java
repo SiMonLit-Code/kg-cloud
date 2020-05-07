@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.edit.req.CopyGraphFrom;
 import ai.plantdata.kg.api.edit.req.CreateGraphFrom;
 import com.plantdata.kgcloud.config.CacheManagerReconfig;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.access.service.AccessTaskService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
 import com.plantdata.kgcloud.domain.graph.manage.entity.GraphPk;
@@ -19,8 +20,6 @@ import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -55,6 +54,9 @@ public class GraphServiceImpl implements GraphService {
 
     @Autowired
     private UserClient userClient;
+
+    @Autowired
+    private AccessTaskService accessTaskService;
 
     //@Cacheable(key = "#kgName")
     public String getDbName(String kgName) {
@@ -120,6 +122,10 @@ public class GraphServiceImpl implements GraphService {
             entity.setDeleted(true);
             graphRepository.save(entity);
 
+            try {
+                //删除图谱时删除接入任务
+                accessTaskService.deleteTaskByKG(kgName);
+            }catch (Exception e){}
         }
     }
 

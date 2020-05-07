@@ -1,26 +1,9 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteEdgeObjectReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityAttrReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ReliabilityModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ScoreModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.SourceModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
@@ -33,6 +16,7 @@ import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -63,6 +47,31 @@ public interface EntityService {
     void deleteMultipleConcept(String kgName, Long conceptId, Long entityId);
 
     /**
+     * 添加多模态数据
+     *
+     * @param kgName
+     * @param multiModalReq
+     */
+    MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq);
+
+    /**
+     * 批量
+     *
+     * @param kgName
+     * @param multiModalReqs
+     */
+    void batchAddMultiModal(String kgName, List<MultiModalReq> multiModalReqs);
+
+    /**
+     * 删除多模态数据
+     *
+     * @param kgName
+     * @param relationId
+     * @return
+     */
+    void deleteMultiModal(String kgName, String relationId);
+
+    /**
      * 实体列表
      *
      * @param kgName
@@ -73,6 +82,7 @@ public interface EntityService {
 
     /**
      * 实体关系列表
+     *
      * @param kgName
      * @param entityAttrReq
      * @return
