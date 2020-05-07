@@ -22,7 +22,6 @@ public class SsoSecurityConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.cors();
         http.authorizeRequests()
                 .antMatchers(WebUtils.DEFAULT_IGNORE)
                 .permitAll()
