@@ -47,9 +47,9 @@ public class ApkAuthFilter extends OncePerRequestFilter {
                 OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) oauth.getDetails();
                 CurrentUser.setAdmin(false);
                 CurrentUser.setToken(details.getTokenType() + " " + details.getTokenValue());
-                filterChain.doFilter(request, response);
-                return;
             }
+            filterChain.doFilter(request, response);
+            return;
         }
 
         String apk = WebUtils.getKgApk(request);
@@ -89,6 +89,7 @@ public class ApkAuthFilter extends OncePerRequestFilter {
         try {
             loginRspApiReturn = this.ssoClient.loginByApk(apk);
         } catch (Exception e) {
+            log.error(" ",e);
             WebUtils.sendResponse(httpServletResponse, ApiReturn.fail(CommonErrorCode.INTERNAL_SERVER_ERROR));
             return Optional.empty();
         }
@@ -97,6 +98,7 @@ public class ApkAuthFilter extends OncePerRequestFilter {
             return Optional.empty();
         }
         if (CommonErrorCode.SUCCESS.getErrorCode() != loginRspApiReturn.getErrCode()) {
+            log.error(" ",loginRspApiReturn);
             WebUtils.sendResponse(httpServletResponse, loginRspApiReturn);
             return Optional.empty();
         }
