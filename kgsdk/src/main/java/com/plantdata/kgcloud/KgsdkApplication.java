@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
  * @author wanglong
  */
 @EnableDiscoveryClient
-@SpringBootApplication(scanBasePackages = CommonConstants.WebConst.ROOT_PKG, exclude= {DataSourceAutoConfiguration.class})
+@SpringBootApplication(scanBasePackages = CommonConstants.WebConst.ROOT_PKG, exclude = {DataSourceAutoConfiguration.class})
 @EnableApolloConfig
 @EnableFeignClients(basePackages = {CommonConstants.FeignConst.BASE_PKG, CommonConstants.FeignConst.PUBLIC_PKG})
 public class KgsdkApplication extends SpringBootServletInitializer {
