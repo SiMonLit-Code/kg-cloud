@@ -286,7 +286,7 @@ public class DataStoreServiceImpl implements DataStoreService {
             collection.insertOne(allData);
         } catch (Exception e) {
             e.printStackTrace();
-            throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
+            throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
         }
         collectionOld.deleteOne(documentConverter.buildObjectId(req.getId()));
     }
@@ -325,12 +325,10 @@ public class DataStoreServiceImpl implements DataStoreService {
         accessTaskService.addRerunTask(databaseRsp.getId(), req.getDbTable(), resourceNames);
     }
 
-    private static final String OLD_DATA = "_id\": { \"$oid\" :\"";
-    private static final String NEW_DATA = "oldId \":{\"";
 
     //对于 带有_id的数据 会导致 插入失败， 因此需要过滤处理
     private Map<String, Object> filterDataId(Map<String, Object> data) {
-        String dataString = JSONObject.toJSONString(data).replace(OLD_DATA, NEW_DATA);
+        String dataString = JSONObject.toJSONString(data).replace("_id", "logid").replace("$oid", "oid");
         return JSONObject.parseObject(dataString);
 
     }
