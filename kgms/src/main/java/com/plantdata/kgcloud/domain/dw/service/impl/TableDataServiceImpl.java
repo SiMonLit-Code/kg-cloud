@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.junrar.Archive;
 import com.github.junrar.rarfile.FileHeader;
 import com.google.common.collect.Maps;
@@ -189,8 +190,8 @@ public class TableDataServiceImpl implements TableDataService {
                     SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
                     String value = null;
-                    if(date != null){
-                        value  = dataString.format(date);
+                    if (date != null) {
+                        value = dataString.format(date);
                     }
                     result.put(entry.getKey(), value);
                 } else if (Objects.equals(scm.getType(), FieldType.DATE.getCode()) && entry.getValue() != null) {
@@ -198,6 +199,12 @@ public class TableDataServiceImpl implements TableDataService {
                     Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
                     String value = dataString.format(date);
                     result.put(entry.getKey(), value);
+                } else if (Objects.equals(scm.getType(), FieldType.TEXT.getCode())) {
+                    //对于长文本 为防止前端解析jsonObject失败 需转为String类型
+                    if (entry.getValue() instanceof Map) {
+                        Object json = JSON.toJSON(entry.getValue());
+                        result.put(entry.getKey(), json.toString());
+                    }
                 } else {
                     result.put(entry.getKey(), entry.getValue());
                 }

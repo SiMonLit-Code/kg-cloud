@@ -17,14 +17,10 @@ import javax.validation.constraints.DecimalMin;
 public class GisInfoModifyReq {
 
     @ApiModelProperty(value = "经度")
-    @DecimalMin(value = "-180")
-    @DecimalMax(value = "180")
-    private Double longitude;
+    private String longitude;
 
     @ApiModelProperty(value = "纬度")
-    @DecimalMin(value = "-90")
-    @DecimalMax(value = "90")
-    private Double latitude;
+    private String latitude;
 
     @ApiModelProperty(value = "地址")
     private String address;

@@ -65,7 +65,6 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     private UserClient userClient;
 
 
-
     public static List<LinkedHashMap<String, String>> readExcel(MultipartFile file, Integer indexType) throws IOException {
         // 返回的map
         LinkedHashMap<String, String> excelMap = new LinkedHashMap<>();
@@ -231,12 +230,26 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         Map<Long, String> nameMap = basicInfoService.listByIds(kgName, entityIds)
                 .stream().collect(Collectors.toMap(BasicInfoRsp::getId, BasicInfoRsp::getName, (k1, k2) -> k1));
 
-        for (DWFileRsp dwFileRsp : list) {
+        List<Long> deleteIds = Lists.newArrayList();
+        for (int i = 0; i < list.size(); i++) {
+            DWFileRsp dwFileRsp = list.get(i);
             List<EntityFileRelationRsp> relationList = dwFileRsp.getRelationList();
-            for (EntityFileRelationRsp relationRsp : relationList) {
-                relationRsp.setEntityName(nameMap.get(relationRsp.getEntityId()));
+            for (int j = 0; j < relationList.size(); j++) {
+                EntityFileRelationRsp relationRsp = relationList.get(j);
+                if (StringUtils.isBlank(nameMap.get(relationRsp.getEntityId()))) {
+                    relationList.remove(j);
+                    j--;
+                    deleteIds.add(relationRsp.getEntityId());
+                } else {
+                    relationRsp.setEntityName(nameMap.get(relationRsp.getEntityId()));
+                }
+            }
+            if (relationList.size() == 0 && req.getIndexType().equals(0)) {
+                list.remove(i);
+                i--;
             }
         }
+        deleteByEntityIds(kgName, deleteIds);
 
         int count = list.size();
         if (count > size) {
@@ -278,6 +291,11 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
         database.getCollection(DWFileConstants.INDEX).deleteMany(Filters.in("_id", collect));
         deleteRelationByDwFileIds(collect);
+    }
+
+    @Override
+    public void deleteByEntityIds(String kgName, List<Long> entityIds) {
+        getCollection().deleteMany(Filters.in("entityId",entityIds));
     }
 
     public void deleteRelationByDwFileIds(List<ObjectId> dwFileIds) {
