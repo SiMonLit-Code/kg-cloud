@@ -189,14 +189,18 @@ public class TableDataServiceImpl implements TableDataService {
                     SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
                     String value = null;
-                    if(date != null){
-                        value  = dataString.format(date);
+                    if (date != null) {
+                        value = dataString.format(date);
                     }
                     result.put(entry.getKey(), value);
                 } else if (Objects.equals(scm.getType(), FieldType.DATE.getCode()) && entry.getValue() != null) {
                     SimpleDateFormat dataString = new SimpleDateFormat("yyyy-MM-dd");
                     Date date = StringToDateUtil.stringToDate(entry.getValue().toString());
                     String value = dataString.format(date);
+                    result.put(entry.getKey(), value);
+                } else if (Objects.equals(scm.getType(), FieldType.TEXT.getCode())) {
+                    //对于长文本 为防止前端解析object失败 需转为String类型
+                    String value = String.valueOf(entry.getValue());
                     result.put(entry.getKey(), value);
                 } else {
                     result.put(entry.getKey(), entry.getValue());
