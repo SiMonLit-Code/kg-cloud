@@ -326,7 +326,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
     private static final String OLD_DATA = "_id\": { \"$oid\" :\"";
-    private static final String NEW_DATA = "a \":{\"";
+    private static final String NEW_DATA = "oldId \":{\"";
 
     //对于 带有_id的数据 会导致 插入失败， 因此需要过滤处理
     private Map<String, Object> filterDataId(Map<String, Object> data) {
