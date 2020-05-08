@@ -325,15 +325,14 @@ public class DataStoreServiceImpl implements DataStoreService {
         accessTaskService.addRerunTask(databaseRsp.getId(), req.getDbTable(), resourceNames);
     }
 
+    private static final String OLD_DATA = "_id\": { \"$oid\" :\"";
+    private static final String NEW_DATA = "a \":{\"";
 
+    //对于 带有_id的数据 会导致 插入失败， 因此需要过滤处理
     private Map<String, Object> filterDataId(Map<String, Object> data) {
-        String s = JSONObject.toJSONString(data);
+        String dataString = JSONObject.toJSONString(data).replace(OLD_DATA, NEW_DATA);
+        return JSONObject.parseObject(dataString);
 
-        String dataString = s.replace("_id\": { \"$oid\" :\"", "a \":{\"");
-
-
-        JSONObject object = JSONObject.parseObject(dataString);
-        return new HashMap(object);
     }
 
 
