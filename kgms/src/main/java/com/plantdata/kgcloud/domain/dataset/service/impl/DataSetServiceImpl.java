@@ -467,7 +467,7 @@ public class DataSetServiceImpl implements DataSetService {
     @Override
     public FieldType readType(Object val) {
         FieldType type = null;
-        if (Objects.equals(type, "")) {
+        if (Objects.equals(val, "")) {
             type = FieldType.TEXT;
             return type;
         }
