@@ -286,7 +286,7 @@ public class DataStoreServiceImpl implements DataStoreService {
             collection.insertOne(allData);
         } catch (Exception e) {
             e.printStackTrace();
-            throw BizException.of(KgmsErrorCodeEnum.TAG_JSON_PASER_ERROR);
+            throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
         }
         collectionOld.deleteOne(documentConverter.buildObjectId(req.getId()));
     }
@@ -326,11 +326,11 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
 
+    //对于 带有_id的数据 会导致 插入失败， 因此需要过滤处理
     private Map<String, Object> filterDataId(Map<String, Object> data) {
-        if (data.containsKey(MONGO_ID)) {
-            data.put("err_id", data.remove(MONGO_ID) + "/");
-        }
-        return data;
+        String dataString = JSONObject.toJSONString(data).replace("_id", "logid").replace("$oid", "oid");
+        return JSONObject.parseObject(dataString);
+
     }
 
 
@@ -373,7 +373,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
 
-    public  String egrularEscape(String keyword) {
+    public String egrularEscape(String keyword) {
         if (!StringUtils.isEmpty(keyword)) {
             String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
             for (String key : fbsArr) {
