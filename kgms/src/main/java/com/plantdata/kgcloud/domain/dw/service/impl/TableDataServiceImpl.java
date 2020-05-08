@@ -204,6 +204,8 @@ public class TableDataServiceImpl implements TableDataService {
                     if (entry.getValue() instanceof Map) {
                         Object json = JSON.toJSON(entry.getValue());
                         result.put(entry.getKey(), json.toString());
+                    } else {
+                        result.put(entry.getKey(), entry.getValue());
                     }
                 } else {
                     result.put(entry.getKey(), entry.getValue());
