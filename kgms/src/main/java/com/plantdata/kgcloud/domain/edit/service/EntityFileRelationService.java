@@ -29,6 +29,8 @@ public interface EntityFileRelationService {
 
     void deleteIndex(String kgName, List<String> idList);
 
+    void deleteByEntityIds(String kgName, List<Long> entityIds);
+
     MultiModal getMultiModalById(String id);
 
     List<EntityFileRelationRsp> getRelationByDwFileId(String dwFileId);

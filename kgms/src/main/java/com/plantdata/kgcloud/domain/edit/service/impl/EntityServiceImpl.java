@@ -171,9 +171,9 @@ public class EntityServiceImpl implements EntityService {
         GraphLog graphLog = new GraphLog();
         graphLog.setBatch(ThreadLocalUtils.getBatchNo());
         graphLog.setScope(GraphLogScope.MULTI_DATA);
-        if(GraphLogOperation.DELETE.equals(operation)){
+        if (GraphLogOperation.DELETE.equals(operation)) {
             graphLog.setOldValue(transform(multiModal));
-        }else{
+        } else {
             graphLog.setNewValue(transform(multiModal));
         }
         graphLog.setOperation(operation);
@@ -466,8 +466,18 @@ public class EntityServiceImpl implements EntityService {
         Map<String, Object> metadata = new HashMap<>();
         //gis坐标
         List<Double> gisCoordinate = new ArrayList<>(2);
-        gisCoordinate.add(0, gisInfoModifyReq.getLongitude());
-        gisCoordinate.add(1, gisInfoModifyReq.getLatitude());
+        try {
+            Double longitude = Double.valueOf(gisInfoModifyReq.getLongitude());
+            Double latitude = Double.valueOf(gisInfoModifyReq.getLatitude());
+            if (longitude.compareTo(-180d) < 0 || longitude.compareTo(180d) > 0 ||
+                    latitude.compareTo(-90d) < 0 || latitude.compareTo(90d) > 0) {
+                throw new Exception();
+            }
+            gisCoordinate.add(0, longitude);
+            gisCoordinate.add(1, latitude);
+        } catch (Exception e) {
+            throw BizException.of(AppErrorCodeEnum.GIS_INFO_ERROR);
+        }
         metadata.put(MetaDataInfo.GIS_COORDINATE.getFieldName(), gisCoordinate);
         if (Objects.nonNull(gisInfoModifyReq.getAddress())) {
             metadata.put(MetaDataInfo.GIS_ADDRESS.getFieldName(), gisInfoModifyReq.getAddress());
