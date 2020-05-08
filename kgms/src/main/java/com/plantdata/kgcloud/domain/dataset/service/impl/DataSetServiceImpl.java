@@ -463,9 +463,14 @@ public class DataSetServiceImpl implements DataSetService {
         }
     }
 
+    //TODO
     @Override
     public FieldType readType(Object val) {
         FieldType type = null;
+        if (Objects.equals(type, "")) {
+            type = FieldType.TEXT;
+            return type;
+        }
         if (val == null) {
             type = FieldType.STRING;
             return type;
@@ -478,7 +483,7 @@ public class DataSetServiceImpl implements DataSetService {
             } catch (Exception e) {
                 if (!StringUtils.isEmpty(string) && string.length() > 50) {
                     type = FieldType.TEXT;
-                }else{
+                } else {
                     type = FieldType.STRING;
                 }
             }
@@ -491,19 +496,19 @@ public class DataSetServiceImpl implements DataSetService {
                 } catch (Exception e) {
                     if (!StringUtils.isEmpty(string) && string.length() > 50) {
                         type = FieldType.TEXT;
-                    }else{
+                    } else {
                         type = FieldType.STRING;
                     }
                 }
             } else {
                 try {
-                    JacksonUtils.getInstance().readValue(string,new TypeReference<List<Object>>() {
+                    JacksonUtils.getInstance().readValue(string, new TypeReference<List<Object>>() {
                     });
                     type = FieldType.ARRAY;
                 } catch (Exception e) {
                     if (!StringUtils.isEmpty(string) && string.length() > 50) {
                         type = FieldType.TEXT;
-                    }else{
+                    } else {
                         type = FieldType.STRING;
                     }
                 }
@@ -542,7 +547,7 @@ public class DataSetServiceImpl implements DataSetService {
                             } else if (Pattern.matches(date, string)) {
                                 LocalDate.parse(string, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 type = FieldType.DATE;
-                            }else{
+                            } else {
                                 format.parse(string);
                                 type = FieldType.DATETIME;
                             }
@@ -555,7 +560,7 @@ public class DataSetServiceImpl implements DataSetService {
             if (type == null) {
                 if (!StringUtils.isEmpty(string) && string.length() > 50) {
                     type = FieldType.TEXT;
-                }else{
+                } else {
                     type = FieldType.STRING;
                 }
             }
