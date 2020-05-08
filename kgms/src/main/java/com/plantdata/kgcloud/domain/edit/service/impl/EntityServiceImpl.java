@@ -467,14 +467,24 @@ public class EntityServiceImpl implements EntityService {
         //gis坐标
         List<Double> gisCoordinate = new ArrayList<>(2);
         try {
-            Double longitude = Double.valueOf(gisInfoModifyReq.getLongitude());
-            Double latitude = Double.valueOf(gisInfoModifyReq.getLatitude());
-            if (longitude.compareTo(-180d) < 0 || longitude.compareTo(180d) > 0 ||
-                    latitude.compareTo(-90d) < 0 || latitude.compareTo(90d) > 0) {
-                throw new Exception();
+            if (gisInfoModifyReq.getLongitude() == null) {
+                gisCoordinate.add(0, null);
+            } else {
+                Double longitude = Double.valueOf(gisInfoModifyReq.getLongitude());
+                if (longitude.compareTo(-180d) < 0 || longitude.compareTo(180d) > 0) {
+                    throw new Exception();
+                }
+                gisCoordinate.add(0, longitude);
             }
-            gisCoordinate.add(0, longitude);
-            gisCoordinate.add(1, latitude);
+            if (gisInfoModifyReq.getLatitude() == null) {
+                gisCoordinate.add(1, null);
+            } else {
+                Double latitude = Double.valueOf(gisInfoModifyReq.getLatitude());
+                if (latitude.compareTo(-90d) < 0 || latitude.compareTo(90d) > 0) {
+                    throw new Exception();
+                }
+                gisCoordinate.add(1, latitude);
+            }
         } catch (Exception e) {
             throw BizException.of(AppErrorCodeEnum.GIS_INFO_ERROR);
         }
