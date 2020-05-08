@@ -327,10 +327,13 @@ public class DataStoreServiceImpl implements DataStoreService {
 
 
     private Map<String, Object> filterDataId(Map<String, Object> data) {
-        if (data.containsKey(MONGO_ID)) {
-            data.put("err_id", data.remove(MONGO_ID) + "/");
-        }
-        return data;
+        String s = JSONObject.toJSONString(data);
+
+        String dataString = s.replace("_id\": { \"$oid\" :\"", "a \":{\"");
+
+
+        JSONObject object = JSONObject.parseObject(dataString);
+        return new HashMap(object);
     }
 
 
@@ -373,7 +376,7 @@ public class DataStoreServiceImpl implements DataStoreService {
     }
 
 
-    public  String egrularEscape(String keyword) {
+    public String egrularEscape(String keyword) {
         if (!StringUtils.isEmpty(keyword)) {
             String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
             for (String key : fbsArr) {
