@@ -52,13 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -127,7 +121,14 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return Collections.emptyList();
         }
-        return BasicConverter.listConvert(entityOpt.get(), PromptConverter::entityVoToSeniorPromptRsp);
+        List<SeniorPromptRsp> result = BasicConverter.listConvert(entityOpt.get(), PromptConverter::entityVoToSeniorPromptRsp);
+        List<SeniorPromptRsp> resultWithoutConcept = new ArrayList<>();
+        for(SeniorPromptRsp rsp : result){
+            if(rsp.getConceptId() != null && rsp.getConceptId() != 0){
+                resultWithoutConcept.add(rsp);
+            }
+        }
+        return resultWithoutConcept;
     }
 
 
