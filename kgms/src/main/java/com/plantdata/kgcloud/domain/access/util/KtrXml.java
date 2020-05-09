@@ -827,7 +827,10 @@ public class KtrXml {
                 "      <servlet_output>N</servlet_output>\n" +
                 "    </file>\n" +
                 "    <fields>\n" +
-                "      fieldsQAQ"+
+                "       <field>\n" +
+                "        <name>json</name>\n" +
+                "        <element>json</element>\n" +
+                "      </field>\n"+
                 "    </fields>\n" +
                 "    <attributes/>\n" +
                 "    <cluster_schema/>\n" +
