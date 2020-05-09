@@ -467,7 +467,7 @@ public class EntityServiceImpl implements EntityService {
         //gis坐标
         List<Double> gisCoordinate = new ArrayList<>(2);
         try {
-            if (gisInfoModifyReq.getLongitude() == null) {
+            if (StringUtils.isEmpty(gisInfoModifyReq.getLongitude())) {
                 gisCoordinate.add(0, null);
             } else {
                 Double longitude = Double.valueOf(gisInfoModifyReq.getLongitude());
@@ -476,7 +476,7 @@ public class EntityServiceImpl implements EntityService {
                 }
                 gisCoordinate.add(0, longitude);
             }
-            if (gisInfoModifyReq.getLatitude() == null) {
+            if (StringUtils.isEmpty(gisInfoModifyReq.getLatitude())) {
                 gisCoordinate.add(1, null);
             } else {
                 Double latitude = Double.valueOf(gisInfoModifyReq.getLatitude());
