@@ -1293,8 +1293,8 @@ public class IndustryKtrXml {
                 "      <method>none</method>\n" +
                 "      <schema_name/>\n" +
                 "    </partitioning>\n" +
-                "    <send_true_to>Kafka_producer_QAQ_resourceNameQAQ_QAQ</send_true_to>\n" +
-                "    <send_false_to>Kafka_producer_err_QAQ_resourceNameQAQ_QAQ</send_false_to>\n" +
+                "    <send_true_to>Kafka_producer_QAQ_resourceNameQAQ_QAQ 2</send_true_to>\n" +
+                "    <send_false_to>Kafka_producer_err_QAQ_resourceNameQAQ_QAQ 2</send_false_to>\n" +
                 "    <compare>\n" +
                 "      <condition>\n" +
                 "        <negated>N</negated>\n" +
