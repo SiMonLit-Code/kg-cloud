@@ -59,6 +59,7 @@ public class CreateKtrFile {
         String paramAndFilterXml = IndustryKtrXml.paramAndFilterXml;
 
         String customizationXml = IndustryKtrXml.customizationXml;
+        String customizationXmlRerun = IndustryKtrXml.customizationXml;
 
         //数据接入xml
         String inputXml;
@@ -168,10 +169,17 @@ public class CreateKtrFile {
 
         customizationXml = changeCustomizationXml(customizationXml,table);
 
-        String data = xml + connXml + orderXml + defaultXml + inputXml + kafkaTruexml+ kafkaErrorxml+mongoErrorInput + customizationXml + paramAndFilterXml;
+        customizationXmlRerun = changeCustomizationXmlRerun(customizationXmlRerun,table);
+
+        String data = xml + connXml + orderXml + defaultXml + inputXml + kafkaTruexml+ kafkaErrorxml+mongoErrorInput + customizationXml +customizationXmlRerun + paramAndFilterXml;
         // 创建临时路径
         return data.replaceAll("resourceNameQAQ",resourceName);
 
+    }
+
+    private static String changeCustomizationXmlRerun(String customizationXmlRerun, DWTableRsp table) {
+
+        return customizationXmlRerun.replace("${code}",table.getKtr() == null ? "":table.getKtr()).replace("<name>数据转换</name>","<name>数据转换 2</name>");
     }
 
     private static String changeCustomizationXml(String customizationXml, DWTableRsp table) {
@@ -327,7 +335,7 @@ public class CreateKtrFile {
 
     private static String changeKafkaConnection(String kafkaxml, String kafkaServers,String kafkaTopic) {
 
-        return kafkaxml.replace("kafkaQAQ", kafkaServers).replace("topicQAQ",kafkaTopic);
+        return kafkaxml.replaceAll("kafkaQAQ", kafkaServers).replaceAll("topicQAQ",kafkaTopic);
     }
 
     private static String getTableSql(DWDatabaseRsp databaseRsp,DWTableRsp table,String tableName,Boolean isMongo,String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
