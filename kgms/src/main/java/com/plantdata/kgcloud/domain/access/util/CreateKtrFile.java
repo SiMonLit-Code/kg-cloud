@@ -327,7 +327,7 @@ public class CreateKtrFile {
 
     private static String changeKafkaConnection(String kafkaxml, String kafkaServers,String kafkaTopic) {
 
-        return kafkaxml.replace("kafkaQAQ", kafkaServers).replace("topicQAQ",kafkaTopic);
+        return kafkaxml.replaceAll("kafkaQAQ", kafkaServers).replaceAll("topicQAQ",kafkaTopic);
     }
 
     private static String getTableSql(DWDatabaseRsp databaseRsp,DWTableRsp table,String tableName,Boolean isMongo,String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
