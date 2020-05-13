@@ -537,7 +537,12 @@ public class KtrXml {
                 "    </hop>\n" +
                 "    <hop>\n" +
                 "      <from>JavaScript代码 2 2</from>\n" +
-                "      <to>JavaScript代码</to>\n" +
+                "      <to>JavaScript代码 3</to>\n" +
+                "      <enabled>Y</enabled>\n" +
+                "    </hop>\n"+
+                "    <hop>\n" +
+                "      <from>JavaScript代码 3</from>\n" +
+                "      <to>Kafka_producer_QAQ_resourceNameQAQ_QAQ 2</to>\n" +
                 "      <enabled>Y</enabled>\n" +
                 "    </hop>\n"+
                 "  </order>\n";
@@ -590,6 +595,59 @@ public class KtrXml {
                 "  </step>\n" +
                 "  <step>\n" +
                 "    <name>JavaScript代码</name>\n" +
+                "    <type>ScriptValueMod</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>N</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <compatible>N</compatible>\n" +
+                "    <optimizationLevel>9</optimizationLevel>\n" +
+                "    <jsScripts>\n" +
+                "      <jsScript>\n" +
+                "        <jsScript_type>0</jsScript_type>\n" +
+                "        <jsScript_name>Script 1</jsScript_name>\n" +
+                "        <jsScript_script>//Script here\n" +
+                "\n" +
+                "\n" +
+                "var re = {\n" +
+                "\"data\" : JSON.parse(data_input),\n" +
+                "\"operationType\":\"ADD\",\n" +
+                "\"resourceConfig_\":resourceConfig_\n" +
+                "}\n" +
+                "\n" +
+                "var value=JSON.stringify(re)</jsScript_script>\n" +
+                "      </jsScript>\n" +
+                "    </jsScripts>\n" +
+                "    <fields>\n" +
+                "      <field>\n" +
+                "        <name>value</name>\n" +
+                "        <rename>value</rename>\n" +
+                "        <type>String</type>\n" +
+                "        <length>-1</length>\n" +
+                "        <precision>-1</precision>\n" +
+                "        <replace>N</replace>\n" +
+                "      </field>\n" +
+                "    </fields>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>656</xloc>\n" +
+                "      <yloc>128</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" +
+                "  <step>\n" +
+                "    <name>JavaScript代码 3</name>\n" +
                 "    <type>ScriptValueMod</type>\n" +
                 "    <description/>\n" +
                 "    <distribute>N</distribute>\n" +
@@ -827,7 +885,10 @@ public class KtrXml {
                 "      <servlet_output>N</servlet_output>\n" +
                 "    </file>\n" +
                 "    <fields>\n" +
-                "      fieldsQAQ"+
+                "       <field>\n" +
+                "        <name>json</name>\n" +
+                "        <element>json</element>\n" +
+                "      </field>\n"+
                 "    </fields>\n" +
                 "    <attributes/>\n" +
                 "    <cluster_schema/>\n" +
@@ -983,6 +1044,47 @@ public class KtrXml {
 
         static String kafkaxml = "  <step>\n" +
                 "    <name>Kafka_producer_QAQ_resourceNameQAQ_QAQ</name>\n" +
+                "    <type>KafkaProducerOutput</type>\n" +
+                "    <description/>\n" +
+                "    <distribute>Y</distribute>\n" +
+                "    <custom_distribution/>\n" +
+                "    <copies>1</copies>\n" +
+                "    <partitioning>\n" +
+                "      <method>none</method>\n" +
+                "      <schema_name/>\n" +
+                "    </partitioning>\n" +
+                "    <connectionType>DIRECT</connectionType>\n" +
+                "    <directBootstrapServers>kafkaQAQ</directBootstrapServers>\n" +
+                "    <clusterName/>\n" +
+                "    <topic>topicQAQ</topic>\n" +
+                "    <clientId/>\n" +
+                "    <keyField>resourceName</keyField>\n" +
+                "    <messageField>value</messageField>\n" +
+                "    <advancedConfig>\n" +
+                "      <option property=\"compression.type\" value=\"none\"/>\n" +
+                "      <option property=\"ssl.key.password\" value=\"\"/>\n" +
+                "      <option property=\"ssl.keystore.location\" value=\"\"/>\n" +
+                "      <option property=\"ssl.keystore.password\" value=\"\"/>\n" +
+                "      <option property=\"ssl.truststore.location\" value=\"\"/>\n" +
+                "      <option property=\"ssl.truststore.password\" value=\"\"/>\n" +
+                "      <option property=\"partitioner.class\" value=\"com.hiekn.partitioner.ChannelPartitioner\"/>\n" +
+                "    </advancedConfig>\n" +
+                "    <attributes/>\n" +
+                "    <cluster_schema/>\n" +
+                "    <remotesteps>\n" +
+                "      <input>\n" +
+                "      </input>\n" +
+                "      <output>\n" +
+                "      </output>\n" +
+                "    </remotesteps>\n" +
+                "    <GUI>\n" +
+                "      <xloc>935</xloc>\n" +
+                "      <yloc>118</yloc>\n" +
+                "      <draw>Y</draw>\n" +
+                "    </GUI>\n" +
+                "  </step>\n" +
+                "  <step>\n" +
+                "    <name>Kafka_producer_QAQ_resourceNameQAQ_QAQ 2</name>\n" +
                 "    <type>KafkaProducerOutput</type>\n" +
                 "    <description/>\n" +
                 "    <distribute>Y</distribute>\n" +
