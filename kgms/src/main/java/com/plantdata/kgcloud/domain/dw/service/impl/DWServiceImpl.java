@@ -1234,9 +1234,24 @@ public class DWServiceImpl implements DWService {
 
         if (tables != null && !tables.isEmpty()) {
 
-            for (String table : tables) {
-                List<DataSetSchema> schemas = getTableSchema(dwDatabase, table);
-                schemaMap.put(table, schemas);
+            if (DataType.MYSQL.equals(DataType.findType(dwDatabase.getDataType()))){
+                DataSource dataSource = getDataSource(dwDatabase);
+                JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+                for (String table : tables) {
+                    List<DataSetSchema> schemas = getTableSchema(dwDatabase, table, jdbcTemplate);
+                    schemaMap.put(table, schemas);
+                }
+                try {
+                    if (dataSource != null && dataSource.getConnection() != null) {
+                        dataSource.getConnection().close();
+                    }
+                } catch (Exception e) {
+                }
+            } else {
+                for (String table : tables) {
+                    List<DataSetSchema> schemas = getTableSchema(dwDatabase, table, null);
+                    schemaMap.put(table, schemas);
+                }
             }
 
         }
@@ -1371,7 +1386,7 @@ public class DWServiceImpl implements DWService {
                 }
 
                 List<DataSetSchema> schemaList = getIndustryTableSchema(databaseId, req.getTableName());
-                List<DataSetSchema> tableSchemaList = getTableSchema(database, req.getTbName());
+                List<DataSetSchema> tableSchemaList = getTableSchema(database, req.getTbName(), null);
                 checkIndutrySchema(schemaList, tableSchemaList);
 
                 DWTable table = DWTable.builder()
@@ -1390,7 +1405,7 @@ public class DWServiceImpl implements DWService {
                 tableRepository.save(table);
             } else {
 
-                List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName());
+                List<DataSetSchema> schemaList = getTableSchema(database, req.getTbName(), null);
 
                 if (DWDataFormat.isPDdoc(database.getDataFormat())) {
 
@@ -2401,7 +2416,7 @@ public class DWServiceImpl implements DWService {
         return conceptRsps;
     }
 
-    public List<DataSetSchema> getTableSchema(DWDatabaseRsp dwDatabase, String tbName) {
+    public List<DataSetSchema> getTableSchema(DWDatabaseRsp dwDatabase, String tbName, JdbcTemplate jdbcTemplate) {
 
         List<DataSetSchema> rsList = new ArrayList<>();
 
@@ -2417,7 +2432,6 @@ public class DWServiceImpl implements DWService {
 
             try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, DataType.MONGO);) {
                 List<Map<String, Object>> maps = provider.find(0, 1, null);
-
                 if (maps == null || maps.isEmpty()) {
                     return rsList;
                 }
@@ -2439,8 +2453,10 @@ public class DWServiceImpl implements DWService {
             }
 
         } else if (DataType.MYSQL.equals(DataType.findType(dwDatabase.getDataType()))) {
-            DataSource dataSource = getDataSource(dwDatabase);
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            if (jdbcTemplate == null){
+                DataSource dataSource = getDataSource(dwDatabase);
+                jdbcTemplate = new JdbcTemplate(dataSource);
+            }
             String sql = "show full COLUMNS from  " + dwDatabase.getDbName() + "." + tbName;
             List<Map<String, Object>> rs = jdbcTemplate.queryForList(sql);
             for (Map<String, Object> coulmn : rs) {
@@ -2454,12 +2470,6 @@ public class DWServiceImpl implements DWService {
                 rsList.add(dataSetSchema);
             }
 
-            try {
-                if (dataSource != null && dataSource.getConnection() != null) {
-                    dataSource.getConnection().close();
-                }
-            } catch (Exception e) {
-            }
         }
 
         return rsList;

@@ -35,6 +35,7 @@ public class ExampleYaml {
     private final static String DATE = "date";
     private final static String TIMESTAMP = "timestamp";
     private final static String DOUBLE = "double";
+    private final static String FLOAT = "float";
 
     private static Map<Integer, String> attDataTypeMap = new HashMap<>();
 
@@ -179,6 +180,8 @@ public class ExampleYaml {
             type = FieldType.DATETIME;
         } else if(string.startsWith(DOUBLE)){
             type = FieldType.DOUBLE;
+        }else if(string.startsWith(FLOAT)){
+            type = FieldType.FLOAT;
         }else {
             type = FieldType.STRING;
         }
