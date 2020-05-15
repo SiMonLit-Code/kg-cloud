@@ -138,4 +138,14 @@ public class TableDataController {
         tableDataService.dataUpdate(baseReq);
         return ApiReturn.success();
     }
+
+    @ApiOperation("数仓数据-分页条件查询-feign转发专用")
+    @PatchMapping("/list/{databaseId}/{tableId}/feign")
+    public ApiReturn<Page<Map<String, Object>>> getData(
+            @PathVariable("tableId") Long tableId,
+            @PathVariable("databaseId") Long databaseId,
+            DataOptQueryReq baseReq) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(tableDataService.getData(userId, databaseId, tableId, baseReq));
+    }
 }

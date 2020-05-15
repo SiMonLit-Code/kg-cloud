@@ -12,11 +12,15 @@ import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatBean;
 import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatFilterBean;
 import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatOrderBean;
 import com.plantdata.kgcloud.sdk.DWClient;
+import com.plantdata.kgcloud.sdk.TableDataClient;
+import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.*;
+import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import com.plantdata.kgcloud.plantdata.req.dw.SqlQueryReq;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
@@ -35,6 +39,9 @@ public class DWController implements DWStatisticInterface {
 
     @Autowired
     public DWClient dwClient;
+
+    @Autowired
+    public TableDataClient tableDataClient;
 
     @ApiOperation(value = "统计数据仓库(二维)", notes = "以二维表的形式统计数据仓库")
     @PostMapping("statistic/by2dTable")
@@ -256,5 +263,14 @@ public class DWController implements DWStatisticInterface {
 //                }
 //            }
         }
+    }
+
+    @ApiOperation(value = "数仓数据-分页条件查询", notes = "分页条件查询")
+    @PatchMapping("/list/{databaseId}/{tableId}")
+    public ApiReturn<Page<Map<String, Object>>> getData(
+            @PathVariable("tableId") Long tableId,
+            @PathVariable("databaseId") Long databaseId,
+            DataOptQueryReq baseReq) {
+        return tableDataClient.getData(databaseId, tableId, baseReq);
     }
 }
