@@ -8,5 +8,5 @@ import com.plantdata.kgcloud.domain.repo.factory.RepositoryRootFactory;
  */
 public interface FunctionExecutor {
 
-    <R> R execute(RepositoryRootFactory rootFactory);
+    <R> R execute(RepositoryRootFactory rootFactory, Class<R> rspType);
 }

@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.checker;
 
+import com.plantdata.kgcloud.domain.repo.model.ConsulService;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryHandler;
 import com.plantdata.kgcloud.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
@@ -23,18 +24,8 @@ public class ConsulServiceChecker implements ServiceChecker {
         this.handlers = handlers;
     }
 
-    /**
-     * 前后依赖检测
-     */
-    public void dependenceCheck() {
-        //todo
-    }
-
     @Override
     public void check() {
-
-        dependenceCheck();
-
         handlers.forEach(a -> {
             List<ServiceInstance> instances = discoveryClient.getInstances(a.getRequestServerName());
             if (instances == null || instances.size() == 0) {
