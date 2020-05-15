@@ -18,14 +18,11 @@ public class SsoSecurityConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers(WebUtils.DEFAULT_IGNORE)
-                .permitAll()
-                .anyRequest()
-                .authenticated();
+        http.authorizeRequests().antMatchers(WebUtils.DEFAULT_IGNORE).permitAll();
         if (ignorePaths != null && ignorePaths.length > 0) {
             http.authorizeRequests().antMatchers(ignorePaths).permitAll();
         }
+        http.authorizeRequests().anyRequest().authenticated();
     }
 
 }
