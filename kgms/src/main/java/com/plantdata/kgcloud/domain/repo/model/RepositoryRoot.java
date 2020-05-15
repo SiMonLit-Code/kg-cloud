@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.repo.model;
 
 import com.plantdata.kgcloud.domain.repo.enums.RepoCheckType;
+import com.plantdata.kgcloud.domain.repo.model.req.DealDTO;
 
 import java.util.function.Function;
 
@@ -12,7 +13,7 @@ public interface RepositoryRoot {
 
     RepoCheckType checkType();
 
-    Object getBasicReq();
+    DealDTO getBasicReq();
 
-    Function BasicRequest();
+    Function<DealDTO,DealDTO> BasicRequest();
 }

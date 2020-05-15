@@ -30,7 +30,7 @@ public class ConsulServiceChecker implements ServiceChecker {
             List<ServiceInstance> instances = discoveryClient.getInstances(a.getRequestServerName());
             if (instances == null || instances.size() == 0) {
                 log.error("serverName:{}", a.getRequestServerName());
-                throw new BizException("插件实例未找到");
+                //throw new BizException("插件实例未找到");
             }
         });
     }

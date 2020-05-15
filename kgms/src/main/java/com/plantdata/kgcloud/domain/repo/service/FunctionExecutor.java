@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.repo.service;
 
 import com.plantdata.kgcloud.domain.repo.factory.RepositoryRootFactory;
+import com.plantdata.kgcloud.domain.repo.model.req.DealDTO;
 
 /**
  * @author cjw
@@ -8,5 +9,5 @@ import com.plantdata.kgcloud.domain.repo.factory.RepositoryRootFactory;
  */
 public interface FunctionExecutor {
 
-    <R> R execute(RepositoryRootFactory rootFactory, Class<R> rspType);
+    <T> T  execute(RepositoryRootFactory rootFactory,Class<T> clazz);
 }

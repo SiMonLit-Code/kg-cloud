@@ -1,10 +1,13 @@
 package com.plantdata.kgcloud.domain.repo.model;
 
 import com.plantdata.kgcloud.domain.repo.enums.HandleType;
+import com.plantdata.kgcloud.domain.repo.model.req.DealDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.function.Function;
 
 /**
  * @author cjw
@@ -19,9 +22,11 @@ public class RepositoryHandler {
     private HandleType handleType;
     private String requestServerName;
     private int rank;
+    private Function<DealDTO, DealDTO> d2rFunction;
 
-    public Object handler(Object obj) {
-        return toString() + ";param" + obj.toString();
+    public DealDTO handler(DealDTO obj) {
+        System.out.println(toString() + ";param" + obj.toString());
+        return d2rFunction.apply(obj);
     }
 
     @Override

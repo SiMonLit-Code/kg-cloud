@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.domain.repo.enums.HandleType;
 import com.plantdata.kgcloud.domain.repo.model.ConsulService;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryHandler;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryRoot;
+import com.plantdata.kgcloud.domain.repo.model.req.DealDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -19,16 +20,16 @@ public class ConsulServiceHandlerStream implements HandlerStream {
     }
 
     @Override
-    public Object handler() {
+    public DealDTO handler() {
         assert repositoryRoot instanceof ConsulService;
         List<RepositoryHandler> handlers = ((ConsulService) repositoryRoot).handlers();
         Map<HandleType, List<RepositoryHandler>> handleTypeListMap = handlers.stream().collect(Collectors.groupingBy(RepositoryHandler::getHandleType));
-        Object beforeRsp = exec(handleTypeListMap, HandleType.BEFORE, repositoryRoot.getBasicReq());
-        Object basicRsp = repositoryRoot.BasicRequest().apply(beforeRsp);
+        DealDTO beforeRsp = exec(handleTypeListMap, HandleType.BEFORE, repositoryRoot.getBasicReq());
+        DealDTO basicRsp = repositoryRoot.BasicRequest().apply(beforeRsp);
         return  exec(handleTypeListMap, HandleType.AFTER, basicRsp);
     }
 
-    private Object exec(Map<HandleType, List<RepositoryHandler>> handleTypeListMap, HandleType handleType, Object param) {
+    private DealDTO exec(Map<HandleType, List<RepositoryHandler>> handleTypeListMap, HandleType handleType, DealDTO param) {
         List<RepositoryHandler> before = handleTypeListMap.get(handleType);
         if (!CollectionUtils.isEmpty(before)) {
             for (RepositoryHandler handler : before) {
