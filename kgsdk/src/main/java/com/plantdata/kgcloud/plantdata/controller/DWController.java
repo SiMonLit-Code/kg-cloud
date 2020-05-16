@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.plantdata.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.constant.ErrorCode;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.module.DWStatisticInterface;
 import com.plantdata.kgcloud.exception.BizException;
@@ -13,10 +14,8 @@ import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatFilterBean;
 import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatOrderBean;
 import com.plantdata.kgcloud.sdk.DWClient;
 import com.plantdata.kgcloud.sdk.TableDataClient;
-import com.plantdata.kgcloud.sdk.constant.PageForFeign;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.*;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -30,7 +29,6 @@ import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -274,7 +272,11 @@ public class DWController implements DWStatisticInterface {
             @PathVariable("tableId") Long tableId,
             @PathVariable("databaseId") Long databaseId,
             DataOptQueryReq baseReq) {
-        List<Object> arguments = tableDataClient.getDataForFeign(databaseId, tableId, baseReq);
+        ApiReturn<List<Object>> apiReturn = tableDataClient.getDataForFeign(databaseId, tableId, baseReq);
+        if(apiReturn.getErrCode() != 200){
+            return ApiReturn.fail(apiReturn.getErrCode(),apiReturn.getMessage());
+        }
+        List<Object> arguments = apiReturn.getData();
         PageRequest pageable = PageRequest.of((Integer)arguments.get(0), (Integer)arguments.get(1));
         return ApiReturn.success(new PageImpl<>((List<Map<String, Object>>)arguments.get(2), pageable, Long.valueOf((String)arguments.get(3))));
     }

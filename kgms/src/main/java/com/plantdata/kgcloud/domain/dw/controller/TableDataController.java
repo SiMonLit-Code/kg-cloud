@@ -1,13 +1,10 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
-import com.plantdata.kgcloud.sdk.constant.PageForFeign;
 import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
@@ -19,7 +16,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -144,12 +140,12 @@ public class TableDataController {
 
     @ApiOperation("数仓数据-分页条件查询-feign转发专用")
     @PatchMapping("/list/{databaseId}/{tableId}/feign")
-    public List<Object> getDataForFeign(
-            @PathVariable("tableId") Long tableId,
+    public ApiReturn<List<Object>> getDataForFeign(
             @PathVariable("databaseId") Long databaseId,
+            @PathVariable("tableId") Long tableId,
             DataOptQueryReq baseReq) {
         String userId = SessionHolder.getUserId();
         List<Object> arguments = tableDataService.getDataForFeign(userId, databaseId, tableId, baseReq);
-        return arguments;
+        return ApiReturn.success(arguments);
     }
 }
