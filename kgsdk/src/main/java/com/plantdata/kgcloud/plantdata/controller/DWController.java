@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatFilterBean;
 import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatOrderBean;
 import com.plantdata.kgcloud.sdk.DWClient;
 import com.plantdata.kgcloud.sdk.TableDataClient;
+import com.plantdata.kgcloud.sdk.constant.PageForFeign;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.*;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -21,6 +22,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import com.plantdata.kgcloud.plantdata.req.dw.SqlQueryReq;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
@@ -271,6 +274,8 @@ public class DWController implements DWStatisticInterface {
             @PathVariable("tableId") Long tableId,
             @PathVariable("databaseId") Long databaseId,
             DataOptQueryReq baseReq) {
-        return tableDataClient.getData(databaseId, tableId, baseReq);
+        List<Object> arguments = tableDataClient.getDataForFeign(databaseId, tableId, baseReq);
+        PageRequest pageable = PageRequest.of((Integer)arguments.get(0), (Integer)arguments.get(1));
+        return ApiReturn.success(new PageImpl<>((List<Map<String, Object>>)arguments.get(2), pageable, Long.valueOf((String)arguments.get(3))));
     }
 }

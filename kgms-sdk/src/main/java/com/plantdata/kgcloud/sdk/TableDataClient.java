@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.constant.PageForFeign;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
 import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
@@ -29,9 +30,9 @@ public interface TableDataClient {
      * @param
      * @return
      */
-    @ApiOperation("数仓数据-分页条件查询")
-    @PatchMapping("/list/{databaseId}/{tableId}")
-    public ApiReturn<Page<Map<String, Object>>> getData(
+    @ApiOperation("数仓数据-分页条件查询-feign专用")
+    @PatchMapping("/list/{databaseId}/{tableId}/feign")
+    public List<Object> getDataForFeign(
             @PathVariable("tableId") Long tableId,
             @PathVariable("databaseId") Long databaseId,
             DataOptQueryReq baseReq);
