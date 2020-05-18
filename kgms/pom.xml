@@ -324,7 +324,6 @@
                     <groupId>org.projectlombok</groupId>
                 </exclusion>
             </exclusions>
-
         </dependency>
         <dependency>
             <groupId>com.facebook.presto</groupId>
