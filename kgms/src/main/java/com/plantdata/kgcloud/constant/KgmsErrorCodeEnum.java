@@ -105,6 +105,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     ILLEGAL_PARAM(120512, "参数不合法"),
 
+    TRIPLE_ID_NOT_EXISTS(120513, "三元组id不存在"),
+
     STANDARD_TEMPLATE_NOT_EXIST(120601, "行业标准模板不存在"),
 
     PRE_BUILD_MODEL_NOT_EXIST(120602, "预构建模式不存在"),

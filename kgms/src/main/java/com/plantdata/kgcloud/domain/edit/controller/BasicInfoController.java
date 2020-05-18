@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.RelationDetailRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
@@ -121,5 +122,11 @@ public class BasicInfoController {
     public ApiReturn<List<SimpleBasicRsp>> listNames(@PathVariable("kgName") String kgName,
                                                      @Valid @Min(1) @Max(10000) @RequestBody List<String> names) {
         return ApiReturn.success(basicInfoService.listNames(kgName, names));
+    }
+
+    @ApiOperation("根据三元组id查关系详情")
+    @GetMapping("/relation/{kgName}/{id}")
+    public ApiReturn<RelationDetailRsp> getRelationDetails(@PathVariable("kgName") String kgName, @PathVariable("id") String id) {
+        return ApiReturn.success(basicInfoService.getRelationDetails(kgName, id));
     }
 }
