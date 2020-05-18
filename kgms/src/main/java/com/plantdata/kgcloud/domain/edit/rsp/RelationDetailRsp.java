@@ -40,4 +40,19 @@ public class RelationDetailRsp{
 
     @ApiModelProperty(value = "")
     private Map<Integer, List<BasicInfo>> relationObjectValues;
+
+    @ApiModelProperty(value = "")
+    private String attrTimeFrom;
+
+    @ApiModelProperty(value = "")
+    private String attrTimeTo;
+
+    @ApiModelProperty(value = "")
+    private double score;
+
+    @ApiModelProperty(value = "")
+    private double reliability;
+
+    @ApiModelProperty(value = "")
+    private String source;
 }
