@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-//import com.hiekn.bean.Pdd2rBean;
+import com.hiekn.bean.Pdd2rBean;
 import com.hiekn.pddocument.bean.PdDocument;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
@@ -1118,9 +1118,9 @@ public class DWServiceImpl implements DWService {
             return beanSchema(PdDocument.class);
         }
 
-//        if (DWDataFormat.isPDd2r(dataFormat)) {
-//            return beanSchema(Pdd2rBean.class);
-//        }
+        if (DWDataFormat.isPDd2r(dataFormat)) {
+            return beanSchema(Pdd2rBean.class);
+        }
 
         return dataSetService.schemaResolve(null, file);
     }
