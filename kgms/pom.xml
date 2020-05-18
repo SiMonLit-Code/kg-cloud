@@ -295,7 +295,7 @@
         <dependency>
             <groupId>com.hiekn</groupId>
             <artifactId>kettleBean</artifactId>
-            <version>1.01</version>
+            <version>1.03</version>
         </dependency>
         <dependency>
             <groupId>com.github.junrar</groupId>
