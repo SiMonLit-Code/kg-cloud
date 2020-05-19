@@ -12,8 +12,8 @@ import java.util.List;
 public class InfoBoxParameter {
     @NotBlank
     private String kgName;
-    @NotNull
     private Long id;
+    private String kw;
     private Boolean isRelationAtts = false;
     private List<Integer> allowAtts;
     private List<String> allowAttsKey;
