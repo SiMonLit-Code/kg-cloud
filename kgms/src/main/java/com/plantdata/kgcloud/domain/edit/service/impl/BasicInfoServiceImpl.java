@@ -421,6 +421,11 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         rsp.setExtraInfo(optional.get().getExtraInfo());
         rsp.setRelationDataValues(optional.get().getRelationDataValues());
         rsp.setRelationObjectValues(optional.get().getRelationObjectValues());
+        rsp.setAttrTimeFrom(optional.get().getAttrTimeFrom());
+        rsp.setAttrTimeTo(optional.get().getAttrTimeTo());
+        rsp.setScore((Double)optional.get().getMetaData().get("meta_data_3"));
+        rsp.setReliability((Double)optional.get().getMetaData().get("meta_data_12"));
+        rsp.setSource((String)optional.get().getMetaData().get("meta_data_11"));
         return rsp;
     }
 }
