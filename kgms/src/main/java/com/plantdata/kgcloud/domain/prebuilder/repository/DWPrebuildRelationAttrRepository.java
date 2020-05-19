@@ -9,6 +9,6 @@ public interface DWPrebuildRelationAttrRepository extends JpaRepository<DWPrebui
 
 
     @Modifying
-    @Query(value = "delete from dw_prebuild_relation_attr where model_id = :id",nativeQuery = true)
+    @Query(value = "delete from prebuild_relation_attr where model_id = :id",nativeQuery = true)
     void deleteByModelId(Integer id);
 }

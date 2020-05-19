@@ -11,11 +11,11 @@ import java.util.List;
 public interface DWPrebuildConceptRepository extends JpaRepository<DWPrebuildConcept, Integer> {
 
     @Modifying
-    @Query(value = "delete from dw_prebuild_concept where model_id = :id",nativeQuery = true)
+    @Query(value = "delete from prebuild_concept where model_id = :id",nativeQuery = true)
     void deleteByModelId(Integer id);
 
 
 
-    @Query(value = "select * from dw_prebuild_concept where model_id = :modelId and `id` in (:conceptIds)",nativeQuery = true)
+    @Query(value = "select * from prebuild_concept where model_id = :modelId and `id` in (:conceptIds)",nativeQuery = true)
     List<DWPrebuildConcept> findByModelAndConceptIds(@Param("modelId") Integer modelId, @Param("conceptIds") List<Integer> conceptIds);
 }
