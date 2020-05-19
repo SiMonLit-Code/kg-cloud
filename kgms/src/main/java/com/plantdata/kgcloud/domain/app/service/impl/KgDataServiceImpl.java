@@ -19,10 +19,8 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
 import com.plantdata.kgcloud.domain.app.bo.GraphAttributeStatisticBO;
 import com.plantdata.kgcloud.domain.app.bo.GraphRelationStatisticBO;
@@ -30,26 +28,17 @@ import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.GraphStatisticConverter;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
-import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.domain.app.util.TextUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
-import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
-import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
-import com.plantdata.kgcloud.domain.dataset.service.DataOptService;
-import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
-import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.*;
-import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatDataRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
@@ -60,12 +49,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -84,15 +68,7 @@ public class KgDataServiceImpl implements KgDataService {
     @Autowired
     public StatisticsApi statisticsApi;
     @Autowired
-    public DataSetSearchService dataSetSearchService;
-    @Autowired
-    public DataOptService dataOptService;
-    @Autowired
     public SparqlApi sparqlApi;
-    @Autowired
-    private DataSetService dataSetService;
-    @Autowired
-    private DataSetRepository dataSetRepository;
     @Autowired
     private GraphHelperService graphHelperService;
 
@@ -169,42 +145,6 @@ public class KgDataServiceImpl implements KgDataService {
         }
         return buildStatisticResult(dataType, dataList, attrIdReq.getDataType(), false, attrIdReq.getMerge(),
                 attrIdReq.getSort(), reSize, attrIdReq.getReturnType());
-    }
-
-    @Override
-    public List<Object> readDataSetData(String userId, String dataName, DataSetOneFieldReq readReq) {
-        Optional<DataSet> dataSetOpt = searchDataSetByName(userId, dataName);
-        if (!dataSetOpt.isPresent()) {
-            return Collections.emptyList();
-        }
-        RestData<Map<String, Object>> mapRestData = dataSetSearchService.readDataSetData(dataSetOpt.get(), Sets.newHashSet(readReq.getField()), readReq.getOffset(), readReq.getLimit(), readReq.getQuery(), readReq.getSort());
-        return mapRestData.getRsData().stream()
-                .filter(a -> a.containsKey(readReq.getField()))
-                .map(a -> a.get(readReq.getField()))
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public RestData<Map<String, Object>> searchDataSet(String userId, NameReadReq nameReadReq) {
-        PageUtils pageUtils = new PageUtils(nameReadReq.getPage(), nameReadReq.getSize());
-        Optional<DataSet> dataSetOpt = searchDataSetByName(userId, nameReadReq.getDataName());
-        if (!dataSetOpt.isPresent()) {
-            return RestData.empty();
-        }
-        DataSet dataSet = dataSetOpt.get();
-        Set<String> fieldSet = BasicConverter.listToSetNoNull(nameReadReq.getFields(), Sets::newHashSet);
-        return dataSetSearchService.readDataSetData(dataSet, fieldSet, pageUtils.getOffset(), pageUtils.getLimit(), nameReadReq.getQuery(), nameReadReq.getSort());
-    }
-
-
-    private Optional<DataSet> searchDataSetByName(String userId, String dataName) {
-        List<Long> dataSetIds = dataSetService.findByDataNames(userId, Lists.newArrayList(dataName));
-        if (CollectionUtils.isEmpty(dataSetIds)) {
-            throw BizException.of(KgmsErrorCodeEnum.DATASET_NOT_EXISTS);
-        }
-        return dataSetRepository.findByUserIdAndId(userId, dataSetIds.get(0));
-
     }
 
     private Optional<AttributeDefinition> getAttrDefById(String kgName, Integer attrId) {

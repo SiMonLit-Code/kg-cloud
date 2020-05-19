@@ -22,9 +22,6 @@ import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
-import com.plantdata.kgcloud.domain.dw.entity.DWFileTable;
-import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
-import com.plantdata.kgcloud.domain.dw.service.TableDataService;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.OpenEntityConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -113,9 +110,6 @@ public class EntityServiceImpl implements EntityService {
     private DocumentConverter documentConverter;
 
     @Autowired
-    private TableDataService tableDataService;
-
-    @Autowired
     private EntityFileRelationService entityFileRelationService;
 
     @Override
@@ -136,7 +130,7 @@ public class EntityServiceImpl implements EntityService {
         if (!entityFileRelationService.checkSize(kgName, multiModalReq.getEntityId())) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
         }
-
+/*
         DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(multiModalReq);
         if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
             // 创建实体文件关联
@@ -159,7 +153,9 @@ public class EntityServiceImpl implements EntityService {
         multiModal.setEntityId(multiModalReq.getEntityId());
         sendMsg(kgName, multiModal, GraphLogOperation.ADD);
         logSender.remove();
-        return ConvertUtils.convert(MultiModalRsp.class).apply(fileTable);
+        return ConvertUtils.convert(MultiModalRsp.class).apply(fileTable);*/
+
+        return null;
     }
 
     private void sendMsg(String kgName, MultiModal multiModal, GraphLogOperation operation) {
@@ -212,15 +208,15 @@ public class EntityServiceImpl implements EntityService {
                 entityFileRelationReq.setIndexType(0);
                 entityFileRelationService.createRelation(kgName, entityFileRelationReq);
             } else if (multiModalReq.getDataBaseId() != null && multiModalReq.getTableId() != null) {
-                // 创建数仓文件记录
-                DWFileTableReq dwFileTableReq = ConvertUtils.convert(DWFileTableReq.class).apply(multiModalReq);
-                dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
-                DWFileTable dwFileTable = tableDataService.fileAdd(dwFileTableReq);
+//                // 创建数仓文件记录
+//                DWFileTableReq dwFileTableReq = ConvertUtils.convert(DWFileTableReq.class).apply(multiModalReq);
+//                dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
+//                DWFileTable dwFileTable = tableDataService.fileAdd(dwFileTableReq);
                 // 创建实体文件关联
-                EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
-                entityFileRelationReq.setDwFileId(dwFileTable.getId());
-                entityFileRelationReq.setIndexType(0);
-                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+//                EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
+//                entityFileRelationReq.setDwFileId(dwFileTable.getId());
+//                entityFileRelationReq.setIndexType(0);
+//                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
             }
         }
 

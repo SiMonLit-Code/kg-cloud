@@ -1,24 +1,16 @@
 package com.plantdata.kgcloud.domain.dataset.provider;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.mongodb.*;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
 import com.plantdata.kgcloud.constant.CommonConstants;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.common.util.PatternUtils;
 import com.plantdata.kgcloud.domain.dataset.constant.DataConst;
-import com.plantdata.kgcloud.sdk.constant.DataStoreSearchEnum;
-import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
-import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.constant.AggregateEnum;
-import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.DataSetSchema;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -30,7 +22,6 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -170,74 +161,6 @@ public class MongodbOptProvider implements DataOptProvider {
             BasicConverter.consumerIfNoNull(dataMap, list::add);
         });
         return list;
-    }
-
-    @Override
-    public List<Map<String, Object>> aggregateStatistics(Map<String, Object> filterMap, Map<String, DwTableDataStatisticReq.GroupReq> groupMap,
-                                                         Map<SortTypeEnum, List<String>> sortMap) {
-
-        List<Bson> operations = new ArrayList<>();
-        //前置筛选
-        BasicConverter.consumerIfNoNull(filterMap, a -> {
-            a.forEach((k, v) -> {
-                if (v instanceof Map) {
-                    Map<String, Object> valMap = (Map<String, Object>) v;
-                    Object like = valMap.get(DataStoreSearchEnum.LIKE.getName());
-                    Object noLike = valMap.get(DataStoreSearchEnum.NOL_LIKE.getName());
-                    if (noLike != null) {
-                        a.put(k, PatternUtils.getNoLikeStr(noLike.toString()));
-                    }
-                    if (like != null) {
-                        a.put(k, PatternUtils.getLikeStr(like.toString()));
-                    }
-                }
-            });
-            operations.add(Aggregates.match(new BasicDBObject(a)));
-        });
-        //group
-        BasicConverter.consumerIfNoNull(groupMap, a -> {
-            BasicDBObject basicDBObject = new BasicDBObject();
-            List<BsonField> bsonFields = new ArrayList<>();
-            groupMap.forEach((k, v) -> {
-
-                if (AggregateEnum.COUNT == v.getAggregateType()) {
-                    bsonFields.add(new BsonField(k, new BasicDBObject("$sum", 1)));
-                } else if (AggregateEnum.SUM == v.getAggregateType()) {
-                    bsonFields.add(new BsonField(k, new BasicDBObject("$sum", "$" + v.getJsonPath())));
-                } else if (AggregateEnum.SHOW == v.getAggregateType()) {
-                    basicDBObject.append(k, "$" + v.getJsonPath());
-                } else {
-                    throw BizException.of(KgmsErrorCodeEnum.DATA_STORE_STATISTIC_TYPE_ERROR);
-                }
-            });
-            operations.add(Aggregates.group(basicDBObject, bsonFields));
-        });
-        //排序
-        BasicConverter.consumerIfNoNull(sortMap, a -> {
-            Bson[] bsonArray = sortMap.entrySet().stream().map(entry -> {
-                if (entry.getKey() == SortTypeEnum.ASC) {
-                    return Sorts.ascending(entry.getValue());
-                }
-                return Sorts.descending(entry.getValue());
-            }).toArray(b -> new Bson[a.size()]);
-            operations.add(Aggregates.sort(Sorts.orderBy(bsonArray)));
-        });
-        operations.forEach(a -> System.err.println(a.toString()));
-        //执行
-        AggregateIterable<Document> aggregate = getCollection().aggregate(operations);
-        List<Map<String, Object>> resList = new ArrayList<>();
-        aggregate.iterator().forEachRemaining(a -> {
-            Map<String, Object> objectMap = Maps.newHashMap();
-            a.forEach((k, v) -> {
-                if (k.equals("_id")) {
-                    objectMap.putAll((Map<String, String>) a.get("_id"));
-                } else {
-                    objectMap.put(k, v);
-                }
-            });
-            resList.add(objectMap);
-        });
-        return resList;
     }
 
 

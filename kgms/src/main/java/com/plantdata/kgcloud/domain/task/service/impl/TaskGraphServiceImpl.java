@@ -5,10 +5,6 @@ import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.sdk.constant.DataType;
-import com.plantdata.kgcloud.domain.dataset.entity.DataSet;
-import com.plantdata.kgcloud.domain.dataset.repository.DataSetRepository;
-import com.plantdata.kgcloud.domain.dataset.service.DataSetService;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphSearch;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphSnapshot;
 import com.plantdata.kgcloud.domain.task.entity.TaskTemplate;
@@ -53,11 +49,7 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     @Autowired
     private XxlAdminClient xxlAdminClient;
     @Autowired
-    private DataSetService dataSetService;
-    @Autowired
     private TaskGraphSearchRepository searchRepository;
-    @Autowired
-    private DataSetRepository dataSetRepository;
 
     @Override
     public Page<TaskGraphSnapshotRsp> snapshotList(TaskGraphSnapshotReq req) {
@@ -157,19 +149,6 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     @Override
     public void closeSearch(String kgName) {
 
-        String userId = SessionHolder.getUserId();
-        Optional<TaskGraphSearch> optional = searchRepository.findById(kgName);
-        if (optional.isPresent()) {
-            TaskGraphSearch confSearch = optional.get();
-            xxlAdminClient.taskUnschedule(userId, confSearch.getTaskId());
-            xxlAdminClient.taskDelete(userId, confSearch.getTaskId());
-            searchRepository.deleteById(kgName);
-            String dataName = "pinyin_" + kgName;
-            List<DataSet> ls = dataSetRepository.findByDataTypeAndDataName(DataType.ELASTIC, dataName);
-            ls.forEach(s -> {
-                dataSetService.delete(userId, s.getId());
-            });
-        }
     }
 
     @Override

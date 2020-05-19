@@ -19,7 +19,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.relation.RuleRelationGraphPar
 import com.plantdata.kgcloud.plantdata.req.explore.relation.TimeRelationGraphParameter;
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReqList;

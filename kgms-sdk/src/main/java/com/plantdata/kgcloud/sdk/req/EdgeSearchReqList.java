@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.sdk.req;
 
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefListKeyReqInterface;
 import com.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import io.swagger.annotations.ApiModel;
