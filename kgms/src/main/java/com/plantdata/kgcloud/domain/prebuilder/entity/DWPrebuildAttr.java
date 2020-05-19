@@ -19,7 +19,7 @@ import java.util.List;
 @Data
 @Entity
 @Builder
-@Table(name = "dw_prebuild_attr")
+@Table(name = "prebuild_attr")
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamicInsert

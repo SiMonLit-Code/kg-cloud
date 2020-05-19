@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 @Entity
 @Builder
-@Table(name = "dw_prebuild_concept")
+@Table(name = "prebuild_concept")
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamicInsert
