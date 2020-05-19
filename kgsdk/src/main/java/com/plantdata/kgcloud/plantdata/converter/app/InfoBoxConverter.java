@@ -40,7 +40,6 @@ public class InfoBoxConverter extends BasicConverter {
         InfoBoxReq infoBoxReq = new InfoBoxReq();
         infoBoxReq.setAllowAttrs(infoBoxParam.getAllowAtts());
         infoBoxReq.setId(infoBoxParam.getId());
-        infoBoxReq.setKw(infoBoxParam.getKw());
         infoBoxReq.setRelationAttrs(infoBoxParam.isRelationAtts());
         infoBoxReq.setAllowAttrsKey(infoBoxParam.getAllowAttsKey());
         return infoBoxReq;
@@ -52,7 +51,6 @@ public class InfoBoxConverter extends BasicConverter {
         infoBoxReq.setAllowAttrsKey(parameterMore.getAllowAttsKey());
         infoBoxReq.setRelationAttrs(parameterMore.isRelationAtts());
         infoBoxReq.setIds(parameterMore.getIds());
-        infoBoxReq.setKws(parameterMore.getKws());
         return infoBoxReq;
     }
 

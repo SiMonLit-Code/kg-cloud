@@ -19,10 +19,9 @@ import java.util.List;
 @Getter
 @Setter
 public class BatchInfoBoxReqList implements AttrDefListKeyReqInterface {
-    @ApiModelProperty("实体id、概念id")
+    @ApiModelProperty(value = "实体id、概念id", required = true)
+    @NotNull
     private List<Long> ids;
-    @ApiModelProperty("实体名称,当id为空时生效")
-    private List<String> kws;
     @ApiModelProperty(value = "是否读取对象属性,默认false")
     @ChooseCheck(value = "[true,false]", type = String.class, name = "relationAttrs", isBlank = true)
     private Boolean relationAttrs = false;

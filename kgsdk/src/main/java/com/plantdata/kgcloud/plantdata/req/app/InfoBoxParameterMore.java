@@ -16,7 +16,6 @@ public class InfoBoxParameterMore {
     @NotNull
     private String kgName;
     private List<Long> ids;
-    private List<String> kws;
     private boolean relationAtts;
     private List<Integer> allowAtts;
     private List<String> allowAttsKey;

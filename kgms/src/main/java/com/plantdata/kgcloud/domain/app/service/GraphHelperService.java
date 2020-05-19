@@ -5,7 +5,6 @@ import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.*;
-import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 
@@ -54,8 +53,6 @@ public interface GraphHelperService {
     void replaceByAttrKey(String kgName, AttrDefListKeyReqInterface attrDefKeyReq);
 
     void replaceByAttrKey(String kgName, AttrDefKeyReqInterface attrDefKeyReq,boolean requireAny);
-
-    void replaceKwToId(String kgName, BatchInfoBoxReqList req);
 
     Map<Long, BasicInfo> getConceptIdMap(String kgName);
 
