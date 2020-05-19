@@ -367,16 +367,4 @@ public interface KgmsClient {
     @PutMapping("/config/reason/{id}")
     ApiReturn<GraphConfReasonRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasonReq req);
 
-
-    /**
-     * 模型调用
-     *
-     * @param id  id
-     * @param req req
-     * @return .
-     */
-    @PostMapping("model/call/{id}")
-    ApiReturn callJson(@PathVariable("id") Long id, @RequestBody KgmsCallReq req);
-
-
 }

@@ -5,10 +5,7 @@ import ai.plantdata.kg.api.pub.req.PromptListFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.PromptItemVO;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
-import com.plantdata.kgcloud.domain.app.util.EsUtils;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.PromptResultTypeEnum;
@@ -16,15 +13,11 @@ import com.plantdata.kgcloud.sdk.constant.SortTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.BeanUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,55 +57,7 @@ public class PromptConverter extends BasicConverter {
         return from;
     }
 
-    public static Map<String, Object> buildEsParam(PromptSearchInterface promptReq) {
-        String concept;
-        if (promptReq.getInherit()) {
-            concept = "concept_list";
-        } else {
-            concept = "concept_id";
-        }
-        String filter = "";
-        List<Long> allowTypes = promptReq.getConceptIds();
-        if (allowTypes != null && !allowTypes.isEmpty()) {
-            filter = ",\"filter\":{\"terms\":{\"" + concept + "\":" + JacksonUtils.writeValueAsString(allowTypes) + "}}";
-        }
 
-        String query;
-        if (EsUtils.isChinese(promptReq.getKw())) {
-            query = "{\"bool\":{\"must\":{\"term\":{\"name\":\"" + promptReq.getKw() + "\"}}" + filter + "}}";
-        } else {
-            query = "{\"bool\":{\"must\":{\"prefix\":{\"name.pinyin\":\"" + promptReq.getKw() + "\"}}" + filter + "}}";
-        }
-        Map<String, Object> queryMap = JacksonUtils.readValue(query, new TypeReference<Map<String, Object>>() {
-        });
-        return DefaultUtils.oneElMap("query", queryMap);
-    }
-
-    public static PromptEntityRsp esResultToEntity(@NotNull Map<String, Object> map) {
-
-        PromptEntityRsp entityBean = new PromptEntityRsp();
-        Object conceptId = map.get("concept_id");
-        consumerIfNoNull(conceptId, a -> {
-            try {
-                entityBean.setConceptId(Long.parseLong(conceptId.toString()));
-            } catch (Exception e) {
-                List<Long> conceptIds = JacksonUtils.readValue(conceptId.toString(), new TypeReference<List<Long>>() {
-                });
-                consumerIfNoNull(conceptIds, b -> entityBean.setConceptId(b.get(0)));
-            }
-        });
-        DefaultUtils.ifPresent(a -> entityBean.setId(Long.parseLong(map.get("entity_id").toString())), map.get("entity_id"));
-        DefaultUtils.ifPresent(a -> entityBean.setName(map.get("name").toString()), map.get("name"));
-        DefaultUtils.ifPresent(a -> entityBean.setName(map.get("meaning_tag").toString()), map.get("meaning_tag"));
-        DefaultUtils.ifPresent(a -> entityBean.setName(map.get("score").toString()), map.get("score"));
-        return entityBean;
-    }
-
-    public static SeniorPromptRsp seniorPromptRspToPromptEntityRsp(@NonNull PromptEntityRsp promptEntityRsp) {
-        SeniorPromptRsp promptRsp = new SeniorPromptRsp();
-        BeanUtils.copyProperties(promptEntityRsp, promptRsp);
-        return promptRsp;
-    }
 
     public static PromptEntityRsp promptItemVoToPromptEntityRsp(@NonNull PromptItemVO item) {
         PromptEntityRsp entityRsp = new PromptEntityRsp();

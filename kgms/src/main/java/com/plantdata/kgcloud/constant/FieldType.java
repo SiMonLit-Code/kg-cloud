@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.dataset.constant;
+package com.plantdata.kgcloud.constant;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;

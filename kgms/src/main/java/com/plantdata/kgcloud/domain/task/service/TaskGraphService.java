@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.task.service;
 
 import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotReq;
 import com.plantdata.kgcloud.domain.task.rsp.TaskGraphSnapshotRsp;
-import com.plantdata.kgcloud.domain.task.rsp.TaskTemplateRsp;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -27,17 +26,6 @@ public interface TaskGraphService {
      */
     void snapshotDelete(Long id);
 
-
-    List<TaskTemplateRsp> taskTemplateList();
-
-
-    Integer searchStatus(String kgName);
-
-    Integer openSearch(String kgName);
-
-    void closeSearch(String kgName);
-
-    void flushSearch(String kgName);
 
     List<Map<String,Object>> nameConversion(List<Map<String,Object>> maps);
 }

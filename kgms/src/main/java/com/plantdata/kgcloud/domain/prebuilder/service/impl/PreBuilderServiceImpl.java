@@ -11,7 +11,10 @@ import com.plantdata.kgcloud.constant.DataTypeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphEditService;
-import com.plantdata.kgcloud.domain.dataset.constant.FieldType;
+import com.plantdata.kgcloud.constant.FieldType;
+import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
+import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
+import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.prebuilder.entity.DWPrebuildAttr;
 import com.plantdata.kgcloud.domain.prebuilder.entity.DWPrebuildConcept;
 import com.plantdata.kgcloud.domain.prebuilder.entity.DWPrebuildModel;
@@ -25,17 +28,15 @@ import com.plantdata.kgcloud.domain.prebuilder.req.*;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.*;
 import com.plantdata.kgcloud.domain.prebuilder.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.prebuilder.util.SortUtil;
-import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
-import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
-import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
-import com.plantdata.kgcloud.sdk.req.*;
+import com.plantdata.kgcloud.sdk.req.DataSetSchema;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
-import com.plantdata.kgcloud.sdk.rsp.*;
+import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
+import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
@@ -1023,125 +1024,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     }
 
-    private List<DataMapReq> quote2DataMap(List<SchemaQuoteReq> mapConfig) {
 
-        if (mapConfig == null || mapConfig.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<DataMapReq> dataMapReqList = new ArrayList<>();
-        for (SchemaQuoteReq schemaQuoteReq : mapConfig) {
-
-            DataMapReq dataMapReq = new DataMapReq();
-            dataMapReq.setEntityName(schemaQuoteReq.getEntityName());
-            dataMapReq.setConceptId(schemaQuoteReq.getConceptId());
-            dataMapReq.setConceptName(schemaQuoteReq.getConceptName());
-
-            if (schemaQuoteReq.getAttrs() != null && !schemaQuoteReq.getAttrs().isEmpty()) {
-
-
-                List<AttributesMapReq> attributes = new ArrayList<>();
-                List<RelationsMapReq> relations = new ArrayList<>();
-
-                for (SchemaQuoteAttrReq attrReq : schemaQuoteReq.getAttrs()) {
-
-                    if (attrReq.getAttrType().equals(0)) {
-                        //数值
-                        AttributesMapReq attr = new AttributesMapReq();
-                        attr.setAttrName(attrReq.getAttrName());
-                        attr.setKgAttrId(attrReq.getAttrId());
-                        attr.setKgAttrName(attrReq.getAttrName());
-
-                        attributes.add(attr);
-                    } else {
-                        //对象
-
-                        RelationsMapReq rela = new RelationsMapReq();
-                        rela.setRelationName(attrReq.getAttrName());
-                        rela.setKgRelationId(attrReq.getAttrId());
-                        rela.setKgRelationName(attrReq.getAttrName());
-
-
-                        List<SchemaQuoteRelationAttrReq> relationAttrReqs = attrReq.getRelationAttrs();
-
-                        if (relationAttrReqs != null) {
-
-                            List<AttributesMapReq> relationAttrs = new ArrayList<>();
-
-                            for (SchemaQuoteRelationAttrReq relationAttrReq : relationAttrReqs) {
-
-                                if(relationAttrReq.getAttrId() == null){
-                                    continue;
-                                }
-                                AttributesMapReq attr = new AttributesMapReq();
-                                attr.setAttrName(relationAttrReq.getName());
-                                attr.setKgAttrId(relationAttrReq.getAttrId());
-                                attr.setKgAttrName(relationAttrReq.getName());
-                                relationAttrs.add(attr);
-                            }
-
-                            rela.setAttributes(relationAttrs);
-
-                        }
-
-
-                        relations.add(rela);
-
-
-                    }
-
-                }
-
-                dataMapReq.setAttributes(attributes);
-                dataMapReq.setRelations(relations);
-
-            }
-
-            dataMapReqList.add(dataMapReq);
-        }
-
-        return dataMapReqList;
-    }
-
-    private void megerSchemaQuote(List<SchemaQuoteReq> targetList, List<SchemaQuoteReq> sourceList) {
-        if (targetList == null) {
-            targetList = new ArrayList<>();
-        }
-
-        if (targetList.isEmpty()) {
-            targetList.addAll(sourceList);
-        } else {
-
-            //合并
-            Map<String, SchemaQuoteReq> targetMap = new HashMap<>();
-            for (SchemaQuoteReq schemaQuoteReq : targetList) {
-
-                String key = schemaQuoteReq.getModelId() + schemaQuoteReq.getEntityName() + schemaQuoteReq.getConceptId();
-                targetMap.put(key, schemaQuoteReq);
-            }
-
-            for (SchemaQuoteReq schemaQuoteReq : sourceList) {
-                String key = schemaQuoteReq.getModelId() + schemaQuoteReq.getEntityName() + schemaQuoteReq.getConceptId();
-
-
-                //已经添加过概念，在原来的基础上新增新属性
-                if (targetMap.containsKey(key)) {
-
-                    if (schemaQuoteReq.getAttrs() != null) {
-                        SchemaQuoteReq tarQuote = targetMap.get(key);
-                        List<SchemaQuoteAttrReq> attrs = tarQuote.getAttrs() == null ? new ArrayList<>() : tarQuote.getAttrs();
-
-                        attrs.addAll(schemaQuoteReq.getAttrs());
-                    }
-                } else {
-
-                    //新映射的概念 直接添加
-                    targetList.add(schemaQuoteReq);
-                }
-            }
-
-        }
-    }
 
     private List<SchemaQuoteReq> importToGraph(String kgName, List<SchemaQuoteReq> quoteConfigs) {
 

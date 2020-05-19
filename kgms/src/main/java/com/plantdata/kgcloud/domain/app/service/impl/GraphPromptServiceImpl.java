@@ -14,39 +14,28 @@ import ai.plantdata.kg.support.SegmentWordVO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.PromptQaTypeEnum;
-import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
-import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
-import com.plantdata.kgcloud.domain.app.converter.PromptConverter;
-import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
+import com.plantdata.kgcloud.domain.app.converter.*;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
-import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
-import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
-import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfQaService;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.sdk.constant.EdgeAttrPromptDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,8 +63,6 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     private QuestionAnswersApi questionAnswersApi;
     @Autowired
     private GraphConfQaService graphConfQaService;
-    @Autowired
-    private EsProperties esProperties;
     @Autowired
     private GraphApi graphApi;
     @Autowired

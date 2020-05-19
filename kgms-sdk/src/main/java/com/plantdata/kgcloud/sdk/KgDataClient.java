@@ -24,17 +24,6 @@ import java.util.Map;
 @FeignClient(value = "kgms", path = "kgdata", contextId = "kgDataClient")
 public interface KgDataClient {
 
-    /**
-     * 第三方模型抽取
-     *
-     * @param modelId 模型id
-     * @param input   。
-     * @param config  配置
-     * @return 。
-     */
-    @PostMapping("extract/thirdModel/{modelId}")
-    ApiReturn<Object> extractThirdModel(@PathVariable("modelId") Long modelId,
-                                        @RequestParam("input") String input, @RequestParam("config") String config);
 
     /**
      * 查询实体的关系度数
