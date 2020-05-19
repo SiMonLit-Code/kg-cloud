@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.converter;
 import ai.plantdata.kg.api.edit.req.BatchQueryRelationFrom;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.pub.req.AggRelationFrom;
+import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
 import ai.plantdata.kg.api.pub.resp.GisRelationVO;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -86,6 +87,14 @@ public class RelationConverter extends BasicConverter {
             from.setSortDirection(SortTypeEnum.ASC.getValue());
         }
         return from;
+    }
+
+    public static FilterRelationFrom buildEntityIdsQuery(List<Long> entityIds) {
+        FilterRelationFrom relationFrom = new FilterRelationFrom();
+        relationFrom.setEntityIds(entityIds);
+        relationFrom.setSkip(0);
+        relationFrom.setLimit(10);
+        return relationFrom;
     }
 
 
