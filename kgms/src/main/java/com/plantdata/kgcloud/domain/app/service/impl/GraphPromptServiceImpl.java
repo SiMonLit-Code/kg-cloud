@@ -88,13 +88,13 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         if (PromptQaTypeEnum.BEFORE.equals(qaType)) {
             return queryAnswer(kgName, promptReq);
         }
-        if (promptReq.getOpenExportDate()) {
+     /*   if (promptReq.getOpenExportDate()) {
             //执行es搜索
             List<PromptEntityRsp> entityRspList = queryFromEs(kgName, promptReq);
             if (!CollectionUtils.isEmpty(entityRspList)) {
                 return entityRspList;
             }
-        }
+        }*/
         Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq)));
 
         List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
@@ -110,12 +110,12 @@ public class GraphPromptServiceImpl implements GraphPromptService {
 
     @Override
     public List<SeniorPromptRsp> seniorPrompt(String kgName, SeniorPromptReq seniorPromptReq) {
-        if (seniorPromptReq.getOpenExportDate() && !StringUtils.isEmpty(seniorPromptReq.getKw())) {
+      /*  if (seniorPromptReq.getOpenExportDate() && !StringUtils.isEmpty(seniorPromptReq.getKw())) {
             List<PromptEntityRsp> entityRspList = queryFromEs(kgName, seniorPromptReq);
             if (!CollectionUtils.isEmpty(entityRspList)) {
                 return BasicConverter.listConvert(entityRspList, PromptConverter::seniorPromptRspToPromptEntityRsp);
             }
-        }
+        }*/
         Set<Long> entityIds = queryEntityIdsByAttr(kgName, seniorPromptReq);
         Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIds,true)));
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
@@ -150,30 +150,6 @@ public class GraphPromptServiceImpl implements GraphPromptService {
             return Collections.emptyList();
         }
         return RelationConverter.mapToEdgeAttributeRsp(aggOpt.get());
-    }
-
-    private List<PromptEntityRsp> queryFromEs(String kgName, PromptSearchInterface promptReq) {
-        DataOptConnect connect = DataOptConnect.builder()
-                .addresses(esProperties.getAddrs())
-                .database(kgName)
-                .build();
-        List<Map<String, Object>> maps = null;
-        try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, DataType.ELASTIC)) {
-            Map<String, Object> objectMap = PromptConverter.buildEsParam(promptReq);
-            maps = provider.find(promptReq.getOffset(), promptReq.getLimit(), objectMap);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("promptReq:{}", JacksonUtils.writeValueAsString(promptReq));
-        }
-        if (CollectionUtils.isEmpty(maps)) {
-            return Collections.emptyList();
-        }
-        List<PromptEntityRsp> promptEntityRspList = BasicConverter.listToRsp(maps, PromptConverter::esResultToEntity);
-        BasicConverter.consumerIfNoNull(promptEntityRspList, a -> {
-            Set<Long> idSet = Sets.newHashSet();
-            a.removeIf(b -> !idSet.add(b.getId()));
-        });
-        return promptEntityRspList;
     }
 
     private List<PromptEntityRsp> queryAnswer(String kgName, PromptReq promptReq) {
