@@ -285,8 +285,8 @@ public class DWController implements DWStatisticInterface {
         return dwClient.findTableAll(databaseId);
     }
 
-    @ApiOperation("搜索-数仓数据-分页条件查询")
-    @PostMapping("/table/data/columnListSearch/{databaseId}/{tableId}")
+    @ApiOperation("搜索-数仓数据-schema查询")
+    @PostMapping("/table/data/schema/{databaseId}/{tableId}")
     public ApiReturn<Map<String, Object>> getData2(
             @PathVariable("tableId") Long tableId,
             @PathVariable("databaseId") Long databaseId,

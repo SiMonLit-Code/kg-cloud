@@ -58,8 +58,8 @@ public class TableDataController {
         return ApiReturn.success(tableDataService.getData(userId, databaseId, tableId, baseReq));
     }
 
-    @ApiOperation("搜索-数仓数据-分页条件查询")
-    @PostMapping("/columnListSearch/{databaseId}/{tableId}")
+    @ApiOperation("搜索-数仓数据-schema查询")
+    @PostMapping("/schema/{databaseId}/{tableId}")
     public ApiReturn<Map<String, Object>> getDataSearch(
             @PathVariable("tableId") Long tableId,
             @PathVariable("databaseId") Long databaseId,

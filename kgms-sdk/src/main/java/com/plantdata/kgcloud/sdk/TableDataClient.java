@@ -49,7 +49,7 @@ public interface TableDataClient {
      * @param
      * @return .
      */
-    @PostMapping("columnListSearch/{databaseId}/{tableId}")
+    @PostMapping("schema/{databaseId}/{tableId}")
     ApiReturn<Map<String, Object>> getData2(
             @PathVariable("tableId") Long tableId,
             @PathVariable("databaseId") Long databaseId,
