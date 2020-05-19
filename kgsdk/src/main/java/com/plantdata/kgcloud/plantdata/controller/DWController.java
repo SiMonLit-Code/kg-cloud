@@ -285,7 +285,7 @@ public class DWController implements DWStatisticInterface {
         return dwClient.findTableAll(databaseId);
     }
 
-    @ApiOperation("搜索-数仓数据-schema查询")
+    @ApiOperation(value ="搜索-数仓数据-schema查询",notes = "schema查询")
     @PostMapping("/table/data/schema/{databaseId}/{tableId}")
     public ApiReturn<Map<String, Object>> getData2(
             @PathVariable("tableId") Long tableId,
@@ -294,7 +294,7 @@ public class DWController implements DWStatisticInterface {
         return tableDataClient.getData2(tableId, databaseId, baseReq);
     }
 
-    @ApiOperation("搜索-数仓-设置表调度开关")
+    @ApiOperation(value ="搜索-数仓-设置表调度开关",notes = "设置表调度开关")
     @PostMapping("/set/kgsearch/scheduling")
     public ApiReturn setKgsearchScheduling(@Valid @RequestBody DWTableSchedulingReq req) {
         return dwClient.setKgsearchScheduling(req);

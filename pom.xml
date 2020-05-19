@@ -235,38 +235,4 @@
         <developerConnection>scm:git:ssh://git@192.168.4.1:4422/kgcloud/kg-cloud-kgms.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
-    <profiles>
-        <profile>
-            <id>user-release</id>
-            <repositories>
-                <repository>
-                    <id>user-release</id>
-                    <url>http://192.168.4.2:8081/repository/maven-public/</url>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                        <updatePolicy>always</updatePolicy>
-                    </snapshots>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>user-release</id>
-                    <url>http://192.168.4.2:8081/repository/maven-public/</url>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                        <updatePolicy>always</updatePolicy>
-                    </snapshots>
-                </pluginRepository>
-            </pluginRepositories>
-        </profile>
-    </profiles>
-    <activeProfiles>
-        <activeProfile>user-release</activeProfile>
-    </activeProfiles>
 </project>
