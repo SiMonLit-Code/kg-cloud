@@ -32,8 +32,9 @@ public class ConsulServiceChecker implements ServiceChecker {
                     if (res) {
                         log.error("serverName:{}", a.getContent());
                         //throw new BizException("插件实例未找到");
+                        return false;
                     }
-                    return res;
+                    return true;
                 });
     }
 }

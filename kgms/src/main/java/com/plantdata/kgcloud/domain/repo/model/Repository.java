@@ -36,8 +36,8 @@ public class Repository {
     /**
      * 组件分组名称前端定义
      */
-    @Column(name = "group")
-    private int group;
+    @Column(name = "group_id")
+    private int groupId;
     /**
      * 启停状态
      */

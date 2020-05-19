@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.repo.converter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
-import com.plantdata.kgcloud.domain.common.converter.ObjectJsonConverter;
 import com.plantdata.kgcloud.domain.repo.model.RepoCheckConfig;
 import com.plantdata.kgcloud.util.JacksonUtils;
 

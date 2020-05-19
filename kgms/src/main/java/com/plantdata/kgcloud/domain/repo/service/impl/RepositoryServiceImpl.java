@@ -42,7 +42,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         //填充组件状态
         Function<Repository, Boolean> health = b -> ServiceCheckerFactory.factory(b.getCheckConfigs()).stream().allMatch(ServiceChecker::check);
         Map<Integer, Boolean> stateMap = all.stream().collect(Collectors.toMap(Repository::getId, health));
-        BasicConverter.listConsumerIfNoNull(repositoryRspList, a -> a.setState(stateMap.get(a.getId())));
+        BasicConverter.listConsumerIfNoNull(repositoryRspList, a -> a.setEnable(stateMap.get(a.getId())));
         //检测是否为最新
         List<RepositoryUseLog> useLogs = repositoryUseLogRepository.findAllByUserIdAndRepositoryIdIn(userId, stateMap.keySet());
         BasicConverter.consumerIfNoNull(useLogs, a -> {

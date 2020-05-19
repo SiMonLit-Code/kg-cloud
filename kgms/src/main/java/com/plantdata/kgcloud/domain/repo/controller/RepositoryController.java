@@ -2,8 +2,12 @@ package com.plantdata.kgcloud.domain.repo.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.repo.constatn.StringConstants;
+import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
+import com.plantdata.kgcloud.domain.repo.model.RepositoryGroup;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
+import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryListRsp;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
+import com.plantdata.kgcloud.domain.repo.repository.RepositoryGroupRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
@@ -22,16 +26,20 @@ public class RepositoryController {
 
     @Autowired
     private RepositoryService repositoryService;
+    @Autowired
+    private RepositoryGroupRepository repositoryGroupRepository;
 
     @ApiOperation("组件列表")
     @GetMapping
-    public ApiReturn<List<RepositoryRsp>> repositoryRsp() {
-        return ApiReturn.success(repositoryService.list(SessionHolder.getUserId()));
+    public ApiReturn<RepositoryListRsp> repositoryRsp() {
+        List<RepositoryRsp> list = repositoryService.list(SessionHolder.getUserId());
+        List<RepositoryGroup> allGroups = repositoryGroupRepository.findAll();
+        return ApiReturn.success(RepositoryConverter.buildRepositoryList(list, allGroups));
     }
 
     @ApiOperation("组件新增")
     @PostMapping
-    public  ApiReturn<Integer> add(@RequestBody  RepositoryReq repositoryReq){
+    public ApiReturn<Integer> add(@RequestBody RepositoryReq repositoryReq) {
         return ApiReturn.success(repositoryService.add(repositoryReq));
     }
 

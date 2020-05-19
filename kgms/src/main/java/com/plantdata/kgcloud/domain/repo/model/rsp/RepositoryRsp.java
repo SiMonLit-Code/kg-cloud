@@ -20,7 +20,7 @@ public class RepositoryRsp {
     @ApiModelProperty("组件名称")
     private String name;
     @ApiModelProperty("组件分组名称前端定义")
-    private int group;
+    private int groupId;
     @ApiModelProperty("可操作状态")
     private boolean enable;
     @ApiModelProperty("启停状态")
@@ -34,5 +34,5 @@ public class RepositoryRsp {
     @ApiModelProperty("前端自定义配置")
     private Map<String, Object> config;
     @ApiModelProperty("是否为新功能")
-    private boolean newFunction;
+    private Boolean newFunction = true;
 }

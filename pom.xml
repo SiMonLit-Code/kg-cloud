@@ -19,6 +19,7 @@
         <module>kgsdk</module>
         <module>kgpreview</module>
         <module>repo-sdk</module>
+        <module>repo-sdk</module>
     </modules>
 
     <properties>
