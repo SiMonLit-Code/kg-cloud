@@ -50,6 +50,7 @@ public class InfoBoxConverter extends BasicConverter {
         detailFilter.setIds(boxReq.getIds());
         detailFilter.setReadObj(boxReq.getRelationAttrs());
         detailFilter.setReadReverseObj(boxReq.getReverseRelationAttrs());
+        log.info(JsonUtils.objToJson(boxReq));
         return detailFilter;
     }
 
