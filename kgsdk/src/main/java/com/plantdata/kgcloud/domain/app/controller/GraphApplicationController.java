@@ -11,7 +11,7 @@ import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;

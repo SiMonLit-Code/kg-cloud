@@ -20,7 +20,6 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.*;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
-import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
@@ -42,7 +41,7 @@ import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
@@ -109,8 +108,6 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private GraphHelperService graphHelperService;
     @Autowired
     private ConceptService conceptService;
-    @Autowired
-    private DataSetSearchService dataSetSearchService;
     @Autowired
     private BasicInfoService basicInfoService;
     @Autowired
@@ -238,8 +235,6 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (infoBoxRsp.getSelf() == null) {
             return null;
         }
-        List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(kgName, userId, infoBoxRsp.getSelf().getId());
-        infoBoxRsp.getSelf().setDataLinks(dataLinks);
         List<DictRsp> dictRspList = domainDictService.listDictByEntity(kgName, infoBoxReq.getId());
         infoBoxRsp.getSelf().setDictList(dictRspList);
         return infoBoxRsp;

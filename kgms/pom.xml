@@ -5,7 +5,7 @@
     <parent>
         <artifactId>kg-cloud-kgms</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.2.9-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -215,10 +215,6 @@
             <groupId>com.plantdata</groupId>
             <artifactId>kg-cloud-redis</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-elasticsearch</artifactId>
-        </dependency>
         <!-- ******************* parent end ****************** -->
 
 
@@ -232,17 +228,6 @@
             <artifactId>xxl-admin-sdk</artifactId>
         </dependency>
         <!-- ******************* public-sdk  end ****************** -->
-
-
-
-        <!-- ******************* kgtext-sdk  end ****************** -->
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kgtext-sdk</artifactId>
-        </dependency>
-        <!-- ******************* kgtext-sdk  end ****************** -->
-
-
 
         <!-- ******************* 底层sdk start ****************** -->
         <dependency>
@@ -295,7 +280,7 @@
         <dependency>
             <groupId>com.hiekn</groupId>
             <artifactId>kettleBean</artifactId>
-            <version>1.01</version>
+            <version>1.03</version>
         </dependency>
         <dependency>
             <groupId>com.github.junrar</groupId>
