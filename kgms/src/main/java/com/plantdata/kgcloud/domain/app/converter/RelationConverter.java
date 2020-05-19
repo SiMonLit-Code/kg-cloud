@@ -93,7 +93,7 @@ public class RelationConverter extends BasicConverter {
         FilterRelationFrom relationFrom = new FilterRelationFrom();
         relationFrom.setEntityIds(entityIds);
         relationFrom.setSkip(0);
-        relationFrom.setLimit(Integer.MAX_VALUE);
+        relationFrom.setLimit(10);
         return relationFrom;
     }
 
