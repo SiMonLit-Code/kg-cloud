@@ -287,7 +287,7 @@ public class DWController implements DWStatisticInterface {
 
     @ApiOperation("搜索-数仓数据-分页条件查询")
     @PostMapping("/table/data/columnListSearch/{databaseId}/{tableId}")
-    public ApiReturn<Map<String, Object>> getData(
+    public ApiReturn<Map<String, Object>> getData2(
             @PathVariable("tableId") Long tableId,
             @PathVariable("databaseId") Long databaseId,
             DataOptQueryReq baseReq) {
@@ -299,4 +299,20 @@ public class DWController implements DWStatisticInterface {
     public ApiReturn setKgsearchScheduling(@Valid @RequestBody DWTableSchedulingReq req) {
         return dwClient.setKgsearchScheduling(req);
     }
+
+    @ApiOperation(value = "数仓数据-分页条件查询", notes = "分页条件查询")
+    @PatchMapping("/list/{databaseId}/{tableId}")
+    public ApiReturn<Page<Map<String, Object>>> getData(
+            @PathVariable("tableId") Long tableId,
+            @PathVariable("databaseId") Long databaseId,
+            DataOptQueryReq baseReq) {
+        ApiReturn<List<Object>> apiReturn = tableDataClient.getDataForFeign(databaseId, tableId, baseReq);
+        if(apiReturn.getErrCode() != 200){
+            return ApiReturn.fail(apiReturn.getErrCode(),apiReturn.getMessage());
+        }
+        List<Object> arguments = apiReturn.getData();
+        PageRequest pageable = PageRequest.of((Integer)arguments.get(0), (Integer)arguments.get(1));
+        return ApiReturn.success(new PageImpl<>((List<Map<String, Object>>)arguments.get(2), pageable, Long.valueOf((String)arguments.get(3))));
+    }
+
 }

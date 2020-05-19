@@ -37,6 +37,7 @@ public interface TableDataClient {
      * @return
      */
     @ApiOperation("数仓数据-分页条件查询-feign专用")
+    @PatchMapping("/list/{databaseId}/{tableId}/feign")
     public ApiReturn<List<Object>> getDataForFeign(
             @PathVariable("databaseId") Long databaseId,
             @PathVariable("tableId") Long tableId,
