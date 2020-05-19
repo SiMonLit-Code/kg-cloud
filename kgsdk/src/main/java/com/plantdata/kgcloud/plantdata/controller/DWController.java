@@ -15,7 +15,12 @@ import com.plantdata.kgcloud.plantdata.presto.stat.bean.PdStatOrderBean;
 import com.plantdata.kgcloud.sdk.DWClient;
 import com.plantdata.kgcloud.sdk.TableDataClient;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
+import com.plantdata.kgcloud.sdk.TableDataClient;
+import com.plantdata.kgcloud.sdk.req.DWDatabaseQueryReq;
+import com.plantdata.kgcloud.sdk.req.DWTableSchedulingReq;
+import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.*;
+import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -23,12 +28,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import com.plantdata.kgcloud.plantdata.req.dw.SqlQueryReq;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -231,11 +238,11 @@ public class DWController implements DWStatisticInterface {
         return dwClient.findAll();
     }
 
-    @ApiOperation(value = "数仓-查找所有数据库与表", notes = "查找用户创建的所有数仓数据库与表")
-    @GetMapping("/databaseAndTable/list")
-    public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
-        return dwClient.databaseTableList();
-    }
+//    @ApiOperation(value = "数仓-查找所有数据库与表", notes = "查找用户创建的所有数仓数据库与表")
+//    @GetMapping("/databaseAndTable/list")
+//    public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
+//        return dwClient.databaseTableList();
+//    }
 
     public void escape(SqlQueryReq req){
         if(req != null && req.getQuery() != null){
@@ -266,6 +273,33 @@ public class DWController implements DWStatisticInterface {
         }
     }
 
+    @ApiOperation(value = "数仓-查找所有数据库与表", notes = "查找所有数据库与表")
+    @GetMapping("/database/table/list")
+    public ApiReturn<List<DWDatabaseRsp>> databaseTableList(){
+        return dwClient.databaseTableList();
+    }
+
+    @ApiOperation(value = "数仓-查询数据库表", notes = "查询数据库表")
+    @GetMapping("/{databaseId}/table/all")
+    public ApiReturn<List<DWTableRsp>> findTableAll(@PathVariable("databaseId") Long databaseId){
+        return dwClient.findTableAll(databaseId);
+    }
+
+    @ApiOperation(value ="搜索-数仓数据-schema查询",notes = "schema查询")
+    @PostMapping("/table/data/schema/{databaseId}/{tableId}")
+    public ApiReturn<Map<String, Object>> getData2(
+            @PathVariable("tableId") Long tableId,
+            @PathVariable("databaseId") Long databaseId,
+            DataOptQueryReq baseReq) {
+        return tableDataClient.getData2(tableId, databaseId, baseReq);
+    }
+
+    @ApiOperation(value ="搜索-数仓-设置表调度开关",notes = "设置表调度开关")
+    @PostMapping("/set/kgsearch/scheduling")
+    public ApiReturn setKgsearchScheduling(@Valid @RequestBody DWTableSchedulingReq req) {
+        return dwClient.setKgsearchScheduling(req);
+    }
+
     @ApiOperation(value = "数仓数据-分页条件查询", notes = "分页条件查询")
     @PatchMapping("/list/{databaseId}/{tableId}")
     public ApiReturn<Page<Map<String, Object>>> getData(
@@ -280,4 +314,5 @@ public class DWController implements DWStatisticInterface {
         PageRequest pageable = PageRequest.of((Integer)arguments.get(0), (Integer)arguments.get(1));
         return ApiReturn.success(new PageImpl<>((List<Map<String, Object>>)arguments.get(2), pageable, Long.valueOf((String)arguments.get(3))));
     }
+
 }

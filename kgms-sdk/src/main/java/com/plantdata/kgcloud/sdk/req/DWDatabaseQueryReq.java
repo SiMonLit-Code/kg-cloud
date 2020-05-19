@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.dw.req;
+package com.plantdata.kgcloud.sdk.req;
 
 import com.plantdata.kgcloud.bean.BaseReq;
 import io.swagger.annotations.ApiModel;

@@ -5,10 +5,7 @@ import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.dw.entity.DWTable;
 import com.plantdata.kgcloud.domain.dw.req.*;
 import com.plantdata.kgcloud.domain.dw.rsp.*;
-import com.plantdata.kgcloud.sdk.req.DWConnceReq;
-import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
-import com.plantdata.kgcloud.sdk.req.DWTableReq;
-import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.rsp.*;
 import com.plantdata.kgcloud.domain.dw.rsp.PreBuilderConceptRsp;
 import org.springframework.data.domain.Page;
@@ -56,6 +53,8 @@ public interface DWService {
     Integer push(String userId, ModelPushReq req);
 
     void setTableScheduling(String userId, DWTableSchedulingReq req);
+
+    void setSearchScheduling(String userId, DWTableSchedulingReq req);
 
     ModelSchemaConfigRsp getModel(String userId, Long id);
 

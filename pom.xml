@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.2.9-SNAPSHOT</version>
+    <version>3.2.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -21,8 +21,8 @@
     </modules>
 
     <properties>
-        <next-tag.version>3.2.8</next-tag.version>
-        <next-develop.version>3.2.9-SNAPSHOT</next-develop.version>
+        <next-tag.version>3.2.9</next-tag.version>
+        <next-develop.version>3.2.10-SNAPSHOT</next-develop.version>
         <kg-cloud-parent.version>3.1.5</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
         <kg-cloud-kguser.version>3.2.0-SNAPSHOT</kg-cloud-kguser.version>
@@ -152,6 +152,11 @@
                         <groupId>com.alibaba</groupId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.netflix.feign</groupId>
+                <artifactId>feign-httpclient</artifactId>
             </dependency>
         </dependencies>
     </dependencyManagement>
