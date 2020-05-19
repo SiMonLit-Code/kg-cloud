@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.repo.model;
 
+import com.plantdata.kgcloud.domain.repo.checker.service.ConsulService;
 import com.plantdata.kgcloud.domain.repo.enums.RepoCheckType;
 import com.plantdata.kgcloud.domain.repo.model.req.DealDTO;
-import lombok.Getter;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.util.List;

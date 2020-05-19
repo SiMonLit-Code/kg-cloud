@@ -201,6 +201,10 @@
         </dependency>
         <dependency>
             <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-swagger</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
             <artifactId>kg-cloud-oss</artifactId>
         </dependency>
         <dependency>
@@ -234,14 +238,12 @@
         <!-- ******************* public-sdk  end ****************** -->
 
 
-
         <!-- ******************* kgtext-sdk  end ****************** -->
         <dependency>
             <groupId>com.plantdata</groupId>
             <artifactId>kgtext-sdk</artifactId>
         </dependency>
         <!-- ******************* kgtext-sdk  end ****************** -->
-
 
 
         <!-- ******************* 底层sdk start ****************** -->
@@ -295,7 +297,7 @@
         <dependency>
             <groupId>com.hiekn</groupId>
             <artifactId>kettleBean</artifactId>
-            <version>1.01</version>
+            <version>1.03</version>
         </dependency>
         <dependency>
             <groupId>com.github.junrar</groupId>

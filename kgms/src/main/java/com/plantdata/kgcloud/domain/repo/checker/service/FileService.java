@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.repo.model;
+package com.plantdata.kgcloud.domain.repo.checker.service;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import java.util.List;
  * @author cjw
  * @date 2020/5/15  12:08
  */
-public interface FileService {
+public interface FileService extends Service {
 
     List<String> filePaths();
 }

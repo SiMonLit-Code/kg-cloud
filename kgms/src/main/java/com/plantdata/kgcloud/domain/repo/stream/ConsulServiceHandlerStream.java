@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.domain.repo.stream;
 
 import com.alibaba.excel.util.CollectionUtils;
 import com.plantdata.kgcloud.domain.repo.enums.HandleType;
-import com.plantdata.kgcloud.domain.repo.model.ConsulService;
+import com.plantdata.kgcloud.domain.repo.checker.service.ConsulService;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryHandler;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryRoot;
 import com.plantdata.kgcloud.domain.repo.model.req.DealDTO;

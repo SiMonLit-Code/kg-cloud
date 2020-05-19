@@ -1,14 +1,27 @@
 package com.plantdata.kgcloud.domain.repo.factory;
 
+import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
+import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
 import com.plantdata.kgcloud.domain.repo.checker.ConsulServiceChecker;
 import com.plantdata.kgcloud.domain.repo.checker.FileServiceChecker;
 import com.plantdata.kgcloud.domain.repo.checker.MongoServiceChecker;
 import com.plantdata.kgcloud.domain.repo.checker.ServiceChecker;
-import com.plantdata.kgcloud.domain.repo.model.ConsulService;
-import com.plantdata.kgcloud.domain.repo.model.FileService;
-import com.plantdata.kgcloud.domain.repo.model.MongoService;
+import com.plantdata.kgcloud.domain.repo.checker.service.ConsulService;
+import com.plantdata.kgcloud.domain.repo.checker.service.FileService;
+import com.plantdata.kgcloud.domain.repo.checker.service.MongoService;
+import com.plantdata.kgcloud.domain.repo.enums.RepoCheckType;
+import com.plantdata.kgcloud.domain.repo.model.RepoCheckConfig;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryRoot;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.util.SpringContextUtils;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -16,40 +29,39 @@ import com.plantdata.kgcloud.exception.BizException;
  */
 public class ServiceCheckerFactory {
 
-
-    private RepositoryRoot repositoryRoot;
-
-    public ServiceCheckerFactory(RepositoryRoot repositoryRoot) {
-        this.repositoryRoot = repositoryRoot;
-    }
-
-    public ServiceChecker factory() {
-        switch (repositoryRoot.checkType()) {
+    private static ServiceChecker match(RepoCheckType checkType, List<RepoCheckConfig> checkConfigs) {
+        switch (checkType) {
             case CONSUL:
-                return consulChecker();
+                return new ConsulServiceChecker(SpringContextUtils.getBean(DiscoveryClient.class), checkConfigs);
             case FILE:
-                return fileChecker();
+                return new FileServiceChecker(checkConfigs);
             case MONGO:
-                return mongoChecker();
+                return new MongoServiceChecker(null, null);
             default:
-                throw new BizException("组件类型错误");
+                throw new BizException("暂不支持;敬请期待");
         }
     }
 
-    private ConsulServiceChecker consulChecker() {
-        assert repositoryRoot instanceof ConsulService;
-        ConsulService manager = (ConsulService) this.repositoryRoot;
-        return new ConsulServiceChecker(manager.discoveryClient(), manager.handlers());
+
+    public static ServiceChecker match(RepoCheckType checkType,RepoCheckConfig checkConfig) {
+        switch (checkType) {
+            case CONSUL:
+                return new ConsulServiceChecker(SpringContextUtils.getBean(DiscoveryClient.class), Lists.newArrayList(checkConfig));
+            case FILE:
+                return new FileServiceChecker(Lists.newArrayList(checkConfig));
+            case MONGO:
+                return new MongoServiceChecker(null, null);
+            default:
+                throw new BizException("暂不支持;敬请期待");
+        }
+    }
+    public static List<ServiceChecker> factory(List<RepoCheckConfig> allConfigs) {
+        Map<RepoCheckType, List<RepoCheckConfig>> checkTypeListMap = allConfigs.stream()
+                .collect(Collectors.groupingBy(RepoCheckConfig::getCheckType));
+        return Arrays.stream(RepoCheckType.values())
+                .filter(checkTypeListMap::containsKey)
+                .map(a -> match(a, checkTypeListMap.get(a)))
+                .collect(Collectors.toList());
     }
 
-    private FileServiceChecker fileChecker() {
-        assert repositoryRoot instanceof FileService;
-        return new FileServiceChecker(((FileService) repositoryRoot).filePaths());
-    }
-
-    private MongoServiceChecker mongoChecker() {
-        assert repositoryRoot instanceof MongoService;
-        //todo
-        return new MongoServiceChecker(null, null);
-    }
 }

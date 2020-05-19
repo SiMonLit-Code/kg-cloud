@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.repo.service;
+package com.plantdata.kgcloud.domain.repo.service.impl;
 
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.repo.adapter.RequestAdapter;
@@ -6,14 +6,13 @@ import com.plantdata.kgcloud.domain.repo.enums.HandleType;
 import com.plantdata.kgcloud.domain.repo.model.D2rRepository;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryHandler;
 import com.plantdata.kgcloud.domain.repo.model.req.D2rReq;
-import com.plantdata.kgcloud.domain.repo.model.req.DealDTO;
 import com.plantdata.kgcloud.domain.repo.model.rsp.D2rRsp;
+import com.plantdata.kgcloud.domain.repo.service.ComponentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author cjw

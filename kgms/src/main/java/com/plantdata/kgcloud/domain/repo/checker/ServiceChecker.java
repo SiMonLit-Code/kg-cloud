@@ -12,5 +12,5 @@ public interface ServiceChecker {
     /**
      * 检测插件服务/数据库/模型文件是否存在
      */
-    void check();
+    boolean check();
 }

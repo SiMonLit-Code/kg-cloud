@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.checker;
 
+import com.plantdata.kgcloud.domain.repo.model.RepoCheckConfig;
 import com.plantdata.kgcloud.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,16 +17,19 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FileServiceChecker implements ServiceChecker {
 
-    private List<String> filePaths;
+    private List<RepoCheckConfig> checkConfigs;
 
-    public FileServiceChecker(List<String> filePaths) {
-        this.filePaths = filePaths;
+    public FileServiceChecker(List<RepoCheckConfig> checkConfigs) {
+        this.checkConfigs = checkConfigs;
     }
 
 
     @Override
     public void check() {
-        List<String> noExist = filePaths.stream().filter(a -> Files.notExists(Paths.get(a))).collect(Collectors.toList());
+        List<String> noExist = checkConfigs.stream()
+                .map(RepoCheckConfig::getContent)
+                .filter(a -> Files.notExists(Paths.get(a)))
+                .collect(Collectors.toList());
         if (noExist.size() > 0) {
             log.error("文件不存在:" + noExist.stream().reduce((a, b) -> a + "," + b).orElse(StringUtils.EMPTY));
             throw new BizException("文件不存在");

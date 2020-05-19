@@ -1,8 +1,7 @@
 package com.plantdata.kgcloud.domain.repo.checker;
 
-import com.plantdata.kgcloud.domain.repo.model.ConsulService;
+import com.plantdata.kgcloud.domain.repo.model.RepoCheckConfig;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryHandler;
-import com.plantdata.kgcloud.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -17,21 +16,24 @@ import java.util.List;
 public class ConsulServiceChecker implements ServiceChecker {
 
     public final DiscoveryClient discoveryClient;
-    private List<RepositoryHandler> handlers;
+    private final List<RepoCheckConfig> checkConfigs;
 
-    public ConsulServiceChecker(DiscoveryClient discoveryClient, List<RepositoryHandler> handlers) {
+    public ConsulServiceChecker(DiscoveryClient discoveryClient, List<RepoCheckConfig> checkConfigs) {
         this.discoveryClient = discoveryClient;
-        this.handlers = handlers;
+        this.checkConfigs = checkConfigs;
     }
 
     @Override
-    public void check() {
-        handlers.forEach(a -> {
-            List<ServiceInstance> instances = discoveryClient.getInstances(a.getRequestServerName());
-            if (instances == null || instances.size() == 0) {
-                log.error("serverName:{}", a.getRequestServerName());
-                //throw new BizException("插件实例未找到");
-            }
-        });
+    public boolean check() {
+        return checkConfigs.stream()
+                .anyMatch(a -> {
+                    List<ServiceInstance> instances = discoveryClient.getInstances(a.getContent());
+                    boolean res = instances == null || instances.size() == 0;
+                    if (res) {
+                        log.error("serverName:{}", a.getContent());
+                        //throw new BizException("插件实例未找到");
+                    }
+                    return res;
+                });
     }
 }

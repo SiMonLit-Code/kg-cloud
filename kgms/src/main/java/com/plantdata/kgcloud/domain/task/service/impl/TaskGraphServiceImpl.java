@@ -62,7 +62,7 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     @Override
     public Page<TaskGraphSnapshotRsp> snapshotList(TaskGraphSnapshotReq req) {
 
-        Sort sort = new Sort(Sort.Direction.DESC, "updateAt");
+        Sort sort =Sort.by(Sort.Direction.DESC, "updateAt");
         PageRequest of = PageRequest.of(req.getPage() - 1, req.getSize(), sort);
         TaskGraphSnapshot query = new TaskGraphSnapshot();
         if (StringUtils.hasText(req.getKgName())) {

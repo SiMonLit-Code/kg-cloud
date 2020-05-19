@@ -6,7 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.util.function.Function;
 
 /**
@@ -17,17 +21,27 @@ import java.util.function.Function;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class RepositoryHandler {
+    @Id
+    @Column(name = "id")
     private int id;
-    private HandleType handleType;
-    private String requestServerName;
+    @Column(name = "rank")
     private int rank;
-    private Function<DealDTO, DealDTO> d2rFunction;
-
-    public DealDTO handler(DealDTO obj) {
-        System.out.println(toString() + ";param" + obj.toString());
-        return d2rFunction.apply(obj);
-    }
+    @Column(name = "repositoryId")
+    private int repositoryId;
+    @Column(name = "handleCondition")
+    private String handleCondition;
+    @Column(name = "handleType")
+    private HandleType handleType;
+    @Column(name = "requestServerName")
+    private String requestServerName;
+    @Column(name = "requestUrl")
+    private String requestUrl;
+    @Column(name = "remark")
+    private String remark;
+    @Column(name = "request_method")
+    private RequestMethod requestMethod;
 
     @Override
     public String toString() {
