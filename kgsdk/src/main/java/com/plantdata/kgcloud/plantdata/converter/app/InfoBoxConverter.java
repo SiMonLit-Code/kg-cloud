@@ -49,7 +49,7 @@ public class InfoBoxConverter extends BasicConverter {
         BatchInfoBoxReqList infoBoxReq = new BatchInfoBoxReqList();
         infoBoxReq.setAllowAttrs(parameterMore.getAllowAtts());
         infoBoxReq.setAllowAttrsKey(parameterMore.getAllowAttsKey());
-        infoBoxReq.setRelationAttrs(parameterMore.getIsRelationAtts());
+        infoBoxReq.setRelationAttrs(parameterMore.isRelationAtts());
         infoBoxReq.setIds(parameterMore.getIds());
         return infoBoxReq;
     }
