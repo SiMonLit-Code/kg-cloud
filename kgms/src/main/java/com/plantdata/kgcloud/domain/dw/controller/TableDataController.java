@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.dw.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
@@ -137,5 +136,16 @@ public class TableDataController {
     public ApiReturn dataUpdate(@RequestBody DWDatabaseUpdateReq baseReq) {
         tableDataService.dataUpdate(baseReq);
         return ApiReturn.success();
+    }
+
+    @ApiOperation("数仓数据-分页条件查询-feign转发专用")
+    @PatchMapping("/list/{databaseId}/{tableId}/feign")
+    public ApiReturn<List<Object>> getDataForFeign(
+            @PathVariable("databaseId") Long databaseId,
+            @PathVariable("tableId") Long tableId,
+            DataOptQueryReq baseReq) {
+        String userId = SessionHolder.getUserId();
+        List<Object> arguments = tableDataService.getDataForFeign(userId, databaseId, tableId, baseReq);
+        return ApiReturn.success(arguments);
     }
 }

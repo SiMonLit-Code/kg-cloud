@@ -524,4 +524,38 @@ public class TableDataServiceImpl implements TableDataService {
         }
         collectionLog.updateMany(Filters.eq(MONGO_ID, mongoId), Updates.combine(bsonList), new UpdateOptions().upsert(true));
     }
+
+    @Override
+    public List<Object> getDataForFeign(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq) {
+        Map<String, Object> query = new HashMap<>();
+        if (StringUtils.hasText(baseReq.getField()) && StringUtils.hasText(baseReq.getKw())) {
+            Map<String, String> value = new HashMap<>();
+            value.put(baseReq.getField(), baseReq.getKw());
+            query.put("search", value);
+        }
+
+        try (DataOptProvider provider = getProvider(userId, datasetId, tableId, mongoProperties)) {
+
+            PageRequest pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize());
+            DWTable table = dwService.getTableDetail(tableId);
+            List<Map<String, Object>> maps = provider.find(baseReq.getOffset(), baseReq.getLimit(), query);
+            List<Map<String, Object>> mapResult = new ArrayList<>();
+            for (int i = 0; i < maps.size(); i++) {
+                Map<String, Object> map = maps.get(i);
+
+                Map<String, Object> result = filterSchema(table, map);
+
+                mapResult.add(result);
+            }
+            long count = provider.count(query);
+            List<Object> list = new ArrayList<>();
+            list.add(baseReq.getPage() - 1);
+            list.add(baseReq.getSize());
+            list.add(mapResult);
+            list.add(String.valueOf(count));
+            return list;
+        } catch (IOException e) {
+            throw BizException.of(KgmsErrorCodeEnum.TABLE_CONNECT_ERROR);
+        }
+    }
 }

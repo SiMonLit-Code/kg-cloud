@@ -12,6 +12,7 @@ import ai.plantdata.kg.api.edit.req.SynonymFrom;
 import ai.plantdata.kg.api.edit.req.UpdateBasicInfoFrom;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.edit.resp.PromptVO;
+import ai.plantdata.kg.api.edit.resp.RelationDetailVO;
 import ai.plantdata.kg.api.edit.resp.SimpleBasic;
 import ai.plantdata.kg.api.pub.CountApi;
 import ai.plantdata.kg.api.pub.QlApi;
@@ -42,10 +43,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.StatisticsReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
-import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.*;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
@@ -410,5 +408,24 @@ public class BasicInfoServiceImpl implements BasicInfoService {
                 RestRespConverter.convert(conceptEntityApi.listBatch(KGUtil.dbName(kgName), basicQuery));
 
         return optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(SimpleBasicRsp.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public RelationDetailRsp getRelationDetails(String kgName, String id) {
+        RestResp<RelationDetailVO> restResp = conceptEntityApi.relationDetail(kgName,id);
+        Optional<RelationDetailVO> optional = RestRespConverter.convert(restResp);
+        if (!optional.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.TRIPLE_ID_NOT_EXISTS);
+        }
+        RelationDetailRsp rsp = new RelationDetailRsp();
+        rsp.setExtraInfo(optional.get().getExtraInfo());
+        rsp.setRelationDataValues(optional.get().getRelationDataValues());
+        rsp.setRelationObjectValues(optional.get().getRelationObjectValues());
+        rsp.setAttrTimeFrom(optional.get().getAttrTimeFrom());
+        rsp.setAttrTimeTo(optional.get().getAttrTimeTo());
+        rsp.setScore((Double)optional.get().getMetaData().get("meta_data_3"));
+        rsp.setReliability((Double)optional.get().getMetaData().get("meta_data_12"));
+        rsp.setSource((String)optional.get().getMetaData().get("meta_data_11"));
+        return rsp;
     }
 }

@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.sdk.req.app.explore;
 
+import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.CommonRelationReq;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphRelationReqInterface;
+import com.plantdata.kgcloud.sdk.req.app.function.GraphTimingReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,7 +25,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ApiModel("关联推理分析-参数")
-public class RelationReasoningAnalysisReqList extends BasicGraphExploreReqList implements ReasoningReqInterface, GraphRelationReqInterface {
+public class RelationReasoningAnalysisReqList extends BasicGraphExploreReqList implements ReasoningReqInterface, GraphTimingReqInterface, GraphRelationReqInterface {
     @ApiModelProperty(value = "关联搜索参数", required = true)
     @NotNull
     @Valid
@@ -32,6 +34,8 @@ public class RelationReasoningAnalysisReqList extends BasicGraphExploreReqList i
     private Map<Long, Object> reasoningRuleConfigs;
     @ApiModelProperty("统计配置")
     private List<BasicStatisticReq> configList;
+    @ApiModelProperty("时间参数过滤")
+    private TimeFilterExploreReq timeFilters;
 
     @Override
     public List<Long> fetchEntityIdList() {
@@ -51,5 +55,10 @@ public class RelationReasoningAnalysisReqList extends BasicGraphExploreReqList i
     @Override
     public CommonRelationReq fetchRelation() {
         return relation;
+    }
+
+    @Override
+    public TimeFilterExploreReq fetchTimeFilter() {
+        return timeFilters;
     }
 }

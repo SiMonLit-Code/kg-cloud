@@ -38,4 +38,6 @@ public interface TableDataService {
     List<Map<String, Object>> search(String userId, Long datasetId, Long tableId, DwTableDataSearchReq searchReq);
 
     void dataUpdate(DWDatabaseUpdateReq baseReq);
+
+    List<Object> getDataForFeign(String userId, Long datasetId, Long tableId, DataOptQueryReq baseReq);
 }

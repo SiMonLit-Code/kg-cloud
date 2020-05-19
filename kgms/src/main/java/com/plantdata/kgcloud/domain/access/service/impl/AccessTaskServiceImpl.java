@@ -381,7 +381,7 @@ public class AccessTaskServiceImpl implements AccessTaskService {
 
     @Override
     public String createTransfer(Boolean isGraph,Integer modelId,String tableName, Long databaseId, List<String> outputs,List<String>distributeOriginalData,List<String> deleteOutputs,List<String> deleteDistributeOriginalData,String isAllKey) {
-
+      String a= "";
         Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
         if(!tableOpt.isPresent()){
             return null;
