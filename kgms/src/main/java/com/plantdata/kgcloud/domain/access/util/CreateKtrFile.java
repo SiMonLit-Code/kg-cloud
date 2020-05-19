@@ -36,20 +36,20 @@ public class CreateKtrFile {
      * @return
      * @throws IOException
      */
-    public static String getKettleXmlPath(DWDatabaseRsp database, DWTableRsp table, String isAllKey,String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword, String userId,String kafkaTransferTopic,String kafkaCheckTopic) {
+    public static String getKettleXmlPath(DWDatabaseRsp database, DWTableRsp table, String isAllKey, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword, String userId, String kafkaTransferTopic, String kafkaCheckTopic) {
 
-        if(database.getDataFormat().equals(1)){
+        if (database.getDataFormat().equals(1)) {
             //行业标准
-            return getKtrIndustry(database,table,isAllKey,resourceName,kafkaServers,mongoAddrs,mongoUserrname,mongoPassword,userId,kafkaTransferTopic,kafkaCheckTopic);
-        }else{
+            return getKtrIndustry(database, table, isAllKey, resourceName, kafkaServers, mongoAddrs, mongoUserrname, mongoPassword, userId, kafkaTransferTopic, kafkaCheckTopic);
+        } else {
             //非标准
-            return getKtrNotIndustry(database,table,resourceName,kafkaServers,mongoAddrs,mongoUserrname,mongoPassword,kafkaTransferTopic);
+            return getKtrNotIndustry(database, table, resourceName, kafkaServers, mongoAddrs, mongoUserrname, mongoPassword, kafkaTransferTopic);
         }
 
 
     }
 
-    private static String getKtrIndustry(DWDatabaseRsp database,DWTableRsp table,String isAllKey, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword,String userId,String kafkaTransferTopic,String kafkaCheckTopic) {
+    private static String getKtrIndustry(DWDatabaseRsp database, DWTableRsp table, String isAllKey, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword, String userId, String kafkaTransferTopic, String kafkaCheckTopic) {
 
         String xml = IndustryKtrXml.xml;
         String defaultXml = IndustryKtrXml.defaultStepXml;
@@ -96,7 +96,7 @@ public class CreateKtrFile {
 
         boolean isMongo = true;
 
-        if(table.getCreateWay().equals(1)){
+        if (table.getCreateWay().equals(1)) {
             //远程表
             type = DataType.findType(database.getDataType()).name();
 
@@ -112,21 +112,21 @@ public class CreateKtrFile {
 
             tableName = table.getTbName();
 
-            if(DataType.MONGO.equals(DataType.findType(database.getDataType()))){
+            if (DataType.MONGO.equals(DataType.findType(database.getDataType()))) {
                 connXml = "";
                 jsonFieldxml = IndustryKtrXml.jsonFieldxml;
                 inputXml = IndustryKtrXml.mongoInputXml;
-            }else{
+            } else {
                 connXml = IndustryKtrXml.connectionXml;
                 jsonFieldxml = IndustryKtrXml.jsonFieldxml;
                 inputXml = IndustryKtrXml.mysqlInputXml;
                 isMongo = false;
             }
-        }else{
+        } else {
             //本地表
             type = DataType.MONGO.name();
 
-            ip = mongoAddrs[0].split(":")[0] ;
+            ip = mongoAddrs[0].split(":")[0];
 
             port = mongoAddrs[0].split(":")[1];
 
@@ -138,7 +138,7 @@ public class CreateKtrFile {
 
             tableName = table.getTableName();
 
-            connXml ="";
+            connXml = "";
 
             jsonFieldxml = IndustryKtrXml.jsonFieldxml;
 
@@ -148,47 +148,47 @@ public class CreateKtrFile {
 
 
         // 查询语句
-        String queryXml = getTableSql(database,table,tableName,isMongo,mongoAddrs,mongoUserrname,mongoPassword);
+        String queryXml = getTableSql(database, table, tableName, isMongo, mongoAddrs, mongoUserrname, mongoPassword);
 
         inputXml = changeSql(inputXml, queryXml);
 
-        connXml = changeDBConnection(connXml, ip, port, dbName,tableName, username, password, type,table.getIsAll());
+        connXml = changeDBConnection(connXml, ip, port, dbName, tableName, username, password, type, table.getIsAll());
 
-        inputXml = changeDBConnection(inputXml, ip, port, dbName,tableName, username, password, type,table.getIsAll());
+        inputXml = changeDBConnection(inputXml, ip, port, dbName, tableName, username, password, type, table.getIsAll());
 
-        jsonFieldxml = changeJsonField(jsonFieldxml,table.getFields(),isMongo);
+        jsonFieldxml = changeJsonField(jsonFieldxml, table.getFields(), isMongo);
 
-        defaultXml = changeDefaultXmlField(defaultXml,jsonFieldxml);
+        defaultXml = changeDefaultXmlField(defaultXml, jsonFieldxml);
 
-        kafkaTruexml = changeKafkaConnection(kafkaTruexml, kafkaServers,kafkaTransferTopic);
+        kafkaTruexml = changeKafkaConnection(kafkaTruexml, kafkaServers, kafkaTransferTopic);
 
-        kafkaErrorxml = changeKafkaConnection(kafkaErrorxml, kafkaServers,kafkaCheckTopic);
+        kafkaErrorxml = changeKafkaConnection(kafkaErrorxml, kafkaServers, kafkaCheckTopic);
 
-        mongoErrorInput = changeMongoErrorInput(mongoErrorInput,mongoAddrs[0].split(":")[0],mongoAddrs[0].split(":")[1],mongoUserrname,mongoPassword,database,table);
+        mongoErrorInput = changeMongoErrorInput(mongoErrorInput, mongoAddrs[0].split(":")[0], mongoAddrs[0].split(":")[1], mongoUserrname, mongoPassword, database, table);
 
 
-        customizationXml = changeCustomizationXml(customizationXml,table);
+        customizationXml = changeCustomizationXml(customizationXml, table);
 
-        customizationXmlRerun = changeCustomizationXmlRerun(customizationXmlRerun,table);
+        customizationXmlRerun = changeCustomizationXmlRerun(customizationXmlRerun, table);
 
-        String data = xml + connXml + orderXml + defaultXml + inputXml + kafkaTruexml+ kafkaErrorxml+mongoErrorInput + customizationXml +customizationXmlRerun + paramAndFilterXml;
+        String data = xml + connXml + orderXml + defaultXml + inputXml + kafkaTruexml + kafkaErrorxml + mongoErrorInput + customizationXml + customizationXmlRerun + paramAndFilterXml;
         // 创建临时路径
-        return data.replaceAll("resourceNameQAQ",resourceName);
+        return data.replaceAll("resourceNameQAQ", resourceName);
 
     }
 
     private static String changeCustomizationXmlRerun(String customizationXmlRerun, DWTableRsp table) {
 
-        return customizationXmlRerun.replace("${code}",table.getKtr() == null ? "":table.getKtr()).replace("<name>数据转换</name>","<name>数据转换 2</name>");
+        return customizationXmlRerun.replace("${code}", table.getKtr() == null ? "" : table.getKtr()).replace("<name>数据转换</name>", "<name>数据转换 2</name>");
     }
 
     private static String changeCustomizationXml(String customizationXml, DWTableRsp table) {
 
-        return customizationXml.replace("${code}",table.getKtr() == null ? "":table.getKtr());
+        return customizationXml.replace("${code}", table.getKtr() == null ? "" : table.getKtr());
     }
 
 
-    private static String getKtrNotIndustry(DWDatabaseRsp database, DWTableRsp table,String resourceName, String kafkaServers,String[] mongoAddrs,String mongoUserrname,String mongoPassword,String topic){
+    private static String getKtrNotIndustry(DWDatabaseRsp database, DWTableRsp table, String resourceName, String kafkaServers, String[] mongoAddrs, String mongoUserrname, String mongoPassword, String topic) {
         String xml = KtrXml.xml;
         String defaultXml = KtrXml.defaultStepXml;
         String kafkaxml = KtrXml.kafkaxml;
@@ -229,7 +229,7 @@ public class CreateKtrFile {
 
         boolean isMongo = true;
 
-        if(table.getCreateWay().equals(1)){
+        if (table.getCreateWay().equals(1)) {
             //远程表
             type = DataType.findType(database.getDataType()).name();
 
@@ -245,21 +245,21 @@ public class CreateKtrFile {
 
             tableName = table.getTbName();
 
-            if(DataType.MONGO.equals(DataType.findType(database.getDataType()))){
+            if (DataType.MONGO.equals(DataType.findType(database.getDataType()))) {
                 connXml = "";
                 jsonFieldxml = KtrXml.jsonFieldxml;
                 inputXml = KtrXml.mongoInputXml;
-            }else{
+            } else {
                 connXml = KtrXml.connectionXml;
                 jsonFieldxml = KtrXml.jsonFieldxml;
                 inputXml = KtrXml.mysqlInputXml;
                 isMongo = false;
             }
-        }else{
+        } else {
             //本地表
             type = DataType.MONGO.name();
 
-            ip = mongoAddrs[0].split(":")[0] ;
+            ip = mongoAddrs[0].split(":")[0];
 
             port = mongoAddrs[0].split(":")[1];
 
@@ -271,7 +271,7 @@ public class CreateKtrFile {
 
             tableName = table.getTableName();
 
-            connXml ="";
+            connXml = "";
 
             jsonFieldxml = KtrXml.jsonFieldxml;
 
@@ -280,113 +280,113 @@ public class CreateKtrFile {
         }
 
 
-
         // 查询语句
-        String queryXml = getTableSql(database,table,tableName,isMongo,mongoAddrs,mongoUserrname,mongoPassword);
+        String queryXml = getTableSql(database, table, tableName, isMongo, mongoAddrs, mongoUserrname, mongoPassword);
 
         inputXml = changeSql(inputXml, queryXml);
 
-        connXml = changeDBConnection(connXml, ip, port, dbName,tableName, username, password, type,table.getIsAll());
+        connXml = changeDBConnection(connXml, ip, port, dbName, tableName, username, password, type, table.getIsAll());
 
-        inputXml = changeDBConnection(inputXml, ip, port, dbName,tableName, username, password, type,table.getIsAll());
+        inputXml = changeDBConnection(inputXml, ip, port, dbName, tableName, username, password, type, table.getIsAll());
 
-        jsonFieldxml = changeJsonField(jsonFieldxml,table.getFields(),isMongo);
+        jsonFieldxml = changeJsonField(jsonFieldxml, table.getFields(), isMongo);
 
-        defaultXml = changeDefaultXmlField(defaultXml,jsonFieldxml);
+        defaultXml = changeDefaultXmlField(defaultXml, jsonFieldxml);
 
-        kafkaxml = changeKafkaConnection(kafkaxml, kafkaServers,topic);
+        kafkaxml = changeKafkaConnection(kafkaxml, kafkaServers, topic);
 
-        mongoErrorInput = changeMongoErrorInput(mongoErrorInput,mongoAddrs[0].split(":")[0],mongoAddrs[0].split(":")[1],mongoUserrname,mongoPassword,database,table);
+        mongoErrorInput = changeMongoErrorInput(mongoErrorInput, mongoAddrs[0].split(":")[0], mongoAddrs[0].split(":")[1], mongoUserrname, mongoPassword, database, table);
 
-        String data = xml + connXml + orderXml + defaultXml + inputXml +mongoErrorInput+ kafkaxml;
+        String data = xml + connXml + orderXml + defaultXml + inputXml + mongoErrorInput + kafkaxml;
         // 创建临时路径
-        return data.replaceAll("resourceNameQAQ",resourceName);
+        return data.replaceAll("resourceNameQAQ", resourceName);
     }
 
-    private static String changeMongoErrorInput(String mongoErrorInput, String mongoIp,String mongoPort, String mongoUserrname, String mongoPassword, DWDatabaseRsp database, DWTableRsp table) {
+    private static String changeMongoErrorInput(String mongoErrorInput, String mongoIp, String mongoPort, String mongoUserrname, String mongoPassword, DWDatabaseRsp database, DWTableRsp table) {
 
         String encodePassword = encodePassword(mongoPassword);
 
-        return mongoErrorInput.replace("errorMongoIpQAQ",mongoIp)
-                .replace("errorMongoPortQAQ",mongoPort)
-                .replace("errorMongoDbQAQ","dw_rerun_"+database.getDataName())
-                .replace("errorMongoCollectionQAQ",table.getTableName())
-                .replace("errorMongoUserQAQ",mongoUserrname)
-                .replace("errorMongoPasswordQAQ",encodePassword);
+        return mongoErrorInput.replace("errorMongoIpQAQ", mongoIp)
+                .replace("errorMongoPortQAQ", mongoPort)
+                .replace("errorMongoDbQAQ", "dw_rerun_" + database.getDataName())
+                .replace("errorMongoCollectionQAQ", table.getTableName())
+                .replace("errorMongoUserQAQ", mongoUserrname == null ? "" : mongoUserrname)
+                .replace("errorMongoPasswordQAQ", encodePassword == null ? "" : encodePassword);
     }
+
 
     private static String changeDefaultXmlField(String defaultXml, String jsonFieldxml) {
-        return defaultXml.replaceAll("fieldsQAQ",jsonFieldxml);
+        return defaultXml.replaceAll("fieldsQAQ", jsonFieldxml);
     }
 
-    private static String changeJsonField(String jsonFieldxml,List<String> fields,boolean isMongo) {
+    private static String changeJsonField(String jsonFieldxml, List<String> fields, boolean isMongo) {
 
-        if(isMongo){
+        if (isMongo) {
             fields = Lists.newArrayList("json");
         }
 
         StringBuilder jsonFieldStr = new StringBuilder();
-        for(String field : fields){
-            jsonFieldStr.append(jsonFieldxml.replaceAll("fieldQAQ",field));
+        for (String field : fields) {
+            jsonFieldStr.append(jsonFieldxml.replaceAll("fieldQAQ", field));
         }
 
         return jsonFieldStr.toString();
     }
 
-    private static String changeKafkaConnection(String kafkaxml, String kafkaServers,String kafkaTopic) {
+    private static String changeKafkaConnection(String kafkaxml, String kafkaServers, String kafkaTopic) {
 
-        return kafkaxml.replaceAll("kafkaQAQ", kafkaServers).replaceAll("topicQAQ",kafkaTopic);
+        return kafkaxml.replaceAll("kafkaQAQ", kafkaServers).replaceAll("topicQAQ", kafkaTopic);
     }
 
-    private static String getTableSql(DWDatabaseRsp databaseRsp,DWTableRsp table,String tableName,Boolean isMongo,String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
+    private static String getTableSql(DWDatabaseRsp databaseRsp, DWTableRsp table, String tableName, Boolean isMongo, String[] mongoAddrs, String mongoUserrname, String mongoPassword) {
 
         StringBuilder sql = new StringBuilder();
 
 
-        if(isMongo){
+        if (isMongo) {
 
-            if(table.getIsAll() == null || table.getIsAll().equals(1)){
+            if (table.getIsAll() == null || table.getIsAll().equals(1)) {
 
                 return KtrXml.mongoAllQueryXMl;
 //                return sql.toString();
-            }else{
+            } else {
 
                 List<DataSetSchema> schemas = table.getSchema();
 
                 boolean isDateField = false;
-                for(DataSetSchema schema : schemas){
-                    if(schema.getField().equals(table.getQueryField())){
-                        if(schema.getType() == FieldType.DATE.getCode() || schema.getType() == FieldType.DATETIME.getCode()){
+                for (DataSetSchema schema : schemas) {
+                    if (schema.getField().equals(table.getQueryField())) {
+                        if (schema.getType() == FieldType.DATE.getCode() || schema.getType() == FieldType.DATETIME.getCode()) {
                             isDateField = true;
                         }
                         break;
                     }
                 }
 
-                if(isDateField){
+                if (isDateField) {
 
-                    FieldType fieldType = getFileType(databaseRsp,table,table.getQueryField(),mongoAddrs,mongoUserrname,mongoPassword);
+                    FieldType fieldType = getFileType(databaseRsp, table, table.getQueryField(), mongoAddrs, mongoUserrname, mongoPassword);
 
-                    if(FieldType.DATE.equals(fieldType)){
-                        return KtrXml.mongoTimeQueryDateFieldXMl.replaceAll("timeFieldQAQ",table.getQueryField());
+                    if (FieldType.DATE.equals(fieldType)) {
+                        return KtrXml.mongoTimeQueryDateFieldXMl.replaceAll("timeFieldQAQ", table.getQueryField());
                     }
                 }
 
-                return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ",table.getQueryField());
+                return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ", table.getQueryField());
             }
 
-        }else{
+        } else {
             sql.append("SELECT ");
 
-            for(String field : table.getFields()){
+            for (String field : table.getFields()) {
                 sql.append("`").append(field).append("`").append(",");
 
             }
-            sql = sql.deleteCharAt(sql.length()-1);
+            sql = sql.deleteCharAt(sql.length() - 1);
             sql.append(" FROM ")
                     .append(tableName);
 
-            if(table.getIsAll() != null && !table.getIsAll().equals(1)){
+            if (table.getIsAll() != null && !table.getIsAll().equals(1)) {
 
                 sql.append(" WHERE 'true'='${key}' and ")
                         .append(table.getQueryField())
@@ -397,7 +397,7 @@ public class CreateKtrFile {
                         .append(" &lt; ")
                         .append("'${EndTime}'");
 
-            }else{
+            } else {
                 sql.append(" WHERE 'true'='${key}' ");
             }
 
@@ -407,13 +407,13 @@ public class CreateKtrFile {
 
     }
 
-    public static FieldType getFileType(DWDatabaseRsp databaseRsp, DWTableRsp table, String field, String[] mongoAddrs,String mongoUserrname,String mongoPassword) {
+    public static FieldType getFileType(DWDatabaseRsp databaseRsp, DWTableRsp table, String field, String[] mongoAddrs, String mongoUserrname, String mongoPassword) {
 
 
         DataSet dataSet;
         //远程
-        if(table.getCreateWay().equals(1)){
-            if(!DataType.MONGO.equals(DataType.findType(databaseRsp.getDataType()))){
+        if (table.getCreateWay().equals(1)) {
+            if (!DataType.MONGO.equals(DataType.findType(databaseRsp.getDataType()))) {
                 return FieldType.STRING;
             }
             dataSet = DataSet.builder()
@@ -423,7 +423,7 @@ public class CreateKtrFile {
                     .tbName(table.getTbName())
                     .dbName(databaseRsp.getDbName())
                     .build();
-        }else{
+        } else {
             //本地
             dataSet = DataSet.builder()
                     .addr(CollectionUtils.arrayToList(mongoAddrs))
@@ -434,18 +434,18 @@ public class CreateKtrFile {
                     .build();
         }
 
-        DataOptConnect dataOptConnect =DataOptConnect.of(dataSet);
+        DataOptConnect dataOptConnect = DataOptConnect.of(dataSet);
         dataOptConnect.setDataType(DataType.MONGO);
         try (DataOptProvider provider = DataOptProviderFactory.createProvider(dataOptConnect)) {
 
-            List<Map<String, Object>> maps = provider.find(0,1, null);
-            if(maps == null || maps.isEmpty()){
+            List<Map<String, Object>> maps = provider.find(0, 1, null);
+            if (maps == null || maps.isEmpty()) {
                 return FieldType.STRING;
             }
 
-            Map<String,Object> map = maps.get(0);
-            if(map.containsKey(field) ){
-                format.parse(map.get(field)+"");
+            Map<String, Object> map = maps.get(0);
+            if (map.containsKey(field)) {
+                format.parse(map.get(field) + "");
                 return FieldType.DATE;
             }
         } catch (Exception e) {
@@ -493,11 +493,11 @@ public class CreateKtrFile {
         return connectionXml.replace("ipQAQ", ip)
                 .replace("portQAQ", port)
                 .replace("dbnameQAQ", dbName)
-                .replace("tbNameQAQ",tbName == null ? "":tbName)
+                .replace("tbNameQAQ", tbName == null ? "" : tbName)
                 .replace("usernameQAQ", username == null ? "" : username)
                 .replace("typeQAQ", type.toUpperCase())
                 .replace("passwordQAQ", encodePassword)
-                .replace("isCronQAQ",isAll != null && isAll.equals(2) ? "Y":"N");
+                .replace("isCronQAQ", isAll != null && isAll.equals(2) ? "Y" : "N");
 
     }
 
