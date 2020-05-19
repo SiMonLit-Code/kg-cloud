@@ -49,10 +49,7 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.constant.DWDataFormat;
 import com.plantdata.kgcloud.sdk.constant.DataType;
-import com.plantdata.kgcloud.sdk.req.DWConnceReq;
-import com.plantdata.kgcloud.sdk.req.DWDatabaseReq;
-import com.plantdata.kgcloud.sdk.req.DWTableReq;
-import com.plantdata.kgcloud.sdk.req.DataSetSchema;
+import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.rsp.*;
 import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
@@ -1948,6 +1945,34 @@ public class DWServiceImpl implements DWService {
 
     }
 
+    @Override
+    public void setSearchScheduling(String userId, DWTableSchedulingReq req) {
+        Optional<DWTable> tableOpt = tableRepository.findOne(Example.of(DWTable.builder().dwDataBaseId(req.getDatabaseId()).id(req.getTableId()).build()));
+
+        if (!tableOpt.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.DW_TABLE_NOT_EXIST);
+        }
+
+        DWTable table = tableOpt.get();
+
+        if (StringUtils.hasText(table.getTableName())) {
+
+//            table.setSchedulingSwitch(req.getSchedulingSwitch());
+//
+//            tableRepository.save(table);
+
+            //增量没字段不开启
+            if (table.getIsAll() != null && table.getIsAll().equals(2) && table.getQueryField() == null) {
+                return;
+            } else {
+                createSearchSchedulingConfig(table,req.getResourceName(),req.getTarget());
+            }
+
+        }
+
+    }
+
+
     private void createTableSchedulingConfig(DWTable table) {
 
         String dwTaskName = AccessTaskType.DW.getDisplayName() + "_" + table.getDwDataBaseId() + "_" + table.getTableName();
@@ -1973,6 +1998,31 @@ public class DWServiceImpl implements DWService {
                 accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, null, diss, null, table.getTableName());
             } else {
                 accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, null, null, diss, table.getTableName());
+            }
+        }
+    }
+
+    private void createSearchSchedulingConfig(DWTable table, String resourceName, String target) {
+
+        List<String> diss = new ArrayList<>();
+        diss.add(resourceName);
+
+        if (table != null && table.getSchedulingSwitch() != null && table.getSchedulingSwitch().equals(1)) {
+
+            //生成任务配置
+            accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), resourceName, 1, target);
+            if (StringUtils.hasText(table.getMapper())) {
+                accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), diss, null, null, null, resourceName);
+            } else {
+                accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, diss, null, null, resourceName);
+            }
+        } else {
+            //生成任务配置
+            accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), resourceName, 0, target);
+            if (StringUtils.hasText(table.getMapper())) {
+                accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, null, diss, null, resourceName);
+            } else {
+                accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, null, null, diss, resourceName);
             }
         }
     }
