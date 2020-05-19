@@ -14,11 +14,11 @@ public class RepositoryConverter {
     public static RepositoryRsp repository2RepositoryRsp(@NonNull Repository repository) {
         RepositoryRsp rsp = new RepositoryRsp();
         rsp.setConfig(repository.getConfig());
-        rsp.setGroup(rsp.getGroup());
-        rsp.setId(rsp.getId());
-        rsp.setRank(rsp.getRank());
-        rsp.setRemark(rsp.getRemark());
-        rsp.setMenuId(rsp.getMenuId());
+        rsp.setGroup(repository.getGroup());
+        rsp.setId(repository.getId());
+        rsp.setRank(repository.getRank());
+        rsp.setRemark(repository.getRemark());
+        rsp.setMenuId(repository.getMenuId());
         return rsp;
     }
 

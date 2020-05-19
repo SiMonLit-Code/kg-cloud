@@ -18,6 +18,7 @@
         <module>kgms-sdk</module>
         <module>kgsdk</module>
         <module>kgpreview</module>
+        <module>repo-sdk</module>
     </modules>
 
     <properties>

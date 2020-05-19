@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "repository_use_log")
+@Table(name = "repo_repository_use_log")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 public class RepositoryUseLog {

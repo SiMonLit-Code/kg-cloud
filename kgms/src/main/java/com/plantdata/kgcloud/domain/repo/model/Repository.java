@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.repo.model;
 
 import com.plantdata.kgcloud.domain.common.converter.IntegerListConverter;
 import com.plantdata.kgcloud.domain.common.converter.ObjectJsonConverter;
+import com.plantdata.kgcloud.domain.repo.converter.RepoCheckConfigJsonConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -67,6 +68,6 @@ public class Repository {
      * 检测项目
      */
     @Column(name = "check_configs")
-    @Convert(converter = ObjectJsonConverter.class)
+    @Convert(converter = RepoCheckConfigJsonConverter.class)
     private List<RepoCheckConfig> checkConfigs;
 }
