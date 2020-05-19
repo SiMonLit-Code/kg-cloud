@@ -18,9 +18,10 @@ import java.util.List;
 @ApiModel("知识卡片-参数(单个)")
 public class InfoBoxReq {
 
-    @NotNull
-    @ApiModelProperty(value = "实体id", required = true)
+    @ApiModelProperty("实体id")
     private Long id;
+    @ApiModelProperty("实体名称,当id为空时生效")
+    private String kw;
     @ApiModelProperty("是否读取关系属性 默认 false")
     private Boolean relationAttrs = false;
     @ApiModelProperty("允许的属性id")

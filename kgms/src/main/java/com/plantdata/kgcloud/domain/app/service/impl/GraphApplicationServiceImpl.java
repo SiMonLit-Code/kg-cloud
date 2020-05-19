@@ -228,6 +228,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         batchInfoBoxReq.setAllowAttrs(infoBoxReq.getAllowAttrs());
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
         batchInfoBoxReq.setIds(Lists.newArrayList(infoBoxReq.getId()));
+        batchInfoBoxReq.setKws(Lists.newArrayList(infoBoxReq.getKw()));
         batchInfoBoxReq.setRelationAttrs(infoBoxReq.getRelationAttrs());
         batchInfoBoxReq.setReverseRelationAttrs(infoBoxReq.getRelationAttrs());
         List<InfoBoxRsp> list = infoBox(kgName, batchInfoBoxReq);
@@ -250,6 +251,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         //实体
         graphHelperService.replaceByAttrKey(kgName, req);
         List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();
+        // 判断id是否为空，为空用实体名称查询
+        graphHelperService.replaceKwToId(kgName,req);
         //实体
         BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxReqToBasicDetailFilter(req);
         detailFilter.setEntity(true);
