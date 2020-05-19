@@ -21,13 +21,14 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class RepositoryUseLog {
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "repositoryId")
+    @Column(name = "repository_id")
     private int repositoryId;
-    @Column(name = "menuId")
+    @Column(name = "menu_id")
     private int menuId;
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private String userId;
 
     public RepositoryUseLog(int repositoryId, int menuId, String userId) {

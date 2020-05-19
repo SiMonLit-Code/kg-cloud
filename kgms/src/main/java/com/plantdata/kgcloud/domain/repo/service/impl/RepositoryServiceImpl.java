@@ -54,10 +54,8 @@ public class RepositoryServiceImpl implements RepositoryService {
 
     @Override
     public Integer add(RepositoryReq repositoryReq) {
-        Function<Repository, Boolean> health = b -> ServiceCheckerFactory.factory(b.getCheckConfigs()).stream().allMatch(ServiceChecker::check);
-        RepositoryConverter
-        health.apply(repositoryReq)
-        return null;
+        Repository repository = repositoryRepository.save(RepositoryConverter.repositoryReq2Repository(repositoryReq));
+        return repository.getId();
     }
 
     @Override
@@ -75,6 +73,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         });
         return true;
     }
+
     @Override
     public void useLog(Integer id, String userId) {
         Optional<Repository> repOpt = repositoryRepository.findById(id);

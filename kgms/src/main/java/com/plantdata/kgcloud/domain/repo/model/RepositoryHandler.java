@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.function.Function;
 
 /**
@@ -24,6 +22,7 @@ import java.util.function.Function;
 @Entity
 public class RepositoryHandler {
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
     @Column(name = "rank")

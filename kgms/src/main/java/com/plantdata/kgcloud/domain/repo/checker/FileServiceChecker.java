@@ -25,14 +25,15 @@ public class FileServiceChecker implements ServiceChecker {
 
 
     @Override
-    public void check() {
+    public boolean check() {
         List<String> noExist = checkConfigs.stream()
                 .map(RepoCheckConfig::getContent)
                 .filter(a -> Files.notExists(Paths.get(a)))
                 .collect(Collectors.toList());
         if (noExist.size() > 0) {
             log.error("文件不存在:" + noExist.stream().reduce((a, b) -> a + "," + b).orElse(StringUtils.EMPTY));
-            throw new BizException("文件不存在");
+            return false;
         }
+        return true;
     }
 }

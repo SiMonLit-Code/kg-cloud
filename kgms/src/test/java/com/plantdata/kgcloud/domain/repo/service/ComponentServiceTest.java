@@ -18,11 +18,5 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = {KgmsApplication.class})
 public class ComponentServiceTest {
 
-    @Autowired
-    private ComponentService componentService;
 
-    @Test
-    public void d2r() {
-        D2rRsp d2rRsp = componentService.d2r(new D2rReq());
-    }
 }

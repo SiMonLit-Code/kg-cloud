@@ -32,7 +32,7 @@ public class RepositoryController {
     @ApiOperation("组件新增")
     @PostMapping
     public  ApiReturn<Integer> add(@RequestBody  RepositoryReq repositoryReq){
-
+        return ApiReturn.success(repositoryService.add(repositoryReq));
     }
 
     @ApiOperation("组件启用")

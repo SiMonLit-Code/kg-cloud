@@ -34,7 +34,7 @@ public class ConsulServiceHandlerStream implements HandlerStream {
         if (!CollectionUtils.isEmpty(before)) {
             for (RepositoryHandler handler : before) {
               try {
-                  param = handler.handler(param);
+
               }catch (Exception e){
                   e.printStackTrace();
               }

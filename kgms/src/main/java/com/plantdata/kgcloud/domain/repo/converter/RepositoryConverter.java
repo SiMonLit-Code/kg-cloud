@@ -22,7 +22,7 @@ public class RepositoryConverter {
         return rsp;
     }
 
-    public static Repository repository2RepositoryRsp(@NonNull RepositoryReq repository) {
+    public static Repository repositoryReq2Repository(@NonNull RepositoryReq repository) {
         Repository rsp = new Repository();
         rsp.setConfig(repository.getConfig());
         rsp.setGroup(rsp.getGroup());

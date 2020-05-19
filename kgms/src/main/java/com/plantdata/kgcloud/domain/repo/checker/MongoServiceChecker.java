@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.checker;
 
-import com.plantdata.kgcloud.exception.BizException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.Function;
 
@@ -8,6 +8,7 @@ import java.util.function.Function;
  * @author cjw
  * @date 2020/5/15  11:12
  */
+@Slf4j
 public class MongoServiceChecker implements ServiceChecker {
 
     private Function<String, Boolean> graphExistFunction;
@@ -19,9 +20,11 @@ public class MongoServiceChecker implements ServiceChecker {
     }
 
     @Override
-    public void check() {
+    public boolean check() {
         if (!graphExistFunction.apply(graphName)) {
-            throw new BizException("图谱不存在");
+            log.error("图谱不存在");
+            return false;
         }
+        return true;
     }
 }
