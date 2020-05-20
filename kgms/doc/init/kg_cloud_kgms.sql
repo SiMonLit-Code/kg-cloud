@@ -425,19 +425,28 @@ CREATE TABLE `graph_attr_quality` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='图谱质量属性统计';
 
 -- ----------------------------
--- Table structure for entity_file_relation
+-- Table structure for file_database
 -- ----------------------------
-DROP TABLE IF EXISTS `entity_file_relation`;
-CREATE TABLE `entity_file_relation` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `kg_name` varchar(255) DEFAULT NULL COMMENT '图谱名称',
-  `entity_id` bigint(20) DEFAULT NULL COMMENT '实体ID',
-  `file_name` varchar(255) DEFAULT NULL COMMENT '文件名',
-  `type` varchar(255) DEFAULT NULL COMMENT '文件类型',
-  `keyword` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '关键词',
-  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT '简介',
-  `dw_file_id` int(11) DEFAULT NULL COMMENT '数仓文件ID',
-  `multi_modal_id` varchar(255) DEFAULT NULL COMMENT '多模态mongo文件ID',
-  `create_at` datetime DEFAULT NULL COMMENT '创建时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='实体文件关联表';
+DROP TABLE IF EXISTS `file_database`;
+CREATE TABLE `file_database`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键id',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '数据库名称',
+  `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '用户id',
+  `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-数据库' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for file_table
+-- ----------------------------
+DROP TABLE IF EXISTS `file_table`;
+CREATE TABLE `file_table`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '数据表名称',
+  `file_database_id` bigint(20) UNSIGNED NULL DEFAULT NULL COMMENT '数据库id',
+  `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-数据表' ROW_FORMAT = DYNAMIC;
+

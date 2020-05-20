@@ -4,7 +4,7 @@ package com.plantdata.kgcloud.constant;
  * @author lp
  * @create 2020/4/27 16:54
  */
-public class DWFileConstants {
+public class FileConstants {
 
     // 文件mongo库名前缀
     public static final String DW_PREFIX = "dw_file_";

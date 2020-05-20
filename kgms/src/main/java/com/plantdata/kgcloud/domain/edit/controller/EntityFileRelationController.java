@@ -1,12 +1,11 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
-import com.plantdata.kgcloud.domain.edit.rsp.DWFileRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRelationRsp;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import io.swagger.annotations.Api;
@@ -21,7 +20,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * @author EYE
+ * @author lp
  */
 @Api(tags = "实体文件管理")
 @RestController
@@ -33,8 +32,8 @@ public class EntityFileRelationController {
 
     @ApiOperation("实体文件管理-查询关系列表")
     @PostMapping("/{kgName}/list/relation")
-    public ApiReturn<Page<DWFileRsp>> listRelation(@PathVariable String kgName,
-                                                   @RequestBody EntityFileRelationQueryReq req) {
+    public ApiReturn<Page<EntityFileRelationRsp>> listRelation(@PathVariable String kgName,
+                                                               @RequestBody EntityFileRelationQueryReq req) {
         return ApiReturn.success(entityFileRelationService.listRelation(kgName, req));
     }
 
@@ -46,27 +45,19 @@ public class EntityFileRelationController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体文件管理-批量删除关系")
-    @PostMapping("/{kgName}/delete/relation")
-    public ApiReturn deleteRelation(@PathVariable String kgName,
-                                    @RequestBody List<String> idList) {
-        entityFileRelationService.deleteRelation(idList);
-        return ApiReturn.success();
-    }
-
-    @ApiOperation("实体文件管理-根据数仓文件ID删除关系")
-    @PostMapping("/{kgName}/delete/dwFileId/{dwFileId}")
+    @ApiOperation("实体文件管理-根据文件ID删除关系")
+    @PostMapping("/{kgName}/delete/fileId/{fileId}")
     public ApiReturn deleteRelationByDwFileId(@PathVariable String kgName,
-                                              @PathVariable String dwFileId) {
-        entityFileRelationService.deleteRelationByDwFileId(dwFileId);
+                                              @PathVariable String fileId) {
+        entityFileRelationService.deleteRelationByFileId(fileId);
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体文件管理-根据数仓文件ID获取关系")
-    @PostMapping("/{kgName}/get/dwFileId/{dwFileId}")
-    public ApiReturn<List<EntityFileRelationRsp>> getRelationByDwFileId(@PathVariable String kgName,
-                                                                        @PathVariable String dwFileId) {
-        return ApiReturn.success(entityFileRelationService.getRelationByDwFileId(dwFileId));
+    @ApiOperation("实体文件管理-根据文件ID获取关系")
+    @PostMapping("/{kgName}/get/fileId/{fileId}")
+    public ApiReturn<List<EntityFileRelation>> getRelationByDwFileId(@PathVariable String kgName,
+                                                                     @PathVariable String fileId) {
+        return ApiReturn.success(entityFileRelationService.getRelationByDwFileId(kgName, fileId));
     }
 
     @ApiOperation("实体文件管理-新建标引")
@@ -84,16 +75,33 @@ public class EntityFileRelationController {
     @ApiOperation("实体文件管理-标引实体")
     @PostMapping("/{kgName}/update/index")
     public ApiReturn updateIndex(@PathVariable String kgName,
-                                    @Valid @RequestBody IndexRelationReq req) {
+                                 @RequestBody IndexRelationReq req) {
         entityFileRelationService.updateIndex(kgName, req);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("实体文件管理-取消标引")
+    @PostMapping("/{kgName}/cancel/index")
+    public ApiReturn deleteRelation(@PathVariable String kgName,
+                                    @RequestBody IndexRelationReq req) {
+        entityFileRelationService.cancelIndex(kgName, req);
         return ApiReturn.success();
     }
 
     @ApiOperation("实体文件管理-批量删除标引")
     @PostMapping("/{kgName}/delete/index")
     public ApiReturn deleteIndex(@PathVariable String kgName,
-                                 @RequestBody List<String> idList) {
-        entityFileRelationService.deleteIndex(kgName, idList);
+                                 @RequestBody List<String> relationIds) {
+        entityFileRelationService.deleteIndexByIds(kgName, relationIds);
+        return ApiReturn.success();
+    }
+
+    @ApiOperation("实体文件管理-新增文件标引")
+    @PostMapping("/{kgName}/add/file/{databaseId}/{tableId}")
+    public ApiReturn addFile(@PathVariable String kgName,
+                             @PathVariable Long databaseId,
+                             @PathVariable Long tableId) {
+        entityFileRelationService.addFile(kgName, databaseId, tableId);
         return ApiReturn.success();
     }
 
