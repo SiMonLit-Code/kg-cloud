@@ -7,8 +7,4 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface DWPrebuildRelationAttrRepository extends JpaRepository<DWPrebuildRelationAttr, Integer> {
 
-
-    @Modifying
-    @Query(value = "delete from prebuild_relation_attr where model_id = :id",nativeQuery = true)
-    void deleteByModelId(Integer id);
 }

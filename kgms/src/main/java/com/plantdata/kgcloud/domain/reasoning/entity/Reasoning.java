@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.reasoning.entity;
 
-import com.plantdata.kgcloud.domain.common.converter.IntegerListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +12,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @program: kg-cloud-kgms
