@@ -3,6 +3,8 @@ package com.plantdata.kgcloud.domain.repo.model;
 import com.plantdata.kgcloud.domain.common.converter.IntegerListConverter;
 import com.plantdata.kgcloud.domain.common.converter.ObjectJsonConverter;
 import com.plantdata.kgcloud.domain.repo.converter.RepoCheckConfigJsonConverter;
+import com.plantdata.kgcloud.domain.repo.converter.RepoTypeConverter;
+import com.plantdata.kgcloud.domain.repo.enums.RepositoryTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +36,12 @@ public class Repository {
      */
     @Column(name = "name")
     private String name;
+    /**
+     * 组件类型
+     */
+    @Column(name = "type")
+    @Convert(converter = RepoTypeConverter.class)
+    private RepositoryTypeEnum type;
     /**
      * 组件分组名称前端定义
      */

@@ -26,6 +26,7 @@ public class RepositoryConverter extends BasicConverter {
         rsp.setConfig(repository.getConfig());
         rsp.setGroupId(repository.getGroupId());
         rsp.setId(repository.getId());
+        rsp.setType(repository.getType());
         rsp.setRank(repository.getRank());
         rsp.setState(repository.isState());
         rsp.setName(repository.getName());
@@ -40,6 +41,7 @@ public class RepositoryConverter extends BasicConverter {
         rsp.setGroupId(repository.getGroupId());
         rsp.setCheckConfigs(listToRsp(repository.getCheckConfigs(), RepositoryConverter::repoCheckConfigReq2RepoCheckConfig));
         rsp.setName(repository.getName());
+        rsp.setType(repository.getType());
         rsp.setRank(repository.getRank());
         rsp.setRemark(repository.getRemark());
         rsp.setMenuId(repository.getMenuId());
