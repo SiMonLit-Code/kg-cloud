@@ -24,11 +24,11 @@ public abstract class BaseRepositoryVO {
     private String name;
     @ApiModelProperty(name = "启停状态", required = true)
     private boolean state;
-    @NotNull
+    @NotBlank
     @ApiModelProperty(name = "组件类型",required = true)
     private RepositoryTypeEnum type;
     @ApiModelProperty(name = "菜单id", required = true)
-    private int menuId;
+    private List<Integer> menuIds;
     @ApiModelProperty(name = "分组id", required = true)
     private int groupId;
     @ApiModelProperty(name = "排序", required = true)

@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.domain.repo.repository.RepositoryRepository;
 import com.plantdata.kgcloud.domain.repo.repository.RepositoryUseLogRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -99,9 +100,15 @@ public class RepositoryServiceImpl implements RepositoryService {
         repOpt.ifPresent(a -> {
             RepositoryUseLog useLog = repositoryUseLogRepository.findByUserIdAndRepositoryId(userId, id);
             if (useLog == null) {
-                repositoryUseLogRepository.save(new RepositoryUseLog(a.getId(), a.getMenuId(), userId));
+                repositoryUseLogRepository.save(new RepositoryUseLog(a.getId(), userId));
             }
         });
+    }
+
+    public List<RepositoryLogMenuRsp> aa(String userId) {
+        List<List<RepositoryLogMenuRsp>> lists = BasicConverter.listToRsp(list(userId),
+                RepositoryConverter::repositoryRsp2RepositoryLogMenuRsp);
+        return lists.stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
 }

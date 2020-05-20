@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.repo.enums;
 
-import com.plantdata.kgcloud.sdk.constant.BaseEnum;
 
 /**
  * @author cjw
