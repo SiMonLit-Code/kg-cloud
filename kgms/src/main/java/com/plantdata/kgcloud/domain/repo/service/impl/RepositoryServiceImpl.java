@@ -49,7 +49,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         List<RepositoryUseLog> useLogs = repositoryUseLogRepository.findAllByUserIdAndRepositoryIdIn(userId, stateMap.keySet());
         BasicConverter.consumerIfNoNull(useLogs, a -> {
             Set<Integer> repositoryIds = useLogs.stream().map(RepositoryUseLog::getRepositoryId).collect(Collectors.toSet());
-            repositoryRspList.forEach(b -> b.setNewFunction(repositoryIds.contains(b.getId())));
+            repositoryRspList.forEach(b -> b.setNewFunction(!repositoryIds.contains(b.getId())));
         });
         return repositoryRspList;
     }
