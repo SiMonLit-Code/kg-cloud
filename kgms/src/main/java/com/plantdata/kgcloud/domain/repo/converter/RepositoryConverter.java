@@ -31,7 +31,7 @@ public class RepositoryConverter extends BasicConverter {
         rsp.setState(repository.isState());
         rsp.setName(repository.getName());
         rsp.setRemark(repository.getRemark());
-        rsp.setMenuId(repository.getMenuId());
+        rsp.setMenuIds(repository.getMenuIds());
         return rsp;
     }
 
@@ -44,7 +44,7 @@ public class RepositoryConverter extends BasicConverter {
         rsp.setType(repository.getType());
         rsp.setRank(repository.getRank());
         rsp.setRemark(repository.getRemark());
-        rsp.setMenuId(repository.getMenuId());
+        rsp.setMenuIds(repository.getMenuIds());
         return rsp;
     }
 

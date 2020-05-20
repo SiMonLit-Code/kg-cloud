@@ -61,7 +61,8 @@ public class Repository {
      * 菜单id
      */
     @Column(name = "menu_id")
-    private int menuId;
+    @Convert(converter = IntegerListConverter.class)
+    private List<Integer> menuIds;
     /**
      * 描述
      */

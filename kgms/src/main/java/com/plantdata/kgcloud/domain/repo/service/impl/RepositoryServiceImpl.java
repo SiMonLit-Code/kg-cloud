@@ -99,7 +99,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         repOpt.ifPresent(a -> {
             RepositoryUseLog useLog = repositoryUseLogRepository.findByUserIdAndRepositoryId(userId, id);
             if (useLog == null) {
-                repositoryUseLogRepository.save(new RepositoryUseLog(a.getId(), a.getMenuId(), userId));
+                repositoryUseLogRepository.save(new RepositoryUseLog(a.getId(), userId));
             }
         });
     }
