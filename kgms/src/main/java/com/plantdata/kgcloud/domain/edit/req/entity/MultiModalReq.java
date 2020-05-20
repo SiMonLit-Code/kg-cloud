@@ -33,13 +33,13 @@ public class MultiModalReq {
     private Integer uploadType;
 
     @ApiModelProperty("数仓id")
-    private Long dataBaseId;
+    private Long databaseId;
 
     @ApiModelProperty("所属文件夹id")
     private Long tableId;
 
-    @ApiModelProperty("数仓文件id(上传类型为1传值)")
-    private String dwFileId;
+    @ApiModelProperty("文件id(上传类型为1传值)")
+    private String fileId;
 
     @ApiModelProperty("关键词")
     private String keyword;

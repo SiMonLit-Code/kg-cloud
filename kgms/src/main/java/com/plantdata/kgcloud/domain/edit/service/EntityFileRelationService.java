@@ -1,11 +1,12 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
-import com.plantdata.kgcloud.domain.edit.rsp.DWFileRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRelationRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.EntityInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,37 +14,41 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
- * @author EYE
+ * @author lp
  */
 public interface EntityFileRelationService {
 
-    Page<DWFileRsp> listRelation(String kgName, EntityFileRelationQueryReq req);
+    Page<EntityFileRelationRsp> listRelation(String kgName, EntityFileRelationQueryReq req);
 
     void createRelation(String kgName, EntityFileRelationReq req);
 
-    void deleteRelation(List<String> idList);
+    void deleteRelationByFileId(String fileId);
 
-    void deleteRelationByDwFileId(String dwFileId);
+    void deleteRelationByFileIds(List<String> fileIds);
 
-    void deleteById(String id);
+    void deleteIndexById(String kgName, String id);
 
-    void deleteIndex(String kgName, List<String> idList);
+    void deleteIndexByIds(String kgName, List<String> idList);
 
     void deleteByEntityIds(String kgName, List<Long> entityIds);
 
-    MultiModal getMultiModalById(String id);
+    MultiModal getMultiModalById(String kgName, String id);
 
-    List<EntityFileRelationRsp> getRelationByDwFileId(String dwFileId);
+    List<EntityFileRelation> getRelationByDwFileId(String kgName, String fileId);
 
     List<EntityFileRsp> getRelationByKgNameAndEntityId(String kgName, Long entityId);
 
-    List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName,List<Long> entityIds, Integer type);
+    List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName, List<Long> entityIds, Integer type);
 
     void addIndex(String kgName, Integer indexType, MultipartFile file);
 
     void updateIndex(String kgName, IndexRelationReq req);
 
-    boolean checkExist(String kgName, Long entityId, String dwFileId);
+    void cancelIndex(String kgName, IndexRelationReq req);
+
+    void addFile(String kgName, Long databaseId, Long tableId);
+
+    boolean checkExist(String kgName, Long entityId, String fileId);
 
     boolean checkSize(String kgName, Long entityId);
 
