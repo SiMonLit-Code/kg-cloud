@@ -268,9 +268,6 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             Map<Long, List<KnowledgeIndexRsp>> indexMap = basicInfoService.listKnowledgeIndexs(kgName, entityIds);
             //查询对象属性
             Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
-            if(relationOpt.isPresent() && relationOpt.get().size() > 10){
-                relationOpt = Optional.ofNullable(relationOpt.get().subList(0,10));
-            }
             Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
             Map<Long, List<RelationVO>> reverseMap = Maps.newHashMap();
             if(req.getRelationAttrs()) {

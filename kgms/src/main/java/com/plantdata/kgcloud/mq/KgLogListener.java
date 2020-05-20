@@ -3,6 +3,9 @@ package com.plantdata.kgcloud.mq;
 import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.databind.JavaType;
 import com.mongodb.MongoClient;
+import com.plantdata.graph.logging.core.*;
+import com.plantdata.graph.logging.core.segment.EntitySegment;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.graph.logging.core.GraphLog;
 import com.plantdata.graph.logging.core.GraphLogMessage;
 import com.plantdata.graph.logging.core.GraphLogScope;
@@ -39,9 +42,10 @@ public class KgLogListener {
 
     /**
      * 数据层日志监听
+     *
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"}, groupId = "graphLog")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.log}"}, groupId = "graphLog")
     public void logListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -61,8 +65,10 @@ public class KgLogListener {
                     log.info("opt log: {}", graphLog.getMessage());
                     List<Document> ls = dataMap.getOrDefault(kgDbName, new ArrayList<>());
                     ls.add(Document.parse(JacksonUtils.writeValueAsString(graphLog)));
-                    String kgName = graphRepository.findByDbName(kgDbName).getKgName();
-                    dataMap.put(kgName, ls);
+                    BasicConverter.consumerIfNoNull(graphRepository.findByDbName(kgDbName), a -> {
+                        String kgName = a.getKgName();
+                        dataMap.put(kgName, ls);
+                    });
                 }
             });
 
@@ -81,6 +87,7 @@ public class KgLogListener {
 
     /**
      * 业务层日志监听
+     *
      * @author xiezhenxiang 2020/1/15
      **/
     @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.service.log}"}, groupId = "graphLog")
