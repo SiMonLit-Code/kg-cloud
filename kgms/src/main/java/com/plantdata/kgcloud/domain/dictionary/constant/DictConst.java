@@ -5,6 +5,7 @@ package com.plantdata.kgcloud.domain.dictionary.constant;
  * @author: Bovin
  * @create: 2019-11-11 09:54
  **/
+@Deprecated
 public interface DictConst {
     String DATABASE_SUFFIX = "_kgms_dict";
     String COLLECTION_PREFIX = "word_";

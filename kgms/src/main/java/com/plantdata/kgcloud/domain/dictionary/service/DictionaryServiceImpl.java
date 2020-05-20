@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
  * @author: Bovin
  * @create: 2019-11-04 18:45
  **/
+@Deprecated
 @Service
 public class DictionaryServiceImpl implements DictionaryService {
 

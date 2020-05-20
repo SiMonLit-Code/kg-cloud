@@ -32,6 +32,7 @@ import java.util.List;
  * @author: Bovin
  * @create: 2019-11-05 15:00
  **/
+@Deprecated
 @Api(tags = "词典管理")
 @RestController
 @RequestMapping("/dictionary")

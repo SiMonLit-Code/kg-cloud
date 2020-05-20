@@ -15,6 +15,7 @@ import java.util.List;
  * @author: Bovin
  * @create: 2019-11-05 14:59
  **/
+@Deprecated
 public interface WordService {
     /**
      * 词条全查找

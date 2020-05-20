@@ -15,54 +15,6 @@ import java.util.List;
 @FeignClient(value = "kgms", contextId = "kgms")
 public interface KgmsClient {
 
-    @ApiOperation("词典查找所有")
-    @GetMapping("/dictionary/all")
-    ApiReturn<List<DictionaryRsp>> dictionaryFindAll();
-
-    @ApiOperation("词典分页查找")
-    @GetMapping("/dictionary/")
-    ApiReturn<BasePage<DictionaryRsp>> dictionaryFindAll(BaseReq baseReq);
-
-    @ApiOperation("词典根据Id查找")
-    @GetMapping("/dictionary/{id}")
-    ApiReturn<DictionaryRsp> dictionaryFindById(@PathVariable("id") Long id);
-
-    @ApiOperation("词典创建")
-    @PostMapping("/dictionary/")
-    ApiReturn<DictionaryRsp> dictionaryInsert(@Valid @RequestBody DictionaryReq dictionaryReq);
-
-    @ApiOperation("词典编辑")
-    @PatchMapping("/dictionary/{id}")
-    ApiReturn<DictionaryRsp> dictionaryUpdate(@PathVariable("id") Long id, @Valid @RequestBody DictionaryReq req);
-
-    @ApiOperation("词典删除")
-    @DeleteMapping("/dictionary/{id}")
-    ApiReturn dictionaryDelete(@PathVariable("id") Long id);
-
-    @ApiOperation("词典-词条查找所有")
-    @GetMapping("/dictionary/{dictId}/word/all")
-    ApiReturn<List<WordRsp>> wordFindAll(@PathVariable("dictId") Long dictId);
-
-    @ApiOperation("词典-词条分页查找")
-    @GetMapping("/dictionary/{dictId}/word")
-    ApiReturn<BasePage<WordRsp>> wordFindAll(@PathVariable("dictId") Long dictId, BaseReq baseReq);
-
-    @ApiOperation("词典-词条根据Id查找")
-    @GetMapping("/dictionary/{dictId}/word/{wordId}")
-    ApiReturn<WordRsp> wordFindById(@PathVariable("dictId") Long dictId, @PathVariable("wordId") String wordId);
-
-    @ApiOperation("词典-词条创建")
-    @PostMapping("/dictionary/{dictId}/word")
-    ApiReturn<WordRsp> wordInsert(@PathVariable("dictId") Long dictId, @Valid @RequestBody WordReq req);
-
-    @ApiOperation("词典-词条编辑")
-    @PatchMapping("/dictionary/{dictId}/word/{wordId}")
-    ApiReturn<WordRsp> wordUpdate(@PathVariable("dictId") Long dictId, @PathVariable("wordId") String wordId, @Valid @RequestBody WordReq req);
-
-    @ApiOperation("词典-词条删除")
-    @DeleteMapping("/dictionary/{dictId}/word/{wordId}")
-    ApiReturn wordDelete(@PathVariable("dictId") Long dictId, @PathVariable("wordId") String wordId);
-
     @ApiOperation("图谱查找所有")
     @GetMapping("/graph/all")
     ApiReturn<List<GraphRsp>> graphFindAll();
