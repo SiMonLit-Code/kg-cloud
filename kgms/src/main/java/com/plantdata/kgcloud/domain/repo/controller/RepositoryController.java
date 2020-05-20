@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.domain.repo.constatn.StringConstants;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryGroup;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
+import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryListRsp;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
 import com.plantdata.kgcloud.domain.repo.repository.RepositoryGroupRepository;
@@ -43,6 +44,18 @@ public class RepositoryController {
         return ApiReturn.success(repositoryService.add(repositoryReq));
     }
 
+    @ApiOperation("组件删除")
+    @DeleteMapping("{id}")
+    public ApiReturn<Boolean> delete(@PathVariable(name = "id") Integer id) {
+        return ApiReturn.success(repositoryService.delete(id));
+    }
+
+    @ApiOperation("组件修改")
+    @PutMapping
+    public ApiReturn<Boolean> modify(@RequestBody RepositoryUpdateReq repositoryReq) {
+        return ApiReturn.success(repositoryService.modify(repositoryReq));
+    }
+
     @ApiOperation("组件启用")
     @PostMapping("{id}/start")
     public ApiReturn<String> startRepository(@PathVariable(name = "id") Integer id) {
@@ -63,5 +76,9 @@ public class RepositoryController {
         repositoryService.useLog(id, SessionHolder.getUserId());
         return ApiReturn.success(StringConstants.SUCCESS);
     }
-
+    @ApiOperation("使用记录关联动态导航")
+    @GetMapping("log/menu")
+    public ApiReturn<String> useLogMenu() {
+        return ApiReturn.success(StringConstants.SUCCESS);
+    }
 }

@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.repo.model;
 
 import com.plantdata.kgcloud.domain.repo.enums.RepoCheckType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -10,9 +12,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RepoCheckConfig {
+@NoArgsConstructor
+@AllArgsConstructor
+public class RepoCheckConfig  {
 
     private RepoCheckType checkType;
-    private int repositoryId;
     private String content;
 }

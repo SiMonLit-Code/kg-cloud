@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.repo.factory.ServiceCheckerFactory;
 import com.plantdata.kgcloud.domain.repo.model.Repository;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryUseLog;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
+import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
 import com.plantdata.kgcloud.domain.repo.repository.RepositoryRepository;
 import com.plantdata.kgcloud.domain.repo.repository.RepositoryUseLogRepository;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -42,7 +44,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         //填充组件状态
         Function<Repository, Boolean> health = b -> ServiceCheckerFactory.factory(b.getCheckConfigs()).stream().allMatch(ServiceChecker::check);
         Map<Integer, Boolean> stateMap = all.stream().collect(Collectors.toMap(Repository::getId, health));
-        BasicConverter.listConsumerIfNoNull(repositoryRspList, a -> a.setEnable(stateMap.get(a.getId())));
+        BasicConverter.listConsumerIfNoNull(repositoryRspList, a -> a.setEnable(stateMap.getOrDefault(a.getId(), true)));
         //检测是否为最新
         List<RepositoryUseLog> useLogs = repositoryUseLogRepository.findAllByUserIdAndRepositoryIdIn(userId, stateMap.keySet());
         BasicConverter.consumerIfNoNull(useLogs, a -> {
@@ -53,9 +55,25 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public Integer add(RepositoryReq repositoryReq) {
         Repository repository = repositoryRepository.save(RepositoryConverter.repositoryReq2Repository(repositoryReq));
         return repository.getId();
+    }
+
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public boolean modify(RepositoryUpdateReq updateReq) {
+        Repository repository = RepositoryConverter.repositoryUpdateReq2RepoCheckConfig(updateReq);
+        repositoryRepository.save(repository);
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public boolean delete(int id) {
+        repositoryRepository.deleteById(id);
+        return true;
     }
 
     @Override
@@ -68,13 +86,14 @@ public class RepositoryServiceImpl implements RepositoryService {
             }
             a.setState(start);
             repositoryRepository.save(a);
-            //清楚使用状态
+            //清除使用状态
             repositoryUseLogRepository.deleteByRepositoryId(id);
         });
         return true;
     }
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public void useLog(Integer id, String userId) {
         Optional<Repository> repOpt = repositoryRepository.findById(id);
         repOpt.ifPresent(a -> {
@@ -84,4 +103,5 @@ public class RepositoryServiceImpl implements RepositoryService {
             }
         });
     }
+
 }

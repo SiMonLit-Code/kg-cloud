@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.domain.common.converter.ObjectJsonConverter;
 import com.plantdata.kgcloud.domain.repo.converter.RepoCheckConfigJsonConverter;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -57,7 +58,7 @@ public class Repository {
      * 描述
      */
     @Column(name = "remark")
-    private String remark;
+    private String remark= StringUtils.EMPTY;
     /**
      * 前端自定义配置
      */

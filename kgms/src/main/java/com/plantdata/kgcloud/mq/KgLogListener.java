@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.plantdata.graph.logging.core.*;
 import com.plantdata.graph.logging.core.segment.EntitySegment;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +45,10 @@ public class KgLogListener {
 
     /**
      * 数据层日志监听
+     *
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"}, groupId = "graphLog")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.log}"}, groupId = "graphLog")
     public void logListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -66,9 +68,11 @@ public class KgLogListener {
                     log.info("opt log: {}", graphLog.getMessage());
                     List<Document> ls = dataMap.getOrDefault(kgDbName, new ArrayList<>());
                     ls.add(Document.parse(JacksonUtils.writeValueAsString(graphLog)));
-                    String kgName = graphRepository.findByDbName(kgDbName).getKgName();
-                    dataMap.put(kgName, ls);
-                    pinyinSyn(kgName, graphLog);
+                    BasicConverter.consumerIfNoNull(graphRepository.findByDbName(kgDbName), a -> {
+                        String kgName = a.getKgName();
+                        dataMap.put(kgName, ls);
+                        pinyinSyn(kgName, graphLog);
+                    });
                 }
             });
 
@@ -87,9 +91,10 @@ public class KgLogListener {
 
     /**
      * 业务层日志监听
+     *
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.service.log}"}, groupId = "graphLog")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.service.log}"}, groupId = "graphLog")
     public void serviceLogListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -118,12 +123,13 @@ public class KgLogListener {
 
     /**
      * 拼音检索数据同步
+     *
      * @author xiezhenxiang 2020/1/16
      **/
-    private void pinyinSyn (String kgName, GraphLog log) {
+    private void pinyinSyn(String kgName, GraphLog log) {
 
         if (log.getScope().equals(GraphLogScope.ENTITY) && openPinyin(kgName)) {
-            EntitySegment segment =(EntitySegment)log.getNewValue();
+            EntitySegment segment = (EntitySegment) log.getNewValue();
 
             if (log.getOperation().equals(GraphLogOperation.ADD)) {
                 JSONObject doc = new JSONObject()
@@ -138,7 +144,7 @@ public class KgLogListener {
                     updateById(kgName, segment.getId(), doc);
                 }
             } else {
-                segment =(EntitySegment)log.getOldValue();
+                segment = (EntitySegment) log.getOldValue();
                 deleteById(kgName, segment.getId());
             }
         }
