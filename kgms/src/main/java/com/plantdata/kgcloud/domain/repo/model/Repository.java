@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.domain.repo.converter.RepoCheckConfigJsonConverter;
 import com.plantdata.kgcloud.domain.repo.converter.RepoTypeConverter;
 import com.plantdata.kgcloud.domain.repo.enums.RepositoryTypeEnum;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -23,12 +24,13 @@ import java.util.Map;
 @Entity
 @Table(name = "repo_repository")
 @EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
 public class Repository {
     /**
      * 组件id
      */
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
     /**
@@ -67,7 +69,7 @@ public class Repository {
      * 描述
      */
     @Column(name = "remark")
-    private String remark= StringUtils.EMPTY;
+    private String remark = StringUtils.EMPTY;
     /**
      * 前端自定义配置
      */
@@ -80,4 +82,10 @@ public class Repository {
     @Column(name = "check_configs")
     @Convert(converter = RepoCheckConfigJsonConverter.class)
     private List<RepoCheckConfig> checkConfigs;
+
+    public Repository(Integer id, List<Integer> menuIds, List<RepoCheckConfig> checkConfigs) {
+        this.id = id;
+        this.menuIds = menuIds;
+        this.checkConfigs = checkConfigs;
+    }
 }

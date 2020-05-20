@@ -11,9 +11,11 @@ import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.GroupRsp;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryListRsp;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
+import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 import lombok.NonNull;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -71,5 +73,9 @@ public class RepositoryConverter extends BasicConverter {
 
     public static RepoCheckConfig repoCheckConfigReq2RepoCheckConfig(RepoCheckConfigReq checkConfigReq) {
         return new RepoCheckConfig(checkConfigReq.getCheckType(), checkConfigReq.getContent());
+    }
+
+    public static List<RepositoryLogMenuRsp> repositoryRsp2RepositoryLogMenuRsp(RepositoryRsp repositoryRsp) {
+        return listToRsp(repositoryRsp.getMenuIds(), a -> new RepositoryLogMenuRsp(a,repositoryRsp.isEnable(),repositoryRsp.getNewFunction()));
     }
 }

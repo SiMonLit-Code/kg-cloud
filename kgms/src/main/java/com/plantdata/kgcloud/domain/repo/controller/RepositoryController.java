@@ -10,11 +10,14 @@ import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryListRsp;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
 import com.plantdata.kgcloud.domain.repo.repository.RepositoryGroupRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
+import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -76,9 +79,10 @@ public class RepositoryController {
         repositoryService.useLog(id, SessionHolder.getUserId());
         return ApiReturn.success(StringConstants.SUCCESS);
     }
+
     @ApiOperation("使用记录关联动态导航")
-    @GetMapping("log/menu")
-    public ApiReturn<String> useLogMenu() {
-        return ApiReturn.success(StringConstants.SUCCESS);
+    @PostMapping("log/menu")
+    public ApiReturn<List<RepositoryLogMenuRsp>> logMenuRsp(@RequestBody List<Integer> menuIds) {
+        return ApiReturn.success(Collections.emptyList());
     }
 }
