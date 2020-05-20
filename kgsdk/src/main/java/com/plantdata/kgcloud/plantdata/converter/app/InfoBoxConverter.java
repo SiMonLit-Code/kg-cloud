@@ -41,7 +41,7 @@ public class InfoBoxConverter extends BasicConverter {
         infoBoxReq.setAllowAttrs(infoBoxParam.getAllowAtts());
         infoBoxReq.setId(infoBoxParam.getId());
         infoBoxReq.setKw(infoBoxParam.getKw());
-        infoBoxReq.setRelationAttrs(infoBoxParam.getIsRelationAtts());
+        infoBoxReq.setRelationAttrs(infoBoxParam.isRelationAtts());
         infoBoxReq.setAllowAttrsKey(infoBoxParam.getAllowAttsKey());
         return infoBoxReq;
     }
@@ -50,7 +50,7 @@ public class InfoBoxConverter extends BasicConverter {
         BatchInfoBoxReqList infoBoxReq = new BatchInfoBoxReqList();
         infoBoxReq.setAllowAttrs(parameterMore.getAllowAtts());
         infoBoxReq.setAllowAttrsKey(parameterMore.getAllowAttsKey());
-        infoBoxReq.setRelationAttrs(parameterMore.getIsRelationAtts());
+        infoBoxReq.setRelationAttrs(parameterMore.isRelationAtts());
         infoBoxReq.setIds(parameterMore.getIds());
         infoBoxReq.setKws(parameterMore.getKws());
         return infoBoxReq;
@@ -99,9 +99,9 @@ public class InfoBoxConverter extends BasicConverter {
         List<EntityLink> entityLinks = toListNoNull(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
         consumerIfNoNull(entityLinks, a -> oldBean.setEntityLinks(Sets.newHashSet(a)));
         oldBean.setExtra(toListNoNull(entityLinksRsp.getExtraList(), InfoBoxConverter::extraRspToExtraKVBean));
-        consumerIfNoNull(entityLinksRsp.getMultiModals(),oldBean::setMultiModals);
-        consumerIfNoNull(entityLinksRsp.getKnowledgeIndexs(),oldBean::setKnowledgeIndexs);
-        consumerIfNoNull(entityLinksRsp.getDictList(),oldBean::setDictList);
+        consumerIfNoNull(entityLinksRsp.getMultiModals(), oldBean::setMultiModals);
+        consumerIfNoNull(entityLinksRsp.getKnowledgeIndexs(), oldBean::setKnowledgeIndexs);
+        consumerIfNoNull(entityLinksRsp.getDictList(), oldBean::setDictList);
         return oldBean;
     }
 

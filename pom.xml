@@ -98,7 +98,11 @@
                 <artifactId>kg-cloud-swagger</artifactId>
                 <version>${kg-cloud-parent.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-swagger</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
             <!-- ********** public sdk *************-->
             <dependency>
                 <groupId>com.plantdata</groupId>
@@ -132,6 +136,11 @@
                         <groupId>com.alibaba</groupId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.netflix.feign</groupId>
+                <artifactId>feign-httpclient</artifactId>
             </dependency>
         </dependencies>
     </dependencyManagement>

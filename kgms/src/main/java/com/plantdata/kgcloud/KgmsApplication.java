@@ -2,7 +2,9 @@ package com.plantdata.kgcloud;
 
 import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 import com.plantdata.kgcloud.constant.CommonConstants;
+import com.plantdata.kgcloud.interceptor.FeignRequestInterceptor;
 import feign.Logger;
+import feign.RequestInterceptor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -30,4 +32,5 @@ public class KgmsApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(KgmsApplication.class);
     }
+
 }
