@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.dictionary.entity;
+package com.plantdata.kgcloud.domain.reasoning.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,58 +6,54 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
-
 /**
+ * @program: kg-cloud-kgms
  * @description:
- * @author: Bovin
- * @create: 2019-11-04 18:45
+ * @author: czj
+ * @create: 2020-05-20 16:53
  **/
 
 @Data
+@Entity
 @Builder
+@Table(name = "reasoning")
 @AllArgsConstructor
 @NoArgsConstructor
-
-@Entity
 @DynamicInsert
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
-public class Dictionary {
+public class Reasoning {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
+
+    @Basic
+    @Column(name = "name")
+    private String name;
+
+    @Basic
+    @Column(name = "kg_name")
+    private String kgName;
+
+    @Basic
+    @Column(name = "config")
+    private String config;
 
     @Basic
     @Column(name = "user_id")
     private String userId;
 
     @Basic
-    @Column(name = "title")
-    private String title;
-
-    @Basic
-    @Column(name = "db_name")
-    private String dbName;
-
-    @Basic
-    @Column(name = "remark")
-    private String remark;
-
-    @Basic
-    @Column(name = "create_at", updatable = false)
+    @Column(name = "create_at")
     @CreatedDate
     private Date createAt;
 
@@ -65,5 +61,4 @@ public class Dictionary {
     @Column(name = "update_at")
     @LastModifiedDate
     private Date updateAt;
-
 }
