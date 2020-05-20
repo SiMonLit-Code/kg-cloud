@@ -2,28 +2,28 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
-import com.plantdata.kgcloud.constant.DWFileConstants;
+import com.plantdata.kgcloud.constant.FileConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
+import com.plantdata.kgcloud.domain.edit.converter.EntityFileConverter;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
-import com.plantdata.kgcloud.domain.edit.entity.KnowledgeIndex;
 import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.DWFileRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRelationRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.EntityInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
+import com.plantdata.kgcloud.domain.file.entity.FileData;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +41,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * @author EYE
+ * @author lp
  */
 @Service
 public class EntityFileRelationServiceImpl implements EntityFileRelationService {
@@ -60,10 +61,10 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     private MongoClient mongoClient;
     @Autowired
     private DocumentConverter documentConverter;
-
     @Autowired
-    private UserClient userClient;
-
+    private EntityFileConverter entityFileConverter;
+    // @Autowired
+    // private TableDataService tableDataService;
 
     public static List<LinkedHashMap<String, String>> readExcel(MultipartFile file, Integer indexType) throws IOException {
         // 返回的map
@@ -150,101 +151,69 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         return list;
     }
 
-    private MongoCollection<Document> getCollection() {
-        return mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.RELATION);
+    private MongoCollection<Document> getRelationCollection(String kgName) {
+        return mongoClient.getDatabase(FileConstants.DW_PREFIX +
+                SessionHolder.getUserId()).getCollection(FileConstants.RELATION + "_" + kgName);
     }
 
-    DWFileRsp convertToDWFileRsp(Document document, String kgName) {
-        DWFileRsp dwFileRsp = DWFileRsp.builder().id(document.getObjectId("_id").toString())
-                .title(document.getString("title")).indexType(document.getInteger("indexType"))
-                .keyword(document.getString("keyword"))
-                .description(document.getString("description")).url(document.getString("url")).build();
-        List<EntityFileRelationRsp> list = convertToEntityFileRelationRspList((List<Document>) document.get("relationList"), kgName);
-        dwFileRsp.setRelationList(list);
-        return dwFileRsp;
+    private MongoCollection<Document> getFileCollection() {
+        return mongoClient.getDatabase(FileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
     }
 
-    List<EntityFileRelationRsp> convertToEntityFileRelationRspList(List<Document> documents, String kgName) {
-        List<EntityFileRelationRsp> list = Lists.newArrayList();
-        for (Document document : documents) {
-            if (document.getString("kgName").equals(kgName)) {
-                list.add(convertToEntityFileRelationRsp(document));
-            }
-        }
-        return list;
-    }
-
-    EntityFileRelationRsp convertToEntityFileRelationRsp(Document document) {
-        return EntityFileRelationRsp.builder().id(document.getObjectId("_id").toString())
-                .kgName(document.getString("kgName")).entityId(document.getLong("entityId"))
-                .dwFileId(document.getObjectId("dwFileId").toString())
-                .indexType(document.getInteger("indexType"))
-                .createTime(document.getDate("createTime")).build();
+    private MongoDatabase getDatabase() {
+        return mongoClient.getDatabase(FileConstants.DW_PREFIX + SessionHolder.getUserId());
     }
 
     @Override
-    public Page<DWFileRsp> listRelation(String kgName, EntityFileRelationQueryReq req) {
+    public Page<EntityFileRelationRsp> listRelation(String kgName, EntityFileRelationQueryReq req) {
 
         int size = req.getSize();
         int pageNo = (req.getPage() - 1) * size;
 
-        List<Bson> aggLs = new ArrayList<>();
+        List<Bson> query = new ArrayList<>();
         if (StringUtils.isNotBlank(req.getName())) {
-            aggLs.add(Aggregates.match(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$"))));
+            query.add(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$")));
         }
+        query.add(Filters.eq("indexType", req.getIndexType()));
 
-        MongoCursor<Document> iterator = null;
-        if (req.getIndexType() == 1 || req.getIndexType() == 2) {
-            aggLs.add(Aggregates.lookup(DWFileConstants.RELATION, "_id", "dwFileId", "relationList"));
-            aggLs.add(Aggregates.match(Filters.eq("indexType", req.getIndexType())));
-            aggLs.add(Aggregates.match(Filters.eq("kgName", kgName)));
-            aggLs.add(Aggregates.skip(pageNo));
-            aggLs.add(Aggregates.limit(size + 1));
-            MongoCollection<Document> collection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.INDEX);
-            iterator = collection.aggregate(aggLs).iterator();
-        } else if (req.getIndexType() == 0) {
-            aggLs.add(Aggregates.lookup(DWFileConstants.RELATION, "_id", "dwFileId", "relationList"));
-            aggLs.add(Aggregates.match(Filters.exists("relationList.0")));
-            aggLs.add(Aggregates.match(Filters.elemMatch("relationList", Filters.regex("kgName", kgName))));
-            aggLs.add(Aggregates.skip(pageNo));
-            aggLs.add(Aggregates.limit(size + 1));
-            MongoCollection<Document> collection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.FILE);
-            iterator = collection.aggregate(aggLs).iterator();
-        }
+        FindIterable<Document> findIterable = getRelationCollection(kgName).find(Filters.and(query)).skip(pageNo).limit(size + 1);
+        List<EntityFileRelation> relations = entityFileConverter.toBeans(findIterable);
 
-        List<DWFileRsp> list = Lists.newArrayList();
-        List<Long> entityIds = Lists.newArrayList();
-        if (iterator != null) {
-            iterator.forEachRemaining(s -> {
-                DWFileRsp dwFileRsp = convertToDWFileRsp(s, kgName);
-                if (dwFileRsp.getRelationList() != null) {
-                    entityIds.addAll(dwFileRsp.getRelationList().stream().map(EntityFileRelationRsp::getEntityId).collect(Collectors.toList()));
+        List<EntityFileRelationRsp> list = Lists.newArrayList();
+        HashSet<Long> entityIds = new HashSet<>();
+        if (!CollectionUtils.isEmpty(relations)) {
+            for (EntityFileRelation relation : relations) {
+                EntityFileRelationRsp entityFileRelationRsp = ConvertUtils.convert(EntityFileRelationRsp.class).apply(relation);
+                List<Long> ids = relation.getEntityIds();
+                // 保存实体Ids
+                if (!CollectionUtils.isEmpty(ids)) {
+                    entityIds.addAll(ids);
+                    List<EntityInfoRsp> entityInfoList = ids.stream()
+                            .map(s -> EntityInfoRsp.builder().entityId(s).build()).collect(Collectors.toList());
+                    entityFileRelationRsp.setEntityInfoList(entityInfoList);
                 }
-                list.add(dwFileRsp);
-            });
+                list.add(entityFileRelationRsp);
+            }
         }
-        HashSet<Long> h = new HashSet<>(entityIds);
-        entityIds.clear();
-        entityIds.addAll(h);
 
-        Map<Long, String> nameMap = basicInfoService.listByIds(kgName, entityIds)
+        Map<Long, String> nameMap = basicInfoService.listByIds(kgName, Lists.newArrayList(entityIds))
                 .stream().collect(Collectors.toMap(BasicInfoRsp::getId, BasicInfoRsp::getName, (k1, k2) -> k1));
 
         List<Long> deleteIds = Lists.newArrayList();
         for (int i = 0; i < list.size(); i++) {
-            DWFileRsp dwFileRsp = list.get(i);
-            List<EntityFileRelationRsp> relationList = dwFileRsp.getRelationList();
-            for (int j = 0; j < relationList.size(); j++) {
-                EntityFileRelationRsp relationRsp = relationList.get(j);
+            EntityFileRelationRsp entityFileRelationRsp = list.get(i);
+            List<EntityInfoRsp> entityInfoList = entityFileRelationRsp.getEntityInfoList();
+            for (int j = 0; j < entityInfoList.size(); j++) {
+                EntityInfoRsp relationRsp = entityInfoList.get(j);
                 if (StringUtils.isBlank(nameMap.get(relationRsp.getEntityId()))) {
-                    relationList.remove(j);
+                    entityInfoList.remove(j);
                     j--;
                     deleteIds.add(relationRsp.getEntityId());
                 } else {
                     relationRsp.setEntityName(nameMap.get(relationRsp.getEntityId()));
                 }
             }
-            if (relationList.size() == 0 && req.getIndexType().equals(0)) {
+            if (entityInfoList.size() == 0 && req.getIndexType().equals(0)) {
                 list.remove(i);
                 i--;
             }
@@ -262,55 +231,54 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     @Override
     public void createRelation(String kgName, EntityFileRelationReq req) {
         EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(req);
-        relation.setKgName(kgName);
         relation.setCreateTime(new Date());
-        Document document = documentConverter.toDocument(relation);
-        document.put("dwFileId", new ObjectId(relation.getDwFileId()));
-        getCollection().insertOne(document);
+        Document document = entityFileConverter.toDocument(relation);
+        getRelationCollection(kgName).insertOne(document);
     }
 
     @Override
-    public void deleteRelation(List<String> idList) {
+    public void deleteRelationByFileId(String fileId) {
+        Document document = getFileCollection().find(entityFileConverter.buildObjectId(fileId)).first();
+        FileData fileData = documentConverter.toBean(document, FileData.class);
+        List<String> kgNames = fileData.getKgNames();
+        if (CollectionUtils.isEmpty(kgNames)) {
+            return;
+        }
+        for (String kgName : kgNames) {
+            getRelationCollection(kgName).deleteMany(Filters.eq("fileId", new ObjectId(fileId)));
+        }
+    }
+
+    @Override
+    public void deleteRelationByFileIds(List<String> fileIds) {
+        for (String fileId : fileIds) {
+            deleteRelationByFileId(fileId);
+        }
+    }
+
+    @Override
+    public void deleteIndexById(String kgName, String id) {
+        getRelationCollection(kgName).deleteOne(entityFileConverter.buildObjectId(id));
+    }
+
+    @Override
+    public void deleteIndexByIds(String kgName, List<String> idList) {
         List<ObjectId> collect = idList.stream().map(ObjectId::new).collect(Collectors.toList());
-        getCollection().deleteMany(Filters.in("_id", collect));
-    }
-
-    @Override
-    public void deleteRelationByDwFileId(String dwFileId) {
-        getCollection().deleteMany(Filters.eq("dwFileId", new ObjectId(dwFileId)));
-    }
-
-    @Override
-    public void deleteById(String id) {
-        getCollection().deleteOne(documentConverter.buildObjectId(id));
-    }
-
-    @Override
-    public void deleteIndex(String kgName, List<String> idList) {
-        List<ObjectId> collect = idList.stream().map(ObjectId::new).collect(Collectors.toList());
-        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
-        database.getCollection(DWFileConstants.INDEX).deleteMany(Filters.in("_id", collect));
-        deleteRelationByDwFileIds(collect);
+        getRelationCollection(kgName).deleteMany(Filters.in("_id", collect));
     }
 
     @Override
     public void deleteByEntityIds(String kgName, List<Long> entityIds) {
-        getCollection().deleteMany(Filters.in("entityId",entityIds));
+        getRelationCollection(kgName).deleteMany(Filters.in("entityId", entityIds));
     }
 
-    public void deleteRelationByDwFileIds(List<ObjectId> dwFileIds) {
-        getCollection().deleteMany(Filters.in("dwFileId", dwFileIds));
-    }
 
     @Override
-    public MultiModal getMultiModalById(String id) {
-        String userId = SessionHolder.getUserId();
-//        String userId = userClient.getCurrentUserDetail().getData().getId();
-        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + userId);
-        Document document = database.getCollection(DWFileConstants.RELATION).find(Filters.eq("_id", new ObjectId(id))).first();
+    public MultiModal getMultiModalById(String kgName, String id) {
+        Document document = getRelationCollection(kgName).find(entityFileConverter.buildObjectId(id)).first();
         if (document != null) {
-            ObjectId dwFileId = document.getObjectId("dwFileId");
-            Document file = database.getCollection(DWFileConstants.FILE).find(Filters.eq("_id", dwFileId)).first();
+            ObjectId fileId = document.getObjectId("fileId");
+            Document file = getFileCollection().find(Filters.eq("_id", fileId)).first();
             MultiModal multiModal = documentConverter.toBean(file, MultiModal.class);
             multiModal.setEntityId(document.getLong("entityId"));
             return multiModal;
@@ -319,38 +287,28 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
-    public List<EntityFileRelationRsp> getRelationByDwFileId(String dwFileId) {
-        MongoCursor<Document> cursor = getCollection().find(Filters.eq("dwFileId", new ObjectId(dwFileId))).iterator();
-        List<EntityFileRelationRsp> list = Lists.newArrayList();
-        if (cursor.hasNext()) {
-            list.add(convertToEntityFileRelationRsp(cursor.next()));
-        }
-        return list;
+    public List<EntityFileRelation> getRelationByDwFileId(String kgName, String fileId) {
+        FindIterable<Document> findIterable = getRelationCollection(kgName).find(Filters.eq("fileId", new ObjectId(fileId)));
+        return entityFileConverter.toBeans(findIterable);
     }
 
     @Override
     public List<EntityFileRsp> getRelationByKgNameAndEntityId(String kgName, Long entityId) {
-        List<Bson> bsons = new ArrayList<>(3);
-        bsons.add(Filters.eq("kgName", kgName));
-        bsons.add(Filters.eq("entityId", entityId));
+        List<Bson> bsons = new ArrayList<>(2);
+        bsons.add(Filters.in("entityId", entityId));
         bsons.add(Filters.eq("indexType", 0));
-        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
-        MongoCursor<Document> cursor = database.getCollection(DWFileConstants.RELATION).find(Filters.and(bsons)).iterator();
+        MongoCursor<Document> cursor = getRelationCollection(kgName).find(Filters.and(bsons)).iterator();
         List<EntityFileRsp> list = Lists.newArrayList();
         while (cursor.hasNext()) {
             Document doc = cursor.next();
-            ObjectId objectId = doc.getObjectId("dwFileId");
-            Document document = database.getCollection(DWFileConstants.FILE).find(Filters.eq("_id", objectId)).first();
-            if (document != null) {
-                EntityFileRsp entityFileRsp = new EntityFileRsp();
-                entityFileRsp.setId(doc.getObjectId("_id").toString());
-                entityFileRsp.setEntityId(entityId);
-                entityFileRsp.setName(document.getString("name"));
-                entityFileRsp.setPath(document.getString("path"));
-                entityFileRsp.setThumbPath(document.getString("thumbPath"));
-                entityFileRsp.setType(document.getString("type"));
-                list.add(entityFileRsp);
-            }
+            ObjectId objectId = doc.getObjectId("fileId");
+            Document document = getFileCollection().find(Filters.eq("_id", objectId)).first();
+            // DWFileTable dwFileTable = documentConverter.toBean(document, DWFileTable.clss);
+            // if (dwFileTable != null) {
+            //     EntityFileRsp entityFileRsp = ConvertUtils.convert(EntityFileRsp.class).apply(dwFileTable);
+            //     entityFileRsp.setEntityId(entityId);
+            //     list.add(entityFileRsp);
+            // }
         }
         return list;
     }
@@ -359,43 +317,36 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     public List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName, List<Long> entityIds, Integer type) {
         List<Bson> bsons = new ArrayList<>(2);
         bsons.add(Filters.in("entityId", entityIds));
-        bsons.add(Filters.eq("kgName", kgName));
         if (type == 0) {
             bsons.add(Filters.eq("indexType", 0));
         } else if (type == 1) {
             bsons.add(Filters.in("indexType", Lists.newArrayList(1, 2)));
         }
-        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
-        MongoCursor<Document> cursor = database.getCollection(DWFileConstants.RELATION).find(Filters.and(bsons)).iterator();
+        FindIterable<Document> findIterable = getRelationCollection(kgName).find(Filters.and(bsons));
+        List<EntityFileRelation> relations = entityFileConverter.toBeans(findIterable);
         List<EntityFileRsp> list = Lists.newArrayList();
-        while (cursor.hasNext()) {
-            Document doc = cursor.next();
-            ObjectId objectId = doc.getObjectId("dwFileId");
-            List<Bson> query = new ArrayList<>(2);
-            query.add(Filters.eq("_id", objectId));
-            Document document = null;
-            if (type == 1) {
-                document = database.getCollection(DWFileConstants.INDEX).find(Filters.and(query)).first();
-            } else if (type == 0) {
-                document = database.getCollection(DWFileConstants.FILE).find(Filters.and(query)).first();
-            }
-            if (document != null) {
-                EntityFileRsp entityFileRsp = new EntityFileRsp();
-                entityFileRsp.setId(doc.getObjectId("_id").toString());
-                entityFileRsp.setEntityId(doc.getLong("entityId"));
-                if (type == 0) {
-                    entityFileRsp.setName(document.getString("name"));
-                    entityFileRsp.setPath(document.getString("path"));
-                    entityFileRsp.setThumbPath(document.getString("thumbPath"));
-                    entityFileRsp.setType(document.getString("type"));
-                } else if (type == 1) {
-                    entityFileRsp.setTitle(document.getString("title"));
-                    entityFileRsp.setKeyword(document.getString("keyword"));
-                    entityFileRsp.setDescription(document.getString("description"));
-                    entityFileRsp.setUrl(document.getString("url"));
-                    entityFileRsp.setIndexType(document.getInteger("indexType"));
+        if (CollectionUtils.isEmpty(relations)) {
+            return list;
+        }
+        for (EntityFileRelation relation : relations) {
+            List<Long> ids = relation.getEntityIds();
+            for (Long entityId : entityIds) {
+                if (ids != null && ids.contains(entityId)) {
+                    EntityFileRsp entityFileRsp = ConvertUtils.convert(EntityFileRsp.class).apply(relation);
+                    entityFileRsp.setEntityId(entityId);
+                    if (type == 0) {
+                        List<Bson> query = new ArrayList<>(1);
+                        query.add(Filters.eq("_id", new ObjectId(relation.getFileId())));
+                        Document document = getFileCollection().find(Filters.and(query)).first();
+                        if (document != null) {
+                            entityFileRsp.setName(document.getString("name"));
+                            entityFileRsp.setPath(document.getString("path"));
+                            entityFileRsp.setThumbPath(document.getString("thumbPath"));
+                            entityFileRsp.setType(document.getString("type"));
+                        }
+                    }
+                    list.add(entityFileRsp);
                 }
-                list.add(entityFileRsp);
             }
         }
         return list;
@@ -418,20 +369,18 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             if (dataList != null) {
                 List<Document> list = new ArrayList<>(dataList.size());
                 for (LinkedHashMap<String, String> map : dataList) {
-                    KnowledgeIndex knowledgeIndex = new KnowledgeIndex();
-                    knowledgeIndex.setTitle(map.get("title"));
-                    knowledgeIndex.setDescription(map.get("content"));
-                    knowledgeIndex.setUrl(map.get("url"));
-                    knowledgeIndex.setCreateTime(new Date());
-                    knowledgeIndex.setKgName(kgName);
-                    knowledgeIndex.setIndexType(indexType);
-                    knowledgeIndex.setUserId(SessionHolder.getUserId());
+                    EntityFileRelation relation = new EntityFileRelation();
+                    relation.setIndexType(indexType);
+                    relation.setTitle(map.get("title"));
+                    relation.setDescription(map.get("content"));
+                    relation.setUrl(map.get("url"));
+                    relation.setCreateTime(new Date());
+                    relation.setEntityIds(Lists.newArrayList());
 
-                    Document document = documentConverter.toDocument(knowledgeIndex);
+                    Document document = documentConverter.toDocument(relation);
                     list.add(document);
                 }
-                MongoCollection<Document> collection = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(DWFileConstants.INDEX);
-                collection.insertMany(list);
+                getRelationCollection(kgName).insertMany(list);
             } else {
                 throw BizException.of(KgmsErrorCodeEnum.EXCEL_DATA_NULL);
             }
@@ -442,51 +391,113 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
     @Override
     public void updateIndex(String kgName, IndexRelationReq req) {
-        MongoCollection<Document> collection = getCollection();
+
+        Document document = getRelationCollection(kgName).find(Filters.eq(entityFileConverter.buildObjectId(req.getRelationId()))).first();
+        if (document == null) {
+            return;
+        }
+        EntityFileRelation relation = entityFileConverter.toBean(document);
+
+        // if (relation.getIndexType().equals(0)) {
+        //     DWFileTable file = tableDataService.getOneFile(relation.getDwFileId());
+        //     List<String> kgNames = file.getKgNames();
+        //     if (kgNames == null) {
+        //         kgNames = Lists.newArrayList(kgName);
+        //     } else if (!kgNames.contains(kgName)) {
+        //         kgNames.add(kgName);
+        //     }
+        //     file.setKgNames(kgNames);
+        //     // 添加关系的图谱名称
+        //     tableDataService.update(file);
+        // }
+
+        // 实体文件关系中关联的图谱实体ID
+        List<Long> entityIds = relation.getEntityIds();
+        if (entityIds == null) {
+            entityIds = Lists.newArrayList();
+        }
+
         for (Long entityId : req.getEntityIds()) {
-            if (!checkSize(kgName, entityId)) {
-                throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
-            }
-            if (!checkExist(kgName, entityId, req.getDwFileId())) {
+            if (entityIds.contains(entityId)) {
                 throw BizException.of(KgmsErrorCodeEnum.RELATION_IS_EXIST);
             }
-            EntityFileRelation relation = new EntityFileRelation();
-            relation.setKgName(kgName);
-            relation.setCreateTime(new Date());
-            relation.setEntityId(entityId);
-            relation.setIndexType(req.getIndexType());
-            Document document = documentConverter.toDocument(relation);
-            document.put("dwFileId", new ObjectId(req.getDwFileId()));
-            collection.insertOne(document);
+            entityIds.add(entityId);
         }
+
+        // 更新关联实体ID
+        Document newDocument = new Document("entityIds", entityIds);
+
+        getRelationCollection(kgName).updateOne(entityFileConverter.buildObjectId(relation.getId()), new Document("$set", newDocument));
     }
 
     @Override
-    public boolean checkExist(String kgName, Long entityId, String dwFileId) {
-        List<Bson> query = new ArrayList<>(3);
-        query.add(Filters.eq("kgName", kgName));
-        query.add(Filters.eq("entityId", entityId));
-        query.add(Filters.eq("dwFileId", new ObjectId(dwFileId)));
-        Document first = getCollection().find(Filters.and(query)).first();
-        return first == null;
+    public void cancelIndex(String kgName, IndexRelationReq req) {
+        Document document = getRelationCollection(kgName).find(entityFileConverter.buildObjectId(req.getRelationId())).first();
+        if (document == null) {
+            return;
+        }
+        EntityFileRelation relation = entityFileConverter.toBean(document);
+        List<Long> entityIds = relation.getEntityIds();
+        if (CollectionUtils.isEmpty(entityIds)) {
+            return;
+        }
+        for (Long entityId : req.getEntityIds()) {
+            entityIds.remove(entityId);
+        }
+
+        // 更新关联实体ID
+        Document newDocument = new Document("entityIds", entityIds);
+
+        getRelationCollection(kgName).updateOne(entityFileConverter.buildObjectId(relation.getId()), new Document("$set", newDocument));
+    }
+
+    @Override
+    public void addFile(String kgName, Long databaseId, Long tableId) {
+        List<Bson> query = new ArrayList<>(2);
+        query.add(Filters.eq("databaseId", databaseId));
+        query.add(Filters.eq("tableId", tableId));
+
+        MongoCursor<Document> iterator = getFileCollection().find(Filters.and(query)).iterator();
+
+        List<Document> collect = Lists.newArrayList();
+        while (iterator.hasNext()) {
+            Document doc = iterator.next();
+            String id = doc.getObjectId("_id").toString();
+            EntityFileRelation relation = new EntityFileRelation();
+            relation.setFileId(id);
+            relation.setIndexType(0);
+            relation.setCreateTime(new Date());
+            collect.add(entityFileConverter.toDocument(relation));
+        }
+
+        getRelationCollection(kgName).insertMany(collect);
+    }
+
+    @Override
+    public boolean checkExist(String kgName, Long entityId, String fileId) {
+        Document first = getRelationCollection(kgName).find(Filters.eq("fileId", new ObjectId(fileId))).first();
+        if (first != null) {
+            EntityFileRelation relation = entityFileConverter.toBean(first);
+            List<Long> entityIds = relation.getEntityIds();
+            return !CollectionUtils.isEmpty(entityIds) && entityIds.contains(entityId);
+        }
+        return false;
     }
 
     @Override
     public boolean checkSize(String kgName, Long entityId) {
-        MongoDatabase database = mongoClient.getDatabase(DWFileConstants.DW_PREFIX + SessionHolder.getUserId());
         List<Bson> query = new ArrayList<>(2);
-        query.add(Filters.eq("kgName", kgName));
-        query.add(Filters.eq("entityId", entityId));
+        query.add(Filters.in("entityId", entityId));
         query.add(Filters.eq("indexType", 0));
-        MongoCursor<Document> iterator = database.getCollection(DWFileConstants.RELATION).find(Filters.and(query)).iterator();
-        Set<String> dwFileIdList = new HashSet<>();
-        while (iterator.hasNext()) {
-            Document document = iterator.next();
-            dwFileIdList.add(document.getObjectId("dwFileId").toString());
+        MongoCursor<Document> relationIterator = getRelationCollection(kgName).find(Filters.and(query)).iterator();
+        Set<ObjectId> fileIdList = new HashSet<>();
+        while (relationIterator.hasNext()) {
+            Document document = relationIterator.next();
+            fileIdList.add(document.getObjectId("fileId"));
         }
 
         long size = 0L;
-        MongoCursor<Document> fileIterator = database.getCollection(DWFileConstants.FILE).find(Filters.in("_id", dwFileIdList)).iterator();
+        MongoCursor<Document> fileIterator = getFileCollection().find(Filters.in("_id", fileIdList)).iterator();
         while (fileIterator.hasNext()) {
             Document document = fileIterator.next();
             Long fileSize = document.getLong("fileSize");
@@ -494,7 +505,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                 size += fileSize;
             }
         }
-        return size <= 20971520L;
+        return size > 20971520L;
     }
 
 }
