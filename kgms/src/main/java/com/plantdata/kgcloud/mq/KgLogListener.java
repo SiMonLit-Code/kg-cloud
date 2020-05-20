@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.plantdata.graph.logging.core.*;
 import com.plantdata.graph.logging.core.segment.EntitySegment;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +47,7 @@ public class KgLogListener {
      * 数据层日志监听
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"}, groupId = "graphLog")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.log}"}, groupId = "graphLog")
     public void logListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -64,18 +65,15 @@ public class KgLogListener {
 
                 if (StringUtils.isNotBlank(graphLog.getBatch()) && StringUtils.isNotBlank(graphLog.getMessage())) {
                     log.info("opt log: {}", graphLog.getMessage());
-                    List<Document> ls = dataMap.getOrDefault(kgDbName, new ArrayList<>());
+                    List<Document> ls = dataMap.computeIfAbsent(kgDbName, v -> new ArrayList<>());
                     ls.add(Document.parse(JacksonUtils.writeValueAsString(graphLog)));
                     String kgName = graphRepository.findByDbName(kgDbName).getKgName();
-                    dataMap.put(kgName, ls);
                     pinyinSyn(kgName, graphLog);
                 }
             });
 
             for (Map.Entry<String, List<Document>> entry : dataMap.entrySet()) {
-
-                String dbName = LOG_DB_PREFIX + entry.getKey();
-                mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).insertMany(entry.getValue());
+                mongoClient.getDatabase(entry.getKey()).getCollection(LOG_INFO_TB).insertMany(entry.getValue());
             }
         } catch (Exception e) {
             records.forEach(s -> log.info(s.value()));
@@ -89,7 +87,7 @@ public class KgLogListener {
      * 业务层日志监听
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.service.log}"}, groupId = "graphLog")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.service.log}"}, groupId = "graphLog")
     public void serviceLogListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -98,15 +96,13 @@ public class KgLogListener {
                 String kgName = record.key();
                 GraphServiceLog serviceLog = JacksonUtils.readValue(record.value(), GraphServiceLog.class);
                 if (StringUtils.isNotBlank(serviceLog.getBatch())) {
-                    List<Document> ls = dataMap.getOrDefault(kgName, new ArrayList<>());
+                    List<Document> ls = dataMap.computeIfAbsent(kgName, v -> new ArrayList<>());
                     ls.add(Document.parse(record.value()));
-                    dataMap.put(kgName, ls);
                 }
             });
 
             for (Map.Entry<String, List<Document>> entry : dataMap.entrySet()) {
-                String dbName = LOG_DB_PREFIX + entry.getKey();
-                mongoClient.getDatabase(dbName).getCollection(LOG_SERVICE_TB).insertMany(entry.getValue());
+                mongoClient.getDatabase(KGUtil.dbName(entry.getKey())).getCollection(LOG_USER_TB).insertMany(entry.getValue());
             }
         } catch (Exception e) {
             records.forEach(s -> log.info(s.value()));
@@ -195,4 +191,5 @@ public class KgLogListener {
             e.printStackTrace();
         }
     }
+
 }
