@@ -28,4 +28,6 @@ public interface FileDataService {
     void fileDelete(String id);
 
     void fileDeleteBatch(List<String> ids);
+
+    void fileDeleteByTableId(Long tableId);
 }

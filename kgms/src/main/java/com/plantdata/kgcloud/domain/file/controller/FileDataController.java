@@ -39,14 +39,14 @@ public class FileDataController {
     }
 
     @ApiOperation("文件数据管理-文件上传")
-    @PostMapping("/file/add")
+    @PostMapping("/add")
     public ApiReturn fileAdd(@RequestBody FileDataReq req) {
         fileDataService.fileAdd(req);
         return ApiReturn.success();
     }
 
     @ApiOperation("文件数据管理-文件批量上传")
-    @PostMapping("/file/add/batch")
+    @PostMapping("/add/batch")
     public ApiReturn fileAddBatch(@RequestBody FileDataBatchReq fileTableReq,
                                   MultipartFile[] files) {
         fileDataService.fileAddBatch(fileTableReq, files);
@@ -54,21 +54,21 @@ public class FileDataController {
     }
 
     @ApiOperation("文件数据管理-编辑")
-    @PostMapping("/file/update")
+    @PostMapping("/update")
     public ApiReturn fileUpdate(@RequestBody FileDataUpdateReq req) {
         fileDataService.fileUpdate(req);
         return ApiReturn.success();
     }
 
     @ApiOperation("文件数据管理-删除")
-    @PatchMapping("/file/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ApiReturn fileDelete(@PathVariable("id") String id) {
         fileDataService.fileDelete(id);
         return ApiReturn.success();
     }
 
     @ApiOperation("文件数据管理-批量删除")
-    @PatchMapping("/file/delete/batch")
+    @DeleteMapping("/delete/batch")
     public ApiReturn fileDeleteBatch(@RequestBody List<String> ids) {
         fileDataService.fileDeleteBatch(ids);
         return ApiReturn.success();

@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.domain.file.repository.FileTableRepository;
 import com.plantdata.kgcloud.domain.file.req.FileDatabaseNameReq;
 import com.plantdata.kgcloud.domain.file.rsq.FileDatabaseRsp;
 import com.plantdata.kgcloud.domain.file.rsq.FileTableRsp;
+import com.plantdata.kgcloud.domain.file.service.FileDataService;
 import com.plantdata.kgcloud.domain.file.service.FileService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -45,6 +46,8 @@ public class FileServiceImpl implements FileService {
     private FileTableRepository tableRepository;
     @Autowired
     private MongoClient mongoClient;
+    @Autowired
+    private FileDataService fileDataService;
 
     private MongoCollection<Document> getFileCollection() {
         return mongoClient.getDatabase(FileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
@@ -185,9 +188,9 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void deleteDatabase(String userId, Long id) {
+    public void deleteDatabase(String userId, Long databaseId) {
         FileDatabase database = FileDatabase.builder()
-                .userId(userId).id(id)
+                .userId(userId).id(databaseId)
                 .build();
         Optional<FileDatabase> optional = databaseRepository.findOne(Example.of(database));
 
@@ -195,17 +198,14 @@ public class FileServiceImpl implements FileService {
             return;
         }
 
-        // 删除mongo文件数据
-        getFileCollection().deleteMany(Filters.eq("databaseId", id));
-
-        List<FileTableRsp> tables = findTableAll(userId, id);
+        List<FileTableRsp> tables = findTableAll(userId, databaseId);
         if (!CollectionUtils.isEmpty(tables)) {
             for (FileTableRsp tableRsp : tables) {
-                deleteTable(userId, id, tableRsp.getId());
+                deleteTable(userId, databaseId, tableRsp.getId());
             }
         }
 
-        databaseRepository.deleteById(id);
+        databaseRepository.deleteById(databaseId);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class FileServiceImpl implements FileService {
         }
 
         // 删除mongo文件数据
-        getFileCollection().deleteMany(Filters.eq("tableId", tableId));
+        fileDataService.fileDeleteByTableId(tableId);
 
         tableRepository.deleteById(tableId);
     }
@@ -245,7 +245,8 @@ public class FileServiceImpl implements FileService {
             return;
         }
 
-        getFileCollection().deleteMany(Filters.eq("tableId", tableId));
+        // 删除mongo文件数据
+        fileDataService.fileDeleteByTableId(tableId);
     }
 
     private Long setTableFileCount(Long databaseId, Long tableId) {
