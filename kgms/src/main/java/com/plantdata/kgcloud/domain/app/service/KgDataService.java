@@ -3,20 +3,12 @@ package com.plantdata.kgcloud.domain.app.service;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
-import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
-import com.plantdata.kgcloud.sdk.rsp.app.RestData;
+import com.plantdata.kgcloud.sdk.req.app.statistic.*;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author cjw
@@ -34,15 +26,6 @@ public interface KgDataService {
      */
     List<EdgeStatisticByEntityIdRsp> statisticCountEdgeByEntity(String kgName, EdgeStatisticByEntityIdReq statisticReq);
 
-    /**
-     * 读取数据集 按照单个字段
-     *
-     * @param userId ，
-     * @param dataName 。
-     * @param readReq 。
-     * @return
-     */
-    List<Object> readDataSetData(String userId, String dataName, DataSetOneFieldReq readReq);
 
     /**
      * 统计实体 根据概念分组
@@ -80,14 +63,6 @@ public interface KgDataService {
      */
     Object statEdgeGroupByEdgeValue(String kgName, EdgeAttrStatisticByAttrValueReq statisticReq);
 
-    /**
-     * 读取数据集
-     *
-     * @param userId      用户id
-     * @param nameReadReq 。。
-     * @return a
-     */
-    RestData<Map<String, Object>> searchDataSet(String userId, NameReadReq nameReadReq);
 
     /**
      * &

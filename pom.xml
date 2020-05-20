@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.2.9-SNAPSHOT</version>
+    <version>3.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -19,13 +19,12 @@
         <module>kgsdk</module>
         <module>kgpreview</module>
         <module>repo-sdk</module>
-        <module>repo-sdk</module>
     </modules>
 
     <properties>
-        <next-tag.version>3.2.8</next-tag.version>
-        <next-develop.version>3.2.9-SNAPSHOT</next-develop.version>
-        <kg-cloud-parent.version>3.2.0-SNAPSHOT</kg-cloud-parent.version>
+        <next-tag.version>3.3.0</next-tag.version>
+        <next-develop.version>3.3.1-SNAPSHOT</next-develop.version>
+        <kg-cloud-parent.version>3.1.5</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
         <kg-cloud-kguser.version>3.2.0-SNAPSHOT</kg-cloud-kguser.version>
         <kg-usersdk.version>3.0.5</kg-usersdk.version>
@@ -92,11 +91,6 @@
             </dependency>
             <dependency>
                 <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-elasticsearch</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
                 <artifactId>kg-cloud-mq-kafka</artifactId>
                 <version>${kg-cloud-parent.version}</version>
             </dependency>
@@ -105,7 +99,16 @@
                 <artifactId>kg-cloud-common</artifactId>
                 <version>${kg-cloud-parent.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-swagger</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-swagger</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
             <!-- ********** public sdk *************-->
             <dependency>
                 <groupId>com.plantdata</groupId>
@@ -117,22 +120,6 @@
                 <artifactId>xxl-admin-sdk</artifactId>
                 <version>${kg-cloud-public.version}</version>
             </dependency>
-
-
-            <!-- ********** kgcomponent sdk ************* -->
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kgcomponent-sdk</artifactId>
-                <version>${kgcomponent-sdk.version}</version>
-            </dependency>
-
-            <!-- ********** kgtext sdk ************* -->
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kgtext-sdk</artifactId>
-                <version>${kgtext-sdk.version}</version>
-            </dependency>
-
 
             <!-- ********** 底层 sdk *************-->
             <dependency>
@@ -155,6 +142,11 @@
                         <groupId>com.alibaba</groupId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.netflix.feign</groupId>
+                <artifactId>feign-httpclient</artifactId>
             </dependency>
         </dependencies>
     </dependencyManagement>

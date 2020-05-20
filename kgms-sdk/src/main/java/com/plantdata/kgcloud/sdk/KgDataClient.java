@@ -1,25 +1,15 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetAddReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.DataSetOneFieldReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.NameReadReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeAttrStatisticByAttrValueReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByConceptIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByAttrIdReq;
-import com.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptReq;
+import com.plantdata.kgcloud.sdk.req.app.statistic.*;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,17 +24,6 @@ import java.util.Map;
 @FeignClient(value = "kgms", path = "kgdata", contextId = "kgDataClient")
 public interface KgDataClient {
 
-    /**
-     * 第三方模型抽取
-     *
-     * @param modelId 模型id
-     * @param input   。
-     * @param config  配置
-     * @return 。
-     */
-    @PostMapping("extract/thirdModel/{modelId}")
-    ApiReturn<Object> extractThirdModel(@PathVariable("modelId") Long modelId,
-                                        @RequestParam("input") String input, @RequestParam("config") String config);
 
     /**
      * 查询实体的关系度数
@@ -100,30 +79,6 @@ public interface KgDataClient {
     @PostMapping("statistic/{kgName}/edgeAttr/groupByAttrValue")
     ApiReturn<Object> statEdgeGroupByEdgeValue(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                @RequestBody EdgeAttrStatisticByAttrValueReq statisticReq);
-
-    /**
-     * 读取数据集
-     *
-     * @param nameReadReq 搜索参数
-     * @return 。
-     */
-    @PostMapping("dataset/read")
-    ApiReturn<RestData<Map<String, Object>>> searchDataSet(@RequestBody NameReadReq nameReadReq);
-
-    /**
-     * 读取数据集(单字段)
-     */
-    @PostMapping("dataset/read/{dataName}")
-    ApiReturn<List<Object>> searchDataSet(@PathVariable("dataName") String dataName, @RequestBody DataSetOneFieldReq fieldReq);
-
-    /**
-     * 批量新增数据集
-     *
-     * @param addReq
-     * @return
-     */
-    @PostMapping("dataset/name")
-    ApiReturn batchSaveDataSetByName(@RequestBody DataSetAddReq addReq);
 
 
     /**

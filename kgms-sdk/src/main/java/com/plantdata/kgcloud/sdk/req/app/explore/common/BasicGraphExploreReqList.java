@@ -2,8 +2,8 @@ package com.plantdata.kgcloud.sdk.req.app.explore.common;
 
 
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefListKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;

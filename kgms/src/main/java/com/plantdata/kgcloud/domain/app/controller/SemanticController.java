@@ -47,8 +47,6 @@ import java.util.Optional;
 public class SemanticController implements SdkOpenApiInterface {
 
     @Autowired
-    private ReasoningApi reasoningApi;
-    @Autowired
     private QuestionAnswersApi questionAnswersApi;
     @Autowired
     private SemanticApi semanticApi;

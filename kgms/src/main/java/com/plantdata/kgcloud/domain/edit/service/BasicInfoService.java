@@ -10,6 +10,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
+import com.plantdata.kgcloud.domain.edit.rsp.RelationDetailRsp;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
@@ -183,4 +184,12 @@ public interface BasicInfoService {
 //    Object executeQl(String query);
 
     List<SimpleBasicRsp> listNames(String kgName, List<String> names);
+
+    /**
+     * 根据三元组id查关系详情
+     *
+     * @param id
+     * @return
+     */
+    RelationDetailRsp getRelationDetails(String kgName, String id);
 }

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefListKeyReqInterface;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

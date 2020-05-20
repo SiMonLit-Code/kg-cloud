@@ -20,7 +20,6 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.converter.*;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
-import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
@@ -42,7 +41,7 @@ import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
@@ -109,8 +108,6 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private GraphHelperService graphHelperService;
     @Autowired
     private ConceptService conceptService;
-    @Autowired
-    private DataSetSearchService dataSetSearchService;
     @Autowired
     private BasicInfoService basicInfoService;
     @Autowired
@@ -228,6 +225,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         batchInfoBoxReq.setAllowAttrs(infoBoxReq.getAllowAttrs());
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
         batchInfoBoxReq.setIds(Lists.newArrayList(infoBoxReq.getId()));
+        batchInfoBoxReq.setKws(Lists.newArrayList(infoBoxReq.getKw()));
         batchInfoBoxReq.setRelationAttrs(infoBoxReq.getRelationAttrs());
         batchInfoBoxReq.setReverseRelationAttrs(infoBoxReq.getRelationAttrs());
         List<InfoBoxRsp> list = infoBox(kgName, batchInfoBoxReq);
@@ -238,8 +236,6 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (infoBoxRsp.getSelf() == null) {
             return null;
         }
-        List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(kgName, userId, infoBoxRsp.getSelf().getId());
-        infoBoxRsp.getSelf().setDataLinks(dataLinks);
         List<DictRsp> dictRspList = domainDictService.listDictByEntity(kgName, infoBoxReq.getId());
         infoBoxRsp.getSelf().setDictList(dictRspList);
         return infoBoxRsp;
@@ -250,6 +246,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         //实体
         graphHelperService.replaceByAttrKey(kgName, req);
         List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();
+        // 判断id是否为空，为空用实体名称查询
+        graphHelperService.replaceKwToId(kgName,req);
         //实体
         BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxReqToBasicDetailFilter(req);
         detailFilter.setEntity(true);
@@ -270,9 +268,6 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             Map<Long, List<KnowledgeIndexRsp>> indexMap = basicInfoService.listKnowledgeIndexs(kgName, entityIds);
             //查询对象属性
             Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
-            if(relationOpt.isPresent() && relationOpt.get().size() > 10){
-                relationOpt = Optional.ofNullable(relationOpt.get().subList(0,10));
-            }
             Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
             Map<Long, List<RelationVO>> reverseMap = Maps.newHashMap();
             if(req.getRelationAttrs()) {

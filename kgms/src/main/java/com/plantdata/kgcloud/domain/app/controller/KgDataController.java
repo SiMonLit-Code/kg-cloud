@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import ai.plantdata.kg.api.pub.SparqlApi;
 import ai.plantdata.kg.api.pub.resp.QueryResultVO;
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
@@ -12,7 +11,6 @@ import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.domain.model.service.ModelService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
@@ -21,13 +19,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -45,8 +37,6 @@ public class KgDataController implements GraphAppInterface {
 
 
     @Autowired
-    private ModelService modelService;
-    @Autowired
     private KgDataService kgDataService;
     @Autowired
     private SparqlApi sparqlApi;
@@ -62,14 +52,6 @@ public class KgDataController implements GraphAppInterface {
         }
         QueryResultRsp copy = BasicConverter.copy(resOpt.get(), QueryResultRsp.class);
         return ApiReturn.success(copy);
-    }
-
-    @ApiOperation("第三方模型抽取")
-    @PostMapping("extract/thirdModel/{modelId}")
-    public ApiReturn<Object> extractThirdModel(@PathVariable("modelId") Long modelId,
-                                               @RequestParam("input") String input,
-                                               @RequestParam("config") String config) {
-        return ApiReturn.success(modelService.call(modelId, Lists.newArrayList(input)));
     }
 
     @ApiOperation("sparkSql结果导出")

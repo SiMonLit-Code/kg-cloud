@@ -14,39 +14,28 @@ import ai.plantdata.kg.support.SegmentWordVO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.plantdata.kgcloud.config.EsProperties;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.PromptQaTypeEnum;
-import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
-import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
-import com.plantdata.kgcloud.domain.app.converter.PromptConverter;
-import com.plantdata.kgcloud.domain.app.converter.RelationConverter;
+import com.plantdata.kgcloud.domain.app.converter.*;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
 import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
-import com.plantdata.kgcloud.domain.dataset.provider.DataOptConnect;
-import com.plantdata.kgcloud.domain.dataset.provider.DataOptProvider;
-import com.plantdata.kgcloud.domain.dataset.provider.DataOptProviderFactory;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfQaService;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.constant.DataType;
 import com.plantdata.kgcloud.sdk.constant.EdgeAttrPromptDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.function.PromptSearchInterface;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,8 +64,6 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     @Autowired
     private GraphConfQaService graphConfQaService;
     @Autowired
-    private EsProperties esProperties;
-    @Autowired
     private GraphApi graphApi;
     @Autowired
     private GraphHelperService graphHelperService;
@@ -88,13 +75,13 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         if (PromptQaTypeEnum.BEFORE.equals(qaType)) {
             return queryAnswer(kgName, promptReq);
         }
-        if (promptReq.getOpenExportDate()) {
+     /*   if (promptReq.getOpenExportDate()) {
             //执行es搜索
             List<PromptEntityRsp> entityRspList = queryFromEs(kgName, promptReq);
             if (!CollectionUtils.isEmpty(entityRspList)) {
                 return entityRspList;
             }
-        }
+        }*/
         Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq)));
 
         List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
@@ -110,12 +97,12 @@ public class GraphPromptServiceImpl implements GraphPromptService {
 
     @Override
     public List<SeniorPromptRsp> seniorPrompt(String kgName, SeniorPromptReq seniorPromptReq) {
-        if (seniorPromptReq.getOpenExportDate() && !StringUtils.isEmpty(seniorPromptReq.getKw())) {
+      /*  if (seniorPromptReq.getOpenExportDate() && !StringUtils.isEmpty(seniorPromptReq.getKw())) {
             List<PromptEntityRsp> entityRspList = queryFromEs(kgName, seniorPromptReq);
             if (!CollectionUtils.isEmpty(entityRspList)) {
                 return BasicConverter.listConvert(entityRspList, PromptConverter::seniorPromptRspToPromptEntityRsp);
             }
-        }
+        }*/
         Set<Long> entityIds = queryEntityIdsByAttr(kgName, seniorPromptReq);
         Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIds,true)));
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
@@ -150,30 +137,6 @@ public class GraphPromptServiceImpl implements GraphPromptService {
             return Collections.emptyList();
         }
         return RelationConverter.mapToEdgeAttributeRsp(aggOpt.get());
-    }
-
-    private List<PromptEntityRsp> queryFromEs(String kgName, PromptSearchInterface promptReq) {
-        DataOptConnect connect = DataOptConnect.builder()
-                .addresses(esProperties.getAddrs())
-                .database(kgName)
-                .build();
-        List<Map<String, Object>> maps = null;
-        try (DataOptProvider provider = DataOptProviderFactory.createProvider(connect, DataType.ELASTIC)) {
-            Map<String, Object> objectMap = PromptConverter.buildEsParam(promptReq);
-            maps = provider.find(promptReq.getOffset(), promptReq.getLimit(), objectMap);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("promptReq:{}", JacksonUtils.writeValueAsString(promptReq));
-        }
-        if (CollectionUtils.isEmpty(maps)) {
-            return Collections.emptyList();
-        }
-        List<PromptEntityRsp> promptEntityRspList = BasicConverter.listToRsp(maps, PromptConverter::esResultToEntity);
-        BasicConverter.consumerIfNoNull(promptEntityRspList, a -> {
-            Set<Long> idSet = Sets.newHashSet();
-            a.removeIf(b -> !idSet.add(b.getId()));
-        });
-        return promptEntityRspList;
     }
 
     private List<PromptEntityRsp> queryAnswer(String kgName, PromptReq promptReq) {
