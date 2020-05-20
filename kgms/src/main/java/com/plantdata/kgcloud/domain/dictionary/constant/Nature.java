@@ -7,6 +7,7 @@ import java.util.Objects;
  * @author: Bovin
  * @create: 2019-11-05 18:07
  **/
+@Deprecated
 public enum Nature {
     /**
      *

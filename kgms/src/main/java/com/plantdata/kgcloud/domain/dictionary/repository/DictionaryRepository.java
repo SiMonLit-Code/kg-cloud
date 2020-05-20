@@ -10,6 +10,7 @@ import java.util.Optional;
  * @author: Bovin
  * @create: 2019-11-04 18:45
  **/
+@Deprecated
 public interface DictionaryRepository extends JpaRepository<Dictionary, Long> {
     /**
      * 根据用户和id删除词典

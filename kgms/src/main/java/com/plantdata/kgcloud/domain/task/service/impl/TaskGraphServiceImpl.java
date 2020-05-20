@@ -1,8 +1,5 @@
 package com.plantdata.kgcloud.domain.task.service.impl;
 
-import com.github.stuxuhai.jpinyin.PinyinException;
-import com.github.stuxuhai.jpinyin.PinyinFormat;
-import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphSnapshot;
 import com.plantdata.kgcloud.domain.task.repository.TaskGraphSnapshotRepository;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotReq;
@@ -16,9 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @description:
@@ -51,20 +45,5 @@ public class TaskGraphServiceImpl implements TaskGraphService {
         taskGraphSnapshotRepository.deleteById(id);
     }
 
-
-    @Override
-    public List<Map<String, Object>> nameConversion(List<Map<String, Object>> maps) {
-        try {
-            for (Map<String, Object> map : maps) {
-                String mapperName = map.get("mapperName").toString();
-                String id = map.get("id").toString();
-                String after = PinyinHelper.convertToPinyinString(mapperName, "", PinyinFormat.WITHOUT_TONE) + "_" + id;
-                map.put("mapperName", after);
-            }
-        } catch (PinyinException e) {
-            e.printStackTrace();
-        }
-        return maps;
-    }
 
 }

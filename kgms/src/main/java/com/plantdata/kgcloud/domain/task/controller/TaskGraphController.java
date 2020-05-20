@@ -39,10 +39,4 @@ public class TaskGraphController {
         return ApiReturn.success();
     }
 
-    @PostMapping("/graph/export/conversion")
-    @ApiOperation("概念转拼音")
-    public ApiReturn<List<Map<String, Object>>> nameConversion(@RequestBody List<Map<String,Object>> maps) {
-        return ApiReturn.success(taskGraphService.nameConversion(maps));
-    }
-
 }

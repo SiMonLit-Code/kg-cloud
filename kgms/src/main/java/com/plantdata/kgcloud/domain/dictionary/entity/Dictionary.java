@@ -24,7 +24,7 @@ import java.util.Date;
  * @author: Bovin
  * @create: 2019-11-04 18:45
  **/
-
+@Deprecated
 @Data
 @Builder
 @AllArgsConstructor

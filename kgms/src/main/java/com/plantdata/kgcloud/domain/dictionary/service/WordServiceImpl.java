@@ -43,6 +43,7 @@ import java.util.Objects;
  * @author: Bovin
  * @create: 2019-11-05 14:59
  **/
+@Deprecated
 @Service
 public class WordServiceImpl implements WordService {
 
