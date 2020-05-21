@@ -3,13 +3,11 @@ package com.plantdata.kgcloud.mq;
 import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.databind.JavaType;
 import com.mongodb.MongoClient;
-import com.plantdata.graph.logging.core.*;
-import com.plantdata.graph.logging.core.segment.EntitySegment;
-import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.graph.logging.core.GraphLog;
 import com.plantdata.graph.logging.core.GraphLogMessage;
 import com.plantdata.graph.logging.core.GraphLogScope;
 import com.plantdata.graph.logging.core.GraphServiceLog;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.plantdata.kgcloud.constant.KgmsConstants.*;
+import static com.plantdata.kgcloud.constant.KgmsConstants.LOG_INFO_TB;
+import static com.plantdata.kgcloud.constant.KgmsConstants.LOG_USER_TB;
 
 /**
  * @author xiezhenxiang 2020/1/15
@@ -40,11 +39,6 @@ public class KgLogListener {
     @Autowired
     private GraphRepository graphRepository;
 
-    /**
-     * 数据层日志监听
-     *
-     * @author xiezhenxiang 2020/1/15
-     **/
     @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.log}"}, groupId = "graphLog")
     public void logListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
@@ -63,19 +57,13 @@ public class KgLogListener {
 
                 if (StringUtils.isNotBlank(graphLog.getBatch()) && StringUtils.isNotBlank(graphLog.getMessage())) {
                     log.info("opt log: {}", graphLog.getMessage());
-                    List<Document> ls = dataMap.getOrDefault(kgDbName, new ArrayList<>());
+                    List<Document> ls = dataMap.computeIfAbsent(kgDbName, v -> new ArrayList<>());
                     ls.add(Document.parse(JacksonUtils.writeValueAsString(graphLog)));
-                    BasicConverter.consumerIfNoNull(graphRepository.findByDbName(kgDbName), a -> {
-                        String kgName = a.getKgName();
-                        dataMap.put(kgName, ls);
-                    });
                 }
             });
 
             for (Map.Entry<String, List<Document>> entry : dataMap.entrySet()) {
-
-                String dbName = LOG_DB_PREFIX + entry.getKey();
-                mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).insertMany(entry.getValue());
+                mongoClient.getDatabase(entry.getKey()).getCollection(LOG_INFO_TB).insertMany(entry.getValue());
             }
         } catch (Exception e) {
             records.forEach(s -> log.info(s.value()));
@@ -87,10 +75,9 @@ public class KgLogListener {
 
     /**
      * 业务层日志监听
-     *
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.service.log}"}, groupId = "graphLog")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.service.log}"}, groupId = "graphLog")
     public void serviceLogListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -99,15 +86,13 @@ public class KgLogListener {
                 String kgName = record.key();
                 GraphServiceLog serviceLog = JacksonUtils.readValue(record.value(), GraphServiceLog.class);
                 if (StringUtils.isNotBlank(serviceLog.getBatch())) {
-                    List<Document> ls = dataMap.getOrDefault(kgName, new ArrayList<>());
+                    List<Document> ls = dataMap.computeIfAbsent(kgName, v -> new ArrayList<>());
                     ls.add(Document.parse(record.value()));
-                    dataMap.put(kgName, ls);
                 }
             });
 
             for (Map.Entry<String, List<Document>> entry : dataMap.entrySet()) {
-                String dbName = LOG_DB_PREFIX + entry.getKey();
-                mongoClient.getDatabase(dbName).getCollection(LOG_SERVICE_TB).insertMany(entry.getValue());
+                mongoClient.getDatabase(KGUtil.dbName(entry.getKey())).getCollection(LOG_USER_TB).insertMany(entry.getValue());
             }
         } catch (Exception e) {
             records.forEach(s -> log.info(s.value()));
