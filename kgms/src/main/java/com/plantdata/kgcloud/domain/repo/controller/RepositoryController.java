@@ -81,8 +81,8 @@ public class RepositoryController {
     }
 
     @ApiOperation("使用记录关联动态导航")
-    @PostMapping("log/menu")
-    public ApiReturn<List<RepositoryLogMenuRsp>> logMenuRsp(@RequestBody List<Integer> menuIds) {
+    @GetMapping("log/menu")
+    public ApiReturn<List<RepositoryLogMenuRsp>> logMenuRsp() {
         return ApiReturn.success(Collections.emptyList());
     }
 }
