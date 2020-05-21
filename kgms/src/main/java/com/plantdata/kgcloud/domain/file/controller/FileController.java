@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.file.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.file.req.FileDatabaseNameReq;
+import com.plantdata.kgcloud.domain.file.req.FileNameQueryReq;
 import com.plantdata.kgcloud.domain.file.rsq.FileDatabaseRsp;
 import com.plantdata.kgcloud.domain.file.rsq.FileTableRsp;
 import com.plantdata.kgcloud.domain.file.service.FileService;
@@ -55,17 +56,17 @@ public class FileController {
 
     @ApiOperation("文件系统管理-创建数据库")
     @PostMapping("/create/database")
-    public ApiReturn<FileDatabaseRsp> createDatabase(@RequestParam("name") String name) {
+    public ApiReturn<FileDatabaseRsp> createDatabase(@RequestBody FileNameQueryReq req) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(fileService.createDatabase(userId, name));
+        return ApiReturn.success(fileService.createDatabase(userId, req.getName()));
     }
 
     @ApiOperation("文件系统管理-创建数据表")
     @PostMapping("/create/{databaseId}/table")
     public ApiReturn<FileTableRsp> createTable(@PathVariable("databaseId") Long databaseId,
-                                               @RequestParam("name") String name) {
+                                               @RequestBody FileNameQueryReq req) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(fileService.createTable(userId, databaseId, name));
+        return ApiReturn.success(fileService.createTable(userId, databaseId, req.getName()));
     }
 
     @ApiOperation("文件系统管理-批量创建数据表")

@@ -6,16 +6,13 @@ import lombok.Data;
 
 /**
  * @author lp
- * @date 2020/5/20 14:46
+ * @date 2020/5/21 13:24
  */
 @Data
-@ApiModel("数据库改名参数")
-public class FileDatabaseNameReq {
+@ApiModel("创建数据库和数据表名称参数")
+public class FileNameQueryReq {
 
-    @ApiModelProperty("数据库id")
-    private Long databaseId;
-
-    @ApiModelProperty("名称")
+    @ApiModelProperty(value = "名称")
     private String name;
 
 }
