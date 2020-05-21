@@ -86,6 +86,12 @@ public class FileDataServiceImpl implements FileDataService {
     }
 
     @Override
+    public FileData get(String id) {
+        Document document = getFileCollection().find(documentConverter.buildObjectId(id)).first();
+        return documentConverter.toBean(document,FileData.class);
+    }
+
+    @Override
     public FileData fileAdd(FileDataReq req) {
         byte[] bytes = fastdfsTemplate.downloadFile(req.getPath());
 

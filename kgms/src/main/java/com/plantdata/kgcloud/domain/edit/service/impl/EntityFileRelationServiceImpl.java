@@ -17,13 +17,15 @@ import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRelationRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.EntityInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.file.entity.FileData;
+import com.plantdata.kgcloud.domain.file.service.FileDataService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.EntityFileRelationRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.EntityInfoRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,8 +65,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     private DocumentConverter documentConverter;
     @Autowired
     private EntityFileConverter entityFileConverter;
-    // @Autowired
-    // private TableDataService tableDataService;
+    @Autowired
+    private FileDataService fileDataService;
+
 
     public static List<LinkedHashMap<String, String>> readExcel(MultipartFile file, Integer indexType) throws IOException {
         // 返回的map
@@ -287,9 +290,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
-    public List<EntityFileRelation> getRelationByDwFileId(String kgName, String fileId) {
-        FindIterable<Document> findIterable = getRelationCollection(kgName).find(Filters.eq("fileId", new ObjectId(fileId)));
-        return entityFileConverter.toBeans(findIterable);
+    public EntityFileRelation getRelationByFileId(String kgName, String fileId) {
+        Document document = getRelationCollection(kgName).find(Filters.eq("fileId", new ObjectId(fileId))).first();
+        return entityFileConverter.toBean(document);
     }
 
     @Override
@@ -471,6 +474,24 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         }
 
         getRelationCollection(kgName).insertMany(collect);
+    }
+
+    @Override
+    public EntityFileRelationRsp createFileRelation(String kgName, EntityFileRelationAddReq req) {
+        EntityFileRelation relation = getRelationByFileId(kgName, req.getFileId());
+        if (relation == null) {
+            FileData fileData = fileDataService.get(req.getFileId());
+            EntityFileRelation newRelation = ConvertUtils.convert(EntityFileRelation.class).apply(fileData);
+            newRelation.setId(null);
+            newRelation.setIndexType(0);
+            newRelation.setFileId(req.getFileId());
+            newRelation.setCreateTime(new Date());
+            relation = newRelation;
+        }
+        relation.setEntityIds(req.getEntityIds());
+        Document document = entityFileConverter.toDocument(relation);
+        getRelationCollection(kgName).insertOne(document);
+        return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
     }
 
     @Override
