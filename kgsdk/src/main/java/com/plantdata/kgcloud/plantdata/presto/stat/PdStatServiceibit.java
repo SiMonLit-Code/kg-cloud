@@ -12,7 +12,10 @@ import tech.ibit.sqlbuilder.*;
 import tech.ibit.sqlbuilder.aggregate.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class PdStatServiceibit {
@@ -20,83 +23,98 @@ public class PdStatServiceibit {
 
     private PrestoCompute prestoCompute = new PrestoCompute();
 
-    public Object excute(PdStatBean pdStatBean,String dbName,String tbName) throws Exception {
+    public Object excute(PdStatBean pdStatBean, String dbName, String tbName) throws Exception {
 
-        String sql = pdStatToSql(pdStatBean,dbName,tbName);
+        List<String> sqls = pdStatToSql(pdStatBean, dbName, tbName);
+        ArrayList<Object> re = new ArrayList<>();
+        for (String sql : sqls) {
+            Object rs = prestoCompute.compute(sql);
+            re.add(rs);
+        }
 
-        Object rs = prestoCompute.compute(sql);
 
-        return rs;
+        return re;
     }
 
 
-    private String pdStatToSql(PdStatBean pdStatBean,String dbName,String tbName) {
+    private List<String> pdStatToSql(PdStatBean pdStatBean, String dbName, String tbName) {
 
-        String alias = appConfig.getProperty("presto.dw.alias",null);
-
-        Sql sql = new Sql();
-
+        String alias = appConfig.getProperty("presto.dw.alias", null);
         if (pdStatBean == null) {
             return null;
         }
+        ArrayList<String> sqls = new ArrayList<>();
 
-        //select + groupby
-        if (pdStatBean.getDimensions() != null) {
-            for (PdStatBaseBean dimension : pdStatBean.getDimensions()) {
-                IColumn column = getColumn(dimension,alias,dbName,tbName);
-                sql.select(column);
-                sql.groupBy(column);
-            }
+        Map<String, PdStatFilterBean> filterBeanMap = new HashMap<>();
+
+        for (PdStatFilterBean filter : pdStatBean.getFilters()) {
+            String name = filter.getName();
+            filterBeanMap.put(name, filter);
         }
 
-        //select agg
-        if (pdStatBean.getMeasures() != null) {
-            for (PdStatBaseBean measure : pdStatBean.getMeasures()) {
-                IColumn column = getColumn(measure,alias,dbName,tbName);
-                sql.select(column);
-            }
-        }
+        for (PdStatBaseBean measure : pdStatBean.getMeasures()) {
 
-        //where + having
-        if (pdStatBean.getFilters() != null) {
-            for (PdStatFilterBean filter : pdStatBean.getFilters()) {
-                IColumn column = getColumn(filter,alias,dbName,tbName);
-                for (PdStatOneFilterBean pdStatOneFilterBean : filter.getFilter()) {
-                    getCondition(sql, column, pdStatOneFilterBean);
+
+            Sql sql = new Sql();
+
+
+            //select + groupby
+            if (pdStatBean.getDimensions() != null) {
+                for (PdStatBaseBean dimension : pdStatBean.getDimensions()) {
+                    IColumn column = getColumn(dimension, alias, dbName, tbName);
+                    sql.select(column);
+                    sql.groupBy(column);
                 }
             }
-        }
 
-        // order by
-        if (pdStatBean.getOrders() != null) {
-            for (PdStatOrderBean order : pdStatBean.getOrders()) {
-                IColumn column = getColumn(order,alias,dbName,tbName);
-                NameOrderBy o = new NameOrderBy(column.getName(), PdStatBaseBean.OrderEnum.DESC.equals(order.getOrder()));
-                sql.orderBy(o);
+            //select agg
+
+            IColumn column = getColumn(measure, alias, dbName, tbName);
+            sql.select(column);
+
+
+            //where + having
+            if (filterBeanMap.containsKey(measure.getName())) {
+                PdStatFilterBean filter = filterBeanMap.get(measure.getName());
+
+                IColumn column_tmp = getColumn(filter, alias, dbName, tbName);
+                for (PdStatOneFilterBean pdStatOneFilterBean : filter.getFilter()) {
+                    getCondition(sql, column_tmp, pdStatOneFilterBean);
+                }
             }
+
+
+            // order by
+            if (pdStatBean.getOrders() != null) {
+                for (PdStatOrderBean order : pdStatBean.getOrders()) {
+                    IColumn column_tmp = getColumn(order, alias, dbName, tbName);
+                    NameOrderBy o = new NameOrderBy(column_tmp.getName(), PdStatBaseBean.OrderEnum.DESC.equals(order.getOrder()));
+                    sql.orderBy(o);
+                }
+            }
+
+            // from
+            sql.from(new Table("", alias + "." + dbName + "." + tbName));
+
+            String sql_str = getCompeletedSql(sql.getSqlParams().getSql(), sql.getSqlParams().getParams());
+
+            if (pdStatBean.getLimit() > 0) {
+                sql_str += " LIMIT " + pdStatBean.getLimit();
+            }
+            sqls.add(sql_str);
         }
-
-        // from
-        sql.from(new Table("", alias+"."+dbName+"."+tbName));
-
-        String sql_str = getCompeletedSql(sql.getSqlParams().getSql(), sql.getSqlParams().getParams());
-
-        if (pdStatBean.getLimit() > 0) {
-            sql_str += " LIMIT "  + pdStatBean.getLimit();
-        }
-
-        return sql_str;
+        return sqls;
 
     }
 
-    private Table getTableByColumn(PdStatBaseBean pdstat,String alias,String dbName,String tbName) {
-        return new Table("", alias+"."+dbName+"."+tbName);
+    private Table getTableByColumn(PdStatBaseBean pdstat, String alias, String dbName, String tbName) {
+        return new Table("", alias + "." + dbName + "." + tbName);
 
     }
 
-    private IColumn getColumn(PdStatBaseBean pdstat,String alias,String dbName,String tbName) {
+    private IColumn getColumn(PdStatBaseBean pdstat, String alias, String dbName, String tbName) {
 
-        Table table = getTableByColumn(pdstat,alias,dbName,tbName);
+        Table table = getTableByColumn(pdstat, alias, dbName, tbName);
         Column column = new Column(table, pdstat.getName());
 
         if (pdstat.getAggregator() == null) {
@@ -128,8 +146,7 @@ public class PdStatServiceibit {
 
         if (column instanceof AggregateColumn) {
             getConditionHaving(sql, column, pstat);
-        }
-        else {
+        } else {
             getConditionWhere(sql, column, pstat);
         }
     }
@@ -206,24 +223,24 @@ public class PdStatServiceibit {
         }
     }
 
-    private String getCompeletedSql(String sql, List<Object> params){
+    private String getCompeletedSql(String sql, List<Object> params) {
 
-        if(params==null || params.size()==0){
+        if (params == null || params.size() == 0) {
             return sql;
         }
 
         int last_find_pos = 0;
         StringBuffer sb = new StringBuffer(sql);
 
-        while( (last_find_pos = sb.indexOf("?", last_find_pos) ) >0){
+        while ((last_find_pos = sb.indexOf("?", last_find_pos)) > 0) {
             Object p = params.remove(0);
             String value = p.toString();
 
-            if(p instanceof String){
+            if (p instanceof String) {
                 value = "'" + value + "'";
             }
 
-            sb.replace(last_find_pos, last_find_pos+1, value);
+            sb.replace(last_find_pos, last_find_pos + 1, value);
         }
 
         return sb.toString();

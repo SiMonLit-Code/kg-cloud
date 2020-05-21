@@ -5,12 +5,12 @@ import com.plantdata.kgcloud.domain.dw.req.DWDatabaseUpdateReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableBatchReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableReq;
 import com.plantdata.kgcloud.domain.dw.req.DWFileTableUpdateReq;
-import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
-import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.domain.dw.rsp.DWFileTableRsp;
 import com.plantdata.kgcloud.domain.dw.service.TableDataService;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.sdk.req.DataOptQueryReq;
+import com.plantdata.kgcloud.sdk.req.DwTableDataSearchReq;
+import com.plantdata.kgcloud.sdk.req.DwTableDataStatisticReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -150,7 +150,7 @@ public class TableDataController {
     @ApiOperation("数仓表下拉提示")
     @PostMapping("search/{dataStoreId}/{tableId}")
     public ApiReturn<List<Map<String, Object>>> search(@PathVariable("dataStoreId") long dataStoreId,
-                            @PathVariable("tableId") long tableId, @RequestBody DwTableDataSearchReq searchReq) {
+                                                       @PathVariable("tableId") long tableId, @RequestBody DwTableDataSearchReq searchReq) {
         return ApiReturn.success(tableDataService.search(SessionHolder.getUserId(), dataStoreId, tableId, searchReq));
     }
 
