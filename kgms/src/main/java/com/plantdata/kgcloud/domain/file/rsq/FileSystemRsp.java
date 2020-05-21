@@ -10,16 +10,16 @@ import java.util.List;
  * @date 2020/5/20 9:59
  */
 @Data
-public class FileDatabaseRsp {
+public class FileSystemRsp {
 
     private Long id;
 
     private String userId;
 
-    @ApiModelProperty(value = "数据库名称")
+    @ApiModelProperty(value = "文件系统名称")
     private String title;
 
-    @ApiModelProperty(value = "数据表列表")
-    private List<FileTableRsp> tables;
+    @ApiModelProperty(value = "文件夹列表")
+    private List<FolderRsp> fileFolders;
 
 }

@@ -9,11 +9,8 @@ import lombok.Data;
  * @date 2020/5/20 14:46
  */
 @Data
-@ApiModel("数据库改名参数")
-public class FileDatabaseNameReq {
-
-    @ApiModelProperty("数据库id")
-    private Long databaseId;
+@ApiModel("创建文件系统名称参数")
+public class FileSystemNameReq {
 
     @ApiModelProperty("名称")
     private String name;

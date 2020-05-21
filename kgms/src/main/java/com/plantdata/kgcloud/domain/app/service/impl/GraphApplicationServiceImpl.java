@@ -140,6 +140,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         }
         //replace attrKey
         graphHelperService.replaceByAttrKey(kgName, knowledgeRecommendReq);
+        // 实体id为空时，将实体名称转成实体id
+        graphHelperService.replaceKwToId(kgName,knowledgeRecommendReq);
 
         Optional<Map<Integer, Set<Long>>> entityAttrOpt = RestRespConverter.convert(entityApi.entityAttributesObject(KGUtil.dbName(kgName), KnowledgeRecommendConverter.reqToFrom(knowledgeRecommendReq)));
         if (!entityAttrOpt.isPresent()) {

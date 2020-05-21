@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface FileDataService {
 
-    Page<FileDataRsp> getFileData(String userId, Long databaseId, Long tableId, FileDataQueryReq req);
+    Page<FileDataRsp> getFileData(String userId, Long fileSystemId, Long folderId, FileDataQueryReq req);
 
     FileData fileAdd(FileDataReq req);
 
@@ -29,5 +29,5 @@ public interface FileDataService {
 
     void fileDeleteBatch(List<String> ids);
 
-    void fileDeleteByTableId(Long tableId);
+    void fileDeleteByFolderId(Long folderId);
 }

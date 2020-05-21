@@ -42,11 +42,11 @@ public class FileData {
     @ApiModelProperty("拥有者")
     private String owner;
 
-    @ApiModelProperty("数仓id")
-    private Long databaseId;
+    @ApiModelProperty("文件系统id")
+    private Long fileSystemId;
 
-    @ApiModelProperty("所属文件夹")
-    private Long tableId;
+    @ApiModelProperty("所属文件夹id")
+    private Long folderId;
 
     @ApiModelProperty("创建时间")
     private Date createTime;

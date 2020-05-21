@@ -175,7 +175,7 @@ public class EntityServiceImpl implements EntityService {
             EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
             relation.setIndexType(0);
             entityFileRelationService.createRelation(kgName, relation);
-        } else if (multiModalReq.getDatabaseId() != null && multiModalReq.getTableId() != null) {
+        } else if (multiModalReq.getFileSystemId() != null && multiModalReq.getFolderId() != null) {
             // 创建数仓文件记录
             // DWFileTableReq dwFileTableReq = ConvertUtils.convert(DWFileTableReq.class).apply(multiModalReq);
             // dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
@@ -229,7 +229,7 @@ public class EntityServiceImpl implements EntityService {
                 entityFileRelationReq.setFileId(multiModalReq.getFileId());
                 entityFileRelationReq.setIndexType(0);
                 entityFileRelationService.createRelation(kgName, entityFileRelationReq);
-            } else if (multiModalReq.getDatabaseId() != null && multiModalReq.getTableId() != null) {
+            } else if (multiModalReq.getFileSystemId() != null && multiModalReq.getFolderId() != null) {
                 // 创建数仓文件记录
                 // DWFileTableReq dwFileTableReq = ConvertUtils.convert(DWFileTableReq.class).apply(multiModalReq);
                 // dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());

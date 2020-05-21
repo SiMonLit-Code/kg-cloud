@@ -30,12 +30,12 @@ public class FileDataController {
     private FileDataService fileDataService;
 
     @ApiOperation("文件数据管理-分页条件查询")
-    @PostMapping("/list/{databaseId}/{tableId}")
-    public ApiReturn<Page<FileDataRsp>> getFileData(@PathVariable("tableId") Long tableId,
-                                                    @PathVariable("databaseId") Long databaseId,
+    @PostMapping("/list/{fileSystemId}/{folderId}")
+    public ApiReturn<Page<FileDataRsp>> getFileData(@PathVariable("fileSystemId") Long fileSystemId,
+                                                    @PathVariable("folderId") Long folderId,
                                                     @RequestBody FileDataQueryReq req) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(fileDataService.getFileData(userId, databaseId, tableId, req));
+        return ApiReturn.success(fileDataService.getFileData(userId, fileSystemId, folderId, req));
     }
 
     @ApiOperation("文件数据管理-文件上传")
@@ -47,9 +47,9 @@ public class FileDataController {
 
     @ApiOperation("文件数据管理-文件批量上传")
     @PostMapping("/add/batch")
-    public ApiReturn fileAddBatch(FileDataBatchReq fileTableReq,
+    public ApiReturn fileAddBatch(FileDataBatchReq req,
                                   MultipartFile[] files) {
-        fileDataService.fileAddBatch(fileTableReq, files);
+        fileDataService.fileAddBatch(req, files);
         return ApiReturn.success();
     }
 

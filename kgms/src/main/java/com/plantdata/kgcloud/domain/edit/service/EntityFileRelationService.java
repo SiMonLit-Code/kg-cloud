@@ -46,7 +46,7 @@ public interface EntityFileRelationService {
 
     void cancelIndex(String kgName, IndexRelationReq req);
 
-    void addFile(String kgName, Long databaseId, Long tableId);
+    void addFile(String kgName, Long fileSystemId, Long folderId);
 
     boolean checkExist(String kgName, Long entityId, String fileId);
 

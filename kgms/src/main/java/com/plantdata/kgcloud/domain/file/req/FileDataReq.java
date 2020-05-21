@@ -14,11 +14,11 @@ import java.util.List;
 @ApiModel("单个文件上传参数")
 public class FileDataReq {
 
-    @ApiModelProperty("数据库id")
-    private Long databaseId;
+    @ApiModelProperty("文件系统id")
+    private Long fileSystemId;
 
-    @ApiModelProperty("数据表id")
-    private Long tableId;
+    @ApiModelProperty("文件夹id")
+    private Long folderId;
 
     @ApiModelProperty("文件名称")
     private String name;

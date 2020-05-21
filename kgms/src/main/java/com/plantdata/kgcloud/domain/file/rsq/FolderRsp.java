@@ -8,15 +8,15 @@ import lombok.Data;
  * @date 2020/5/20 14:42
  */
 @Data
-public class FileTableRsp {
+public class FolderRsp {
 
     private Long id;
 
-    @ApiModelProperty(value = "数据表名称")
+    @ApiModelProperty(value = "文件夹名称")
     private String title;
 
-    @ApiModelProperty(value = "数据库id")
-    private Long fileDataBaseId;
+    @ApiModelProperty(value = "文件系统id")
+    private Long fileSystemId;
 
     @ApiModelProperty(value = "文件数量")
     private Long fileCount;

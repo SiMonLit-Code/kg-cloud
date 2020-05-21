@@ -12,11 +12,11 @@ import lombok.Data;
 @ApiModel("批量文件上传参数")
 public class FileDataBatchReq {
 
-    @ApiModelProperty("数据库id")
-    private Long databaseId;
+    @ApiModelProperty("文件系统id")
+    private Long fileSystemId;
 
-    @ApiModelProperty("数据表id")
-    private Long tableId;
+    @ApiModelProperty("文件夹id")
+    private Long folderId;
 
     @ApiModelProperty("关键词")
     private String keyword;

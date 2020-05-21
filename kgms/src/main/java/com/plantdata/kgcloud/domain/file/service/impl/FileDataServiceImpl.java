@@ -63,15 +63,15 @@ public class FileDataServiceImpl implements FileDataService {
     };
 
     @Override
-    public Page<FileDataRsp> getFileData(String userId, Long databaseId, Long tableId, FileDataQueryReq req) {
+    public Page<FileDataRsp> getFileData(String userId, Long fileSystemId, Long folderId, FileDataQueryReq req) {
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
         List<Bson> bsons = new ArrayList<>(3);
         if (StringUtils.isNotBlank(req.getName())) {
             bsons.add(Filters.regex("name", Pattern.compile("^.*" + req.getName() + ".*$")));
         }
-        bsons.add(Filters.eq("databaseId", databaseId));
-        bsons.add(Filters.eq("tableId", tableId));
+        bsons.add(Filters.eq("fileSystemId", fileSystemId));
+        bsons.add(Filters.eq("folderId", folderId));
 
         FindIterable<Document> findIterable = getFileCollection().find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime", -1));
         List<FileData> fileDatas = documentConverter.toBeans(findIterable, FileData.class);
@@ -162,8 +162,8 @@ public class FileDataServiceImpl implements FileDataService {
     }
 
     @Override
-    public void fileDeleteByTableId(Long tableId) {
-        FindIterable<Document> findIterable = getFileCollection().find(Filters.eq("tableId", tableId));
+    public void fileDeleteByFolderId(Long folderId) {
+        FindIterable<Document> findIterable = getFileCollection().find(Filters.eq("folderId", folderId));
         List<FileData> fileDatas = documentConverter.toBeans(findIterable, FileData.class);
         List<String> collect = fileDatas.stream().map(FileData::getId).collect(Collectors.toList());
         fileDeleteBatch(collect);
