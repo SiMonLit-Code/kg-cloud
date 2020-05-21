@@ -65,12 +65,15 @@ public class AppController implements SdkOldApiInterface {
 
     @ApiOperation("图探索的初始化")
     @PostMapping("graph/default")
-    @ApiParam(name = "kgName", required = true, type = "String", value = "图谱名称")
-    public RestResp<InitGraphBean> graphInit(@RequestParam("kgName") String kgName, @RequestParam("type") String type) {
-        Function<String, ApiReturn<GraphInitRsp>> returnFunction = a -> appClient.initGraphExploration(kgName, a);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "type", required = true, dataType = "string", paramType = "form", value = "类型")
+    })
+    public RestResp<InitGraphBean> graphInit(@Valid @ApiIgnore DefaultParameter defaultParameter) {
+        Function<String, ApiReturn<GraphInitRsp>> returnFunction = a -> appClient.initGraphExploration(defaultParameter.getKgName(), a);
         InitGraphBean initGraphBean = returnFunction
                 .andThen(a -> BasicConverter.convert(a, GraphInitBasicConverter::graphInitRspToInitGraphBean))
-                .apply(type);
+                .apply(defaultParameter.getType());
         return new RestResp<>(initGraphBean);
     }
 
