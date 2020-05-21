@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.file.repository;
 
-import com.plantdata.kgcloud.domain.file.entity.FileDatabase;
+import com.plantdata.kgcloud.domain.file.entity.FileSystem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,7 +12,7 @@ import java.util.List;
  * @author lp
  * @date 2020/5/20 14:53
  */
-public interface FileDatabaseRepository extends JpaRepository<FileDatabase, Long> {
+public interface FileSystemRepository extends JpaRepository<FileSystem, Long> {
 
     /**
      * 根据查询条件跟分页条件查询数据
@@ -20,7 +20,7 @@ public interface FileDatabaseRepository extends JpaRepository<FileDatabase, Long
      * @param pageable
      * @return
      */
-    Page<FileDatabase> findAll(Specification<FileDatabase> spec, Pageable pageable);
+    Page<FileSystem> findAll(Specification<FileSystem> spec, Pageable pageable);
 
-    List<FileDatabase> findByUserId(String userId);
+    List<FileSystem> findByUserId(String userId);
 }

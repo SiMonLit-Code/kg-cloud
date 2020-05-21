@@ -97,11 +97,11 @@ public class EntityFileRelationController {
     }
 
     @ApiOperation("实体文件管理-新增文件标引")
-    @PostMapping("/{kgName}/add/file/{databaseId}/{tableId}")
+    @PostMapping("/{kgName}/add/file/{fileSystemId}/{folderId}")
     public ApiReturn addFile(@PathVariable String kgName,
-                             @PathVariable Long databaseId,
-                             @PathVariable Long tableId) {
-        entityFileRelationService.addFile(kgName, databaseId, tableId);
+                             @PathVariable Long fileSystemId,
+                             @PathVariable Long folderId) {
+        entityFileRelationService.addFile(kgName, fileSystemId, folderId);
         return ApiReturn.success();
     }
 

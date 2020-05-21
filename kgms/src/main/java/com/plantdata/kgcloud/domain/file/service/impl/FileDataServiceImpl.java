@@ -63,15 +63,15 @@ public class FileDataServiceImpl implements FileDataService {
     };
 
     @Override
-    public Page<FileDataRsp> getFileData(String userId, Long databaseId, Long tableId, FileDataQueryReq req) {
+    public Page<FileDataRsp> getFileData(String userId, Long fileSystemId, Long folderId, FileDataQueryReq req) {
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
         List<Bson> bsons = new ArrayList<>(3);
         if (StringUtils.isNotBlank(req.getName())) {
             bsons.add(Filters.regex("name", Pattern.compile("^.*" + req.getName() + ".*$")));
         }
-        bsons.add(Filters.eq("databaseId", databaseId));
-        bsons.add(Filters.eq("tableId", tableId));
+        bsons.add(Filters.eq("fileSystemId", fileSystemId));
+        bsons.add(Filters.eq("folderId", folderId));
 
         FindIterable<Document> findIterable = getFileCollection().find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime", -1));
         List<FileData> fileDatas = documentConverter.toBeans(findIterable, FileData.class);
@@ -146,15 +146,28 @@ public class FileDataServiceImpl implements FileDataService {
 
     @Override
     public void fileDelete(String id) {
-        getFileCollection().deleteOne(documentConverter.buildObjectId(id));
         // 删除实体文件关联
         entityFileRelationService.deleteRelationByFileId(id);
+        getFileCollection().deleteOne(documentConverter.buildObjectId(id));
     }
 
     @Override
     public void fileDeleteBatch(List<String> ids) {
-        List<ObjectId> collect = ids.stream().map(ObjectId::new).collect(Collectors.toList());
-        getFileCollection().deleteMany(Filters.in("_id", collect));
+        // 先删除实体文件关联关系
         entityFileRelationService.deleteRelationByFileIds(ids);
+
+        List<ObjectId> collect = ids.stream().map(ObjectId::new).collect(Collectors.toList());
+        // 删除文件
+        getFileCollection().deleteMany(Filters.in("_id", collect));
     }
+
+    @Override
+    public void fileDeleteByFolderId(Long folderId) {
+        FindIterable<Document> findIterable = getFileCollection().find(Filters.eq("folderId", folderId));
+        List<FileData> fileDatas = documentConverter.toBeans(findIterable, FileData.class);
+        List<String> collect = fileDatas.stream().map(FileData::getId).collect(Collectors.toList());
+        fileDeleteBatch(collect);
+    }
+
+
 }

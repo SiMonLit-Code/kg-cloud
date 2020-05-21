@@ -13,14 +13,7 @@ import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.ConceptConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.SchemaBasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.graph.GraphInitBasicConverter;
-import com.plantdata.kgcloud.plantdata.req.app.AssociationParameter;
-import com.plantdata.kgcloud.plantdata.req.app.AttrPromptParameter;
-import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameter;
-import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameterMore;
-import com.plantdata.kgcloud.plantdata.req.app.KgNameByApkParameter;
-import com.plantdata.kgcloud.plantdata.req.app.ModelStatParameter;
-import com.plantdata.kgcloud.plantdata.req.app.PromptParameter;
-import com.plantdata.kgcloud.plantdata.req.app.SeniorPromptParameter;
+import com.plantdata.kgcloud.plantdata.req.app.*;
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
@@ -30,32 +23,18 @@ import com.plantdata.kgcloud.plantdata.rsp.app.InitGraphBean;
 import com.plantdata.kgcloud.plantdata.rsp.app.TreeItemVo;
 import com.plantdata.kgcloud.plantdata.rsp.schema.SchemaBean;
 import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
-import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.PromptReq;
-import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
+import com.plantdata.kgcloud.sdk.req.app.*;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
@@ -99,7 +78,8 @@ public class AppController implements SdkOldApiInterface {
     @PostMapping("infobox")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "id", required = true, dataType = "long", paramType = "form", value = "实体id"),
+            @ApiImplicitParam(name = "id", dataType = "long", paramType = "form", value = "实体id"),
+            @ApiImplicitParam(name = "kw", dataType = "string", paramType = "form", value = "实体名称"),
             @ApiImplicitParam(name = "isRelationAtts", dataType = "boolean", defaultValue = "false", paramType = "form", value = "是否读取对象属性,默认false"),
             @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "查询指定的属性，格式为json数组格式，默认为读取全部"),
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts为空时生效"),
@@ -117,7 +97,8 @@ public class AppController implements SdkOldApiInterface {
     @PostMapping("infobox/more")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "ids", required = true, dataType = "string", paramType = "form", value = "实体id列表"),
+            @ApiImplicitParam(name = "ids", dataType = "string", paramType = "form", value = "实体id列表"),
+            @ApiImplicitParam(name = "kws", dataType = "string", paramType = "form", value = "实体名称列表"),
             @ApiImplicitParam(name = "isRelationAtts", dataType = "boolean", defaultValue = "false", paramType = "form", value = "是否读取对象属性,默认false"),
             @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "查询指定的属性，格式为json数组格式，默认为读取全部"),
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts为空时生效"),
@@ -237,7 +218,7 @@ public class AppController implements SdkOldApiInterface {
     })
     public RestResp<TreeItemVo> modelStat(@Valid @ApiIgnore ModelStatParameter modelStatParameter) {
         ApiReturn<BasicConceptTreeRsp> rspApiReturn = appClient.visualModels(modelStatParameter.getKgName(), modelStatParameter.getConceptId(), modelStatParameter.getIsDisplay());
-        TreeItemVo treeItemVo = ConceptConverter.basicConceptTreeRspToTreeItemVoWithRangeOption(rspApiReturn.getData(),modelStatParameter.getIsRangeDisplay());
+        TreeItemVo treeItemVo = ConceptConverter.basicConceptTreeRspToTreeItemVoWithRangeOption(rspApiReturn.getData(), modelStatParameter.getIsRangeDisplay());
         return new RestResp<>(treeItemVo);
     }
 
@@ -245,11 +226,12 @@ public class AppController implements SdkOldApiInterface {
     @PostMapping("recommend/knowledge")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "entityId", required = true, dataType = "long", paramType = "form", value = "实体id"),
+            @ApiImplicitParam(name = "entityId", dataType = "long", paramType = "form", value = "实体id"),
+            @ApiImplicitParam(name = "kw", dataType = "string", paramType = "form", value = "实体名称"),
             @ApiImplicitParam(name = "direction", dataType = "int", paramType = "form", value = "关系方向。默认正向，0表示双向，1表示出发，2表示到达,默认0"),
             @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "推荐范围，格式为json数组的属性定义id,必须指定范围"),
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts 为空时生效"),
-            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "form",value = "每个属性要显示的数量"),
+            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "form", value = "每个属性要显示的数量"),
     })
     public RestResp<List<KVBean<String, List<EntityBean>>>> association(@Valid @ApiIgnore AssociationParameter param) {
         Function<KnowledgeRecommendReqList, ApiReturn<List<ObjectAttributeRsp>>> returnFunction = a -> appClient.knowledgeRecommend(param.getKgName(), a);

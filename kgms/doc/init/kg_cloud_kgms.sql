@@ -425,28 +425,28 @@ CREATE TABLE `graph_attr_quality` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='图谱质量属性统计';
 
 -- ----------------------------
--- Table structure for file_database
+-- Table structure for file_system
 -- ----------------------------
-DROP TABLE IF EXISTS `file_database`;
-CREATE TABLE `file_database`  (
+DROP TABLE IF EXISTS `file_system`;
+CREATE TABLE `file_system`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键id',
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '数据库名称',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件系统名称',
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '用户id',
   `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-数据库' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-文件系统' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Table structure for file_table
+-- Table structure for file_folder
 -- ----------------------------
-DROP TABLE IF EXISTS `file_table`;
-CREATE TABLE `file_table`  (
+DROP TABLE IF EXISTS `file_folder`;
+CREATE TABLE `file_folder`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增id',
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '数据表名称',
-  `file_database_id` bigint(20) UNSIGNED NULL DEFAULT NULL COMMENT '数据库id',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件夹名称',
+  `file_system_id` bigint(20) UNSIGNED NULL DEFAULT NULL COMMENT '文件系统id',
   `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-数据表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-文件夹' ROW_FORMAT = DYNAMIC;
 

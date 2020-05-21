@@ -452,10 +452,10 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
-    public void addFile(String kgName, Long databaseId, Long tableId) {
+    public void addFile(String kgName, Long fileSystemId, Long folderId) {
         List<Bson> query = new ArrayList<>(2);
-        query.add(Filters.eq("databaseId", databaseId));
-        query.add(Filters.eq("tableId", tableId));
+        query.add(Filters.eq("fileSystemId", fileSystemId));
+        query.add(Filters.eq("folderId", folderId));
 
         MongoCursor<Document> iterator = getFileCollection().find(Filters.and(query)).iterator();
 

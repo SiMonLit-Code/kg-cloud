@@ -30,45 +30,45 @@ public class FileDataController {
     private FileDataService fileDataService;
 
     @ApiOperation("文件数据管理-分页条件查询")
-    @PostMapping("/list/{databaseId}/{tableId}")
-    public ApiReturn<Page<FileDataRsp>> getFileData(@PathVariable("tableId") Long tableId,
-                                                    @PathVariable("databaseId") Long databaseId,
+    @PostMapping("/list/{fileSystemId}/{folderId}")
+    public ApiReturn<Page<FileDataRsp>> getFileData(@PathVariable("fileSystemId") Long fileSystemId,
+                                                    @PathVariable("folderId") Long folderId,
                                                     @RequestBody FileDataQueryReq req) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(fileDataService.getFileData(userId, databaseId, tableId, req));
+        return ApiReturn.success(fileDataService.getFileData(userId, fileSystemId, folderId, req));
     }
 
     @ApiOperation("文件数据管理-文件上传")
-    @PostMapping("/file/add")
+    @PostMapping("/add")
     public ApiReturn fileAdd(@RequestBody FileDataReq req) {
         fileDataService.fileAdd(req);
         return ApiReturn.success();
     }
 
     @ApiOperation("文件数据管理-文件批量上传")
-    @PostMapping("/file/add/batch")
-    public ApiReturn fileAddBatch(@RequestBody FileDataBatchReq fileTableReq,
+    @PostMapping("/add/batch")
+    public ApiReturn fileAddBatch(FileDataBatchReq req,
                                   MultipartFile[] files) {
-        fileDataService.fileAddBatch(fileTableReq, files);
+        fileDataService.fileAddBatch(req, files);
         return ApiReturn.success();
     }
 
     @ApiOperation("文件数据管理-编辑")
-    @PostMapping("/file/update")
+    @PostMapping("/update")
     public ApiReturn fileUpdate(@RequestBody FileDataUpdateReq req) {
         fileDataService.fileUpdate(req);
         return ApiReturn.success();
     }
 
     @ApiOperation("文件数据管理-删除")
-    @PatchMapping("/file/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ApiReturn fileDelete(@PathVariable("id") String id) {
         fileDataService.fileDelete(id);
         return ApiReturn.success();
     }
 
     @ApiOperation("文件数据管理-批量删除")
-    @PatchMapping("/file/delete/batch")
+    @DeleteMapping("/delete/batch")
     public ApiReturn fileDeleteBatch(@RequestBody List<String> ids) {
         fileDataService.fileDeleteBatch(ids);
         return ApiReturn.success();

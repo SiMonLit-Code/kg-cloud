@@ -15,18 +15,18 @@ import java.util.Date;
 
 /**
  * @author lp
- * @date 2020/5/20 14:26
+ * @date 2020/5/20 14:34
  */
 @Data
 @Entity
 @Builder
-@Table(name = "file_database")
+@Table(name = "file_folder")
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamicInsert
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
-public class FileDatabase {
+public class FileFolder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,12 +34,12 @@ public class FileDatabase {
     private Long id;
 
     @Basic
-    @Column(name = "title")
-    private String title;
+    @Column(name = "name")
+    private String name;
 
     @Basic
-    @Column(name = "user_id")
-    private String userId;
+    @Column(name = "file_system_id")
+    private Long fileSystemId;
 
     @Basic
     @Column(name = "create_at")

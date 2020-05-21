@@ -27,6 +27,7 @@ import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.*;
@@ -43,11 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -187,7 +184,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             return;
         }
         Optional<Map<String, Integer>> keyConvertOpt = RestRespConverter.convert(schemaApi.getAttrIdByKey(KGUtil.dbName(kgName), attrDefKeyReq.getAllowAttrsKey()));
-        if (!keyConvertOpt.isPresent()||CollectionUtils.isEmpty(keyConvertOpt.get())) {
+        if (!keyConvertOpt.isPresent() || CollectionUtils.isEmpty(keyConvertOpt.get())) {
             throw BizException.of(AppErrorCodeEnum.ATTR_DEF_NOT_FOUNT);
         }
         attrDefKeyReq.setAllowAttrs(Lists.newArrayList(keyConvertOpt.get().values()));
@@ -211,9 +208,9 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     @Override
     public void replaceKwToId(String kgName, BatchInfoBoxReqList req) {
         List<Long> entityIdList = Lists.newArrayList();
-        if (CollectionUtils.isEmpty(req.getIds()) || req.getIds().get(0)==null){
+        if (CollectionUtils.isEmpty(req.getIds()) || req.getIds().get(0) == null) {
             List<String> kws = req.getKws();
-            if (CollectionUtils.isEmpty(kws)){
+            if (CollectionUtils.isEmpty(kws)) {
                 return;
             }
             for (String kw : kws) {
@@ -227,10 +224,32 @@ public class GraphHelperServiceImpl implements GraphHelperService {
                 List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
                 entityIdList.addAll(ids);
             }
-            if (CollectionUtils.isEmpty(entityIdList)){
+            if (CollectionUtils.isEmpty(entityIdList)) {
                 return;
             }
             req.setIds(entityIdList);
+        }
+    }
+
+    @Override
+    public void replaceKwToId(String kgName, KnowledgeRecommendReqList req) {
+        if (req.getEntityId() == null) {
+            String kw = req.getKw();
+            if (StringUtils.isBlank(kw)) {
+                return;
+            }
+            MongoQueryFrom query = new MongoQueryFrom();
+            query.setKgName(KGUtil.dbName(kgName));
+            query.setCollection("basic_info");
+            List<Map<String, Object>> mathMapList = Lists.newArrayList();
+            mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", kw)));
+            query.setQuery(mathMapList);
+            RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
+            List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(ids)) {
+                return;
+            }
+            req.setEntityId(ids.get(0));
         }
     }
 
