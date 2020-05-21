@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.file.req;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -8,6 +9,7 @@ import lombok.Data;
  * @date 2020/5/20 19:25
  */
 @Data
+@ApiModel("文件信息更新参数")
 public class FileDataUpdateReq {
 
     @ApiModelProperty("id")

@@ -47,7 +47,7 @@ public class FileDataController {
 
     @ApiOperation("文件数据管理-文件批量上传")
     @PostMapping("/add/batch")
-    public ApiReturn fileAddBatch(@RequestBody FileDataBatchReq fileTableReq,
+    public ApiReturn fileAddBatch(FileDataBatchReq fileTableReq,
                                   MultipartFile[] files) {
         fileDataService.fileAddBatch(fileTableReq, files);
         return ApiReturn.success();

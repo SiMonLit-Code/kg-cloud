@@ -8,7 +8,7 @@ import lombok.Data;
  * @date 2020/5/20 14:46
  */
 @Data
-@ApiModel("数据库改名")
+@ApiModel("数据库改名参数")
 public class FileDatabaseNameReq {
 
     private Long databaseId;
