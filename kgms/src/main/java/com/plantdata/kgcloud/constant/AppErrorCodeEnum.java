@@ -11,9 +11,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum AppErrorCodeEnum implements ErrorCode {
     /**
-     *
-     */
-    /**
      * app模块
      */
     CONF_ALGORITHM_NOT_EXISTS(120601, "算法配置不存在"),

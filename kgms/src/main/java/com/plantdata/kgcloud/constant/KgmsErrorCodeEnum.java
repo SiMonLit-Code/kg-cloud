@@ -94,20 +94,25 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     EMTRY_MODEL_PUDH_ERROR(120604, "空模式不能发布"),
 
-    SCHEMA_CONCEPT_NOT_EXIST_ERROR(120605,"图谱没有定义概念"),
+    SCHEMA_CONCEPT_NOT_EXIST_ERROR(120605, "图谱没有定义概念"),
 
-    MODEL_FILE_TITLE_ERROR(120606,"模式文件表头错误，请根据模板上传"),
+    MODEL_FILE_TITLE_ERROR(120606, "模式文件表头错误，请根据模板上传"),
 
-    EXCEL_TYPE_ERROR(120607,"excel文件格式错误"),
+    EXCEL_TYPE_ERROR(120607, "excel文件格式错误"),
 
-    FILE_SIZE_OVER(120608,"文件关联大小不能超过20M"),
+    FILE_SIZE_OVER(120608, "文件关联大小不能超过20M"),
 
-    RELATION_IS_EXIST(120609,"文件关联已存在"),
+    RELATION_IS_EXIST(120609, "文件关联已存在"),
 
-    EXCEL_DATA_ERROR(120610,"表头内容错误"),
+    EXCEL_DATA_ERROR(120610, "表头内容错误"),
 
-    EXCEL_DATA_NULL(120611,"excel数据为空"),
-            ;
+    EXCEL_DATA_NULL(120611, "excel数据为空"),
+
+    FILE_DATABASE_NOT_EXIST(120612, "该文件系统不存在"),
+
+    FILE_TABLE_NAME_EXIST(120613, "文件夹名称已存在"),
+
+    ;
     private final int errorCode;
 
     private final String message;
