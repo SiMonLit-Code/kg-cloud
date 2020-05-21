@@ -18,7 +18,7 @@
         <module>kgms-sdk</module>
         <module>kgsdk</module>
         <module>kgpreview</module>
-        <module>repo-sdk</module>
+        <module>kgrepo-sdk</module>
     </modules>
 
     <properties>
@@ -40,7 +40,11 @@
                 <artifactId>kgms-sdk</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kgrepo-sdk</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.plantdata.log</groupId>
                 <artifactId>graph-logging</artifactId>

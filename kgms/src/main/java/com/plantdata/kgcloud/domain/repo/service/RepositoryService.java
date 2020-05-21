@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.repo.service;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
+import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 
 import java.util.List;
 
@@ -53,4 +54,11 @@ public interface RepositoryService {
      * @param userId 用户id
      */
     void useLog(Integer id, String userId);
+
+    /**
+     * 菜单相关
+     * @param userId 用户id
+     * @return list
+     */
+    List<RepositoryLogMenuRsp> menuLog(String userId);
 }

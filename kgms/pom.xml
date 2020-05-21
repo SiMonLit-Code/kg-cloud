@@ -203,8 +203,7 @@
         </dependency>
         <dependency>
             <groupId>com.plantdata</groupId>
-            <artifactId>repo-sdk</artifactId>
-            <version>3.3.0-SNAPSHOT</version>
+            <artifactId>kgrepo-sdk</artifactId>
         </dependency>
     </dependencies>
 

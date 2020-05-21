@@ -104,8 +104,8 @@ public class RepositoryServiceImpl implements RepositoryService {
             }
         });
     }
-
-    public List<RepositoryLogMenuRsp> aa(String userId) {
+    @Override
+    public List<RepositoryLogMenuRsp> menuLog(String userId) {
         List<List<RepositoryLogMenuRsp>> lists = BasicConverter.listToRsp(list(userId),
                 RepositoryConverter::repositoryRsp2RepositoryLogMenuRsp);
         return lists.stream().flatMap(Collection::stream).collect(Collectors.toList());
