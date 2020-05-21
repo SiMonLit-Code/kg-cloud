@@ -19,4 +19,6 @@ public interface ReasoningService {
     CommonBasicGraphExploreRsp verification(String userId, ReasoningVerifyReq reasoningVerifyReq);
 
     CommonBasicGraphExploreRsp execute(String userId, ReasoningExecuteReq reasoningExecuteReq);
+
+    ReasoningRsp get(String userId, Integer id);
 }

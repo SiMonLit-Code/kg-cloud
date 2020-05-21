@@ -108,4 +108,11 @@ public class ReasoningServiceImpl implements ReasoningService {
     public CommonBasicGraphExploreRsp execute(String userId, ReasoningExecuteReq reasoningExecuteReq) {
         return null;
     }
+
+    @Override
+    public ReasoningRsp get(String userId, Integer id) {
+
+        Optional<Reasoning> opt = reasoningRepository.findById(id);
+        return ConvertUtils.convert(ReasoningRsp.class).apply(opt.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_REASONING_NOT_EXISTS)));
+    }
 }

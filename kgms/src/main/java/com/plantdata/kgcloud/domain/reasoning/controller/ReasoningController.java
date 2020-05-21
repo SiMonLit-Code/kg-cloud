@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -28,21 +29,28 @@ public class ReasoningController {
 
     @ApiOperation("在线推理-列表")
     @PostMapping("/list")
-    public ApiReturn<Page<ReasoningRsp>> list(@RequestBody ReasoningQueryReq reasoningQueryReq) {
+    public ApiReturn<Page<ReasoningRsp>> list(@Validated  @RequestBody ReasoningQueryReq reasoningQueryReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(reasoningService.list(userId, reasoningQueryReq));
     }
 
     @ApiOperation("在线推理-添加")
     @PostMapping("/add")
-    public ApiReturn<ReasoningRsp> add(@RequestBody ReasoningAddReq reasoningAddReq) {
+    public ApiReturn<ReasoningRsp> add(@Validated @RequestBody ReasoningAddReq reasoningAddReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(reasoningService.add(userId, reasoningAddReq));
     }
 
+    @ApiOperation("在线推理-详情")
+    @GetMapping("/get/{id}")
+    public ApiReturn<ReasoningRsp> get(@PathVariable("id")Integer id) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(reasoningService.get(userId, id));
+    }
+
     @ApiOperation("在线推理-更新")
     @PostMapping("/update")
-    public ApiReturn<ReasoningRsp> update(@RequestBody ReasoningUpdateReq reasoningUpdateReq) {
+    public ApiReturn<ReasoningRsp> update(@Validated  @RequestBody ReasoningUpdateReq reasoningUpdateReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(reasoningService.update(userId, reasoningUpdateReq));
     }
