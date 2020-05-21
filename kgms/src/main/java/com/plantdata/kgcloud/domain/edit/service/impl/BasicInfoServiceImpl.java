@@ -69,11 +69,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import javax.validation.constraints.NotEmpty;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -248,7 +245,16 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public void addSynonym(String kgName, SynonymReq synonymReq) {
+        String name = synonymReq.getName();
+        if (org.apache.commons.lang3.StringUtils.isBlank(name)){
+            return;
+        }
+        String[] names = name.replaceAll("，", ",").split(",");
+        List<String> collect = Arrays.stream(names)
+                .filter(org.apache.commons.lang3.StringUtils::isNotBlank).collect(Collectors.toList());
         SynonymFrom synonymFrom = ConvertUtils.convert(SynonymFrom.class).apply(synonymReq);
+        Set<String> set = new HashSet<>(collect);
+        synonymFrom.setNames(set);
         RestRespConverter.convertVoid(conceptEntityApi.addSynonym(KGUtil.dbName(kgName), synonymFrom));
     }
 

@@ -5,9 +5,9 @@ import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
-import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRelationRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.EntityInfoRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRsp;
+import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.EntityFileRelationRsp;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +34,7 @@ public interface EntityFileRelationService {
 
     MultiModal getMultiModalById(String kgName, String id);
 
-    List<EntityFileRelation> getRelationByDwFileId(String kgName, String fileId);
+    EntityFileRelation getRelationByFileId(String kgName, String fileId);
 
     List<EntityFileRsp> getRelationByKgNameAndEntityId(String kgName, Long entityId);
 
@@ -47,6 +47,8 @@ public interface EntityFileRelationService {
     void cancelIndex(String kgName, IndexRelationReq req);
 
     void addFile(String kgName, Long fileSystemId, Long folderId);
+
+    EntityFileRelationRsp createFileRelation(String kgName, EntityFileRelationAddReq req);
 
     boolean checkExist(String kgName, Long entityId, String fileId);
 

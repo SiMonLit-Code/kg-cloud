@@ -31,6 +31,7 @@ import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfQaStatusRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
@@ -71,7 +72,10 @@ public class GraphPromptServiceImpl implements GraphPromptService {
     @Override
     public List<PromptEntityRsp> prompt(String kgName, PromptReq promptReq) {
         graphHelperService.replaceByConceptKey(kgName, promptReq);
-        PromptQaTypeEnum qaType = PromptQaTypeEnum.parseWitDefault(promptReq.getPromptType());
+        // 获取问答状态
+        GraphConfQaStatusRsp graphConfQaStatusRsp = graphConfQaService.getStatus(kgName);
+        PromptQaTypeEnum qaType = PromptQaTypeEnum.parseWitDefault(graphConfQaStatusRsp.getStatus());
+
         if (PromptQaTypeEnum.BEFORE.equals(qaType)) {
             return queryAnswer(kgName, promptReq);
         }
