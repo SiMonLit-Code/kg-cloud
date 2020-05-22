@@ -1965,7 +1965,7 @@ public class DWServiceImpl implements DWService {
             if (table.getIsAll() != null && table.getIsAll().equals(2) && table.getQueryField() == null) {
                 return;
             } else {
-                createSearchSchedulingConfig(table,req.getResourceName(),req.getTarget());
+                createSearchSchedulingConfig(table,req.getResourceName(),req.getTarget(),req.getSchedulingSwitch());
             }
 
         }
@@ -2002,12 +2002,12 @@ public class DWServiceImpl implements DWService {
         }
     }
 
-    private void createSearchSchedulingConfig(DWTable table, String resourceName, String target) {
+    private void createSearchSchedulingConfig(DWTable table, String resourceName, String target, Integer schedulingSwitch) {
 
         List<String> diss = new ArrayList<>();
         diss.add(resourceName);
 
-        if (table != null && table.getSchedulingSwitch() != null && table.getSchedulingSwitch().equals(1)) {
+        if (schedulingSwitch != null && schedulingSwitch != null && schedulingSwitch.equals(1)) {
 
             //生成任务配置
             accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), resourceName, 1, target);
@@ -2022,7 +2022,7 @@ public class DWServiceImpl implements DWService {
             if (StringUtils.hasText(table.getMapper())) {
                 accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, null, diss, null, resourceName);
             } else {
-                accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, diss, null, diss, resourceName);
+                accessTaskService.createTransfer(false, null, table.getTableName(), table.getDwDataBaseId(), null, null, null, diss, resourceName);
             }
         }
     }
