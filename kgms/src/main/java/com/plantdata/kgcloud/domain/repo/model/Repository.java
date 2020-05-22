@@ -60,12 +60,6 @@ public class Repository {
     @Column(name = "rank")
     private int rank;
     /**
-     * 菜单id
-     */
-    @Column(name = "menu_id")
-    @Convert(converter = IntegerListConverter.class)
-    private List<Integer> menuIds;
-    /**
      * 描述
      */
     @Column(name = "remark")
@@ -83,9 +77,5 @@ public class Repository {
     @Convert(converter = RepoCheckConfigJsonConverter.class)
     private List<RepoCheckConfig> checkConfigs;
 
-    public Repository(Integer id, List<Integer> menuIds, List<RepoCheckConfig> checkConfigs) {
-        this.id = id;
-        this.menuIds = menuIds;
-        this.checkConfigs = checkConfigs;
-    }
+
 }

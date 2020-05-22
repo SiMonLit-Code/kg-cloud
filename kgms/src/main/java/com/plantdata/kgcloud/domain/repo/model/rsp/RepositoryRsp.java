@@ -33,8 +33,6 @@ public class RepositoryRsp {
     private int rank;
     @ApiModelProperty("描述")
     private String remark;
-    @ApiModelProperty("菜单id")
-    private List<Integer> menuIds;
     @ApiModelProperty("前端自定义配置")
     private Map<String, Object> config;
     @ApiModelProperty("是否为新功能")

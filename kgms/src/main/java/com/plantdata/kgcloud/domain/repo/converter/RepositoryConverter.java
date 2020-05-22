@@ -33,7 +33,6 @@ public class RepositoryConverter extends BasicConverter {
         rsp.setState(repository.isState());
         rsp.setName(repository.getName());
         rsp.setRemark(repository.getRemark());
-        rsp.setMenuIds(repository.getMenuIds());
         return rsp;
     }
 
@@ -46,7 +45,6 @@ public class RepositoryConverter extends BasicConverter {
         rsp.setType(repository.getType());
         rsp.setRank(repository.getRank());
         rsp.setRemark(repository.getRemark());
-        rsp.setMenuIds(repository.getMenuIds());
         return rsp;
     }
 
@@ -75,7 +73,4 @@ public class RepositoryConverter extends BasicConverter {
         return new RepoCheckConfig(checkConfigReq.getCheckType(), checkConfigReq.getContent());
     }
 
-    public static List<RepositoryLogMenuRsp> repositoryRsp2RepositoryLogMenuRsp(RepositoryRsp repositoryRsp) {
-        return listToRsp(repositoryRsp.getMenuIds(), a -> new RepositoryLogMenuRsp(a,repositoryRsp.isEnable(),repositoryRsp.getNewFunction()));
-    }
 }

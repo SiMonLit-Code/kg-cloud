@@ -12,6 +12,4 @@ import java.util.List;
  */
 public interface RepositoryRepository extends JpaRepository<Repository, Integer> {
 
-    @Query("select new Repository(p.id,p.menuIds,p.checkConfigs ) from Repository p")
-    List<Repository> findOnlyMenuAndCheckConfigs();
 }
