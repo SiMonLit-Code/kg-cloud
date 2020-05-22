@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.service.impl;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.checker.ServiceChecker;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
@@ -125,7 +126,7 @@ public class RepositoryServiceImpl implements RepositoryService {
 
     public void saveByMenu(int menuId, String userId) {
         RepositoryMenu repositoryMenu = repositoryMenuRepository.findByMenuId(menuId);
-        List<RepositoryUseLog> useLogs = repositoryUseLogRepository.findAllByUserIdAndRepositoryIdIn(userId, repositoryMenu.getRepositoryId());
+        List<RepositoryUseLog> useLogs = repositoryUseLogRepository.findAllByUserIdAndRepositoryIdIn(userId, Lists.newArrayList( repositoryMenu.getRepositoryId()));
         if (CollectionUtils.isEmpty(useLogs)) {
             boolean have = useLogs.stream().anyMatch(a -> a.getMenuId() == menuId);
             if (!have) {

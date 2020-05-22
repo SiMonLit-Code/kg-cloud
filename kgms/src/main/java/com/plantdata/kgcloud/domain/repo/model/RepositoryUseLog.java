@@ -23,13 +23,13 @@ public class RepositoryUseLog {
     @Column(name = "id")
     private int id;
     @Column(name = "repository_id")
-    private int repositoryId;
+    private Integer repositoryId;
     @Column(name = "menu_id")
-    private int menuId;
+    private Integer menuId;
     @Column(name = "user_id")
     private String userId;
 
-    public RepositoryUseLog(int repositoryId, int menuId, String userId) {
+    public RepositoryUseLog(Integer repositoryId, Integer menuId, String userId) {
         this.repositoryId = repositoryId;
         this.menuId = menuId;
         this.userId = userId;
