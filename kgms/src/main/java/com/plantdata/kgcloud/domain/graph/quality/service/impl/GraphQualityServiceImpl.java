@@ -1,22 +1,28 @@
 package com.plantdata.kgcloud.domain.graph.quality.service.impl;
 
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import ai.plantdata.kg.common.bean.BasicInfo;
+import com.mongodb.MongoClient;
+import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.domain.graph.quality.entity.GraphAttrQuality;
 import com.plantdata.kgcloud.domain.graph.quality.entity.GraphQuality;
+import com.plantdata.kgcloud.domain.graph.quality.entity.GraphStatistics;
 import com.plantdata.kgcloud.domain.graph.quality.repository.GraphAttrQualityRepository;
 import com.plantdata.kgcloud.domain.graph.quality.repository.GraphQualityRepository;
 import com.plantdata.kgcloud.domain.graph.quality.rsp.GraphAttrQualityRsp;
 import com.plantdata.kgcloud.domain.graph.quality.rsp.GraphQualityRsp;
 import com.plantdata.kgcloud.domain.graph.quality.service.GraphQualityService;
+import com.plantdata.kgcloud.domain.graph.quality.util.ConceptUtils;
+import com.plantdata.kgcloud.domain.graph.quality.util.InitFunc;
+import com.plantdata.kgcloud.domain.graph.quality.util.SchemaUtils;
 import com.plantdata.kgcloud.domain.graph.quality.vo.AttrQualityVO;
-import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +39,21 @@ public class GraphQualityServiceImpl implements GraphQualityService {
     @Autowired
     private GraphAttrQualityRepository graphAttrQualityRepository;
 
+    @Autowired
+    private GraphRepository graphRepository;
+
+    @Autowired
+    private ConceptUtils conceptUtils;
+
+    @Autowired
+    private SchemaUtils schemaUtils;
+
+    @Autowired
+    private InitFunc initFunc;
+
+    @Autowired
+    private MongoClient mongoClient;
+
     @Override
     public List<GraphQualityRsp> listConceptQuality(String kgName) {
         GraphQuality graphQuality = new GraphQuality();
@@ -48,7 +69,8 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         graphQuality.setKgName(kgName);
         graphQuality.setConceptId(conceptId);
         List<GraphQuality> graphQualities = graphQualityRepository.findAll(Example.of(graphQuality));
-        graphQualities.add(check(kgName,conceptId));
+        graphQualities.add(check(kgName, conceptId));
+        statistics(kgName, conceptId, graphQualities);
         return graphQualities.stream().map(ConvertUtils.convert(GraphQualityRsp.class)).collect(Collectors.toList());
     }
 
@@ -74,4 +96,73 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         graphAttrQualityRsp.setAttrQualities(vos);
         return graphAttrQualityRsp;
     }
+
+    private void statistics(String kgName, Long conceptId, List<GraphQuality> graphQualities) {
+        String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
+        Map<Long, GraphStatistics> dataMap = new HashMap<>();
+        // 初始化数据
+        initFunc.init(kgDbName);
+
+        Set<Long> sonAndSelfConceptIds = InitFunc.sonAndSelfConceptIds.get(conceptId);
+        for (Long id : sonAndSelfConceptIds) {
+            // 获取当前概念下的实体数量(不包含子概念)
+            Long count = conceptUtils.countEntityByOneConceptId(kgDbName, id);
+
+            // 获取当前概念下的属性数量(包含父概念属性)
+            Long attrCount = conceptUtils.countAttrDefinSonParent(kgDbName, id);
+
+            GraphStatistics statistics = GraphStatistics.builder()
+                    .entityCount(count).attrDefinitionCount(attrCount.intValue())
+                    .build();
+            dataMap.put(id, statistics);
+        }
+
+        for (Long id : sonAndSelfConceptIds) {
+            // 获取当前概念下的所有实体数量(包含子概念)
+            Long countAll = 0L;
+            Set<Long> sonAndSelfConceptId = InitFunc.sonAndSelfConceptIds.get(id);
+            for (Long sonId : sonAndSelfConceptId) {
+                countAll += dataMap.get(sonId).getEntityCount();
+            }
+
+            dataMap.get(id).setEntityTotal(countAll);
+        }
+
+        for (GraphQuality graphQuality : graphQualities) {
+            Long selfId = graphQuality.getSelfId();
+            GraphStatistics statistics = dataMap.get(selfId);
+            graphQuality.setEntityCount(statistics.getEntityCount());
+            graphQuality.setEntityTotal(statistics.getEntityTotal());
+            graphQuality.setAttrDefinitionCount(statistics.getAttrDefinitionCount());
+        }
+
+        // 缺少的概念
+        Set<Long> set = new HashSet<>();
+        List<Long> collect = graphQualities.stream().map(GraphQuality::getSelfId).collect(Collectors.toList());
+        Set<Long> keySet = dataMap.keySet();
+        for (Long id : keySet) {
+            if (!collect.contains(id)) {
+                set.add(id);
+            }
+        }
+
+        List<BasicInfo> list = conceptUtils.getBasicInfoByConceptId(kgDbName, set);
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        for (BasicInfo basicInfo : list) {
+            GraphQuality graphQuality = new GraphQuality();
+            Long id = basicInfo.getId();
+            graphQuality.setSelfId(id);
+            graphQuality.setConceptId(basicInfo.getConceptId());
+            graphQuality.setName(basicInfo.getName());
+            graphQuality.setEntityCount(dataMap.get(id).getEntityCount());
+            graphQuality.setEntityTotal(dataMap.get(id).getEntityTotal());
+            graphQuality.setAttrDefinitionCount(dataMap.get(id).getAttrDefinitionCount());
+            graphQuality.setSchemaIntegrity(0d);
+            graphQuality.setReliability(0d);
+            graphQualities.add(graphQuality);
+        }
+    }
+
 }
