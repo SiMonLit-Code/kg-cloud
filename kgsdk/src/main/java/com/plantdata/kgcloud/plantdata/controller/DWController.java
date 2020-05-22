@@ -57,30 +57,30 @@ public class DWController implements DWStatisticInterface {
 
     @ApiOperation(value = "统计数据仓库(二维)", notes = "以二维表的形式统计数据仓库")
     @PostMapping("statistic/by2dTable")
-    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq req) {
+    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq query) {
 
-        if (req.getQuery().getDimensions() == null
-                || req.getQuery().getMeasures() == null
-                || req.getQuery().getMeasures().size() == 0
-                || (req.getQuery().getDimensions().size() != 1
-                && req.getQuery().getDimensions().size() != 2)) {
+        if (query.getQuery().getDimensions() == null
+                || query.getQuery().getMeasures() == null
+                || query.getQuery().getMeasures().size() == 0
+                || (query.getQuery().getDimensions().size() != 1
+                && query.getQuery().getDimensions().size() != 2)) {
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
-        DWDatabaseRsp dataBase = dwClient.findById(req.getDbId() + "");
-        DWTableRsp tableDetail = dwClient.findTableByTableName(String.valueOf(req.getDbId()), req.getTbName());
+        DWDatabaseRsp dataBase = dwClient.findById(query.getDbId() + "");
+        DWTableRsp tableDetail = dwClient.findTableByTableName(String.valueOf(query.getDbId()), query.getTbName());
         if (dataBase == null) {
             throw BizException.of(SdkErrorCodeEnum.DB_NOT_EXIST);
         } else if (tableDetail.getCreateWay() == 2 || (tableDetail.getCreateWay() == 1 && tableDetail.getIsWriteDW() != null && tableDetail.getIsWriteDW() == 1)) {
         } else {
             throw BizException.of(SdkErrorCodeEnum.REMOTE_TABLE_NOT_SUPPORTED);
         }
-        escape(req);
-        req.setDbName(dataBase.getDataName());
+        escape(query);
+        query.setDbName(dataBase.getDataName());
 
-        PdStatBean pdStatBean = req.getQuery();
+        PdStatBean pdStatBean = query.getQuery();
         ChartTableBean ctb = null;
         try {
-            ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
+            ctb = (ChartTableBean) pdStatService.excute(pdStatBean, query.getDbName(), query.getTbName());
         } catch (Exception e) {
             throw new BizException(130004, "message: " + e.getMessage() + " detail: " + e.getCause().getMessage());
         }
@@ -89,7 +89,7 @@ public class DWController implements DWStatisticInterface {
         table.setSeries(new ArrayList<>());
         List<String> xAxis = table.getXAxis();
         if (ctb != null && ctb.getData() != null && ctb.getData().size() > 0) {
-            if (req.getQuery().getDimensions().size() == 1) {
+            if (query.getQuery().getDimensions().size() == 1) {
 
                 ArrayList<DWStatisticTableSeries> series = new ArrayList<>();
                 for (String s : ctb.getName()) {
