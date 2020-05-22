@@ -1,109 +1,90 @@
 package com.plantdata.kgcloud.plantdata.presto.stat;
 
-import com.ctrip.framework.apollo.Config;
-import com.ctrip.framework.apollo.ConfigService;
+import com.plantdata.kgcloud.config.SdkApolloConfig;
+import com.plantdata.kgcloud.plantdata.presto.bean.chart.ChartTableBean;
 import com.plantdata.kgcloud.plantdata.presto.compute.PrestoCompute;
 import com.plantdata.kgcloud.plantdata.presto.stat.bean.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
 import tech.ibit.sqlbuilder.*;
 import tech.ibit.sqlbuilder.aggregate.*;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class PdStatServiceibit {
-    Config appConfig = ConfigService.getConfig("kgsdk");
 
-    private PrestoCompute prestoCompute = new PrestoCompute();
+    @Autowired
+    private SdkApolloConfig apolloConfig;
+
+    @Autowired
+    private PrestoCompute prestoCompute;
 
     public Object excute(PdStatBean pdStatBean, String dbName, String tbName) throws Exception {
 
-        List<String> sqls = pdStatToSql(pdStatBean, dbName, tbName);
-        ArrayList<Object> re = new ArrayList<>();
-        for (String sql : sqls) {
-            Object rs = prestoCompute.compute(sql);
-            re.add(rs);
-        }
+        String sql = pdStatToSql(pdStatBean, dbName, tbName);
 
+        ChartTableBean rs = prestoCompute.compute(sql);
 
-        return re;
+        return rs;
+
     }
 
 
-    private List<String> pdStatToSql(PdStatBean pdStatBean, String dbName, String tbName) {
+    private String pdStatToSql(PdStatBean pdStatBean, String dbName, String tbName) {
 
-        String alias = appConfig.getProperty("presto.dw.alias", null);
+        String alias = apolloConfig.getPrestoDwAlias();
         if (pdStatBean == null) {
             return null;
         }
-        ArrayList<String> sqls = new ArrayList<>();
+        Sql sql = new Sql();
 
-        Map<String, PdStatFilterBean> filterBeanMap = new HashMap<>();
-
-        for (PdStatFilterBean filter : pdStatBean.getFilters()) {
-            String name = filter.getName();
-            filterBeanMap.put(name, filter);
+        //select + groupby
+        if (pdStatBean.getDimensions() != null) {
+            for (PdStatBaseBean dimension : pdStatBean.getDimensions()) {
+                IColumn column = getColumn(dimension, alias, dbName, tbName);
+                sql.select(column);
+                sql.groupBy(column);
+            }
         }
 
-        for (PdStatBaseBean measure : pdStatBean.getMeasures()) {
-
-
-            Sql sql = new Sql();
-
-
-            //select + groupby
-            if (pdStatBean.getDimensions() != null) {
-                for (PdStatBaseBean dimension : pdStatBean.getDimensions()) {
-                    IColumn column = getColumn(dimension, alias, dbName, tbName);
-                    sql.select(column);
-                    sql.groupBy(column);
-                }
+        //select agg
+        if (pdStatBean.getMeasures() != null) {
+            for (PdStatBaseBean measure : pdStatBean.getMeasures()) {
+                IColumn column = getColumn(measure, alias, dbName, tbName);
+                sql.select(column);
             }
+        }
 
-            //select agg
-
-            IColumn column = getColumn(measure, alias, dbName, tbName);
-            sql.select(column);
-
-
-            //where + having
-            if (filterBeanMap.containsKey(measure.getName())) {
-                PdStatFilterBean filter = filterBeanMap.get(measure.getName());
-
-                IColumn column_tmp = getColumn(filter, alias, dbName, tbName);
+        //where + having
+        if (pdStatBean.getFilters() != null) {
+            for (PdStatFilterBean filter : pdStatBean.getFilters()) {
+                IColumn column = getColumn(filter, alias, dbName, tbName);
                 for (PdStatOneFilterBean pdStatOneFilterBean : filter.getFilter()) {
-                    getCondition(sql, column_tmp, pdStatOneFilterBean);
+                    getCondition(sql, column, pdStatOneFilterBean);
                 }
             }
-
-
-            // order by
-            if (pdStatBean.getOrders() != null) {
-                for (PdStatOrderBean order : pdStatBean.getOrders()) {
-                    IColumn column_tmp = getColumn(order, alias, dbName, tbName);
-                    NameOrderBy o = new NameOrderBy(column_tmp.getName(), PdStatBaseBean.OrderEnum.DESC.equals(order.getOrder()));
-                    sql.orderBy(o);
-                }
-            }
-
-            // from
-            sql.from(new Table("", alias + "." + dbName + "." + tbName));
-
-            String sql_str = getCompeletedSql(sql.getSqlParams().getSql(), sql.getSqlParams().getParams());
-
-            if (pdStatBean.getLimit() > 0) {
-                sql_str += " LIMIT " + pdStatBean.getLimit();
-            }
-            sqls.add(sql_str);
         }
-        return sqls;
+
+        // order by
+        if (pdStatBean.getOrders() != null) {
+            for (PdStatOrderBean order : pdStatBean.getOrders()) {
+                IColumn column = getColumn(order, alias, dbName, tbName);
+                NameOrderBy o = new NameOrderBy(column.getName(), PdStatBaseBean.OrderEnum.DESC.equals(order.getOrder()));
+                sql.orderBy(o);
+            }
+        }
+
+        // from
+        sql.from(new Table("", alias + "." + dbName + "." + tbName));
+
+        String sql_str = getCompeletedSql(sql.getSqlParams().getSql(), sql.getSqlParams().getParams());
+
+        if (pdStatBean.getLimit() > 0) {
+            sql_str += " LIMIT " + pdStatBean.getLimit();
+        }
+
+        return sql_str;
 
     }
 
@@ -117,10 +98,13 @@ public class PdStatServiceibit {
         Table table = getTableByColumn(pdstat, alias, dbName, tbName);
         Column column = new Column(table, pdstat.getName());
 
+
         if (pdstat.getAggregator() == null) {
             return column;
         }
-
+        if (pdstat.getAlias() == null) {
+            pdstat.setAlias(pdstat.getAggregator().getValue() + "_" + pdstat.getName());
+        }
         switch (pdstat.getAggregator()) {
             case SUM:
                 SumColumn sumColumn = new SumColumn(column, pdstat.getAlias());

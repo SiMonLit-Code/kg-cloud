@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.plantdata.presto.compute;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.presto.bean.chart.ChartTableBean;
 import com.plantdata.kgcloud.plantdata.presto.dax.DaxContext;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,10 +11,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+@Component
 public class PrestoCompute {
 
 
-    public Object compute(String sql)throws Exception{
+    public ChartTableBean compute(String sql)throws Exception{
 
         Connection conn = PrestoSingleton.getConnection();
 
