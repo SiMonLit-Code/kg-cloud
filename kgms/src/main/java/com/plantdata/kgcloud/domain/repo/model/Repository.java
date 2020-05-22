@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.repo.model;
 
 import com.plantdata.kgcloud.domain.common.converter.IntegerListConverter;
-import com.plantdata.kgcloud.domain.common.converter.ObjectJsonConverter;
+import com.plantdata.kgcloud.domain.common.converter.JsonObjectConverter;
 import com.plantdata.kgcloud.domain.repo.converter.RepoCheckConfigJsonConverter;
 import com.plantdata.kgcloud.domain.repo.converter.RepoTypeConverter;
 import com.plantdata.kgcloud.domain.repo.enums.RepositoryTypeEnum;
@@ -74,7 +74,7 @@ public class Repository {
      * 前端自定义配置
      */
     @Column(name = "config")
-    @Convert(converter = ObjectJsonConverter.class)
+    @Convert(converter = JsonObjectConverter.class)
     private Map<String, Object> config;
     /**
      * 检测项目
