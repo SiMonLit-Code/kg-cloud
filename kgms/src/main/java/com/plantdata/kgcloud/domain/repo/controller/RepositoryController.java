@@ -36,7 +36,7 @@ public class RepositoryController {
     @ApiOperation("组件列表")
     @GetMapping
     public ApiReturn<RepositoryListRsp> repositoryRsp() {
-        List<RepositoryRsp> list = repositoryService.list(SessionHolder.getUserId());
+        List<RepositoryRsp> list = repositoryService.list(SessionHolder.getUserId(),false);
         List<RepositoryGroup> allGroups = repositoryGroupRepository.findAll();
         return ApiReturn.success(RepositoryConverter.buildRepositoryList(list, allGroups));
     }
@@ -74,15 +74,17 @@ public class RepositoryController {
     }
 
     @ApiOperation("使用记录")
-    @GetMapping("{id}/log")
-    public ApiReturn<String> useLog(@PathVariable(name = "id") Integer id) {
-        repositoryService.useLog(id, SessionHolder.getUserId());
+    @GetMapping("{type}/{id}/log")
+    public ApiReturn<String> useLog(@PathVariable(name = "type") String type,
+                                    @PathVariable(name = "id") Integer id) {
+        repositoryService.useLog(type,id, SessionHolder.getUserId());
         return ApiReturn.success(StringConstants.SUCCESS);
     }
+
 
     @ApiOperation("使用记录关联动态导航")
     @GetMapping("log/menu")
     public ApiReturn<List<RepositoryLogMenuRsp>> logMenuRsp() {
-        return ApiReturn.success(Collections.emptyList());
+        return ApiReturn.success(repositoryService.menuLog(SessionHolder.getUserId()));
     }
 }

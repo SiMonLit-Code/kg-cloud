@@ -13,7 +13,7 @@ public class FolderRsp {
     private Long id;
 
     @ApiModelProperty(value = "文件夹名称")
-    private String title;
+    private String name;
 
     @ApiModelProperty(value = "文件系统id")
     private Long fileSystemId;

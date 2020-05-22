@@ -4,8 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 /**
  * @Author: LinHo
@@ -20,7 +20,8 @@ public class SynonymReq {
     @ApiModelProperty(value = "概念或实体的ID", required = true)
     private Long id;
 
-    @NotEmpty
     private String name;
+
+    private Set<String> names;
 
 }

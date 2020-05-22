@@ -17,7 +17,7 @@ public class FileSystemRsp {
     private String userId;
 
     @ApiModelProperty(value = "文件系统名称")
-    private String title;
+    private String name;
 
     @ApiModelProperty(value = "文件夹列表")
     private List<FolderRsp> fileFolders;
