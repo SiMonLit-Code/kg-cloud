@@ -123,8 +123,7 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Override
     @Transactional(rollbackOn = Exception.class)
     public void useLog(RepositoryLogEnum type, Integer id, String userId) {
-        Optional<Repository> repOpt = repositoryRepository.findById(id);
-        repOpt.ifPresent(a -> repositoryUseLogService.save(type, id, userId));
+        repositoryUseLogService.save(type, id, userId);
     }
 
 
