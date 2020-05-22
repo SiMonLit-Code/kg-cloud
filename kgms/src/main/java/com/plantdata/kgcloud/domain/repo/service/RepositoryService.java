@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.service;
 
+import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
@@ -53,7 +54,7 @@ public interface RepositoryService {
      * @param id     组件id
      * @param userId 用户id
      */
-    void useLog(String type,Integer id, String userId);
+    void useLog(RepositoryLogEnum type, Integer id, String userId);
 
     /**
      * 菜单相关
