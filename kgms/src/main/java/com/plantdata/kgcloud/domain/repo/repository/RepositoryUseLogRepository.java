@@ -15,8 +15,5 @@ public interface RepositoryUseLogRepository extends JpaRepository<RepositoryUseL
 
     List<RepositoryUseLog> deleteByBusinessIdInAndLogType(List<Integer> businessId, RepositoryLogEnum type);
 
-
-    List<RepositoryUseLog> findAllByUserIdAndRepositoryIdIn(String userId, Collection<Integer> repositoryIds);
-
     List<RepositoryUseLog> findAllByUserIdAndLogType(String userId, RepositoryLogEnum type);
 }

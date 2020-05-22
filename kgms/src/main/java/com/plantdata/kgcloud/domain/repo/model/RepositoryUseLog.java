@@ -26,7 +26,7 @@ public class RepositoryUseLog {
     private int id;
     @Column(name = "business_id")
     private Integer businessId;
-    @Column(name = "menu_id")
+    @Column(name = "type")
     @Convert(converter = RepositoryLogTypeConverter.class)
     private RepositoryLogEnum logType;
     @Column(name = "user_id")
