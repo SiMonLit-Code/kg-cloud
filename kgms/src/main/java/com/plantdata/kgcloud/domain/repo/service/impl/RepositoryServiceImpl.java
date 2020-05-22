@@ -44,6 +44,15 @@ public class RepositoryServiceImpl implements RepositoryService {
 
     @Override
     public List<RepositoryRsp> list(String userId, boolean withBasic) {
+        List<RepositoryRsp> repositoryRspList = basicListWithCheck(withBasic);
+        //检测是否为最新
+        Set<Integer> repositoryIds = repositoryUseLogService.listRepositoryId(userId);
+        BasicConverter.consumerIfNoNull(repositoryIds, a -> repositoryRspList.forEach(b -> b.setNewFunction(!a.contains(b.getId()))));
+        return repositoryRspList;
+    }
+
+
+    private List<RepositoryRsp> basicListWithCheck(boolean withBasic) {
         List<Repository> all = repositoryRepository.findAll();
         if (CollectionUtils.isEmpty(all)) {
             return Collections.emptyList();
@@ -63,12 +72,8 @@ public class RepositoryServiceImpl implements RepositoryService {
         });
         Map<Integer, Boolean> stateMap = all.stream().collect(Collectors.toMap(Repository::getId, health));
         BasicConverter.listConsumerIfNoNull(repositoryRspList, a -> a.setEnable(stateMap.getOrDefault(a.getId(), false)));
-        //检测是否为最新
-        Set<Integer> repositoryIds = repositoryUseLogService.listRepositoryId(userId);
-        BasicConverter.consumerIfNoNull(repositoryIds, a -> repositoryRspList.forEach(b -> b.setNewFunction(!a.contains(b.getId()))));
         return repositoryRspList;
     }
-
 
     @Override
     @Transactional(rollbackOn = Exception.class)
@@ -119,18 +124,19 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Transactional(rollbackOn = Exception.class)
     public void useLog(RepositoryLogEnum type, Integer id, String userId) {
         Optional<Repository> repOpt = repositoryRepository.findById(id);
-        repOpt.ifPresent(a -> repositoryUseLogService.save(type,id,userId));
+        repOpt.ifPresent(a -> repositoryUseLogService.save(type, id, userId));
     }
 
 
     @Override
     public List<RepositoryLogMenuRsp> menuLog(String userId) {
-        List<RepositoryRsp> list = list(userId, true);
-        Map<Integer, RepositoryRsp> rspMap = list.stream().collect(Collectors.toMap(RepositoryRsp::getId, Function.identity(),(a,b)->b));
+        List<RepositoryRsp> repositoryRspList = basicListWithCheck(true);
+        Map<Integer, RepositoryRsp> rspMap = repositoryRspList.stream().collect(Collectors.toMap(RepositoryRsp::getId, Function.identity(), (a, b) -> b));
         List<RepositoryMenu> all = repositoryMenuRepository.findAll();
+        Set<Integer> menuIds = repositoryUseLogService.listMenuId(userId);
         return all.stream().map(a -> {
             RepositoryRsp rsp = rspMap.get(a.getRepositoryId());
-            return new RepositoryLogMenuRsp(a.getMenuId(), rsp.getNewFunction(), rsp.isEnable() && rsp.isState());
+            return new RepositoryLogMenuRsp(a.getMenuId(), !menuIds.contains(a.getMenuId()), rsp.isEnable() && rsp.isState());
         }).collect(Collectors.toList());
     }
 

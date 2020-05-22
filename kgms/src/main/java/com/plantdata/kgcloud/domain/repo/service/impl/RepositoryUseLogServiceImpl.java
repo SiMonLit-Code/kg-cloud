@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,7 +37,7 @@ public class RepositoryUseLogServiceImpl implements RepositoryUseLogService {
     public void deleteByRepositoryId(Integer repositoryId) {
         repositoryUseLogRepository.deleteByBusinessIdInAndLogType(Lists.newArrayList(repositoryId), RepositoryLogEnum.REPOSITORY);
         List<RepositoryMenu> menus = repositoryMenuRepository.findAllByRepositoryIdIn(Lists.newArrayList(repositoryId));
-        BasicConverter.consumerIfNoNull(menus,a->{
+        BasicConverter.consumerIfNoNull(menus, a -> {
             List<Integer> menuIds = a.stream().map(RepositoryMenu::getMenuId).collect(Collectors.toList());
             repositoryUseLogRepository.deleteByBusinessIdInAndLogType(menuIds, RepositoryLogEnum.MENU);
         });
@@ -46,23 +45,34 @@ public class RepositoryUseLogServiceImpl implements RepositoryUseLogService {
 
     @Override
     public Set<Integer> listRepositoryId(String userId) {
-        Set<Integer> repositoryIds = new HashSet<>();
-        List<RepositoryUseLog> repoUseLogs = repositoryUseLogRepository.findAllByUserIdAndLogType(userId, RepositoryLogEnum.REPOSITORY);
-        BasicConverter.consumerIfNoNull(repoUseLogs, a -> {
-            Set<Integer> repoIds = repoUseLogs.stream().map(RepositoryUseLog::getBusinessId).collect(Collectors.toSet());
-            repositoryIds.addAll(repoIds);
-        });
+        List<Integer> first = addFirst(userId, RepositoryLogEnum.REPOSITORY);
+        List<Integer> two = addTwo(userId, RepositoryLogEnum.MENU);
 
-        List<RepositoryUseLog> menuUseLogs = repositoryUseLogRepository.findAllByUserIdAndLogType(userId, RepositoryLogEnum.MENU);
-        BasicConverter.consumerIfNoNull(repoUseLogs, a -> {
-            Set<Integer> menuIds = menuUseLogs.stream().map(RepositoryUseLog::getBusinessId).collect(Collectors.toSet());
-            List<RepositoryMenu> repositoryMenus = repositoryMenuRepository.findAllByMenuIdIn(new ArrayList<>(menuIds));
-            BasicConverter.consumerIfNoNull(repositoryMenus, b -> {
-                Set<Integer> repoIds = repositoryMenus.stream().map(RepositoryMenu::getRepositoryId).collect(Collectors.toSet());
-                repositoryIds.addAll(repoIds);
-            });
-        });
-        return repositoryIds;
+        return BasicConverter.flatToSet(Lists.newArrayList(first, two));
     }
 
+    @Override
+    public Set<Integer> listMenuId(String userId) {
+        List<Integer> first = addFirst(userId, RepositoryLogEnum.MENU);
+        List<Integer> two = addTwo(userId, RepositoryLogEnum.REPOSITORY);
+        return BasicConverter.flatToSet(Lists.newArrayList(first, two));
+    }
+
+    private List<Integer> addFirst(String userId, RepositoryLogEnum logEnum) {
+        List<RepositoryUseLog> first = repositoryUseLogRepository.findAllByUserIdAndLogType(userId, logEnum);
+        return BasicConverter.listToRsp(first, RepositoryUseLog::getBusinessId);
+
+    }
+
+    private List<Integer> addTwo(String userId, RepositoryLogEnum logEnum) {
+        List<RepositoryUseLog> two = repositoryUseLogRepository.findAllByUserIdAndLogType(userId, logEnum);
+        Set<Integer> tempIds = two.stream().map(RepositoryUseLog::getBusinessId).collect(Collectors.toSet());
+        if (RepositoryLogEnum.REPOSITORY == logEnum) {
+            List<RepositoryMenu> repositoryMenus = repositoryMenuRepository.findAllByRepositoryIdIn(new ArrayList<>(tempIds));
+            return BasicConverter.listToRsp(repositoryMenus, RepositoryMenu::getRepositoryId);
+        }
+        List<RepositoryMenu> repositoryMenus = repositoryMenuRepository.findAllByMenuIdIn(new ArrayList<>(tempIds));
+        return BasicConverter.listToRsp(repositoryMenus, RepositoryMenu::getMenuId);
+
+    }
 }

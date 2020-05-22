@@ -14,6 +14,8 @@ public interface RepositoryUseLogService {
 
     Set<Integer> listRepositoryId(String userId);
 
+    Set<Integer> listMenuId(String userId);
+
     void deleteByRepositoryId(Integer repositoryId);
 
 }
