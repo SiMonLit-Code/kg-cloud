@@ -20,4 +20,16 @@ public class EntityFileRelationReq {
     @ApiModelProperty("标引类型(0：文件,1：文本,2：链接)")
     private Integer indexType;
 
+    @ApiModelProperty("标题")
+    private String title;
+
+    @ApiModelProperty("关键词")
+    private String keyword;
+
+    @ApiModelProperty("简介")
+    private String description;
+
+    @ApiModelProperty("链接")
+    private String url;
+
 }

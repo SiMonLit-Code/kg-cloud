@@ -11,7 +11,6 @@ import java.util.List;
  * @create 2020/4/27 22:10
  */
 @Data
-@Builder
 public class EntityFileRelationRsp {
 
     private String id;
