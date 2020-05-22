@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.repo.model;
 
-
-import lombok.AllArgsConstructor;
+import com.plantdata.kgcloud.domain.repo.converter.RepositoryLogTypeConverter;
+import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,16 +21,20 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class RepositoryUseLog {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "repository_id")
-    private int repositoryId;
+    @Column(name = "business_id")
+    private Integer businessId;
+    @Column(name = "type")
+    @Convert(converter = RepositoryLogTypeConverter.class)
+    private RepositoryLogEnum logType;
     @Column(name = "user_id")
     private String userId;
 
-    public RepositoryUseLog(int repositoryId, String userId) {
-        this.repositoryId = repositoryId;
+    public RepositoryUseLog(Integer businessId, RepositoryLogEnum logType, String userId) {
+        this.businessId = businessId;
         this.userId = userId;
+        this.logType = logType;
     }
 }

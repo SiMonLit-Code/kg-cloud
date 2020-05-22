@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.repository;
 
+import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryUseLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,11 +13,7 @@ import java.util.List;
  */
 public interface RepositoryUseLogRepository extends JpaRepository<RepositoryUseLog, Integer> {
 
-    List<RepositoryUseLog> deleteByRepositoryId( Integer repositoryId);
+    List<RepositoryUseLog> deleteByBusinessIdInAndLogType(List<Integer> businessId, RepositoryLogEnum type);
 
-    RepositoryUseLog findByUserIdAndRepositoryId(String userId, Integer repositoryId);
-
-    List<RepositoryUseLog> findAllByUserIdAndRepositoryIdIn(String userId, Collection<Integer> repositoryIds);
-
-
+    List<RepositoryUseLog> findAllByUserIdAndLogType(String userId, RepositoryLogEnum type);
 }

@@ -12,5 +12,5 @@ public enum HandleType {
     /**
      * 后置处理
      */
-    AFTER;
+    AFTER
 }

@@ -10,6 +10,6 @@ public enum RepositoryTypeEnum {
     PAGE_TAG,
     SUB_SYSTEM,
     INTERFACE,
-    DATA;
+    DATA
 
 }

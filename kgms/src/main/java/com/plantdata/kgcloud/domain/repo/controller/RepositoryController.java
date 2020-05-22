@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.repo.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.repo.constatn.StringConstants;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
+import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryGroup;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
@@ -16,9 +17,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -36,7 +36,7 @@ public class RepositoryController {
     @ApiOperation("组件列表")
     @GetMapping
     public ApiReturn<RepositoryListRsp> repositoryRsp() {
-        List<RepositoryRsp> list = repositoryService.list(SessionHolder.getUserId(),false);
+        List<RepositoryRsp> list = repositoryService.list(SessionHolder.getUserId(), false);
         List<RepositoryGroup> allGroups = repositoryGroupRepository.findAll();
         return ApiReturn.success(RepositoryConverter.buildRepositoryList(list, allGroups));
     }
@@ -61,23 +61,22 @@ public class RepositoryController {
 
     @ApiOperation("组件启用")
     @PostMapping("{id}/start")
-    public ApiReturn<String> startRepository(@PathVariable(name = "id") Integer id) {
-        repositoryService.updateStatus(id, true);
-        return ApiReturn.success(StringConstants.SUCCESS);
+    public ApiReturn<Boolean> startRepository(@PathVariable(name = "id") Integer id) {
+        return ApiReturn.success(repositoryService.updateStatus(id, true));
     }
 
     @ApiOperation("组件停用")
     @PostMapping("{id}/stop")
-    public ApiReturn<String> stopRepository(@PathVariable(name = "id") Integer id) {
-        repositoryService.updateStatus(id, false);
-        return ApiReturn.success(StringConstants.SUCCESS);
+    public ApiReturn<Boolean> stopRepository(@PathVariable(name = "id") Integer id) {
+        return ApiReturn.success(repositoryService.updateStatus(id, false));
     }
 
     @ApiOperation("使用记录")
     @GetMapping("{type}/{id}/log")
     public ApiReturn<String> useLog(@PathVariable(name = "type") String type,
                                     @PathVariable(name = "id") Integer id) {
-        repositoryService.useLog(type,id, SessionHolder.getUserId());
+        Optional<RepositoryLogEnum> logEnumOpt = RepositoryLogEnum.parseByDesc(type);
+        logEnumOpt.ifPresent(a -> repositoryService.useLog(a, id, SessionHolder.getUserId()));
         return ApiReturn.success(StringConstants.SUCCESS);
     }
 

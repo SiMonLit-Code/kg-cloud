@@ -2,9 +2,6 @@ package com.plantdata.kgcloud.domain.repo.repository;
 
 import com.plantdata.kgcloud.domain.repo.model.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
 
 /**
  * @author cjw

@@ -46,6 +46,14 @@ public class BasicConverter {
         return list.stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
+    public static <T> Set<T> flatToSet(Collection<Collection<T>> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptySet();
+        }
+        return list.stream().filter(a->!CollectionUtils.isEmpty(a)).flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
+
     /**
      * 非空 消费 批量
      */
