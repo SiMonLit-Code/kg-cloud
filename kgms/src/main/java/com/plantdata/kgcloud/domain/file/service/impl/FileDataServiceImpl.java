@@ -53,7 +53,7 @@ public class FileDataServiceImpl implements FileDataService {
     private EntityFileRelationService entityFileRelationService;
 
     private MongoCollection<Document> getFileCollection() {
-        return mongoClient.getDatabase(FileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
+        return mongoClient.getDatabase(FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
     }
 
     private final Function<FileData, FileDataRsp> fileData2rsp = (s) -> {
@@ -63,7 +63,7 @@ public class FileDataServiceImpl implements FileDataService {
     };
 
     @Override
-    public Page<FileDataRsp> getFileData(String userId, Long fileSystemId, Long folderId, FileDataQueryReq req) {
+    public Page<FileDataRsp> listFileData(Long fileSystemId, Long folderId, FileDataQueryReq req) {
         Integer size = req.getSize();
         Integer page = (req.getPage() - 1) * size;
         List<Bson> bsons = new ArrayList<>(3);
@@ -146,6 +146,14 @@ public class FileDataServiceImpl implements FileDataService {
         fileData.setKeyword(req.getKeyword());
         fileData.setDescription(req.getDescription());
         fileData.setOwner(req.getOwner());
+        Document newDocument = documentConverter.toDocument(fileData);
+        getFileCollection().updateOne(documentConverter.buildObjectId(id), new Document("$set", newDocument));
+    }
+
+    @Override
+    public void update(FileData fileData) {
+        String id = fileData.getId();
+        fileData.setId(null);
         Document newDocument = documentConverter.toDocument(fileData);
         getFileCollection().updateOne(documentConverter.buildObjectId(id), new Document("$set", newDocument));
     }

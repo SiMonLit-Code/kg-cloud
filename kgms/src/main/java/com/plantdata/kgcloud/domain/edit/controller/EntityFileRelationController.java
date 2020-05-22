@@ -4,7 +4,6 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
-import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
@@ -35,14 +34,6 @@ public class EntityFileRelationController {
     public ApiReturn<Page<EntityFileRelationRsp>> listRelation(@PathVariable String kgName,
                                                                @RequestBody EntityFileRelationQueryReq req) {
         return ApiReturn.success(entityFileRelationService.listRelation(kgName, req));
-    }
-
-    @ApiOperation("实体文件管理-建立关系")
-    @PostMapping("/{kgName}/create/relation")
-    public ApiReturn createRelation(@PathVariable String kgName,
-                                    @RequestBody EntityFileRelationReq req) {
-        entityFileRelationService.createRelation(kgName, req);
-        return ApiReturn.success();
     }
 
     @ApiOperation("实体文件管理-根据文件ID删除关系")

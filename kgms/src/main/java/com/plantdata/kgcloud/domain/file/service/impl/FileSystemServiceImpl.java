@@ -49,7 +49,7 @@ public class FileSystemServiceImpl implements FileSystemService {
     private FileDataService fileDataService;
 
     private MongoCollection<Document> getFileCollection() {
-        return mongoClient.getDatabase(FileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
+        return mongoClient.getDatabase(FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
     }
 
     private final Function<FileSystem, FileSystemRsp> fileSystem2rsp = (s) -> {

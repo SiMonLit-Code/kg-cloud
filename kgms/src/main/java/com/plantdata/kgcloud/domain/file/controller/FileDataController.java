@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.file.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.file.entity.FileData;
 import com.plantdata.kgcloud.domain.file.req.FileDataBatchReq;
 import com.plantdata.kgcloud.domain.file.req.FileDataQueryReq;
 import com.plantdata.kgcloud.domain.file.req.FileDataReq;
@@ -31,11 +32,10 @@ public class FileDataController {
 
     @ApiOperation("文件数据管理-分页条件查询")
     @PostMapping("/list/{fileSystemId}/{folderId}")
-    public ApiReturn<Page<FileDataRsp>> getFileData(@PathVariable("fileSystemId") Long fileSystemId,
-                                                    @PathVariable("folderId") Long folderId,
-                                                    @RequestBody FileDataQueryReq req) {
-        String userId = SessionHolder.getUserId();
-        return ApiReturn.success(fileDataService.getFileData(userId, fileSystemId, folderId, req));
+    public ApiReturn<Page<FileDataRsp>> listFileData(@PathVariable("fileSystemId") Long fileSystemId,
+                                                     @PathVariable("folderId") Long folderId,
+                                                     @RequestBody FileDataQueryReq req) {
+        return ApiReturn.success(fileDataService.listFileData(fileSystemId, folderId, req));
     }
 
     @ApiOperation("文件数据管理-文件上传")

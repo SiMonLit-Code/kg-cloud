@@ -1,12 +1,15 @@
 package com.plantdata.kgcloud.plantdata.req.data;
 
 import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * @author lp
@@ -18,7 +21,9 @@ import javax.validation.constraints.NotBlank;
 public class EntityFileRelationParameter {
     @NotBlank
     private String kgName;
-
-    private EntityFileRelationAddReq req;
+    @NotBlank
+    private String fileId;
+    @NotEmpty
+    private List<Long> entityIds;
 
 }

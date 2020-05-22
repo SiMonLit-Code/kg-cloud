@@ -22,6 +22,7 @@ import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.file.entity.FileData;
 import com.plantdata.kgcloud.domain.file.service.FileDataService;
+import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.EntityFileRelationRsp;
@@ -67,6 +68,8 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     private EntityFileConverter entityFileConverter;
     @Autowired
     private FileDataService fileDataService;
+    @Autowired
+    private GraphRepository graphRepository;
 
 
     public static List<LinkedHashMap<String, String>> readExcel(MultipartFile file, Integer indexType) throws IOException {
@@ -155,16 +158,16 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     private MongoCollection<Document> getRelationCollection(String kgName) {
-        return mongoClient.getDatabase(FileConstants.DW_PREFIX +
-                SessionHolder.getUserId()).getCollection(FileConstants.RELATION + "_" + kgName);
+        String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
+        return mongoClient.getDatabase(kgDbName).getCollection(FileConstants.FILE + FileConstants.JOIN + FileConstants.RELATION);
     }
 
     private MongoCollection<Document> getFileCollection() {
-        return mongoClient.getDatabase(FileConstants.DW_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
+        return mongoClient.getDatabase(FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
     }
 
     private MongoDatabase getDatabase() {
-        return mongoClient.getDatabase(FileConstants.DW_PREFIX + SessionHolder.getUserId());
+        return mongoClient.getDatabase(FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId());
     }
 
     @Override
@@ -175,9 +178,11 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
         List<Bson> query = new ArrayList<>();
         if (StringUtils.isNotBlank(req.getName())) {
-            query.add(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$")));
+            query.add(Filters.regex("name", Pattern.compile("^.*" + req.getName() + ".*$")));
         }
-        query.add(Filters.eq("indexType", req.getIndexType()));
+        if (req.getIndexType() != null) {
+            query.add(Filters.eq("indexType", req.getIndexType()));
+        }
 
         FindIterable<Document> findIterable = getRelationCollection(kgName).find(Filters.and(query)).skip(pageNo).limit(size + 1);
         List<EntityFileRelation> relations = entityFileConverter.toBeans(findIterable);
@@ -199,15 +204,21 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             }
         }
 
-        Map<Long, String> nameMap = basicInfoService.listByIds(kgName, Lists.newArrayList(entityIds))
-                .stream().collect(Collectors.toMap(BasicInfoRsp::getId, BasicInfoRsp::getName, (k1, k2) -> k1));
+        Map<Long, String> nameMap = new HashMap<>();
+        if (!CollectionUtils.isEmpty(entityIds)) {
+            nameMap = basicInfoService.listByIds(kgName, Lists.newArrayList(entityIds))
+                    .stream().collect(Collectors.toMap(BasicInfoRsp::getId, BasicInfoRsp::getName, (k1, k2) -> k1));
+        }
 
         List<Long> deleteIds = Lists.newArrayList();
-        for (int i = 0; i < list.size(); i++) {
-            EntityFileRelationRsp entityFileRelationRsp = list.get(i);
+        for (EntityFileRelationRsp entityFileRelationRsp : list) {
             List<EntityInfoRsp> entityInfoList = entityFileRelationRsp.getEntityInfoList();
+            if (CollectionUtils.isEmpty(entityInfoList)) {
+                continue;
+            }
             for (int j = 0; j < entityInfoList.size(); j++) {
                 EntityInfoRsp relationRsp = entityInfoList.get(j);
+                // 移除图谱中不存在的实体的标引关系
                 if (StringUtils.isBlank(nameMap.get(relationRsp.getEntityId()))) {
                     entityInfoList.remove(j);
                     j--;
@@ -216,12 +227,10 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                     relationRsp.setEntityName(nameMap.get(relationRsp.getEntityId()));
                 }
             }
-            if (entityInfoList.size() == 0 && req.getIndexType().equals(0)) {
-                list.remove(i);
-                i--;
-            }
         }
-        deleteByEntityIds(kgName, deleteIds);
+        if (!CollectionUtils.isEmpty(deleteIds)) {
+            deleteByEntityIds(kgName, deleteIds);
+        }
 
         int count = list.size();
         if (count > size) {
@@ -233,16 +242,41 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
     @Override
     public void createRelation(String kgName, EntityFileRelationReq req) {
-        EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(req);
-        relation.setCreateTime(new Date());
-        Document document = entityFileConverter.toDocument(relation);
-        getRelationCollection(kgName).insertOne(document);
+        EntityFileRelation exist = checkFileExist(kgName, req.getFileId());
+        // 关系不存在，新建关系
+        if (exist == null) {
+            EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(req);
+            relation.setCreateTime(new Date());
+            Long entityId = req.getEntityId();
+            if (entityId != null) {
+                relation.setEntityIds(Lists.newArrayList(entityId));
+            }
+            Document document = entityFileConverter.toDocument(relation);
+            getRelationCollection(kgName).insertOne(document);
+        } else {// 关系已存在，添加实体ID
+            List<Long> entityIds = exist.getEntityIds();
+            if (req.getEntityId() != null) {
+                if (entityIds == null) {
+                    entityIds = Lists.newArrayList(req.getEntityId());
+                } else if (!entityIds.contains(req.getEntityId())) {
+                    entityIds.add(req.getEntityId());
+                }
+                exist.setEntityIds(entityIds);
+                String id = exist.getId();
+                exist.setId(null);
+                Document document = entityFileConverter.toDocument(exist);
+                getRelationCollection(kgName).updateOne(documentConverter.buildObjectId(id), new Document("$set", document));
+            }
+        }
     }
 
     @Override
     public void deleteRelationByFileId(String fileId) {
         Document document = getFileCollection().find(entityFileConverter.buildObjectId(fileId)).first();
         FileData fileData = documentConverter.toBean(document, FileData.class);
+        if (fileData == null) {
+            return;
+        }
         List<String> kgNames = fileData.getKgNames();
         if (CollectionUtils.isEmpty(kgNames)) {
             return;
@@ -272,18 +306,27 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
     @Override
     public void deleteByEntityIds(String kgName, List<Long> entityIds) {
-        getRelationCollection(kgName).deleteMany(Filters.in("entityId", entityIds));
+        getRelationCollection(kgName).deleteMany(Filters.in("entityIds", entityIds));
     }
 
 
     @Override
-    public MultiModal getMultiModalById(String kgName, String id) {
+    public MultiModal deleteMultiModalById(String kgName, String id, Long entityId) {
         Document document = getRelationCollection(kgName).find(entityFileConverter.buildObjectId(id)).first();
-        if (document != null) {
-            ObjectId fileId = document.getObjectId("fileId");
-            Document file = getFileCollection().find(Filters.eq("_id", fileId)).first();
-            MultiModal multiModal = documentConverter.toBean(file, MultiModal.class);
-            multiModal.setEntityId(document.getLong("entityId"));
+        EntityFileRelation relation = entityFileConverter.toBean(document);
+        if (relation != null) {
+            // 删除当前关联的实体
+            List<Long> entityIds = relation.getEntityIds();
+            entityIds.remove(entityId);
+            relation.setEntityIds(entityIds);
+            relation.setId(null);
+            getRelationCollection(kgName).updateOne(documentConverter.buildObjectId(id), new Document("$set", entityFileConverter.toDocument(relation)));
+
+            Document file = getFileCollection().find(documentConverter.buildObjectId(relation.getFileId())).first();
+            FileData fileData = documentConverter.toBean(file, FileData.class);
+            MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(fileData);
+            multiModal.setDataHref(fileData.getPath());
+            multiModal.setEntityId(entityId);
             return multiModal;
         }
         return null;
@@ -306,12 +349,13 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             Document doc = cursor.next();
             ObjectId objectId = doc.getObjectId("fileId");
             Document document = getFileCollection().find(Filters.eq("_id", objectId)).first();
-            // DWFileTable dwFileTable = documentConverter.toBean(document, DWFileTable.clss);
-            // if (dwFileTable != null) {
-            //     EntityFileRsp entityFileRsp = ConvertUtils.convert(EntityFileRsp.class).apply(dwFileTable);
-            //     entityFileRsp.setEntityId(entityId);
-            //     list.add(entityFileRsp);
-            // }
+            FileData fileData = documentConverter.toBean(document, FileData.class);
+            if (fileData != null) {
+                EntityFileRsp entityFileRsp = ConvertUtils.convert(EntityFileRsp.class).apply(fileData);
+                entityFileRsp.setEntityId(entityId);
+                entityFileRsp.setIndexType(0);
+                list.add(entityFileRsp);
+            }
         }
         return list;
     }
@@ -380,7 +424,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                     relation.setCreateTime(new Date());
                     relation.setEntityIds(Lists.newArrayList());
 
-                    Document document = documentConverter.toDocument(relation);
+                    Document document = entityFileConverter.toDocument(relation);
                     list.add(document);
                 }
                 getRelationCollection(kgName).insertMany(list);
@@ -401,18 +445,18 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         }
         EntityFileRelation relation = entityFileConverter.toBean(document);
 
-        // if (relation.getIndexType().equals(0)) {
-        //     DWFileTable file = tableDataService.getOneFile(relation.getDwFileId());
-        //     List<String> kgNames = file.getKgNames();
-        //     if (kgNames == null) {
-        //         kgNames = Lists.newArrayList(kgName);
-        //     } else if (!kgNames.contains(kgName)) {
-        //         kgNames.add(kgName);
-        //     }
-        //     file.setKgNames(kgNames);
-        //     // 添加关系的图谱名称
-        //     tableDataService.update(file);
-        // }
+        if (relation.getIndexType().equals(0)) {
+            FileData fileData = fileDataService.get(relation.getFileId());
+            List<String> kgNames = fileData.getKgNames();
+            if (kgNames == null) {
+                kgNames = Lists.newArrayList(kgName);
+            } else if (!kgNames.contains(kgName)) {
+                kgNames.add(kgName);
+            }
+            fileData.setKgNames(kgNames);
+            // 添加关系的图谱名称
+            fileDataService.update(fileData);
+        }
 
         // 实体文件关系中关联的图谱实体ID
         List<Long> entityIds = relation.getEntityIds();
@@ -422,7 +466,8 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
         for (Long entityId : req.getEntityIds()) {
             if (entityIds.contains(entityId)) {
-                throw BizException.of(KgmsErrorCodeEnum.RELATION_IS_EXIST);
+                continue;
+                // throw BizException.of(KgmsErrorCodeEnum.RELATION_IS_EXIST);
             }
             entityIds.add(entityId);
         }
@@ -460,19 +505,21 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         query.add(Filters.eq("fileSystemId", fileSystemId));
         query.add(Filters.eq("folderId", folderId));
 
-        MongoCursor<Document> iterator = getFileCollection().find(Filters.and(query)).iterator();
+        FindIterable<Document> findIterable = getFileCollection().find(Filters.and(query));
+        List<FileData> fileDatas = documentConverter.toBeans(findIterable, FileData.class);
+        if (CollectionUtils.isEmpty(fileDatas)) {
+            return;
+        }
 
         List<Document> collect = Lists.newArrayList();
-        while (iterator.hasNext()) {
-            Document doc = iterator.next();
-            String id = doc.getObjectId("_id").toString();
-            EntityFileRelation relation = new EntityFileRelation();
-            relation.setFileId(id);
+        for (FileData fileData : fileDatas) {
+            EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(fileData);
+            relation.setId(null);
+            relation.setFileId(fileData.getId());
             relation.setIndexType(0);
             relation.setCreateTime(new Date());
             collect.add(entityFileConverter.toDocument(relation));
         }
-
         getRelationCollection(kgName).insertMany(collect);
     }
 
@@ -486,12 +533,29 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             newRelation.setIndexType(0);
             newRelation.setFileId(req.getFileId());
             newRelation.setCreateTime(new Date());
-            relation = newRelation;
+            Document document = entityFileConverter.toDocument(newRelation);
+            getRelationCollection(kgName).insertOne(document);
+            return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
         }
-        relation.setEntityIds(req.getEntityIds());
-        Document document = entityFileConverter.toDocument(relation);
-        getRelationCollection(kgName).insertOne(document);
-        return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
+        List<Long> entityIds = relation.getEntityIds();
+
+        if (req.getEntityIds() != null) {
+            if (entityIds == null) {
+                entityIds = Lists.newArrayList(req.getEntityIds());
+            } else {
+                entityIds.addAll(req.getEntityIds());
+                Set<Long> set = new HashSet<>(entityIds);
+                entityIds.clear();
+                entityIds.addAll(set);
+            }
+            relation.setEntityIds(entityIds);
+            String id = relation.getId();
+            relation.setId(null);
+            Document document = entityFileConverter.toDocument(relation);
+            getRelationCollection(kgName).updateOne(documentConverter.buildObjectId(id), new Document("$set", document));
+            return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
+        }
+        return new EntityFileRelationRsp();
     }
 
     @Override
@@ -503,6 +567,12 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             return !CollectionUtils.isEmpty(entityIds) && entityIds.contains(entityId);
         }
         return false;
+    }
+
+    @Override
+    public EntityFileRelation checkFileExist(String kgName, String fileId) {
+        Document document = getRelationCollection(kgName).find(Filters.eq("fileId", new ObjectId(fileId))).first();
+        return entityFileConverter.toBean(document);
     }
 
     @Override
