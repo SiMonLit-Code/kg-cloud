@@ -2,8 +2,10 @@ package com.plantdata.kgcloud.domain.reasoning.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.reasoning.req.*;
-import com.plantdata.kgcloud.domain.reasoning.rsp.ReasoningRsp;
 import com.plantdata.kgcloud.domain.reasoning.service.ReasoningService;
+import com.plantdata.kgcloud.sdk.req.ReasoningExecuteReq;
+import com.plantdata.kgcloud.sdk.req.ReasoningQueryReq;
+import com.plantdata.kgcloud.sdk.rsp.ReasoningRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
