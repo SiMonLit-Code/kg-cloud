@@ -14,7 +14,6 @@ public interface RepositoryUseLogRepository extends JpaRepository<RepositoryUseL
 
     List<RepositoryUseLog> deleteByRepositoryId( Integer repositoryId);
 
-    RepositoryUseLog findByUserIdAndRepositoryId(String userId, Integer repositoryId);
 
     List<RepositoryUseLog> findAllByUserIdAndRepositoryIdIn(String userId, Collection<Integer> repositoryIds);
 

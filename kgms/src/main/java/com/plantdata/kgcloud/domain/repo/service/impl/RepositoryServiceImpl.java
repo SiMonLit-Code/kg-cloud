@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.repo.service.impl;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.checker.ServiceChecker;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
+import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import com.plantdata.kgcloud.domain.repo.factory.ServiceCheckerFactory;
 import com.plantdata.kgcloud.domain.repo.model.Repository;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryMenu;
@@ -113,15 +114,26 @@ public class RepositoryServiceImpl implements RepositoryService {
 
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public void useLog(String type, Integer id, String userId) {
+    public void useLog(RepositoryLogEnum type, Integer id, String userId) {
         Optional<Repository> repOpt = repositoryRepository.findById(id);
         repOpt.ifPresent(a -> {
-            RepositoryUseLog useLog = repositoryUseLogRepository.findByUserIdAndRepositoryId(userId, id);
-            if (useLog == null) {
-                repositoryUseLogRepository.save(new RepositoryUseLog(a.getId(), userId));
+            if (RepositoryLogEnum.MENU == type) {
+                saveByMenu(id, userId);
             }
         });
     }
+
+    public void saveByMenu(int menuId, String userId) {
+        RepositoryMenu repositoryMenu = repositoryMenuRepository.findByMenuId(menuId);
+        List<RepositoryUseLog> useLogs = repositoryUseLogRepository.findAllByUserIdAndRepositoryIdIn(userId, repositoryMenu.getRepositoryId());
+        if (CollectionUtils.isEmpty(useLogs)) {
+            boolean have = useLogs.stream().anyMatch(a -> a.getMenuId() == menuId);
+            if (!have) {
+                repositoryUseLogRepository.save(new RepositoryUseLog());
+            }
+        }
+    }
+
 
     @Override
     public List<RepositoryLogMenuRsp> menuLog(String userId) {
@@ -133,7 +145,6 @@ public class RepositoryServiceImpl implements RepositoryService {
             return new RepositoryLogMenuRsp(a.getMenuId(), rsp.getNewFunction(), rsp.isEnable() && rsp.isState());
         }).collect(Collectors.toList());
     }
-
 
 
 }

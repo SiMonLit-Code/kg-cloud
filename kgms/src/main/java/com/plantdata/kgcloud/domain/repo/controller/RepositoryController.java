@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.repo.controller;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.repo.constatn.StringConstants;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
+import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryGroup;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author cjw
@@ -77,7 +79,8 @@ public class RepositoryController {
     @GetMapping("{type}/{id}/log")
     public ApiReturn<String> useLog(@PathVariable(name = "type") String type,
                                     @PathVariable(name = "id") Integer id) {
-        repositoryService.useLog(type,id, SessionHolder.getUserId());
+        Optional<RepositoryLogEnum> logEnumOpt = RepositoryLogEnum.parseByDesc(type);
+        logEnumOpt.ifPresent(a-> repositoryService.useLog(a,id, SessionHolder.getUserId()));
         return ApiReturn.success(StringConstants.SUCCESS);
     }
 
