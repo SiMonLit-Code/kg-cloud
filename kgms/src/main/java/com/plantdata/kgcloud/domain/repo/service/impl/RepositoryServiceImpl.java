@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.repo.service.impl;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.checker.ServiceChecker;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
-import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import com.plantdata.kgcloud.domain.repo.factory.ServiceCheckerFactory;
 import com.plantdata.kgcloud.domain.repo.model.Repository;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryMenu;
@@ -119,13 +118,6 @@ public class RepositoryServiceImpl implements RepositoryService {
         });
         return true;
     }
-
-    @Override
-    @Transactional(rollbackOn = Exception.class)
-    public void useLog(RepositoryLogEnum type, Integer id, String userId) {
-        repositoryUseLogService.save(type, id, userId);
-    }
-
 
     @Override
     public List<RepositoryLogMenuRsp> menuLog(String userId) {

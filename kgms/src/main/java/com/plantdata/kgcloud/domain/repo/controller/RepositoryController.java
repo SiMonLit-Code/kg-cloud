@@ -11,6 +11,7 @@ import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryListRsp;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
 import com.plantdata.kgcloud.domain.repo.repository.RepositoryGroupRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
+import com.plantdata.kgcloud.domain.repo.service.RepositoryUseLogService;
 import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
@@ -32,6 +33,8 @@ public class RepositoryController {
     private RepositoryService repositoryService;
     @Autowired
     private RepositoryGroupRepository repositoryGroupRepository;
+    @Autowired
+    private RepositoryUseLogService repositoryUseLogService;
 
     @ApiOperation("组件列表")
     @GetMapping
@@ -76,7 +79,7 @@ public class RepositoryController {
     public ApiReturn<String> useLog(@PathVariable(name = "type") String type,
                                     @PathVariable(name = "id") Integer id) {
         Optional<RepositoryLogEnum> logEnumOpt = RepositoryLogEnum.parseByDesc(type);
-        logEnumOpt.ifPresent(a -> repositoryService.useLog(a, id, SessionHolder.getUserId()));
+        logEnumOpt.ifPresent(a -> repositoryUseLogService.save(a, id, SessionHolder.getUserId()));
         return ApiReturn.success(StringConstants.SUCCESS);
     }
 
