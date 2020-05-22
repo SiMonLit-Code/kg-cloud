@@ -19,6 +19,8 @@ public interface FileDataService {
 
     Page<FileDataRsp> getFileData(String userId, Long fileSystemId, Long folderId, FileDataQueryReq req);
 
+    FileData get(String id);
+
     FileData fileAdd(FileDataReq req);
 
     void fileAddBatch(FileDataBatchReq fileTableReq, MultipartFile[] files);

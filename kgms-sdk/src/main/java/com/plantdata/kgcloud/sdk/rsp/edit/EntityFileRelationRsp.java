@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.edit.rsp;
+package com.plantdata.kgcloud.sdk.rsp.edit;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;

@@ -450,3 +450,15 @@ CREATE TABLE `file_folder`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-文件夹' ROW_FORMAT = DYNAMIC;
 
+-- ----------------------------
+-- Table structure for graph_conf_qa_status
+-- ----------------------------
+DROP TABLE IF EXISTS `graph_conf_qa_status`;
+CREATE TABLE `graph_conf_qa_status`  (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `kg_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '图谱名',
+  `status` int(11) NOT NULL DEFAULT 0 COMMENT '问答提示状态(0：关闭，1：开启)',
+  `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱qa问答设置' ROW_FORMAT = Dynamic;

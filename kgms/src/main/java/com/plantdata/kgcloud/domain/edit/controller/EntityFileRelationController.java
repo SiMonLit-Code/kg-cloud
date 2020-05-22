@@ -6,8 +6,9 @@ import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
 import com.plantdata.kgcloud.domain.edit.req.file.IndexRelationReq;
-import com.plantdata.kgcloud.domain.edit.rsp.EntityFileRelationRsp;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
+import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.EntityFileRelationRsp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -40,7 +40,7 @@ public class EntityFileRelationController {
     @ApiOperation("实体文件管理-建立关系")
     @PostMapping("/{kgName}/create/relation")
     public ApiReturn createRelation(@PathVariable String kgName,
-                                    @Valid @RequestBody EntityFileRelationReq req) {
+                                    @RequestBody EntityFileRelationReq req) {
         entityFileRelationService.createRelation(kgName, req);
         return ApiReturn.success();
     }
@@ -55,9 +55,9 @@ public class EntityFileRelationController {
 
     @ApiOperation("实体文件管理-根据文件ID获取关系")
     @PostMapping("/{kgName}/get/fileId/{fileId}")
-    public ApiReturn<List<EntityFileRelation>> getRelationByDwFileId(@PathVariable String kgName,
-                                                                     @PathVariable String fileId) {
-        return ApiReturn.success(entityFileRelationService.getRelationByDwFileId(kgName, fileId));
+    public ApiReturn<EntityFileRelation> getRelationByDwFileId(@PathVariable String kgName,
+                                                               @PathVariable String fileId) {
+        return ApiReturn.success(entityFileRelationService.getRelationByFileId(kgName, fileId));
     }
 
     @ApiOperation("实体文件管理-新建标引")
@@ -103,6 +103,13 @@ public class EntityFileRelationController {
                              @PathVariable Long folderId) {
         entityFileRelationService.addFile(kgName, fileSystemId, folderId);
         return ApiReturn.success();
+    }
+
+    @ApiOperation("实体文件管理-建立文件标引关系")
+    @PostMapping("/{kgName}/create/file/relation")
+    public ApiReturn<EntityFileRelationRsp> createFileRelation(@PathVariable String kgName,
+                                                               @RequestBody EntityFileRelationAddReq req) {
+        return ApiReturn.success(entityFileRelationService.createFileRelation(kgName, req));
     }
 
 }

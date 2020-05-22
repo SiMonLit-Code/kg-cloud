@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.graph.config.service;
 
 import com.plantdata.kgcloud.sdk.req.GraphConfQaReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfQaStatusRsp;
 
 import java.util.List;
 
@@ -27,4 +28,18 @@ public interface GraphConfQaService {
      * @return
      */
     List<GraphConfQaRsp> findByKgName(String kgName);
+
+    /**
+     * 获取问答状态
+     * @param kgName
+     * @return
+     */
+    GraphConfQaStatusRsp getStatus(String kgName);
+
+    /**
+     * 更新问答状态
+     * @param kgName
+     * @param status
+     */
+    void updateStatus(String kgName, Integer status);
 }
