@@ -21,7 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -127,7 +131,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         Set<Integer> menuIds = repositoryUseLogService.listMenuId(userId);
         return all.stream().map(a -> {
             RepositoryRsp rsp = rspMap.get(a.getRepositoryId());
-            return new RepositoryLogMenuRsp(a.getMenuId(), !menuIds.contains(a.getMenuId()), rsp.isEnable() && rsp.isState());
+            return new RepositoryLogMenuRsp(a.getMenuId(), !a.getRepositoryId().equals(101001) && !menuIds.contains(a.getMenuId()), rsp != null && rsp.isEnable() && rsp.isState());
         }).collect(Collectors.toList());
     }
 
