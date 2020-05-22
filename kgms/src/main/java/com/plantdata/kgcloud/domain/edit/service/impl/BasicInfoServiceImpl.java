@@ -3,13 +3,7 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.GraphApi;
-import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
-import ai.plantdata.kg.api.edit.req.BasicInfoFrom;
-import ai.plantdata.kg.api.edit.req.BasicQuery;
-import ai.plantdata.kg.api.edit.req.MetaDataFrom;
-import ai.plantdata.kg.api.edit.req.PromptFrom;
-import ai.plantdata.kg.api.edit.req.SynonymFrom;
-import ai.plantdata.kg.api.edit.req.UpdateBasicInfoFrom;
+import ai.plantdata.kg.api.edit.req.*;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.edit.resp.PromptVO;
 import ai.plantdata.kg.api.edit.resp.RelationDetailVO;
@@ -19,30 +13,16 @@ import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
 import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
-import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.BasicInfoType;
 import com.plantdata.kgcloud.constant.CountType;
-import com.plantdata.kgcloud.constant.KgmsConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
-import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
-import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.StatisticsReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
+import com.plantdata.kgcloud.domain.edit.req.basic.*;
 import com.plantdata.kgcloud.domain.edit.rsp.*;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
@@ -62,14 +42,12 @@ import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
-import org.bson.Document;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -245,17 +223,13 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public void addSynonym(String kgName, SynonymReq synonymReq) {
-        String name = synonymReq.getName();
-        if (org.apache.commons.lang3.StringUtils.isBlank(name)){
+        Set<String> names = synonymReq.getNames();
+        if (CollectionUtils.isEmpty(names)) {
             return;
         }
-        String[] names = name.replaceAll("，", ",").split(",");
-        List<String> collect = Arrays.stream(names)
-                .filter(org.apache.commons.lang3.StringUtils::isNotBlank).collect(Collectors.toList());
         SynonymFrom synonymFrom = ConvertUtils.convert(SynonymFrom.class).apply(synonymReq);
-        Set<String> set = new HashSet<>(collect);
-        synonymFrom.setNames(set);
-        RestRespConverter.convertVoid(conceptEntityApi.addSynonym(KGUtil.dbName(kgName), synonymFrom));
+        RestResp restResp = conceptEntityApi.addSynonym(KGUtil.dbName(kgName), synonymFrom);
+        RestRespConverter.convertVoid(restResp);
     }
 
     @Override
@@ -418,7 +392,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public RelationDetailRsp getRelationDetails(String kgName, String id) {
-        RestResp<RelationDetailVO> restResp = conceptEntityApi.relationDetail(kgName,id);
+        RestResp<RelationDetailVO> restResp = conceptEntityApi.relationDetail(kgName, id);
         Optional<RelationDetailVO> optional = RestRespConverter.convert(restResp);
         if (!optional.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.TRIPLE_ID_NOT_EXISTS);
@@ -429,13 +403,13 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         rsp.setRelationObjectValues(optional.get().getRelationObjectValues());
         rsp.setAttrTimeFrom(optional.get().getAttrTimeFrom());
         rsp.setAttrTimeTo(optional.get().getAttrTimeTo());
-        if(optional.get().getMetaData().get("meta_data_3") != null) {
+        if (optional.get().getMetaData().get("meta_data_3") != null) {
             rsp.setScore((Double) optional.get().getMetaData().get("meta_data_3"));
         }
-        if(optional.get().getMetaData().get("meta_data_12") != null) {
+        if (optional.get().getMetaData().get("meta_data_12") != null) {
             rsp.setReliability((Double) optional.get().getMetaData().get("meta_data_12"));
         }
-        if(optional.get().getMetaData().get("meta_data_11") != null) {
+        if (optional.get().getMetaData().get("meta_data_11") != null) {
             rsp.setSource((String) optional.get().getMetaData().get("meta_data_11"));
         }
         return rsp;
