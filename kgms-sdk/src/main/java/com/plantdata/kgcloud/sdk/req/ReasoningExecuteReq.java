@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.reasoning.req;
+package com.plantdata.kgcloud.sdk.req;
 
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;

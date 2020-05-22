@@ -227,6 +227,10 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         if (CollectionUtils.isEmpty(names)) {
             return;
         }
+
+        if(synonymReq.getName() == null){
+            synonymReq.setName("");
+        }
         SynonymFrom synonymFrom = ConvertUtils.convert(SynonymFrom.class).apply(synonymReq);
         RestResp restResp = conceptEntityApi.addSynonym(KGUtil.dbName(kgName), synonymFrom);
         RestRespConverter.convertVoid(restResp);

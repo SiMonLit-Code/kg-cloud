@@ -21,8 +21,9 @@ public interface RepositoryService {
     List<RepositoryRsp> list(String userId,boolean withBasic);
 
     /**
-     * @param repositoryReq
-     * @return
+     * 新增组件
+     * @param repositoryReq ..
+     * @return int
      */
     Integer add(RepositoryReq repositoryReq);
 
@@ -46,14 +47,6 @@ public interface RepositoryService {
      * @return boolean
      */
     boolean updateStatus(Integer id, boolean start);
-
-    /**
-     * 组件使用记录一下
-     * @param type 类型
-     * @param id     组件id
-     * @param userId 用户id
-     */
-    void useLog(String type,Integer id, String userId);
 
     /**
      * 菜单相关

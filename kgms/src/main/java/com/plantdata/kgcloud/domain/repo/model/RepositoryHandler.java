@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.model;
 
 import com.plantdata.kgcloud.domain.repo.enums.HandleType;
-import com.plantdata.kgcloud.domain.repo.model.req.DealDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +8,6 @@ import lombok.Setter;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.persistence.*;
-import java.util.function.Function;
 
 /**
  * @author cjw

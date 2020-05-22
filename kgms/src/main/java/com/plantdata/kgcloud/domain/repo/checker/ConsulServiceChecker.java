@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.checker;
 
 import com.plantdata.kgcloud.domain.repo.model.RepoCheckConfig;
-import com.plantdata.kgcloud.domain.repo.model.RepositoryHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;

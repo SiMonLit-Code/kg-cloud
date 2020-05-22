@@ -6,15 +6,14 @@ import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
 import com.plantdata.kgcloud.domain.repo.factory.ServiceCheckerFactory;
 import com.plantdata.kgcloud.domain.repo.model.Repository;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryMenu;
-import com.plantdata.kgcloud.domain.repo.model.RepositoryUseLog;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
 import com.plantdata.kgcloud.domain.repo.repository.RepositoryMenuRepository;
 import com.plantdata.kgcloud.domain.repo.repository.RepositoryRepository;
-import com.plantdata.kgcloud.domain.repo.repository.RepositoryUseLogRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryMenuService;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
+import com.plantdata.kgcloud.domain.repo.service.RepositoryUseLogService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,7 +39,7 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Autowired
     private RepositoryRepository repositoryRepository;
     @Autowired
-    private RepositoryUseLogRepository repositoryUseLogRepository;
+    private RepositoryUseLogService repositoryUseLogService;
     @Autowired
     private RepositoryMenuRepository repositoryMenuRepository;
     @Autowired
@@ -44,6 +47,15 @@ public class RepositoryServiceImpl implements RepositoryService {
 
     @Override
     public List<RepositoryRsp> list(String userId, boolean withBasic) {
+        List<RepositoryRsp> repositoryRspList = basicListWithCheck(withBasic);
+        //检测是否为最新
+        Set<Integer> repositoryIds = repositoryUseLogService.listRepositoryId(userId);
+        BasicConverter.consumerIfNoNull(repositoryIds, a -> repositoryRspList.forEach(b -> b.setNewFunction(!a.contains(b.getId()))));
+        return repositoryRspList;
+    }
+
+
+    private List<RepositoryRsp> basicListWithCheck(boolean withBasic) {
         List<Repository> all = repositoryRepository.findAll();
         if (CollectionUtils.isEmpty(all)) {
             return Collections.emptyList();
@@ -53,18 +65,18 @@ public class RepositoryServiceImpl implements RepositoryService {
         }
         List<RepositoryRsp> repositoryRspList = BasicConverter.listToRsp(all, RepositoryConverter::repository2RepositoryRsp);
         //填充组件状态
-        Function<Repository, Boolean> health = b -> ServiceCheckerFactory.factory(b.getCheckConfigs()).stream().allMatch(ServiceChecker::check);
-        Map<Integer, Boolean> stateMap = all.stream().collect(Collectors.toMap(Repository::getId, health));
-        BasicConverter.listConsumerIfNoNull(repositoryRspList, a -> a.setEnable(stateMap.getOrDefault(a.getId(), true)));
-        //检测是否为最新
-        List<RepositoryUseLog> useLogs = repositoryUseLogRepository.findAllByUserIdAndRepositoryIdIn(userId, stateMap.keySet());
-        BasicConverter.consumerIfNoNull(useLogs, a -> {
-            Set<Integer> repositoryIds = useLogs.stream().map(RepositoryUseLog::getRepositoryId).collect(Collectors.toSet());
-            repositoryRspList.forEach(b -> b.setNewFunction(!repositoryIds.contains(b.getId())));
+        Function<Repository, Boolean> health = b -> ServiceCheckerFactory.factory(b.getCheckConfigs()).stream().allMatch(a -> {
+            try {
+                return a.check();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         });
+        Map<Integer, Boolean> stateMap = all.stream().collect(Collectors.toMap(Repository::getId, health));
+        BasicConverter.listConsumerIfNoNull(repositoryRspList, a -> a.setEnable(stateMap.getOrDefault(a.getId(), false)));
         return repositoryRspList;
     }
-
 
     @Override
     @Transactional(rollbackOn = Exception.class)
@@ -106,34 +118,22 @@ public class RepositoryServiceImpl implements RepositoryService {
             a.setState(start);
             repositoryRepository.save(a);
             //清除使用状态
-            repositoryUseLogRepository.deleteByRepositoryId(id);
+            repositoryUseLogService.deleteByRepositoryId(id);
         });
         return true;
     }
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
-    public void useLog(String type, Integer id, String userId) {
-        Optional<Repository> repOpt = repositoryRepository.findById(id);
-        repOpt.ifPresent(a -> {
-            RepositoryUseLog useLog = repositoryUseLogRepository.findByUserIdAndRepositoryId(userId, id);
-            if (useLog == null) {
-                repositoryUseLogRepository.save(new RepositoryUseLog(a.getId(), userId));
-            }
-        });
-    }
-
-    @Override
     public List<RepositoryLogMenuRsp> menuLog(String userId) {
-        List<RepositoryRsp> list = list(userId, true);
-        Map<Integer, RepositoryRsp> rspMap = list.stream().collect(Collectors.toMap(RepositoryRsp::getId, Function.identity()));
+        List<RepositoryRsp> repositoryRspList = basicListWithCheck(true);
+        Map<Integer, RepositoryRsp> rspMap = repositoryRspList.stream().collect(Collectors.toMap(RepositoryRsp::getId, Function.identity(), (a, b) -> b));
         List<RepositoryMenu> all = repositoryMenuRepository.findAll();
+        Set<Integer> menuIds = repositoryUseLogService.listMenuId(userId);
         return all.stream().map(a -> {
             RepositoryRsp rsp = rspMap.get(a.getRepositoryId());
-            return new RepositoryLogMenuRsp(a.getMenuId(), rsp.getNewFunction(), rsp.isEnable() && rsp.isState());
+            return new RepositoryLogMenuRsp(a.getMenuId(), !a.getRepositoryId().equals(101001) && !menuIds.contains(a.getMenuId()), rsp != null && rsp.isEnable() && rsp.isState());
         }).collect(Collectors.toList());
     }
-
 
 
 }
