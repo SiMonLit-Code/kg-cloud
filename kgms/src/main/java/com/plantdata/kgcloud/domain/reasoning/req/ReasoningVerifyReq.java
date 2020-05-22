@@ -12,8 +12,8 @@ import lombok.Data;
 @Data
 public class ReasoningVerifyReq {
 
-    @ApiModelProperty("推理规则id")
-    private Integer id;
+    @ApiModelProperty("推理规则")
+    private String config;
 
     @ApiModelProperty("实体id")
     private Long entityId;

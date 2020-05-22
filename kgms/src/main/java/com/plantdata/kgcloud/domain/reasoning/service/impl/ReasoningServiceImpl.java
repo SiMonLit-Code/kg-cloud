@@ -5,9 +5,11 @@ import com.plantdata.kgcloud.domain.prebuilder.util.SortUtil;
 import com.plantdata.kgcloud.domain.reasoning.entity.Reasoning;
 import com.plantdata.kgcloud.domain.reasoning.repository.ReasoningRepository;
 import com.plantdata.kgcloud.domain.reasoning.req.*;
-import com.plantdata.kgcloud.domain.reasoning.rsp.ReasoningRsp;
 import com.plantdata.kgcloud.domain.reasoning.service.ReasoningService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.ReasoningExecuteReq;
+import com.plantdata.kgcloud.sdk.req.ReasoningQueryReq;
+import com.plantdata.kgcloud.sdk.rsp.ReasoningRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
@@ -107,5 +109,12 @@ public class ReasoningServiceImpl implements ReasoningService {
     @Override
     public CommonBasicGraphExploreRsp execute(String userId, ReasoningExecuteReq reasoningExecuteReq) {
         return null;
+    }
+
+    @Override
+    public ReasoningRsp get(String userId, Integer id) {
+
+        Optional<Reasoning> opt = reasoningRepository.findById(id);
+        return ConvertUtils.convert(ReasoningRsp.class).apply(opt.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_REASONING_NOT_EXISTS)));
     }
 }
