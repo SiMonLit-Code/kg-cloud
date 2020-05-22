@@ -14,11 +14,11 @@ import java.util.List;
 public interface RepositoryService {
     /**
      * 查询所有组件
-     *
+     * @param withBasic 是否包含基础版
      * @param userId 用户id
      * @return list
      */
-    List<RepositoryRsp> list(String userId);
+    List<RepositoryRsp> list(String userId,boolean withBasic);
 
     /**
      * @param repositoryReq
@@ -49,11 +49,11 @@ public interface RepositoryService {
 
     /**
      * 组件使用记录一下
-     *
+     * @param type 类型
      * @param id     组件id
      * @param userId 用户id
      */
-    void useLog(Integer id, String userId);
+    void useLog(String type,Integer id, String userId);
 
     /**
      * 菜单相关
