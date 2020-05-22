@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.repo.model;
 
-import com.plantdata.kgcloud.domain.common.converter.IntegerListConverter;
 import com.plantdata.kgcloud.domain.common.converter.ObjectJsonConverter;
 import com.plantdata.kgcloud.domain.repo.converter.RepoCheckConfigJsonConverter;
 import com.plantdata.kgcloud.domain.repo.converter.RepoTypeConverter;

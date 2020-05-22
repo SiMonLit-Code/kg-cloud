@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.factory;
 
 import com.google.common.collect.Lists;
-import com.mongodb.MongoClient;
 import com.plantdata.kgcloud.domain.repo.checker.ConsulServiceChecker;
 import com.plantdata.kgcloud.domain.repo.checker.FileServiceChecker;
 import com.plantdata.kgcloud.domain.repo.checker.MongoServiceChecker;
