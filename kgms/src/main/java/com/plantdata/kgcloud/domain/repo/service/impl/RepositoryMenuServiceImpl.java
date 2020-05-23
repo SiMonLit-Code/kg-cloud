@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.repo.service.impl;
 
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.repo.model.RepositoryMenu;
-import com.plantdata.kgcloud.domain.repo.repository.RepositoryMenuRepository;
+import com.plantdata.kgcloud.domain.repo.entity.RepoMenu;
+import com.plantdata.kgcloud.domain.repo.repository.RepoMenuRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 public class RepositoryMenuServiceImpl implements RepositoryMenuService {
 
     @Autowired
-    private RepositoryMenuRepository repositoryMenuRepository;
+    private RepoMenuRepository repoMenuRepository;
 
     @Override
     public void saveOrUpdate(List<Integer> menuIdList, Integer repositoryId) {
         BasicConverter.consumerIfNoNull(menuIdList, a -> {
-            List<RepositoryMenu> menus = a.stream().map(b -> new RepositoryMenu(b, repositoryId)).collect(Collectors.toList());
-            repositoryMenuRepository.saveAll(menus);
+            List<RepoMenu> menus = a.stream().map(b -> new RepoMenu(b, repositoryId)).collect(Collectors.toList());
+            repoMenuRepository.saveAll(menus);
         });
     }
 }

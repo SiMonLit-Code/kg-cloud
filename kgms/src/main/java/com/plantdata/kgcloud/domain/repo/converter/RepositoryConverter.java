@@ -2,17 +2,14 @@ package com.plantdata.kgcloud.domain.repo.converter;
 
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.model.RepoCheckConfig;
-import com.plantdata.kgcloud.domain.repo.model.Repository;
-import com.plantdata.kgcloud.domain.repo.model.RepositoryGroup;
+import com.plantdata.kgcloud.domain.repo.entity.RepoItem;
+import com.plantdata.kgcloud.domain.repo.entity.RepoItemGroup;
 import com.plantdata.kgcloud.domain.repo.model.common.BaseRepositoryVO;
 import com.plantdata.kgcloud.domain.repo.model.req.RepoCheckConfigReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.GroupRsp;
-import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryListRsp;
-import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
+import com.plantdata.kgcloud.domain.repo.model.rsp.RepoItemRsp;
 import lombok.NonNull;
-
-import java.util.List;
 
 /**
  * @author cjw
@@ -20,8 +17,8 @@ import java.util.List;
  */
 public class RepositoryConverter extends BasicConverter {
 
-    public static RepositoryRsp repository2RepositoryRsp(@NonNull Repository repository) {
-        RepositoryRsp rsp = new RepositoryRsp();
+    public static RepoItemRsp repository2RepositoryRsp(@NonNull RepoItem repository) {
+        RepoItemRsp rsp = new RepoItemRsp();
         rsp.setConfig(repository.getConfig());
         rsp.setGroupId(repository.getGroupId());
         rsp.setId(repository.getId());
@@ -33,8 +30,8 @@ public class RepositoryConverter extends BasicConverter {
         return rsp;
     }
 
-    public static <T extends BaseRepositoryVO> Repository repositoryReq2Repository(@NonNull T repository) {
-        Repository rsp = new Repository();
+    public static <T extends BaseRepositoryVO> RepoItem repositoryReq2Repository(@NonNull T repository) {
+        RepoItem rsp = new RepoItem();
         rsp.setConfig(repository.getConfig());
         rsp.setGroupId(repository.getGroupId());
         rsp.setCheckConfigs(listToRsp(repository.getCheckConfigs(), RepositoryConverter::repoCheckConfigReq2RepoCheckConfig));
@@ -46,7 +43,7 @@ public class RepositoryConverter extends BasicConverter {
     }
 
 
-    public static GroupRsp repositoryGroup2GroupRsp(@NonNull RepositoryGroup group) {
+    public static GroupRsp repositoryGroup2GroupRsp(@NonNull RepoItemGroup group) {
         GroupRsp groupRsp = new GroupRsp();
         groupRsp.setDesc(group.getDesc());
         groupRsp.setGroupId(group.getGroupId());
@@ -55,8 +52,8 @@ public class RepositoryConverter extends BasicConverter {
         return groupRsp;
     }
 
-    public static Repository repositoryUpdateReq2RepoCheckConfig(RepositoryUpdateReq updateReq) {
-        Repository repository = repositoryReq2Repository(updateReq);
+    public static RepoItem repositoryUpdateReq2RepoCheckConfig(RepositoryUpdateReq updateReq) {
+        RepoItem repository = repositoryReq2Repository(updateReq);
         repository.setId(updateReq.getId());
         return repository;
     }

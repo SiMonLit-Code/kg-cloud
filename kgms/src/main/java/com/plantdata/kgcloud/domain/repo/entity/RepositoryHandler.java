@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.repo.model;
+package com.plantdata.kgcloud.domain.repo.entity;
 
 import com.plantdata.kgcloud.domain.repo.enums.HandleType;
 import lombok.AllArgsConstructor;

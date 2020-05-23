@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.model.rsp;
 
-import com.plantdata.kgcloud.domain.repo.enums.RepositoryTypeEnum;
+import com.plantdata.kgcloud.domain.repo.enums.RepoItemType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ApiModel("组件显示模型")
-public class RepositoryRsp {
+public class RepoItemRsp {
     @ApiModelProperty("组件id")
     private int id;
     @ApiModelProperty("组件名称")
@@ -23,7 +23,7 @@ public class RepositoryRsp {
     @ApiModelProperty("组件分组名称前端定义")
     private int groupId;
     @ApiModelProperty("组件类型")
-    private RepositoryTypeEnum type;
+    private RepoItemType type;
     @ApiModelProperty("可操作状态")
     private boolean enable;
     @ApiModelProperty("启停状态")

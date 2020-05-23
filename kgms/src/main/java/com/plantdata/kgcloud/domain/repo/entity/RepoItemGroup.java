@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.repo.model;
+package com.plantdata.kgcloud.domain.repo.entity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,10 +11,9 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "repo_repository_group")
-public class RepositoryGroup {
+@Table(name = "repo_item_group")
+public class RepoItemGroup {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 

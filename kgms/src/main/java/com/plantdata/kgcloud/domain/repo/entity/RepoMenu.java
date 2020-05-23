@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.repo.model;
+package com.plantdata.kgcloud.domain.repo.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,16 +17,17 @@ import javax.persistence.Table;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "repo_repository_menu")
-public class RepositoryMenu {
+@Table(name = "repo_menu")
+public class RepoMenu {
 
     @Id
     @Column(name = "menu_id")
     private Integer menuId;
+
     @Column(name = "repository_id")
     private Integer repositoryId;
 
-    public RepositoryMenu(Integer menuId, Integer repositoryId) {
+    public RepoMenu(Integer menuId, Integer repositoryId) {
         this.menuId = menuId;
         this.repositoryId = repositoryId;
     }

@@ -3,10 +3,10 @@ package com.plantdata.kgcloud.domain.repo.service.impl;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
-import com.plantdata.kgcloud.domain.repo.model.RepositoryMenu;
-import com.plantdata.kgcloud.domain.repo.model.RepositoryUseLog;
-import com.plantdata.kgcloud.domain.repo.repository.RepositoryMenuRepository;
-import com.plantdata.kgcloud.domain.repo.repository.RepositoryUseLogRepository;
+import com.plantdata.kgcloud.domain.repo.entity.RepoMenu;
+import com.plantdata.kgcloud.domain.repo.entity.RepositoryUseLog;
+import com.plantdata.kgcloud.domain.repo.repository.RepoMenuRepository;
+import com.plantdata.kgcloud.domain.repo.repository.RepoUseLogRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryUseLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 public class RepositoryUseLogServiceImpl implements RepositoryUseLogService {
 
     @Autowired
-    private RepositoryUseLogRepository repositoryUseLogRepository;
+    private RepoUseLogRepository repositoryUseLogRepository;
     @Autowired
-    private RepositoryMenuRepository repositoryMenuRepository;
+    private RepoMenuRepository repoMenuRepository;
 
     @Override
     public void save(RepositoryLogEnum logEnum, int id, String userId) {
@@ -36,9 +36,9 @@ public class RepositoryUseLogServiceImpl implements RepositoryUseLogService {
     @Override
     public void deleteByRepositoryId(Integer repositoryId) {
         repositoryUseLogRepository.deleteByBusinessIdInAndLogType(Lists.newArrayList(repositoryId), RepositoryLogEnum.REPOSITORY);
-        List<RepositoryMenu> menus = repositoryMenuRepository.findAllByRepositoryIdIn(Lists.newArrayList(repositoryId));
+        List<RepoMenu> menus = repoMenuRepository.findAllByRepositoryIdIn(Lists.newArrayList(repositoryId));
         BasicConverter.consumerIfNoNull(menus, a -> {
-            List<Integer> menuIds = a.stream().map(RepositoryMenu::getMenuId).collect(Collectors.toList());
+            List<Integer> menuIds = a.stream().map(RepoMenu::getMenuId).collect(Collectors.toList());
             repositoryUseLogRepository.deleteByBusinessIdInAndLogType(menuIds, RepositoryLogEnum.MENU);
         });
     }
@@ -68,11 +68,11 @@ public class RepositoryUseLogServiceImpl implements RepositoryUseLogService {
         List<RepositoryUseLog> two = repositoryUseLogRepository.findAllByUserIdAndLogType(userId, logEnum);
         Set<Integer> tempIds = two.stream().map(RepositoryUseLog::getBusinessId).collect(Collectors.toSet());
         if (RepositoryLogEnum.REPOSITORY == logEnum) {
-            List<RepositoryMenu> repositoryMenus = repositoryMenuRepository.findAllByRepositoryIdIn(new ArrayList<>(tempIds));
-            return BasicConverter.listToRsp(repositoryMenus, RepositoryMenu::getRepositoryId);
+            List<RepoMenu> repositoryMenus = repoMenuRepository.findAllByRepositoryIdIn(new ArrayList<>(tempIds));
+            return BasicConverter.listToRsp(repositoryMenus, RepoMenu::getRepositoryId);
         }
-        List<RepositoryMenu> repositoryMenus = repositoryMenuRepository.findAllByMenuIdIn(new ArrayList<>(tempIds));
-        return BasicConverter.listToRsp(repositoryMenus, RepositoryMenu::getMenuId);
+        List<RepoMenu> repositoryMenus = repoMenuRepository.findAllByMenuIdIn(new ArrayList<>(tempIds));
+        return BasicConverter.listToRsp(repositoryMenus, RepoMenu::getMenuId);
 
     }
 }
