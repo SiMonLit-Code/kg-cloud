@@ -341,7 +341,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     @Override
     public List<EntityFileRsp> getRelationByKgNameAndEntityId(String kgName, Long entityId) {
         List<Bson> bsons = new ArrayList<>(2);
-        bsons.add(Filters.in("entityId", entityId));
+        bsons.add(Filters.in("entityIds", entityId));
         bsons.add(Filters.eq("indexType", 0));
         MongoCursor<Document> cursor = getRelationCollection(kgName).find(Filters.and(bsons)).iterator();
         List<EntityFileRsp> list = Lists.newArrayList();
