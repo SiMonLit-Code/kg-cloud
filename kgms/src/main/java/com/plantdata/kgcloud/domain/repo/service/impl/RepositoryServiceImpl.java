@@ -139,7 +139,6 @@ public class RepositoryServiceImpl implements RepositoryService {
         List<RepoItemRsp> repositoryRspList = basicListWithCheck();
         Map<Integer, RepoItemRsp> rspMap = repositoryRspList.stream().collect(Collectors.toMap(RepoItemRsp::getId, Function.identity(), (a, b) -> b));
         Set<Integer> menuIds = repositoryUseLogService.listMenuId(userId);
-
         List<RepoMenu> all = repoMenuRepository.findAll();
         for (RepoMenu repoMenu : all) {
             Integer repositoryId = repoMenu.getRepositoryId();
