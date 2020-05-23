@@ -1,9 +1,10 @@
-package com.plantdata.kgcloud.domain.repo.model;
+package com.plantdata.kgcloud.domain.repo.entity;
 
 import com.plantdata.kgcloud.domain.common.converter.JsonObjectConverter;
 import com.plantdata.kgcloud.domain.repo.converter.RepoCheckConfigJsonConverter;
-import com.plantdata.kgcloud.domain.repo.converter.RepoTypeConverter;
-import com.plantdata.kgcloud.domain.repo.enums.RepositoryTypeEnum;
+import com.plantdata.kgcloud.domain.repo.converter.RepoItemTypeConverter;
+import com.plantdata.kgcloud.domain.repo.enums.RepoItemType;
+import com.plantdata.kgcloud.domain.repo.model.RepoCheckConfig;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,15 +22,14 @@ import java.util.Map;
 @Getter
 @Setter
 @Entity
-@Table(name = "repo_repository")
+@Table(name = "repo_item")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
-public class Repository {
+public class RepoItem {
     /**
      * 组件id
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
     /**
@@ -41,8 +41,8 @@ public class Repository {
      * 组件类型
      */
     @Column(name = "type")
-    @Convert(converter = RepoTypeConverter.class)
-    private RepositoryTypeEnum type;
+    @Convert(converter = RepoItemTypeConverter.class)
+    private RepoItemType type;
     /**
      * 组件分组名称前端定义
      */
@@ -62,7 +62,7 @@ public class Repository {
      * 描述
      */
     @Column(name = "remark")
-    private String remark = StringUtils.EMPTY;
+    private String remark;
     /**
      * 前端自定义配置
      */

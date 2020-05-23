@@ -15,7 +15,16 @@ import java.util.function.Function;
 @Slf4j
 public class MongoServiceChecker implements ServiceChecker {
 
-    private static Function<String, Boolean> graphExistFunction = a -> SpringContextUtils.getBean(MongoClient.class).getDatabase(a) == null;
+    private static Function<String, Boolean> graphExistFunction = a -> {
+        boolean flag = false;
+        for (String listDatabaseName : SpringContextUtils.getBean(MongoClient.class).listDatabaseNames()) {
+            if (listDatabaseName.equals(a)) {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    };
     private List<RepoCheckConfig> checkConfigs;
 
     public MongoServiceChecker(List<RepoCheckConfig> checkConfigs) {

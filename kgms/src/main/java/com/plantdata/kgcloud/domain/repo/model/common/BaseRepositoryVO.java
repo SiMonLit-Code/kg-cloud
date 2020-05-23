@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.model.common;
 
-import com.plantdata.kgcloud.domain.repo.enums.RepositoryTypeEnum;
+import com.plantdata.kgcloud.domain.repo.enums.RepoItemType;
 import com.plantdata.kgcloud.domain.repo.model.req.RepoCheckConfigReq;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -24,7 +24,7 @@ public abstract class BaseRepositoryVO {
     private boolean state;
     @NotBlank
     @ApiModelProperty(name = "组件类型",required = true)
-    private RepositoryTypeEnum type;
+    private RepoItemType type;
     @ApiModelProperty(name = "菜单id", required = true)
     private List<Integer> menuIds;
     @ApiModelProperty(name = "分组id", required = true)
