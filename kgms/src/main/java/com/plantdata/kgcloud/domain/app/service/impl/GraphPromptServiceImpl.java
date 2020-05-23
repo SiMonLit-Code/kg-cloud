@@ -77,7 +77,10 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         PromptQaTypeEnum qaType = PromptQaTypeEnum.parseWitDefault(graphConfQaStatusRsp.getStatus());
 
         if (PromptQaTypeEnum.BEFORE.equals(qaType) && "entity".equals(promptReq.getType())) {
-            return queryAnswer(kgName, promptReq);
+            Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq)));
+            List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
+
+            return BasicConverter.mergeList(queryAnswer(kgName, promptReq), entityRspList);
         }
      /*   if (promptReq.getOpenExportDate()) {
             //执行es搜索
