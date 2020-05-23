@@ -1,7 +1,9 @@
 package com.plantdata.kgcloud.domain.graph.source.req;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.checkerframework.checker.units.qual.A;
 
 /**
  * @program: kg-cloud-kgms
@@ -10,6 +12,7 @@ import lombok.Data;
  * @create: 2020-05-23 21:53
  **/
 @Data
+@ApiModel("来源查询")
 public class GraphQueryReq {
 
     @ApiModelProperty("实体id")
