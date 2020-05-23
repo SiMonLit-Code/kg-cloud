@@ -17,6 +17,7 @@ public enum DataType {
     ORACLE(4),
     HIVE(5),
     DM(6),
+    GBASE(7),
     ;
 
     private final int dataType;

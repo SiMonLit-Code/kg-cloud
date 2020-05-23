@@ -48,6 +48,9 @@ public class DataOptProviderFactory {
             case PD_DOCUMENT:
                 provider = new PdDocumentOptProvider(info);
                 break;
+            case ORACLE:
+                provider = new OracleOptProvider(info);
+                break;
             default:
                 provider = new NopProvider();
                 break;
