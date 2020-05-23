@@ -1,22 +1,33 @@
 package com.plantdata.kgcloud.domain.repo.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.constatn.StringConstants;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
 import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryGroup;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
+import com.plantdata.kgcloud.domain.repo.model.rsp.GroupRsp;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryListRsp;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
 import com.plantdata.kgcloud.domain.repo.repository.RepositoryGroupRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
+import com.plantdata.kgcloud.domain.repo.service.RepositoryUseLogService;
 import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,13 +43,17 @@ public class RepositoryController {
     private RepositoryService repositoryService;
     @Autowired
     private RepositoryGroupRepository repositoryGroupRepository;
+    @Autowired
+    private RepositoryUseLogService repositoryUseLogService;
 
     @ApiOperation("组件列表")
     @GetMapping
     public ApiReturn<RepositoryListRsp> repositoryRsp() {
         List<RepositoryRsp> list = repositoryService.list(SessionHolder.getUserId(), false);
         List<RepositoryGroup> allGroups = repositoryGroupRepository.findAll();
-        return ApiReturn.success(RepositoryConverter.buildRepositoryList(list, allGroups));
+        allGroups.sort(Comparator.comparing(RepositoryGroup::getRank));
+        List<GroupRsp> groupRspList = BasicConverter.listToRsp(allGroups, RepositoryConverter::repositoryGroup2GroupRsp);
+        return ApiReturn.success(new RepositoryListRsp(groupRspList, list));
     }
 
     @ApiOperation("组件新增")
@@ -76,7 +91,7 @@ public class RepositoryController {
     public ApiReturn<String> useLog(@PathVariable(name = "type") String type,
                                     @PathVariable(name = "id") Integer id) {
         Optional<RepositoryLogEnum> logEnumOpt = RepositoryLogEnum.parseByDesc(type);
-        logEnumOpt.ifPresent(a -> repositoryService.useLog(a, id, SessionHolder.getUserId()));
+        logEnumOpt.ifPresent(a -> repositoryUseLogService.save(a, id, SessionHolder.getUserId()));
         return ApiReturn.success(StringConstants.SUCCESS);
     }
 

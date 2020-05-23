@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.repo.service.impl;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.checker.ServiceChecker;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
-import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import com.plantdata.kgcloud.domain.repo.factory.ServiceCheckerFactory;
 import com.plantdata.kgcloud.domain.repo.model.Repository;
 import com.plantdata.kgcloud.domain.repo.model.RepositoryMenu;
@@ -22,7 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -121,14 +124,6 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
-    public void useLog(RepositoryLogEnum type, Integer id, String userId) {
-        Optional<Repository> repOpt = repositoryRepository.findById(id);
-        repOpt.ifPresent(a -> repositoryUseLogService.save(type, id, userId));
-    }
-
-
-    @Override
     public List<RepositoryLogMenuRsp> menuLog(String userId) {
         List<RepositoryRsp> repositoryRspList = basicListWithCheck(true);
         Map<Integer, RepositoryRsp> rspMap = repositoryRspList.stream().collect(Collectors.toMap(RepositoryRsp::getId, Function.identity(), (a, b) -> b));
@@ -136,7 +131,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         Set<Integer> menuIds = repositoryUseLogService.listMenuId(userId);
         return all.stream().map(a -> {
             RepositoryRsp rsp = rspMap.get(a.getRepositoryId());
-            return new RepositoryLogMenuRsp(a.getMenuId(), !menuIds.contains(a.getMenuId()), rsp.isEnable() && rsp.isState());
+            return new RepositoryLogMenuRsp(a.getMenuId(), !a.getRepositoryId().equals(0) && !menuIds.contains(a.getMenuId()), rsp != null && rsp.isEnable() && rsp.isState());
         }).collect(Collectors.toList());
     }
 

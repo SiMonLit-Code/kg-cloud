@@ -2,7 +2,9 @@ package com.plantdata.kgcloud.domain.reasoning.service;
 
 
 import com.plantdata.kgcloud.domain.reasoning.req.*;
-import com.plantdata.kgcloud.domain.reasoning.rsp.ReasoningRsp;
+import com.plantdata.kgcloud.sdk.req.ReasoningExecuteReq;
+import com.plantdata.kgcloud.sdk.req.ReasoningQueryReq;
+import com.plantdata.kgcloud.sdk.rsp.ReasoningRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,4 +21,6 @@ public interface ReasoningService {
     CommonBasicGraphExploreRsp verification(String userId, ReasoningVerifyReq reasoningVerifyReq);
 
     CommonBasicGraphExploreRsp execute(String userId, ReasoningExecuteReq reasoningExecuteReq);
+
+    ReasoningRsp get(String userId, Integer id);
 }

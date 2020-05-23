@@ -32,7 +32,7 @@ public interface EntityFileRelationService {
 
     void deleteByEntityIds(String kgName, List<Long> entityIds);
 
-    MultiModal getMultiModalById(String kgName, String id);
+    MultiModal deleteMultiModalById(String kgName, String id, Long entityId);
 
     EntityFileRelation getRelationByFileId(String kgName, String fileId);
 
@@ -51,6 +51,8 @@ public interface EntityFileRelationService {
     EntityFileRelationRsp createFileRelation(String kgName, EntityFileRelationAddReq req);
 
     boolean checkExist(String kgName, Long entityId, String fileId);
+
+    EntityFileRelation checkFileExist(String kgName, String fileId);
 
     boolean checkSize(String kgName, Long entityId);
 

@@ -17,16 +17,25 @@ public class RepositoryGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
+
     /**
      * 所属分组id
      */
     @Column(name = "group_id")
     private int groupId;
+
     /**
      * 分组名称
      */
     @Column(name = "group_name")
     private String groupName;
+
+    /**
+     * 排序
+     */
+    @Column(name = "rank")
+    private Integer rank;
+
     /**
      * 分组描述
      */

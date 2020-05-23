@@ -2,29 +2,30 @@ package com.plantdata.kgcloud.domain.app.controller;
 
 import ai.plantdata.kg.api.semantic.ReasoningApi;
 import ai.plantdata.kg.api.semantic.rsp.ReasoningResultRsp;
-import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
-import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.reasoning.service.ReasoningService;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.sdk.ReasoningClient;
+import com.plantdata.kgcloud.sdk.req.ReasoningExecuteReq;
+import com.plantdata.kgcloud.sdk.req.ReasoningQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
+import com.plantdata.kgcloud.sdk.rsp.ReasoningRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
+import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,9 @@ public class ReasonController implements SdkOpenApiInterface {
     private ReasoningApi reasoningApi;
     @Autowired
     private RuleReasoningService ruleReasoningService;
+
+    @Autowired
+    private ReasoningService reasoningService;
 
     @ApiOperation("隐含关系推理")
     @PostMapping("execute/{kgName}")
@@ -69,4 +73,17 @@ public class ReasonController implements SdkOpenApiInterface {
         return ApiReturn.success(reasonRuleRspList);
     }
 
+    @ApiOperation("在线推理-执行")
+    @PostMapping("/execute")
+    public ApiReturn<CommonBasicGraphExploreRsp> execute(@RequestBody ReasoningExecuteReq reasoningExecuteReq) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(reasoningService.execute(userId, reasoningExecuteReq));
+    }
+
+    @ApiOperation("在线推理-列表")
+    @PostMapping("/list")
+    public ApiReturn<Page<ReasoningRsp>> list(@Validated @RequestBody ReasoningQueryReq reasoningQueryReq) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(reasoningService.list(userId, reasoningQueryReq));
+    }
 }

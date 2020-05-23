@@ -41,6 +41,9 @@ import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
+import com.plantdata.kgcloud.domain.file.entity.FileData;
+import com.plantdata.kgcloud.domain.file.req.FileDataReq;
+import com.plantdata.kgcloud.domain.file.service.FileDataService;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
@@ -112,6 +115,9 @@ public class EntityServiceImpl implements EntityService {
     @Autowired
     private EntityFileRelationService entityFileRelationService;
 
+    @Autowired
+    private FileDataService fileDataService;
+
     @Override
     public void addMultipleConcept(String kgName, Long conceptId, Long entityId) {
         RestRespConverter.convertVoid(conceptEntityApi.addMultipleConcept(KGUtil.dbName(kgName), conceptId, entityId));
@@ -155,45 +161,48 @@ public class EntityServiceImpl implements EntityService {
     public MultiModalRsp addMultiModal(String kgName, MultiModalReq multiModalReq) {
         logSender.setActionId();
 
-        if (entityFileRelationService.checkSize(kgName, multiModalReq.getEntityId())) {
-            throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
-        }
+        // if (entityFileRelationService.checkSize(kgName, multiModalReq.getEntityId())) {
+        //     throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
+        // }
 
-        // DWFileTable fileTable = ConvertUtils.convert(DWFileTable.class).apply(multiModalReq);
-        if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
-            // DWFileTable file = tableDataService.getOneFile(multiModalReq.getDwFileId());
-            // List<String> kgNames = file.getKgNames();
-            // if (kgNames == null) {
-            //     kgNames = Lists.newArrayList(kgName);
-            // } else if (!kgNames.contains(kgName)) {
-            //     kgNames.add(kgName);
-            // }
-            // file.setKgNames(kgNames);
-            // 添加关系的图谱名称
-            // tableDataService.update(file);
+        FileData fileData = ConvertUtils.convert(FileData.class).apply(multiModalReq);
+        if (multiModalReq.getUploadType() == 1) {
+            FileData file = fileDataService.get(multiModalReq.getFileId());
+            List<String> kgNames = file.getKgNames();
+            if (kgNames == null) {
+                kgNames = Lists.newArrayList(kgName);
+            } else if (!kgNames.contains(kgName)) {
+                kgNames.add(kgName);
+            }
+            file.setKgNames(kgNames);
+
+            // 在文件中添加标引关系的图谱名称
+            fileDataService.update(file);
+
             // 创建实体文件关联
             EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
             relation.setIndexType(0);
+            relation.setTitle(multiModalReq.getName() + "." + multiModalReq.getType());
             entityFileRelationService.createRelation(kgName, relation);
         } else if (multiModalReq.getFileSystemId() != null && multiModalReq.getFolderId() != null) {
             // 创建数仓文件记录
-            // DWFileTableReq dwFileTableReq = ConvertUtils.convert(DWFileTableReq.class).apply(multiModalReq);
-            // dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
-            // dwFileTableReq.setKgNames(Lists.newArrayList(kgName));
-            // DWFileTable dwFileTable = tableDataService.fileAdd(dwFileTableReq);
+            FileDataReq fileDataReq = ConvertUtils.convert(FileDataReq.class).apply(multiModalReq);
+            fileDataReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
+            fileDataReq.setKgNames(Lists.newArrayList(kgName));
+            FileData fileAdd = fileDataService.fileAdd(fileDataReq);
             // 创建实体文件关联
             EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
-            // relation.setDwFileId(dwFileTable.getId());
+            relation.setFileId(fileAdd.getId());
             relation.setIndexType(0);
+            relation.setTitle(multiModalReq.getName() + "." + multiModalReq.getType());
             entityFileRelationService.createRelation(kgName, relation);
         }
 
-        // MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(fileTable);
-        // multiModal.setEntityId(multiModalReq.getEntityId());
-        // sendMsg(kgName, multiModal, GraphLogOperation.ADD);
+        MultiModal multiModal = ConvertUtils.convert(MultiModal.class).apply(fileData);
+        multiModal.setEntityId(multiModalReq.getEntityId());
+        sendMsg(kgName, multiModal, GraphLogOperation.ADD);
         logSender.remove();
-        // return ConvertUtils.convert(MultiModalRsp.class).apply(fileTable);
-        return null;
+        return ConvertUtils.convert(MultiModalRsp.class).apply(fileData);
     }
 
     @Override
@@ -204,42 +213,44 @@ public class EntityServiceImpl implements EntityService {
 
         for (MultiModalReq multiModalReq : multiModalReqs) {
 
-            if (entityFileRelationService.checkSize(kgName, multiModalReq.getEntityId())) {
-                throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
-            }
-            if (entityFileRelationService.checkExist(kgName, multiModalReq.getEntityId(), multiModalReq.getFileId())) {
-                throw BizException.of(KgmsErrorCodeEnum.RELATION_IS_EXIST);
-            }
+            // if (entityFileRelationService.checkSize(kgName, multiModalReq.getEntityId())) {
+            //     throw BizException.of(KgmsErrorCodeEnum.FILE_SIZE_OVER);
+            // }
+            // if (entityFileRelationService.checkExist(kgName, multiModalReq.getEntityId(), multiModalReq.getFileId())) {
+            //     throw BizException.of(KgmsErrorCodeEnum.RELATION_IS_EXIST);
+            // }
 
             if (multiModalReq.getUploadType() != null && 1 == multiModalReq.getUploadType()) {
 
-                // DWFileTable file = tableDataService.getOneFile(multiModalReq.getDwFileId());
-                // List<String> kgNames = file.getKgNames();
-                // if (kgNames == null) {
-                //     kgNames = Lists.newArrayList(kgName);
-                // } else if (!kgNames.contains(kgName)) {
-                //     kgNames.add(kgName);
-                // }
-                // file.setKgNames(kgNames);
-                // 添加关系的图谱名称
-                // tableDataService.update(file);
+                FileData file = fileDataService.get(multiModalReq.getFileId());
+                List<String> kgNames = file.getKgNames();
+                if (kgNames == null) {
+                    kgNames = Lists.newArrayList(kgName);
+                } else if (!kgNames.contains(kgName)) {
+                    kgNames.add(kgName);
+                }
+                file.setKgNames(kgNames);
+
+                // 在文件中添加标引关系的图谱名称
+                fileDataService.update(file);
 
                 // 创建实体文件关联
-                EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
-                entityFileRelationReq.setFileId(multiModalReq.getFileId());
-                entityFileRelationReq.setIndexType(0);
-                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+                EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
+                relation.setIndexType(0);
+                relation.setTitle(multiModalReq.getName() + "." + multiModalReq.getType());
+                entityFileRelationService.createRelation(kgName, relation);
             } else if (multiModalReq.getFileSystemId() != null && multiModalReq.getFolderId() != null) {
                 // 创建数仓文件记录
-                // DWFileTableReq dwFileTableReq = ConvertUtils.convert(DWFileTableReq.class).apply(multiModalReq);
-                // dwFileTableReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
-                // dwFileTableReq.setKgNames(Lists.newArrayList(kgName));
-                // DWFileTable dwFileTable = tableDataService.fileAdd(dwFileTableReq);
+                FileDataReq fileDataReq = ConvertUtils.convert(FileDataReq.class).apply(multiModalReq);
+                fileDataReq.setFileName(multiModalReq.getName() + "." + multiModalReq.getType());
+                fileDataReq.setKgNames(Lists.newArrayList(kgName));
+                FileData fileAdd = fileDataService.fileAdd(fileDataReq);
                 // 创建实体文件关联
-                EntityFileRelationReq entityFileRelationReq = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
-                // entityFileRelationReq.setDwFileId(dwFileTable.getId());
-                entityFileRelationReq.setIndexType(0);
-                entityFileRelationService.createRelation(kgName, entityFileRelationReq);
+                EntityFileRelationReq relation = ConvertUtils.convert(EntityFileRelationReq.class).apply(multiModalReq);
+                relation.setFileId(fileAdd.getId());
+                relation.setIndexType(0);
+                relation.setTitle(multiModalReq.getName() + "." + multiModalReq.getType());
+                entityFileRelationService.createRelation(kgName, relation);
             }
         }
 
@@ -248,12 +259,11 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public void deleteMultiModal(String kgName, String relationId) {
+    public void deleteMultiModal(String kgName, String relationId, Long entityId) {
         logSender.setActionId();
         // 删除实体文件关联
-        MultiModal multiModal = entityFileRelationService.getMultiModalById(kgName, relationId);
+        MultiModal multiModal = entityFileRelationService.deleteMultiModalById(kgName, relationId, entityId);
         sendMsg(kgName, multiModal, GraphLogOperation.DELETE);
-        entityFileRelationService.deleteIndexById(kgName, relationId);
         logSender.remove();
     }
 
