@@ -667,6 +667,15 @@ public class EntityServiceImpl implements EntityService {
         } else {
             logSender.sendLog(kgName, ServiceEnum.RELATION_EDIT);
         }
+
+        List<String> objIds = privateAttrDataReq.getObjIds();
+        if (!CollectionUtils.isEmpty(objIds)) {
+            String id = objIds.get(0);
+            DeletePrivateDataReq req = ConvertUtils.convert(DeletePrivateDataReq.class).apply(privateAttrDataReq);
+            req.setTripleIds(Lists.newArrayList(id));
+            conceptEntityApi.deletePrivateData(KGUtil.dbName(kgName), req.getType(), req.getEntityId(), req.getTripleIds());
+        }
+
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
         String objId = RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName),
