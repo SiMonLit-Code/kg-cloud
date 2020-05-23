@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.checker.service;
 
-import com.plantdata.kgcloud.domain.repo.model.RepositoryHandler;
+import com.plantdata.kgcloud.domain.repo.entity.RepositoryHandler;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.util.List;

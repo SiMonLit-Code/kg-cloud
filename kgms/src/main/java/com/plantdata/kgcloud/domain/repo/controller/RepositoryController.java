@@ -5,13 +5,13 @@ import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.constatn.StringConstants;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
 import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
-import com.plantdata.kgcloud.domain.repo.model.RepositoryGroup;
+import com.plantdata.kgcloud.domain.repo.entity.RepoItemGroup;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.GroupRsp;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryListRsp;
-import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
-import com.plantdata.kgcloud.domain.repo.repository.RepositoryGroupRepository;
+import com.plantdata.kgcloud.domain.repo.model.rsp.RepoItemRsp;
+import com.plantdata.kgcloud.domain.repo.repository.RepoItemGroupRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryUseLogService;
 import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
@@ -42,16 +42,16 @@ public class RepositoryController {
     @Autowired
     private RepositoryService repositoryService;
     @Autowired
-    private RepositoryGroupRepository repositoryGroupRepository;
+    private RepoItemGroupRepository repositoryGroupRepository;
     @Autowired
     private RepositoryUseLogService repositoryUseLogService;
 
     @ApiOperation("组件列表")
     @GetMapping
     public ApiReturn<RepositoryListRsp> repositoryRsp() {
-        List<RepositoryRsp> list = repositoryService.list(SessionHolder.getUserId(), false);
-        List<RepositoryGroup> allGroups = repositoryGroupRepository.findAll();
-        allGroups.sort(Comparator.comparing(RepositoryGroup::getRank));
+        List<RepoItemRsp> list = repositoryService.list(SessionHolder.getUserId());
+        List<RepoItemGroup> allGroups = repositoryGroupRepository.findAll();
+        allGroups.sort(Comparator.comparing(RepoItemGroup::getRank));
         List<GroupRsp> groupRspList = BasicConverter.listToRsp(allGroups, RepositoryConverter::repositoryGroup2GroupRsp);
         return ApiReturn.success(new RepositoryListRsp(groupRspList, list));
     }
@@ -62,11 +62,6 @@ public class RepositoryController {
         return ApiReturn.success(repositoryService.add(repositoryReq));
     }
 
-    @ApiOperation("组件删除")
-    @DeleteMapping("{id}")
-    public ApiReturn<Boolean> delete(@PathVariable(name = "id") Integer id) {
-        return ApiReturn.success(repositoryService.delete(id));
-    }
 
     @ApiOperation("组件修改")
     @PutMapping

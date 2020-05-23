@@ -2,7 +2,7 @@ package com.plantdata.kgcloud.domain.repo.service;
 
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
-import com.plantdata.kgcloud.domain.repo.model.rsp.RepositoryRsp;
+import com.plantdata.kgcloud.domain.repo.model.rsp.RepoItemRsp;
 import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 
 import java.util.List;
@@ -14,11 +14,10 @@ import java.util.List;
 public interface RepositoryService {
     /**
      * 查询所有组件
-     * @param withBasic 是否包含基础版
      * @param userId 用户id
      * @return list
      */
-    List<RepositoryRsp> list(String userId,boolean withBasic);
+    List<RepoItemRsp> list(String userId);
 
     /**
      * 新增组件

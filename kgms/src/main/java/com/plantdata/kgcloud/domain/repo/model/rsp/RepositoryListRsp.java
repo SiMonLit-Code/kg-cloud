@@ -22,5 +22,5 @@ public class RepositoryListRsp {
     @ApiModelProperty("分组")
     private List<GroupRsp> groups;
     @ApiModelProperty("组件")
-    private List<RepositoryRsp> repositoryRspList;
+    private List<RepoItemRsp> repositoryRspList;
 }
