@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.enums.RepositoryLogEnum;
 import com.plantdata.kgcloud.domain.repo.entity.RepoMenu;
-import com.plantdata.kgcloud.domain.repo.entity.RepositoryUseLog;
+import com.plantdata.kgcloud.domain.repo.entity.RepoUseLog;
 import com.plantdata.kgcloud.domain.repo.repository.RepoMenuRepository;
 import com.plantdata.kgcloud.domain.repo.repository.RepoUseLogRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryUseLogService;
@@ -30,16 +30,16 @@ public class RepositoryUseLogServiceImpl implements RepositoryUseLogService {
 
     @Override
     public void save(RepositoryLogEnum logEnum, int id, String userId) {
-        repositoryUseLogRepository.save(new RepositoryUseLog(id, logEnum, userId));
+        repositoryUseLogRepository.save(new RepoUseLog(id, logEnum, userId));
     }
 
     @Override
     public void deleteByRepositoryId(Integer repositoryId) {
-        repositoryUseLogRepository.deleteByBusinessIdInAndLogType(Lists.newArrayList(repositoryId), RepositoryLogEnum.REPOSITORY);
+        repositoryUseLogRepository.deleteByClickIdInAndLogType(Lists.newArrayList(repositoryId), RepositoryLogEnum.REPOSITORY);
         List<RepoMenu> menus = repoMenuRepository.findAllByRepositoryIdIn(Lists.newArrayList(repositoryId));
         BasicConverter.consumerIfNoNull(menus, a -> {
             List<Integer> menuIds = a.stream().map(RepoMenu::getMenuId).collect(Collectors.toList());
-            repositoryUseLogRepository.deleteByBusinessIdInAndLogType(menuIds, RepositoryLogEnum.MENU);
+            repositoryUseLogRepository.deleteByClickIdInAndLogType(menuIds, RepositoryLogEnum.MENU);
         });
     }
 
@@ -59,14 +59,14 @@ public class RepositoryUseLogServiceImpl implements RepositoryUseLogService {
     }
 
     private List<Integer> addFirst(String userId, RepositoryLogEnum logEnum) {
-        List<RepositoryUseLog> first = repositoryUseLogRepository.findAllByUserIdAndLogType(userId, logEnum);
-        return BasicConverter.listToRsp(first, RepositoryUseLog::getBusinessId);
+        List<RepoUseLog> first = repositoryUseLogRepository.findAllByUserIdAndLogType(userId, logEnum);
+        return BasicConverter.listToRsp(first, RepoUseLog::getClickId);
 
     }
 
     private List<Integer> addTwo(String userId, RepositoryLogEnum logEnum) {
-        List<RepositoryUseLog> two = repositoryUseLogRepository.findAllByUserIdAndLogType(userId, logEnum);
-        Set<Integer> tempIds = two.stream().map(RepositoryUseLog::getBusinessId).collect(Collectors.toSet());
+        List<RepoUseLog> two = repositoryUseLogRepository.findAllByUserIdAndLogType(userId, logEnum);
+        Set<Integer> tempIds = two.stream().map(RepoUseLog::getClickId).collect(Collectors.toSet());
         if (RepositoryLogEnum.REPOSITORY == logEnum) {
             List<RepoMenu> repositoryMenus = repoMenuRepository.findAllByRepositoryIdIn(new ArrayList<>(tempIds));
             return BasicConverter.listToRsp(repositoryMenus, RepoMenu::getRepositoryId);

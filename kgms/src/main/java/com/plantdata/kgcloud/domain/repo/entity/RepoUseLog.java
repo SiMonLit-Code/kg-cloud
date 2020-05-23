@@ -16,24 +16,24 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "repo_repository_use_log")
+@Table(name = "repo_use_log")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
-public class RepositoryUseLog {
+public class RepoUseLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "business_id")
-    private Integer businessId;
+    @Column(name = "click_id")
+    private Integer clickId;
     @Column(name = "type")
     @Convert(converter = RepositoryLogTypeConverter.class)
     private RepositoryLogEnum logType;
     @Column(name = "user_id")
     private String userId;
 
-    public RepositoryUseLog(Integer businessId, RepositoryLogEnum logType, String userId) {
-        this.businessId = businessId;
+    public RepoUseLog(Integer clickId, RepositoryLogEnum logType, String userId) {
+        this.clickId = clickId;
         this.userId = userId;
         this.logType = logType;
     }
