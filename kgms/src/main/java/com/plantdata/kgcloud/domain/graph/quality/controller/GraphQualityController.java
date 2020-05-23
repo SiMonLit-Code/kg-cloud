@@ -46,4 +46,11 @@ public class GraphQualityController {
                                                             @PathVariable("selfId") Long selfId) {
         return ApiReturn.success(graphQualityService.detailByConceptId(kgName, selfId));
     }
+
+    @ApiOperation("执行质量统计脚本")
+    @GetMapping("/{kgName}/run")
+    public ApiReturn<GraphAttrQualityRsp> run(@PathVariable("kgName") String kgName) {
+        graphQualityService.run(kgName);
+        return ApiReturn.success();
+    }
 }

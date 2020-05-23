@@ -112,6 +112,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     FILE_TABLE_NAME_EXIST(120613, "文件夹名称已存在"),
 
+    SCRIPT_IS_RUNNING(120614, "已有质量计算在执行，请稍候"),
+
     ;
     private final int errorCode;
 
