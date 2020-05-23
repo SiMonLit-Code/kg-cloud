@@ -38,4 +38,10 @@ public interface GraphQualityService {
      * @return
      */
     GraphAttrQualityRsp detailByConceptId(String kgName, Long selfId);
+
+    /**
+     * 执行质量统计脚本
+     * @param kgName
+     */
+    void run(String kgName);
 }
