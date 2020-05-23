@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -24,9 +21,14 @@ public class InitFunc {
     public static Map<Long, String> conceptNameMap;
 
     /**
+     * 属性名称和ID
+     */
+    public static Map<String, Integer> attrNameMap;
+
+    /**
      * 属性ID和名称
      */
-    public static Map<Integer, String> attrNameMap;
+    public static Map<Integer, String> attrIdMap;
 
     /**
      * 所有概念的实体数
@@ -71,7 +73,9 @@ public class InitFunc {
             parentConceptIds.put(conceptId, parentConceptId);
         }
         longLongMap = conceptUtils.countEntityallConcepts(kgDbname);
-        attrNameMap = schemaUtils.getAttrName(kgDbname);
+        List<Map> list = schemaUtils.getAttrName(kgDbname);
+        attrNameMap = list.get(0);
+        attrIdMap = list.get(1);
         sonOneParentMap2 = schemaUtils.sonOneParentMap2(kgDbname);
         log.info("=============init初始化 结束===========");
     }

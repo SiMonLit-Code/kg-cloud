@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.quality.util;
 
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -261,28 +262,32 @@ public class SchemaUtils {
     }
 
     /**
-     * k:属性ID
-     * v:name
+     * 属性名和属性ID Map
      *
-     * @param kgdbname
+     * @param kgDbname
      * @return
      */
-    public Map<Integer, String> getAttrName(String kgdbname) {
+    public List<Map> getAttrName(String kgDbname) {
         Document returnDoc = new Document("id", 1);
         returnDoc.append("name", 1);
-        MongoCursor<Document> iterator = getAttributeDefinitionCollection(kgdbname)
+        MongoCursor<Document> iterator = getAttributeDefinitionCollection(kgDbname)
                 .find()
                 .projection(returnDoc)
                 .iterator();
-        Map<Integer, String> map = new HashMap<>();
+        List<Map> list = Lists.newArrayList();
+        Map<String, Integer> attrNameMap = new HashMap<>();
+        Map<Integer, String> attrIdMap = new HashMap<>();
         while (iterator.hasNext()) {
             Document next = iterator.next();
             Integer attrId = next.getInteger("id");
             String name = next.getString("name");
 
-            map.put(attrId, name);
+            attrNameMap.put(name, attrId);
+            attrIdMap.put(attrId, name);
         }
-        return map;
+        list.add(attrNameMap);
+        list.add(attrIdMap);
+        return list;
     }
 
     public Long entityTotal(String kgdbname) {
