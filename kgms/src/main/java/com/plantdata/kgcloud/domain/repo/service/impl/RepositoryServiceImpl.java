@@ -69,19 +69,18 @@ public class RepositoryServiceImpl implements RepositoryService {
         List<RepoItemRsp> repositoryRspList = BasicConverter.listToRsp(all, RepositoryConverter::repository2RepositoryRsp);
         //填充组件状态
         Function<RepoItem, Boolean> health = b -> {
-            if (!b.getCheckConfigs().isEmpty()) {
+            if (b.getCheckConfigs().isEmpty()) {
+                return false;
+            }
+            try {
                 for (ServiceChecker serviceChecker : ServiceCheckerFactory.factory(b.getCheckConfigs())) {
-                    try {
-                        boolean check = serviceChecker.check();
-                        if (!check) {
-                            return false;
-                        }
-                    } catch (Exception e) {
-                        return false;
+                    if (serviceChecker.check()) {
+                        continue;
                     }
+                    return false;
                 }
                 return true;
-            } else {
+            } catch (Exception e) {
                 return false;
             }
         };
