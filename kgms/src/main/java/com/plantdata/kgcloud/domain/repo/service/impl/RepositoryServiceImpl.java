@@ -115,7 +115,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         Optional<RepoItem> repOpt = repoItemRepository.findById(id);
         repOpt.ifPresent(a -> {
             boolean res = ServiceCheckerFactory.factory(a.getCheckConfigs()).stream().anyMatch(ServiceChecker::check);
-            if (res) {
+            if (!res) {
                 throw new BizException("组件启用失败,健康检测未通过");
             }
             a.setState(start);
