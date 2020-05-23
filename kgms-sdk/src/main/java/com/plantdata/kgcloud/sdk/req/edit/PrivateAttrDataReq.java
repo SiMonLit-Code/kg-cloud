@@ -35,6 +35,9 @@ public class PrivateAttrDataReq {
     @ApiModelProperty(value = "私有属性名称")
     private String attrName;
 
+    @ApiModelProperty(value = "私有属性ID(用于修改属性)")
+    private String attrId;
+
     @NotEmpty
     @ApiModelProperty(value = "私有属性值")
     private String attrValue;
