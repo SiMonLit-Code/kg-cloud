@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.source.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.graph.source.req.GraphQueryReq;
 import com.plantdata.kgcloud.domain.graph.source.req.GraphSourceReq;
 import com.plantdata.kgcloud.domain.graph.source.rsp.GraphSourceRsp;
 import com.plantdata.kgcloud.domain.graph.source.service.GraphSourceService;
@@ -33,7 +34,7 @@ public class GraphSourceController {
 
     @ApiOperation("来源查询")
     @GetMapping("/{kgName}/query")
-    public ApiReturn<List<GraphSourceRsp>> query(@PathVariable("kgName") String kgName, @RequestBody GraphSourceReq graphSourceReq) {
+    public ApiReturn<List<GraphSourceRsp>> query(@PathVariable("kgName") String kgName, @RequestBody GraphQueryReq graphQueryReq) {
         return ApiReturn.success();
     }
 }

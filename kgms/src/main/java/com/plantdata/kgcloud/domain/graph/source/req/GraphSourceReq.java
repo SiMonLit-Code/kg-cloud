@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.source.req;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,6 +11,7 @@ import lombok.Data;
  * @create: 2020-05-23 21:49
  **/
 @Data
+@ApiModel("来源添加")
 public class GraphSourceReq {
 
     @ApiModelProperty("实体id")
