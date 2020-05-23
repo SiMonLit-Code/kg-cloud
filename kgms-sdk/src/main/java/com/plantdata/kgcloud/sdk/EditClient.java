@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.req.EdgeAttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -84,6 +85,20 @@ public interface EditClient {
     @PostMapping("attribute/{kgName}/definition/batch")
     ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(@PathVariable("kgName") String kgName,
                                                                               @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
+
+
+    /**
+     * 新增'边属性定义
+     *
+     * @param kgName             图谱名称
+     * @param attrId             所属关系id
+     * @param edgeAttrDefinitionReq 批量参数
+     * @return .
+     */
+    @PostMapping("attribute/{kgName}/{attrId}/edge/definition")
+    ApiReturn<Integer> addEdgeAttr(@PathVariable("kgName") String kgName,
+                                      @PathVariable("attrId") Integer attrId,
+                                      @Valid @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq);
 
     /**
      * 查询多概念下的属性定义

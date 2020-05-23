@@ -48,6 +48,8 @@ public class BusinessEntityBean {
 
     private Set<EntityLinkRsp> entityLinks = new HashSet<>();
 
+    private Map<String,Object> labelStyle;
+
 
     @Override
     public boolean equals(Object o) {
