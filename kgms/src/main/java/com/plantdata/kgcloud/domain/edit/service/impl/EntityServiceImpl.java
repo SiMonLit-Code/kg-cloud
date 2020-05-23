@@ -2,24 +2,8 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
-import ai.plantdata.kg.api.edit.req.AttributePrivateDataFrom;
-import ai.plantdata.kg.api.edit.req.AttributeValueFrom;
-import ai.plantdata.kg.api.edit.req.BasicInfoListFrom;
-import ai.plantdata.kg.api.edit.req.DeleteRelationFrom;
-import ai.plantdata.kg.api.edit.req.EdgeObjectValueFrom;
-import ai.plantdata.kg.api.edit.req.EdgeValueFrom;
-import ai.plantdata.kg.api.edit.req.EntityPrivateRelationFrom;
-import ai.plantdata.kg.api.edit.req.EntityRelationFrom;
-import ai.plantdata.kg.api.edit.req.MetaDataOptionFrom;
-import ai.plantdata.kg.api.edit.req.ObjectAttributeValueFrom;
-import ai.plantdata.kg.api.edit.req.RelationListFrom;
-import ai.plantdata.kg.api.edit.req.UpdateRelationFrom;
-import ai.plantdata.kg.api.edit.resp.BatchDeleteAttrValueVO;
-import ai.plantdata.kg.api.edit.resp.BatchDeleteResult;
-import ai.plantdata.kg.api.edit.resp.BatchEntityVO;
-import ai.plantdata.kg.api.edit.resp.BatchResult;
-import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
-import ai.plantdata.kg.api.edit.resp.EntityVO;
+import ai.plantdata.kg.api.edit.req.*;
+import ai.plantdata.kg.api.edit.resp.*;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityTagFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
@@ -27,12 +11,7 @@ import cn.hiboot.mcn.core.model.result.RestResp;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import com.plantdata.kgcloud.constant.AttributeValueType;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.constant.MetaDataInfo;
-import com.plantdata.kgcloud.constant.MongoOperation;
-import com.plantdata.kgcloud.constant.TaskStatus;
-import com.plantdata.kgcloud.constant.TaskType;
+import com.plantdata.kgcloud.constant.*;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
@@ -43,25 +22,7 @@ import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.BatchRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteEdgeObjectReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeletePrivateDataReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.DeleteRelationReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeNumericAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EdgeObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityAttrReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityMetaDeleteReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTagSearchReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.EntityTimeModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.GisInfoModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.NumericalAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ObjectAttrValueReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ReliabilityModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.ScoreModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.SourceModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.SsrModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.entity.UpdateRelationMetaReq;
+import com.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
@@ -96,15 +57,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -167,7 +120,7 @@ public class EntityServiceImpl implements EntityService {
         List<BasicInfoRsp> basicInfoRspList =
                 optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
         int count = basicInfoRspList.size();
-        if (count > size){
+        if (count > size) {
             basicInfoRspList.remove(size.intValue());
             count += page;
         }
@@ -235,10 +188,10 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public List<DeleteResult> deleteByIds(String kgName, Boolean isTrace, List<Long> ids) {
         logSender.setActionId();
-        if (isTrace){
+        if (isTrace) {
             logSender.sendLog(kgName, ServiceEnum.ENTITY_TRACE);
-        }else {
-            logSender.sendLog(kgName,ServiceEnum.ENTITY_EDIT);
+        } else {
+            logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
         }
         Optional<List<BatchDeleteResult>> optional =
                 RestRespConverter.convert(batchApi.deleteEntities(KGUtil.dbName(kgName), ids));
@@ -358,7 +311,7 @@ public class EntityServiceImpl implements EntityService {
         if (StringUtils.hasText(fromTime) && StringUtils.hasText(toTime) && fromTime.compareTo(toTime) > 0) {
             throw BizException.of(KgmsErrorCodeEnum.TIME_FORM_MORE_THAN_TO);
         }
-        if (!CollectionUtils.isEmpty(metadata)){
+        if (!CollectionUtils.isEmpty(metadata)) {
             conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), entityId, metadata);
         }
     }
@@ -520,7 +473,7 @@ public class EntityServiceImpl implements EntityService {
         String reliability = updateRelationMetaReq.getReliability();
         if (Objects.nonNull(reliability)) {
             metaData.put(MetaDataInfo.RELIABILITY.getFieldName(),
-                   "".equals(reliability)? "" : Double.parseDouble(reliability));
+                    "".equals(reliability) ? "" : Double.parseDouble(reliability));
         }
         if (Objects.nonNull(updateRelationMetaReq.getSourceReason())) {
             metaData.put(MetaDataInfo.SOURCE_REASON.getFieldName(), updateRelationMetaReq.getSourceReason());
@@ -549,6 +502,15 @@ public class EntityServiceImpl implements EntityService {
         } else {
             logSender.sendLog(kgName, ServiceEnum.RELATION_EDIT);
         }
+
+        List<String> objIds = privateAttrDataReq.getObjIds();
+        if (!CollectionUtils.isEmpty(objIds)) {
+            String id = objIds.get(0);
+            DeletePrivateDataReq req = ConvertUtils.convert(DeletePrivateDataReq.class).apply(privateAttrDataReq);
+            req.setTripleIds(Lists.newArrayList(id));
+            conceptEntityApi.deletePrivateData(KGUtil.dbName(kgName), req.getType(), req.getEntityId(), req.getTripleIds());
+        }
+
         AttributePrivateDataFrom privateDataFrom =
                 ConvertUtils.convert(AttributePrivateDataFrom.class).apply(privateAttrDataReq);
         String objId = RestRespConverter.convert(conceptEntityApi.addPrivateData(KGUtil.dbName(kgName),
