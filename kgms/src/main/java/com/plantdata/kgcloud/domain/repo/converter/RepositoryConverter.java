@@ -55,11 +55,6 @@ public class RepositoryConverter extends BasicConverter {
         return groupRsp;
     }
 
-    public static RepositoryListRsp buildRepositoryList(List<RepositoryRsp> list, List<RepositoryGroup> groups) {
-        List<GroupRsp> groupRspList = listToRsp(groups, RepositoryConverter::repositoryGroup2GroupRsp);
-        return new RepositoryListRsp(groupRspList, list);
-    }
-
     public static Repository repositoryUpdateReq2RepoCheckConfig(RepositoryUpdateReq updateReq) {
         Repository repository = repositoryReq2Repository(updateReq);
         repository.setId(updateReq.getId());

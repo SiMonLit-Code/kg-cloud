@@ -131,7 +131,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         Set<Integer> menuIds = repositoryUseLogService.listMenuId(userId);
         return all.stream().map(a -> {
             RepositoryRsp rsp = rspMap.get(a.getRepositoryId());
-            return new RepositoryLogMenuRsp(a.getMenuId(), !a.getRepositoryId().equals(101001) && !menuIds.contains(a.getMenuId()), rsp != null && rsp.isEnable() && rsp.isState());
+            return new RepositoryLogMenuRsp(a.getMenuId(), !a.getRepositoryId().equals(0) && !menuIds.contains(a.getMenuId()), rsp != null && rsp.isEnable() && rsp.isState());
         }).collect(Collectors.toList());
     }
 
