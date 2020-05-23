@@ -178,13 +178,19 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
         List<Bson> query = new ArrayList<>();
         if (StringUtils.isNotBlank(req.getName())) {
-            query.add(Filters.regex("name", Pattern.compile("^.*" + req.getName() + ".*$")));
+            query.add(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$")));
         }
         if (req.getIndexType() != null) {
             query.add(Filters.eq("indexType", req.getIndexType()));
         }
 
-        FindIterable<Document> findIterable = getRelationCollection(kgName).find(Filters.and(query)).skip(pageNo).limit(size + 1);
+        FindIterable<Document> findIterable = null;
+        if (CollectionUtils.isEmpty(query)) {
+            findIterable = getRelationCollection(kgName).find().skip(pageNo).limit(size + 1);
+        } else {
+            findIterable = getRelationCollection(kgName).find(Filters.and(query)).skip(pageNo).limit(size + 1);
+        }
+
         List<EntityFileRelation> relations = entityFileConverter.toBeans(findIterable);
 
         List<EntityFileRelationRsp> list = Lists.newArrayList();
@@ -363,7 +369,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     @Override
     public List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName, List<Long> entityIds, Integer type) {
         List<Bson> bsons = new ArrayList<>(2);
-        bsons.add(Filters.in("entityId", entityIds));
+        bsons.add(Filters.in("entityIds", entityIds));
         if (type == 0) {
             bsons.add(Filters.eq("indexType", 0));
         } else if (type == 1) {
@@ -439,7 +445,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     @Override
     public void updateIndex(String kgName, IndexRelationReq req) {
 
-        Document document = getRelationCollection(kgName).find(Filters.eq(entityFileConverter.buildObjectId(req.getRelationId()))).first();
+        Document document = getRelationCollection(kgName).find(entityFileConverter.buildObjectId(req.getRelationId())).first();
         if (document == null) {
             return;
         }
@@ -511,8 +517,22 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             return;
         }
 
+        // 查询该文件是否已存在标引记录中
+        List<ObjectId> ids = fileDatas.stream().map(s -> new ObjectId(s.getId())).collect(Collectors.toList());
+        MongoCursor<Document> cursor = getRelationCollection(kgName).find(Filters.in("fileId", ids)).iterator();
+        List<String> deleteIds = Lists.newArrayList();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            String id = document.getObjectId("fileId").toString();
+            deleteIds.add(id);
+        }
+
+        // 移除不需要添加的文件
+        List<FileData> newFileDatas = fileDatas.stream()
+                .filter(s -> !deleteIds.contains(s.getId())).collect(Collectors.toList());
+
         List<Document> collect = Lists.newArrayList();
-        for (FileData fileData : fileDatas) {
+        for (FileData fileData : newFileDatas) {
             EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(fileData);
             relation.setId(null);
             relation.setFileId(fileData.getId());
@@ -520,7 +540,10 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             relation.setCreateTime(new Date());
             collect.add(entityFileConverter.toDocument(relation));
         }
-        getRelationCollection(kgName).insertMany(collect);
+
+        if (!CollectionUtils.isEmpty(collect)) {
+            getRelationCollection(kgName).insertMany(collect);
+        }
     }
 
     @Override

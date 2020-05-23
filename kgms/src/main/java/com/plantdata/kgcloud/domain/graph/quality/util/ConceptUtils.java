@@ -186,7 +186,7 @@ public class ConceptUtils {
 
         Document query = new Document(new Document("domain_value", new Document("$in", parentConceptIds)));
 
-        long count = getAttributeDefinitionCollection(kgDbname).count(query);
+        long count = getAttributeDefinitionCollection(kgDbname).countDocuments(query);
 
         return count;
     }
