@@ -33,9 +33,4 @@ public class KgmsApplication extends SpringBootServletInitializer {
         return builder.sources(KgmsApplication.class);
     }
 
-
-    @Bean
-    public RequestInterceptor feignRequestInterceptor() {
-        return new FeignRequestInterceptor();
-    }
 }
