@@ -3,8 +3,7 @@ package com.plantdata.kgcloud.domain.graph.quality.service.impl;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.MongoClient;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.domain.graph.quality.entity.GraphAttrQuality;
 import com.plantdata.kgcloud.domain.graph.quality.entity.GraphQuality;
@@ -18,10 +17,9 @@ import com.plantdata.kgcloud.domain.graph.quality.util.ConceptUtils;
 import com.plantdata.kgcloud.domain.graph.quality.util.InitFunc;
 import com.plantdata.kgcloud.domain.graph.quality.util.SchemaUtils;
 import com.plantdata.kgcloud.domain.graph.quality.vo.AttrQualityVO;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.XxlAdminClient;
-import com.plantdata.kgcloud.sdk.bean.RunTaskReq;
-import com.plantdata.kgcloud.sdk.bean.TaskBean;
-import com.plantdata.kgcloud.sdk.bean.TaskListReq;
+import com.plantdata.kgcloud.sdk.bean.*;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.bson.Document;
@@ -121,15 +119,27 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         TaskListReq taskListReq = new TaskListReq();
         taskListReq.setUserId("123");
         taskListReq.setTaskType("data_quality");
-        ApiReturn<BasePage<TaskBean>> list = xxlAdminClient.list(taskListReq);
-        List<TaskBean> content = list.getData().getContent();
-        if (CollectionUtils.isEmpty(content)) {
+        List<TaskBean> taskBeans = xxlAdminClient.list(taskListReq).getData().getContent();
+        if (CollectionUtils.isEmpty(taskBeans)) {
             return;
         }
+
+        TaskBean taskBean = taskBeans.get(0);
+
         // 查询最新执行记录
-        // xxlAdminClient.ex();
-        // throw BizException.of(KgmsErrorCodeEnum.SCRIPT_IS_RUNNING);
-        TaskBean taskBean = content.get(0);
+        ExecListReq req = ConvertUtils.convert(ExecListReq.class).apply(taskBean);
+        req.setStatus(null);
+        List<ExecBean> execBeans = xxlAdminClient.execlist(req).getData().getContent();
+        if (CollectionUtils.isEmpty(execBeans)) {
+            return;
+        }
+
+        ExecBean execBean = execBeans.get(0);
+        // 脚本正在执行
+        if ("WORK".equals(execBean.getStatus())) {
+            throw BizException.of(KgmsErrorCodeEnum.SCRIPT_IS_RUNNING);
+        }
+
         RunTaskReq runTaskReq = ConvertUtils.convert(RunTaskReq.class).apply(taskBean);
         JSONObject config = new JSONObject();
         config.put("kgName", kgName);
@@ -224,7 +234,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
      */
     private void statisticsAttr(String kgName, Long conceptId, GraphAttrQualityRsp graphAttrQualityRsp) {
         List<AttrQualityVO> attrQualityVOS = graphAttrQualityRsp.getAttrQualities();
-        if (CollectionUtils.isEmpty(attrQualityVOS)){
+        if (CollectionUtils.isEmpty(attrQualityVOS)) {
             return;
         }
         String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
@@ -232,7 +242,8 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         initFunc.init(kgDbName);
 
         // 获取当前概念的实体数
-
+        Long count = conceptUtils.countEntityByOneConceptId(kgDbName, conceptId);
+        graphAttrQualityRsp.setEntityCount(count);
 
         // 该概念自己的属性ID和类型（对象 基本）
         Map<Integer, Integer> attrType = schemaUtils.getSelfAttrTypeByConceptId(kgDbName, conceptId);
@@ -272,8 +283,8 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         Map<String, Integer> attrNameMap = InitFunc.attrNameMap;
         for (AttrQualityVO attrQualityVO : attrQualityVOS) {
             Integer selfId = attrNameMap.get(attrQualityVO.getAttrName());
-            Long count = attrValueCount.get(selfId);
-            attrQualityVO.setAttrCount(count);
+            Long attrCount = attrValueCount.get(selfId);
+            attrQualityVO.setAttrCount(attrCount);
         }
 
         // 缺少的属性ID
@@ -283,7 +294,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         // 实时查询的属性ID
         Set<Integer> keySet = attrValueCount.keySet();
 
-        Map<Integer,String > attrIdMap = InitFunc.attrIdMap;
+        Map<Integer, String> attrIdMap = InitFunc.attrIdMap;
         for (Integer id : keySet) {
             if (!collect.contains(attrIdMap.get(id))) {
                 set.add(id);
