@@ -76,8 +76,11 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         GraphConfQaStatusRsp graphConfQaStatusRsp = graphConfQaService.getStatus(kgName);
         PromptQaTypeEnum qaType = PromptQaTypeEnum.parseWitDefault(graphConfQaStatusRsp.getStatus());
 
-        if (PromptQaTypeEnum.BEFORE.equals(qaType)) {
-            return queryAnswer(kgName, promptReq);
+        if (PromptQaTypeEnum.BEFORE.equals(qaType) && "entity".equals(promptReq.getType())) {
+            Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq)));
+            List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
+
+            return BasicConverter.mergeList(queryAnswer(kgName, promptReq), entityRspList);
         }
      /*   if (promptReq.getOpenExportDate()) {
             //执行es搜索
@@ -108,14 +111,14 @@ public class GraphPromptServiceImpl implements GraphPromptService {
             }
         }*/
         Set<Long> entityIds = queryEntityIdsByAttr(kgName, seniorPromptReq);
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIds,true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIds, true)));
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return Collections.emptyList();
         }
         List<SeniorPromptRsp> result = BasicConverter.listConvert(entityOpt.get(), PromptConverter::entityVoToSeniorPromptRsp);
         List<SeniorPromptRsp> resultWithoutConcept = new ArrayList<>();
-        for(SeniorPromptRsp rsp : result){
-            if(rsp.getConceptId() != null && rsp.getConceptId() != 0){
+        for (SeniorPromptRsp rsp : result) {
+            if (rsp.getConceptId() != null && rsp.getConceptId() != 0) {
                 resultWithoutConcept.add(rsp);
             }
         }
