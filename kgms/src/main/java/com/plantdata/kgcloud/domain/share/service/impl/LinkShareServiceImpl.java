@@ -38,8 +38,6 @@ public class LinkShareServiceImpl implements LinkShareService {
 
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
-    @Autowired
-    private JwtClient jwtClient;
 
     @Override
     public LinkShareSpaRsp shareStatus(String userId, String kgName, String spaId) {

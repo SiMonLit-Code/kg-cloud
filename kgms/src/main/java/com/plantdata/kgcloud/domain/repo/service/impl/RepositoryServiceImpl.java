@@ -11,8 +11,8 @@ import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepoItemRsp;
 import com.plantdata.kgcloud.domain.repo.repository.RepoBaseMenuRepository;
-import com.plantdata.kgcloud.domain.repo.repository.RepoMenuRepository;
 import com.plantdata.kgcloud.domain.repo.repository.RepoItemRepository;
+import com.plantdata.kgcloud.domain.repo.repository.RepoMenuRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryMenuService;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryUseLogService;
@@ -68,14 +68,23 @@ public class RepositoryServiceImpl implements RepositoryService {
         }
         List<RepoItemRsp> repositoryRspList = BasicConverter.listToRsp(all, RepositoryConverter::repository2RepositoryRsp);
         //填充组件状态
-        Function<RepoItem, Boolean> health = b -> ServiceCheckerFactory.factory(b.getCheckConfigs()).stream().allMatch(a -> {
-            try {
-                return a.check();
-            } catch (Exception e) {
-                e.printStackTrace();
+        Function<RepoItem, Boolean> health = b -> {
+            if (!b.getCheckConfigs().isEmpty()) {
+                for (ServiceChecker serviceChecker : ServiceCheckerFactory.factory(b.getCheckConfigs())) {
+                    try {
+                        boolean check = serviceChecker.check();
+                        if (!check) {
+                            return false;
+                        }
+                    } catch (Exception e) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
                 return false;
             }
-        });
+        };
         Map<Integer, Boolean> stateMap = all.stream().collect(Collectors.toMap(RepoItem::getId, health));
         BasicConverter.listConsumerIfNoNull(repositoryRspList, a -> a.setEnable(stateMap.getOrDefault(a.getId(), false)));
         return repositoryRspList;
