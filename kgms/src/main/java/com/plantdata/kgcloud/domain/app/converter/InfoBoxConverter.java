@@ -159,19 +159,10 @@ public class InfoBoxConverter extends BasicConverter {
             if (value.getType() == null) {
                 extraList.add(new EntityLinksRsp.ExtraRsp(-1, value.getName(), value.getDomainValue(), value.getDataValue(), value.getDataType()));
             }
-
             //数值属性
             else if (value.getType() == 0) {
                 extraList.add(dataAttrToExtraRsp(value));
             }
-            //私有对象属性
-            else if (value.getType() == 1 && !CollectionUtils.isEmpty(value.getObjectValues())) {
-                value.getObjectValues().forEach(a -> {
-                    Map<Integer, List<BasicInfo>> relationObjectValues = a.getRelationObjectValues();
-                    extraList.add(new EntityLinksRsp.ExtraRsp(a.getAttrId(), a.getName(), value.getDomainValue(), relationObjectValues.values(), value.getDataType()));
-                });
-            }
-
         }
     }
 
