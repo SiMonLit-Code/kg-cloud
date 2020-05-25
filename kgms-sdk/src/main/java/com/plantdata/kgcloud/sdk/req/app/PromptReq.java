@@ -43,6 +43,8 @@ public class PromptReq extends PageReq implements PromptSearchInterface, Concept
     @ApiModelProperty("排序")
     @ChooseCheck(value = "[0,1,-1]", name = "sort", isBlank = true)
     private Integer sort=-1;
+    @ApiModelProperty("是否返回顶层概念")
+    private Boolean isReturnTop = true;
 
 
 

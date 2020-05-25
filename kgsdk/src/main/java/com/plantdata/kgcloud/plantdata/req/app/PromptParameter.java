@@ -32,6 +32,7 @@ public class PromptParameter extends PageModel {
     private Boolean openExportDate = true;
     @ChooseCheck(value = "[0,1,-1]", isBlank = true)
     private Integer sort = -1;
+    private Boolean isReturnTop = true;
 
 
 }
