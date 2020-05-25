@@ -33,6 +33,9 @@ public class EntityFileRelationRsp {
     @ApiModelProperty("链接")
     private String url;
 
+    @ApiModelProperty(value = "是否关联实体(1：关联，2：不关联)")
+    private Integer isRelatedEntity;
+
     @ApiModelProperty("关联的实体信息")
     private List<EntityInfoRsp> entityInfoList;
 

@@ -88,7 +88,7 @@ public class FileDataServiceImpl implements FileDataService {
     @Override
     public FileData get(String id) {
         Document document = getFileCollection().find(documentConverter.buildObjectId(id)).first();
-        return documentConverter.toBean(document,FileData.class);
+        return documentConverter.toBean(document, FileData.class);
     }
 
     @Override
