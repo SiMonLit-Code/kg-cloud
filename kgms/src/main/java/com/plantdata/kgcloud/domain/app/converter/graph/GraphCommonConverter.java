@@ -98,8 +98,8 @@ public class GraphCommonConverter extends BasicConverter {
         relationMetaData.setRead(true);
         graphFrom.setRelationMeta(relationMetaData);
 
-//        consumerIfNoNull(exploreReq.getReservedAttFilters(), a ->  entityMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
-//        consumerIfNoNull(exploreReq.getReservedAttFilters(), a ->  relationMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
+        consumerIfNoNull(exploreReq.getReservedAttFilters(), a ->  entityMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
+        consumerIfNoNull(exploreReq.getReservedAttFilters(), a ->  relationMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
 
         return graphFrom;
     }

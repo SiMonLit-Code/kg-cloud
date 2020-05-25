@@ -28,6 +28,8 @@ public class SeniorPromptReq extends BaseReq implements PromptSearchInterface {
     private String kw;
     @ApiModelProperty("实体查询条件")
     private List<EntityQueryFiltersReq> query;
+    @ApiModelProperty("是否模糊搜索 false前缀搜索，true支持模糊搜索")
+    private boolean fuzzy;
     /**
      * ?一直是开启的
      */
