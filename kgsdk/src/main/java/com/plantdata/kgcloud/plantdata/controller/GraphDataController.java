@@ -174,7 +174,7 @@ public class GraphDataController implements SdkOldApiInterface {
     public RestResp<Object> updateAttribute(@Valid @ApiIgnore ImportAttributeParameter param) {
         List<AttrDefinitionModifyReq> modifyReqs = BasicConverter.toListNoNull(param.getData(), AttrDefConverter::importAttributeParameterToAttrDefinitionModifyReq);
         Optional<OpenBatchResult<AttrDefinitionBatchRsp>> batchResult = BasicConverter.apiReturnData(editClient.batchModifyAttrDefinition(param.getKgName(), modifyReqs));
-        return batchResult.<RestResp<Object>>map(RestResp::new)
+        return batchResult.<RestResp>map(RestResp::new)
                 .orElseGet(() -> new RestResp<>(Collections.emptyList()));
     }
 

@@ -51,4 +51,22 @@ public class RelationRsp {
 
     @ApiModelProperty(value = "关系可信度")
     private Double reliability;
+
+    /**
+     * 真实来源
+     */
+    @ApiModelProperty(value = "真实来源")
+    private Object trueSource="{}";
+
+    /**
+     * 来源操作者
+     */
+    @ApiModelProperty(value = "来源操作者")
+    private String sourceUser="";
+
+    /**
+     * 来源动作
+     */
+    @ApiModelProperty(value = "来源动作")
+    private String sourceAction="";
 }
