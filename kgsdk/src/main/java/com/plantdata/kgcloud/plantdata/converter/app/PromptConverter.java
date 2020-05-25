@@ -67,6 +67,7 @@ public class PromptConverter extends BasicConverter {
         promptReq.setSize(promptParam.getPageSize());
         consumerIfNoNull(promptParam.getSort(), a -> promptReq.setSort(SortTypeEnum.parseByValue(a)
                 .orElse(SortTypeEnum.DESC).getValue()));
+        promptReq.setIsReturnTop(promptParam.getIsReturnTop());
         return promptReq;
     }
 
