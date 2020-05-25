@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.plantdata.req.app;
 
 import com.plantdata.kgcloud.plantdata.req.common.PageModel;
 import com.plantdata.kgcloud.plantdata.req.explore.common.EntityScreeningBean;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -18,6 +19,8 @@ public class SeniorPromptParameter extends PageModel {
     private String conceptKey;
 
     private String kw;
+
+    private Boolean isFuzzy;
 
     private Boolean openExportDate = true;
 

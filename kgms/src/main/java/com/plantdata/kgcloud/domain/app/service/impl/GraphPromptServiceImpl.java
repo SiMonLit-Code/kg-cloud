@@ -96,8 +96,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
 
 
         if (PromptQaTypeEnum.END.equals(qaType)) {
-            return BasicConverter.mergeList(collect, queryAnswer(kgName, promptReq));
-        }
+            return BasicConverter.mergeList(collect, queryAnswer(kgName, promptReq));        }
         if (promptReq.getSort() == -1) {
             Collections.reverse(collect);
         }
