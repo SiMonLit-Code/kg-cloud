@@ -114,6 +114,16 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     SCRIPT_IS_RUNNING(120614, "已有质量计算在执行，请稍候"),
 
+    INDEX_FILE_ID_IS_NULL(120615, "文件标引的id不能为空"),
+
+    INDEX_TITLE_DESCRIPTION_IS_NULL(120616, "文本标引的标题和简介不能为空"),
+
+    INDEX_TITLE_URL_IS_NULL(120617, "链接标引的标题和链接不能为空"),
+
+    GRAPH_QUALITY_IS_NULL(120618, "无法进行质量计算"),
+
+    GRAPH_QUALITY_IS_NOT_RUN(120619, "还未进行质量计算"),
+
     ;
     private final int errorCode;
 

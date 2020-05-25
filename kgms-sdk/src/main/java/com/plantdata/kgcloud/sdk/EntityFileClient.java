@@ -22,6 +22,6 @@ public interface EntityFileClient {
      * @param req
      * @return
      */
-    @PostMapping("{kgName}/create/file/relation")
+    @PostMapping("{kgName}/create/relation")
     ApiReturn<EntityFileRelationRsp> add(@PathVariable("kgName") String kgName, @RequestBody EntityFileRelationAddReq req);
 }

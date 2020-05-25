@@ -96,11 +96,11 @@ public class EntityFileRelationController {
         return ApiReturn.success();
     }
 
-    @ApiOperation("实体文件管理-建立文件标引关系")
-    @PostMapping("/{kgName}/create/file/relation")
-    public ApiReturn<EntityFileRelationRsp> createFileRelation(@PathVariable String kgName,
-                                                               @RequestBody EntityFileRelationAddReq req) {
-        return ApiReturn.success(entityFileRelationService.createFileRelation(kgName, req));
+    @ApiOperation("实体文件管理-批量建立标引关系")
+    @PostMapping("/{kgName}/create/relation")
+    public ApiReturn<EntityFileRelationRsp> createRelation(@PathVariable String kgName,
+                                                           @RequestBody EntityFileRelationAddReq req) {
+        return ApiReturn.success(entityFileRelationService.createRelation(kgName, req));
     }
 
 }
