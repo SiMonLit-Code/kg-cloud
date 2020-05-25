@@ -465,7 +465,7 @@ public class KtrXml {
                 "      </attribute>\n" +
                 "      <attribute>\n" +
                 "        <code>PORT_NUMBER</code>\n" +
-                "        <attribute>3306</attribute>\n" +
+                "        <attribute>portQAQ</attribute>\n" +
                 "      </attribute>\n" +
                 "      <attribute>\n" +
                 "        <code>PRESERVE_RESERVED_WORD_CASE</code>\n" +

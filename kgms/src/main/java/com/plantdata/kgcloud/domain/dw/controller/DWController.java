@@ -85,9 +85,6 @@ public class DWController {
         return ApiReturn.success();
     }
 
-
-
-
     @ApiOperation("搜索-数仓-设置表调度开关")
     @PostMapping("/set/kgsearch/scheduling")
     public ApiReturn setKgsearchScheduling(@Valid @RequestBody DWTableSchedulingReq req) {
@@ -95,16 +92,6 @@ public class DWController {
         dwServince.setSearchScheduling(userId, req);
         return ApiReturn.success();
     }
-
-
-
-
-
-
-
-
-
-
 
     @ApiOperation("数仓-删除数仓")
     @DeleteMapping("/delete/database/{id}")
