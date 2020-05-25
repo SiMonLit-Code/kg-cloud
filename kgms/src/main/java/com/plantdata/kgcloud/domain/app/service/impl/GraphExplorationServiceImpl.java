@@ -105,6 +105,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     }
 
     private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, GraphReqAfterInterface graphReqAfter) {
+        System.out.println(JacksonUtils.writeValueAsString(graphFrom));
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
         return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, new GraphRspDTO(graphOpt.get(), graphReqAfter))).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
