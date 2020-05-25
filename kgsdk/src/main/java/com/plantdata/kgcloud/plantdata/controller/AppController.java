@@ -130,6 +130,7 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
             @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页最小为1"),
             @ApiImplicitParam(name = "promptType", defaultValue = "0", dataType = "int", paramType = "query", value = "提示类型，0:prompt,1:qa,2:all"),
+            @ApiImplicitParam(name = "isReturnTop", defaultValue = "true", dataType = "boolean", paramType = "query", value = "是否返回顶层概念"),
     })
     public RestResp<List<EntityBean>> prompt(@Valid @ApiIgnore PromptParameter promptParameter) {
 
@@ -157,6 +158,7 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "sort", dataType = "Integer", defaultValue = "-1", paramType = "form", value = "按权重排序:-1=desc 1=asc,默认-1"),
             @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
             @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页最小为1"),
+            @ApiImplicitParam(name = "isReturnTop", defaultValue = "true", dataType = "boolean", paramType = "query", value = "是否返回顶层概念"),
     })
     public RestResp<List<EntityBean>> promptPost(@Valid @ApiIgnore PromptParameter promptParameter) {
         return prompt(promptParameter);

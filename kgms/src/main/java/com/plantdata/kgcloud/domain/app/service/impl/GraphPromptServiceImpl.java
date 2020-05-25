@@ -79,8 +79,11 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         if (PromptQaTypeEnum.BEFORE.equals(qaType) && "entity".equals(promptReq.getType())) {
             Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq)));
             List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
-            List<PromptEntityRsp> collect = entityRspList.stream().filter(s -> s.getId() != 0).collect(Collectors.toList());
-            return BasicConverter.mergeList(queryAnswer(kgName, promptReq), collect);
+            // 是否返回顶层概念
+            if (!promptReq.getIsReturnTop()) {
+                entityRspList = entityRspList.stream().filter(s -> s.getId() != 0).collect(Collectors.toList());
+            }
+            return BasicConverter.mergeList(queryAnswer(kgName, promptReq), entityRspList);
         }
      /*   if (promptReq.getOpenExportDate()) {
             //执行es搜索
@@ -92,16 +95,18 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq)));
 
         List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
-        List<PromptEntityRsp> collect = entityRspList.stream().filter(s -> s.getId() != 0).collect(Collectors.toList());
-
+        // 是否返回顶层概念
+        if (!promptReq.getIsReturnTop()) {
+            entityRspList = entityRspList.stream().filter(s -> s.getId() != 0).collect(Collectors.toList());
+        }
 
         if (PromptQaTypeEnum.END.equals(qaType)) {
-            return BasicConverter.mergeList(collect, queryAnswer(kgName, promptReq));
+            return BasicConverter.mergeList(entityRspList, queryAnswer(kgName, promptReq));
         }
         if (promptReq.getSort() == -1) {
-            Collections.reverse(collect);
+            Collections.reverse(entityRspList);
         }
-        return collect;
+        return entityRspList;
     }
 
     @Override
