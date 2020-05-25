@@ -33,7 +33,7 @@ public class EntityFileController {
     @ApiOperation("实体文件管理-建立标引关系")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "indexType", required = true, dataType = "integer", paramType = "form", value = "标引类型(0：文件标引，1：文本标引，3：链接标引)"),
+            @ApiImplicitParam(name = "indexType", required = true, dataType = "int", paramType = "form", value = "标引类型(0：文件标引，1：文本标引，3：链接标引)"),
             @ApiImplicitParam(name = "entityIds", required = true, dataType = "string", paramType = "form", value = "实体id列表"),
             @ApiImplicitParam(name = "fileId", dataType = "string", paramType = "form", value = "文件id(文件标引必需)"),
             @ApiImplicitParam(name = "title", dataType = "string", paramType = "form", value = "标题(文本、链接标引必需)"),

@@ -183,6 +183,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         if (req.getIndexType() != null) {
             query.add(Filters.eq("indexType", req.getIndexType()));
         }
+        if (req.getIsRelatedEntity() != null && req.getIsRelatedEntity() != 0) {
+            query.add(Filters.exists("entityIds.0", req.getIsRelatedEntity().equals(1)));
+        }
 
         FindIterable<Document> findIterable = null;
         if (CollectionUtils.isEmpty(query)) {
@@ -198,6 +201,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         if (!CollectionUtils.isEmpty(relations)) {
             for (EntityFileRelation relation : relations) {
                 EntityFileRelationRsp entityFileRelationRsp = ConvertUtils.convert(EntityFileRelationRsp.class).apply(relation);
+
                 List<Long> ids = relation.getEntityIds();
                 // 保存实体Ids
                 if (!CollectionUtils.isEmpty(ids)) {
@@ -220,6 +224,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         for (EntityFileRelationRsp entityFileRelationRsp : list) {
             List<EntityInfoRsp> entityInfoList = entityFileRelationRsp.getEntityInfoList();
             if (CollectionUtils.isEmpty(entityInfoList)) {
+                entityFileRelationRsp.setIsRelatedEntity(2);
                 continue;
             }
             for (int j = 0; j < entityInfoList.size(); j++) {
@@ -232,6 +237,12 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                 } else {
                     relationRsp.setEntityName(nameMap.get(relationRsp.getEntityId()));
                 }
+            }
+            // 设置是否存在实体关联状态
+            if (CollectionUtils.isEmpty(entityInfoList)) {
+                entityFileRelationRsp.setIsRelatedEntity(2);
+            } else {
+                entityFileRelationRsp.setIsRelatedEntity(1);
             }
         }
         if (!CollectionUtils.isEmpty(deleteIds)) {
