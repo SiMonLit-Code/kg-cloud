@@ -1231,7 +1231,7 @@ public class DWServiceImpl implements DWService {
 
         if (tables != null && !tables.isEmpty()) {
 
-            if (DataType.MYSQL.equals(DataType.findType(dwDatabase.getDataType()))){
+            if (DataType.MYSQL.equals(DataType.findType(dwDatabase.getDataType())) || DataType.ORACLE.equals(DataType.findType(dwDatabase.getDataType()))){
                 DataSource dataSource = getDataSource(dwDatabase);
                 JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
                 for (String table : tables) {
