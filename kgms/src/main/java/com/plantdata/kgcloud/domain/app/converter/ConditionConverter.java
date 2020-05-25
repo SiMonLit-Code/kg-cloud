@@ -1,11 +1,7 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
-import com.plantdata.kgcloud.sdk.req.app.CompareFilterReq;
-import com.plantdata.kgcloud.sdk.req.app.DataAttrReq;
-import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
-import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
+import com.plantdata.kgcloud.sdk.req.app.*;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
@@ -25,6 +21,15 @@ public class ConditionConverter extends BasicConverter {
     public static Map<String, Map<String, Object>> relationAttrReqToMap(List<RelationAttrReq> attrReqList) {
         return attrReqList.stream().collect(Collectors.toMap(a -> buildEdgeFilter(a.getAttrId(), a.getSeqNo()),
                 ConditionConverter::buildMongoQueryMap));
+    }
+
+    public static Map<Integer, Map<String, Object>> metaDataReqToMap(List<MetaDataReq> metaDataReqList) {
+        return metaDataReqList.stream().collect(Collectors.toMap(a -> buildMetaDataFilter(a.getSeqNo()),
+                ConditionConverter::buildMongoQueryMap));
+    }
+
+    private static Integer buildMetaDataFilter(Integer seqNo) {
+        return seqNo;
     }
 
     public static Map<String, Map<String, Object>> relationAttrReqToMapV1(List<RelationAttrReq> attrReqList) {

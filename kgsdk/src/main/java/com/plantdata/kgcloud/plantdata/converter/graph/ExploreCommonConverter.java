@@ -14,6 +14,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.common.GraphStatBean;
 import com.plantdata.kgcloud.plantdata.req.explore.function.TimeGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.path.PathGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.relation.RelationGraphParameter;
+import com.plantdata.kgcloud.sdk.req.app.MetaDataReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.TimeFilterExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
@@ -115,6 +116,7 @@ public class ExploreCommonConverter extends BasicConverter {
         consumerIfNoNull(to.getAllowAtts(), rs::setAllowAttrs);
         consumerIfNoNull(to.getEntityQuery(), a -> rs.setEntityFilters(toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
         consumerIfNoNull(to.getAttAttFilters(), a -> rs.setEdgeAttrFilters(toListNoNull(a, ExploreCommonConverter::attrScreeningBeanToRelationAttrReq)));
+        consumerIfNoNull(to.getReservedAttFilters(), a -> rs.setReservedAttFilters(toListNoNull(a, ExploreCommonConverter::attrScreeningBeanToMetaDataReq)));
         return rs;
     }
 
@@ -244,5 +246,10 @@ public class ExploreCommonConverter extends BasicConverter {
         RelationAttrReq relationAttrReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), RelationAttrReq.class);
         consumerIfNoNull(relationAttrReq, a -> a.set$ne(screeningBean.get$neq()));
         return relationAttrReq;
+    }
+    private static MetaDataReq attrScreeningBeanToMetaDataReq(@NonNull AttrScreeningBean screeningBean) {
+        MetaDataReq metaDataReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), MetaDataReq.class);
+        consumerIfNoNull(metaDataReq, a -> a.set$ne(screeningBean.get$neq()));
+        return metaDataReq;
     }
 }

@@ -15,6 +15,9 @@ public class ReasoningVerifyReq {
     @ApiModelProperty("推理规则")
     private String config;
 
+    @ApiModelProperty("kgName")
+    private String kgName;
+
     @ApiModelProperty("实体id")
     private Long entityId;
 }

@@ -52,7 +52,7 @@ public class ReasonController implements SdkOpenApiInterface {
     @ApiOperation("隐含关系推理")
     @PostMapping("execute/{kgName}")
     public ApiReturn<GraphReasoningResultRsp> reasoning(@ApiParam(value = "图谱名称") @PathVariable("kgName") String kgName,
-                                                        @RequestBody ReasoningReq reasoningReq) {
+                                                         @RequestBody ReasoningReq reasoningReq) {
         ai.plantdata.kg.api.semantic.req.ReasoningReq req = BasicConverter.copy(reasoningReq, ai.plantdata.kg.api.semantic.req.ReasoningReq.class);
         Optional<ReasoningResultRsp> reasonOpt;
         try {

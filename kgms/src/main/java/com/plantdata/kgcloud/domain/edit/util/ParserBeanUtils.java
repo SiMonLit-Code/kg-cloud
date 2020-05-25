@@ -144,6 +144,18 @@ public class ParserBeanUtils {
                             new TypeReference<Set<EntityLinkVO>>() {
                             }));
                 }
+
+                if (entityMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
+                    basicInfoRsp.setTrueSource(entityMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
+                }
+
+                if (entityMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
+                    basicInfoRsp.setSourceUser(entityMetaData.get(MetaDataInfo.SOURCE_USER.getFieldName()).toString());
+                }
+
+                if (entityMetaData.containsKey(MetaDataInfo.SOURCE_ACTION.getFieldName())) {
+                    basicInfoRsp.setSourceAction(entityMetaData.get(MetaDataInfo.SOURCE_ACTION.getFieldName()).toString());
+                }
             }
         } catch (Exception e) {
             log.error("解析实体metadata数据异常: ", e);
@@ -218,6 +230,19 @@ public class ParserBeanUtils {
                 }
                 if (relationMetaData.containsKey(MetaDataInfo.BATCH_NO.getFieldName())) {
                     relationAttrValueVO.setBatch(relationMetaData.get(MetaDataInfo.BATCH_NO.getFieldName()).toString());
+                }
+
+
+                if (relationMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
+                    relationAttrValueVO.setTrueSource(relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
+                }
+
+                if (relationMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
+                    relationAttrValueVO.setSourceUser(relationMetaData.get(MetaDataInfo.SOURCE_USER.getFieldName()).toString());
+                }
+
+                if (relationMetaData.containsKey(MetaDataInfo.SOURCE_ACTION.getFieldName())) {
+                    relationAttrValueVO.setSourceAction(relationMetaData.get(MetaDataInfo.SOURCE_ACTION.getFieldName()).toString());
                 }
             }
         } catch (Exception e) {
