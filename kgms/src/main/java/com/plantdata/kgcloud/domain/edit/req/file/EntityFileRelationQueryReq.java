@@ -20,4 +20,7 @@ public class EntityFileRelationQueryReq extends BaseReq {
     @ApiModelProperty(value = "标引类型")
     private Integer indexType;
 
+    @ApiModelProperty(value = "是否关联实体(0:全部，1：关联，2：不关联)")
+    private Integer isRelatedEntity;
+
 }
