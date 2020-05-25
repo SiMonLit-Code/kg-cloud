@@ -228,8 +228,28 @@ public class BasicInfoServiceImpl implements BasicInfoService {
             return;
         }
 
-        if(synonymReq.getName() == null){
+        // 查询实体和概念的同义词信息
+        EntityVO entityVO = conceptEntityApi.get(kgName, false, synonymReq.getId()).getData();
+        if (entityVO == null) {
+            entityVO = conceptEntityApi.get(kgName, true, synonymReq.getId()).getData();
+        }
+        if (entityVO == null) {
+            throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
+        }
+        List<String> synonym = entityVO.getSynonym();
+        if (!CollectionUtils.isEmpty(synonym)) {
+            // 去除空白和重复的同义词
+            names = names.stream().filter(org.apache.commons.lang3.StringUtils::isNotBlank)
+                    .filter(s -> !synonym.contains(s))
+                    .collect(Collectors.toSet());
+        }
+        synonymReq.setNames(names);
+
+        if (synonymReq.getName() == null) {
             synonymReq.setName("");
+        }
+        if (CollectionUtils.isEmpty(names)) {
+            return;
         }
         SynonymFrom synonymFrom = ConvertUtils.convert(SynonymFrom.class).apply(synonymReq);
         RestResp restResp = conceptEntityApi.addSynonym(KGUtil.dbName(kgName), synonymFrom);

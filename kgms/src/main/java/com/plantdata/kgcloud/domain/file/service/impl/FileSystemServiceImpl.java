@@ -5,10 +5,10 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.constant.FileConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.domain.file.entity.FileSystem;
 import com.plantdata.kgcloud.domain.file.entity.FileFolder;
-import com.plantdata.kgcloud.domain.file.repository.FileSystemRepository;
+import com.plantdata.kgcloud.domain.file.entity.FileSystem;
 import com.plantdata.kgcloud.domain.file.repository.FileFolderRepository;
+import com.plantdata.kgcloud.domain.file.repository.FileSystemRepository;
 import com.plantdata.kgcloud.domain.file.rsq.FileSystemRsp;
 import com.plantdata.kgcloud.domain.file.rsq.FolderRsp;
 import com.plantdata.kgcloud.domain.file.service.FileDataService;
@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileSystem fileSystem = FileSystem.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
-        List<FileSystem> all = fileSystemRepository.findAll(Example.of(fileSystem), Sort.by(Sort.Order.desc("createAt")));
+        List<FileSystem> all = fileSystemRepository.findAll(Example.of(fileSystem));
         return all.stream().map(fileSystem2rsp).collect(Collectors.toList());
     }
 
@@ -82,10 +83,6 @@ public class FileSystemServiceImpl implements FileSystemService {
 
         for (FileSystemRsp fileSystemRsp : fileSystems) {
             List<FolderRsp> tables = findFolder(userId, fileSystemRsp.getId());
-            // 文件系统，添加文件夹拥有文件数量参数
-            for (FolderRsp tableRsp : tables) {
-                tableRsp.setFileCount(setTableFileCount(fileSystemRsp.getId(), tableRsp.getId()));
-            }
             fileSystemRsp.setFileFolders(tables);
         }
         return fileSystems;
@@ -96,7 +93,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileFolder table = FileFolder.builder()
                 .fileSystemId(fileSystemId)
                 .build();
-        List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table), Sort.by(Sort.Order.desc("createAt")));
+        List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table));
 
         List<FolderRsp> tables = dwTableList.stream().map(table2rsp).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(tables)) {
@@ -134,6 +131,33 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileSystem save = fileSystemRepository.save(fileSystem);
 
         return fileSystem2rsp.apply(save);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public FileSystemRsp createDefault(String userId) {
+        FileSystem fileSystem = FileSystem.builder()
+                .userId(userId).name("默认文件系统")
+                .build();
+        List<FileSystem> list = fileSystemRepository.findAll(Example.of(fileSystem));
+        if (CollectionUtils.isEmpty(list)) {
+            FileSystem newFileSystem = fileSystemRepository.save(fileSystem);
+            FileFolder fileFolder = FileFolder.builder()
+                    .fileSystemId(newFileSystem.getId()).name("默认文件夹")
+                    .build();
+            fileFolderRepository.save(fileFolder);
+            return ConvertUtils.convert(FileSystemRsp.class).apply(newFileSystem);
+        } else {
+            FileSystem oldFileSystem = list.get(0);
+            FileFolder fileFolder = FileFolder.builder()
+                    .fileSystemId(oldFileSystem.getId()).name("默认文件夹")
+                    .build();
+            List<FileFolder> folders = fileFolderRepository.findAll(Example.of(fileFolder));
+            if (CollectionUtils.isEmpty(folders)) {
+                fileFolderRepository.save(fileFolder);
+            }
+            return ConvertUtils.convert(FileSystemRsp.class).apply(oldFileSystem);
+        }
     }
 
     @Override

@@ -22,6 +22,8 @@ public interface FileSystemService {
 
     FileSystemRsp create(String userId, String name);
 
+    FileSystemRsp createDefault(String userId);
+
     FolderRsp createFolder(String userId, Long fileSystemId, String name);
 
     void batchCreateFolder(String userId, Long fileSystemId, List<String> names);

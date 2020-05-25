@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.domain.file.req.FileSystemReq;
 import com.plantdata.kgcloud.domain.file.rsq.FileSystemRsp;
 import com.plantdata.kgcloud.domain.file.rsq.FolderRsp;
 import com.plantdata.kgcloud.domain.file.service.FileSystemService;
+import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -59,6 +60,13 @@ public class FileSystemController {
     public ApiReturn<FileSystemRsp> create(@RequestBody FileSystemNameReq req) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(fileSystemService.create(userId, req.getName()));
+    }
+
+    @ApiOperation("文件系统管理-默认文件系统创建")
+    @PostMapping("/default")
+    public ApiReturn<FileSystemRsp> createDefault() {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(fileSystemService.createDefault(userId));
     }
 
     @ApiOperation("文件系统管理-创建文件夹")
