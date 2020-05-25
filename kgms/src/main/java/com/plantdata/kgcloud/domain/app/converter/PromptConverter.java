@@ -34,6 +34,7 @@ public class PromptConverter extends BasicConverter {
         consumerIfNoNull(queryMapList, a -> attributeFrom.setKvMap(a.get(0)));
         consumerIfNoNull(promptReq.getKw(), attributeFrom::setEntityName);
         attributeFrom.setInherit(true);
+        attributeFrom.setFuzzy(promptReq.isFuzzy());
         consumerIfNoNull(promptReq.getConceptId(), a -> attributeFrom.setConceptIds(Lists.newArrayList(a)));
         return attributeFrom;
     }
