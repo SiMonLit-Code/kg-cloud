@@ -105,6 +105,7 @@ public class ExploreReqConverter extends BasicConverter {
         CommonReasoningExploreReqList exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonReasoningExploreReqList());
         exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
         exploreReq.setPage(new PageReq(param.getPageNo(), param.getPageSize()));
+        exploreReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(param));
         consumerIfNoNull(param.getReasoningRuleConfigs(), a -> exploreReq.setReasoningRuleConfigs(ExploreCommonConverter.buildReasonConfig(a)));
         return exploreReq;
     }

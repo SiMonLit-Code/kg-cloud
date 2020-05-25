@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.domain.reasoning.service.impl;
 
+import com.alibaba.fastjson.JSONPObject;
+import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.app.service.GraphExplorationService;
 import com.plantdata.kgcloud.domain.prebuilder.util.SortUtil;
 import com.plantdata.kgcloud.domain.reasoning.entity.Reasoning;
 import com.plantdata.kgcloud.domain.reasoning.repository.ReasoningRepository;
@@ -9,11 +12,15 @@ import com.plantdata.kgcloud.domain.reasoning.service.ReasoningService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.ReasoningExecuteReq;
 import com.plantdata.kgcloud.sdk.req.ReasoningQueryReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReqList;
 import com.plantdata.kgcloud.sdk.rsp.ReasoningRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.mapping.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,6 +47,9 @@ public class ReasoningServiceImpl implements ReasoningService {
 
     @Autowired
     private ReasoningRepository reasoningRepository;
+
+    @Autowired
+    private GraphExplorationService graphExplorationService;
 
     @Override
     public Page<ReasoningRsp> list(String userId, ReasoningQueryReq reasoningQueryReq) {
@@ -103,11 +113,17 @@ public class ReasoningServiceImpl implements ReasoningService {
 
     @Override
     public CommonBasicGraphExploreRsp verification(String userId, ReasoningVerifyReq reasoningVerifyReq) {
+        CommonReasoningExploreReqList exploreParam = reasonConfig2CommonReasoningExploreReq(reasoningVerifyReq.getConfig(),reasoningVerifyReq.getEntityId());
+        return graphExplorationService.reasoningGraphExploration(reasoningVerifyReq.getKgName(), exploreParam);
+    }
+
+    private CommonReasoningExploreReqList reasonConfig2CommonReasoningExploreReq(String config,Long entityId) {
         return null;
     }
 
     @Override
     public CommonBasicGraphExploreRsp execute(String userId, ReasoningExecuteReq reasoningExecuteReq) {
+
         return null;
     }
 
