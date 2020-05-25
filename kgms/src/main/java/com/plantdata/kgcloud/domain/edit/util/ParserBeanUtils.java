@@ -281,6 +281,19 @@ public class ParserBeanUtils {
                 if (relationMetaData.containsKey(MetaDataInfo.BATCH_NO.getFieldName())) {
                     relationRsp.setBatch(relationMetaData.get(MetaDataInfo.BATCH_NO.getFieldName()).toString());
                 }
+
+                if (relationMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
+                    relationRsp.setTrueSource(relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
+                }
+
+                if (relationMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
+                    relationRsp.setSourceUser(relationMetaData.get(MetaDataInfo.SOURCE_USER.getFieldName()).toString());
+                }
+
+                if (relationMetaData.containsKey(MetaDataInfo.SOURCE_ACTION.getFieldName())) {
+                    relationRsp.setSourceAction(relationMetaData.get(MetaDataInfo.SOURCE_ACTION.getFieldName()).toString());
+                }
+
             }
         } catch (Exception e) {
             log.error("解析关系metadata数据异常: ", e);
