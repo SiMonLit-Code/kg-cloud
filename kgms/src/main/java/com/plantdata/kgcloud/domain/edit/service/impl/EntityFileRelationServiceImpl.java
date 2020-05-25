@@ -547,35 +547,64 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     @Override
-    public EntityFileRelationRsp createFileRelation(String kgName, EntityFileRelationAddReq req) {
-        EntityFileRelation relation = getRelationByFileId(kgName, req.getFileId());
-        if (relation == null) {
-            FileData fileData = fileDataService.get(req.getFileId());
-            EntityFileRelation newRelation = ConvertUtils.convert(EntityFileRelation.class).apply(fileData);
-            newRelation.setId(null);
-            newRelation.setIndexType(0);
-            newRelation.setFileId(req.getFileId());
-            newRelation.setCreateTime(new Date());
-            Document document = entityFileConverter.toDocument(newRelation);
+    public EntityFileRelationRsp createRelation(String kgName, EntityFileRelationAddReq req) {
+        if (req.getIndexType() == 0) {
+            // 文件标引
+            EntityFileRelation relation = getRelationByFileId(kgName, req.getFileId());
+            if (relation == null) {
+                if (StringUtils.isBlank(req.getFileId())) {
+                    throw BizException.of(KgmsErrorCodeEnum.INDEX_FILE_ID_IS_NULL);
+                }
+                FileData fileData = fileDataService.get(req.getFileId());
+                EntityFileRelation newRelation = ConvertUtils.convert(EntityFileRelation.class).apply(fileData);
+                newRelation.setId(null);
+                newRelation.setIndexType(0);
+                newRelation.setFileId(req.getFileId());
+                newRelation.setCreateTime(new Date());
+                newRelation.setEntityIds(req.getEntityIds());
+                Document document = entityFileConverter.toDocument(newRelation);
+                getRelationCollection(kgName).insertOne(document);
+                return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
+            }
+            List<Long> entityIds = relation.getEntityIds();
+
+            if (req.getEntityIds() != null) {
+                if (entityIds == null) {
+                    entityIds = Lists.newArrayList(req.getEntityIds());
+                } else {
+                    entityIds.addAll(req.getEntityIds());
+                    Set<Long> set = new HashSet<>(entityIds);
+                    entityIds.clear();
+                    entityIds.addAll(set);
+                }
+                relation.setEntityIds(entityIds);
+                String id = relation.getId();
+                relation.setId(null);
+                Document document = entityFileConverter.toDocument(relation);
+                getRelationCollection(kgName).updateOne(documentConverter.buildObjectId(id), new Document("$set", document));
+                return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
+            }
+        } else if (req.getIndexType() == 1) {
+            // 文本标引
+            EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(req);
+            relation.setIndexType(1);
+            relation.setCreateTime(new Date());
+            if (StringUtils.isBlank(relation.getTitle()) || StringUtils.isBlank(relation.getDescription())) {
+                throw BizException.of(KgmsErrorCodeEnum.INDEX_TITLE_DESCRIPTION_IS_NULL);
+            }
+            Document document = entityFileConverter.toDocument(relation);
             getRelationCollection(kgName).insertOne(document);
             return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
-        }
-        List<Long> entityIds = relation.getEntityIds();
-
-        if (req.getEntityIds() != null) {
-            if (entityIds == null) {
-                entityIds = Lists.newArrayList(req.getEntityIds());
-            } else {
-                entityIds.addAll(req.getEntityIds());
-                Set<Long> set = new HashSet<>(entityIds);
-                entityIds.clear();
-                entityIds.addAll(set);
+        } else if (req.getIndexType() == 2) {
+            // 文本标引
+            EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(req);
+            relation.setIndexType(2);
+            relation.setCreateTime(new Date());
+            if (StringUtils.isBlank(relation.getTitle()) || StringUtils.isBlank(relation.getUrl())) {
+                throw BizException.of(KgmsErrorCodeEnum.INDEX_TITLE_URL_IS_NULL);
             }
-            relation.setEntityIds(entityIds);
-            String id = relation.getId();
-            relation.setId(null);
             Document document = entityFileConverter.toDocument(relation);
-            getRelationCollection(kgName).updateOne(documentConverter.buildObjectId(id), new Document("$set", document));
+            getRelationCollection(kgName).insertOne(document);
             return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
         }
         return new EntityFileRelationRsp();

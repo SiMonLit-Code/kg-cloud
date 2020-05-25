@@ -41,7 +41,16 @@ public interface GraphQualityService {
 
     /**
      * 执行质量统计脚本
+     *
      * @param kgName
      */
     void run(String kgName);
+
+    /**
+     * 查询最新质量统计执行时间
+     *
+     * @param kgName
+     * @return
+     */
+    Long getTime(String kgName);
 }

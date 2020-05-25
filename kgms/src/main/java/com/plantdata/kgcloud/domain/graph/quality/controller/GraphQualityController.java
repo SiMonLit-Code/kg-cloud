@@ -49,8 +49,14 @@ public class GraphQualityController {
 
     @ApiOperation("执行质量统计脚本")
     @GetMapping("/{kgName}/run")
-    public ApiReturn<GraphAttrQualityRsp> run(@PathVariable("kgName") String kgName) {
+    public ApiReturn run(@PathVariable("kgName") String kgName) {
         graphQualityService.run(kgName);
         return ApiReturn.success();
+    }
+
+    @ApiOperation("查询最新质量统计执行时间")
+    @GetMapping("/{kgName}/time")
+    public ApiReturn<Long> getTime(@PathVariable("kgName") String kgName) {
+        return ApiReturn.success(graphQualityService.getTime(kgName));
     }
 }

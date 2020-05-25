@@ -48,7 +48,7 @@ public interface EntityFileRelationService {
 
     void addFile(String kgName, Long fileSystemId, Long folderId);
 
-    EntityFileRelationRsp createFileRelation(String kgName, EntityFileRelationAddReq req);
+    EntityFileRelationRsp createRelation(String kgName, EntityFileRelationAddReq req);
 
     boolean checkExist(String kgName, Long entityId, String fileId);
 

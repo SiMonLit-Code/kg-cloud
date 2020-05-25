@@ -121,7 +121,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         taskListReq.setTaskType("data_quality");
         List<TaskBean> taskBeans = xxlAdminClient.list(taskListReq).getData().getContent();
         if (CollectionUtils.isEmpty(taskBeans)) {
-            return;
+            throw BizException.of(KgmsErrorCodeEnum.GRAPH_QUALITY_IS_NULL);
         }
 
         TaskBean taskBean = taskBeans.get(0);
@@ -130,14 +130,12 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         ExecListReq req = ConvertUtils.convert(ExecListReq.class).apply(taskBean);
         req.setStatus(null);
         List<ExecBean> execBeans = xxlAdminClient.execlist(req).getData().getContent();
-        if (CollectionUtils.isEmpty(execBeans)) {
-            return;
-        }
-
-        ExecBean execBean = execBeans.get(0);
-        // 脚本正在执行
-        if ("WORK".equals(execBean.getStatus())) {
-            throw BizException.of(KgmsErrorCodeEnum.SCRIPT_IS_RUNNING);
+        if (!CollectionUtils.isEmpty(execBeans)) {
+            ExecBean execBean = execBeans.get(0);
+            // 脚本正在执行
+            if ("WORK".equals(execBean.getStatus())) {
+                throw BizException.of(KgmsErrorCodeEnum.SCRIPT_IS_RUNNING);
+            }
         }
 
         RunTaskReq runTaskReq = ConvertUtils.convert(RunTaskReq.class).apply(taskBean);
@@ -148,6 +146,29 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         runTaskReq.setStdFireTime(0L);
 
         xxlAdminClient.taskRun(runTaskReq);
+    }
+
+    @Override
+    public Long getTime(String kgName) {
+        // 查询质量统计脚本
+        TaskListReq taskListReq = new TaskListReq();
+        taskListReq.setUserId("123");
+        taskListReq.setTaskType("data_quality");
+        List<TaskBean> taskBeans = xxlAdminClient.list(taskListReq).getData().getContent();
+        if (CollectionUtils.isEmpty(taskBeans)) {
+            throw BizException.of(KgmsErrorCodeEnum.GRAPH_QUALITY_IS_NOT_RUN);
+        }
+
+        TaskBean taskBean = taskBeans.get(0);
+
+        // 查询最新执行记录
+        ExecListReq req = ConvertUtils.convert(ExecListReq.class).apply(taskBean);
+        req.setStatus("200");
+        List<ExecBean> execBeans = xxlAdminClient.execlist(req).getData().getContent();
+        if (CollectionUtils.isEmpty(execBeans)) {
+            throw BizException.of(KgmsErrorCodeEnum.GRAPH_QUALITY_IS_NOT_RUN);
+        }
+        return execBeans.get(0).getEndTime();
     }
 
     /**
