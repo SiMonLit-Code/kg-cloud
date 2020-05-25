@@ -74,9 +74,9 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         graphHelperService.replaceByConceptKey(kgName, promptReq);
         // 获取问答状态
         GraphConfQaStatusRsp graphConfQaStatusRsp = graphConfQaService.getStatus(kgName);
-        PromptQaTypeEnum qaType = PromptQaTypeEnum.parseWitDefault(graphConfQaStatusRsp.getStatus());
+        PromptQaTypeEnum qaType = PromptQaTypeEnum.parseWitDefault(promptReq.getPromptType());
 
-        if (PromptQaTypeEnum.BEFORE.equals(qaType) && "entity".equals(promptReq.getType())) {
+        if (PromptQaTypeEnum.BEFORE.equals(qaType)  && graphConfQaStatusRsp != null && graphConfQaStatusRsp.getStatus() == 1) {
             Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq)));
             List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
             // 是否返回顶层概念
@@ -100,7 +100,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
             entityRspList = entityRspList.stream().filter(s -> s.getId() != 0).collect(Collectors.toList());
         }
 
-        if (PromptQaTypeEnum.END.equals(qaType)) {
+        if (PromptQaTypeEnum.END.equals(qaType) && graphConfQaStatusRsp != null && graphConfQaStatusRsp.getStatus() == 1) {
             return BasicConverter.mergeList(entityRspList, queryAnswer(kgName, promptReq));
         }
         if (promptReq.getSort() == -1) {
