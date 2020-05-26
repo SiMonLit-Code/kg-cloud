@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * @program: kg-cloud-kgms
  * @description:
@@ -20,5 +22,20 @@ public class LabelStyleBean {
     private Boolean inner;
 
     private Boolean visible;
+
+    private String display;
+
+    private Integer radius;
+
+    private Double opacity;
+
+    private String lineColor;
+
+    private List<Integer> lineDash;
+
+    private Integer lineWidth;
+
+
+
 
 }
