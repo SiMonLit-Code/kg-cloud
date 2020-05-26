@@ -46,7 +46,12 @@ public class BusinessEntityBean {
     private String fromTime;
     private String toTime;
 
+
     private Set<EntityLinkRsp> entityLinks = new HashSet<>();
+
+    private NodeStyleBean nodeStyle;
+
+    private LabelStyleBean labelStyle;
 
 
     @Override

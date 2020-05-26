@@ -31,6 +31,9 @@ public class BusinessRelationBean {
     private String creationTime;
     private Map<String, Object> origin;
     private Map<String, Object> style;
+    private LinkStyleBean linkStyle;
+
+    private LabelStyleBean labelStyle;
 
     public Map<String, Object> getOrigin() {
         return origin;
@@ -73,6 +76,22 @@ public class BusinessRelationBean {
         this.from = from;
         this.to = to;
         this.attId = attId;
+    }
+
+    public LinkStyleBean getLinkStyle() {
+        return linkStyle;
+    }
+
+    public void setLinkStyle(LinkStyleBean linkStyle) {
+        this.linkStyle = linkStyle;
+    }
+
+    public LabelStyleBean getLabelStyle() {
+        return labelStyle;
+    }
+
+    public void setLabelStyle(LabelStyleBean labelStyle) {
+        this.labelStyle = labelStyle;
     }
 
     public String getId() {
