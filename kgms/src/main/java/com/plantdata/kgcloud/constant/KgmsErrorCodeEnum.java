@@ -15,25 +15,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
      * 中间两位: 模块标识，
      * 后 两 位: 业务错误标识
      */
-    DATASET_NOT_EXISTS(120101, "数据集不存在"),
-    FOLDER_NOT_EXISTS(120102, "文件夹不存在"),
-    FOLDER_DISABLE_DELETE(120103, "默认文件夹不允许删除"),
-    DATASET_TYPE_NONSUPPORT(120104, "不支持的数据集类型"),
-    DATASET_CONNECT_ERROR(120105, "数据集连接失败"),
-    DATASET_KEY_EXISTS(120106, "唯一标识已存在"),
-    DATASET_EXPORT_FAIL(120107, "数据集导出失败"),
-    DATASET_IMPORT_FAIL(120108, "数据集导入失败"),
-    DATASET_FIELD_ERROR(120109, "数据字段类型校验错误"),
-    QUERYSETTING_NOT_EXISTS(120110, "规则配置不存在"),
-
-    KTR_SAVE_FAIL(120113, "kettle文件生成失败"),
-
-    ANNOTATION_NOT_EXISTS(120109, "标引不存在"),
-    DATASET_ES_REQUEST_ERROR(120110, "es请求失败"),
-    DATASET_ES_KEY_EXISTS(120111, "es唯一标识已存在"),
-    TASK_STATUS_NOT_EXISTS(120112, "任务状态记录不存在"),
-    DATASET_CONNECT_PDTEXT_ERROR(120113, "连接文本数据集失败"),
-    MODEL_NOT_EXISTS(120201, "模型不存在"),
+    QUERYSETTING_NOT_EXISTS(120101, "规则配置不存在"),
+    TASK_STATUS_NOT_EXISTS(120102, "任务状态记录不存在"),
     /**
      * app模块
      */
@@ -69,7 +52,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DOMAIN_CONCEPT_NOT_EMPTY(120626, "领域词相关概念不能为空"),
     CONF_QUERYSETTING_ERROR(120627, "图谱关系配置错误"),
     CONF_RULENAME_ERROR(120628, "图谱关系名称要在64位以内"),
-
+    TRIPLE_ID_NOT_EXISTS(120513, "三元组id不存在"),
 
     WORD_NOT_EXISTS(120302, "词条不存在"),
 
@@ -100,8 +83,50 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     PERMISSION_NOT_ENOUGH_ERROR(120509, "没有该图谱的编辑权限"),
 
     RDF_EXPORT_ERROR(120510, "rdf导出错误"),
-    ;
 
+    ILLEGAL_PARAM(120512, "参数不合法"),
+
+    PERMISSION_NOT_MODEL_UPLOAD_ERROR(120601, "没有模式上传权限"),
+
+    MODEL_PARSER_ERROR(120602, "模式解析错误"),
+
+    TAG_JSON_PASER_ERROR(120603, "数据库打标解析错误"),
+
+    EMTRY_MODEL_PUDH_ERROR(120604, "空模式不能发布"),
+
+    SCHEMA_CONCEPT_NOT_EXIST_ERROR(120605, "图谱没有定义概念"),
+
+    MODEL_FILE_TITLE_ERROR(120606, "模式文件表头错误，请根据模板上传"),
+
+    EXCEL_TYPE_ERROR(120607, "excel文件格式错误"),
+
+    FILE_SIZE_OVER(120608, "文件关联大小不能超过20M"),
+
+    RELATION_IS_EXIST(120609, "文件关联已存在"),
+
+    EXCEL_DATA_ERROR(120610, "表头内容错误"),
+
+    EXCEL_DATA_NULL(120611, "excel数据为空"),
+
+    FILE_DATABASE_NOT_EXIST(120612, "该文件系统不存在"),
+
+    FILE_TABLE_NAME_EXIST(120613, "文件夹名称已存在"),
+
+    SCRIPT_IS_RUNNING(120614, "已有质量计算在执行，请稍候"),
+
+    INDEX_FILE_ID_IS_NULL(120615, "文件标引的id不能为空"),
+
+    INDEX_TITLE_DESCRIPTION_IS_NULL(120616, "文本标引的标题和简介不能为空"),
+
+    INDEX_TITLE_URL_IS_NULL(120617, "链接标引的标题和链接不能为空"),
+
+    GRAPH_QUALITY_IS_NULL(120618, "无法进行质量计算"),
+
+    GRAPH_QUALITY_IS_NOT_RUN(120619, "还未进行质量计算"),
+
+    FILE_DATABASE_NAME_EXIST(120620, "文件系统已存在"),
+
+    ;
     private final int errorCode;
 
     private final String message;

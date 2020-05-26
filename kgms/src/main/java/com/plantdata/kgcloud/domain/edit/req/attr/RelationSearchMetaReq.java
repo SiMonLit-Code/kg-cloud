@@ -24,4 +24,17 @@ public class RelationSearchMetaReq {
 
     @ApiModelProperty(value = "置信度筛选,{$gt:0}")
     private Map<String, Object> reliability;
+
+
+    /**
+     * 来源操作者
+     */
+    @ApiModelProperty(value = "来源操作者")
+    private String sourceUser="";
+
+    /**
+     * 来源动作
+     */
+    @ApiModelProperty(value = "来源动作")
+    private String sourceAction="";
 }

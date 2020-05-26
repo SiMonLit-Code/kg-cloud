@@ -9,5 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @create: 2019-11-04 18:45
  **/
 public interface GraphConfQaRepository extends JpaRepository<GraphConfQa, Long> {
-
+    /**
+     * 根据图谱名删除问答
+     *
+     * @param
+     */
+    void deleteByKgName(String kgName);
 }

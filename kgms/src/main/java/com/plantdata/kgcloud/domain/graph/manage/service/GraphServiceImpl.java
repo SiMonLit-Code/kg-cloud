@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.domain.graph.manage.service;
 import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.req.CopyGraphFrom;
 import ai.plantdata.kg.api.edit.req.CreateGraphFrom;
-import com.plantdata.kgcloud.config.CacheManagerReconfig;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
@@ -18,9 +17,6 @@ import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,7 +39,6 @@ import java.util.stream.Collectors;
  **/
 
 @Service
-@CacheConfig(cacheNames = CacheManagerReconfig.CACHE_GRAPH_KGNAME)
 public class GraphServiceImpl implements GraphService {
 
     private final static String GRAPH_PREFIX = "graph";
@@ -119,7 +114,6 @@ public class GraphServiceImpl implements GraphService {
             RestRespConverter.convertVoid(graphApi.delete(dbName));
             entity.setDeleted(true);
             graphRepository.save(entity);
-
         }
     }
 

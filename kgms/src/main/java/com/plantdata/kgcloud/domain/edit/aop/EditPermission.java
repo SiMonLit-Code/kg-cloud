@@ -26,6 +26,7 @@ public class EditPermission {
     @Autowired
     private GraphService graphService;
 
+
     @Pointcut("execution(* com.plantdata.kgcloud.domain.edit.controller.*.*(..)) && !@annotation" +
             "(EditPermissionUnwanted)")
     public void pointCutPermission() {
@@ -45,9 +46,9 @@ public class EditPermission {
     public Object check(ProceedingJoinPoint p) throws Throwable {
         Object[] args = p.getArgs();
         String kgName = (String) args[0];
-        log.info("kgName : " + kgName);
+        String userId = SessionHolder.getUserId();
         try {
-            GraphRsp graphRsp = graphService.findById(SessionHolder.getUserId(), kgName);
+            GraphRsp graphRsp = graphService.findById(userId, kgName);
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.PERMISSION_NOT_ENOUGH_ERROR);
         }

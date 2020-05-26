@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
+import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.constant.DirectionEnum;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.common.GisBean;
@@ -10,7 +11,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.gis.GraphRectangleParameter;
 import com.plantdata.kgcloud.plantdata.rsp.explore.gis.GisLocusOldRsp;
 import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
 import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
@@ -81,6 +82,8 @@ public class GisConverter extends BasicConverter {
         locusRelationRsp.setAttName(relationRsp.getAttName());
         locusRelationRsp.setId(relationRsp.getId());
         locusRelationRsp.setFrom(relationRsp.getFrom());
+        locusRelationRsp.setStartTime(Lists.newArrayList(relationRsp.getStartTime()));
+        locusRelationRsp.setEndTime(Lists.newArrayList(relationRsp.getEndTime()));
         locusRelationRsp.setTo(relationRsp.getTo());
         locusRelationRsp.setRuleId(relationRsp.getRuleId());
         locusRelationRsp.setLabelStyle(relationRsp.getLabelStyle());

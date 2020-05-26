@@ -50,7 +50,7 @@ public class TaskGraphStatusServiceImpl implements TaskGraphStatusService {
         TaskGraphStatus taskGraphStatus =
                 TaskGraphStatus.builder().kgName(kgName).build();
         List<TaskGraphStatus> taskGraphStatusList = taskGraphStatusRepository.findAll(Example.of(taskGraphStatus),
-                new Sort(Sort.Direction.DESC, "createAt"));
+                Sort.by(Sort.Direction.DESC, "createAt"));
         if (CollectionUtils.isEmpty(taskGraphStatusList)) {
             throw BizException.of(KgmsErrorCodeEnum.TASK_STATUS_NOT_EXISTS);
         }
@@ -62,7 +62,7 @@ public class TaskGraphStatusServiceImpl implements TaskGraphStatusService {
         TaskGraphStatus taskGraphStatus =
                 TaskGraphStatus.builder().kgName(kgName).status(TaskStatus.PROCESSING.getStatus()).build();
         List<TaskGraphStatus> taskGraphStatusList = taskGraphStatusRepository.findAll(Example.of(taskGraphStatus),
-                new Sort(Sort.Direction.DESC, "createAt"));
+                Sort.by(Sort.Direction.DESC, "createAt"));
         if (CollectionUtils.isEmpty(taskGraphStatusList)) {
             return new TaskGraphStatusCheckRsp(true);
         }else if (taskGraphStatusList.size() == 1){

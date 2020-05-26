@@ -19,6 +19,7 @@ public class ModelStatParameter {
     @NotBlank
     private String kgName;
     private Boolean isDisplay = true;
+    private Boolean isRangeDisplay = true;
     @NotNull
     private Long conceptId;
 

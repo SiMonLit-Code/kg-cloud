@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.CommonErrorCode;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
+import com.plantdata.kgcloud.domain.edit.aop.EditPermissionUnwanted;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -152,6 +153,14 @@ public class ImportController {
                                @PathVariable("format") String format,
                                @PathVariable("scope") Integer scope) {
         return ApiReturn.success(importService.exportRdf(kgName, format, scope));
+    }
+
+    @ApiOperation("实体概念模型导出")
+    @GetMapping("/export/{kgName}")
+    @EditPermissionUnwanted
+    public ApiReturn exportEntityToWord(@PathVariable("kgName") String kgName, HttpServletResponse response) {
+        importService.exportEntity(kgName, response);
+        return ApiReturn.success();
     }
 
     /**

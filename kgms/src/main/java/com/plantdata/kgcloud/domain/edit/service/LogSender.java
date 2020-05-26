@@ -25,6 +25,8 @@ public class LogSender {
     private String topicKgServiceLog;
     @Value("${topic.kg.log}")
     private String topicKgDataLog;
+    @Value("${topic.kg.log}")
+    private String topicKgLog;
 
     @Value("${kg.log.enable}")
     private boolean enableLog;
@@ -41,6 +43,13 @@ public class LogSender {
             kafkaTemplate.send(topicKgServiceLog, kgName,
                     JacksonUtils.writeValueAsString(new GraphServiceLog(KGUtil.dbName(kgName), serviceEnum,
                             ThreadLocalUtils.getBatchNo(), SessionHolder.getUserId())));
+        }
+    }
+
+    public void sendKgLog(String kgDbName,GraphLog log){
+        if (enableLog){
+            ProducerRecord<String, String> record  = new ProducerRecord<>(topicKgLog, kgDbName, JacksonUtils.writeValueAsString(log));
+            kafkaTemplate.send(record);
         }
     }
 

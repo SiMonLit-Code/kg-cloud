@@ -3,175 +3,17 @@ package com.plantdata.kgcloud.sdk;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
-import com.plantdata.kgcloud.sdk.req.DataSetCreateReq;
-import com.plantdata.kgcloud.sdk.req.DictionaryReq;
-import com.plantdata.kgcloud.sdk.req.FolderReq;
-import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
-import com.plantdata.kgcloud.sdk.req.GraphConfFocusReq;
-import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
-import com.plantdata.kgcloud.sdk.req.GraphConfQaReq;
-import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
-import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;
-import com.plantdata.kgcloud.sdk.req.GraphReq;
-import com.plantdata.kgcloud.sdk.req.KgmsCallReq;
-import com.plantdata.kgcloud.sdk.req.SelfSharedRsp;
-import com.plantdata.kgcloud.sdk.req.UpdateGraphConfStatisticalReq;
-import com.plantdata.kgcloud.sdk.req.WordReq;
-import com.plantdata.kgcloud.sdk.rsp.DataSetRsp;
-import com.plantdata.kgcloud.sdk.rsp.DictionaryRsp;
-import com.plantdata.kgcloud.sdk.rsp.FolderRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfFocusRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfStatisticalRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
-import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
-import com.plantdata.kgcloud.sdk.rsp.WordRsp;
+import com.plantdata.kgcloud.sdk.req.*;
+import com.plantdata.kgcloud.sdk.rsp.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @FeignClient(value = "kgms", contextId = "kgms")
 public interface KgmsClient {
-
-    @ApiOperation("数据集查找所有")
-    @GetMapping("/dataset/all")
-    ApiReturn<List<DataSetRsp>> dataSetFindAll();
-
-    @ApiOperation("数据集分页查找")
-    @GetMapping("/dataset/")
-    ApiReturn<BasePage<DataSetRsp>> dataSetFindAll(@RequestParam(value = "kw", required = false) String kw,
-                                                   @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-                                                   @RequestParam(value = "size", defaultValue = "10", required = false) Integer size);
-
-    @ApiOperation("数据集根据Id查找")
-    @GetMapping("/dataset/{id}")
-    ApiReturn<DataSetRsp> dataSetFindById(@PathVariable("id") Long id);
-
-    @ApiOperation("数据集创建")
-    @PostMapping("/dataset/")
-    ApiReturn<DataSetRsp> dataSetInsert(@Valid @RequestBody DataSetCreateReq req);
-
-    @ApiOperation("数据集编辑")
-    @PatchMapping("/dataset/{id}")
-    ApiReturn<DataSetRsp> dataSetUpdate(@PathVariable("id") Long id, @Valid @RequestBody DataSetCreateReq req);
-
-    @ApiOperation("数据集删除")
-    @DeleteMapping("/dataset/{id}")
-    ApiReturn dataSetDelete(@PathVariable("id") Long id);
-
-    @ApiOperation("数据集-文件夹-列表")
-    @GetMapping("/dataset/folder")
-    ApiReturn<List<FolderRsp>> dataSetFolderList();
-
-    @ApiOperation("数据集-文件夹-默认文件夹")
-    @GetMapping("/dataset/folder/default")
-    ApiReturn<FolderRsp> folderDefault();
-
-    @ApiOperation("数据集-文件夹-创建")
-    @PostMapping("/dataset/folder")
-    ApiReturn folderInsert(@Valid @RequestBody FolderReq req);
-
-    @ApiOperation("数据集-文件夹-修改")
-    @PatchMapping("/dataset/folder/{folderId}")
-    ApiReturn folderUpdate(@PathVariable("folderId") Long folderId, @Valid @RequestBody FolderReq req);
-
-    @ApiOperation("数据集-文件夹-删除")
-    @DeleteMapping("/dataset/folder/{folderId}")
-    ApiReturn folderDelete(@PathVariable("folderId") Long folderId, Boolean deleteData);
-
-    @ApiOperation("数据集-移动-文件夹")
-    @PostMapping("/dataset/folder/{folderId}/move")
-    ApiReturn folderDataSetMoveto(@PathVariable("folderId") Long folderId, @RequestBody List<Long> datasetIds);
-
-    @ApiOperation("数据集-数据-分页条件查询")
-    @GetMapping("/dataset/{datasetId}/data")
-    ApiReturn<BasePage<Map<String, Object>>> dataOptFindAll(@PathVariable("datasetId") Long datasetId, @RequestParam("page") Integer page, @RequestParam("size") Integer size);
-
-    @ApiOperation("数据集-数据-分页查询")
-    @GetMapping("/dataset/{datasetId}/data/{dataId}")
-    ApiReturn<Map<String, Object>> dataOptFindById(@PathVariable("datasetId") Long datasetId, @PathVariable("dataId") String dataId);
-
-    @ApiOperation("数据集-数据-插入")
-    @PostMapping("/dataset/{datasetId}/data")
-    ApiReturn<Map<String, Object>> dataOptInsert(@PathVariable("datasetId") Long datasetId, @RequestBody Map<String, Object> data);
-
-    @ApiOperation("数据集-数据-修改")
-    @PatchMapping("/dataset/{datasetId}/data/{dataId}")
-    ApiReturn<Map<String, Object>> dataOptUpdate(@PathVariable("datasetId") Long datasetId, @PathVariable("dataId") String dataId, @RequestBody Map<String, Object> data);
-
-    @ApiOperation("数据集-数据-根据Id删除")
-    @DeleteMapping("/dataset/{datasetId}/data/{dataId}")
-    ApiReturn dataOptDelete(@PathVariable("datasetId") Long datasetId, @PathVariable("dataId") String dataId);
-
-    @ApiOperation("数据集-数据-全部删除")
-    @DeleteMapping("/dataset/{datasetId}/data")
-    ApiReturn dataOptDeleteAll(@PathVariable("datasetId") Long datasetId);
-
-    @ApiOperation("数据集-数据-批量删除")
-    @PatchMapping("/dataset/{datasetId}/data")
-    ApiReturn dataOptBatchDelete(@PathVariable("datasetId") Long datasetId, @RequestBody List<String> ids);
-
-    @ApiOperation("词典查找所有")
-    @GetMapping("/dictionary/all")
-    ApiReturn<List<DictionaryRsp>> dictionaryFindAll();
-
-    @ApiOperation("词典分页查找")
-    @GetMapping("/dictionary/")
-    ApiReturn<BasePage<DictionaryRsp>> dictionaryFindAll(BaseReq baseReq);
-
-    @ApiOperation("词典根据Id查找")
-    @GetMapping("/dictionary/{id}")
-    ApiReturn<DictionaryRsp> dictionaryFindById(@PathVariable("id") Long id);
-
-    @ApiOperation("词典创建")
-    @PostMapping("/dictionary/")
-    ApiReturn<DictionaryRsp> dictionaryInsert(@Valid @RequestBody DictionaryReq dictionaryReq);
-
-    @ApiOperation("词典编辑")
-    @PatchMapping("/dictionary/{id}")
-    ApiReturn<DictionaryRsp> dictionaryUpdate(@PathVariable("id") Long id, @Valid @RequestBody DictionaryReq req);
-
-    @ApiOperation("词典删除")
-    @DeleteMapping("/dictionary/{id}")
-    ApiReturn dictionaryDelete(@PathVariable("id") Long id);
-
-    @ApiOperation("词典-词条查找所有")
-    @GetMapping("/dictionary/{dictId}/word/all")
-    ApiReturn<List<WordRsp>> wordFindAll(@PathVariable("dictId") Long dictId);
-
-    @ApiOperation("词典-词条分页查找")
-    @GetMapping("/dictionary/{dictId}/word")
-    ApiReturn<BasePage<WordRsp>> wordFindAll(@PathVariable("dictId") Long dictId, BaseReq baseReq);
-
-    @ApiOperation("词典-词条根据Id查找")
-    @GetMapping("/dictionary/{dictId}/word/{wordId}")
-    ApiReturn<WordRsp> wordFindById(@PathVariable("dictId") Long dictId, @PathVariable("wordId") String wordId);
-
-    @ApiOperation("词典-词条创建")
-    @PostMapping("/dictionary/{dictId}/word")
-    ApiReturn<WordRsp> wordInsert(@PathVariable("dictId") Long dictId, @Valid @RequestBody WordReq req);
-
-    @ApiOperation("词典-词条编辑")
-    @PatchMapping("/dictionary/{dictId}/word/{wordId}")
-    ApiReturn<WordRsp> wordUpdate(@PathVariable("dictId") Long dictId, @PathVariable("wordId") String wordId, @Valid @RequestBody WordReq req);
-
-    @ApiOperation("词典-词条删除")
-    @DeleteMapping("/dictionary/{dictId}/word/{wordId}")
-    ApiReturn wordDelete(@PathVariable("dictId") Long dictId, @PathVariable("wordId") String wordId);
 
     @ApiOperation("图谱查找所有")
     @GetMapping("/graph/all")
@@ -476,17 +318,5 @@ public interface KgmsClient {
      */
     @PutMapping("/config/reason/{id}")
     ApiReturn<GraphConfReasonRsp> updateReasoning(@PathVariable("id") Long id, @RequestBody @Valid GraphConfReasonReq req);
-
-
-    /**
-     * 模型调用
-     *
-     * @param id  id
-     * @param req req
-     * @return .
-     */
-    @PostMapping("model/call/{id}")
-    ApiReturn callJson(@PathVariable("id") Long id, @RequestBody KgmsCallReq req);
-
 
 }

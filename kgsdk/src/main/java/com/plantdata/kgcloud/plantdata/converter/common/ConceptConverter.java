@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -90,6 +91,63 @@ public class ConceptConverter extends BasicConverter {
         defBeanMole.setDirection(objAttr.getDirection());
         defBeanMole.setType(String.valueOf(NumberUtils.INTEGER_ONE));
         consumerIfNoNull(objAttr.getRangeConcept(), a -> defBeanMole.setChildren(toListNoNull(a, ConceptConverter::basicConceptTreeRspToTreeItemVo)));
+        return defBeanMole;
+    }
+
+    public static TreeItemVo basicConceptTreeRspToTreeItemVoWithRangeOption(BasicConceptTreeRsp treeRsp,boolean isRangeDisplay) {
+        TreeItemVo treeItemVo = new TreeItemVo();
+        treeItemVo.setAction(StringUtils.EMPTY);
+        treeItemVo.setPath(StringUtils.EMPTY);
+        treeItemVo.setId(treeRsp.getId());
+        treeItemVo.setImgUrl(treeRsp.getImgUrl());
+        treeItemVo.setKey(treeRsp.getKey());
+        treeItemVo.setMeaningTag(treeRsp.getMeaningTag());
+        treeItemVo.setName(treeRsp.getName());
+        treeItemVo.setParentId(treeRsp.getParentId());
+        treeItemVo.setType(treeRsp.getType());
+        if(treeRsp.getChildren()!= null){
+            treeItemVo.setChildren(new ArrayList<>());
+            for(BasicConceptTreeRsp children : treeRsp.getChildren()){
+                treeItemVo.getChildren().add(basicConceptTreeRspToTreeItemVoWithRangeOption(children,isRangeDisplay));
+            }
+        }
+        List<EditAttDefBeanMole> editAttDefBeanMoles = toListNoNull(treeRsp.getObjAttrs(), a -> objAttrToEditAttDefBeanMoleWithRangeOption(a, treeRsp.getName(), treeRsp.getId(),isRangeDisplay));
+        consumerIfNoNull(editAttDefBeanMoles, a -> {
+            if (CollectionUtils.isEmpty(treeItemVo.getChildren())) {
+                treeItemVo.setChildren(Lists.newArrayList(editAttDefBeanMoles));
+            } else {
+                treeItemVo.getChildren().addAll(editAttDefBeanMoles);
+            }
+        });
+        if(treeRsp.getNumAttrs()!=null) {
+            if(treeRsp.getChildren()== null){
+                treeItemVo.setChildren(new ArrayList<>());
+            }
+            for (BasicConceptTreeRsp.NumberAttr attr : treeRsp.getNumAttrs()) {
+                EditAttDefBeanMole item = new EditAttDefBeanMole();
+                item.setId(attr.getId());
+                item.setName(attr.getName());
+                item.setType("2");
+                item.setDataType(attr.getDataType());
+                treeItemVo.getChildren().add(item);
+            }
+        }
+        return treeItemVo;
+    }
+
+    private static EditAttDefBeanMole objAttrToEditAttDefBeanMoleWithRangeOption(BasicConceptTreeRsp.ObjectAttr objAttr, String conceptName, Long conceptId,boolean isRangeDisplay) {
+        EditAttDefBeanMole defBeanMole = new EditAttDefBeanMole();
+        consumerIfNoNull(objAttr.getDataType(), defBeanMole::setDataType);
+        defBeanMole.setId(objAttr.getId());
+        defBeanMole.setName(objAttr.getName());
+        defBeanMole.setDomain(String.valueOf(conceptId));
+        consumerIfNoNull(objAttr.getRangeValue(), a -> defBeanMole.setRange(JacksonUtils.writeValueAsString(a)));
+        defBeanMole.setConceptName(conceptName);
+        defBeanMole.setDirection(objAttr.getDirection());
+        defBeanMole.setType(String.valueOf(NumberUtils.INTEGER_ONE));
+        if(isRangeDisplay) {
+            consumerIfNoNull(objAttr.getRangeConcept(), a -> defBeanMole.setChildren(toListNoNull(a, ConceptConverter::basicConceptTreeRspToTreeItemVo)));
+        }
         return defBeanMole;
     }
 

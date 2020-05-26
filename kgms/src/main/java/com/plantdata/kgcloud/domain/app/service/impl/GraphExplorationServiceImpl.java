@@ -27,6 +27,7 @@ import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -104,6 +105,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     }
 
     private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, GraphReqAfterInterface graphReqAfter) {
+        System.out.println(JacksonUtils.writeValueAsString(graphFrom));
         Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
         return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, new GraphRspDTO(graphOpt.get(), graphReqAfter))).orElse(CommonBasicGraphExploreRsp.EMPTY);
     }

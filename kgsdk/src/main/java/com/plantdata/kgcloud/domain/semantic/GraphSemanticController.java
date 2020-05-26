@@ -1,9 +1,13 @@
 package com.plantdata.kgcloud.domain.semantic;
 
+import com.hiekn.pddocument.bean.PdDocument;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphSemanticApplicationInterface;
+import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
+import com.plantdata.kgcloud.sdk.NlpClient;
 import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.SemanticClient;
+import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
@@ -33,6 +37,8 @@ public class GraphSemanticController implements GraphSemanticApplicationInterfac
     private SemanticClient semanticClient;
     @Autowired
     private ReasoningClient reasoningClient;
+    @Autowired
+    public NlpClient nlpClient;
 
     @ApiOperation(value = "知识图谱问答初始化",notes = "意图初始化接口。基于给定的知识图谱进行意图识别模块的初始化，" +
             "完成初始化后的图谱才能进行基于知识图谱的问答，" +
@@ -58,5 +64,12 @@ public class GraphSemanticController implements GraphSemanticApplicationInterfac
     public ApiReturn<GraphReasoningResultRsp> reasoning(@ApiParam(value = "图谱名称") @PathVariable("kgName") String kgName,
                                                         @RequestBody ReasoningReq reasoningReq) {
         return reasoningClient.reasoning(kgName, reasoningReq);
+    }
+
+    @ApiOperation(value = "文本语义标注", notes = "文本语义标注，以知识图谱的实体，对输入文本进行标注。")
+    @PostMapping("annotation/{kgName}")
+    public ApiReturn<PdDocument> tagging(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
+                                         @RequestBody EntityLinkingReq linkingFrom) {
+        return ApiReturn.success(NlpConverter2.annotationToPdDocument(nlpClient.tagging(kgName, linkingFrom).getData()));
     }
 }

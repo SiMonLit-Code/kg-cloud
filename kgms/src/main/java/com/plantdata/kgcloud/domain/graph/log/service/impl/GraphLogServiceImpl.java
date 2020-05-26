@@ -13,6 +13,7 @@ import com.plantdata.graph.logging.core.GraphLogOperation;
 import com.plantdata.graph.logging.core.GraphLogScope;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.graph.log.entity.DataLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogReq;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogRsp;
@@ -50,24 +51,24 @@ public class GraphLogServiceImpl implements GraphLogService {
             query = Filters.eq("serviceEnum", req.getServiceEnum().name());
         }
         if (req.getStartTime() != null) {
-            query = Filters.and(query, Filters.gte("createTime", req.getServiceEnum()));
+            query = Filters.and(query, Filters.gte("createTime", req.getStartTime()));
         }
         if (req.getEndTime() != null) {
             query = Filters.and(query, Filters.lte("createTime", req.getEndTime()));
         }
 
-        String dbName = LOG_DB_PREFIX + kgName;
+        String dbName = KGUtil.dbName(kgName);
         List<Bson> aggQuery = new ArrayList<>();
         aggQuery.add(Aggregates.match(query));
         aggQuery.add(Aggregates.sort(Sorts.descending("createTime")));
-        aggQuery.add(Aggregates.lookup(LOG_DATA_TB, "batch", "batch", "data"));
+        aggQuery.add(Aggregates.lookup(LOG_INFO_TB, "batch", "batch", "data"));
         aggQuery.add(Aggregates.match(Filters.exists("data.0")));
         aggQuery.add(Aggregates.facet(
                 new Facet("meta", Aggregates.count()),
                 new Facet("data", Aggregates.skip(page), Aggregates.limit(req.getSize()))));
 
         long count = 0;
-        MongoCursor<Document> cursor = mongoClient.getDatabase(dbName).getCollection(LOG_SERVICE_TB).aggregate(aggQuery).iterator();
+        MongoCursor<Document> cursor = mongoClient.getDatabase(dbName).getCollection(LOG_USER_TB).aggregate(aggQuery).iterator();
         if (cursor.hasNext()) {
             Document result = cursor.next();
             List<Document> meta = (List<Document>)result.get("meta");
@@ -100,7 +101,7 @@ public class GraphLogServiceImpl implements GraphLogService {
         StringBuilder builder = new StringBuilder();
         Bson addQuery = Filters.and(Filters.eq("batch", batch), Filters.eq("operation", GraphLogOperation.ADD.name()));
         Bson deleteQuery = Filters.and(Filters.eq("batch", batch), Filters.eq("operation", GraphLogOperation.DELETE.name()));
-        MongoCollection col = mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB);
+        MongoCollection col = mongoClient.getDatabase(dbName).getCollection(LOG_INFO_TB);
         long addAttrDefineCount = col.countDocuments(Filters.and(addQuery, Filters.eq("scope", GraphLogScope.ATTRIBUTE_DEFINE.name())));
         long addConceptCount = col.countDocuments(Filters.and(addQuery, Filters.eq("scope", GraphLogScope.CONCEPT.name())));
         long addEntityCount = col.countDocuments(Filters.and(addQuery, Filters.eq("scope", GraphLogScope.ENTITY.name())));
@@ -138,22 +139,21 @@ public class GraphLogServiceImpl implements GraphLogService {
 
     @Override
     public BasePage<DataLogRsp> dataLogList(String kgName, String batch, BaseReq req) {
-
+        String kgDbName = KGUtil.dbName(kgName);
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.eq("batch", batch);
-        return logList(kgName, query, page, req.getSize());
+        return logList(kgDbName, query, page, req.getSize());
     }
 
-    private BasePage<DataLogRsp> logList(String kgName, Bson query, Integer page, Integer size) {
+    private BasePage<DataLogRsp> logList(String kgDbName, Bson query, Integer page, Integer size) {
 
-        String dbName = LOG_DB_PREFIX + kgName;
-        MongoCursor<Document> cursor = mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).find(query)
+        MongoCursor<Document> cursor = mongoClient.getDatabase(kgDbName).getCollection(LOG_INFO_TB).find(query)
                 .sort(Sorts.descending("createTime"))
                 .skip(page)
                 .limit(size)
                 .iterator();
 
-        long count = mongoClient.getDatabase(dbName).getCollection(LOG_DATA_TB).countDocuments(query);
+        long count = mongoClient.getDatabase(kgDbName).getCollection(LOG_INFO_TB).countDocuments(query);
         List<DataLogRsp> ls = new ArrayList<>();
         cursor.forEachRemaining(s -> {
             s.append("id", s.get("_id").toString());
@@ -165,7 +165,7 @@ public class GraphLogServiceImpl implements GraphLogService {
 
     @Override
     public BasePage<DataLogRsp> entityLogList(String kgName, Long id, Integer type, BaseReq req) {
-
+        String kgDbName = KGUtil.dbName(kgName);
         int page = (req.getPage() - 1) * req.getSize();
         Bson query;
         if (type == 0) {
@@ -175,44 +175,45 @@ public class GraphLogServiceImpl implements GraphLogService {
             );
         } else {
             query = Filters.and(
-                    Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name(), GraphLogScope.PRIVATE_ATTRIBUTE.name())),
+                    Filters.in("scope", Lists.newArrayList(GraphLogScope.ENTITY.name(), GraphLogScope.ENTITY_LINK.name(), GraphLogScope.ENTITY_TAG.name(), GraphLogScope.ATTRIBUTE.name(), GraphLogScope.PRIVATE_ATTRIBUTE.name(), GraphLogScope.MULTI_DATA.name())),
                     Filters.or(Filters.eq("newValue.id", id), Filters.eq("oldValue.id", id),
                             Filters.eq("newValue.entityId", id), Filters.eq("oldValue.entityId", id))
             );
         }
-        return logList(kgName, query, page, req.getSize());
+        return logList(kgDbName, query, page, req.getSize());
     }
 
     @Override
     public BasePage<DataLogRsp> attrDefineLogList(String kgName, Integer attrId, BaseReq req) {
+        String kgDbName = KGUtil.dbName(kgName);
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.and(
                 Filters.eq("scope", GraphLogScope.ATTRIBUTE_DEFINE.name()),
                 Filters.or(Filters.eq("newValue.id", attrId), Filters.eq("oldValue.id", attrId))
         );
-        return logList(kgName, query, page, req.getSize());
+        return logList(kgDbName, query, page, req.getSize());
     }
 
     @Override
     public BasePage<DataLogRsp> edgeAttrLogList(String kgName, Integer relationAttrId, BaseReq req) {
-
+        String kgDbName = KGUtil.dbName(kgName);
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.and(
                 Filters.eq("scope", GraphLogScope.SIDE_ATTR_DEFINE.name()),
                 Filters.or(Filters.eq("newValue.attrId", relationAttrId), Filters.eq("oldValue.attrId", relationAttrId))
         );
-        return logList(kgName, query, page, req.getSize());
+        return logList(kgDbName, query, page, req.getSize());
     }
 
     @Override
     public BasePage<DataLogRsp> relationLogList(String kgName, Long entityId, BaseReq req) {
-
+        String kgDbName = KGUtil.dbName(kgName);
         int page = (req.getPage() - 1) * req.getSize();
         Bson query = Filters.and(
                 Filters.in("scope", GraphLogScope.RELATION.name(), GraphLogScope.RELATION_OBJECT.name()
                         , GraphLogScope.RELATION_VALUE.name(), GraphLogScope.PRIVATE_RELATION.name()),
                 Filters.or(Filters.eq("newValue.entityId", entityId), Filters.eq("oldValue.entityId", entityId))
         );
-        return logList(kgName, query, page, req.getSize());
+        return logList(kgDbName, query, page, req.getSize());
     }
 }

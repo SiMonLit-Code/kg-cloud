@@ -5,7 +5,7 @@
     <parent>
         <artifactId>kg-cloud-kgms</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.0.43-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -23,150 +23,13 @@
             <artifactId>kgms-sdk</artifactId>
         </dependency>
 
-        <!--nlp-->
-        <dependency>
-            <groupId>com.hankcs</groupId>
-            <artifactId>hanlp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hiekn</groupId>
-            <artifactId>plantdata-smoke</artifactId>
-            <version>1.1.6</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>rest</artifactId>
-                    <groupId>org.elasticsearch.client</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>guava</artifactId>
-                    <groupId>com.google.guava</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mongo-java-driver</artifactId>
-                    <groupId>org.mongodb</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mysql-connector-java</artifactId>
-                    <groupId>mysql</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j</artifactId>
-                    <groupId>log4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>data-driver</artifactId>
-                    <groupId>com.hiekn.data</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hutool-all</artifactId>
-                    <groupId>cn.hutool</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!--xss攻击-->
         <dependency>
             <groupId>org.owasp.antisamy</groupId>
             <artifactId>antisamy</artifactId>
             <version>1.5.3</version>
         </dependency>
-        <dependency>
-            <groupId>com.hiekn</groupId>
-            <artifactId>pd-document</artifactId>
-            <version>1.0.12</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hiekn</groupId>
-            <artifactId>ie-rule</artifactId>
-            <version>2.0.5.7</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>pd-document</artifactId>
-                    <groupId>com.hiekn</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-boot-configuration-processor</artifactId>
-                    <groupId>org.springframework.boot</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>guava</artifactId>
-                    <groupId>com.google.guava</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mcn-spring-boot-starter</artifactId>
-                    <groupId>com.hiekn.boot</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-boot-starter</artifactId>
-                    <groupId>org.springframework.boot</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-boot-starter-data-mongodb</artifactId>
-                    <groupId>org.springframework.boot</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>fastjson</artifactId>
-                    <groupId>com.alibaba</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!--拼音转换-->
-        <dependency>
-            <groupId>com.github.stuxuhai</groupId>
-            <artifactId>jpinyin</artifactId>
-            <version>1.1.8</version>
-        </dependency>
-        <!--wrapper 预览-->
-        <dependency>
-            <groupId>com.hiekn</groupId>
-            <artifactId>wrapper</artifactId>
-            <version>1.0.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.hiekn.boot</groupId>
-                    <artifactId>mcn-spring-boot-starter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.alibaba</groupId>
-                    <artifactId>fastjson</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>mysql</groupId>
-                    <artifactId>mysql-connector-java</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mongodb</groupId>
-                    <artifactId>mongo-java-driver</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.code.gson</groupId>
-                    <artifactId>gson</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.alibaba</groupId>
-                    <artifactId>fastjson</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.elasticsearch.client</groupId>
-                    <artifactId>rest</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-boot-starter</artifactId>
-                    <groupId>org.springframework.boot</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j</artifactId>
-                    <groupId>log4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -201,6 +64,10 @@
         </dependency>
         <dependency>
             <groupId>com.plantdata</groupId>
+            <artifactId>kg-cloud-swagger</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
             <artifactId>kg-cloud-oss</artifactId>
         </dependency>
         <dependency>
@@ -215,10 +82,6 @@
             <groupId>com.plantdata</groupId>
             <artifactId>kg-cloud-redis</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-elasticsearch</artifactId>
-        </dependency>
         <!-- ******************* parent end ****************** -->
 
 
@@ -232,18 +95,6 @@
             <artifactId>xxl-admin-sdk</artifactId>
         </dependency>
         <!-- ******************* public-sdk  end ****************** -->
-
-
-
-        <!-- ******************* kgtext-sdk  end ****************** -->
-        <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kgtext-sdk</artifactId>
-            <version>3.0.11-SNAPSHOT</version>
-        </dependency>
-        <!-- ******************* kgtext-sdk  end ****************** -->
-
-
 
         <!-- ******************* 底层sdk start ****************** -->
         <dependency>
@@ -283,6 +134,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-mock</artifactId>
+            <version>2.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.plantdata</groupId>
+            <artifactId>kgrepo-sdk</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -308,7 +168,7 @@
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <configuration>
-                            <excludeGroupIds>
+                            <!--<excludeGroupIds>
                                 org.projectlombok,
                                 io.springfox
                             </excludeGroupIds>
@@ -317,7 +177,7 @@
                                     <groupId>com.plantdata</groupId>
                                     <artifactId>kg-cloud-swagger</artifactId>
                                 </exclude>
-                            </excludes>
+                            </excludes>-->
                         </configuration>
                     </plugin>
                 </plugins>

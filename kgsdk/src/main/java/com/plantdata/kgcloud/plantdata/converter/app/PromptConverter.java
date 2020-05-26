@@ -67,6 +67,7 @@ public class PromptConverter extends BasicConverter {
         promptReq.setSize(promptParam.getPageSize());
         consumerIfNoNull(promptParam.getSort(), a -> promptReq.setSort(SortTypeEnum.parseByValue(a)
                 .orElse(SortTypeEnum.DESC).getValue()));
+        promptReq.setIsReturnTop(promptParam.getIsReturnTop());
         return promptReq;
     }
 
@@ -96,6 +97,7 @@ public class PromptConverter extends BasicConverter {
         entityBean.setConceptId(newEntity.getConceptId());
         entityBean.setClassIdList(Lists.newArrayList(newEntity.getConceptId()));
         entityBean.setId(newEntity.getId());
+        entityBean.setImg(newEntity.getImageUrl());
         consumerIfNoNull(newEntity.isQa(), entityBean::setQa);
         entityBean.setScore(newEntity.getScore());
         consumerIfNoNull(newEntity.getType(), a -> entityBean.setType(a.getValue()));
@@ -109,6 +111,7 @@ public class PromptConverter extends BasicConverter {
         promptReq.setKw(param.getKw());
         promptReq.setOpenExportDate(param.getOpenExportDate());
         promptReq.setPage(param.getPageNo());
+        promptReq.setFuzzy(param.getIsFuzzy() == null ? false : param.getIsFuzzy());
         consumerIfNoNull(param.getQuery(), a -> promptReq.setQuery(toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
         promptReq.setSize(param.getPageSize());
         return promptReq;

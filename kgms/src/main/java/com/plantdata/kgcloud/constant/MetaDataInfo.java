@@ -65,6 +65,18 @@ public enum MetaDataInfo {
      * 截止时间
      */
     TO_TIME("20", "meta_data_20", "toTime"),
+    /**
+     * 真实来源
+     */
+    TRUE_SOURCE("21", "meta_data_21", "trueSource"),
+    /**
+     * 来源操作者
+     */
+    SOURCE_USER("22", "meta_data_22", "sourceUser"),
+    /**
+     * 真实来源
+     */
+    SOURCE_ACTION("23", "meta_data_23", "sourceAction"),
     ;
 
     private final String code;
@@ -72,6 +84,11 @@ public enum MetaDataInfo {
     private final String fieldName;
 
     private final String name;
+
+    public static final String META_DATA = "meta_data.";
+    public static final String PREFIX = "meta_data_";
+
+    public static final String METADATA = META_DATA + PREFIX;
 
     MetaDataInfo(String code, String fieldName, String name) {
         this.code = code;

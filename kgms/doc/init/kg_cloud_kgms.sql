@@ -385,3 +385,80 @@ INSERT INTO `task_template` VALUES (3, '网页数据解析-入图-标引', '[\"w
 INSERT INTO `task_template` VALUES (4, '数据接入-网页数据解析-D2R', '[\"etl\",\"wrapper\",\"d2r\"]', now(), now());
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- Table structure for graph_quality
+-- ----------------------------
+DROP TABLE IF EXISTS `graph_quality`;
+CREATE TABLE `graph_quality` (
+  `id` bigint(20) NOT NULL COMMENT '概念id',
+  `self_id` bigint(20) DEFAULT NULL COMMENT '当前概念id',
+  `name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '概念名称',
+  `kg_name` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '图谱kgName',
+  `concept_id` bigint(20) DEFAULT NULL COMMENT '父概念id',
+  `entity_count` bigint(20) DEFAULT NULL COMMENT '实体数量(当前概念下的实体)',
+  `entity_total` bigint(20) DEFAULT NULL COMMENT '实体总数(包含子概念下的实体)',
+  `attr_definition_count` int(11) DEFAULT NULL COMMENT '属性定义数量',
+  `schema_integrity` double(11,2) DEFAULT NULL COMMENT '模式完整度',
+  `reliability` double(11,2) DEFAULT NULL COMMENT '知识质量置信度',
+  `create_at` datetime(3) DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(3) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `kg_name_id` (`self_id`,`kg_name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='图谱质量统计';
+
+-- ----------------------------
+-- Table structure for graph_attr_quality
+-- ----------------------------
+DROP TABLE IF EXISTS `graph_attr_quality`;
+CREATE TABLE `graph_attr_quality` (
+  `id` bigint(20) NOT NULL,
+  `kg_name` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '图谱kgName',
+  `self_id` bigint(11) DEFAULT NULL COMMENT '概念id',
+  `attr_name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '属性名称',
+  `attr_count` int(11) DEFAULT NULL COMMENT '属性值数量',
+  `attr_integrity` double(11,2) DEFAULT NULL COMMENT '属性模式完整度',
+  `attr_reliability` double(11,2) DEFAULT NULL COMMENT '属性置信度',
+  `create_at` datetime(3) DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(3) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='图谱质量属性统计';
+
+-- ----------------------------
+-- Table structure for file_system
+-- ----------------------------
+DROP TABLE IF EXISTS `file_system`;
+CREATE TABLE `file_system`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键id',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件系统名称',
+  `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '用户id',
+  `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-文件系统' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for file_folder
+-- ----------------------------
+DROP TABLE IF EXISTS `file_folder`;
+CREATE TABLE `file_folder`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件夹名称',
+  `file_system_id` bigint(20) UNSIGNED NULL DEFAULT NULL COMMENT '文件系统id',
+  `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-文件夹' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for graph_conf_qa_status
+-- ----------------------------
+DROP TABLE IF EXISTS `graph_conf_qa_status`;
+CREATE TABLE `graph_conf_qa_status`  (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `kg_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '图谱名',
+  `status` int(11) NOT NULL DEFAULT 0 COMMENT '问答提示状态(0：关闭，1：开启)',
+  `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱qa问答设置' ROW_FORMAT = Dynamic;

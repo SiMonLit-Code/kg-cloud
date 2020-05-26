@@ -19,7 +19,7 @@ import com.plantdata.kgcloud.plantdata.req.explore.relation.RuleRelationGraphPar
 import com.plantdata.kgcloud.plantdata.req.explore.relation.TimeRelationGraphParameter;
 import com.plantdata.kgcloud.sdk.req.app.AttrSortReq;
 import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonTimingExploreReqList;
@@ -105,6 +105,7 @@ public class ExploreReqConverter extends BasicConverter {
         CommonReasoningExploreReqList exploreReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new CommonReasoningExploreReqList());
         exploreReq.setCommon(generalGraphParameterToCommonFiltersReq(param));
         exploreReq.setPage(new PageReq(param.getPageNo(), param.getPageSize()));
+        exploreReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(param));
         consumerIfNoNull(param.getReasoningRuleConfigs(), a -> exploreReq.setReasoningRuleConfigs(ExploreCommonConverter.buildReasonConfig(a)));
         return exploreReq;
     }
@@ -147,6 +148,7 @@ public class ExploreReqConverter extends BasicConverter {
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
         consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(toListNoNull(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
         consumerIfNoNull(param.getReasoningRuleConfigs(), a -> pathAnalysisReq.setReasoningRuleConfigs(ExploreCommonConverter.buildReasonConfig(a)));
+        consumerIfNoNull(param, a -> pathAnalysisReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(a)));
         return pathAnalysisReq;
     }
 

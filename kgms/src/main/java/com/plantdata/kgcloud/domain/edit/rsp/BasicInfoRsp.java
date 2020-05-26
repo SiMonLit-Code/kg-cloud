@@ -2,11 +2,12 @@ package com.plantdata.kgcloud.domain.edit.rsp;
 
 
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
-import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
+import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -52,6 +53,24 @@ public class BasicInfoRsp extends BasicInfoVO {
     private String source;
 
     /**
+     * 真实来源
+     */
+    @ApiModelProperty(value = "真实来源")
+    private Object trueSource="{}";
+
+    /**
+     * 来源操作者
+     */
+    @ApiModelProperty(value = "来源操作者")
+    private String sourceUser="";
+
+    /**
+     * 来源动作
+     */
+    @ApiModelProperty(value = "来源动作")
+    private String sourceAction="";
+
+    /**
      * 批次号
      */
     @ApiModelProperty(value = "实体批次")
@@ -89,4 +108,7 @@ public class BasicInfoRsp extends BasicInfoVO {
 
     @ApiModelProperty(value = "属性分组")
     private List<GraphAttrGroupRsp> attrGroup;
+
+    @ApiModelProperty(value = "多模态数据")
+    private List<MultiModalRsp> multiModals;
 }

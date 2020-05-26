@@ -1,11 +1,10 @@
 package com.plantdata.kgcloud.domain.dictionary.service;
 
 import com.plantdata.kgcloud.bean.BaseReq;
-import com.plantdata.kgcloud.domain.dictionary.constant.DictConst;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.dictionary.constant.DictConst;
 import com.plantdata.kgcloud.domain.dictionary.entity.Dictionary;
 import com.plantdata.kgcloud.domain.dictionary.repository.DictionaryRepository;
-
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DictionaryReq;
 import com.plantdata.kgcloud.sdk.rsp.DictionaryRsp;
@@ -62,7 +61,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     @Override
-    public DictionaryRsp findById(String userId,Long id) {
+    public DictionaryRsp findById(String userId, Long id) {
         Optional<Dictionary> one = dictionaryRepository.findByIdAndUserId(id, userId);
         DictionaryRsp data = one
                 .map(ConvertUtils.convert(DictionaryRsp.class))
@@ -78,7 +77,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public DictionaryRsp insert(String userId,DictionaryReq req) {
+    public DictionaryRsp insert(String userId, DictionaryReq req) {
         Dictionary target = new Dictionary();
         BeanUtils.copyProperties(req, target);
         String dbName = SessionHolder.getUserId() + DictConst.DATABASE_SUFFIX;
@@ -92,7 +91,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public DictionaryRsp update(String userId,Long id, DictionaryReq req) {
+    public DictionaryRsp update(String userId, Long id, DictionaryReq req) {
         Dictionary target = dictionaryRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.DICTIONARY_NOT_EXISTS));
         BeanUtils.copyProperties(req, target);

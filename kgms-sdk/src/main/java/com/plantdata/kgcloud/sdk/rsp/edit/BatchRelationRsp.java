@@ -36,11 +36,11 @@ public class BatchRelationRsp {
     private String attrTimeFrom;
     @ApiModelProperty("结束时间")
     private String attrTimeTo;
-    @ApiModelProperty("边属性")
+    @ApiModelProperty("边属性Map,其中key为边数值属性的seqNo，value为对应值key为边对象属性的seqNo，value为对象实例id数组或数值属性")
     private Map<Integer, Object> extraInfoMap;
     @ApiModelProperty("关系id")
     private String id;
-    @ApiModelProperty("元数据")
+    @ApiModelProperty("元数据 无需填写")
     private Map<String, Object> metaData;
     @ApiModelProperty("错误信息 新增无需填写")
     private String note;

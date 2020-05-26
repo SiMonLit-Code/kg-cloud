@@ -1,19 +1,24 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfQa;
+import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfQaStatus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfQaRepository;
+import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfQaStatusRepository;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfQaService;
 import com.plantdata.kgcloud.sdk.req.GraphConfQaReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphConfQaStatusRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -28,10 +33,13 @@ public class GraphConfQaServiceImpl implements GraphConfQaService {
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
 
+    @Autowired
+    private GraphConfQaStatusRepository graphConfQaStatusRepository;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<GraphConfQaRsp> saveQa(String kgName, List<GraphConfQaReq> reqs) {
-        graphConfQaRepository.deleteAll();
+        graphConfQaRepository.deleteByKgName(kgName);
         List<GraphConfQa> list = new ArrayList<>();
         for (GraphConfQaReq req : reqs) {
             GraphConfQa targe = new GraphConfQa();
@@ -58,6 +66,41 @@ public class GraphConfQaServiceImpl implements GraphConfQaService {
     @Override
     public List<GraphConfQaRsp> findByKgName(String kgName) {
         List<GraphConfQa> all = graphConfQaRepository.findAll();
-        return all.stream().map(ConvertUtils.convert(GraphConfQaRsp.class)).collect(Collectors.toList());
+        List<GraphConfQa> newList = new ArrayList<>();
+        if (all != null) {
+            for (GraphConfQa qa : all) {
+                if (qa.getKgName().equals(kgName)) {
+                    newList.add(qa);
+                }
+            }
+        }
+        return newList.stream().map(ConvertUtils.convert(GraphConfQaRsp.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public GraphConfQaStatusRsp getStatus(String kgName) {
+        GraphConfQaStatus graphConfQaStatus = new GraphConfQaStatus();
+        graphConfQaStatus.setKgName(kgName);
+        Optional<GraphConfQaStatus> optional = graphConfQaStatusRepository.findOne(Example.of(graphConfQaStatus));
+        if (!optional.isPresent()) {
+            graphConfQaStatus.setStatus(0);
+            GraphConfQaStatus save = graphConfQaStatusRepository.save(graphConfQaStatus);
+            return ConvertUtils.convert(GraphConfQaStatusRsp.class).apply(save);
+        }
+        return ConvertUtils.convert(GraphConfQaStatusRsp.class).apply(optional.get());
+    }
+
+    @Override
+    public void updateStatus(String kgName, Integer status) {
+        GraphConfQaStatus graphConfQaStatus = new GraphConfQaStatus();
+        graphConfQaStatus.setKgName(kgName);
+        Optional<GraphConfQaStatus> optional = graphConfQaStatusRepository.findOne(Example.of(graphConfQaStatus));
+        if (!optional.isPresent()) {
+            graphConfQaStatus.setStatus(status);
+            graphConfQaStatusRepository.save(graphConfQaStatus);
+        }
+        GraphConfQaStatus newGraphConfQaStatus = optional.get();
+        newGraphConfQaStatus.setStatus(status);
+        graphConfQaStatusRepository.save(newGraphConfQaStatus);
     }
 }

@@ -33,4 +33,21 @@ public enum DataTypeEnum {
         this.type = type;
         this.displayName = displayName;
     }
+
+    public static Integer getDataType(String name) {
+        DataTypeEnum dataTypeEnum = get(name);
+        if (dataTypeEnum == null) {
+            return null;
+        }
+        return dataTypeEnum.getType();
+    }
+
+    public static DataTypeEnum get(String name) {
+        for (DataTypeEnum value : DataTypeEnum.values()) {
+            if (value.getDisplayName().equals(name)) {
+                return value;
+            }
+        }
+        return null;
+    }
 }

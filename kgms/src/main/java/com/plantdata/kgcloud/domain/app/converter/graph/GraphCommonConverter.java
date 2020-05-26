@@ -14,6 +14,7 @@ import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
+import com.plantdata.kgcloud.sdk.req.app.MetaDataReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
@@ -49,7 +50,7 @@ public class GraphCommonConverter extends BasicConverter {
         BasicInfo concept = conceptMap.get(conceptId);
         BasicInfo topConcept = ConceptConverter.getTopConcept(conceptId, conceptMap);
         if (concept == null || topConcept == null) {
-            log.error("conceptId:{}概念不存在", conceptId);
+            log.warn("conceptId:{}概念不存在", conceptId);
         }
         consumerIfNoNull(concept, a -> {
             entityRsp.setConceptName(a.getName());
@@ -96,6 +97,9 @@ public class GraphCommonConverter extends BasicConverter {
         MetaData relationMetaData = new MetaData();
         relationMetaData.setRead(true);
         graphFrom.setRelationMeta(relationMetaData);
+
+        consumerIfNoNull(exploreReq.getReservedAttFilters(), a ->  entityMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
+        consumerIfNoNull(exploreReq.getReservedAttFilters(), a ->  relationMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
 
         return graphFrom;
     }

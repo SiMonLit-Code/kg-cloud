@@ -2,8 +2,9 @@ package com.plantdata.kgcloud.sdk.req.app.explore.common;
 
 
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
+import com.plantdata.kgcloud.sdk.req.app.MetaDataReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.RelationAttrReq;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.function.AttrDefListKeyReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.ConceptKeyListReqInterface;
 import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
@@ -62,4 +63,6 @@ public class BasicGraphExploreReqList implements AttrDefListKeyReqInterface, Con
     @ApiModelProperty("要求的参数")
     private BasicGraphExploreRsp graphReq;
 
+    @ApiModelProperty("置信度、权重过滤条件")
+    private List<MetaDataReq> reservedAttFilters;
 }

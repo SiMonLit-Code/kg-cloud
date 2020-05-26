@@ -33,6 +33,10 @@ public enum MongoOperation {
      * 排序顺序
      */
     ASC("ASC"),
+    /**
+     * 更新操作
+     */
+    SET("$set"),
     ;
 
     private final String type;

@@ -4,9 +4,10 @@ import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-@Configuration
+@Component("logFeignRequestInterceptor")
 public class LogFeignRequestInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate requestTemplate) {

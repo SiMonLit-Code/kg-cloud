@@ -3,39 +3,29 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.GraphApi;
-import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
-import ai.plantdata.kg.api.edit.req.BasicInfoFrom;
-import ai.plantdata.kg.api.edit.req.BasicQuery;
-import ai.plantdata.kg.api.edit.req.MetaDataFrom;
-import ai.plantdata.kg.api.edit.req.PromptFrom;
-import ai.plantdata.kg.api.edit.req.SynonymFrom;
-import ai.plantdata.kg.api.edit.req.UpdateBasicInfoFrom;
+import ai.plantdata.kg.api.edit.req.*;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.edit.resp.PromptVO;
+import ai.plantdata.kg.api.edit.resp.RelationDetailVO;
 import ai.plantdata.kg.api.edit.resp.SimpleBasic;
 import ai.plantdata.kg.api.pub.CountApi;
 import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.StatisticsApi;
 import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
+import com.mongodb.MongoClient;
 import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.BasicInfoType;
 import com.plantdata.kgcloud.constant.CountType;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
+import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.domain.edit.req.basic.AbstractModifyReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.ImageUrlReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.PromptReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.StatisticsReq;
-import com.plantdata.kgcloud.domain.edit.req.basic.SynonymReq;
-import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.GraphStatisRsp;
-import com.plantdata.kgcloud.domain.edit.rsp.PromptRsp;
+import com.plantdata.kgcloud.domain.edit.req.basic.*;
+import com.plantdata.kgcloud.domain.edit.rsp.*;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
@@ -48,6 +38,8 @@ import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
@@ -56,10 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -93,6 +82,15 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Autowired
     private LogSender logSender;
+
+    @Autowired
+    private MongoClient mongoClient;
+
+    @Autowired
+    private DocumentConverter documentConverter;
+
+    @Autowired
+    private EntityFileRelationService entityFileRelationService;
 
     @Override
     public Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq) {
@@ -142,7 +140,9 @@ public class BasicInfoServiceImpl implements BasicInfoService {
             throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
         }
         BasicInfoRsp basicInfoRsp = ParserBeanUtils.parserEntityVO(optional.get());
-
+        if (basicReq.getIsEntity()) {
+            basicInfoRsp.setMultiModals(this.listMultiModels(kgName, basicReq.getId()));
+        }
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
         if (CollectionUtils.isEmpty(attrValue) || BasicInfoType.isConcept(basicInfoRsp.getType())) {
             return basicInfoRsp;
@@ -166,6 +166,37 @@ public class BasicInfoServiceImpl implements BasicInfoService {
             basicInfoRsp.setAttrGroup(attrGroupRsps);
             return basicInfoRsp;
         }
+    }
+
+    /**
+     * 获取多模态数据信息
+     *
+     * @param kgName
+     * @param entityId
+     * @return
+     */
+    @Override
+    public List<MultiModalRsp> listMultiModels(String kgName, Long entityId) {
+        List<EntityFileRsp> relationList = entityFileRelationService.getRelationByKgNameAndEntityId(kgName, entityId);
+        return relationList.stream().map(ConvertUtils.convert(MultiModalRsp.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<Long, List<MultiModalRsp>> listMultiModels(String kgName, List<Long> entityIds) {
+        List<EntityFileRsp> relationList = entityFileRelationService.getRelationByKgNameAndEntityIdIn(kgName, entityIds, 0);
+
+        List<MultiModalRsp> list = relationList.stream().map(ConvertUtils.convert(MultiModalRsp.class)).collect(Collectors.toList());
+
+        return list.stream().filter(Objects::nonNull).collect(Collectors.groupingBy(MultiModalRsp::getEntityId));
+    }
+
+    @Override
+    public Map<Long, List<KnowledgeIndexRsp>> listKnowledgeIndexs(String kgName, List<Long> entityIds) {
+        List<EntityFileRsp> relationList = entityFileRelationService.getRelationByKgNameAndEntityIdIn(kgName, entityIds, 1);
+
+        List<KnowledgeIndexRsp> list = relationList.stream().map(ConvertUtils.convert(KnowledgeIndexRsp.class)).collect(Collectors.toList());
+
+        return list.stream().filter(Objects::nonNull).collect(Collectors.groupingBy(KnowledgeIndexRsp::getEntityId));
     }
 
     @Override
@@ -192,8 +223,37 @@ public class BasicInfoServiceImpl implements BasicInfoService {
 
     @Override
     public void addSynonym(String kgName, SynonymReq synonymReq) {
+        Set<String> names = synonymReq.getNames();
+        if (CollectionUtils.isEmpty(names)) {
+            return;
+        }
+
+        // 查询实体和概念的同义词信息
+        EntityVO entityVO = conceptEntityApi.get(kgName, false, synonymReq.getId()).getData();
+        if (entityVO == null) {
+            entityVO = conceptEntityApi.get(kgName, true, synonymReq.getId()).getData();
+        }
+        if (entityVO == null) {
+            throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
+        }
+        List<String> synonym = entityVO.getSynonym();
+        if (!CollectionUtils.isEmpty(synonym)) {
+            // 去除空白和重复的同义词
+            names = names.stream().filter(org.apache.commons.lang3.StringUtils::isNotBlank)
+                    .filter(s -> !synonym.contains(s))
+                    .collect(Collectors.toSet());
+        }
+        synonymReq.setNames(names);
+
+        if (synonymReq.getName() == null) {
+            synonymReq.setName("");
+        }
+        if (CollectionUtils.isEmpty(names)) {
+            return;
+        }
         SynonymFrom synonymFrom = ConvertUtils.convert(SynonymFrom.class).apply(synonymReq);
-        RestRespConverter.convertVoid(conceptEntityApi.addSynonym(KGUtil.dbName(kgName), synonymFrom));
+        RestResp restResp = conceptEntityApi.addSynonym(KGUtil.dbName(kgName), synonymFrom);
+        RestRespConverter.convertVoid(restResp);
     }
 
     @Override
@@ -352,5 +412,30 @@ public class BasicInfoServiceImpl implements BasicInfoService {
                 RestRespConverter.convert(conceptEntityApi.listBatch(KGUtil.dbName(kgName), basicQuery));
 
         return optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(SimpleBasicRsp.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public RelationDetailRsp getRelationDetails(String kgName, String id) {
+        RestResp<RelationDetailVO> restResp = conceptEntityApi.relationDetail(kgName, id);
+        Optional<RelationDetailVO> optional = RestRespConverter.convert(restResp);
+        if (!optional.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.TRIPLE_ID_NOT_EXISTS);
+        }
+        RelationDetailRsp rsp = new RelationDetailRsp();
+        rsp.setExtraInfo(optional.get().getExtraInfo());
+        rsp.setRelationDataValues(optional.get().getRelationDataValues());
+        rsp.setRelationObjectValues(optional.get().getRelationObjectValues());
+        rsp.setAttrTimeFrom(optional.get().getAttrTimeFrom());
+        rsp.setAttrTimeTo(optional.get().getAttrTimeTo());
+        if (optional.get().getMetaData().get("meta_data_3") != null) {
+            rsp.setScore((Double) optional.get().getMetaData().get("meta_data_3"));
+        }
+        if (optional.get().getMetaData().get("meta_data_12") != null) {
+            rsp.setReliability((Double) optional.get().getMetaData().get("meta_data_12"));
+        }
+        if (optional.get().getMetaData().get("meta_data_11") != null) {
+            rsp.setSource((String) optional.get().getMetaData().get("meta_data_11"));
+        }
+        return rsp;
     }
 }

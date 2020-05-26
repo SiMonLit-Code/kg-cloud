@@ -20,8 +20,8 @@ import java.util.List;
 public class AssociationParameter {
     @NotBlank
     private String kgName;
-    @NotNull
     private Long entityId;
+    private String kw;
     @ChooseCheck(value = "[0,1,2]")
     private Integer direction = 1;
 

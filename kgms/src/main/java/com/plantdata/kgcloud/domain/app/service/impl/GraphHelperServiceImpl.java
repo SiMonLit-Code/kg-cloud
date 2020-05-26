@@ -2,10 +2,13 @@ package com.plantdata.kgcloud.domain.app.service.impl;
 
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.pub.EntityApi;
+import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.RelationApi;
 import ai.plantdata.kg.api.pub.SchemaApi;
 import ai.plantdata.kg.api.pub.req.FilterRelationFrom;
+import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import cn.hiboot.mcn.core.model.result.RestResp;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
@@ -17,15 +20,18 @@ import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
+import com.plantdata.kgcloud.domain.app.util.DefaultUtils;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.*;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
@@ -38,11 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -66,6 +68,8 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     private RelationApi relationApi;
     @Autowired
     private EntityApi entityApi;
+    @Autowired
+    private MongoApi mongoApi;
 
 
     @Override
@@ -180,7 +184,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             return;
         }
         Optional<Map<String, Integer>> keyConvertOpt = RestRespConverter.convert(schemaApi.getAttrIdByKey(KGUtil.dbName(kgName), attrDefKeyReq.getAllowAttrsKey()));
-        if (!keyConvertOpt.isPresent()||CollectionUtils.isEmpty(keyConvertOpt.get())) {
+        if (!keyConvertOpt.isPresent() || CollectionUtils.isEmpty(keyConvertOpt.get())) {
             throw BizException.of(AppErrorCodeEnum.ATTR_DEF_NOT_FOUNT);
         }
         attrDefKeyReq.setAllowAttrs(Lists.newArrayList(keyConvertOpt.get().values()));
@@ -199,6 +203,54 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             return;
         }
         attrDefKeyReq.setAttrDefId(keyConvertOpt.get().get(attrDefKeyReq.getAttrDefKey()));
+    }
+
+    @Override
+    public void replaceKwToId(String kgName, BatchInfoBoxReqList req) {
+        List<Long> entityIdList = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(req.getIds()) || req.getIds().get(0) == null) {
+            List<String> kws = req.getKws();
+            if (CollectionUtils.isEmpty(kws)) {
+                return;
+            }
+            for (String kw : kws) {
+                MongoQueryFrom query = new MongoQueryFrom();
+                query.setKgName(KGUtil.dbName(kgName));
+                query.setCollection("basic_info");
+                List<Map<String, Object>> mathMapList = Lists.newArrayList();
+                mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", kw)));
+                query.setQuery(mathMapList);
+                RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
+                List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
+                entityIdList.addAll(ids);
+            }
+            if (CollectionUtils.isEmpty(entityIdList)) {
+                return;
+            }
+            req.setIds(entityIdList);
+        }
+    }
+
+    @Override
+    public void replaceKwToId(String kgName, KnowledgeRecommendReqList req) {
+        if (req.getEntityId() == null) {
+            String kw = req.getKw();
+            if (StringUtils.isBlank(kw)) {
+                return;
+            }
+            MongoQueryFrom query = new MongoQueryFrom();
+            query.setKgName(KGUtil.dbName(kgName));
+            query.setCollection("basic_info");
+            List<Map<String, Object>> mathMapList = Lists.newArrayList();
+            mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", kw)));
+            query.setQuery(mathMapList);
+            RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
+            List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(ids)) {
+                return;
+            }
+            req.setEntityId(ids.get(0));
+        }
     }
 
 }

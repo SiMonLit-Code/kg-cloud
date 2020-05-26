@@ -4,33 +4,31 @@ import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
+import ai.plantdata.kg.api.edit.req.RelationListFrom;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.MongoApi;
+import ai.plantdata.kg.api.pub.RelationApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
+import ai.plantdata.kg.api.pub.resp.RelationVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
-import com.plantdata.kgcloud.domain.app.converter.AttrDefConverter;
-import com.plantdata.kgcloud.domain.app.converter.AttrDefGroupConverter;
-import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.app.converter.ComplexGraphAnalysisConverter;
-import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
-import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
-import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
-import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
+import com.plantdata.kgcloud.domain.app.converter.*;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
-import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
+import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
+import com.plantdata.kgcloud.domain.edit.service.DomainDictService;
 import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
@@ -43,7 +41,7 @@ import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
 import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.dataset.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
@@ -55,8 +53,12 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
+import com.plantdata.kgcloud.sdk.rsp.edit.DictRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -64,6 +66,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -106,7 +109,11 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     @Autowired
     private ConceptService conceptService;
     @Autowired
-    private DataSetSearchService dataSetSearchService;
+    private BasicInfoService basicInfoService;
+    @Autowired
+    private DomainDictService domainDictService;
+    @Autowired
+    private RelationApi relationApi;
 
     @Override
     public SchemaRsp querySchema(String kgName) {
@@ -133,6 +140,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         }
         //replace attrKey
         graphHelperService.replaceByAttrKey(kgName, knowledgeRecommendReq);
+        // 实体id为空时，将实体名称转成实体id
+        graphHelperService.replaceKwToId(kgName,knowledgeRecommendReq);
 
         Optional<Map<Integer, Set<Long>>> entityAttrOpt = RestRespConverter.convert(entityApi.entityAttributesObject(KGUtil.dbName(kgName), KnowledgeRecommendConverter.reqToFrom(knowledgeRecommendReq)));
         if (!entityAttrOpt.isPresent()) {
@@ -218,6 +227,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         batchInfoBoxReq.setAllowAttrs(infoBoxReq.getAllowAttrs());
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
         batchInfoBoxReq.setIds(Lists.newArrayList(infoBoxReq.getId()));
+        batchInfoBoxReq.setKws(Lists.newArrayList(infoBoxReq.getKw()));
         batchInfoBoxReq.setRelationAttrs(infoBoxReq.getRelationAttrs());
         batchInfoBoxReq.setReverseRelationAttrs(infoBoxReq.getRelationAttrs());
         List<InfoBoxRsp> list = infoBox(kgName, batchInfoBoxReq);
@@ -228,8 +238,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (infoBoxRsp.getSelf() == null) {
             return null;
         }
-        List<DataLinkRsp> dataLinks = dataSetSearchService.getDataLinks(kgName, userId, infoBoxRsp.getSelf().getId());
-        infoBoxRsp.getSelf().setDataLinks(dataLinks);
+        List<DictRsp> dictRspList = domainDictService.listDictByEntity(kgName, infoBoxReq.getId());
+        infoBoxRsp.getSelf().setDictList(dictRspList);
         return infoBoxRsp;
     }
 
@@ -238,6 +248,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         //实体
         graphHelperService.replaceByAttrKey(kgName, req);
         List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();
+        // 判断id是否为空，为空用实体名称查询
+        graphHelperService.replaceKwToId(kgName,req);
         //实体
         BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxReqToBasicDetailFilter(req);
         detailFilter.setEntity(true);
@@ -245,12 +257,34 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
         detailFilter.setEntity(false);
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> conceptListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
+
         entityListOpt.ifPresent(entityList ->
         {
+            List<Long> entityIds = entityList.stream().map(ai.plantdata.kg.api.edit.resp.EntityVO::getId).collect(Collectors.toList());
+
             BasicConverter.consumerIfNoNull(req.getAllowAttrs(), allowAttrIds -> entityList.forEach(entity -> {
-                BasicConverter.consumerIfNoNull(entity.getAttrValue(), a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
+                BasicConverter.consumerIfNoNull(entity.getAttrValue(),
+                        a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
-            BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList, InfoBoxConverter::entityToInfoBoxRsp), infoBoxRspList::addAll);
+            Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(kgName, entityIds);
+            Map<Long, List<KnowledgeIndexRsp>> indexMap = basicInfoService.listKnowledgeIndexs(kgName, entityIds);
+            //查询对象属性
+            Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
+            Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
+            Map<Long, List<RelationVO>> reverseMap = Maps.newHashMap();
+            if(req.getRelationAttrs()) {
+                relationOpt.ifPresent(relations -> relations.forEach(a -> {
+                    positiveMap.computeIfAbsent(a.getFrom().getId(), v -> Lists.newArrayList()).add(a);
+                }));
+            }
+            if(req.getReverseRelationAttrs()) {
+                relationOpt.ifPresent(relations -> relations.forEach(a -> {
+                    reverseMap.computeIfAbsent(a.getTo().getId(), v -> Lists.newArrayList()).add(a);
+                }));
+            }
+            BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
+                    a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()), indexMap.get(a.getId()),
+                            positiveMap.get(a.getId()), reverseMap.get(a.getId()))), infoBoxRspList::addAll);
 
         });
         conceptListOpt.ifPresent(conceptList ->
