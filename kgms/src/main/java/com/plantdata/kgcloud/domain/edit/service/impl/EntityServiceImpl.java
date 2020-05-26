@@ -668,11 +668,10 @@ public class EntityServiceImpl implements EntityService {
             logSender.sendLog(kgName, ServiceEnum.RELATION_EDIT);
         }
 
-        List<String> objIds = privateAttrDataReq.getObjIds();
-        if (!CollectionUtils.isEmpty(objIds)) {
-            String id = objIds.get(0);
+        String attrId = privateAttrDataReq.getAttrId();
+        if (!StringUtils.isEmpty(attrId)) {
             DeletePrivateDataReq req = ConvertUtils.convert(DeletePrivateDataReq.class).apply(privateAttrDataReq);
-            req.setTripleIds(Lists.newArrayList(id));
+            req.setTripleIds(Lists.newArrayList(attrId));
             conceptEntityApi.deletePrivateData(KGUtil.dbName(kgName), req.getType(), req.getEntityId(), req.getTripleIds());
         }
 

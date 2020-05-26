@@ -2,13 +2,13 @@ package com.plantdata.kgcloud.domain.edit.controller;
 
 import ai.plantdata.kg.api.edit.merge.EntityMergeSourceVO;
 import ai.plantdata.kg.api.edit.merge.MergeEntity4Edit;
-import ai.plantdata.kg.api.edit.merge.MergeEntityDetail;
 import ai.plantdata.kg.api.edit.merge.MergeFinalEntityFrom;
 import ai.plantdata.kg.api.edit.merge.WaitMergeVO;
 import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
+import com.plantdata.kgcloud.domain.edit.rsp.MergeEntityDetailRsp;
 import com.plantdata.kgcloud.domain.edit.service.MergeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -116,7 +116,7 @@ public class MergeController {
 
     @ApiOperation("查看详情列表")
     @GetMapping("wait/entity/{kgName}")
-    public ApiReturn<List<MergeEntityDetail>> showEntityList(
+    public ApiReturn<List<MergeEntityDetailRsp>> showEntityList(
             @PathVariable("kgName") String kgName,
             @RequestParam("objId") String objId
     ) {
