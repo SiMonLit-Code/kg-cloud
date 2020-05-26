@@ -8,6 +8,7 @@ import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
+import com.plantdata.kgcloud.domain.edit.req.merge.WaitMergeReq;
 import com.plantdata.kgcloud.domain.edit.rsp.MergeEntityDetailRsp;
 import com.plantdata.kgcloud.domain.edit.service.MergeService;
 import io.swagger.annotations.Api;
@@ -63,7 +64,7 @@ public class MergeController {
     @ApiOperation("获取待合并的列表")
     @GetMapping("wait/list/{kgName}")
     public ApiReturn<Page<WaitMergeVO>> waitList(
-            @PathVariable("kgName") String kgName, BaseReq req) {
+            @PathVariable("kgName") String kgName, WaitMergeReq req) {
         return ApiReturn.success(mergeService.waitList(kgName, req));
     }
 

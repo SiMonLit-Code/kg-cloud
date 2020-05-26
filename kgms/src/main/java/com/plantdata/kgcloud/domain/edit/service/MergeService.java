@@ -6,6 +6,7 @@ import ai.plantdata.kg.api.edit.merge.MergeEntityDetail;
 import ai.plantdata.kg.api.edit.merge.MergeFinalEntityFrom;
 import ai.plantdata.kg.api.edit.merge.WaitMergeVO;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.edit.req.merge.WaitMergeReq;
 import com.plantdata.kgcloud.domain.edit.rsp.MergeEntityDetailRsp;
 import org.springframework.data.domain.Page;
 
@@ -96,7 +97,7 @@ public interface MergeService {
      * @param req
      * @return
      */
-    Page<WaitMergeVO> waitList(String kgName, BaseReq req);
+    Page<WaitMergeVO> waitList(String kgName, WaitMergeReq req);
 
     /**
      * 删除待融合列表
