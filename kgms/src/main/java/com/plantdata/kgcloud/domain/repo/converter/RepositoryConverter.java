@@ -48,6 +48,7 @@ public class RepositoryConverter extends BasicConverter {
         groupRsp.setDesc(group.getDesc());
         groupRsp.setGroupId(group.getGroupId());
         groupRsp.setGroupName(group.getGroupName());
+        groupRsp.setRank(group.getRank());
         groupRsp.setId(group.getId());
         return groupRsp;
     }
