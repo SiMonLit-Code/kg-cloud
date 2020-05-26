@@ -369,6 +369,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             FileData fileData = documentConverter.toBean(document, FileData.class);
             if (fileData != null) {
                 EntityFileRsp entityFileRsp = ConvertUtils.convert(EntityFileRsp.class).apply(fileData);
+                entityFileRsp.setId(doc.getObjectId("_id").toString());
                 entityFileRsp.setEntityId(entityId);
                 entityFileRsp.setIndexType(0);
                 list.add(entityFileRsp);
