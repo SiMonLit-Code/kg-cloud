@@ -65,8 +65,7 @@ public class FileUploadController {
     @ApiOperation("下载文件")
     @GetMapping("/download")
     @EditPermissionUnwanted
-    public ApiReturn download(@RequestParam String filePath, HttpServletResponse response) {
+    public void download(@RequestParam String filePath, HttpServletResponse response) {
         fileUploadService.download(filePath, response);
-        return ApiReturn.success();
     }
 }
