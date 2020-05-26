@@ -73,14 +73,10 @@ public class FileDataServiceImpl implements FileDataService {
         bsons.add(Filters.eq("fileSystemId", fileSystemId));
         bsons.add(Filters.eq("folderId", folderId));
 
-        FindIterable<Document> findIterable = getFileCollection().find(Filters.and(bsons)).skip(page).limit(size + 1).sort(new Document("createTime", -1));
+        FindIterable<Document> findIterable = getFileCollection().find(Filters.and(bsons)).skip(page).limit(size).sort(new Document("createTime", -1));
+        long count = getFileCollection().countDocuments(Filters.and(bsons));
         List<FileData> fileDatas = documentConverter.toBeans(findIterable, FileData.class);
         List<FileDataRsp> fileDataRsps = fileDatas.stream().map(fileData2rsp).collect(Collectors.toList());
-        int count = fileDataRsps.size();
-        if (count > size) {
-            fileDataRsps.remove(size.intValue());
-            count += page;
-        }
 
         return new PageImpl<>(fileDataRsps, PageRequest.of(req.getPage() - 1, size), count);
     }
