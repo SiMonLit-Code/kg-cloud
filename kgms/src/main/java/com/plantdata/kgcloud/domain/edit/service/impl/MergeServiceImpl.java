@@ -9,10 +9,13 @@ import ai.plantdata.kg.api.edit.merge.WaitMergeVO;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.rsp.MergeEntityDetailRsp;
 import com.plantdata.kgcloud.domain.edit.service.MergeService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author: LinHo
@@ -96,9 +100,20 @@ public class MergeServiceImpl implements MergeService {
     }
 
     @Override
-    public List<MergeEntityDetail> showEntityList(String kgName, String objId) {
+    public List<MergeEntityDetailRsp> showEntityList(String kgName, String objId) {
         RestResp<List<MergeEntityDetail>> listRestResp = mergeApi.showEntityList(KGUtil.dbName(kgName), objId);
-        return RestRespConverter.convert(listRestResp).orElse(Collections.emptyList());
+        List<MergeEntityDetail> mergeEntityDetails = RestRespConverter.convert(listRestResp).orElse(Collections.emptyList());
+        return mergeEntityDetails.stream().map(ConvertUtils.convert(MergeEntityDetailRsp.class)).peek((s) -> {
+            Map<String, Object> metaData = s.getMetaData();
+            if (metaData != null && !metaData.isEmpty()) {
+                if (metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
+                    s.setSource(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+                }
+                if (metaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
+                    s.setReliability(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+                }
+            }
+        }).collect(Collectors.toList());
     }
 
     @Override
