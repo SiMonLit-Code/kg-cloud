@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.req.merge.WaitMergeReq;
 import com.plantdata.kgcloud.domain.edit.rsp.MergeEntityDetailRsp;
 import com.plantdata.kgcloud.domain.edit.service.MergeService;
 import com.plantdata.kgcloud.exception.BizException;
@@ -86,8 +87,8 @@ public class MergeServiceImpl implements MergeService {
     }
 
     @Override
-    public Page<WaitMergeVO> waitList(String kgName, BaseReq req) {
-        RestResp<List<WaitMergeVO>> listRestResp = mergeApi.waitList(KGUtil.dbName(kgName), req.getOffset(), req.getLimit());
+    public Page<WaitMergeVO> waitList(String kgName, WaitMergeReq req) {
+        RestResp<List<WaitMergeVO>> listRestResp = mergeApi.waitList(KGUtil.dbName(kgName), req.getOffset(), req.getLimit(),req.getJobId());
         List<WaitMergeVO> list = RestRespConverter.convert(listRestResp).orElse(Collections.emptyList());
         Integer integer = RestRespConverter.convertCount(listRestResp).orElse(0);
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
