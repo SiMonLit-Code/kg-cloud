@@ -9,18 +9,23 @@ import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter;
 import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
 import com.plantdata.kgcloud.plantdata.converter.semantic.QaConverter;
 import com.plantdata.kgcloud.plantdata.converter.semantic.ReasonConverter;
+import com.plantdata.kgcloud.plantdata.req.data.EntityFileRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.nlp.AnnotationParameter;
 import com.plantdata.kgcloud.plantdata.req.reason.InferenceParameter;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
+import com.plantdata.kgcloud.sdk.EntityFileClient;
 import com.plantdata.kgcloud.sdk.NlpClient;
 import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.SemanticClient;
+import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.EntityFileRelationRsp;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -52,6 +57,9 @@ public class SemanticController implements SdkOldApiInterface {
     private ReasoningClient reasoningClient;
     @Autowired
     public NlpClient nlpClient;
+
+    @Autowired
+    private EntityFileClient entityFileClient;
 
     @ApiOperation("意图图谱生成")
     @GetMapping("kbqa/init")
@@ -107,5 +115,27 @@ public class SemanticController implements SdkOldApiInterface {
                 .apply(param);
         PdDocument document = NlpConverter2.annotationToPdDocument(opt.orElse(Collections.emptyList()));
         return new RestResp<>(document);
+    }
+
+    @PostMapping("entity/file/add")
+    @ApiOperation("实体文件管理-建立标引关系")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "indexType", required = true, dataType = "int", paramType = "form", value = "标引类型(0：文件标引，1：文本标引，3：链接标引)"),
+            @ApiImplicitParam(name = "entityIds", required = true, dataType = "string", paramType = "form", value = "实体id列表"),
+            @ApiImplicitParam(name = "fileId", dataType = "string", paramType = "form", value = "文件id(文件标引必需)"),
+            @ApiImplicitParam(name = "title", dataType = "string", paramType = "form", value = "标题(文本、链接标引必需)"),
+            @ApiImplicitParam(name = "keyword", dataType = "string", paramType = "form", value = "关键词"),
+            @ApiImplicitParam(name = "description", dataType = "string", paramType = "form", value = "简介(文本标引必需)"),
+            @ApiImplicitParam(name = "url", dataType = "string", paramType = "form", value = "链接(链接标引必需)"),
+    })
+    public RestResp<EntityFileRelationRsp> add(@Valid @ApiIgnore EntityFileRelationParameter param) {
+        EntityFileRelationAddReq req = ConvertUtils.convert(EntityFileRelationAddReq.class).apply(param);
+        ApiReturn<EntityFileRelationRsp> apiReturn = entityFileClient.add(param.getKgName(), req);
+        if (apiReturn.getErrCode() == 200) {
+            return new RestResp<>(apiReturn.getData());
+        } else {
+            return new RestResp<>(apiReturn.getErrCode(), apiReturn.getMessage());
+        }
     }
 }
