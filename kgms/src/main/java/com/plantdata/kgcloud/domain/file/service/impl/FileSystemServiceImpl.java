@@ -70,7 +70,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileSystem fileSystem = FileSystem.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
-        List<FileSystem> all = fileSystemRepository.findAll(Example.of(fileSystem));
+        List<FileSystem> all = fileSystemRepository.findAll(Example.of(fileSystem), Sort.by(Sort.Order.desc("createAt")));
         return all.stream().map(fileSystem2rsp).collect(Collectors.toList());
     }
 
@@ -93,7 +93,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileFolder table = FileFolder.builder()
                 .fileSystemId(fileSystemId)
                 .build();
-        List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table));
+        List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table), Sort.by(Sort.Order.desc("createAt")));
 
         List<FolderRsp> tables = dwTableList.stream().map(table2rsp).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(tables)) {
@@ -128,6 +128,13 @@ public class FileSystemServiceImpl implements FileSystemService {
                 .userId(SessionHolder.getUserId())
                 .name(name)
                 .build();
+
+        // 验证文件系统名称是否存在
+        Optional<FileSystem> optional = fileSystemRepository.findOne(Example.of(fileSystem));
+        if (optional.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.FILE_DATABASE_NAME_EXIST);
+        }
+
         FileSystem save = fileSystemRepository.save(fileSystem);
 
         return fileSystem2rsp.apply(save);
@@ -168,7 +175,7 @@ public class FileSystemServiceImpl implements FileSystemService {
             throw BizException.of(KgmsErrorCodeEnum.FILE_DATABASE_NOT_EXIST);
         }
 
-        // 验证数据表名称是否存在
+        // 验证文件夹名称是否存在
         Optional<FileFolder> optional = fileFolderRepository.findOne(Example.of(FileFolder.builder().fileSystemId(fileSystemId).name(name).build()));
 
         if (optional.isPresent()) {
