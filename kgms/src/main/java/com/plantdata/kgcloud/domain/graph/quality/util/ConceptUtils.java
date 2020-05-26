@@ -218,7 +218,7 @@ public class ConceptUtils {
     }
 
     /**
-     * 获取对象属性的值域列表
+     * 根据概念ID获取基本信息
      *
      * @param kgDbName
      * @param conceptIds
@@ -229,7 +229,7 @@ public class ConceptUtils {
         MongoCursor<Document> iterator = getBasicInfoCollection(kgDbName).find(Filters.in("id", conceptIds)).iterator();
 
         List<BasicInfo> list = Lists.newArrayList();
-        if (iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Document document = iterator.next();
 
             BasicInfo basicInfo = new BasicInfo();

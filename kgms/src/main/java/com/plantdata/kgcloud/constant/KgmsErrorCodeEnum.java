@@ -124,6 +124,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     GRAPH_QUALITY_IS_NOT_RUN(120619, "还未进行质量计算"),
 
+    FILE_DATABASE_NAME_EXIST(120620, "文件系统已存在"),
+
     ;
     private final int errorCode;
 

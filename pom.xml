@@ -19,6 +19,7 @@
         <module>kgsdk</module>
         <module>kgpreview</module>
         <module>kgrepo-sdk</module>
+        <module>nlp-sdk</module>
     </modules>
 
     <properties>
@@ -36,6 +37,11 @@
             <dependency>
                 <groupId>com.plantdata</groupId>
                 <artifactId>kgms-sdk</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>nlp-sdk</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

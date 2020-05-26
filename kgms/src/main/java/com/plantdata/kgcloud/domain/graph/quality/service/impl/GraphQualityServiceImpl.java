@@ -255,9 +255,6 @@ public class GraphQualityServiceImpl implements GraphQualityService {
      */
     private void statisticsAttr(String kgName, Long conceptId, GraphAttrQualityRsp graphAttrQualityRsp) {
         List<AttrQualityVO> attrQualityVOS = graphAttrQualityRsp.getAttrQualities();
-        if (CollectionUtils.isEmpty(attrQualityVOS)) {
-            return;
-        }
         String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
         // 初始化数据
         initFunc.init(kgDbName);
