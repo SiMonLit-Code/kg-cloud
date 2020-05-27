@@ -49,7 +49,7 @@ public class KgLogListener {
      * 数据层日志监听
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"}, groupId = "log")
+  //  @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"}, groupId = "log")
     public void logListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
