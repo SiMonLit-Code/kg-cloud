@@ -9,7 +9,7 @@ mvn scm:checkin -Dmessage="build(tag): release tag v${next-tag.version}" scm:tag
 
 mvn clean package deploy -Dmaven.test.skip=true
 
-mvn scm:update versions:set -DnewVersion=${next-develop.version} versions:set-scm-tag -DnewTag=HEAD versions:commit scm:checkin -Dmessage="build(pom): pom.xml version change to ${next-develop.version}"
+mvn  versions:set -DnewVersion=${next-develop.version} versions:set-scm-tag -DnewTag=HEAD versions:commit scm:checkin -Dmessage="build(pom): pom.xml version change to ${next-develop.version}"
 
 ```
 
