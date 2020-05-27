@@ -135,7 +135,13 @@ public class GraphStatisticConverter extends BasicConverter {
         if (AttributeValueType.isNumeric(valueType) && AttributeDataTypeEnum.DATE_SET.contains(dataType)) {
             return StatisticConstants.STATISTIC_MAX_SIZE;
         }
-        return size == null ? 10 : size;
+        if (size == null) {
+            return 10;
+        }
+        if (size == -1) {
+            return Integer.MAX_VALUE - 1;
+        }
+        return size;
     }
 
     private static int defaultStatisticSize(Integer size) {
