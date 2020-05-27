@@ -16,8 +16,8 @@ public class EntityFileRelation {
 
     private String id;
 
-    @ApiModelProperty("实体Ids")
-    private List<Long> entityIds;
+    @ApiModelProperty("关联的实体相关信息")
+    private List<EntityFileRelationScore> entityAnnotation;
 
     @ApiModelProperty("标引文件ID")
     private String fileId;
