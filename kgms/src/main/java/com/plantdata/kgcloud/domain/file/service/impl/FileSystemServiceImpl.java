@@ -111,7 +111,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         }
 
         // 默认文件夹
-        FolderRsp folder = new FolderRsp();
+        FolderRsp folder = null;
         // 文件系统，添加文件夹拥有文件数量参数
         for (int i = 0; i < folderRsps.size(); i++) {
             FolderRsp folderRsp = folderRsps.get(i);
@@ -123,7 +123,10 @@ public class FileSystemServiceImpl implements FileSystemService {
             folderRsp.setFileCount(setTableFileCount(fileSystemId, folderRsp.getId()));
         }
 
-        List<FolderRsp> newFolderRsps = Lists.newArrayList(folder);
+        List<FolderRsp> newFolderRsps = Lists.newArrayList();
+        if (folder != null) {
+            newFolderRsps.add(folder);
+        }
         newFolderRsps.addAll(folderRsps);
         return newFolderRsps;
     }
