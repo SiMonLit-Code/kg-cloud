@@ -1,11 +1,13 @@
 package com.plantdata.kgcloud.domain.repo.service;
 
+import com.plantdata.kgcloud.domain.repo.entity.RepoItem;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryReq;
 import com.plantdata.kgcloud.domain.repo.model.req.RepositoryUpdateReq;
 import com.plantdata.kgcloud.domain.repo.model.rsp.RepoItemRsp;
 import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjw
@@ -25,6 +27,9 @@ public interface RepositoryService {
      * @return int
      */
     Integer add(RepositoryReq repositoryReq);
+
+    Boolean state(Integer repoId);
+    Map<Integer ,Boolean> stateMap(List<RepoItem> all);
 
     /**
      * 更新

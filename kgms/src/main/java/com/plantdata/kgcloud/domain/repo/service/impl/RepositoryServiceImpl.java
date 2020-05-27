@@ -51,6 +51,23 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Autowired
     private RepositoryMenuService repositoryMenuService;
 
+    private Function<RepoItem, Boolean> health = b -> {
+        if (b.getCheckConfigs().isEmpty()) {
+            return false;
+        }
+        try {
+            for (ServiceChecker serviceChecker : ServiceCheckerFactory.factory(b.getCheckConfigs())) {
+                if (serviceChecker.check()) {
+                    continue;
+                }
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    };
+
     @Override
     public List<RepoItemRsp> list(String userId) {
         List<RepoItemRsp> repositoryRspList = basicListWithCheck();
@@ -60,33 +77,31 @@ public class RepositoryServiceImpl implements RepositoryService {
         return repositoryRspList;
     }
 
-
-    private List<RepoItemRsp> basicListWithCheck() {
+    public List<RepoItemRsp> basicListWithCheck() {
         List<RepoItem> all = repoItemRepository.findAll();
         if (CollectionUtils.isEmpty(all)) {
             return Collections.emptyList();
         }
         List<RepoItemRsp> repositoryRspList = BasicConverter.listToRsp(all, RepositoryConverter::repository2RepositoryRsp);
-        //填充组件状态
-        Function<RepoItem, Boolean> health = b -> {
-            if (b.getCheckConfigs().isEmpty()) {
-                return false;
-            }
-            try {
-                for (ServiceChecker serviceChecker : ServiceCheckerFactory.factory(b.getCheckConfigs())) {
-                    if (serviceChecker.check()) {
-                        continue;
-                    }
-                    return false;
-                }
-                return true;
-            } catch (Exception e) {
-                return false;
-            }
-        };
-        Map<Integer, Boolean> stateMap = all.stream().collect(Collectors.toMap(RepoItem::getId, health));
+        Map<Integer, Boolean> stateMap = stateMap(all);
         BasicConverter.listConsumerIfNoNull(repositoryRspList, a -> a.setEnable(stateMap.getOrDefault(a.getId(), false)));
         return repositoryRspList;
+    }
+
+    @Override
+    public Map<Integer, Boolean> stateMap(List<RepoItem> all) {
+        //填充组件状态
+
+        return all.stream().collect(Collectors.toMap(RepoItem::getId, health));
+    }
+
+    public Boolean state(Integer repoId) {
+        Optional<RepoItem> repoItem = repoItemRepository.findById(repoId);
+        if (repoItem.isPresent()) {
+            return health.apply(repoItem.get());
+        } else {
+            return false;
+        }
     }
 
     @Override
