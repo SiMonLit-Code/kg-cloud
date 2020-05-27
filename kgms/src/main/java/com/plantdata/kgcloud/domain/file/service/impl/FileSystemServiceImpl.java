@@ -68,7 +68,7 @@ public class FileSystemServiceImpl implements FileSystemService {
     @Override
     public List<FileSystemRsp> findFileSystem(String userId) {
         FileSystem fileSystem = FileSystem.builder()
-                .userId(SessionHolder.getUserId())
+                .userId(SessionHolder.getUserId()).isDeleted(false)
                 .build();
         List<FileSystem> all = fileSystemRepository.findAll(Example.of(fileSystem));
         return all.stream().map(fileSystem2rsp).collect(Collectors.toList());
@@ -80,14 +80,14 @@ public class FileSystemServiceImpl implements FileSystemService {
         if (fileSystems == null || fileSystems.isEmpty()) {
             return new ArrayList<>();
         }
-        List<FileSystemRsp> collect = fileSystems.stream().filter(s -> "默认文件系统".equals(s.getName())).collect(Collectors.toList());
 
+        // 默认文件系统
         FileSystemRsp fileSystem = new FileSystemRsp();
         for (int i = 0; i < fileSystems.size(); i++) {
             FileSystemRsp fileSystemRsp = fileSystems.get(i);
             List<FolderRsp> tables = findFolder(userId, fileSystemRsp.getId());
             fileSystemRsp.setFileFolders(tables);
-            if ("默认文件系统".equals(fileSystemRsp.getName())) {
+            if (fileSystemRsp.getIsDefault()) {
                 fileSystem = fileSystemRsp;
                 fileSystems.remove(i);
                 i--;
@@ -101,7 +101,7 @@ public class FileSystemServiceImpl implements FileSystemService {
     @Override
     public List<FolderRsp> findFolder(String userId, Long fileSystemId) {
         FileFolder table = FileFolder.builder()
-                .fileSystemId(fileSystemId)
+                .fileSystemId(fileSystemId).isDeleted(false)
                 .build();
         List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table));
 
@@ -110,18 +110,18 @@ public class FileSystemServiceImpl implements FileSystemService {
             return folderRsps;
         }
 
+        // 默认文件夹
         FolderRsp folder = new FolderRsp();
         // 文件系统，添加文件夹拥有文件数量参数
         for (int i = 0; i < folderRsps.size(); i++) {
             FolderRsp folderRsp = folderRsps.get(i);
-            if ("默认文件夹".equals(folderRsp.getName())) {
+            if (folderRsp.getIsDefault()) {
                 folder = folderRsp;
                 folderRsps.remove(i);
                 i--;
             }
             folderRsp.setFileCount(setTableFileCount(fileSystemId, folderRsp.getId()));
         }
-
 
         List<FolderRsp> newFolderRsps = Lists.newArrayList(folder);
         newFolderRsps.addAll(folderRsps);
@@ -131,7 +131,7 @@ public class FileSystemServiceImpl implements FileSystemService {
     @Override
     public FileSystemRsp get(String userId, Long fileSystemId) {
         FileSystem fileSystem = FileSystem.builder()
-                .id(fileSystemId).userId(userId)
+                .id(fileSystemId).userId(userId).isDeleted(false)
                 .build();
         Optional<FileSystem> optional = fileSystemRepository.findOne(Example.of(fileSystem));
 
@@ -146,7 +146,7 @@ public class FileSystemServiceImpl implements FileSystemService {
     public FileSystemRsp create(String userId, String name) {
         FileSystem fileSystem = FileSystem.builder()
                 .userId(SessionHolder.getUserId())
-                .name(name)
+                .name(name).isDeleted(false)
                 .build();
 
         // 验证文件系统名称是否存在
@@ -155,6 +155,7 @@ public class FileSystemServiceImpl implements FileSystemService {
             throw BizException.of(KgmsErrorCodeEnum.FILE_DATABASE_NAME_EXIST);
         }
 
+        fileSystem.setIsDefault(false);
         FileSystem save = fileSystemRepository.save(fileSystem);
 
         return fileSystem2rsp.apply(save);
@@ -164,48 +165,53 @@ public class FileSystemServiceImpl implements FileSystemService {
     @Transactional(rollbackFor = Exception.class)
     public FileSystemRsp createDefault(String userId) {
         FileSystem fileSystem = FileSystem.builder()
-                .userId(userId).name("默认文件系统")
+                .userId(userId).isDefault(true)
                 .build();
-        List<FileSystem> list = fileSystemRepository.findAll(Example.of(fileSystem));
-        if (CollectionUtils.isEmpty(list)) {
-            FileSystem newFileSystem = fileSystemRepository.save(fileSystem);
+        Optional<FileSystem> optional = fileSystemRepository.findOne(Example.of(fileSystem));
+        if (optional.isPresent()) {
+            FileSystem oldFileSystem = optional.get();
             FileFolder fileFolder = FileFolder.builder()
-                    .fileSystemId(newFileSystem.getId()).name("默认文件夹")
+                    .fileSystemId(oldFileSystem.getId()).isDefault(true)
                     .build();
-            fileFolderRepository.save(fileFolder);
-            return ConvertUtils.convert(FileSystemRsp.class).apply(newFileSystem);
-        } else {
-            FileSystem oldFileSystem = list.get(0);
-            FileFolder fileFolder = FileFolder.builder()
-                    .fileSystemId(oldFileSystem.getId()).name("默认文件夹")
-                    .build();
-            List<FileFolder> folders = fileFolderRepository.findAll(Example.of(fileFolder));
-            if (CollectionUtils.isEmpty(folders)) {
+            Optional<FileFolder> fileOptional = fileFolderRepository.findOne(Example.of(fileFolder));
+            if (!fileOptional.isPresent()) {
+                fileFolder.setIsDeleted(false);
                 fileFolderRepository.save(fileFolder);
             }
             return ConvertUtils.convert(FileSystemRsp.class).apply(oldFileSystem);
+        } else {
+            fileSystem.setIsDeleted(false);
+            FileSystem newFileSystem = fileSystemRepository.save(fileSystem);
+            FileFolder fileFolder = FileFolder.builder()
+                    .fileSystemId(newFileSystem.getId()).name("默认文件夹")
+                    .isDefault(true).isDeleted(false)
+                    .build();
+            fileFolderRepository.save(fileFolder);
+            return ConvertUtils.convert(FileSystemRsp.class).apply(newFileSystem);
         }
     }
 
     @Override
     public FolderRsp createFolder(String userId, Long fileSystemId, String name) {
-        FileSystemRsp dwDatabase = get(userId, fileSystemId);
+        FileSystemRsp fileSystemRsp = get(userId, fileSystemId);
 
-        if (dwDatabase == null) {
+        if (fileSystemRsp == null) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_DATABASE_NOT_EXIST);
         }
 
+        FileFolder fileFolder = FileFolder.builder()
+                .name(name).fileSystemId(fileSystemId).isDeleted(false)
+                .build();
+
         // 验证文件夹名称是否存在
-        Optional<FileFolder> optional = fileFolderRepository.findOne(Example.of(FileFolder.builder().fileSystemId(fileSystemId).name(name).build()));
+        Optional<FileFolder> optional = fileFolderRepository.findOne(Example.of(fileFolder));
 
         if (optional.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_TABLE_NAME_EXIST);
         }
 
-        FileFolder table = FileFolder.builder()
-                .name(name).fileSystemId(fileSystemId)
-                .build();
-        FileFolder save = fileFolderRepository.save(table);
+        fileFolder.setIsDefault(false);
+        FileFolder save = fileFolderRepository.save(fileFolder);
 
         return table2rsp.apply(save);
     }
@@ -255,7 +261,9 @@ public class FileSystemServiceImpl implements FileSystemService {
             }
         }
 
-        fileSystemRepository.deleteById(fileSystemId);
+        FileSystem newFileSystem = optional.get();
+        newFileSystem.setIsDeleted(true);
+        fileSystemRepository.save(newFileSystem);
     }
 
     @Override
@@ -269,19 +277,21 @@ public class FileSystemServiceImpl implements FileSystemService {
             return;
         }
 
-        FileFolder table = FileFolder.builder()
+        FileFolder fileFolder = FileFolder.builder()
                 .id(folderId).fileSystemId(fileSystemId)
                 .build();
-        Optional<FileFolder> tableOptional = fileFolderRepository.findOne(Example.of(table));
+        Optional<FileFolder> folderOptional = fileFolderRepository.findOne(Example.of(fileFolder));
 
-        if (!tableOptional.isPresent()) {
+        if (!folderOptional.isPresent()) {
             return;
         }
 
         // 删除mongo文件数据
         fileDataService.fileDeleteByFolderId(folderId);
 
-        fileFolderRepository.deleteById(folderId);
+        FileFolder newFileFolder = folderOptional.get();
+        newFileFolder.setIsDeleted(true);
+        fileFolderRepository.save(newFileFolder);
     }
 
     @Override

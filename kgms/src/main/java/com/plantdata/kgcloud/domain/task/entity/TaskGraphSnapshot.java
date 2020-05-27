@@ -58,7 +58,7 @@ public class TaskGraphSnapshot {
 
     @Basic
     @Column(name = "file_store_type")
-    private String fileStoreType;
+    private Integer fileStoreType;
 
     @Basic
     @Column(name = "disk_space_size")

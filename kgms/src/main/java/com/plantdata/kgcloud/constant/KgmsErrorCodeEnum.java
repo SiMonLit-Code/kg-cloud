@@ -126,6 +126,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     FILE_DATABASE_NAME_EXIST(120620, "文件系统已存在"),
 
+    FILE_NOT_EXIST(120621, "文件不存在"),
+
     ;
     private final int errorCode;
 
