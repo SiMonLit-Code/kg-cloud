@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.EntityFileConverter;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelationScore;
 import com.plantdata.kgcloud.domain.edit.entity.MultiModal;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationQueryReq;
 import com.plantdata.kgcloud.domain.edit.req.file.EntityFileRelationReq;
@@ -184,7 +185,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             query.add(Filters.eq("indexType", req.getIndexType()));
         }
         if (req.getIsRelatedEntity() != null && req.getIsRelatedEntity() != 0) {
-            query.add(Filters.exists("entityIds.0", req.getIsRelatedEntity().equals(1)));
+            query.add(Filters.exists("entityAnnotation.0", req.getIsRelatedEntity().equals(1)));
         }
 
         FindIterable<Document> findIterable = null;
@@ -202,9 +203,11 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             for (EntityFileRelation relation : relations) {
                 EntityFileRelationRsp entityFileRelationRsp = ConvertUtils.convert(EntityFileRelationRsp.class).apply(relation);
 
-                List<Long> ids = relation.getEntityIds();
+                List<EntityFileRelationScore> entityAnnotation = relation.getEntityAnnotation();
                 // 保存实体Ids
-                if (!CollectionUtils.isEmpty(ids)) {
+                if (!CollectionUtils.isEmpty(entityAnnotation)) {
+                    List<Long> ids = entityAnnotation.stream().map(EntityFileRelationScore::getEntityId)
+                            .collect(Collectors.toList());
                     entityIds.addAll(ids);
                     List<EntityInfoRsp> entityInfoList = ids.stream()
                             .map(s -> EntityInfoRsp.builder().entityId(s).build()).collect(Collectors.toList());
@@ -266,19 +269,23 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             relation.setCreateTime(new Date());
             Long entityId = req.getEntityId();
             if (entityId != null) {
-                relation.setEntityIds(Lists.newArrayList(entityId));
+                relation.setEntityAnnotation(Lists.newArrayList(new EntityFileRelationScore(entityId, 1d, 0)));
             }
             Document document = entityFileConverter.toDocument(relation);
             getRelationCollection(kgName).insertOne(document);
         } else {// 关系已存在，添加实体ID
-            List<Long> entityIds = exist.getEntityIds();
+            List<EntityFileRelationScore> entityAnnotation = exist.getEntityAnnotation();
             if (req.getEntityId() != null) {
-                if (entityIds == null) {
-                    entityIds = Lists.newArrayList(req.getEntityId());
-                } else if (!entityIds.contains(req.getEntityId())) {
-                    entityIds.add(req.getEntityId());
+                if (entityAnnotation == null) {
+                    entityAnnotation = Lists.newArrayList(new EntityFileRelationScore(req.getEntityId(), 1d, 0));
+                } else {
+                    List<Long> entityIds = entityAnnotation.stream().map(EntityFileRelationScore::getEntityId)
+                            .collect(Collectors.toList());
+                    if (!entityIds.contains(req.getEntityId())) {
+                        entityAnnotation.add(new EntityFileRelationScore(req.getEntityId(), 1d, 0));
+                    }
                 }
-                exist.setEntityIds(entityIds);
+                exist.setEntityAnnotation(entityAnnotation);
                 String id = exist.getId();
                 exist.setId(null);
                 Document document = entityFileConverter.toDocument(exist);
@@ -323,7 +330,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
     @Override
     public void deleteByEntityIds(String kgName, List<Long> entityIds) {
-        getRelationCollection(kgName).deleteMany(Filters.in("entityIds", entityIds));
+        getRelationCollection(kgName).deleteMany(Filters.in("entityAnnotation.entityId", entityIds));
     }
 
 
@@ -333,9 +340,10 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         EntityFileRelation relation = entityFileConverter.toBean(document);
         if (relation != null) {
             // 删除当前关联的实体
-            List<Long> entityIds = relation.getEntityIds();
-            entityIds.remove(entityId);
-            relation.setEntityIds(entityIds);
+            List<EntityFileRelationScore> entityAnnotation = relation.getEntityAnnotation();
+            List<EntityFileRelationScore> collect = entityAnnotation.stream().filter(s -> !entityId.equals(s.getEntityId()))
+                    .collect(Collectors.toList());
+            relation.setEntityAnnotation(collect);
             relation.setId(null);
             getRelationCollection(kgName).updateOne(documentConverter.buildObjectId(id), new Document("$set", entityFileConverter.toDocument(relation)));
 
@@ -358,7 +366,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     @Override
     public List<EntityFileRsp> getRelationByKgNameAndEntityId(String kgName, Long entityId) {
         List<Bson> bsons = new ArrayList<>(2);
-        bsons.add(Filters.in("entityIds", entityId));
+        bsons.add(Filters.in("entityAnnotation.entityId", entityId));
         bsons.add(Filters.eq("indexType", 0));
         MongoCursor<Document> cursor = getRelationCollection(kgName).find(Filters.and(bsons)).iterator();
         List<EntityFileRsp> list = Lists.newArrayList();
@@ -381,7 +389,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     @Override
     public List<EntityFileRsp> getRelationByKgNameAndEntityIdIn(String kgName, List<Long> entityIds, Integer type) {
         List<Bson> bsons = new ArrayList<>(2);
-        bsons.add(Filters.in("entityIds", entityIds));
+        bsons.add(Filters.in("entityAnnotation.entityId", entityIds));
         if (type == 0) {
             bsons.add(Filters.eq("indexType", 0));
         } else if (type == 1) {
@@ -394,9 +402,10 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             return list;
         }
         for (EntityFileRelation relation : relations) {
-            List<Long> ids = relation.getEntityIds();
+            List<Long> ids = relation.getEntityAnnotation().stream().map(EntityFileRelationScore::getEntityId)
+                    .collect(Collectors.toList());
             for (Long entityId : entityIds) {
-                if (ids != null && ids.contains(entityId)) {
+                if (ids.contains(entityId)) {
                     EntityFileRsp entityFileRsp = ConvertUtils.convert(EntityFileRsp.class).apply(relation);
                     entityFileRsp.setEntityId(entityId);
                     if (type == 0) {
@@ -440,7 +449,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                     relation.setDescription(map.get("content"));
                     relation.setUrl(map.get("url"));
                     relation.setCreateTime(new Date());
-                    relation.setEntityIds(Lists.newArrayList());
+                    relation.setEntityAnnotation(Lists.newArrayList());
 
                     Document document = entityFileConverter.toDocument(relation);
                     list.add(document);
@@ -477,23 +486,29 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         }
 
         // 实体文件关系中关联的图谱实体ID
-        List<Long> entityIds = relation.getEntityIds();
-        if (entityIds == null) {
-            entityIds = Lists.newArrayList();
+        List<EntityFileRelationScore> entityAnnotation = relation.getEntityAnnotation();
+        if (entityAnnotation == null) {
+            entityAnnotation = Lists.newArrayList();
         }
+        List<Long> entityIds = entityAnnotation.stream().map(EntityFileRelationScore::getEntityId)
+                .collect(Collectors.toList());
 
         for (Long entityId : req.getEntityIds()) {
             if (entityIds.contains(entityId)) {
                 continue;
                 // throw BizException.of(KgmsErrorCodeEnum.RELATION_IS_EXIST);
             }
-            entityIds.add(entityId);
+            entityAnnotation.add(new EntityFileRelationScore(entityId, 1d, 0));
         }
+        relation.setEntityAnnotation(entityAnnotation);
+        String id = relation.getId();
+        relation.setId(null);
 
         // 更新关联实体ID
-        Document newDocument = new Document("entityIds", entityIds);
+        List<Document> documents = documentConverter.toDocuments(entityAnnotation);
+        Document newDocument = new Document("entityAnnotation", documents);
 
-        getRelationCollection(kgName).updateOne(entityFileConverter.buildObjectId(relation.getId()), new Document("$set", newDocument));
+        getRelationCollection(kgName).updateOne(entityFileConverter.buildObjectId(id), new Document("$set", newDocument));
     }
 
     @Override
@@ -503,16 +518,16 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             return;
         }
         EntityFileRelation relation = entityFileConverter.toBean(document);
-        List<Long> entityIds = relation.getEntityIds();
-        if (CollectionUtils.isEmpty(entityIds)) {
+        List<EntityFileRelationScore> entityAnnotation = relation.getEntityAnnotation();
+        if (CollectionUtils.isEmpty(entityAnnotation)) {
             return;
         }
-        for (Long entityId : req.getEntityIds()) {
-            entityIds.remove(entityId);
-        }
+        List<EntityFileRelationScore> collect = entityAnnotation.stream().filter(s -> !req.getEntityIds().contains(s.getEntityId()))
+                .collect(Collectors.toList());
 
         // 更新关联实体ID
-        Document newDocument = new Document("entityIds", entityIds);
+        List<Document> documents = documentConverter.toDocuments(collect);
+        Document newDocument = new Document("entityAnnotation", documents);
 
         getRelationCollection(kgName).updateOne(entityFileConverter.buildObjectId(relation.getId()), new Document("$set", newDocument));
     }
@@ -560,6 +575,10 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
     @Override
     public EntityFileRelationRsp createRelation(String kgName, EntityFileRelationAddReq req) {
+        // 关联的实体信息
+        List<EntityFileRelationScore> collect = req.getEntityIds().stream()
+                .map(s -> new EntityFileRelationScore(s, 1d, 0))
+                .collect(Collectors.toList());
         if (req.getIndexType() == 0) {
             // 文件标引
             EntityFileRelation relation = getRelationByFileId(kgName, req.getFileId());
@@ -573,23 +592,29 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                 newRelation.setIndexType(0);
                 newRelation.setFileId(req.getFileId());
                 newRelation.setCreateTime(new Date());
-                newRelation.setEntityIds(req.getEntityIds());
+                newRelation.setEntityAnnotation(collect);
                 Document document = entityFileConverter.toDocument(newRelation);
                 getRelationCollection(kgName).insertOne(document);
                 return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
             }
-            List<Long> entityIds = relation.getEntityIds();
+            List<EntityFileRelationScore> entityAnnotation = relation.getEntityAnnotation();
 
             if (req.getEntityIds() != null) {
-                if (entityIds == null) {
-                    entityIds = Lists.newArrayList(req.getEntityIds());
+                if (entityAnnotation == null) {
+                    entityAnnotation = collect;
                 } else {
-                    entityIds.addAll(req.getEntityIds());
-                    Set<Long> set = new HashSet<>(entityIds);
-                    entityIds.clear();
-                    entityIds.addAll(set);
+                    // 已存在的实体id
+                    List<Long> ids = entityAnnotation.stream().map(EntityFileRelationScore::getEntityId)
+                            .collect(Collectors.toList());
+                    // 添加的实体id
+                    List<Long> entityIds = req.getEntityIds();
+                    // 最终要添加的信息
+                    List<EntityFileRelationScore> list = entityIds.stream().filter(s -> !ids.contains(s))
+                            .map(s -> new EntityFileRelationScore(s, 1d, 0))
+                            .collect(Collectors.toList());
+                    entityAnnotation.addAll(list);
                 }
-                relation.setEntityIds(entityIds);
+                relation.setEntityAnnotation(entityAnnotation);
                 String id = relation.getId();
                 relation.setId(null);
                 Document document = entityFileConverter.toDocument(relation);
@@ -599,6 +624,8 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         } else if (req.getIndexType() == 1) {
             // 文本标引
             EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(req);
+            // 关联的实体信息
+            relation.setEntityAnnotation(collect);
             relation.setIndexType(1);
             relation.setCreateTime(new Date());
             if (StringUtils.isBlank(relation.getTitle()) || StringUtils.isBlank(relation.getDescription())) {
@@ -608,8 +635,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             getRelationCollection(kgName).insertOne(document);
             return ConvertUtils.convert(EntityFileRelationRsp.class).apply(entityFileConverter.toBean(document));
         } else if (req.getIndexType() == 2) {
-            // 文本标引
+            // 链接标引
             EntityFileRelation relation = ConvertUtils.convert(EntityFileRelation.class).apply(req);
+            relation.setEntityAnnotation(collect);
             relation.setIndexType(2);
             relation.setCreateTime(new Date());
             if (StringUtils.isBlank(relation.getTitle()) || StringUtils.isBlank(relation.getUrl())) {
@@ -627,7 +655,12 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         Document first = getRelationCollection(kgName).find(Filters.eq("fileId", new ObjectId(fileId))).first();
         if (first != null) {
             EntityFileRelation relation = entityFileConverter.toBean(first);
-            List<Long> entityIds = relation.getEntityIds();
+            List<EntityFileRelationScore> entityAnnotation = relation.getEntityAnnotation();
+            if (CollectionUtils.isEmpty(entityAnnotation)) {
+                return false;
+            }
+            List<Long> entityIds = entityAnnotation.stream().map(EntityFileRelationScore::getEntityId)
+                    .collect(Collectors.toList());
             return !CollectionUtils.isEmpty(entityIds) && entityIds.contains(entityId);
         }
         return false;
@@ -642,7 +675,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     @Override
     public boolean checkSize(String kgName, Long entityId) {
         List<Bson> query = new ArrayList<>(2);
-        query.add(Filters.in("entityId", entityId));
+        query.add(Filters.in("entityAnnotation.entityId", entityId));
         query.add(Filters.eq("indexType", 0));
         MongoCursor<Document> relationIterator = getRelationCollection(kgName).find(Filters.and(query)).iterator();
         Set<ObjectId> fileIdList = new HashSet<>();
