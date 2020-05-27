@@ -25,8 +25,11 @@ public class TaskGraphSnapshotRsp {
     @ApiModelProperty("文件保存目录")
     private String catalogue;
 
-    @ApiModelProperty("文件存储类型")
-    private String fileStoreType;
+    @ApiModelProperty("文件存储类型(0:本地服务器,1:fastDFS)")
+    private Integer fileStoreType;
+
+    @ApiModelProperty("文件备份类型(0:本地服务器,1:fastDFS)")
+    private Integer fileBackupType;
 
     @ApiModelProperty("磁盘空间总量")
     private String diskSpaceSize;

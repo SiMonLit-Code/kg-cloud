@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.graph.quality.service.impl;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.MongoClient;
+import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.domain.graph.quality.entity.GraphAttrQuality;
@@ -115,13 +116,23 @@ public class GraphQualityServiceImpl implements GraphQualityService {
 
     @Override
     public void run(String kgName) {
+        String userId = SessionHolder.getUserId();
         // 查询质量统计脚本
         TaskListReq taskListReq = new TaskListReq();
-        taskListReq.setUserId("123");
+        taskListReq.setUserId(userId);
         taskListReq.setTaskType("data_quality");
         List<TaskBean> taskBeans = xxlAdminClient.list(taskListReq).getData().getContent();
         if (CollectionUtils.isEmpty(taskBeans)) {
-            throw BizException.of(KgmsErrorCodeEnum.GRAPH_QUALITY_IS_NULL);
+            TaskBean taskBean = new TaskBean();
+            taskBean.setUserId(userId);
+            taskBean.setName("图谱质量统计");
+            taskBean.setDesc("图谱知识质量统计");
+            taskBean.setTaskType("data_quality");
+            taskBean.setKgName("*");
+            taskBean.setConfig("");
+            ApiReturn<Integer> integerApiReturn = xxlAdminClient.taskAdd(taskBean);
+            System.out.println(integerApiReturn);
+            taskBeans = xxlAdminClient.list(taskListReq).getData().getContent();
         }
 
         TaskBean taskBean = taskBeans.get(0);
@@ -152,7 +163,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
     public Long getTime(String kgName) {
         // 查询质量统计脚本
         TaskListReq taskListReq = new TaskListReq();
-        taskListReq.setUserId("123");
+        taskListReq.setUserId(SessionHolder.getUserId());
         taskListReq.setTaskType("data_quality");
         List<TaskBean> taskBeans = xxlAdminClient.list(taskListReq).getData().getContent();
         if (CollectionUtils.isEmpty(taskBeans)) {
