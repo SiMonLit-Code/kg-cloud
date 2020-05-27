@@ -21,8 +21,8 @@
     </modules>
 
     <properties>
-        <next-tag.version>3.0.60</next-tag.version>
-        <next-develop.version>3.0.61</next-develop.version>
+        <next-tag.version>3.0.61</next-tag.version>
+        <next-develop.version>3.0.62</next-develop.version>
 
         <kg-cloud-parent.version>3.1.5</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
