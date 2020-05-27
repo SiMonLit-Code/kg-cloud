@@ -111,7 +111,7 @@ public class MergeServiceImpl implements MergeService {
                     s.setSource(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
                 }
                 if (metaData.containsKey(MetaDataInfo.RELIABILITY.getFieldName())) {
-                    s.setReliability(metaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+                    s.setReliability(metaData.get(MetaDataInfo.RELIABILITY.getFieldName()).toString());
                 }
             }
         }).collect(Collectors.toList());
