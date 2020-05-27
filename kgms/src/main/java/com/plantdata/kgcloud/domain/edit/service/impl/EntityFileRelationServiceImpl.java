@@ -9,6 +9,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.constant.FileConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.EntityFileConverter;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
@@ -159,7 +160,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     private MongoCollection<Document> getRelationCollection(String kgName) {
-        String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
+        String kgDbName = KGUtil.dbName(kgName);
         return mongoClient.getDatabase(kgDbName).getCollection(FileConstants.FILE + FileConstants.JOIN + FileConstants.RELATION);
     }
 
