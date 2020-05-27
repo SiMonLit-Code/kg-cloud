@@ -94,9 +94,13 @@ public class MetaConverter extends BasicConverter {
 
     public static Date parseDate(String str) {
         try {
-            return DateUtils.parseDate(str, "yyyy-MM-dd hh:mm:ss");
+            Date date = DateUtils.parseDate(str, "yyyy-MM-dd hh:mm:ss");
+            if(date == null){
+                date = DateUtils.parseDate(str, "yyyy-MM-dd");
+            }
+            return date;
         } catch (Exception e) {
-            return DateUtils.parseDate(str, "yyyy-MM-dd");
+            return null;
         }
     }
 }
