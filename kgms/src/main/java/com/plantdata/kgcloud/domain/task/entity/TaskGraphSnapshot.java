@@ -53,6 +53,18 @@ public class TaskGraphSnapshot {
     private String fileSize;
 
     @Basic
+    @Column(name = "catalogue")
+    private String catalogue;
+
+    @Basic
+    @Column(name = "file_store_type")
+    private String fileStoreType;
+
+    @Basic
+    @Column(name = "disk_space_size")
+    private String diskSpaceSize;
+
+    @Basic
     @Column(name = "status")
     private Integer status;
 

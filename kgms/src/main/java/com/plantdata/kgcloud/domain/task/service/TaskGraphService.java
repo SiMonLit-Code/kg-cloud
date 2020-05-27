@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.task.service;
 
+import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotNameReq;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotReq;
 import com.plantdata.kgcloud.domain.task.rsp.TaskGraphSnapshotRsp;
 import org.springframework.data.domain.Page;
@@ -22,5 +23,12 @@ public interface TaskGraphService {
      * @param id
      */
     void snapshotDelete(Long id);
+
+    /**
+     * 新增备份记录
+     * @param req
+     * @return
+     */
+    TaskGraphSnapshotRsp add(TaskGraphSnapshotNameReq req);
 
 }

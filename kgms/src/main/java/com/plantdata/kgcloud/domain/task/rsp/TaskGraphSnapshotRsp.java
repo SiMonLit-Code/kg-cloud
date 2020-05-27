@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.task.rsp;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -21,10 +22,22 @@ public class TaskGraphSnapshotRsp {
 
     private String fileSize;
 
+    @ApiModelProperty("文件保存目录")
+    private String catalogue;
+
+    @ApiModelProperty("文件存储类型")
+    private String fileStoreType;
+
+    @ApiModelProperty("磁盘空间总量")
+    private String diskSpaceSize;
+
+    @ApiModelProperty("还原状态(0:进行中,1:成功，2:失败)")
     private Integer status;
 
+    @ApiModelProperty("还原时间")
     private Date restoreAt;
 
+    @ApiModelProperty("备份时间")
     private Date createAt;
 
     private Date updateAt;
