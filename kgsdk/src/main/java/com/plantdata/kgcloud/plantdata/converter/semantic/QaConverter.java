@@ -14,7 +14,7 @@ public class QaConverter extends BasicConverter {
 
     public static QueryReq qaKbqaParameterToQueryReq(@NonNull QaKbqaParameter param) {
         QueryReq queryReq = new QueryReq();
-        queryReq.setPos(param.getPageNo());
+        queryReq.setPos((param.getPageNo() - 1) * param.getPageSize());
         queryReq.setQuery(param.getQuery());
         queryReq.setSize(param.getPageSize());
         return queryReq;

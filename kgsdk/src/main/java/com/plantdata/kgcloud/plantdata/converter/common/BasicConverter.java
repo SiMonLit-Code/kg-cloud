@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class BasicConverter {
 
     private static final int SUCCESS = 200;
-    private static final String DATE_REG = "yyyy-MM-ddd hh:mm:ss";
+    private static final String DATE_REG = "yyyy-MM-dd hh:mm:ss";
 
     public static <T, R> List<R> toListNoNull(List<T> list, Function<T, R> function) {
         return executeIfNoNull(list, a -> listConvert(a, function));
