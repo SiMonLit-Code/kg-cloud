@@ -6,7 +6,6 @@ import ai.plantdata.kg.api.pub.req.statistics.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.statistics.RelationStatisticsBean;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.ExtraInfo;
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
@@ -135,7 +134,13 @@ public class GraphStatisticConverter extends BasicConverter {
         if (AttributeValueType.isNumeric(valueType) && AttributeDataTypeEnum.DATE_SET.contains(dataType)) {
             return StatisticConstants.STATISTIC_MAX_SIZE;
         }
-        return size == null ? 10 : size;
+        if (size == null) {
+            return 10;
+        }
+        if (size == -1) {
+            return Integer.MAX_VALUE;
+        }
+        return size;
     }
 
     private static int defaultStatisticSize(Integer size) {

@@ -33,7 +33,7 @@ public class StatEntityGroupByAttrvalueByAttrIdParameter {
     private String allowValues;
     @ChooseCheck(value = "[0,1]",name = "returnType")
     private Integer returnType = 0;
-    @Min(1)
+    @Min(-1)
     @Max(10000)
     private Integer size = 10;
     private boolean isMerge = false;

@@ -31,7 +31,7 @@ public class EntityStatisticGroupByAttrIdReq implements AttrDefKeyReqInterface {
     private List<Object> allowValues;
     @ChooseCheck(value = "[0,1]", name = "returnType")
     private Integer returnType = 0;
-    @Min(1)
+    @Min(-1)
     @Max(StatisticConstants.STATISTIC_MAX_SIZE)
     @ApiModelProperty("数量 min:1 max:10000")
     private Integer size = 10;

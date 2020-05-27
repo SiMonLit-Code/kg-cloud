@@ -22,7 +22,7 @@
     </modules>
 
     <properties>
-        <next-tag.version>3.0.49</next-tag.version>
+        <next-tag.version>3.0.49.1</next-tag.version>
         <next-develop.version>3.0.50-SNAPSHOT</next-develop.version>
 
         <kg-cloud-parent.version>3.0.2</kg-cloud-parent.version>
