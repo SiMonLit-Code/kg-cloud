@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.task.service.impl;
 
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphSnapshot;
 import com.plantdata.kgcloud.domain.task.repository.TaskGraphSnapshotRepository;
+import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotNameReq;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotReq;
 import com.plantdata.kgcloud.domain.task.rsp.TaskGraphSnapshotRsp;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphService;
@@ -28,7 +29,7 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     @Override
     public Page<TaskGraphSnapshotRsp> snapshotList(TaskGraphSnapshotReq req) {
 
-        Sort sort =Sort.by(Sort.Direction.DESC, "updateAt");
+        Sort sort = Sort.by(Sort.Direction.DESC, "updateAt");
         PageRequest of = PageRequest.of(req.getPage() - 1, req.getSize(), sort);
         TaskGraphSnapshot query = new TaskGraphSnapshot();
         if (StringUtils.hasText(req.getKgName())) {
@@ -43,6 +44,14 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     @Override
     public void snapshotDelete(Long id) {
         taskGraphSnapshotRepository.deleteById(id);
+    }
+
+    @Override
+    public TaskGraphSnapshotRsp add(TaskGraphSnapshotNameReq req) {
+        TaskGraphSnapshot snapshot = ConvertUtils.convert(TaskGraphSnapshot.class).apply(req);
+        snapshot.setName("图谱备份_");
+        snapshot.setCatalogue(req.getName());
+        return new TaskGraphSnapshotRsp();
     }
 
 

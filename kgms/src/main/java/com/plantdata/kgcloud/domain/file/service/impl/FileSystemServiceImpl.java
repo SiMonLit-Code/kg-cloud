@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.file.service.impl;
 
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -21,7 +22,6 @@ import org.bson.conversions.Bson;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -70,7 +70,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileSystem fileSystem = FileSystem.builder()
                 .userId(SessionHolder.getUserId())
                 .build();
-        List<FileSystem> all = fileSystemRepository.findAll(Example.of(fileSystem), Sort.by(Sort.Order.desc("createAt")));
+        List<FileSystem> all = fileSystemRepository.findAll(Example.of(fileSystem));
         return all.stream().map(fileSystem2rsp).collect(Collectors.toList());
     }
 
@@ -80,12 +80,22 @@ public class FileSystemServiceImpl implements FileSystemService {
         if (fileSystems == null || fileSystems.isEmpty()) {
             return new ArrayList<>();
         }
+        List<FileSystemRsp> collect = fileSystems.stream().filter(s -> "默认文件系统".equals(s.getName())).collect(Collectors.toList());
 
-        for (FileSystemRsp fileSystemRsp : fileSystems) {
+        FileSystemRsp fileSystem = new FileSystemRsp();
+        for (int i = 0; i < fileSystems.size(); i++) {
+            FileSystemRsp fileSystemRsp = fileSystems.get(i);
             List<FolderRsp> tables = findFolder(userId, fileSystemRsp.getId());
             fileSystemRsp.setFileFolders(tables);
+            if ("默认文件系统".equals(fileSystemRsp.getName())) {
+                fileSystem = fileSystemRsp;
+                fileSystems.remove(i);
+                i--;
+            }
         }
-        return fileSystems;
+        List<FileSystemRsp> newFileSystems = Lists.newArrayList(fileSystem);
+        newFileSystems.addAll(fileSystems);
+        return newFileSystems;
     }
 
     @Override
@@ -93,19 +103,29 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileFolder table = FileFolder.builder()
                 .fileSystemId(fileSystemId)
                 .build();
-        List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table), Sort.by(Sort.Order.desc("createAt")));
+        List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table));
 
-        List<FolderRsp> tables = dwTableList.stream().map(table2rsp).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(tables)) {
-            return tables;
+        List<FolderRsp> folderRsps = dwTableList.stream().map(table2rsp).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(folderRsps)) {
+            return folderRsps;
         }
 
+        FolderRsp folder = new FolderRsp();
         // 文件系统，添加文件夹拥有文件数量参数
-        for (FolderRsp tableRsp : tables) {
-            tableRsp.setFileCount(setTableFileCount(fileSystemId, tableRsp.getId()));
+        for (int i = 0; i < folderRsps.size(); i++) {
+            FolderRsp folderRsp = folderRsps.get(i);
+            if ("默认文件夹".equals(folderRsp.getName())) {
+                folder = folderRsp;
+                folderRsps.remove(i);
+                i--;
+            }
+            folderRsp.setFileCount(setTableFileCount(fileSystemId, folderRsp.getId()));
         }
 
-        return tables;
+
+        List<FolderRsp> newFolderRsps = Lists.newArrayList(folder);
+        newFolderRsps.addAll(folderRsps);
+        return newFolderRsps;
     }
 
     @Override

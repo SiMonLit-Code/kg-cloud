@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.task.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotNameReq;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotReq;
 import com.plantdata.kgcloud.domain.task.rsp.TaskGraphSnapshotRsp;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphService;
@@ -9,9 +10,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @description:
@@ -26,17 +24,23 @@ public class TaskGraphController {
     @Autowired
     private TaskGraphService taskGraphService;
 
-    @ApiOperation("任务相关-快照-快照列表")
+    @ApiOperation("任务相关-备份-备份列表")
     @GetMapping("/snapshot")
     public ApiReturn<Page<TaskGraphSnapshotRsp>> listByPage(TaskGraphSnapshotReq req) {
         return ApiReturn.success(taskGraphService.snapshotList(req));
     }
 
-    @ApiOperation("任务相关-快照-根据id删除")
+    @ApiOperation("任务相关-备份-根据id删除")
     @DeleteMapping("/snapshot/{id}")
     public ApiReturn delete(@PathVariable("id") Long id) {
         taskGraphService.snapshotDelete(id);
         return ApiReturn.success();
+    }
+
+    @ApiOperation("任务相关-备份-新增备份记录")
+    @PostMapping("/snapshot/add")
+    public ApiReturn<TaskGraphSnapshotRsp> add(@RequestBody TaskGraphSnapshotNameReq req) {
+        return ApiReturn.success(taskGraphService.add(req));
     }
 
 }
