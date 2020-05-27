@@ -15,6 +15,9 @@ public class FolderRsp {
     @ApiModelProperty(value = "文件夹名称")
     private String name;
 
+    @ApiModelProperty(value = "是否是默认文件夹")
+    private Boolean isDefault;
+
     @ApiModelProperty(value = "文件系统id")
     private Long fileSystemId;
 

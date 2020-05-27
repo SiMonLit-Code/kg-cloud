@@ -7,12 +7,14 @@ import com.mongodb.client.model.Filters;
 import com.plantdata.kgcloud.constant.CommonConstants;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelation;
+import com.plantdata.kgcloud.domain.edit.entity.EntityFileRelationScore;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.beans.PropertyDescriptor;
@@ -29,6 +31,9 @@ import java.util.stream.Collectors;
  */
 @Component
 public class EntityFileConverter {
+
+    @Autowired
+    private DocumentConverter documentConverter;
 
     private static final Map<Class<?>, List<FieldMethod>> METHOD_CACHE = new ConcurrentHashMap<>();
 
@@ -54,8 +59,8 @@ public class EntityFileConverter {
         }
         try {
             objId2String(document);
-
-            return JacksonUtils.readValue(JacksonUtils.writeValueAsString(document), EntityFileRelation.class);
+            String s = JacksonUtils.writeValueAsString(document);
+            return JacksonUtils.readValue(s, EntityFileRelation.class);
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.DATA_CONVERSION_ERROR);
         }
@@ -121,9 +126,16 @@ public class EntityFileConverter {
             throw BizException.of(KgmsErrorCodeEnum.ILLEGAL_PARAM);
         }
         String fileId = relation.getFileId();
+        document.remove("fileId");
         if (StringUtils.isNotBlank(fileId)) {
-            document.replace("fileId", new ObjectId(fileId));
+            document.put("fileId", new ObjectId(fileId));
         }
+        List<EntityFileRelationScore> entityAnnotation = relation.getEntityAnnotation();
+        if (entityAnnotation != null) {
+            List<Document> documents = documentConverter.toDocuments(entityAnnotation);
+            document.put("entityAnnotation", documents);
+        }
+
         return document;
     }
 }

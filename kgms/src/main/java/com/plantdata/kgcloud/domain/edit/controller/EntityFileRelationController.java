@@ -38,8 +38,8 @@ public class EntityFileRelationController {
 
     @ApiOperation("实体文件管理-根据文件ID删除关系")
     @PostMapping("/{kgName}/delete/fileId/{fileId}")
-    public ApiReturn deleteRelationByDwFileId(@PathVariable String kgName,
-                                              @PathVariable String fileId) {
+    public ApiReturn deleteRelationByFileId(@PathVariable String kgName,
+                                            @PathVariable String fileId) {
         entityFileRelationService.deleteRelationByFileId(fileId);
         return ApiReturn.success();
     }

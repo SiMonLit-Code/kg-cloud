@@ -42,6 +42,14 @@ public class FileSystem {
     private String userId;
 
     @Basic
+    @Column(name = "is_default")
+    private Boolean isDefault;
+
+    @Basic
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Basic
     @Column(name = "create_at")
     @CreatedDate
     private Date createAt;
