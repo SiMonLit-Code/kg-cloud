@@ -179,7 +179,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
 
         List<PromptEntityRsp> rs = Lists.newArrayList();
         NerSearchReq nerParam = new NerSearchReq();
-        nerParam.setKgName(kgName);
+        nerParam.setKgName(KGUtil.dbName(kgName));
         nerParam.setQuery(promptReq.getKw());
         List<SegmentWordVO> ner = RestRespConverter.convert(questionAnswersApi.ner(nerParam)).orElse(Collections.emptyList());
 
