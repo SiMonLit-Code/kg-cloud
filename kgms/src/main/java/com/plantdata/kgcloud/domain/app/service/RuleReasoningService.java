@@ -1,9 +1,11 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import ai.plantdata.kg.api.pub.resp.GraphVO;
+import ai.plantdata.kg.api.semantic.req.ReasoningReq;
 import com.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
 import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 
 import java.util.List;
 import java.util.Map;
@@ -33,4 +35,6 @@ public interface RuleReasoningService {
      * @return List<RelationReasonRuleRsp>
      */
     List<RelationReasonRuleRsp> generateReasoningRule(Map<Long, Object> configMap);
+
+    Optional<CommonBasicGraphExploreRsp> reasoningExecute(String kgName, ReasoningReq reasoningReq);
 }

@@ -37,6 +37,7 @@ import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.EntityService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
+import com.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
@@ -59,6 +60,7 @@ import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
+import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -648,8 +650,17 @@ public class EntityServiceImpl implements EntityService {
         }
         ObjectAttributeValueFrom objectAttributeValueFrom =
                 ConvertUtils.convert(ObjectAttributeValueFrom.class).apply(objectAttrValueReq);
-        return RestRespConverter.convert(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName),
+
+        String tripleId = RestRespConverter.convert(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName),
                 objectAttributeValueFrom)).orElse(null);
+
+        UpdateRelationMetaReq updateRelationMetaReq = new UpdateRelationMetaReq();
+        updateRelationMetaReq.setTripleId(tripleId);
+        updateRelationMetaReq.setMetaData(MetaDataUtils.getDefaultSourceMetaData(null,SessionHolder.getUserId()));
+        UpdateRelationFrom updateRelationFrom =
+                ConvertUtils.convert(UpdateRelationFrom.class).apply(updateRelationMetaReq);
+        RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName), updateRelationFrom));
+        return tripleId;
 
     }
 

@@ -21,6 +21,9 @@ public enum MetaDataEnum implements BaseEnum {
     entityLink("meta_data_18"),
     fromTime("meta_data_19"),
     toTime("meta_data_20"),
+    trueSource("meta_data_21"),
+    sourceUser("meta_data_22"),
+    sourceAction("meta_data_23"),
     sourceReason("meta_data_111");
     private String value;
 
