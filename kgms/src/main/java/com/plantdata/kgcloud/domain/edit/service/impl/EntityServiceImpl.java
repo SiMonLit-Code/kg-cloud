@@ -50,6 +50,7 @@ import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.producer.KafkaMessageProducer;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
@@ -57,6 +58,7 @@ import com.plantdata.kgcloud.sdk.req.edit.BatchPrivateRelationReq;
 import com.plantdata.kgcloud.sdk.req.edit.PrivateAttrDataReq;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
+import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
@@ -119,6 +121,9 @@ public class EntityServiceImpl implements EntityService {
 
     @Autowired
     private FileDataService fileDataService;
+
+    @Autowired
+    private UserClient userClient;
 
     @Override
     public void addMultipleConcept(String kgName, Long conceptId, Long entityId) {
@@ -289,6 +294,18 @@ public class EntityServiceImpl implements EntityService {
             basicInfoRspList.remove(size.intValue());
             count += page;
         }
+
+        Map<String,String> usernameMap = new HashMap<>();
+        basicInfoRspList.forEach(basicInfoRsp -> {
+
+            if(basicInfoRsp.getSourceUser() != null && !basicInfoRsp.getSourceUser().isEmpty()){
+                if(!usernameMap.containsKey(basicInfoRsp.getSourceUser())){
+                    UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(basicInfoRsp.getSourceUser()).getData();
+                    usernameMap.put(userDetailRsp.getId(),userDetailRsp.getRealname());
+                }
+                basicInfoRsp.setSourceUser(usernameMap.get(basicInfoRsp.getSourceUser()));
+            }
+        });
         return new PageImpl<>(basicInfoRspList, PageRequest.of(basicInfoListReq.getPage() - 1, size), count);
     }
 

@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.prebuilder.req;
 
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.prebuilder.aop.BaseHandlerReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Data
 @ApiModel(value = "预构建模式属性匹配")
-public class PreBuilderMatchAttrReq extends BaseReq {
+public class PreBuilderMatchAttrReq extends BaseHandlerReq {
 
     @ApiModelProperty("当前配置的图谱名")
     private String kgName;

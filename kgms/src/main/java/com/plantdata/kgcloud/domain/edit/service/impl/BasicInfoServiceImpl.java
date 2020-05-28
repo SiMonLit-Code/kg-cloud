@@ -100,10 +100,10 @@ public class BasicInfoServiceImpl implements BasicInfoService {
             logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
         }
         BasicInfoFrom basicInfoFrom = ConvertUtils.convert(BasicInfoFrom.class).apply(basicInfoReq);
-        RestResp<Long> restResp = conceptEntityApi.add(KGUtil.dbName(kgName), basicInfoFrom);
         if(BasicInfoType.isEntity(basicInfoReq.getType())){
-            conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), restResp.getData(), MetaDataUtils.getDefaultSourceMetaData(null,SessionHolder.getUserId()));
+            basicInfoFrom.setMetaData(MetaDataUtils.getDefaultSourceMetaData(null,SessionHolder.getUserId()));
         }
+        RestResp<Long> restResp = conceptEntityApi.add(KGUtil.dbName(kgName), basicInfoFrom);
         logSender.remove();
         return RestRespConverter.convert(restResp).orElse(null);
     }

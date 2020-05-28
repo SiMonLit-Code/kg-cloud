@@ -19,12 +19,15 @@ import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
+import com.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
+import com.plantdata.kgcloud.security.SessionHolder;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
@@ -228,7 +231,7 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String importEntities(String kgName, Long conceptId, MultipartFile file) {
-        return handleUploadError(uploadApi.entity(KGUtil.dbName(kgName), conceptId, file));
+        return handleUploadError(uploadApi.entity(KGUtil.dbName(kgName), conceptId, JacksonUtils.writeValueAsString(MetaDataUtils.getDefaultSourceMetaData(null, SessionHolder.getUserId())), file));
     }
 
     @Override
@@ -248,12 +251,12 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String importRelation(String kgName, Integer mode, MultipartFile file) {
-        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), mode, file));
+        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), mode,JacksonUtils.writeValueAsString(MetaDataUtils.getDefaultSourceMetaData(null, SessionHolder.getUserId())), file));
     }
 
     @Override
     public String importRelation(String kgName, Integer attrId, Integer mode, MultipartFile file) {
-        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), attrId, mode, file));
+        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), attrId, mode,JacksonUtils.writeValueAsString(MetaDataUtils.getDefaultSourceMetaData(null, SessionHolder.getUserId())), file));
     }
 
     @Override

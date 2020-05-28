@@ -253,6 +253,7 @@ public class AttributeController {
                                                                        @RequestBody List<BatchRelationRsp> relationList) {
         List<BatchRelationVO> collect = BasicConverter.listConvert(relationList,
                 a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
+
         Optional<BatchResult<BatchRelationVO>> resultRestResp =
                 RestRespConverter.convert(batchApi.addRelations(KGUtil.dbName(kgName), collect));
         if (!resultRestResp.isPresent()) {
