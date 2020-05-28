@@ -335,7 +335,7 @@ public class AttributeServiceImpl implements AttributeService {
             if(relationRsp.getSourceUser() != null && !relationRsp.getSourceUser().isEmpty()){
                 if(!usernameMap.containsKey(relationRsp.getSourceUser())){
                     UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(relationRsp.getSourceUser()).getData();
-                    usernameMap.put(userDetailRsp.getId(),userDetailRsp.getUsername());
+                    usernameMap.put(userDetailRsp.getId(),userDetailRsp.getRealname());
                 }
                 relationRsp.setSourceUser(usernameMap.get(relationRsp.getSourceUser()));
             }

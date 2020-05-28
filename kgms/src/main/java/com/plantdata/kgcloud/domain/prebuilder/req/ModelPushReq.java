@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.prebuilder.req;
 
+import com.plantdata.kgcloud.domain.prebuilder.aop.DefaultHandlerReq;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import lombok.Data;
  * @create: 2020-03-26 12:52
  **/
 @Data
-public class ModelPushReq {
+public class ModelPushReq extends DefaultHandlerReq {
 
     @ApiModelProperty("id")
     private Long id;

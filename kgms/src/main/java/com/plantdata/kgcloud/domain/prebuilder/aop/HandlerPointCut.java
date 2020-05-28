@@ -25,9 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Bovin
@@ -63,6 +61,7 @@ public class HandlerPointCut {
     @Around(value = "postHandlerPointCut(postHandler)", argNames = "p,postHandler")
     public Object post(ProceedingJoinPoint p, PostHandler postHandler) throws Throwable {
         Object[] args = p.getArgs();
+        HandlerReq handlerResponse = response(args);
         Object o = p.proceed();
         int id = postHandler.id();
         if (id > 0) {
@@ -71,7 +70,7 @@ public class HandlerPointCut {
             for (RepoHandler repoHandler : repoHandlers) {
                 if (repositoryService.state(repoHandler.getRepoId())) {
                     try {
-                        o = handle(args, o, repoHandler);
+                        o = handle(handlerResponse, o, repoHandler);
                     } catch (RuntimeException e) {
                         log.error("后置处理器调用失败...", e);
                     }
@@ -81,6 +80,15 @@ public class HandlerPointCut {
         } else {
             return o;
         }
+    }
+
+    private HandlerReq response(Object[] args) {
+        for (Object arg : args) {
+            if (arg instanceof HandlerReq) {
+                return (HandlerReq) arg;
+            }
+        }
+        return new DefaultHandlerReq();
     }
 
     private URI getUri(RepoHandler repoHandler) {
@@ -93,7 +101,7 @@ public class HandlerPointCut {
                 .toUri();
     }
 
-    private Object handle(Object req, Object rsp, RepoHandler repoHandler) {
+    private Object handle(HandlerReq req, Object rsp, RepoHandler repoHandler) {
         String method = repoHandler.getRequestMethod().toUpperCase();
         HttpMethod requestMethod = HttpMethod.resolve(method);
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -101,14 +109,12 @@ public class HandlerPointCut {
         if (authorization != null) {
             httpHeaders.add(WebUtils.AUTHORIZATION, authorization);
         }
-        HashMap<String, Object> body = new HashMap<>();
-        body.put("request", req);
-        body.put("response", rsp);
-        HttpEntity<Map> httpEntity = new HttpEntity<>(body, httpHeaders);
+        req.setResponse(rsp);
+        HttpEntity<HandlerReq> httpEntity = new HttpEntity<>(req, httpHeaders);
         URI uri = getUri(repoHandler);
         log.info("调用服务 ：{}, 调用接口 ：{} {}", repoHandler.getRequestServerName(), method, uri.toString());
         if (log.isDebugEnabled()) {
-            log.debug("请求参数：", JacksonUtils.writeValueAsString(body));
+            log.debug("请求参数：", JacksonUtils.writeValueAsString(req));
         }
         try {
             ResponseEntity<ApiReturn> exchange = restTemplate.exchange(uri, requestMethod, httpEntity, ApiReturn.class);

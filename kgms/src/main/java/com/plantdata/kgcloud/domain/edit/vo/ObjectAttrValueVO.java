@@ -78,17 +78,17 @@ public class ObjectAttrValueVO {
      * 真实来源
      */
     @ApiModelProperty(value = "真实来源")
-    private Object trueSource="{}";
+    private Map<String,Object> trueSource;
 
     /**
      * 来源操作者
      */
     @ApiModelProperty(value = "来源操作者")
-    private String sourceUser="";
+    private String sourceUser;
 
     /**
      * 来源动作
      */
     @ApiModelProperty(value = "来源动作")
-    private String sourceAction="";
+    private String sourceAction;
 }
