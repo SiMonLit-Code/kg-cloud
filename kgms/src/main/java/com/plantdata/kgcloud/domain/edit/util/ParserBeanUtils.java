@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.edit.util;
 import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.RelationVO;
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
@@ -146,7 +147,10 @@ public class ParserBeanUtils {
                 }
 
                 if (entityMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
-                    basicInfoRsp.setTrueSource((Map)entityMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
+                    Object value = entityMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName());
+                    if(value != null){
+                        basicInfoRsp.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                    }
                 }
                 if (entityMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
                     String userId = entityMetaData.get(MetaDataInfo.SOURCE_USER.getFieldName()).toString();
@@ -234,7 +238,11 @@ public class ParserBeanUtils {
 
 
                 if (relationMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
-                    relationAttrValueVO.setTrueSource((Map)relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
+
+                    Object value = relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName());
+                    if(value != null){
+                        relationAttrValueVO.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                    }
                 }
 
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
@@ -283,7 +291,11 @@ public class ParserBeanUtils {
                 }
 
                 if (relationMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
-                    relationRsp.setTrueSource((Map)relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
+
+                    Object value = relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName());
+                    if(value != null){
+                        relationRsp.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                    }
                 }
 
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
