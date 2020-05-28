@@ -1,13 +1,13 @@
 package com.plantdata.kgcloud.domain.prebuilder.req;
 
-import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.domain.prebuilder.aop.BaseHandlerReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 @ApiModel(value = "预构建模式请求")
-public class PreBuilderSearchReq extends BaseReq {
+public class PreBuilderSearchReq extends BaseHandlerReq {
 
     @ApiModelProperty(value = "搜索词")
     private String kw;
