@@ -1,10 +1,12 @@
 package com.plantdata.kgcloud.domain.edit.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +17,7 @@ import java.util.Map;
  */
 @Data
 @ApiModel("边属性值查询结果模型")
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class ObjectAttrValueVO {
 
     @ApiModelProperty(value = "实体id")

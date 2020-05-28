@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,6 +15,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("属性值查询结果模型")
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class EntityAttrValueVO extends AttrDefinitionVO {
 
     @ApiModelProperty(value = "数值属性值")
