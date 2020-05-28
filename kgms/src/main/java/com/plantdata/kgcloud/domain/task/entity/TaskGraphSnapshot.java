@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.task.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -59,6 +60,10 @@ public class TaskGraphSnapshot {
     @Basic
     @Column(name = "file_store_type")
     private Integer fileStoreType;
+
+    @Basic
+    @Column(name = "file_backup_type")
+    private Integer fileBackupType;
 
     @Basic
     @Column(name = "disk_space_size")

@@ -104,9 +104,9 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileFolder table = FileFolder.builder()
                 .fileSystemId(fileSystemId).isDeleted(false)
                 .build();
-        List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table), Sort.by(Sort.Order.desc("createAt")));
+        List<FileFolder> fileFolders = fileFolderRepository.findAll(Example.of(table), Sort.by(Sort.Order.desc("createAt")));
 
-        List<FolderRsp> folderRsps = dwTableList.stream().map(table2rsp).collect(Collectors.toList());
+        List<FolderRsp> folderRsps = fileFolders.stream().map(table2rsp).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(folderRsps)) {
             return folderRsps;
         }
