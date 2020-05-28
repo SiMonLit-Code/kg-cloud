@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.prebuilder.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.domain.prebuilder.aop.PostHandler;
 import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderCreateReq;
 import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderSearchReq;
 import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderUpdateReq;
@@ -31,6 +32,7 @@ public class PreBuildManageController {
 
     @ApiOperation("预构建模式管理-列表")
     @PostMapping("/list")
+    @PostHandler(id = 12021011)
     public ApiReturn<Page<PreBuilderSearchRsp>> listManage(@RequestBody PreBuilderSearchReq preBuilderSearchReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.listManage(userId, preBuilderSearchReq));
@@ -38,6 +40,7 @@ public class PreBuildManageController {
 
     @ApiOperation("预构建模式管理-删除")
     @PatchMapping("/delete/{id}")
+    @PostHandler(id = 12021012)
     public ApiReturn delete(@PathVariable("id") Integer id) {
         String userId = SessionHolder.getUserId();
         preBuilderService.delete(userId, id);
@@ -46,6 +49,7 @@ public class PreBuildManageController {
 
     @ApiOperation("预构建模式管理-发布(1)/禁用(0)")
     @PatchMapping("/update/{id}/{status}")
+    @PostHandler(id = 12021013)
     public ApiReturn update(@PathVariable("id") Integer id,
                             @PathVariable("status") String status) {
         String userId = SessionHolder.getUserId();
@@ -56,6 +60,7 @@ public class PreBuildManageController {
 
     @ApiOperation("预构建模式管理-模式上传")
     @PostMapping("/create")
+    @PostHandler(id = 12021014)
     public ApiReturn create(@RequestBody PreBuilderCreateReq req) {
         String errorFilePath = preBuilderService.create(req);
         if("".equals(errorFilePath)){
@@ -67,6 +72,7 @@ public class PreBuildManageController {
 
     @ApiOperation("预构建模式管理-模式编辑")
     @PostMapping("/update")
+    @PostHandler(id = 12021015)
     public ApiReturn update(@RequestBody PreBuilderUpdateReq req) {
         preBuilderService.updateModel(req);
         return ApiReturn.success();
