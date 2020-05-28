@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
+import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
 import ai.plantdata.kg.api.pub.resp.GraphVO;
@@ -11,34 +12,40 @@ import ai.plantdata.kg.api.semantic.rsp.EdgeBean;
 import ai.plantdata.kg.api.semantic.rsp.NodeBean;
 import ai.plantdata.kg.api.semantic.rsp.ReasoningResultRsp;
 import ai.plantdata.kg.api.semantic.rsp.TripleBean;
+import cn.hiboot.mcn.core.model.result.RestResp;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.bo.ReasoningBO;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
+import com.plantdata.kgcloud.domain.app.converter.ReasoningConverter;
 import com.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
 import com.plantdata.kgcloud.domain.app.service.RuleReasoningService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
+import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfReasonRepository;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.function.ReasoningReqInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
+import com.plantdata.kgcloud.util.DateUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +63,8 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
     private GraphConfReasonRepository graphConfReasoningRepository;
     @Autowired
     private EntityApi entityApi;
+    @Autowired
+    private ConceptEntityApi conceptEntityApi;
 
     @Override
     public List<RelationReasonRuleRsp> generateReasoningRule(Map<Long, Object> configMap) {
@@ -67,6 +76,56 @@ public class RuleReasoningServiceImpl implements RuleReasoningService {
         ReasoningBO reasoning = new ReasoningBO(configList, configMap);
         reasoning.replaceRuleInfo();
         return reasoning.getReasonRuleList();
+    }
+
+    @Override
+    public Optional<CommonBasicGraphExploreRsp> reasoningExecute(String kgName, ReasoningReq reasoningReq) {
+
+        Optional<ReasoningResultRsp> opt = RestRespConverter.convert(reasoningApi.reasoning(KGUtil.dbName(kgName), reasoningReq));
+
+        if(!opt.isPresent()){
+            return Optional.empty();
+        }
+        CommonBasicGraphExploreRsp rsp = ReasoningConverter.reasoningResult2CommonBasicGraphExplore(opt.orElseGet(() -> new ReasoningResultRsp()));
+        if(rsp.getEntityList() != null && !rsp.getEntityList().isEmpty()){
+            for(CommonEntityRsp entityRsp : rsp.getEntityList()){
+                BasicInfoRsp entity = getEntityDetail(kgName,entityRsp.getId());
+                entityRsp.setName(entity.getName());
+                entityRsp.setConceptId(entity.getConceptId());
+                entityRsp.setType(entity.getType());
+                entityRsp.setConceptName(entity.getParent().get(0).getName());
+                entityRsp.setConceptIdList(entity.getParent().stream().map(BasicInfoVO::getId).collect(Collectors.toList()));
+                entityRsp.setScore(entity.getScore());
+                entityRsp.setImgUrl(entity.getImageUrl());
+                entityRsp.setMeaningTag(entity.getMeaningTag());
+                entityRsp.setStartTime(parseDate(entity.getFromTime()));
+                entityRsp.setClassId(entity.getParent().get(0).getId());
+                entityRsp.setEndTime(parseDate(entity.getToTime()));
+            }
+        }
+        return Optional.of(rsp);
+    }
+
+    public static Date parseDate(String str) {
+        try {
+            Date date = DateUtils.parseDate(str, "yyyy-MM-dd hh:mm:ss");
+            if(date == null){
+                date = DateUtils.parseDate(str, "yyyy-MM-dd");
+            }
+            return date;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public BasicInfoRsp getEntityDetail(String kgName,Long entityId){
+        RestResp<ai.plantdata.kg.api.edit.resp.EntityVO> restResp = conceptEntityApi.get(KGUtil.dbName(kgName), true,
+                entityId);
+        Optional<ai.plantdata.kg.api.edit.resp.EntityVO> optional = RestRespConverter.convert(restResp);
+        if (!optional.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
+        }
+        return ParserBeanUtils.parserEntityVO(optional.get());
     }
 
     @Override

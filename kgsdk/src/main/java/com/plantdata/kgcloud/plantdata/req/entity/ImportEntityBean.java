@@ -59,4 +59,6 @@ public class ImportEntityBean {
      */
     private Map<String, String> privateAttributes;
     private String note;
+
+    private Map<String,Object>metaData;
 }

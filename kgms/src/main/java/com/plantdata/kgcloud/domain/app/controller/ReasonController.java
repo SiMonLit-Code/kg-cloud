@@ -66,6 +66,23 @@ public class ReasonController implements SdkOpenApiInterface {
                 : new GraphReasoningResultRsp());
     }
 
+    @ApiOperation("关系推理验证")
+    @PostMapping("execute/reason/{kgName}")
+    public ApiReturn<CommonBasicGraphExploreRsp> executeReason(@ApiParam(value = "图谱名称") @PathVariable("kgName") String kgName,
+                                                         @RequestBody ReasoningReq reasoningReq) {
+        ai.plantdata.kg.api.semantic.req.ReasoningReq req = BasicConverter.copy(reasoningReq, ai.plantdata.kg.api.semantic.req.ReasoningReq.class);
+        Optional<CommonBasicGraphExploreRsp> reasonOpt;
+        try {
+            reasonOpt = ruleReasoningService.reasoningExecute(kgName,req);
+        } catch (Exception e) {
+            log.error("reasonRule:{}", reasoningReq.getRuleConfig());
+            throw BizException.of(AppErrorCodeEnum.REASON_RULE_ERROR);
+        }
+        return ApiReturn.success(reasonOpt.isPresent()
+                ? BasicConverter.copy(reasonOpt.get(), CommonBasicGraphExploreRsp.class)
+                : new CommonBasicGraphExploreRsp());
+    }
+
     @ApiOperation("推理规则生成")
     @PostMapping("rule/generate")
     public ApiReturn<List<RelationReasonRuleRsp>> reasoningRuleGenerate(Map<Long, Object> reasonConfig) {

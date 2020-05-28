@@ -15,10 +15,7 @@ import ai.plantdata.kg.api.pub.req.statistics.ConceptStatisticsBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.mongodb.MongoClient;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import com.plantdata.kgcloud.constant.AttributeValueType;
-import com.plantdata.kgcloud.constant.BasicInfoType;
-import com.plantdata.kgcloud.constant.CountType;
-import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.constant.*;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -28,6 +25,7 @@ import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.EntityFileRelationService;
 import com.plantdata.kgcloud.domain.edit.service.LogSender;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
+import com.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.domain.edit.vo.StatisticVO;
@@ -41,6 +39,7 @@ import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
+import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +101,9 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         }
         BasicInfoFrom basicInfoFrom = ConvertUtils.convert(BasicInfoFrom.class).apply(basicInfoReq);
         RestResp<Long> restResp = conceptEntityApi.add(KGUtil.dbName(kgName), basicInfoFrom);
+        if(BasicInfoType.isEntity(basicInfoReq.getType())){
+            conceptEntityApi.updateMetaData(KGUtil.dbName(kgName), restResp.getData(), MetaDataUtils.getDefaultSourceMetaData(null,SessionHolder.getUserId()));
+        }
         logSender.remove();
         return RestRespConverter.convert(restResp).orElse(null);
     }
