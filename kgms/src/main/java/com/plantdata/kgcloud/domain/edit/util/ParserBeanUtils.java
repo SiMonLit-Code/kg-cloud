@@ -2,9 +2,11 @@ package com.plantdata.kgcloud.domain.edit.util;
 
 import ai.plantdata.kg.api.edit.resp.EntityAttributeValueVO;
 import ai.plantdata.kg.api.edit.resp.EntityVO;
+import ai.plantdata.kg.api.edit.resp.RelationAttrValueVO;
 import ai.plantdata.kg.api.pub.resp.RelationVO;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.constant.MongoOperation;
@@ -16,8 +18,11 @@ import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.edit.vo.ObjectAttrValueVO;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -148,8 +153,13 @@ public class ParserBeanUtils {
 
                 if (entityMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
                     Object value = entityMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName());
+                    entityMetaData.remove(MetaDataInfo.TRUE_SOURCE.getFieldName());
                     if(value != null){
-                        basicInfoRsp.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                        try {
+                            basicInfoRsp.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                        }catch (Exception e){
+                            basicInfoRsp.setTrueSource(Maps.newHashMap());
+                        }
                     }
                 }
                 if (entityMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
@@ -190,7 +200,7 @@ public class ParserBeanUtils {
      * @return
      */
     public static EntityAttrValueVO parserEntityAttrValue(EntityAttributeValueVO vo, int size) {
-        EntityAttrValueVO entityAttrValueVO = MapperUtils.map(vo, EntityAttrValueVO.class);
+        EntityAttrValueVO entityAttrValueVO = MapperUtils.map(vo,EntityAttrValueVO.class);
         List<ObjectAttrValueVO> objectValues = entityAttrValueVO.getObjectValues();
         if (Objects.nonNull(objectValues) && !objectValues.isEmpty()) {
             if (objectValues.size() > size){
@@ -240,8 +250,13 @@ public class ParserBeanUtils {
                 if (relationMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
 
                     Object value = relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName());
-                    if(value != null){
-                        relationAttrValueVO.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                    relationMetaData.remove(MetaDataInfo.TRUE_SOURCE.getFieldName());
+                    if(value != null ){
+                        try {
+                            relationAttrValueVO.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                        }catch (Exception e){
+                            relationAttrValueVO.setTrueSource(Maps.newHashMap());
+                        }
                     }
                 }
 
@@ -293,8 +308,13 @@ public class ParserBeanUtils {
                 if (relationMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
 
                     Object value = relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName());
+                    relationMetaData.remove(MetaDataInfo.TRUE_SOURCE.getFieldName());
                     if(value != null){
-                        relationRsp.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                        try {
+                            relationRsp.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                        }catch (Exception e){
+                            relationRsp.setTrueSource(Maps.newHashMap());
+                        }
                     }
                 }
 
