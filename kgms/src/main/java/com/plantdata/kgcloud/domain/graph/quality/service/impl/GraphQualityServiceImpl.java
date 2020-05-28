@@ -120,6 +120,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         // 查询质量统计脚本
         TaskListReq taskListReq = new TaskListReq();
         taskListReq.setUserId(userId);
+        taskListReq.setKgName(kgName);
         taskListReq.setTaskType("data_quality");
         List<TaskBean> taskBeans = xxlAdminClient.list(taskListReq).getData().getContent();
         if (CollectionUtils.isEmpty(taskBeans)) {
@@ -163,6 +164,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
     public Long getTime(String kgName) {
         // 查询质量统计脚本
         TaskListReq taskListReq = new TaskListReq();
+        taskListReq.setKgName(kgName);
         taskListReq.setUserId(SessionHolder.getUserId());
         taskListReq.setTaskType("data_quality");
         List<TaskBean> taskBeans = xxlAdminClient.list(taskListReq).getData().getContent();
