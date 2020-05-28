@@ -25,20 +25,32 @@ public class RepoHandler {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "rank")
-    private int rank;
+
+    @Column(name = "interface_id")
+    private int interfaceId;
+
+
     @Column(name = "repo_id")
     private int repoId;
+
+    @Column(name = "rank")
+    private int rank;
+
     @Column(name = "handle_condition")
     private String handleCondition;
+
     @Column(name = "handle_type")
     private String handleType;
+
     @Column(name = "request_method")
     private String requestMethod;
+
     @Column(name = "request_server_name")
     private String requestServerName;
+
     @Column(name = "request_url")
     private String requestUrl;
+
     @Column(name = "remark")
     private String remark;
 

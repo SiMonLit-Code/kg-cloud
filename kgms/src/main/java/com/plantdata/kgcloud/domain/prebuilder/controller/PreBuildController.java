@@ -27,7 +27,7 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-查找所有")
     @PostMapping("/all")
-    @PostHandler(repoIds = {1001001})
+    @PostHandler(id = 12021001)
     public ApiReturn findModel(@RequestBody PreBuilderSearchReq preBuilderSearchReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.findModel(userId,preBuilderSearchReq));
@@ -35,6 +35,7 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-匹配属性统计")
     @PostMapping("/match/attr/count")
+    @PostHandler(id = 12021002)
     public ApiReturn<PreBuilderCountReq> matchAttrCount(@RequestBody PreBuilderMatchAttrReq preBuilderMatchAttrReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.matchAttrCount(userId,preBuilderMatchAttrReq));
@@ -42,6 +43,7 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-获取数据库模式")
     @PostMapping("/{databaseId}/detail")
+    @PostHandler(id = 12021003)
     public ApiReturn<PreBuilderSearchRsp> databaseDetail(@PathVariable("databaseId") Long databaseId) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.databaseDetail(userId,databaseId));
@@ -49,6 +51,7 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-匹配属性")
     @PostMapping("/match/attr")
+    @PostHandler(id = 12021004)
     public ApiReturn<Page<PreBuilderMatchAttrRsp>> matchAttr(@RequestBody PreBuilderMatchAttrReq preBuilderMatchAttrReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.matchAttr(userId,preBuilderMatchAttrReq));
@@ -56,6 +59,7 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-引入模式配置保存")
     @PostMapping("/save/graph/map")
+    @PostHandler(id = 12021005)
     public ApiReturn<JSONObject> saveGraphMap(@RequestBody PreBuilderGraphMapReq preBuilderGraphMapReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.saveGraphMap(userId,preBuilderGraphMapReq));
@@ -63,16 +67,16 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-查询分类")
     @GetMapping("/get/types")
+    @PostHandler(id = 12021006)
     public ApiReturn<List<String>> getTypes(Boolean isManage) {
-
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.getTypes(userId,isManage));
     }
 
     @ApiOperation("预构建模式-发布图谱模式")
     @PostMapping("/push/graph/model")
+    @PostHandler(id = 12021007)
     public ApiReturn pushGraphModel(@RequestBody ModelPushReq req) {
-
         String userId = SessionHolder.getUserId();
         preBuilderService.pushGraphModel(userId,req);
         return ApiReturn.success();
