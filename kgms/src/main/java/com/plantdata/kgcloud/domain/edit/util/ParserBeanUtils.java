@@ -234,7 +234,7 @@ public class ParserBeanUtils {
 
 
                 if (relationMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
-                    relationAttrValueVO.setTrueSource(relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
+                    relationAttrValueVO.setTrueSource((Map)relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
                 }
 
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
