@@ -297,11 +297,14 @@ public class EntityServiceImpl implements EntityService {
 
         Map<String,String> usernameMap = new HashMap<>();
         basicInfoRspList.forEach(basicInfoRsp -> {
-            if(!usernameMap.containsKey(basicInfoRsp.getSourceUser())){
-                UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(basicInfoRsp.getSourceUser()).getData();
-                usernameMap.put(userDetailRsp.getId(),userDetailRsp.getUsername());
+
+            if(basicInfoRsp.getSourceUser() != null && !basicInfoRsp.getSourceUser().isEmpty()){
+                if(!usernameMap.containsKey(basicInfoRsp.getSourceUser())){
+                    UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(basicInfoRsp.getSourceUser()).getData();
+                    usernameMap.put(userDetailRsp.getId(),userDetailRsp.getUsername());
+                }
+                basicInfoRsp.setSourceUser(usernameMap.get(basicInfoRsp.getSourceUser()));
             }
-            basicInfoRsp.setSourceUser(usernameMap.get(basicInfoRsp.getSourceUser()));
         });
         return new PageImpl<>(basicInfoRspList, PageRequest.of(basicInfoListReq.getPage() - 1, size), count);
     }

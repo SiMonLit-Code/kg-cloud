@@ -331,12 +331,14 @@ public class AttributeServiceImpl implements AttributeService {
         }
 
         Map<String,String> usernameMap = new HashMap<>();
-        relationRsps.forEach(RelationRsp -> {
-            if(!usernameMap.containsKey(RelationRsp.getSourceUser())){
-                UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(RelationRsp.getSourceUser()).getData();
-                usernameMap.put(userDetailRsp.getId(),userDetailRsp.getUsername());
+        relationRsps.forEach(relationRsp -> {
+            if(relationRsp.getSourceUser() != null && !relationRsp.getSourceUser().isEmpty()){
+                if(!usernameMap.containsKey(relationRsp.getSourceUser())){
+                    UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(relationRsp.getSourceUser()).getData();
+                    usernameMap.put(userDetailRsp.getId(),userDetailRsp.getUsername());
+                }
+                relationRsp.setSourceUser(usernameMap.get(relationRsp.getSourceUser()));
             }
-            RelationRsp.setSourceUser(usernameMap.get(RelationRsp.getSourceUser()));
         });
         return new PageImpl<>(relationRsps, PageRequest.of(relationSearchReq.getPage() - 1,
                 size), count);
