@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.prebuilder.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.domain.prebuilder.aop.PostHandler;
 import com.plantdata.kgcloud.domain.prebuilder.req.*;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
@@ -26,7 +27,8 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-查找所有")
     @PostMapping("/all")
-    public ApiReturn<Page<PreBuilderSearchRsp>> findModel(@RequestBody PreBuilderSearchReq preBuilderSearchReq) {
+    @PostHandler(repoIds = {1001001})
+    public ApiReturn findModel(@RequestBody PreBuilderSearchReq preBuilderSearchReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.findModel(userId,preBuilderSearchReq));
     }

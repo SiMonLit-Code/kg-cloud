@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.persistence.*;
@@ -18,35 +19,28 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class RepositoryHandler {
+@Table(name = "repo_handler")
+public class RepoHandler {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
     @Column(name = "rank")
     private int rank;
-    @Column(name = "repositoryId")
-    private int repositoryId;
-    @Column(name = "handleCondition")
+    @Column(name = "repo_id")
+    private int repoId;
+    @Column(name = "handle_condition")
     private String handleCondition;
-    @Column(name = "handleType")
-    private HandleType handleType;
-    @Column(name = "requestServerName")
+    @Column(name = "handle_type")
+    private String handleType;
+    @Column(name = "request_method")
+    private String requestMethod;
+    @Column(name = "request_server_name")
     private String requestServerName;
-    @Column(name = "requestUrl")
+    @Column(name = "request_url")
     private String requestUrl;
     @Column(name = "remark")
     private String remark;
-    @Column(name = "request_method")
-    private RequestMethod requestMethod;
 
-    @Override
-    public String toString() {
-        return "RepositoryHandler{" +
-                "id=" + id +
-                ", handleType=" + handleType +
-                ", requestServerName='" + requestServerName + '\'' +
-                ", rank=" + rank +
-                '}';
-    }
+
 }
