@@ -184,6 +184,7 @@ public class FileSystemServiceImpl implements FileSystemService {
             return ConvertUtils.convert(FileSystemRsp.class).apply(oldFileSystem);
         } else {
             fileSystem.setIsDeleted(false);
+            fileSystem.setName("默认文件系统");
             FileSystem newFileSystem = fileSystemRepository.save(fileSystem);
             FileFolder fileFolder = FileFolder.builder()
                     .fileSystemId(newFileSystem.getId()).name("默认文件夹")
