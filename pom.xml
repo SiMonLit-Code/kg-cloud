@@ -26,7 +26,7 @@
 
         <kg-cloud-parent.version>3.1.5</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
-        <kg-services-sdk.version>3.0.0-SNAPSHOT</kg-services-sdk.version>
+        <kg-services-sdk.version>3.0.38</kg-services-sdk.version>
         <kgtext-sdk.version>3.0.18</kgtext-sdk.version>
         <kgcomponent-sdk.version>3.0.0</kgcomponent-sdk.version>
     </properties>
@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>com.plantdata.log</groupId>
                 <artifactId>graph-logging</artifactId>
-                <version>3.0.23</version>
+                <version>3.0.4</version>
             </dependency>
 
             <dependency>
