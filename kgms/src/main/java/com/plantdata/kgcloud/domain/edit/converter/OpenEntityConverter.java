@@ -26,9 +26,9 @@ public class OpenEntityConverter extends BasicConverter {
                 metaMap.put(MetaDataInfo.BATCH_NO.getFieldName(), a.getBatchNo());
             }
 
-            MetaDataUtils.getDefaultSourceMetaData(metaMap, SessionHolder.getUserId());
             copy.setMetaData(metaMap);
         });
+        MetaDataUtils.getDefaultSourceMetaData(copy.getMetaData(), SessionHolder.getUserId());
         return copy;
     }
 }

@@ -76,6 +76,7 @@ public class EntityConverter extends BasicConverter {
             entityBean.setAttributes(tempMap);
         });
         consumerIfNoNull(entityRsp.getPrivateAttributes(), entityBean::setPrivateAttributes);
+        entityBean.setMetaData(MetaDataUtils.getDefaultMetaData(entityRsp.getMetaDataMap(),SessionHolder.getUserId()));
         return entityBean;
     }
 
@@ -94,7 +95,6 @@ public class EntityConverter extends BasicConverter {
         saveEntityRsp.setImageUrl(entityRsp.getImageUrl());
         saveEntityRsp.setSynonyms(entityRsp.getSynonyms());
         saveEntityRsp.setMeaningTag(entityRsp.getMeaningTag());
-        saveEntityRsp.setMetaDataMap(MetaDataUtils.getDefaultMetaData(entityRsp.getMetaData(),SessionHolder.getUserId()));
         return saveEntityRsp;
     }
 
