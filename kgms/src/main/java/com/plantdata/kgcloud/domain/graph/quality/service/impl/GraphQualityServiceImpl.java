@@ -128,7 +128,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
             taskBean.setName("图谱质量统计");
             taskBean.setDesc("图谱知识质量统计");
             taskBean.setTaskType("data_quality");
-            taskBean.setKgName("*");
+            taskBean.setKgName(kgName);
             taskBean.setConfig("");
             ApiReturn<Integer> integerApiReturn = xxlAdminClient.taskAdd(taskBean);
             System.out.println(integerApiReturn);
