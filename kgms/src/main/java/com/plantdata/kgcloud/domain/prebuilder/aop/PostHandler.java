@@ -13,5 +13,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PostHandler {
-    int[] repoIds() default {};
+    /**
+     * 接口唯一 id
+     *
+     * @return id
+     */
+    int id() default 0;
 }

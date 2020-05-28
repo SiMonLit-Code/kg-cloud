@@ -58,6 +58,7 @@ import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.IdNameVO;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
@@ -65,6 +66,7 @@ import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
+import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
@@ -119,6 +121,9 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Autowired
     private LogSender logSender;
+
+    @Autowired
+    private UserClient userClient;
 
     @Override
     public AttrDefinitionVO getAttrDetails(String kgName, Integer id) {
@@ -324,6 +329,15 @@ public class AttributeServiceImpl implements AttributeService {
             relationRsps.remove(size.intValue());
             count += page;
         }
+
+        Map<String,String> usernameMap = new HashMap<>();
+        relationRsps.forEach(RelationRsp -> {
+            if(!usernameMap.containsKey(RelationRsp.getSourceUser())){
+                UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(RelationRsp.getSourceUser()).getData();
+                usernameMap.put(userDetailRsp.getId(),userDetailRsp.getUsername());
+            }
+            RelationRsp.setSourceUser(usernameMap.get(RelationRsp.getSourceUser()));
+        });
         return new PageImpl<>(relationRsps, PageRequest.of(relationSearchReq.getPage() - 1,
                 size), count);
     }

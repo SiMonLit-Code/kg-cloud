@@ -22,6 +22,7 @@ import org.bson.conversions.Bson;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -70,7 +71,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileSystem fileSystem = FileSystem.builder()
                 .userId(SessionHolder.getUserId()).isDeleted(false)
                 .build();
-        List<FileSystem> all = fileSystemRepository.findAll(Example.of(fileSystem));
+        List<FileSystem> all = fileSystemRepository.findAll(Example.of(fileSystem), Sort.by(Sort.Order.desc("createAt")));
         return all.stream().map(fileSystem2rsp).collect(Collectors.toList());
     }
 
@@ -103,7 +104,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         FileFolder table = FileFolder.builder()
                 .fileSystemId(fileSystemId).isDeleted(false)
                 .build();
-        List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table));
+        List<FileFolder> dwTableList = fileFolderRepository.findAll(Example.of(table), Sort.by(Sort.Order.desc("createAt")));
 
         List<FolderRsp> folderRsps = dwTableList.stream().map(table2rsp).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(folderRsps)) {
@@ -179,6 +180,7 @@ public class FileSystemServiceImpl implements FileSystemService {
             Optional<FileFolder> fileOptional = fileFolderRepository.findOne(Example.of(fileFolder));
             if (!fileOptional.isPresent()) {
                 fileFolder.setIsDeleted(false);
+                fileFolder.setName("默认文件夹");
                 fileFolderRepository.save(fileFolder);
             }
             return ConvertUtils.convert(FileSystemRsp.class).apply(oldFileSystem);

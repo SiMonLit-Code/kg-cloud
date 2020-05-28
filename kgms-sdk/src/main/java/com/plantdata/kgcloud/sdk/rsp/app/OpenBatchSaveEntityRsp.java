@@ -38,6 +38,8 @@ public class OpenBatchSaveEntityRsp {
     private Map<String, String> privateAttributes;
     @ApiModelProperty("元数据")
     private MetaDataReq metaData;
+    @ApiModelProperty("metaData信息")
+    private Map<String,Object> metaDataMap;
     @ApiModelProperty("错误信息")
     private String note;
 

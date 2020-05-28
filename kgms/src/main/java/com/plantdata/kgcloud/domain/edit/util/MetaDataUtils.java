@@ -26,7 +26,9 @@ public class MetaDataUtils {
         }
 
         if(!metaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())){
-            metaData.put(MetaDataInfo.TRUE_SOURCE.getFieldName(), "用户写入");
+            Map<String,Object> trueSource = new HashMap<>();
+            trueSource.put("source","用户写入");
+            metaData.put(MetaDataInfo.TRUE_SOURCE.getFieldName(), trueSource);
         }
 
         if(!metaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())){
