@@ -179,6 +179,7 @@ public class FileSystemServiceImpl implements FileSystemService {
             Optional<FileFolder> fileOptional = fileFolderRepository.findOne(Example.of(fileFolder));
             if (!fileOptional.isPresent()) {
                 fileFolder.setIsDeleted(false);
+                fileFolder.setName("默认文件夹");
                 fileFolderRepository.save(fileFolder);
             }
             return ConvertUtils.convert(FileSystemRsp.class).apply(oldFileSystem);

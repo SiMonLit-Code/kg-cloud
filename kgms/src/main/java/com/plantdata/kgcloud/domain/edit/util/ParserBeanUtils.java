@@ -146,11 +146,11 @@ public class ParserBeanUtils {
                 }
 
                 if (entityMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
-                    basicInfoRsp.setTrueSource(entityMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
+                    basicInfoRsp.setTrueSource((Map)entityMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
                 }
-
                 if (entityMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
-                    basicInfoRsp.setSourceUser(entityMetaData.get(MetaDataInfo.SOURCE_USER.getFieldName()).toString());
+                    String userId = entityMetaData.get(MetaDataInfo.SOURCE_USER.getFieldName()).toString();
+                    basicInfoRsp.setSourceUser(userId);
                 }
 
                 if (entityMetaData.containsKey(MetaDataInfo.SOURCE_ACTION.getFieldName())) {
@@ -283,11 +283,14 @@ public class ParserBeanUtils {
                 }
 
                 if (relationMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
-                    relationRsp.setTrueSource(relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
+                    relationRsp.setTrueSource((Map)relationMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName()));
                 }
 
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
-                    relationRsp.setSourceUser(relationMetaData.get(MetaDataInfo.SOURCE_USER.getFieldName()).toString());
+                    String userId = relationMetaData.get(MetaDataInfo.SOURCE_USER.getFieldName()).toString();
+
+
+                    relationRsp.setSourceUser(userId);
                 }
 
                 if (relationMetaData.containsKey(MetaDataInfo.SOURCE_ACTION.getFieldName())) {

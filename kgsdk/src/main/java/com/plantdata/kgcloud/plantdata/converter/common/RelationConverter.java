@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class RelationConverter extends BasicConverter {
 
-    public static BatchRelationRsp importRelationBeanToBatchRelationRsp(@NonNull ImportRelationBean relationBean) {
+    public static BatchRelationRsp  importRelationBeanToBatchRelationRsp(@NonNull ImportRelationBean relationBean) {
         BatchRelationRsp relationRsp = new BatchRelationRsp();
         relationRsp.setAttrId(relationBean.getAttrId());
         relationRsp.setAttrTimeFrom(relationBean.getAttrTimeFrom());
