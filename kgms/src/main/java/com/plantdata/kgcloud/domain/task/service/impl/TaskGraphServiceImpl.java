@@ -59,10 +59,13 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     public TaskGraphSnapshotRsp add(TaskGraphSnapshotNameReq req) {
         TaskGraphSnapshot snapshot = ConvertUtils.convert(TaskGraphSnapshot.class).apply(req);
         snapshot.setCatalogue(req.getFileName());
-        snapshot.setUserId(req.getUserId());
         try {
             byte[] bytes = fastdfsTemplate.downloadFile(snapshot.getCatalogue());
-            snapshot.setFileSize((bytes.length * 1.0 / 1024) + "K");
+            if (bytes.length * 1.0 / 1024 > 1024) {
+                snapshot.setFileSize((bytes.length * 1.0 / 1024 / 1024) + "M");
+            } else {
+                snapshot.setFileSize((bytes.length * 1.0 / 1024) + "K");
+            }
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_NOT_EXIST);
         }
