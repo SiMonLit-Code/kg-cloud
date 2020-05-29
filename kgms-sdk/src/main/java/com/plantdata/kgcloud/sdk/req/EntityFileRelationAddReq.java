@@ -17,7 +17,7 @@ import java.util.List;
 public class EntityFileRelationAddReq {
 
     @NotNull
-    @ApiModelProperty("标引类型(0：文件标引，1：文本标引，3：链接标引)")
+    @ApiModelProperty("标引类型(0：文件标引，1：文本标引，2：链接标引)")
     private Integer indexType;
 
     @NotEmpty
