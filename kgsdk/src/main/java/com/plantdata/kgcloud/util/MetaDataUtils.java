@@ -16,7 +16,7 @@ public class MetaDataUtils {
 
 
 
-    public static Map<String,Object> getDefaultMetaData(Map<String,Object> metaData,String userId) {
+    public static Map<String,Object> getDefaultMetaData(Map<String,Object> metaData) {
 
         if(metaData == null){
             metaData = new HashMap<>();
@@ -27,10 +27,12 @@ public class MetaDataUtils {
         }
 
         if(!metaData.containsKey(MetaDataEnum.trueSource.getValue())){
-            metaData.put(MetaDataEnum.trueSource.getValue(),"接口写入");
+            Map<String,Object> trueSource = new HashMap<>();
+            trueSource.put("source","接口写入");
+            metaData.put(MetaDataEnum.trueSource.getValue(), trueSource);
         }
 
-        metaData.put(MetaDataEnum.sourceUser.getValue(), userId);
+//        metaData.put(MetaDataEnum.sourceUser.getValue(), userId);
         metaData.put(MetaDataEnum.sourceAction.getValue(),"API接口");
 
         return metaData;

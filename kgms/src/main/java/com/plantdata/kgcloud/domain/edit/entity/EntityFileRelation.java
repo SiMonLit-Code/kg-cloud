@@ -40,4 +40,7 @@ public class EntityFileRelation {
     @ApiModelProperty("链接")
     private String url;
 
+    @ApiModelProperty("文件路径")
+    private String path;
+
 }

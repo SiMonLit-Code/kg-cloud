@@ -94,7 +94,7 @@ public class EntityConverter extends BasicConverter {
         saveEntityRsp.setImageUrl(entityRsp.getImageUrl());
         saveEntityRsp.setSynonyms(entityRsp.getSynonyms());
         saveEntityRsp.setMeaningTag(entityRsp.getMeaningTag());
-        saveEntityRsp.setMetaDataMap(MetaDataUtils.getDefaultMetaData(entityRsp.getMetaData(),SessionHolder.getUserId()));
+        saveEntityRsp.setMetaDataMap(MetaDataUtils.getDefaultMetaData(entityRsp.getMetaData()));
         return saveEntityRsp;
     }
 
