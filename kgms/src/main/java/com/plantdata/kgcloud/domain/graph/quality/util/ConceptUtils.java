@@ -1,21 +1,18 @@
 package com.plantdata.kgcloud.domain.graph.quality.util;
 
-import ai.plantdata.kg.common.bean.BasicInfo;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.model.Filters;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -32,85 +29,12 @@ public class ConceptUtils {
         return mongoClient.getDatabase(kgDbName).getCollection("attribute_definition");
     }
 
-    /**
-     * 获取概念的所有子概念（不包含自己）
-     *
-     * @param conceptId
-     */
-    public Set<Long> getSonConceptId(String kgDbname, Long conceptId) {
-
-        Queue<Long> queue = new LinkedBlockingDeque<>();
-        queue.add(conceptId);
-
-        Set<Long> sonConceptIds = new HashSet<>();
-        Long tempConceptId;
-        while (!queue.isEmpty()) {
-            tempConceptId = queue.remove();
-            MongoCursor<Document> iterator = getBasicInfoCollection(kgDbname)
-                    .find(new Document("concept_id", tempConceptId).append("type", 0))
-                    .projection(new Document("id", 1).append("name", 1).append("concept_id", 1))
-                    .iterator();
-            while (iterator.hasNext()) {
-                Document next = iterator.next();
-                Long sonId = next.getLong("id");
-                Long concept_id = next.getLong("concept_id");
-                if (sonId == concept_id) {
-                    System.out.println(kgDbname + "获取所有子概念数据错误，父概念ID = 本身概念ID " + conceptId);
-                    log.error(kgDbname + "获取所有子概念数据错误，父概念ID = 本身概念ID " + conceptId);
-                    break;
-                }
-//                System.out.println(kgDbname + "获取子概念 conceptId: " + sonId + " name: " + next.getString("name"));
-                sonConceptIds.add(sonId);
-                queue.add(sonId);
-            }
-
-        }
-
-        return sonConceptIds;
+    private MongoCollection<Document> getAttributeSummaryCollection(String kgDbName) {
+        return mongoClient.getDatabase(kgDbName).getCollection("attribute_summary");
     }
 
-    /**
-     * 获取该该概念的所有父概念（手动去除0（根节点）不包括自己）
-     *
-     * @param kgDbname
-     * @param conceptId
-     * @return
-     */
-    public Set<Long> getParentConceptId(String kgDbname, Long conceptId) {
-
-        Queue<Long> queue = new LinkedBlockingDeque<>();
-        queue.add(conceptId);
-
-        Set<Long> parentConceptIds = new HashSet<>();
-        Long temp;
-        while (!queue.isEmpty()) {
-            temp = queue.remove();
-            MongoCursor<Document> iterator = getBasicInfoCollection(kgDbname)
-                    .find(new Document("id", temp).append("type", 0))
-                    .projection(new Document("concept_id", 1).append("id", 1))
-                    .iterator();
-            while (iterator.hasNext()) {
-                Document next = iterator.next();
-                Long parentId = next.getLong("concept_id");
-                Long id = next.getLong("id");
-                if (id == parentId) {
-                    System.out.println(kgDbname + "获取所有父概念数据错误，父概念ID = 本身概念ID " + conceptId);
-                    break;
-                }
-                if (parentId == null) {
-                    continue;
-                }
-                if (parentId == 0L) {
-
-                }
-                parentConceptIds.add(parentId);
-                queue.add(parentId);
-            }
-
-        }
-        // 手动去除根节点
-        parentConceptIds.remove(0L);
-        return parentConceptIds;
+    private MongoCollection<Document> getAttributeObjectCollection(String kgDbName) {
+        return mongoClient.getDatabase(kgDbName).getCollection("attribute_object");
     }
 
     /**
@@ -119,127 +43,105 @@ public class ConceptUtils {
      * @param conceptId
      * @return
      */
-    public Long countEntityByOneConceptId(String kgDbname, Long conceptId) {
+    public Long countEntityByConceptId(String kgDbname, Long conceptId) {
         Document queryEntityCount = new Document("type", 1).append("concept_id", conceptId);
         return getBasicInfoCollection(kgDbname).countDocuments(queryEntityCount);
     }
 
     /**
-     * 获取当前概念下及子概念实体总数
+     * 批量查询概念下的实体数量,不包括子概念
      *
-     * @param conceptId
-     */
-    public Long countEntityByConceptParentAndSon(String kgDbname, Long conceptId) {
-
-        Set<Long> sonConceptIds = InitFunc.sonConceptIds.get(conceptId);
-        sonConceptIds.add(conceptId);//添加自己本身
-        Map<Long, Long> longLongMap = InitFunc.longLongMap;
-
-        Long count = 0L;
-        for (Long sonId : sonConceptIds) {
-            if (longLongMap != null) {
-                Long aLong = longLongMap.get(sonId);
-                if (aLong != null) {
-                    count += longLongMap.get(sonId);
-                }
-            }
-        }
-
-        return count;
-    }
-
-    /**
-     * 所有概念的实体数
-     * key :概念ID
-     * value：实体数
-     */
-    public Map<Long, Long> countEntityallConcepts(String kgDbname) {
-
-        Map<Long, Long> conceptEntityCountMap = new HashMap<>();
-
-        // 获取所有 概念ID -> 名称
-        Map<Long, String> conceptIdNameMap = InitFunc.conceptNameMap;
-        for (Map.Entry<Long, String> entry : conceptIdNameMap.entrySet()) {
-            Long conceptId = entry.getKey();
-            // 获取当前概念的实体数
-            Long countEntityByOneConceptId = countEntityByOneConceptId(kgDbname, conceptId);
-            if (countEntityByOneConceptId == null) {
-                countEntityByOneConceptId = 0L;
-            }
-            conceptEntityCountMap.put(conceptId, countEntityByOneConceptId);
-        }
-
-        return conceptEntityCountMap;
-    }
-
-
-    /**
-     * 获取该概念所定义的属性数（继承父概念）
-     *
-     * @param sonId
-     * @return
-     */
-    public Long countAttrDefinSonParent(String kgDbname, Long sonId) {
-
-        Set<Long> parentConceptIds = InitFunc.parentConceptIds.get(sonId);
-        parentConceptIds.add(sonId);
-
-        Document query = new Document(new Document("domain_value", new Document("$in", parentConceptIds)));
-
-        long count = getAttributeDefinitionCollection(kgDbname).countDocuments(query);
-
-        return count;
-    }
-
-    /**
-     * 获取对象属性的值域列表
-     *
-     * @param kgdbName
-     * @param attrId
-     * @return
-     */
-    public List<Long> getObjAttrRangeValues(String kgdbName, Integer attrId) {
-        List<Long> rangConceptIds = new ArrayList<>();
-        // 获取该对象属性的值域
-        Document first = getAttributeDefinitionCollection(kgdbName)
-                .find(new Document("id", attrId).append("type", 1))
-                .first();
-
-        JSONObject parse = JSON.parseObject(first.toJson());
-        JSONArray range_value = parse.getJSONArray("range_value");
-        int size = range_value.size();
-        for (int i = 0; i < size; i++) {
-            JSONObject jsonObject = range_value.getJSONObject(i);
-            Long conceptId = jsonObject.getLong("$numberLong");
-            rangConceptIds.add(conceptId);
-        }
-
-        return rangConceptIds;
-    }
-
-    /**
-     * 根据概念ID获取基本信息
-     *
-     * @param kgDbName
      * @param conceptIds
      * @return
      */
-    public List<BasicInfo> getBasicInfoByConceptId(String kgDbName, Set<Long> conceptIds) {
+    public Map<Long, Long> countEntityByConceptIds(String kgDbname, Set<Long> conceptIds) {
+        List<Document> aggregateList = new ArrayList<>();
+        Document query = new Document("type", 1).append("concept_id", new Document("$in", conceptIds));
+        Document groupDoc = new Document("_id", "$concept_id").append("total", new Document("$sum", 1));
+        Document projectDoc = new Document("id", "$_id").append("total", 1).append("_id", 0);
 
-        MongoCursor<Document> iterator = getBasicInfoCollection(kgDbName).find(Filters.in("id", conceptIds)).iterator();
+        aggregateList.add(new Document("$match", query));
+        aggregateList.add(new Document("$group", groupDoc));
+        aggregateList.add(new Document("$project", projectDoc));
+        ArrayList<Document> documents = Lists.newArrayList(getBasicInfoCollection(kgDbname).aggregate(aggregateList));
+        Map<Long, Long> dataMap = Maps.newHashMap();
 
-        List<BasicInfo> list = Lists.newArrayList();
-        while (iterator.hasNext()) {
-            Document document = iterator.next();
-
-            BasicInfo basicInfo = new BasicInfo();
-            basicInfo.setId(document.getLong("id"));
-            basicInfo.setName(document.getString("name"));
-            basicInfo.setConceptId(document.getLong("concept_id"));
-            list.add(basicInfo);
+        for (Document document : documents) {
+            dataMap.put(document.getLong("id"), document.getInteger("total").longValue());
         }
+        return dataMap;
+    }
 
-        return list;
+    /**
+     * 批量查询概念所定义的属性数（不继承父概念）
+     *
+     * @param conceptIds
+     * @return
+     */
+    public Map<Long, Long> countAttrByConceptIds(String kgDbname, Set<Long> conceptIds) {
+        List<Document> aggregateList = new ArrayList<>();
+        Document query = new Document("domain_value", new Document("$in", conceptIds));
+        Document groupDoc = new Document("_id", "$domain_value").append("total", new Document("$sum", 1));
+        Document projectDoc = new Document("id", "$_id").append("total", 1).append("_id", 0);
+
+        aggregateList.add(new Document("$match", query));
+        aggregateList.add(new Document("$group", groupDoc));
+        aggregateList.add(new Document("$project", projectDoc));
+        ArrayList<Document> documents = Lists.newArrayList(getAttributeDefinitionCollection(kgDbname).aggregate(aggregateList));
+        Map<Long, Long> dataMap = Maps.newHashMap();
+
+        for (Document document : documents) {
+            dataMap.put(document.getLong("id"), document.getInteger("total").longValue());
+        }
+        return dataMap;
+    }
+
+    /**
+     * 批量查询对象属性的属性值总数（不继承父概念）
+     *
+     * @param attrIds
+     * @return
+     */
+    public Map<Integer, Long> countObjectAttrValueByAttrIds(String kgDbname, Set<Integer> attrIds) {
+        List<Document> aggregateList = new ArrayList<>();
+        Document query = new Document("attr_id", new Document("$in", attrIds));
+        Document groupDoc = new Document("_id", "$attr_id").append("total", new Document("$sum", 1));
+        Document projectDoc = new Document("id", "$_id").append("total", 1).append("_id", 0);
+
+        aggregateList.add(new Document("$match", query));
+        aggregateList.add(new Document("$group", groupDoc));
+        aggregateList.add(new Document("$project", projectDoc));
+        ArrayList<Document> documents = Lists.newArrayList(getAttributeObjectCollection(kgDbname).aggregate(aggregateList));
+        Map<Integer, Long> dataMap = Maps.newHashMap();
+
+        for (Document document : documents) {
+            dataMap.put(document.getInteger("id"), document.getInteger("total").longValue());
+        }
+        return dataMap;
+    }
+
+    /**
+     * 批量查询基本属性的属性值总数（不继承父概念）
+     *
+     * @param attrIds
+     * @return
+     */
+    public Map<Integer, Long> countBaseAttrValueByAttrIds(String kgDbname, Set<Integer> attrIds) {
+        List<Document> aggregateList = new ArrayList<>();
+        Document query = new Document("attr_id", new Document("$in", attrIds));
+        Document groupDoc = new Document("_id", "$attr_id").append("total", new Document("$sum", 1));
+        Document projectDoc = new Document("id", "$_id").append("total", 1).append("_id", 0);
+
+        aggregateList.add(new Document("$match", query));
+        aggregateList.add(new Document("$group", groupDoc));
+        aggregateList.add(new Document("$project", projectDoc));
+        ArrayList<Document> documents = Lists.newArrayList(getAttributeSummaryCollection(kgDbname).aggregate(aggregateList));
+        Map<Integer, Long> dataMap = Maps.newHashMap();
+
+        for (Document document : documents) {
+            dataMap.put(document.getInteger("id"), document.getInteger("total").longValue());
+        }
+        return dataMap;
     }
 
 }
