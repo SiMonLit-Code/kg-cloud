@@ -315,6 +315,12 @@ public class AttributeServiceImpl implements AttributeService {
         if (Objects.nonNull(metaReq.getReliability()) && !metaReq.getReliability().isEmpty()) {
             metaFilters.put(MetaDataInfo.RELIABILITY.getCode(), metaReq.getReliability());
         }
+        if (Objects.nonNull(metaReq.getSourceUser()) && !metaReq.getSourceUser().isEmpty()) {
+            metaFilters.put(MetaDataInfo.SOURCE_USER.getCode(), metaReq.getSourceUser());
+        }
+        if (Objects.nonNull(metaReq.getSourceAction()) && !metaReq.getSourceAction().isEmpty()) {
+            metaFilters.put(MetaDataInfo.SOURCE_ACTION.getCode(), metaReq.getSourceAction());
+        }
         if (!metaFilters.isEmpty()) {
             filterRelationFrom.setMetaFilters(metaFilters);
         }

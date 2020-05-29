@@ -341,6 +341,16 @@ public class EntityServiceImpl implements EntityService {
             operation.put(MongoOperation.EQUAL.getType(), bodyReq.getSource());
             filters.put(MetaDataInfo.METADATA + MetaDataInfo.SOURCE.getCode(), operation);
         }
+        if (StringUtils.hasText(bodyReq.getSourceUser())) {
+            Map<String, Object> operation = new HashMap<>();
+            operation.put(MongoOperation.EQUAL.getType(), bodyReq.getSourceUser());
+            filters.put(MetaDataInfo.METADATA + MetaDataInfo.SOURCE_USER.getCode(), operation);
+        }
+        if (StringUtils.hasText(bodyReq.getSourceAction())) {
+            Map<String, Object> operation = new HashMap<>();
+            operation.put(MongoOperation.EQUAL.getType(), bodyReq.getSourceAction());
+            filters.put(MetaDataInfo.METADATA + MetaDataInfo.SOURCE_ACTION.getCode(), operation);
+        }
         if (StringUtils.hasText(bodyReq.getBatchNo())) {
             Map<String, Object> operation = new HashMap<>();
             operation.put(MongoOperation.EQUAL.getType(), bodyReq.getBatchNo());
