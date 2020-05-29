@@ -180,7 +180,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
         List<Bson> query = new ArrayList<>();
         if (StringUtils.isNotBlank(req.getName())) {
-            query.add(Filters.regex("title", Pattern.compile("^.*" + req.getName() + ".*$")));
+            query.add(Filters.regex("title", Pattern.compile("^.*" + req.getName().trim() + ".*$")));
         }
         if (req.getIndexType() != null) {
             query.add(Filters.eq("indexType", req.getIndexType()));
@@ -289,6 +289,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                 exist.setEntityAnnotation(entityAnnotation);
                 String id = exist.getId();
                 exist.setId(null);
+                exist.setPath(req.getPath());
                 Document document = entityFileConverter.toDocument(exist);
                 getRelationCollection(kgName).updateOne(documentConverter.buildObjectId(id), new Document("$set", document));
             }
@@ -369,22 +370,21 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         List<Bson> bsons = new ArrayList<>(2);
         bsons.add(Filters.in("entityAnnotation.entityId", entityId));
         bsons.add(Filters.eq("indexType", 0));
-        MongoCursor<Document> cursor = getRelationCollection(kgName).find(Filters.and(bsons)).iterator();
-        List<EntityFileRsp> list = Lists.newArrayList();
-        while (cursor.hasNext()) {
-            Document doc = cursor.next();
-            ObjectId objectId = doc.getObjectId("fileId");
-            Document document = getFileCollection().find(Filters.eq("_id", objectId)).first();
-            FileData fileData = documentConverter.toBean(document, FileData.class);
-            if (fileData != null) {
-                EntityFileRsp entityFileRsp = ConvertUtils.convert(EntityFileRsp.class).apply(fileData);
-                entityFileRsp.setId(doc.getObjectId("_id").toString());
-                entityFileRsp.setEntityId(entityId);
-                entityFileRsp.setIndexType(0);
-                list.add(entityFileRsp);
-            }
+        FindIterable<Document> findIterable = getRelationCollection(kgName).find(Filters.and(bsons));
+        List<EntityFileRelation> list = entityFileConverter.toBeans(findIterable);
+
+        List<EntityFileRsp> result = Lists.newArrayList();
+
+        for (EntityFileRelation relation : list) {
+            EntityFileRsp entityFileRsp = ConvertUtils.convert(EntityFileRsp.class).apply(relation);
+            entityFileRsp.setEntityId(entityId);
+            entityFileRsp.setIndexType(0);
+            entityFileRsp.setName(relation.getTitle().substring(0, relation.getTitle().lastIndexOf(".")));
+            entityFileRsp.setType(relation.getTitle().substring(relation.getTitle().lastIndexOf(".") + 1));
+            result.add(entityFileRsp);
         }
-        return list;
+
+        return result;
     }
 
     @Override
@@ -410,15 +410,8 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
                     EntityFileRsp entityFileRsp = ConvertUtils.convert(EntityFileRsp.class).apply(relation);
                     entityFileRsp.setEntityId(entityId);
                     if (type == 0) {
-                        List<Bson> query = new ArrayList<>(1);
-                        query.add(Filters.eq("_id", new ObjectId(relation.getFileId())));
-                        Document document = getFileCollection().find(Filters.and(query)).first();
-                        if (document != null) {
-                            entityFileRsp.setName(document.getString("name"));
-                            entityFileRsp.setPath(document.getString("path"));
-                            entityFileRsp.setThumbPath(document.getString("thumbPath"));
-                            entityFileRsp.setType(document.getString("type"));
-                        }
+                        entityFileRsp.setName(relation.getTitle().substring(0, relation.getTitle().lastIndexOf(".")));
+                        entityFileRsp.setType(relation.getTitle().substring(relation.getTitle().lastIndexOf(".") + 1));
                     }
                     list.add(entityFileRsp);
                 }

@@ -39,4 +39,7 @@ public class EntityFileRelationRsp {
     @ApiModelProperty("关联的实体信息")
     private List<EntityInfoRsp> entityInfoList;
 
+    @ApiModelProperty("文件路径")
+    private String path;
+
 }
