@@ -83,7 +83,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         }
 
         // 默认文件系统
-        FileSystemRsp fileSystem = new FileSystemRsp();
+        FileSystemRsp fileSystem = null;
         for (int i = 0; i < fileSystems.size(); i++) {
             FileSystemRsp fileSystemRsp = fileSystems.get(i);
             List<FolderRsp> tables = findFolder(userId, fileSystemRsp.getId());
@@ -94,7 +94,10 @@ public class FileSystemServiceImpl implements FileSystemService {
                 i--;
             }
         }
-        List<FileSystemRsp> newFileSystems = Lists.newArrayList(fileSystem);
+        List<FileSystemRsp> newFileSystems = Lists.newArrayList();
+        if (fileSystem != null) {
+            newFileSystems.add(fileSystem);
+        }
         newFileSystems.addAll(fileSystems);
         return newFileSystems;
     }
