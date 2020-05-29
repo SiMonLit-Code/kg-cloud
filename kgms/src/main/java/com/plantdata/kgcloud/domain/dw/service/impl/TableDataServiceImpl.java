@@ -175,8 +175,9 @@ public class TableDataServiceImpl implements TableDataService {
             //如果schema中有这条数据的key
             DataSetSchema scm = schemaMap.get(entry.getKey());
             if (scm != null) {
-                if (Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
-                        Objects.equals(scm.getType(), FieldType.FLOAT.getCode())) {
+                if ((Objects.equals(scm.getType(), FieldType.DOUBLE.getCode()) ||
+                        Objects.equals(scm.getType(), FieldType.FLOAT.getCode()))
+                        && entry.getValue() != null) {
                     BigDecimal value = new BigDecimal(entry.getValue().toString());
                     if (value.compareTo(new BigDecimal(value.intValue())) == 0) {
                         DecimalFormat f = new DecimalFormat("##.0");
