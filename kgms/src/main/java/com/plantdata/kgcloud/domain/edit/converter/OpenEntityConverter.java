@@ -31,6 +31,10 @@ public class OpenEntityConverter extends BasicConverter {
         if(copy.getMetaData() == null){
             copy.setMetaData(new HashMap<>());
         }
+
+        if(entityRsp.getMetaDataMap() != null && !entityRsp.getMetaDataMap().isEmpty()){
+            copy.getMetaData().putAll(entityRsp.getMetaDataMap());
+        }
         MetaDataUtils.getDefaultSourceMetaData(copy.getMetaData(), SessionHolder.getUserId());
         return copy;
     }

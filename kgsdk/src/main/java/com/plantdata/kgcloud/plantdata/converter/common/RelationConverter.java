@@ -42,7 +42,7 @@ public class RelationConverter extends BasicConverter {
         relationRsp.setEntityName(relationBean.getEntityName());
         relationRsp.setEntityConcept(relationBean.getEntityConcept());
         relationRsp.setEntityMeaningTag(relationBean.getEntityMeaningTag());
-        relationRsp.setMetaData(MetaDataUtils.getDefaultMetaData(relationBean.getMetaData(),SessionHolder.getUserId()));
+        relationRsp.setMetaData(MetaDataUtils.getDefaultMetaData(relationBean.getMetaData()));
 
         consumerIfNoNull(relationBean.getExtraInfoMap(), a -> relationRsp.setExtraInfoMap(keyStringToInt(a)));
         return relationRsp;
