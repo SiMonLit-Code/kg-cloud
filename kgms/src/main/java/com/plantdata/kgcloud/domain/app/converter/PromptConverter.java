@@ -17,6 +17,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -42,12 +43,15 @@ public class PromptConverter extends BasicConverter {
     public static PromptListFrom promptReqReqToPromptListFrom(PromptReq req) {
         PromptListFrom from = new PromptListFrom();
         from.setConceptIds(req.getConceptIds());
+        if(StringUtils.hasText(req.getKw())){
+            req.setKw(req.getKw().replace("\\","\\\\"));
+        }
+        from.setText(req.getKw());
         from.setCaseInsensitive(req.getCaseInsensitive() == null ? true : req.getCaseInsensitive());
         from.setFuzzy(req.isFuzzy());
         from.setSkip(req.getOffset());
         from.setLimit(req.getLimit());
         from.setInherit(req.getInherit());
-        from.setText(req.getKw());
         Optional<PromptResultTypeEnum> enumObject = EnumUtils.getEnumObject(PromptResultTypeEnum.class, req.getType());
         PromptResultTypeEnum resultType = enumObject.orElse(PromptResultTypeEnum.ENTITY);
         if (PromptResultTypeEnum.CONCEPT_ENTITY == resultType) {
