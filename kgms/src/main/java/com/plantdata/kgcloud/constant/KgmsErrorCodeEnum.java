@@ -128,6 +128,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     FILE_NOT_EXIST(120621, "文件不存在"),
 
+    UPLOAD_FILENAME_NOT_TRUE(120622, "上传的文件名称不规范"),
+
     ;
     private final int errorCode;
 
