@@ -2,7 +2,8 @@ package com.plantdata.kgcloud.domain.graph.quality.service.impl;
 
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.fastjson.JSONObject;
-import com.mongodb.MongoClient;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
@@ -23,7 +24,6 @@ import com.plantdata.kgcloud.sdk.XxlAdminClient;
 import com.plantdata.kgcloud.sdk.bean.*;
 import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -56,12 +56,6 @@ public class GraphQualityServiceImpl implements GraphQualityService {
     private SchemaUtils schemaUtils;
 
     @Autowired
-    private InitFunc initFunc;
-
-    @Autowired
-    private MongoClient mongoClient;
-
-    @Autowired
     private XxlAdminClient xxlAdminClient;
 
     @Override
@@ -79,7 +73,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         graphQuality.setKgName(kgName);
         graphQuality.setConceptId(conceptId);
         List<GraphQuality> graphQualities = graphQualityRepository.findAll(Example.of(graphQuality));
-        graphQualities.add(check(kgName, conceptId));
+        // graphQualities.add(check(kgName, conceptId));
 
         // 实时查询概念实体和属性数量
         statisticsConcept(kgName, conceptId, graphQualities);
@@ -187,41 +181,72 @@ public class GraphQualityServiceImpl implements GraphQualityService {
     }
 
     /**
-     * 实时查询概念实体和属性数量
+     * 实时查询当前概念及子概念的实体和属性数量
      *
      * @param kgName
      * @param conceptId
      * @param graphQualities
      */
     private void statisticsConcept(String kgName, Long conceptId, List<GraphQuality> graphQualities) {
+
         String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
+
+        InitFunc initFunc = new InitFunc();
+        // 获取所有概念信息，父概念集合，子概念集合
+        schemaUtils.getConceptMap(kgDbName, initFunc);
+
         Map<Long, GraphStatistics> dataMap = new HashMap<>();
-        // 初始化数据
-        initFunc.init(kgDbName);
 
-        Set<Long> sonAndSelfConceptIds = InitFunc.sonAndSelfConceptIds.get(conceptId);
-        for (Long id : sonAndSelfConceptIds) {
-            // 获取当前概念下的实体数量(不包含子概念)
-            Long count = conceptUtils.countEntityByOneConceptId(kgDbName, id);
+        // 当前概念的子概念（不包含自己）
+        Set<Long> sonConceptIds = initFunc.getSonConceptIdMap().get(conceptId);
+        // 当前概念的子概念（包含自己）
+        Set<Long> sonAndSelfConceptIds = Sets.newHashSet(sonConceptIds);
+        sonAndSelfConceptIds.add(conceptId);
 
-            // 获取当前概念下的属性数量(包含父概念属性)
-            Long attrCount = conceptUtils.countAttrDefinSonParent(kgDbName, id);
+        // 当前概念的父概念（不包含自己）
+        Set<Long> parentConceptIds = initFunc.getParentConceptIdMap().get(conceptId);
+        // 当前概念的父概念（包含自己）
+        Set<Long> parentAndSelfConceptIds = Sets.newHashSet(parentConceptIds);
+        parentAndSelfConceptIds.add(conceptId);
 
-            GraphStatistics statistics = GraphStatistics.builder()
-                    .entityCount(count).attrDefinitionCount(attrCount.intValue())
-                    .build();
-            dataMap.put(id, statistics);
+        // 获取当前概念下所有子概念的实体数量(不包含子概念)
+        Map<Long, Long> entityCounts = conceptUtils.countEntityByConceptIds(kgDbName, sonAndSelfConceptIds);
+        // 获取当前概念下所有子概念的实体数量(包含子概念)
+        Map<Long, Long> entityTotals = Maps.newHashMap();
+        for (Long key : sonAndSelfConceptIds) {
+            long count = entityCounts.getOrDefault(key, 0L);
+            Set<Long> ids = initFunc.getSonConceptIdMap().get(key);
+            long sum = ids.stream().mapToLong(s -> entityCounts.getOrDefault(s, 0L)).sum();
+            entityTotals.put(key, count + sum);
+        }
+
+        // 获取当前概念下所有相关概念(父概念和子概念)的属性数量(不包含父概念属性)
+        HashSet<Long> allConceptIds = Sets.newHashSet(parentAndSelfConceptIds);
+        allConceptIds.addAll(sonAndSelfConceptIds);
+        Map<Long, Long> attrCounts = conceptUtils.countAttrByConceptIds(kgDbName, allConceptIds);
+        // 获取当前概念下所有子概念的属性数量(包含父概念属性)
+        Map<Long, Long> attrTotals = Maps.newHashMap();
+        for (Long key : sonAndSelfConceptIds) {
+            long count = attrCounts.getOrDefault(key, 0L);
+            Set<Long> ids = initFunc.getParentConceptIdMap().get(key);
+            long sum = ids.stream().mapToLong(s -> attrCounts.getOrDefault(s, 0L)).sum();
+            attrTotals.put(key, count + sum);
         }
 
         for (Long id : sonAndSelfConceptIds) {
-            // 获取当前概念下的所有实体数量(包含子概念)
-            Long countAll = 0L;
-            Set<Long> sonAndSelfConceptId = InitFunc.sonAndSelfConceptIds.get(id);
-            for (Long sonId : sonAndSelfConceptId) {
-                countAll += dataMap.get(sonId).getEntityCount();
-            }
+            // 获取当前概念下的实体数量(不包含子概念)
+            long entityCount = entityCounts.getOrDefault(id, 0L);
 
-            dataMap.get(id).setEntityTotal(countAll);
+            // 获取当前概念下的实体数量(包含子概念)
+            long entityTotal = entityTotals.getOrDefault(id, 0L);
+
+            // 获取当前概念下的属性数量(包含父概念属性)
+            int attrCount = attrTotals.getOrDefault(id, 0L).intValue();
+
+            GraphStatistics statistics = GraphStatistics.builder()
+                    .entityCount(entityCount).entityTotal(entityTotal).attrDefinitionCount(attrCount)
+                    .build();
+            dataMap.put(id, statistics);
         }
 
         for (GraphQuality graphQuality : graphQualities) {
@@ -232,21 +257,15 @@ public class GraphQualityServiceImpl implements GraphQualityService {
             graphQuality.setAttrDefinitionCount(statistics.getAttrDefinitionCount());
         }
 
-        // 缺少的概念
-        Set<Long> set = new HashSet<>();
         List<Long> collect = graphQualities.stream().map(GraphQuality::getSelfId).collect(Collectors.toList());
-        Set<Long> keySet = dataMap.keySet();
-        for (Long id : keySet) {
-            if (!collect.contains(id)) {
-                set.add(id);
-            }
-        }
+        // 缺少的概念
+        Set<Long> set = dataMap.keySet().stream().filter(s -> !collect.contains(s)).collect(Collectors.toSet());
 
-        List<BasicInfo> list = conceptUtils.getBasicInfoByConceptId(kgDbName, set);
-        if (CollectionUtils.isEmpty(list)) {
+        if (CollectionUtils.isEmpty(set)) {
             return;
         }
-        for (BasicInfo basicInfo : list) {
+        for (Long key : set) {
+            BasicInfo basicInfo = initFunc.getConceptMap().get(key);
             GraphQuality graphQuality = new GraphQuality();
             Long id = basicInfo.getId();
             graphQuality.setSelfId(id);
@@ -262,58 +281,44 @@ public class GraphQualityServiceImpl implements GraphQualityService {
     }
 
     /**
-     * 实时查询属性值数量
+     * 实时查询当前概念实体和属性值数量
      *
      * @param kgName
      * @param conceptId
      * @param graphAttrQualityRsp
      */
     private void statisticsAttr(String kgName, Long conceptId, GraphAttrQualityRsp graphAttrQualityRsp) {
+
         List<AttrQualityVO> attrQualityVOS = graphAttrQualityRsp.getAttrQualities();
         String kgDbName = graphRepository.findByKgNameAndUserId(kgName, SessionHolder.getUserId()).getDbName();
-        // 初始化数据
-        initFunc.init(kgDbName);
+
+        InitFunc initFunc = new InitFunc();
+        // 获取所有属性信息
+        schemaUtils.getAttrIdAndName(kgDbName, initFunc.getAttrIdMap(), initFunc.getAttrNameMap());
 
         // 获取当前概念的实体数
-        Long count = conceptUtils.countEntityByOneConceptId(kgDbName, conceptId);
+        Long count = conceptUtils.countEntityByConceptId(kgDbName, conceptId);
         graphAttrQualityRsp.setEntityCount(count);
 
-        // 该概念自己的属性ID和类型（对象 基本）
-        Map<Integer, Integer> attrType = schemaUtils.getSelfAttrTypeByConceptId(kgDbName, conceptId);
-
-        // 该概念自己独有的属性
-        List<Integer> selfAttrIds = schemaUtils.getSelfAttrIdsByConceptId(kgDbName, conceptId);
+        // 对象属性ID
+        Set<Integer> objectAttrId = Sets.newHashSet();
+        // 基本属性ID
+        Set<Integer> baseAttrId = Sets.newHashSet();
+        // 当前概念自己的基本属性ID和对象属性ID
+        schemaUtils.getSelfAttrTypeByConceptId(kgDbName, conceptId, objectAttrId, baseAttrId);
 
         Map<Integer, Long> attrValueCount = new HashMap<>();
-        for (Integer selfAttrId : selfAttrIds) {
 
-            // 属性类型
-            Integer type = attrType.get(selfAttrId);
+        // 查询对象属性的属性值总数
+        Map<Integer, Long> objectAttrValueCount = conceptUtils.countObjectAttrValueByAttrIds(kgDbName, objectAttrId);
 
-            // 属性值数量
-            Long attrValues = 0L;
+        // 查询对象属性的属性值总数
+        Map<Integer, Long> baseAttrValueCount = conceptUtils.countBaseAttrValueByAttrIds(kgDbName, baseAttrId);
 
-            if (type == 1) {
-                // 对象属性
-                Document queryObj = new Document();
-                queryObj.append("attr_id", selfAttrId);
-                queryObj.append("entity_type", conceptId);
-                // 该概念下的一个属性的属性值总数
-                attrValues = mongoClient.getDatabase(kgDbName).getCollection("attribute_object").countDocuments(queryObj);
-            } else if (type == 0) {
-                // 基本属性
-                // 概念自己属性值数量
-                attrValues = schemaUtils.getValueCountByAttrId(kgDbName, selfAttrId);
-                if (attrValues == null) {
-                    attrValues = 0L;
-                }
-            } else {
-                attrValues = 0L;
-            }
-            attrValueCount.put(selfAttrId, attrValues);
-        }
+        attrValueCount.putAll(objectAttrValueCount);
+        attrValueCount.putAll(baseAttrValueCount);
 
-        Map<String, Integer> attrNameMap = InitFunc.attrNameMap;
+        Map<String, Integer> attrNameMap = initFunc.getAttrNameMap();
         for (AttrQualityVO attrQualityVO : attrQualityVOS) {
             Integer selfId = attrNameMap.get(attrQualityVO.getAttrName());
             Long attrCount = attrValueCount.get(selfId);
@@ -327,7 +332,7 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         // 实时查询的属性ID
         Set<Integer> keySet = attrValueCount.keySet();
 
-        Map<Integer, String> attrIdMap = InitFunc.attrIdMap;
+        Map<Integer, String> attrIdMap = initFunc.getAttrIdMap();
         for (Integer id : keySet) {
             if (!collect.contains(attrIdMap.get(id))) {
                 set.add(id);
