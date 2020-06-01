@@ -27,10 +27,10 @@ public class ApiAuditAspect {
     @Autowired
     private KafkaMessageProducer kafkaMessageProducer;
 
-    @Pointcut("execution(* com.plantdata.kgcloud..*Controller.*(..))")
-    public void pointCut() {
-    }
-
+//    @Pointcut("execution(* com.plantdata.kgcloud..*Controller.*(..))")
+//    public void pointCut() {
+//    }
+//
 //    @Around("pointCut()")
 //    public Object around(ProceedingJoinPoint pjp) throws Throwable {
 //        Signature signature = pjp.getSignature();
