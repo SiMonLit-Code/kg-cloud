@@ -75,6 +75,7 @@ public class TaskGraphServiceImpl implements TaskGraphService {
                 .format(file.getTotalSpace() * 1.0 / 1024 / 1024 / 1024) + "G";
         snapshot.setDiskSpaceSize(total);
         snapshot.setFileStoreType(1);
+        snapshot.setFileBackupType(1);
 
         TaskGraphSnapshot save = taskGraphSnapshotRepository.save(snapshot);
 
