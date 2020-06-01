@@ -9,6 +9,7 @@ import com.plantdata.kgcloud.domain.edit.aop.EditPermissionUnwanted;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -144,7 +145,7 @@ public class ImportController {
         if (file == null || file.isEmpty()) {
             return ApiReturn.fail(CommonErrorCode.BAD_REQUEST);
         }
-        return ApiReturn.success(importService.importRdf(kgName, file, format));
+        return ApiReturn.success(importService.importRdf(kgName, file, SessionHolder.getUserId(),format));
     }
 
     @ApiOperation("rdf导出 ")
