@@ -24,8 +24,4 @@ public class TaskGraphSnapshotNameReq {
     @ApiModelProperty("用户ID")
     private String userId;
 
-    @NotNull
-    @ApiModelProperty("文件备份类型(0：仅图谱数据，1：图谱数据和多模态数据)")
-    private Integer fileBackupType;
-
 }
