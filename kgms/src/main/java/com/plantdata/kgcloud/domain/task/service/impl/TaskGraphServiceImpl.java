@@ -58,7 +58,6 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     @Override
     public TaskGraphSnapshotRsp add(TaskGraphSnapshotNameReq req) {
         TaskGraphSnapshot snapshot = ConvertUtils.convert(TaskGraphSnapshot.class).apply(req);
-        snapshot.setCatalogue(req.getFileName());
         try {
             byte[] bytes = fastdfsTemplate.downloadFile(snapshot.getCatalogue());
             if (bytes.length * 1.0 / 1024 > 1024) {

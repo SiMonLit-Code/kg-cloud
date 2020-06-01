@@ -18,7 +18,7 @@ public class TaskGraphSnapshotNameReq {
 
     @NotNull
     @ApiModelProperty("备份文件路径")
-    private String fileName;
+    private String catalogue;
 
     @NotNull
     @ApiModelProperty("用户ID")
