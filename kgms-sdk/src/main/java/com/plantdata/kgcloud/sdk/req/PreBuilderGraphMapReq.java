@@ -1,13 +1,12 @@
-package com.plantdata.kgcloud.domain.prebuilder.req;
+package com.plantdata.kgcloud.sdk.req;
 
-import com.plantdata.kgcloud.domain.prebuilder.aop.DefaultHandlerReq;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class PreBuilderGraphMapReq extends DefaultHandlerReq {
+public class PreBuilderGraphMapReq {
 
     @ApiModelProperty("图谱名")
     private String kgName;

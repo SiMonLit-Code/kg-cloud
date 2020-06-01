@@ -1,6 +1,6 @@
-package com.plantdata.kgcloud.domain.prebuilder.req;
+package com.plantdata.kgcloud.sdk.req;
 
-import com.plantdata.kgcloud.domain.prebuilder.rsp.ModelRangeRsp;
+import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

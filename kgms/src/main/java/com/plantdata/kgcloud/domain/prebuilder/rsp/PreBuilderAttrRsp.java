@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.prebuilder.rsp;
 
+import com.plantdata.kgcloud.sdk.rsp.ModelRangeRsp;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
