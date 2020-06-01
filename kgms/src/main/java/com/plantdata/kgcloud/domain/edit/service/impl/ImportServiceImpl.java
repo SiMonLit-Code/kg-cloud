@@ -251,17 +251,17 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String importRelation(String kgName, Integer mode, MultipartFile file) {
-        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), mode,JacksonUtils.writeValueAsString(MetaDataUtils.getDefaultSourceMetaData(null, SessionHolder.getUserId())), file));
+        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), mode, JacksonUtils.writeValueAsString(MetaDataUtils.getDefaultSourceMetaData(null, SessionHolder.getUserId())), file));
     }
 
     @Override
     public String importRelation(String kgName, Integer attrId, Integer mode, MultipartFile file) {
-        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), attrId, mode,JacksonUtils.writeValueAsString(MetaDataUtils.getDefaultSourceMetaData(null, SessionHolder.getUserId())), file));
+        return handleUploadError(uploadApi.relation(KGUtil.dbName(kgName), attrId, mode, JacksonUtils.writeValueAsString(MetaDataUtils.getDefaultSourceMetaData(null, SessionHolder.getUserId())), file));
     }
 
     @Override
-    public String importRdf(String kgName, MultipartFile file, String format) {
-        return handleUploadError(rdfApi.importRdf(KGUtil.dbName(kgName), format, file));
+    public String importRdf(String kgName, MultipartFile file, String userId, String format) {
+        return handleUploadError(rdfApi.importRdf(KGUtil.dbName(kgName), userId, format, file));
     }
 
     @Override
