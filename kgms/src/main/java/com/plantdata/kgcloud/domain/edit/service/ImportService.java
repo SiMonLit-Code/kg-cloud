@@ -95,10 +95,11 @@ public interface ImportService {
      *
      * @param kgName
      * @param file
+     * @param  userId
      * @param format
      * @return
      */
-    String importRdf(String kgName, MultipartFile file, String format);
+    String importRdf(String kgName, MultipartFile file, String userId,String format);
 
     /**
      * rdf导出
