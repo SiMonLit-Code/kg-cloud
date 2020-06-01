@@ -19,7 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @description:
@@ -60,10 +64,18 @@ public class TaskGraphServiceImpl implements TaskGraphService {
         TaskGraphSnapshot snapshot = ConvertUtils.convert(TaskGraphSnapshot.class).apply(req);
         try {
             byte[] bytes = fastdfsTemplate.downloadFile(snapshot.getCatalogue());
-            if (bytes.length * 1.0 / 1024 > 1024) {
-                snapshot.setFileSize((bytes.length * 1.0 / 1024 / 1024) + "M");
+            if (bytes.length * 1.0 / 1024 < 1024) {
+                DecimalFormat decimalFormat = new DecimalFormat("#");
+                decimalFormat.setRoundingMode(RoundingMode.UP);
+                snapshot.setFileSize(decimalFormat.format((bytes.length * 1.0 / 1024)) + "K");
+            } else if (bytes.length * 1.0 / 1024 >= 1024 && bytes.length * 1.0 / 1024 / 1024 < 1024) {
+                DecimalFormat decimalFormat = new DecimalFormat("#");
+                decimalFormat.setRoundingMode(RoundingMode.UP);
+                snapshot.setFileSize(decimalFormat.format((bytes.length * 1.0 / 1024 / 1024)) + "M");
             } else {
-                snapshot.setFileSize((bytes.length * 1.0 / 1024) + "K");
+                DecimalFormat decimalFormat = new DecimalFormat("#.#");
+                decimalFormat.setRoundingMode(RoundingMode.UP);
+                snapshot.setFileSize(decimalFormat.format((bytes.length * 1.0 / 1024 / 1024 / 1024)) + "G");
             }
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_NOT_EXIST);
@@ -75,6 +87,17 @@ public class TaskGraphServiceImpl implements TaskGraphService {
         snapshot.setDiskSpaceSize(total);
         snapshot.setFileStoreType(1);
         snapshot.setFileBackupType(1);
+        // 时间毫秒置0
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String time = sdf.format(date) + ".000";
+        SimpleDateFormat newSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        try {
+            date = newSdf.parse(time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        snapshot.setCreateAt(date);
 
         TaskGraphSnapshot save = taskGraphSnapshotRepository.save(snapshot);
 
