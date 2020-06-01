@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * @description:
  * @author: Bovin
@@ -39,7 +41,7 @@ public class TaskGraphController {
 
     @ApiOperation("任务相关-备份-新增备份记录")
     @PostMapping("/snapshot/add")
-    public ApiReturn<TaskGraphSnapshotRsp> add(@RequestBody TaskGraphSnapshotNameReq req) {
+    public ApiReturn<TaskGraphSnapshotRsp> add(@Valid @RequestBody TaskGraphSnapshotNameReq req) {
         return ApiReturn.success(taskGraphService.add(req));
     }
 

@@ -22,18 +22,17 @@ import java.util.Date;
 
 @Data
 @Entity
-
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamicInsert
 @DynamicUpdate
-
 @Table(name = "task_graph_snapshot")
 @EntityListeners(AuditingEntityListener.class)
 public class TaskGraphSnapshot {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
