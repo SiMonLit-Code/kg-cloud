@@ -6,23 +6,18 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.prebuilder.aop.PostHandler;
 import com.plantdata.kgcloud.domain.prebuilder.req.ModelPushReq;
 import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderCountReq;
-import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderMatchAttrReq;
 import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderSearchReq;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.prebuilder.service.PreBuilderService;
+import com.plantdata.kgcloud.sdk.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
