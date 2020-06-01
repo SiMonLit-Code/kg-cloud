@@ -31,39 +31,39 @@ public class ApiAuditAspect {
     public void pointCut() {
     }
 
-//    @Around("pointCut()")
-//    public Object around(ProceedingJoinPoint pjp) throws Throwable {
-//        Signature signature = pjp.getSignature();
-//        MethodSignature methodSignature = (MethodSignature) signature;
-//        String[] parameterNames = methodSignature.getParameterNames();
-//        if (parameterNames == null || parameterNames.length == 0) {
-//            return pjp.proceed();
-//        }
-//        Object[] args = pjp.getArgs();
-//        String kgName = null;
-//        for (int i = 0; i < parameterNames.length; i++) {
-//            if (KG_NAME.equalsIgnoreCase(parameterNames[i])) {
-//                kgName = String.valueOf(args[i]);
-//                break;
-//            }
-//        }
-//        kgName = StringUtils.isEmpty(kgName) ? WebUtils.getHttpRequest().getParameter(KG_NAME) : kgName;
-//        if (StringUtils.isEmpty(kgName)) {
-//            return pjp.proceed();
-//        }
-//        String uri = WebUtils.getHttpRequest().getRequestURI();
-//        String page = WebUtils.getHttpRequest().getParameter(PAGE);
-//        if (StringUtils.isEmpty(page)) {
-//            page = PAGE_DEVELOPER;
-//        }
-//        ApiAuditStatusEnum status = ApiAuditStatusEnum.INVOKE_SUCCESS;
-//        try {
-//            return pjp.proceed();
-//        } catch (Throwable throwable) {
-//            status = ApiAuditStatusEnum.INVOKE_FAILURE;
-//            throw throwable;
-//        } finally {
-//            kafkaMessageProducer.sendMessage(topicApiAudit, new ApiAuditMessage(kgName, page, uri, status));
-//        }
-//    }
+    @Around("pointCut()")
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
+        Signature signature = pjp.getSignature();
+        MethodSignature methodSignature = (MethodSignature) signature;
+        String[] parameterNames = methodSignature.getParameterNames();
+        if (parameterNames == null || parameterNames.length == 0) {
+            return pjp.proceed();
+        }
+        Object[] args = pjp.getArgs();
+        String kgName = null;
+        for (int i = 0; i < parameterNames.length; i++) {
+            if (KG_NAME.equalsIgnoreCase(parameterNames[i])) {
+                kgName = String.valueOf(args[i]);
+                break;
+            }
+        }
+        kgName = StringUtils.isEmpty(kgName) ? WebUtils.getHttpRequest().getParameter(KG_NAME) : kgName;
+        if (StringUtils.isEmpty(kgName)) {
+            return pjp.proceed();
+        }
+        String uri = WebUtils.getHttpRequest().getRequestURI();
+        String page = WebUtils.getHttpRequest().getParameter(PAGE);
+        if (StringUtils.isEmpty(page)) {
+            page = PAGE_DEVELOPER;
+        }
+        ApiAuditStatusEnum status = ApiAuditStatusEnum.INVOKE_SUCCESS;
+        try {
+            return pjp.proceed();
+        } catch (Throwable throwable) {
+            status = ApiAuditStatusEnum.INVOKE_FAILURE;
+            throw throwable;
+        } finally {
+            kafkaMessageProducer.sendMessage(topicApiAudit, new ApiAuditMessage(kgName, page, uri, status));
+        }
+    }
 }
