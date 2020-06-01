@@ -862,6 +862,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 .modelType(req.getModelType())
                 .isStandardTemplate(0)
                 .status("1")
+                .kgName(req.getKgName())
                 .build();
 
         model = prebuildModelRepository.save(model);

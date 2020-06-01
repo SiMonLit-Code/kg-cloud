@@ -44,6 +44,9 @@ public class PreBuilderSearchRsp {
     @ApiModelProperty("关联行业标准id")
     private Long standardTemplateId;
 
+    @ApiModelProperty("图谱kgName")
+    private String kgName;
+
     @ApiModelProperty("概念")
     private List<PreBuilderConceptRsp> concepts;
 

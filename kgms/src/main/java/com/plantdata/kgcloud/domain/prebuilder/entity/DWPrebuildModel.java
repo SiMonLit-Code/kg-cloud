@@ -103,6 +103,10 @@ public class DWPrebuildModel {
     private String fileContent;
 
     @Basic
+    @Column(name = "kg_name")
+    private String kgName;
+
+    @Basic
     @Column(name = "tag_json")
     @Convert(converter = MoldSchemaConfigConverter.class)
     private List<ModelSchemaConfigRsp> tagJson;
