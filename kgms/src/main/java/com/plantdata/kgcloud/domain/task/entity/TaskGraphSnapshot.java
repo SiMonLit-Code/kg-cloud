@@ -78,7 +78,6 @@ public class TaskGraphSnapshot {
 
     @Basic
     @Column(name = "create_at", updatable = false)
-    @CreatedDate
     private Date createAt;
 
     @Basic
