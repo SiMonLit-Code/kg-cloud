@@ -60,11 +60,12 @@ CREATE TABLE `file_folder`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件夹名称',
   `file_system_id` bigint(20) UNSIGNED NULL DEFAULT NULL COMMENT '文件系统id',
+  `is_default` tinyint(1) NULL DEFAULT NULL COMMENT '是否默认',
+  `is_deleted` tinyint(1) NULL DEFAULT NULL COMMENT '是否删除',
   `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-文件夹' ROW_FORMAT = Dynamic;
-
+) ENGINE = InnoDB AUTO_INCREMENT = 115 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-文件夹' ROW_FORMAT = Dynamic;
 -- ----------------------------
 -- Table structure for file_system
 -- ----------------------------
@@ -73,10 +74,12 @@ CREATE TABLE `file_system`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件系统名称',
   `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '用户id',
+  `is_default` tinyint(1) NULL DEFAULT NULL COMMENT '是否默认',
+  `is_deleted` tinyint(1) NULL DEFAULT NULL COMMENT '是否删除',
   `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 26 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-文件系统' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 73 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '文件系统管理-文件系统' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for graph
@@ -96,7 +99,7 @@ CREATE TABLE `graph`  (
   `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备注',
   `create_at` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '修改时间',
-  PRIMARY KEY (`kg_name`, `user_id`) USING BTREE
+  PRIMARY KEY (`kg_name`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱管理' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -139,7 +142,7 @@ CREATE TABLE `graph_attr_quality`  (
   `create_at` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1413332 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1421083 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for graph_attr_template
@@ -239,7 +242,7 @@ CREATE TABLE `graph_conf_qa_status`  (
   `create_at` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱qa问答设置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 27 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱qa问答设置' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for graph_conf_reasoning
@@ -289,7 +292,7 @@ CREATE TABLE `graph_quality`  (
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `kg_name_id`(`self_id`, `kg_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 631079 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱质量统计' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 640002 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '图谱质量统计' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for link_share
@@ -309,7 +312,7 @@ CREATE TABLE `link_share`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `idx_kg_name_spa_id`(`kg_name`, `spa_id`) USING BTREE,
   UNIQUE INDEX `idx_share_link`(`share_link`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 100000000471 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '链接分享' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100000000520 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '链接分享' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for menu_favor
@@ -343,7 +346,7 @@ CREATE TABLE `prebuild_attr`  (
   `model_id` int(11) NULL DEFAULT NULL COMMENT '关联的模式id',
   `tables` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '引用的表名',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5923 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '预构建模式属性' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5979 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '预构建模式属性' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for prebuild_concept
@@ -362,7 +365,7 @@ CREATE TABLE `prebuild_concept`  (
   `model_id` int(11) NULL DEFAULT NULL COMMENT '所属模式id',
   `tables` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '引用的表名',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1910 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '预构建模式概念' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2007 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '预构建模式概念' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for prebuild_model
@@ -388,8 +391,9 @@ CREATE TABLE `prebuild_model`  (
   `yaml_content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '模式对应yaml文件',
   `quote_count` int(11) NULL DEFAULT NULL COMMENT '引用数量',
   `table_labels` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL COMMENT '自定义打标模式',
+  `kg_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '图谱kgName',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 499 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '预构建模式' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 512 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '预构建模式' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for prebuild_relation_attr
@@ -406,7 +410,7 @@ CREATE TABLE `prebuild_relation_attr`  (
   `unit` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '单位',
   `tables` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '映射的表',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 490 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '预构建关系属性表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 499 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '预构建关系属性表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for reasoning
@@ -431,7 +435,37 @@ CREATE TABLE `repo_base_menu`  (
   `menu_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '菜单id',
   `repository_id` int(11) UNSIGNED NOT NULL COMMENT '组件id',
   PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10094 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '组件基础菜单表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 16112 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '组件基础菜单表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for repo_handler
+-- ----------------------------
+DROP TABLE IF EXISTS `repo_handler`;
+CREATE TABLE `repo_handler`  (
+  `id` int(11) NOT NULL,
+  `interface_id` int(11) NULL DEFAULT NULL,
+  `repo_id` int(11) NULL DEFAULT NULL,
+  `rank` int(11) NULL DEFAULT NULL,
+  `handle_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `handle_condition` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+  `request_server_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `request_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `request_method` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for repo_interface
+-- ----------------------------
+DROP TABLE IF EXISTS `repo_interface`;
+CREATE TABLE `repo_interface`  (
+  `id` int(11) NOT NULL,
+  `serverName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for repo_item
@@ -485,7 +519,7 @@ CREATE TABLE `repo_use_log`  (
   `create_time` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '点击使用表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 132 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '点击使用表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for task_graph_snapshot
@@ -493,16 +527,20 @@ CREATE TABLE `repo_use_log`  (
 DROP TABLE IF EXISTS `task_graph_snapshot`;
 CREATE TABLE `task_graph_snapshot`  (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增id',
-  `kg_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '图谱名称',
+  `kg_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '图谱名称',
   `user_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '用户id',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '任务名称_任务ID_执行ID',
   `file_size` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件大小',
+  `catalogue` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '文件保存目录',
+  `file_store_type` int(11) NULL DEFAULT NULL COMMENT '文件存储类型(0：本地服务器，1：fastDFS)',
+  `file_backup_type` int(11) NULL DEFAULT NULL COMMENT '文件备份类型(0：仅图谱数据，1：图谱数据和多模态数据)',
+  `disk_space_size` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '磁盘空间总量',
   `status` int(11) NULL DEFAULT NULL COMMENT '0:进行中,1:成功，2:失败',
   `restore_at` datetime(3) NULL DEFAULT NULL COMMENT '还原时间',
   `create_at` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 56 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '快照任务配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 55 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '快照任务配置' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for task_graph_status

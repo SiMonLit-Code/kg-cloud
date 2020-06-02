@@ -50,10 +50,10 @@
         </dependency>
 
         <!--nlp sdk-->
-        <dependency>
+ <!--       <dependency>
             <groupId>com.hiekn</groupId>
             <artifactId>basic-nlp-tools</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.hankcs</groupId>
             <artifactId>hanlp</artifactId>
