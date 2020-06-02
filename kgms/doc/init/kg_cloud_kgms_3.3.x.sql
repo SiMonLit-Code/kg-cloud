@@ -1,18 +1,4 @@
-/*
- Navicat Premium Data Transfer
 
- Source Server         : 192.168.4.13
- Source Server Type    : MySQL
- Source Server Version : 50728
- Source Host           : 192.168.4.13:3306
- Source Schema         : kg_cloud_kgms
-
- Target Server Type    : MySQL
- Target Server Version : 50728
- File Encoding         : 65001
-
- Date: 26/05/2020 11:51:00
-*/
 CREATE database if NOT EXISTS `kg_cloud_kgms` default character set utf8mb4 collate utf8mb4_bin;
 use `kg_cloud_kgms`;
 
