@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.3.1</version>
+    <version>3.3.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -51,7 +51,7 @@
             <dependency>
                 <groupId>com.plantdata.log</groupId>
                 <artifactId>graph-logging</artifactId>
-                <version>3.0.4</version>
+                <version>3.1.1</version>
             </dependency>
 
             <dependency>
