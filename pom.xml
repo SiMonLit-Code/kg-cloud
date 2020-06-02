@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.3.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -24,10 +24,10 @@
 
     <properties>
         <next-tag.version>3.3.0</next-tag.version>
-        <next-develop.version>3.3.1-SNAPSHOT</next-develop.version>
+        <next-develop.version>3.3.1</next-develop.version>
         <kg-cloud-parent.version>3.1.5</kg-cloud-parent.version>
-        <kg-cloud-public.version>3.3.0-SNAPSHOT</kg-cloud-public.version>
-        <kg-cloud-kguser.version>3.3.0-SNAPSHOT</kg-cloud-kguser.version>
+        <kg-cloud-public.version>3.3.0</kg-cloud-public.version>
+        <kg-cloud-kguser.version>3.3.0</kg-cloud-kguser.version>
         <kg-usersdk.version>3.0.5</kg-usersdk.version>
         <kg-services-sdk.version>3.3.4</kg-services-sdk.version>
     </properties>
@@ -231,6 +231,6 @@
         <url>http://192.168.4.1/kgcloud/kg-cloud-kgms</url>
         <connection>scm:git:ssh://git@192.168.4.1:4422/kgcloud/kg-cloud-kgms.git</connection>
         <developerConnection>scm:git:ssh://git@192.168.4.1:4422/kgcloud/kg-cloud-kgms.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.3.0</tag>
     </scm>
 </project>
