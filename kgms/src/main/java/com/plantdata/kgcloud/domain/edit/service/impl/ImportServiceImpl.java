@@ -261,7 +261,7 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String importRdf(String kgName, MultipartFile file, String userId, String format) {
-        return handleUploadError(rdfApi.importRdf(KGUtil.dbName(kgName), userId, format, file));
+        return handleUploadError(rdfApi.importRdf(KGUtil.dbName(kgName),format, userId,  file));
     }
 
     @Override
