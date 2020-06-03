@@ -65,7 +65,7 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     public TaskGraphSnapshotRsp add(TaskGraphSnapshotNameReq req) {
         TaskGraphSnapshot snapshot = ConvertUtils.convert(TaskGraphSnapshot.class).apply(req);
         snapshot.setCatalogue(snapshot.getCatalogue());
-        try {
+        /*try {
             byte[] bytes = FileUtils.readFileToByteArray(new File(snapshot.getCatalogue()));
             // byte[] bytes = fastdfsTemplate.downloadFile(snapshot.getCatalogue());
             if (bytes.length * 1.0 / 1024 < 1024) {
@@ -83,7 +83,7 @@ public class TaskGraphServiceImpl implements TaskGraphService {
             }
         } catch (Exception e) {
             throw BizException.of(KgmsErrorCodeEnum.FILE_NOT_EXIST);
-        }
+        }*/
         // 磁盘使用情况
         File file = new File("/");
         String total = new DecimalFormat("#.#")
