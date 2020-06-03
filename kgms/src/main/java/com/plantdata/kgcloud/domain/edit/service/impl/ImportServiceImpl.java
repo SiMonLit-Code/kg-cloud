@@ -2,9 +2,11 @@ package com.plantdata.kgcloud.domain.edit.service.impl;
 
 import ai.plantdata.kg.api.edit.RdfApi;
 import ai.plantdata.kg.api.edit.UploadApi;
+import cn.hiboot.mcn.core.model.result.RestResp;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.util.StringUtils;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.alibaba.fastjson.JSON;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.google.common.collect.Lists;
@@ -12,6 +14,7 @@ import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.*;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
+import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
@@ -22,11 +25,13 @@ import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import com.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.exception.SystemException;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
@@ -433,6 +438,10 @@ public class ImportServiceImpl implements ImportService {
      */
     private String handleUploadError(ResponseEntity<byte[]> body) {
         if (!body.getStatusCode().equals(HttpStatus.CREATED)) {
+            RestResp restResp = JSON.parseObject(new String(body.getBody()),RestResp.class);
+            if(restResp != null && restResp.getActionStatus() == RestResp.ActionStatusMethod.FAIL){
+                throw new BizException(KgmsErrorCodeEnum.FILE_IMPORT_ERROR.getErrorCode(),restResp.getErrorInfo());
+            }
             throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
         }
         List<String> hasError = body.getHeaders().get("HAS-ERROR");
