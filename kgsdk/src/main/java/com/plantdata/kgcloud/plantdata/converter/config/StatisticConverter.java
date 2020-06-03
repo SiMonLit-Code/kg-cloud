@@ -54,7 +54,7 @@ public class StatisticConverter extends BasicConverter {
 
     public static EdgeStatisticByEntityIdReq statCountRelationbyEntityParameterToEdgeStatisticByEntityIdReq(@NonNull StatCountRelationbyEntityParameter param) {
         EdgeStatisticByEntityIdReq req = new EdgeStatisticByEntityIdReq();
-        consumerIfNoNull(param.getIsDistinct(),req::setDistinct);
+        consumerIfNoNull(param.getIsDistinct(), req::setDistinct);
         req.setEntityId(param.getEntityId());
         consumerIfNoNull(toListNoNull(param.getAllowAtts(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowAttrDefIds);
         consumerIfNoNull(toListNoNull(param.getAllowTypes(), StatisticConverter::relationbyFilterBeanToIdsFilterReq), req::setAllowConceptIds);
@@ -69,11 +69,21 @@ public class StatisticConverter extends BasicConverter {
         req.setAllowAttrsKey(param.getAllowAttsKey());
         req.setFromTime(param.getFromTime());
         req.setReturnType(param.getReturnType());
-        req.setSize(param.getSize());
+        req.setSize(rebuildSize(param.getSize()));
         req.setSort(param.getSort());
         req.setToTime(param.getToTime());
         req.setTripleIds(param.getTripleIds());
         return req;
+    }
+
+    private static int rebuildSize(Integer size) {
+        if (size == null) {
+            return 10;
+        } else if (size == -1) {
+            return Integer.MAX_VALUE - 1;
+        } else {
+            return size;
+        }
     }
 
     public static EdgeAttrStatisticByAttrValueReq statEdgeGroupByEdgeValueParameterToEdgeAttrStatisticByAttrValueReq(StatEdgeGroupByEdgeValueParameter param) {
@@ -88,7 +98,7 @@ public class StatisticConverter extends BasicConverter {
             req.setDateType(dateTypeReq);
         });
         BasicConverter.consumerIfNoNull(param.getEntityIds(),
-                a->req.setEntityIds(Lists.newArrayList(a)));
+                a -> req.setEntityIds(Lists.newArrayList(a)));
         req.setAttrDefKey(param.getAttrKey());
         req.setMerge(param.getIsMerge());
         req.setReturnType(param.getReturnType());

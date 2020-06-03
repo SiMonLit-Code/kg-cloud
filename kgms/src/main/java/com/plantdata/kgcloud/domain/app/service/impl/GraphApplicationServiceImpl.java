@@ -152,7 +152,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (CollectionUtils.isEmpty(entityIdList)) {
             return Collections.emptyList();
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList,true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList, true)));
         return KnowledgeRecommendConverter.voToRsp(entityAttrOpt.get(), entityOpt.orElse(Collections.emptyList()));
     }
 
@@ -200,7 +200,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (!entityIdOpt.isPresent()) {
             return graphInitRsp;
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdOpt.get(),true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdOpt.get(), true)));
         if (!entityOpt.isPresent()) {
             return graphInitRsp;
         }
@@ -305,7 +305,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 .map(ComplexGraphAnalysisConverter::mapToCoordinatesDTO)
                 .collect(Collectors.toMap(CoordinatesDTO::getId, Function.identity()));
 
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(Lists.newArrayList(dataMap.keySet()),true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(Lists.newArrayList(dataMap.keySet()), true)));
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return visualRsp;
         }
