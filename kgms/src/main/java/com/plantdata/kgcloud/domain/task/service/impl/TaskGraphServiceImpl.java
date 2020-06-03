@@ -35,9 +35,6 @@ import java.util.Date;
 @Service
 public class TaskGraphServiceImpl implements TaskGraphService {
 
-    @Value("${backup.dir}")
-    private String backupUrl;
-
     @Autowired
     private TaskGraphSnapshotRepository taskGraphSnapshotRepository;
 
@@ -67,7 +64,7 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     @Override
     public TaskGraphSnapshotRsp add(TaskGraphSnapshotNameReq req) {
         TaskGraphSnapshot snapshot = ConvertUtils.convert(TaskGraphSnapshot.class).apply(req);
-        snapshot.setCatalogue(backupUrl + snapshot.getCatalogue());
+        snapshot.setCatalogue(snapshot.getCatalogue());
         try {
             byte[] bytes = FileUtils.readFileToByteArray(new File(snapshot.getCatalogue()));
             // byte[] bytes = fastdfsTemplate.downloadFile(snapshot.getCatalogue());
