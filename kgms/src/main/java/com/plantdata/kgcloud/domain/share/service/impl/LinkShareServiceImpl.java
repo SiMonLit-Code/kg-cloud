@@ -9,18 +9,26 @@ import com.plantdata.kgcloud.domain.share.service.LinkShareService;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.SelfSharedRsp;
 import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
+import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
 import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
-import com.plantdata.kgcloud.security.JwtClient;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
+import org.redisson.api.RSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,15 +37,16 @@ import java.util.stream.Collectors;
 @Service
 public class LinkShareServiceImpl implements LinkShareService {
 
-
+    private final static String SHARE_APK = "kgcloud:share:apk";
     @Autowired
     private UserClient userClient;
-
     @Autowired
     private LinkShareRepository linkShareRepository;
-
+    @Autowired
+    private RedissonClient redissonClient;
     @Autowired
     private KgKeyGenerator kgKeyGenerator;
+
 
     @Override
     public LinkShareSpaRsp shareStatus(String userId, String kgName, String spaId) {
@@ -111,6 +120,7 @@ public class LinkShareServiceImpl implements LinkShareService {
         linkShare.setShared(true);
         linkShare.setUserId(userId);
         LinkShare save = linkShareRepository.save(linkShare);
+        refresh();
         return ConvertUtils.convert(ShareRsp.class).apply(save);
     }
 
@@ -120,6 +130,7 @@ public class LinkShareServiceImpl implements LinkShareService {
         linkShare.setShared(false);
         linkShare.setUserId(userId);
         LinkShare save = linkShareRepository.save(linkShare);
+        refresh();
         return ConvertUtils.convert(ShareRsp.class).apply(save);
     }
 
@@ -131,9 +142,9 @@ public class LinkShareServiceImpl implements LinkShareService {
         }
         selfSharedRsp.setSelf(true);
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
-        if(data !=null){
+        if (data != null) {
             selfSharedRsp.setSharePermission(data.getShareable());
-        }else {
+        } else {
             selfSharedRsp.setSharePermission(false);
         }
         LinkShare linkShare = getOne(kgName, spaId);
@@ -144,5 +155,42 @@ public class LinkShareServiceImpl implements LinkShareService {
             selfSharedRsp.setShareable(false);
         }
         return selfSharedRsp;
+    }
+
+    @Override
+    public void refresh() {
+        List<LinkShare> all = linkShareRepository.findAll();
+        Map<String, List<LinkShare>> map = new HashMap<>();
+        for (LinkShare linkShare : all) {
+            List<LinkShare> linkShares = map.computeIfAbsent(linkShare.getUserId(), (k) -> new ArrayList<>());
+            linkShares.add(linkShare);
+        }
+        Map<String, Set<String>> setMap = new HashMap<>();
+        for (Map.Entry<String, List<LinkShare>> entry : map.entrySet()) {
+            ApiReturn<UserDetailRsp> userIdDetail = userClient.getCurrentUserIdDetail(entry.getKey());
+            if (userIdDetail != null && userIdDetail.getData() != null) {
+                UserDetailRsp data = userIdDetail.getData();
+                String apk = data.getApk();
+                Boolean shareable = data.getShareable();
+                if (shareable != null && shareable) {
+                    List<LinkShare> value = entry.getValue();
+                    for (LinkShare linkShare : value) {
+                        Boolean shared = linkShare.getShared();
+                        if (shared != null && shared) {
+                            String kgName = linkShare.getKgName();
+                            String spaId = linkShare.getSpaId();
+                            UriComponents build = UriComponentsBuilder.newInstance().pathSegment("spa", "Container", kgName, apk, spaId).build();
+                            String s = build.toUriString();
+                            setMap.computeIfAbsent(apk, (a) -> new HashSet<>()).add(s);
+                        }
+                    }
+                }
+            }
+        }
+        redissonClient.getKeys().delete(SHARE_APK);
+        RSet<Object> set = redissonClient.getSet(SHARE_APK);
+        for (Map.Entry<String, Set<String>> entry : setMap.entrySet()) {
+            set.addAll(entry.getValue());
+        }
     }
 }
