@@ -23,4 +23,5 @@ public interface LinkShareService {
 
     SelfSharedRsp shareSpaStatus(String userId, String kgName, String spaId, String token);
 
+    void refresh();
 }
