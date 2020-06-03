@@ -6,7 +6,6 @@ import ai.plantdata.kg.api.pub.req.statistics.RelationExtraInfoStatisticBean;
 import ai.plantdata.kg.api.pub.req.statistics.RelationStatisticsBean;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.ExtraInfo;
-import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.AttributeValueType;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;

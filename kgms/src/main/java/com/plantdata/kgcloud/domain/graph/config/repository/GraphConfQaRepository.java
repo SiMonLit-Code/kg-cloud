@@ -12,6 +12,7 @@ import java.util.List;
  **/
 public interface GraphConfQaRepository extends JpaRepository<GraphConfQa, Long> {
 
+
     void deleteAllByKgName(String kgName);
 
     List<GraphConfQa> findAllByKgName(String kgName);

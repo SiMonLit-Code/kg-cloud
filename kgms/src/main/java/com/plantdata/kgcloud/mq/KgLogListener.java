@@ -47,9 +47,10 @@ public class KgLogListener {
 
     /**
      * 数据层日志监听
+     *
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.log}"}, groupId = "log")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.log}"}, groupId = "log")
     public void logListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -89,9 +90,10 @@ public class KgLogListener {
 
     /**
      * 业务层日志监听
+     *
      * @author xiezhenxiang 2020/1/15
      **/
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactory",topics = {"${topic.kg.service.log}"}, groupId = "log")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.service.log}"}, groupId = "log")
     public void serviceLogListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
 
         try {
@@ -120,12 +122,13 @@ public class KgLogListener {
 
     /**
      * 拼音检索数据同步
+     *
      * @author xiezhenxiang 2020/1/16
      **/
-    private void pinyinSyn (String kgName, GraphLog log) {
+    private void pinyinSyn(String kgName, GraphLog log) {
 
         if (log.getScope().equals(GraphLogScope.ENTITY) && openPinyin(kgName)) {
-            EntitySegment segment =(EntitySegment)log.getNewValue();
+            EntitySegment segment = (EntitySegment) log.getNewValue();
 
             if (log.getOperation().equals(GraphLogOperation.ADD)) {
                 JSONObject doc = new JSONObject()
@@ -140,7 +143,7 @@ public class KgLogListener {
                     updateById(kgName, segment.getId(), doc);
                 }
             } else {
-                segment =(EntitySegment)log.getOldValue();
+                segment = (EntitySegment) log.getOldValue();
                 deleteById(kgName, segment.getId());
             }
         }
