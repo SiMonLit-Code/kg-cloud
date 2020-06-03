@@ -10,7 +10,9 @@ import com.plantdata.kgcloud.domain.task.service.TaskGraphService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.template.FastdfsTemplate;
 import com.plantdata.kgcloud.util.ConvertUtils;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +34,9 @@ import java.util.Date;
  **/
 @Service
 public class TaskGraphServiceImpl implements TaskGraphService {
+
+    @Value("${backup.dir}")
+    private String backupUrl;
 
     @Autowired
     private TaskGraphSnapshotRepository taskGraphSnapshotRepository;
@@ -62,8 +67,10 @@ public class TaskGraphServiceImpl implements TaskGraphService {
     @Override
     public TaskGraphSnapshotRsp add(TaskGraphSnapshotNameReq req) {
         TaskGraphSnapshot snapshot = ConvertUtils.convert(TaskGraphSnapshot.class).apply(req);
+        snapshot.setCatalogue(backupUrl + snapshot.getCatalogue());
         try {
-            byte[] bytes = fastdfsTemplate.downloadFile(snapshot.getCatalogue());
+            byte[] bytes = FileUtils.readFileToByteArray(new File(snapshot.getCatalogue()));
+            // byte[] bytes = fastdfsTemplate.downloadFile(snapshot.getCatalogue());
             if (bytes.length * 1.0 / 1024 < 1024) {
                 DecimalFormat decimalFormat = new DecimalFormat("#");
                 decimalFormat.setRoundingMode(RoundingMode.UP);
@@ -85,7 +92,7 @@ public class TaskGraphServiceImpl implements TaskGraphService {
         String total = new DecimalFormat("#.#")
                 .format(file.getTotalSpace() * 1.0 / 1024 / 1024 / 1024) + "G";
         snapshot.setDiskSpaceSize(total);
-        snapshot.setFileStoreType(1);
+        snapshot.setFileStoreType(0);
         snapshot.setFileBackupType(1);
         // 时间毫秒置0
         Date date = new Date();

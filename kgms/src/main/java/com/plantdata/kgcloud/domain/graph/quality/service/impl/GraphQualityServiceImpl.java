@@ -73,7 +73,10 @@ public class GraphQualityServiceImpl implements GraphQualityService {
         graphQuality.setKgName(kgName);
         graphQuality.setConceptId(conceptId);
         List<GraphQuality> graphQualities = graphQualityRepository.findAll(Example.of(graphQuality));
-        // graphQualities.add(check(kgName, conceptId));
+        GraphQuality quality = check(kgName, conceptId);
+        if (quality.getId() != null) {
+            graphQualities.add(quality);
+        }
 
         // 实时查询概念实体和属性数量
         statisticsConcept(kgName, conceptId, graphQualities);
