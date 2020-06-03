@@ -82,7 +82,6 @@ public class TaskGraphServiceImpl implements TaskGraphService {
                 snapshot.setFileSize(decimalFormat.format((bytes.length * 1.0 / 1024 / 1024 / 1024)) + "G");
             }
         } catch (Exception e) {
-            throw BizException.of(KgmsErrorCodeEnum.FILE_NOT_EXIST);
         }
         // 磁盘使用情况
         File file = new File("/");
