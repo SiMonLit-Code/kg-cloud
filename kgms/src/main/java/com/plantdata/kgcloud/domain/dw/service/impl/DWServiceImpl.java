@@ -282,7 +282,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
-        if(database == null){
+        if (database == null) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
@@ -322,7 +322,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
-        if(database == null){
+        if (database == null) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
@@ -731,9 +731,9 @@ public class DWServiceImpl implements DWService {
             throw BizException.of(KgmsErrorCodeEnum.DATABASE_DATAFORMAT_ERROR);
         }
 
-        DWTableRsp tableRsp = findTableByTableName(SessionHolder.getUserId(),databaseId,tableName);
+        DWTableRsp tableRsp = findTableByTableName(SessionHolder.getUserId(), databaseId, tableName);
 
-        if(tableRsp == null){
+        if (tableRsp == null) {
             return new ArrayList<>();
         }
 
@@ -741,10 +741,10 @@ public class DWServiceImpl implements DWService {
         if (database.getDataType() == null || database.getDataType().equals(DataType.MONGO.getDataType())) {
 
             try {
-                if(tableRsp.getCreateWay().equals(1)){
-                    fieldEnums = getMongoAggr(database, tableName, field,false);
-                }else{
-                    fieldEnums = getMongoAggr(database, tableName, field,true);
+                if (tableRsp.getCreateWay().equals(1)) {
+                    fieldEnums = getMongoAggr(database, tableName, field, false);
+                } else {
+                    fieldEnums = getMongoAggr(database, tableName, field, true);
                 }
 
             } catch (Exception e) {
@@ -776,11 +776,11 @@ public class DWServiceImpl implements DWService {
         return fieldEnums;
     }
 
-    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field,boolean isLocal) {
+    private List<String> getMongoAggr(DWDatabaseRsp dwDatabase, String tableName, String field, boolean isLocal) {
         MongoClient client = null;
         try {
             MongoDatabase mongoDatabase;
-            if(!isLocal){
+            if (!isLocal) {
 
                 //连接到MongoDB服务 如果是远程连接可以替换“localhost”为服务器所在IP地址
                 //ServerAddress()两个参数分别为 服务器地址 和 端口
@@ -802,7 +802,7 @@ public class DWServiceImpl implements DWService {
                 //通过连接认证获取MongoDB连接
                 // 连接到数据库
                 mongoDatabase = client.getDatabase(dwDatabase.getDbName());
-            }else{
+            } else {
                 mongoDatabase = mongoClient.getDatabase(dwDatabase.getDataName());
             }
 
@@ -820,7 +820,7 @@ public class DWServiceImpl implements DWService {
                 Document item_doc = cursor.next();
                 Object value = item_doc.get("_id", Object.class);
 
-                if(value == null){
+                if (value == null) {
                     continue;
                 }
                 colls.add(value + "");
@@ -972,7 +972,7 @@ public class DWServiceImpl implements DWService {
     }
 
     private void addFileUploadSchema(List<DataSetSchema> schemas) {
-        if(schemas == null || schemas.isEmpty()){
+        if (schemas == null || schemas.isEmpty()) {
             return;
         }
 
@@ -1050,7 +1050,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp dwDatabase = getDetail(req.getDwDataBaseId());
 
-        if(dwDatabase == null){
+        if (dwDatabase == null) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
@@ -1211,7 +1211,7 @@ public class DWServiceImpl implements DWService {
             DataSource dataSource = getDataSource(dwDatabase);
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-            String sql = getQueryTableSql(dwDatabase.getDataType());
+            String sql = getQueryTableSql(dwDatabase);
 
             try {
                 tables = jdbcTemplate.queryForList(sql, String.class);
@@ -1231,7 +1231,7 @@ public class DWServiceImpl implements DWService {
 
         if (tables != null && !tables.isEmpty()) {
 
-            if (DataType.MYSQL.equals(DataType.findType(dwDatabase.getDataType()))){
+            if (DataType.MYSQL.equals(DataType.findType(dwDatabase.getDataType())) || DataType.ORACLE.equals(DataType.findType(dwDatabase.getDataType()))){
                 DataSource dataSource = getDataSource(dwDatabase);
                 JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
                 for (String table : tables) {
@@ -1328,10 +1328,12 @@ public class DWServiceImpl implements DWService {
         }
     }
 
-    private String getQueryTableSql(Integer dataType) {
+    private String getQueryTableSql(DWDatabaseRsp dw) {
 
-        if (DataType.DM.equals(DataType.findType(dataType))) {
+        if (DataType.DM.equals(DataType.findType(dw.getDataType()))) {
             return "select t.table_name tableName from user_tables t;";
+        } else if (DataType.ORACLE.equals(DataType.findType(dw.getDataType()))) {
+            return "select table_name from all_tables where owner='" + dw.getUsername().toUpperCase() + "'";
         } else {
             return "show tables;";
         }
@@ -1804,7 +1806,7 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(id);
 
-        if(database == null){
+        if (database == null) {
             throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
@@ -1965,7 +1967,7 @@ public class DWServiceImpl implements DWService {
             if (table.getIsAll() != null && table.getIsAll().equals(2) && table.getQueryField() == null) {
                 return;
             } else {
-                createSearchSchedulingConfig(table,req.getResourceName(),req.getTarget(),req.getSchedulingSwitch());
+                createSearchSchedulingConfig(table, req.getResourceName(), req.getTarget());
             }
 
         }
@@ -2002,12 +2004,12 @@ public class DWServiceImpl implements DWService {
         }
     }
 
-    private void createSearchSchedulingConfig(DWTable table, String resourceName, String target, Integer schedulingSwitch) {
+    private void createSearchSchedulingConfig(DWTable table, String resourceName, String target) {
 
         List<String> diss = new ArrayList<>();
         diss.add(resourceName);
 
-        if (schedulingSwitch != null && schedulingSwitch != null && schedulingSwitch.equals(1)) {
+        if (table != null && table.getSchedulingSwitch() != null && table.getSchedulingSwitch().equals(1)) {
 
             //生成任务配置
             accessTaskService.createKtrTask(table.getTableName(), table.getDwDataBaseId(), resourceName, 1, target);
@@ -2040,7 +2042,7 @@ public class DWServiceImpl implements DWService {
 
         Optional<DWTable> dwTable = tableRepository.findOne(Example.of(DWTable.builder().tableName(tableName).dwDataBaseId(databaseId).build()));
 
-        if(!dwTable.isPresent()){
+        if (!dwTable.isPresent()) {
             return null;
         }
 
@@ -2109,8 +2111,8 @@ public class DWServiceImpl implements DWService {
 
         DWDatabaseRsp database = getDetail(databaseId);
 
-        if(database == null){
-            throw  BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
+        if (database == null) {
+            throw BizException.of(KgmsErrorCodeEnum.DW_DATABASE_NOT_EXIST);
         }
 
         //不是PD类型数据库不用上传tagjson
@@ -2253,7 +2255,7 @@ public class DWServiceImpl implements DWService {
         }
 
         DWDatabaseRsp rsp = ConvertUtils.convert(DWDatabaseRsp.class).apply(database.get());
-        if(!rsp.getUserId().equals(userId)){
+        if (!rsp.getUserId().equals(userId)) {
             throw BizException.of(KgmsErrorCodeEnum.DW_PERMISSION_NOT_ENOUGH_ERROR);
         }
         return rsp;
@@ -2312,11 +2314,13 @@ public class DWServiceImpl implements DWService {
 
             try {
                 deleteCountData(databaseId, opt.get().getTableName());
-            }catch (Exception e){}
+            } catch (Exception e) {
+            }
 
             try {
-                accessTaskService.deleteTaskByDW(databaseId,opt.get().getTableName());
-            }catch (Exception e){}
+                accessTaskService.deleteTaskByDW(databaseId, opt.get().getTableName());
+            } catch (Exception e) {
+            }
 
 
             tableRepository.deleteById(tableId);
@@ -2503,7 +2507,7 @@ public class DWServiceImpl implements DWService {
             }
 
         } else if (DataType.MYSQL.equals(DataType.findType(dwDatabase.getDataType()))) {
-            if (jdbcTemplate == null){
+            if (jdbcTemplate == null) {
                 DataSource dataSource = getDataSource(dwDatabase);
                 jdbcTemplate = new JdbcTemplate(dataSource);
             }
@@ -2520,6 +2524,34 @@ public class DWServiceImpl implements DWService {
                 rsList.add(dataSetSchema);
             }
 
+        } else if (DataType.ORACLE.equals(DataType.findType(dwDatabase.getDataType()))) {
+            if (jdbcTemplate == null) {
+                DataSource dataSource = getDataSource(dwDatabase);
+                jdbcTemplate = new JdbcTemplate(dataSource);
+            }
+            String sql = "SELECT b.comments as comments, " +
+                    "       a.column_name as column_name, " +
+                    "       a.data_type as data_type" +
+                    "  FROM user_tab_columns a, user_col_comments b\n" +
+                    " WHERE a.TABLE_NAME =  '" + tbName + "'" +
+                    "   and a.column_name = b.column_name";
+            List<Map<String, Object>> rs = jdbcTemplate.queryForList(sql);
+            for (Map<String, Object> coulmn : rs) {
+
+                String field = coulmn.get("column_name").toString();
+
+                DataSetSchema dataSetSchema = new DataSetSchema();
+                dataSetSchema.setField(field);
+                dataSetSchema.setType(ExampleYaml.readMysqlType(coulmn.get("data_type").toString()).getCode());
+
+                if (coulmn.get("comments") != null) {
+                    dataSetSchema.setDesc(coulmn.get("comments").toString());
+                }else{
+                    dataSetSchema.setDesc("");
+                }
+
+                rsList.add(dataSetSchema);
+            }
         }
 
         return rsList;
@@ -2562,6 +2594,9 @@ public class DWServiceImpl implements DWService {
         } else if (DataType.DM.equals(req.getType())) {
             dataSourceBuilder.driverClassName("dm.jdbc.driver.DmDriver");
             dataSourceBuilder.url("jdbc:dm://" + req.getAddr().get(0) + "/" + req.getDbName() + "?characterEncoding=utf8&useSSL=false&connectTimeout=1000&socketTimeout=1000");
+        } else if (DataType.GBASE.equals(req.getType())) {
+            dataSourceBuilder.driverClassName("om.gbase.jdbc.Connection");
+            dataSourceBuilder.url("jdbc:gbase://" + req.getAddr().get(0) + "/" + req.getDbName() + "?characterEncoding=utf8&useSSL=false&connectTimeout=1000&socketTimeout=1000");
         }
         dataSourceBuilder.username(req.getUsername());
         dataSourceBuilder.password(req.getPassword());
@@ -2750,7 +2785,7 @@ public class DWServiceImpl implements DWService {
 
     @Override
     public DWDatabaseRsp findById(String tableId) {
-        String userId =userClient.getCurrentUserDetail().getData().getId();
+        String userId = userClient.getCurrentUserDetail().getData().getId();
         //String userId = SessionHolder.getUserId();
         DWDatabase probe = DWDatabase.builder()
                 .userId(SessionHolder.getUserId())
@@ -2759,9 +2794,9 @@ public class DWServiceImpl implements DWService {
         idList.add(Long.valueOf(tableId));
         List<DWDatabase> all = dwRepository.findAllById(idList);
         List<DWDatabaseRsp> result = all.stream().map(dw2rsp).collect(Collectors.toList());
-        if(result != null && result.size() > 0 && result.get(0).getUserId().equals(userId)) {
+        if (result != null && result.size() > 0 && result.get(0).getUserId().equals(userId)) {
             return result.get(0);
-        }else{
+        } else {
             return null;
         }
     }

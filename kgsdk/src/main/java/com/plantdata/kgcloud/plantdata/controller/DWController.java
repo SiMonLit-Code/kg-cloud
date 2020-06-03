@@ -37,6 +37,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author cx
@@ -51,88 +52,98 @@ public class DWController implements DWStatisticInterface {
     @Autowired
     public TableDataClient tableDataClient;
 
+    @Autowired
+    private PdStatServiceibit pdStatService;
+
     @ApiOperation(value = "统计数据仓库(二维)", notes = "以二维表的形式统计数据仓库")
     @PostMapping("statistic/by2dTable")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "query", required = true, dataType = "string", paramType = "form", value = "输入对象")
-    })
-    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @ApiIgnore QaKbqaParameter param) {
-        JSONObject jsStr = JSONObject.parseObject(param.getQuery());
-        SqlQueryReq req = JSONObject.toJavaObject(jsStr,SqlQueryReq.class);
-        if(req.getQuery().getDimensions() == null
-                || req.getQuery().getMeasures() == null
-                || req.getQuery().getMeasures().size() != 1
-                || (req.getQuery().getDimensions().size() != 1
-                        && req.getQuery().getDimensions().size() != 2)){
+    public ApiReturn<DW2dTableRsp> statisticBy2dTable(@Valid @RequestBody SqlQueryReq query) {
+
+        if (query.getQuery().getDimensions() == null
+                || query.getQuery().getMeasures() == null
+                || query.getQuery().getMeasures().size() == 0
+                || (query.getQuery().getDimensions().size() != 1
+                && query.getQuery().getDimensions().size() != 2)) {
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
-        DWDatabaseRsp dataBase = dwClient.findById(req.getDbId()+"");
-        DWTableRsp tableDetail = dwClient.findTableByTableName(String.valueOf(req.getDbId()),req.getTbName());
-        if(dataBase == null){
+        DWDatabaseRsp dataBase = dwClient.findById(query.getDbId() + "");
+        DWTableRsp tableDetail = dwClient.findTableByTableName(String.valueOf(query.getDbId()), query.getTbName());
+        if (dataBase == null) {
             throw BizException.of(SdkErrorCodeEnum.DB_NOT_EXIST);
-        }else if(tableDetail.getCreateWay() == 2 || (tableDetail.getCreateWay() == 1 && tableDetail.getIsWriteDW() != null && tableDetail.getIsWriteDW() ==1 )){
-        }else{
+        } else if (tableDetail.getCreateWay() == 2 || (tableDetail.getCreateWay() == 1 && tableDetail.getIsWriteDW() != null && tableDetail.getIsWriteDW() == 1)) {
+        } else {
             throw BizException.of(SdkErrorCodeEnum.REMOTE_TABLE_NOT_SUPPORTED);
         }
-        escape(req);
-        req.setDbName(dataBase.getDataName());
-        PdStatServiceibit pdStatService = new PdStatServiceibit();
-        PdStatBean pdStatBean = req.getQuery();
+        escape(query);
+        query.setDbName(dataBase.getDataName());
+
+        PdStatBean pdStatBean = query.getQuery();
         ChartTableBean ctb = null;
         try {
-            ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
-        }catch(Exception e){
-            throw new BizException(130004,"message: "+e.getMessage()+" detail: "+e.getCause().getMessage());
+            ctb = (ChartTableBean) pdStatService.excute(pdStatBean, query.getDbName(), query.getTbName());
+        } catch (Exception e) {
+            throw new BizException(130004, "message: " + e.getMessage() + " detail: " + e.getCause().getMessage());
         }
         DW2dTableRsp table = new DW2dTableRsp();
         table.setXAxis(new ArrayList<>());
         table.setSeries(new ArrayList<>());
         List<String> xAxis = table.getXAxis();
-        if(ctb != null && ctb.getData()!=null && ctb.getData().size() > 0){
-            if(req.getQuery().getDimensions().size()==1) {
-                DWStatisticTableSeries s = new DWStatisticTableSeries();
-                table.getSeries().add(s);
-                s.setName("分组1");
-                s.setData(new ArrayList<>());
-                for (List<Object> row : ctb.getData()) {
-                    xAxis.add((String) row.get(0));
-                    s.getData().add(row.get(1));
+        if (ctb != null && ctb.getData() != null && ctb.getData().size() > 0) {
+            if (query.getQuery().getDimensions().size() == 1) {
+
+                ArrayList<DWStatisticTableSeries> series = new ArrayList<>();
+                for (String s : ctb.getName()) {
+                    DWStatisticTableSeries tmp = new DWStatisticTableSeries();
+                    tmp.setName(s);
+                    tmp.setData(new ArrayList<>());
+                    series.add(tmp);
                 }
-            }else if(req.getQuery().getDimensions().size()==2) {
-                Map<String,Integer> seriesMap = new HashMap<>();
-                Map<String,Integer> indexMap = new HashMap<>();
-                int indexCounter = 0;
-                int seriesCounter = 0;
+
                 for (List<Object> row : ctb.getData()) {
-                    if(!indexMap.containsKey(row.get(0))){
-                        indexMap.put((String)row.get(0),indexCounter);
-                        table.getXAxis().add((String)row.get(0));
-                        indexCounter++;
-                    }
-                    if(!seriesMap.containsKey(row.get(1))){
-                        seriesMap.put((String)row.get(1),seriesCounter);
-                        seriesCounter++;
+
+                    for (int i = 0; i < row.size(); i++) {
+                        series.get(i).getData().add(row.get(i));
                     }
                 }
-                for(String seriesKey : seriesMap.keySet()){
-                    DWStatisticTableSeries s = new DWStatisticTableSeries();
-                    s.setName(seriesKey);
-                    s.setData(new ArrayList<Object>());
-                    table.getSeries().add(s);
-                    for(String indexKey : indexMap.keySet()){
-                        s.getData().add(null);
-                    }
-                }
-                for (List<Object> row : ctb.getData()) {
-                    DWStatisticTableSeries series = (DWStatisticTableSeries)table.getSeries().get(seriesMap.get(row.get(1)));
-                    series.getData().set(indexMap.get(row.get(0)),row.get(2));
-                }
+                xAxis.addAll(series.get(0).getData().stream().map(Object::toString).collect(Collectors.toList()));
+                series.remove(0);
+                table.getSeries().addAll(series);
+
             }
-        }
-        else if(ctb == null){
+//            } else if (req.getQuery().getDimensions().size() == 2) {
+//                Map<String, Integer> seriesMap = new HashMap<>();
+//                Map<String, Integer> indexMap = new HashMap<>();
+//                int indexCounter = 0;
+//                int seriesCounter = 0;
+//                for (List<Object> row : ctb.getData()) {
+//                    if (!indexMap.containsKey(row.get(0))) {
+//                        indexMap.put((String) row.get(0), indexCounter);
+//                        table.getXAxis().add((String) row.get(0));
+//                        indexCounter++;
+//                    }
+//                    if (!seriesMap.containsKey(row.get(1))) {
+//                        seriesMap.put((String) row.get(1), seriesCounter);
+//                        seriesCounter++;
+//                    }
+//                }
+//                for (String seriesKey : seriesMap.keySet()) {
+//                    DWStatisticTableSeries s = new DWStatisticTableSeries();
+//                    s.setName(seriesKey);
+//                    s.setData(new ArrayList<>());
+//                    table.getSeries().add(s);
+//                    for (String indexKey : indexMap.keySet()) {
+//                        s.getData().add(null);
+//                    }
+//                }
+//                for (List<Object> row : ctb.getData()) {
+//                    DWStatisticTableSeries series = (DWStatisticTableSeries) table.getSeries().get(seriesMap.get(row.get(1)));
+//                    series.getData().set(indexMap.get(row.get(0)), row.get(2));
+//                }
+//            }
+        } else if (ctb == null) {
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
-        return  ApiReturn.success(table);
+        return ApiReturn.success(table);
     }
 
     @ApiOperation(value = "统计数据仓库(三维)", notes = "以三维表的形式统计数据仓库")
@@ -142,31 +153,31 @@ public class DWController implements DWStatisticInterface {
     })
     public ApiReturn<DW3dTableRsp> statisticBy3dTable(@Valid @ApiIgnore QaKbqaParameter param) {
         JSONObject jsStr = JSONObject.parseObject(param.getQuery());
-        SqlQueryReq req = JSONObject.toJavaObject(jsStr,SqlQueryReq.class);
-        if(req.getQuery().getDimensions() == null
+        SqlQueryReq req = JSONObject.toJavaObject(jsStr, SqlQueryReq.class);
+        if (req.getQuery().getDimensions() == null
                 || req.getQuery().getMeasures() == null
                 || req.getQuery().getMeasures().size() != 1
                 || (req.getQuery().getDimensions().size() != 2
-                && req.getQuery().getDimensions().size() != 3)){
+                && req.getQuery().getDimensions().size() != 3)) {
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
-        DWDatabaseRsp dataBase = dwClient.findById(req.getDbId()+"");
-        DWTableRsp tableDetail = dwClient.findTableByTableName(String.valueOf(req.getDbId()),req.getTbName());
-        if(dataBase == null){
+        DWDatabaseRsp dataBase = dwClient.findById(req.getDbId() + "");
+        DWTableRsp tableDetail = dwClient.findTableByTableName(String.valueOf(req.getDbId()), req.getTbName());
+        if (dataBase == null) {
             throw BizException.of(SdkErrorCodeEnum.DB_NOT_EXIST);
-        }else if(tableDetail.getCreateWay() == 2 || (tableDetail.getCreateWay() == 1 && tableDetail.getIsWriteDW() != null && tableDetail.getIsWriteDW() ==1 )){
-        }else{
+        } else if (tableDetail.getCreateWay() == 2 || (tableDetail.getCreateWay() == 1 && tableDetail.getIsWriteDW() != null && tableDetail.getIsWriteDW() == 1)) {
+        } else {
             throw BizException.of(SdkErrorCodeEnum.REMOTE_TABLE_NOT_SUPPORTED);
         }
         escape(req);
         req.setDbName(dataBase.getDataName());
-        PdStatServiceibit pdStatService = new PdStatServiceibit();
+
         PdStatBean pdStatBean = req.getQuery();
         ChartTableBean ctb = null;
         try {
             ctb = (ChartTableBean) pdStatService.excute(pdStatBean, req.getDbName(), req.getTbName());
-        }catch(Exception e){
-            throw new BizException(130004,"message: "+e.getMessage()+" detail: "+e.getCause().getMessage());
+        } catch (Exception e) {
+            throw new BizException(130004, "message: " + e.getMessage() + " detail: " + e.getCause().getMessage());
         }
         DW3dTableRsp table = new DW3dTableRsp();
         table.setXAxis(new ArrayList<>());
@@ -176,8 +187,8 @@ public class DWController implements DWStatisticInterface {
         List<String> yAxis = table.getYAxis();
         Set<String> xAxisNameSet = new HashSet<>();
         Set<String> yAxisNameSet = new HashSet<>();
-        if(ctb != null && ctb.getData()!=null && ctb.getData().size() > 0){
-            if(req.getQuery().getDimensions().size()==2) {
+        if (ctb != null && ctb.getData() != null && ctb.getData().size() > 0) {
+            if (req.getQuery().getDimensions().size() == 2) {
                 DWStatisticTableSeries s = new DWStatisticTableSeries();
                 table.getSeries().add(s);
                 s.setName("分组1");
@@ -197,14 +208,14 @@ public class DWController implements DWStatisticInterface {
                 for (String name : yAxisNameSet) {
                     yAxis.add(name);
                 }
-            }else if(req.getQuery().getDimensions().size()==3) {
-                Map<String,Integer> seriesMap = new HashMap<>();
+            } else if (req.getQuery().getDimensions().size() == 3) {
+                Map<String, Integer> seriesMap = new HashMap<>();
                 int counter = 0;
                 for (List<Object> row : ctb.getData()) {
-                    if(!seriesMap.containsKey(row.get(2))){
-                        seriesMap.put((String)row.get(2),counter);
+                    if (!seriesMap.containsKey(row.get(2))) {
+                        seriesMap.put((String) row.get(2), counter);
                         DWStatisticTableSeries s = new DWStatisticTableSeries();
-                        s.setName((String)row.get(2));
+                        s.setName((String) row.get(2));
                         s.setData(new ArrayList<>());
                         table.getSeries().add(s);
                         counter++;
@@ -226,10 +237,10 @@ public class DWController implements DWStatisticInterface {
                     yAxis.add(name);
                 }
             }
-        }else if(ctb == null){
+        } else if (ctb == null) {
             throw BizException.of(SdkErrorCodeEnum.JSON_NOT_FIT);
         }
-        return  ApiReturn.success(table);
+        return ApiReturn.success(table);
     }
 
     @ApiOperation(value = "数仓-查找所有数据库", notes = "查找用户创建的所有数仓数据库")
@@ -244,8 +255,8 @@ public class DWController implements DWStatisticInterface {
 //        return dwClient.databaseTableList();
 //    }
 
-    public void escape(SqlQueryReq req){
-        if(req != null && req.getQuery() != null){
+    public void escape(SqlQueryReq req) {
+        if (req != null && req.getQuery() != null) {
             List<PdStatBaseBean> dimensions = req.getQuery().getDimensions();
             List<PdStatBaseBean> measures = req.getQuery().getMeasures();
             List<PdStatFilterBean> filters = req.getQuery().getFilters();
@@ -275,17 +286,17 @@ public class DWController implements DWStatisticInterface {
 
     @ApiOperation(value = "数仓-查找所有数据库与表", notes = "查找所有数据库与表")
     @GetMapping("/database/table/list")
-    public ApiReturn<List<DWDatabaseRsp>> databaseTableList(){
+    public ApiReturn<List<DWDatabaseRsp>> databaseTableList() {
         return dwClient.databaseTableList();
     }
 
     @ApiOperation(value = "数仓-查询数据库表", notes = "查询数据库表")
     @GetMapping("/{databaseId}/table/all")
-    public ApiReturn<List<DWTableRsp>> findTableAll(@PathVariable("databaseId") Long databaseId){
+    public ApiReturn<List<DWTableRsp>> findTableAll(@PathVariable("databaseId") Long databaseId) {
         return dwClient.findTableAll(databaseId);
     }
 
-    @ApiOperation(value ="搜索-数仓数据-schema查询",notes = "schema查询")
+    @ApiOperation(value = "搜索-数仓数据-schema查询", notes = "schema查询")
     @PostMapping("/table/data/schema/{databaseId}/{tableId}")
     public ApiReturn<Map<String, Object>> getData2(
             @PathVariable("tableId") Long tableId,
@@ -294,7 +305,7 @@ public class DWController implements DWStatisticInterface {
         return tableDataClient.getData2(tableId, databaseId, baseReq);
     }
 
-    @ApiOperation(value ="搜索-数仓-设置表调度开关",notes = "设置表调度开关")
+    @ApiOperation(value = "搜索-数仓-设置表调度开关", notes = "设置表调度开关")
     @PostMapping("/set/kgsearch/scheduling")
     public ApiReturn setKgsearchScheduling(@Valid @RequestBody DWTableSchedulingReq req) {
         return dwClient.setKgsearchScheduling(req);
@@ -307,12 +318,12 @@ public class DWController implements DWStatisticInterface {
             @PathVariable("databaseId") Long databaseId,
             DataOptQueryReq baseReq) {
         ApiReturn<List<Object>> apiReturn = tableDataClient.getDataForFeign(databaseId, tableId, baseReq);
-        if(apiReturn.getErrCode() != 200){
-            return ApiReturn.fail(apiReturn.getErrCode(),apiReturn.getMessage());
+        if (apiReturn.getErrCode() != 200) {
+            return ApiReturn.fail(apiReturn.getErrCode(), apiReturn.getMessage());
         }
         List<Object> arguments = apiReturn.getData();
-        PageRequest pageable = PageRequest.of((Integer)arguments.get(0), (Integer)arguments.get(1));
-        return ApiReturn.success(new PageImpl<>((List<Map<String, Object>>)arguments.get(2), pageable, Long.valueOf((String)arguments.get(3))));
+        PageRequest pageable = PageRequest.of((Integer) arguments.get(0), (Integer) arguments.get(1));
+        return ApiReturn.success(new PageImpl<>((List<Map<String, Object>>) arguments.get(2), pageable, Long.valueOf((String) arguments.get(3))));
     }
 
 }

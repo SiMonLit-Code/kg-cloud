@@ -156,7 +156,7 @@ public class CreateKtrFile {
 
         inputXml = changeDBConnection(inputXml, ip, port, dbName, tableName, username, password, type, table.getIsAll());
 
-        jsonFieldxml = changeJsonField(jsonFieldxml, table.getFields(), isMongo);
+        jsonFieldxml = changeJsonField(jsonFieldxml, table.getFields(), database.getDataType());
 
         defaultXml = changeDefaultXmlField(defaultXml, jsonFieldxml);
 
@@ -289,7 +289,7 @@ public class CreateKtrFile {
 
         inputXml = changeDBConnection(inputXml, ip, port, dbName, tableName, username, password, type, table.getIsAll());
 
-        jsonFieldxml = changeJsonField(jsonFieldxml, table.getFields(), isMongo);
+        jsonFieldxml = changeJsonField(jsonFieldxml, table.getFields(), database.getDataType());
 
         defaultXml = changeDefaultXmlField(defaultXml, jsonFieldxml);
 
@@ -319,15 +319,21 @@ public class CreateKtrFile {
         return defaultXml.replaceAll("fieldsQAQ", jsonFieldxml);
     }
 
-    private static String changeJsonField(String jsonFieldxml, List<String> fields, boolean isMongo) {
+    private static String changeJsonField(String jsonFieldxml, List<String> fields, Integer dataType) {
 
-        if (isMongo) {
+        if (DataType.MONGO.getDataType() == dataType) {
             fields = Lists.newArrayList("json");
         }
-
         StringBuilder jsonFieldStr = new StringBuilder();
-        for (String field : fields) {
-            jsonFieldStr.append(jsonFieldxml.replaceAll("fieldQAQ", field));
+        if (DataType.ORACLE.getDataType() == dataType) {
+            for (String field : fields) {
+                jsonFieldStr.append(jsonFieldxml.replaceAll("fieldQAQ", field.toUpperCase()));
+            }
+        } else {
+
+            for (String field : fields) {
+                jsonFieldStr.append(jsonFieldxml.replaceAll("fieldQAQ", field));
+            }
         }
 
         return jsonFieldStr.toString();
@@ -375,6 +381,33 @@ public class CreateKtrFile {
                 return KtrXml.mongoTimeQueryXMl.replaceAll("timeFieldQAQ", table.getQueryField());
             }
 
+        } else if (DataType.findType(databaseRsp.getDataType()).equals(DataType.ORACLE)) {
+            sql.append("SELECT ");
+
+            for (String field : table.getFields()) {
+                sql.append("\"").append(field).append("\" as " + field.toUpperCase()).append(",");
+
+            }
+            sql = sql.deleteCharAt(sql.length() - 1);
+            sql.append(" FROM " + databaseRsp.getUsername().toUpperCase() + ".\"")
+                    .append(tableName).append("\"");
+
+            if (table.getIsAll() != null && !table.getIsAll().equals(1)) {
+
+                sql.append(" WHERE 'true'='${key}' and ")
+                        .append(table.getQueryField())
+                        .append(" &gt;= ")
+                        .append("'${StartTime}'")
+                        .append(" and ")
+                        .append(table.getQueryField())
+                        .append(" &lt; ")
+                        .append("'${EndTime}'");
+
+            } else {
+                sql.append(" WHERE 'true'='${key}' ");
+            }
+
+            return sql.toString();
         } else {
             sql.append("SELECT ");
 
