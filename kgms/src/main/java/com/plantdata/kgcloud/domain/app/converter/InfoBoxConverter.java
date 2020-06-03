@@ -50,7 +50,6 @@ public class InfoBoxConverter extends BasicConverter {
         detailFilter.setIds(boxReq.getIds());
         detailFilter.setReadObj(boxReq.getRelationAttrs());
         detailFilter.setReadReverseObj(boxReq.getReverseRelationAttrs());
-        log.info(JsonUtils.objToJson(boxReq));
         return detailFilter;
     }
 
@@ -170,6 +169,14 @@ public class InfoBoxConverter extends BasicConverter {
             else if (value.getType() == 0) {
                 extraList.add(dataAttrToExtraRsp(value));
             }
+            //私有对象属性
+            else if (value.getType() == 1 && !CollectionUtils.isEmpty(value.getObjectValues())) {
+                value.getObjectValues().forEach(a -> {
+                    Map<Integer, List<BasicInfo>> relationObjectValues = a.getRelationObjectValues();
+                    extraList.add(new EntityLinksRsp.ExtraRsp(a.getAttrId(), a.getName(), value.getDomainValue(), relationObjectValues.values(), value.getDataType()));
+                });
+            }
+
         }
     }
 
