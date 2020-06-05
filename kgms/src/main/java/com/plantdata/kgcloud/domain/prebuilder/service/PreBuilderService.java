@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.domain.prebuilder.req.*;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
-import com.plantdata.kgcloud.sdk.req.PreBuilderGraphMapReq;
+import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderGraphMapReq;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
