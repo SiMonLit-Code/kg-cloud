@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.req;
+package com.plantdata.kgcloud.domain.prebuilder.req;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

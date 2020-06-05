@@ -1,8 +1,6 @@
 package com.plantdata.kgcloud.domain.prebuilder.req;
 
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.prebuilder.aop.BaseHandlerReq;
-import com.plantdata.kgcloud.sdk.req.SchemaQuoteReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

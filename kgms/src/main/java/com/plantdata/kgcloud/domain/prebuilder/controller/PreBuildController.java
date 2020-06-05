@@ -11,7 +11,7 @@ import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderSearchReq;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.prebuilder.service.PreBuilderService;
-import com.plantdata.kgcloud.sdk.req.PreBuilderGraphMapReq;
+import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
