@@ -301,7 +301,9 @@ public class EntityServiceImpl implements EntityService {
             if(basicInfoRsp.getSourceUser() != null && !basicInfoRsp.getSourceUser().isEmpty()){
                 if(!usernameMap.containsKey(basicInfoRsp.getSourceUser())){
                     UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(basicInfoRsp.getSourceUser()).getData();
-                    usernameMap.put(userDetailRsp.getId(),userDetailRsp.getRealname());
+                    if(userDetailRsp != null){
+                        usernameMap.put(userDetailRsp.getId(),userDetailRsp.getRealname());
+                    }
                 }
                 basicInfoRsp.setSourceUser(usernameMap.get(basicInfoRsp.getSourceUser()));
             }
