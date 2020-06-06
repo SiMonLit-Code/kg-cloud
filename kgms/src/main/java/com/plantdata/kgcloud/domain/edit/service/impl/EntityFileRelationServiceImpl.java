@@ -308,7 +308,11 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             return;
         }
         for (String kgName : kgNames) {
-            getRelationCollection(kgName).deleteMany(Filters.eq("fileId", new ObjectId(fileId)));
+            try {
+                KGUtil.dbName(kgName);
+                getRelationCollection(kgName).deleteMany(Filters.eq("fileId", new ObjectId(fileId)));
+            }catch (BizException e){
+            }
         }
     }
 
