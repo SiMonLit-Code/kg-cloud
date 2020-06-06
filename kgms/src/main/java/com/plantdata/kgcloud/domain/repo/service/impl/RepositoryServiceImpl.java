@@ -95,6 +95,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         return all.stream().collect(Collectors.toMap(RepoItem::getId, health));
     }
 
+    @Override
     public Boolean state(Integer repoId) {
         Optional<RepoItem> repoItem = repoItemRepository.findById(repoId);
         if (repoItem.isPresent()) {

@@ -52,6 +52,7 @@ public class GraphServiceImpl implements GraphService {
     private UserClient userClient;
 
     //@Cacheable(key = "#kgName")
+    @Override
     public String getDbName(String kgName) {
         Graph probe = Graph.builder()
                 .kgName(kgName)

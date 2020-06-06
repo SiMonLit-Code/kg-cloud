@@ -7,7 +7,7 @@ import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.MongoQueryConverter;
 import com.plantdata.kgcloud.plantdata.req.common.*;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
-import com.plantdata.kgcloud.plantdata.req.explore.common.AbstrackGraphParameter;
+import com.plantdata.kgcloud.plantdata.req.explore.common.AbstractGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.AttrScreeningBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphStatBean;
@@ -104,7 +104,7 @@ public class ExploreCommonConverter extends BasicConverter {
         });
     }
 
-    static <T extends AbstrackGraphParameter, R extends BasicGraphExploreReqList> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {
+    static <T extends AbstractGraphParameter, R extends BasicGraphExploreReqList> R abstractGraphParameterToBasicGraphExploreReq(T to, R rs) {
         rs.setDistance(to.getDistance());
         consumerIfNoNull(to.getAllowTypesKey(), rs::setAllowConceptsKey);
         consumerIfNoNull(to.getReplaceClassIds(), rs::setReplaceClassIds);

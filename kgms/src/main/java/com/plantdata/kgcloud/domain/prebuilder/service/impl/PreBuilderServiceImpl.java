@@ -986,7 +986,7 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
             BaseConceptRsp concept = it.next();
 
-            if (concept.getParentId().equals(0l)) {
+            if (concept.getParentId().equals(0L)) {
                 PreBuilderConceptRsp conceptRsp = new PreBuilderConceptRsp();
                 conceptRsp.setId(null);
                 conceptRsp.setName(concept.getName());

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.explore.relation;
 
-import com.plantdata.kgcloud.plantdata.req.explore.common.AbstrackGraphParameter;
+import com.plantdata.kgcloud.plantdata.req.explore.common.AbstractGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphStatBean;
 import com.plantdata.kgcloud.plantdata.req.explore.function.StatsGraphParameter;
 import com.plantdata.kgcloud.sdk.validator.ListLengthCheck;
@@ -23,7 +23,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class RelationGraphParameter extends AbstrackGraphParameter implements StatsGraphParameter {
+public class RelationGraphParameter extends AbstractGraphParameter implements StatsGraphParameter {
 
     @Max(value = 10, message = "步长不可超过10步")
     @Min(value = 1, message = "步长最小为1")

@@ -15,8 +15,9 @@ public class InduceParserUtils {
 
     public static List<AttrInduceFindRsp> attrFindItemAddMsg(List<AttrInduceFindRsp> attrInduceFindList,
                                                              Integer number) {
-        if (attrInduceFindList == null)
+        if (attrInduceFindList == null){
             return new ArrayList<>();
+        }
         attrInduceFindList = attrInduceFindList.stream().filter(s -> {
             if (number == null) {
                 return true;
@@ -45,6 +46,8 @@ public class InduceParserUtils {
                 msg = "通过同义与文本关联关系推荐,相关属性共" + count + "个";
                 tipsMsg = "合并属性";
                 break;
+            default:
+                break;
         }
         rsp.setMsg(msg);
         rsp.setTipsMsg(tipsMsg);
@@ -63,6 +66,8 @@ public class InduceParserUtils {
                 break;
             case 3:
                 msg = "通过同义与文本关联关系推荐,相关属性共" + count + "个";
+                break;
+            default:
                 break;
         }
         return msg;

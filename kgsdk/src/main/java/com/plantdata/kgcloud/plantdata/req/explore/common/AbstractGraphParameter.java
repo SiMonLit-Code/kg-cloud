@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public abstract class AbstrackGraphParameter {
+public abstract class AbstractGraphParameter {
     @ApiParam(value = "图谱名称", required = true)
     private String kgName;
     @Max(value = 10, message = "层数最多可查询10层")
