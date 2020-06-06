@@ -206,14 +206,18 @@ public class VeDateUtils {
         Date now = null;
         String quarter = "";
         try {
-            if (currentMonth >= 1 && currentMonth <= 3)
+            if (currentMonth >= 1 && currentMonth <= 3) {
                 quarter = "年第一季度";
-            else if (currentMonth >= 4 && currentMonth <= 6)
+            }
+            else if (currentMonth >= 4 && currentMonth <= 6) {
                 quarter = "年第二季度";
-            else if (currentMonth >= 7 && currentMonth <= 9)
+            }
+            else if (currentMonth >= 7 && currentMonth <= 9) {
                 quarter = "年第三季度";
-            else if (currentMonth >= 10 && currentMonth <= 12)
+            }
+            else if (currentMonth >= 10 && currentMonth <= 12) {
                 quarter = "年第四季度";
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

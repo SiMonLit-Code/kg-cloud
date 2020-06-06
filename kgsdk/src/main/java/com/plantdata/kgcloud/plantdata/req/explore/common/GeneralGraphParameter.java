@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class GeneralGraphParameter extends AbstrackGraphParameter {
+public class GeneralGraphParameter extends AbstractGraphParameter {
 
 
     private Long id;

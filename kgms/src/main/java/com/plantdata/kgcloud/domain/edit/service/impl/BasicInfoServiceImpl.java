@@ -108,6 +108,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         return RestRespConverter.convert(restResp).orElse(null);
     }
 
+    @Override
     public Long createBasicInfo(String kgName, BasicInfoReq basicInfoReq, ServiceEnum serviceEnum) {
         logSender.setActionId();
         logSender.sendLog(kgName, ServiceEnum.SCHEMA_REPO);

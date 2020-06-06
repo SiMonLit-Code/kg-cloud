@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.explore.path;
 
-import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.plantdata.req.explore.common.AbstrackGraphParameter;
+import com.plantdata.kgcloud.plantdata.req.explore.common.AbstractGraphParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.GraphStatBean;
 import com.plantdata.kgcloud.plantdata.req.explore.function.StatsGraphParameter;
 import lombok.AccessLevel;
@@ -22,7 +21,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class PathGraphParameter extends AbstrackGraphParameter implements StatsGraphParameter {
+public class PathGraphParameter extends AbstractGraphParameter implements StatsGraphParameter {
     @NotNull
     private Long start;
     @NotNull

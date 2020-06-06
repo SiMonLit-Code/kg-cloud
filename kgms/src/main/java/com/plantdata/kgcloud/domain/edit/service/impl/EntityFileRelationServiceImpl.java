@@ -84,7 +84,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         Workbook wb;
         String fileName = file.getOriginalFilename();
         // 如果是2007及以上版本，则使用想要的Workbook以及CellStyle
-        if (fileName.substring(fileName.lastIndexOf(".") + 1).equals("xlsx")) {
+        if ("xlsx".equals(fileName.substring(fileName.lastIndexOf(".") + 1))) {
             wb = new XSSFWorkbook(file.getInputStream());
             XSSFDataFormat dataFormat = (XSSFDataFormat) wb.createDataFormat();
             cellStyle = wb.createCellStyle();
@@ -427,7 +427,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             throw BizException.of(KgmsErrorCodeEnum.EXCEL_TYPE_ERROR);
         }
         String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
-        if (suffix.equals("xlsx") || suffix.equals("xls")) {
+        if ("xlsx".equals(suffix) || "xls".equals(suffix)) {
             List<LinkedHashMap<String, String>> dataList;
             try {
                 dataList = readExcel(file, indexType);

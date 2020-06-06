@@ -39,7 +39,7 @@ public class FileOptController implements SdkOpenApiInterface {
         log.debug(fileName);
 
         try {
-            if (!data.substring(0, 5).equals("data:")) {
+            if (!"data:".equals(data.substring(0, 5))) {
                 log.debug("The request did not include a valid 'data' parameter which must be a valid data-uri.\n");
                 log.debug("Received input:\n");
                 log.debug(data);
@@ -79,7 +79,7 @@ public class FileOptController implements SdkOpenApiInterface {
         }
         String mimeString = fileType != null ? fileType : "application/octet-stream";
         String fileNameString = fileName != null ? fileName : "export";
-        boolean base64Boolean = data.substring(commaIndex - 7, commaIndex).equals(";base64");
+        boolean base64Boolean = ";base64".equals(data.substring(commaIndex - 7, commaIndex));
 
         // split file name
         fileEnd = "." + fileEnd;
