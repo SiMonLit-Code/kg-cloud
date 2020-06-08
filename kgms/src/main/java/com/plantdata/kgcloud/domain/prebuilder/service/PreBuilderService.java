@@ -1,10 +1,13 @@
 package com.plantdata.kgcloud.domain.prebuilder.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.prebuilder.req.*;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderGraphMapReq;
+import com.plantdata.kgcloud.sdk.req.StandardSearchReq;
+import com.plantdata.kgcloud.sdk.rsp.StandardTemplateRsp;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -33,4 +36,6 @@ public interface PreBuilderService {
     JSONObject saveGraphMap(String userId, PreBuilderGraphMapReq preBuilderGraphMapReq);
 
     PreBuilderCountReq matchAttrCount(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq);
+
+    BasePage<StandardTemplateRsp> standardList(String userId, StandardSearchReq req);
 }
