@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.DataTypeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
@@ -35,8 +36,7 @@ import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
-import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
-import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
+import com.plantdata.kgcloud.sdk.rsp.*;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
@@ -108,6 +108,11 @@ public class PreBuilderServiceImpl implements PreBuilderService {
     @Autowired
     private FastdfsTemplate fastdfsTemplate;
 
+    private final Function<DWPrebuildModel, StandardTemplateRsp> st2rsp = (s) -> {
+        StandardTemplateRsp stRsp = new StandardTemplateRsp();
+        BeanUtils.copyProperties(s, stRsp);
+        return stRsp;
+    };
 
     private final Function<DWPrebuildAttr, PreBuilderAttrRsp> attr2rsp = (s) -> {
         PreBuilderAttrRsp attrRsp = new PreBuilderAttrRsp();
@@ -911,6 +916,48 @@ public class PreBuilderServiceImpl implements PreBuilderService {
         }
 
         return PreBuilderCountReq.builder().all(all).introduction(introduction).haveIntroduction(haveIntroduction).conflict(conflict).build();
+    }
+
+    @Override
+    public BasePage<StandardTemplateRsp> standardList(String userId, StandardSearchReq req) {
+        PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize());
+
+        Specification<DWPrebuildModel> specification = new Specification<DWPrebuildModel>() {
+            @Override
+            public Predicate toPredicate(Root<DWPrebuildModel> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+
+                List<Predicate> predicates = new ArrayList<>();
+
+                if (!StringUtils.isEmpty(req.getKw())) {
+
+                    Predicate likename = criteriaBuilder.like(root.get("name").as(String.class), "%" + req.getKw() + "%");
+                    predicates.add(likename);
+                }
+
+
+                if (!StringUtils.isEmpty(req.getModelType())) {
+
+                    Predicate modelTypeEq = criteriaBuilder.equal(root.get("modelType").as(String.class), req.getModelType());
+                    predicates.add(modelTypeEq);
+                }
+
+                //查询管理员发布公开的或者自己发布的
+                Predicate isPublic = criteriaBuilder.equal(root.get("permission").as(Integer.class), 1);
+                predicates.add(isPublic);
+
+                //只能查询发布过的
+                predicates.add(criteriaBuilder.equal(root.get("status").as(String.class),"1"));
+
+                predicates.add(criteriaBuilder.equal(root.get("isStandardTemplate").as(String.class),"1"));
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            }
+        };
+
+        Page<DWPrebuildModel> all = prebuildModelRepository.findAll(specification, pageable);
+
+        return new BasePage(all.getTotalElements(),all.stream().map(st2rsp).collect(Collectors.toList()));
+
     }
 
     private void addSchema2PreBuilder(SchemaRsp schemaRsp, Integer modelId) {
