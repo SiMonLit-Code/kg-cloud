@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.prebuilder.rsp;
+package com.plantdata.kgcloud.sdk.rsp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

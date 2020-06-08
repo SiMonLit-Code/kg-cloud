@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.prebuilder.rsp;
+package com.plantdata.kgcloud.sdk.rsp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,15 +9,17 @@ import lombok.NoArgsConstructor;
  * @program: kg-cloud-kgms
  * @description:
  * @author: czj
- * @create: 2020-04-17 17:48
+ * @create: 2020-04-17 17:50
  **/
+
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ModelRelationAttrBeanRsp {
-
+@Builder
+public class ModelAttrBeanRsp {
     private String name;
+
+    private String domain;
 
     private Integer dataType;
 
