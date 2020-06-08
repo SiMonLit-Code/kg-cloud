@@ -16,6 +16,7 @@ import com.plantdata.kgcloud.plantdata.converter.graph.GraphInitBasicConverter;
 import com.plantdata.kgcloud.plantdata.req.app.*;
 import com.plantdata.kgcloud.plantdata.req.common.KVBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
+import com.plantdata.kgcloud.plantdata.req.entity.EntityMultiModalBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import com.plantdata.kgcloud.plantdata.rsp.app.ApkBean;
@@ -25,7 +26,9 @@ import com.plantdata.kgcloud.plantdata.rsp.schema.SchemaBean;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.req.app.*;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
@@ -111,6 +114,39 @@ public class AppController implements SdkOldApiInterface {
         List<EntityProfileBean> beanList = returnFunction
                 .compose(InfoBoxConverter::infoBoxParameterMoreToBatchInfoBoxReq)
                 .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, InfoBoxConverter::infoBoxRspToEntityProfileBean)))
+                .apply(param);
+        return new RestResp<>(beanList);
+    }
+
+
+    @ApiOperation("读取知识卡片多模态文件")
+    @PostMapping("infobox/multi/modal")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "id", dataType = "long", paramType = "form", value = "实体id"),
+            @ApiImplicitParam(name = "kw", dataType = "string", paramType = "form", value = "实体名称"),
+    })
+    public RestResp<EntityMultiModalBean> infoBoxMultiModal(@Valid @ApiIgnore InfoBoxMultiModalParameter infoBoxMultiModalParameter) {
+        Function<InfoboxMultiModalReq, ApiReturn<InfoboxMultiModelRsp>> returnFunction = a -> appClient.infoBoxMultiModal(infoBoxMultiModalParameter.getKgName(), a);
+        EntityMultiModalBean entityMultiModalBean = returnFunction
+                .compose(InfoBoxConverter::infoBoxMultiModalParameterToInfoBoxReq)
+                .andThen(a -> BasicConverter.convert(a, InfoBoxConverter::infoboxMultiModelRspToEntityMultiModalBean))
+                .apply(infoBoxMultiModalParameter);
+        return new RestResp<>(entityMultiModalBean);
+    }
+
+    @ApiOperation("批量读取知识卡片多模态文件")
+    @PostMapping("infobox/multi/modal/more")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "ids", dataType = "string", paramType = "form", value = "实体id列表"),
+            @ApiImplicitParam(name = "kws", dataType = "string", paramType = "form", value = "实体名称列表"),
+    })
+    public RestResp<List<EntityMultiModalBean>> infoBoxMultiModalMore(@Valid @ApiIgnore InfoBoxMultiModalParameterMore param) {
+        Function<BatchMultiModalReqList, ApiReturn<List<InfoboxMultiModelRsp>>> returnFunction = a -> appClient.listInfoBoxMultiModal(param.getKgName(), a);
+        List<EntityMultiModalBean> beanList = returnFunction
+                .compose(InfoBoxConverter::infoBoxMultiModalMoreToBatchMultiModalReq)
+                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, InfoBoxConverter::infoboxMultiModelRspToEntityMultiModalBean)))
                 .apply(param);
         return new RestResp<>(beanList);
     }

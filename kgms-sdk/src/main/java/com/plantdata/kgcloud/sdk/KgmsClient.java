@@ -91,6 +91,7 @@ public interface KgmsClient {
      */
     @GetMapping("/config/algorithm/{kgName}")
     ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName,
+                                                      @RequestParam(value = "type", required = false, defaultValue = "1") Integer type,
                                                       @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                                                       @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
 

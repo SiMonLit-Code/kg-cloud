@@ -30,4 +30,14 @@ public interface GraphConfAlgorithmRepository extends JpaRepository<GraphConfAlg
      * @return
      */
     Page<GraphConfAlgorithm> findByKgName(String kgName, Pageable pageable);
+
+    /**
+     * 分页
+     *
+     * @param kgName
+     * @param type
+     * @param pageable
+     * @return
+     */
+    Page<GraphConfAlgorithm> findByKgNameAndType(String kgName, Integer type, Pageable pageable);
 }

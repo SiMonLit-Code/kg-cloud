@@ -32,8 +32,6 @@ public class EntityLinksRsp extends BasicEntityRsp {
     private List<EntityLinkVO> entityLinks;
     @ApiModelProperty("领域词")
     private List<DictRsp> dictList;
-    @ApiModelProperty(value = "多模态数据")
-    private List<MultiModalRsp> multiModals;
     @ApiModelProperty("知识标引")
     private List<KnowledgeIndexRsp> knowledgeIndexs;
 

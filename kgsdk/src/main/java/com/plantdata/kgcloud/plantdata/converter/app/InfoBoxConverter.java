@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.bean.EntityLink;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
+import com.plantdata.kgcloud.plantdata.req.app.InfoBoxMultiModalParameter;
+import com.plantdata.kgcloud.plantdata.req.app.InfoBoxMultiModalParameterMore;
 import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameter;
 import com.plantdata.kgcloud.plantdata.req.app.InfoBoxParameterMore;
 import com.plantdata.kgcloud.plantdata.req.common.DataLinks;
@@ -12,16 +14,15 @@ import com.plantdata.kgcloud.plantdata.req.common.KVBean;
 import com.plantdata.kgcloud.plantdata.req.common.Links;
 import com.plantdata.kgcloud.plantdata.req.common.Tag;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
+import com.plantdata.kgcloud.plantdata.req.entity.EntityMultiModalBean;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityProfileBean;
 import com.plantdata.kgcloud.plantdata.req.explore.common.EntityLinksBean;
 import com.plantdata.kgcloud.sdk.constant.EntityTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
-import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.EntityLinksRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxConceptRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.LinksRsp;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
+import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
@@ -46,6 +47,13 @@ public class InfoBoxConverter extends BasicConverter {
         return infoBoxReq;
     }
 
+    public static InfoboxMultiModalReq infoBoxMultiModalParameterToInfoBoxReq(InfoBoxMultiModalParameter infoBoxParam) {
+        InfoboxMultiModalReq infoBoxReq = new InfoboxMultiModalReq();
+        infoBoxReq.setId(infoBoxParam.getId());
+        infoBoxReq.setKw(infoBoxParam.getKw());
+        return infoBoxReq;
+    }
+
     public static BatchInfoBoxReqList infoBoxParameterMoreToBatchInfoBoxReq(@NonNull InfoBoxParameterMore parameterMore) {
         BatchInfoBoxReqList infoBoxReq = new BatchInfoBoxReqList();
         infoBoxReq.setAllowAttrs(parameterMore.getAllowAtts());
@@ -64,6 +72,18 @@ public class InfoBoxConverter extends BasicConverter {
         entityProfileBean.setPars(toListNoNull(infoBoxRsp.getParents(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
         entityProfileBean.setSons(toListNoNull(infoBoxRsp.getSons(), InfoBoxConverter::infoBoxConceptRspToEntityBean));
         return entityProfileBean;
+    }
+
+    public static EntityMultiModalBean infoboxMultiModelRspToEntityMultiModalBean(InfoboxMultiModelRsp infoboxMultiModelRsp) {
+        EntityMultiModalBean entityMultiModalBean = new EntityMultiModalBean();
+        entityMultiModalBean.setClassId(infoboxMultiModelRsp.getConceptId());
+        entityMultiModalBean.setId(infoboxMultiModelRsp.getId());
+        entityMultiModalBean.setImg(infoboxMultiModelRsp.getImgUrl());
+        entityMultiModalBean.setMeaningTag(infoboxMultiModelRsp.getMeaningTag());
+        entityMultiModalBean.setName(infoboxMultiModelRsp.getName());
+        consumerIfNoNull(infoboxMultiModelRsp.getType(), entityMultiModalBean::setType);
+        entityMultiModalBean.setMultiModals(infoboxMultiModelRsp.getMultiModals());
+        return entityMultiModalBean;
     }
 
 
@@ -86,6 +106,7 @@ public class InfoBoxConverter extends BasicConverter {
         return new KVBean<>(attrRsp.getAttrDefName(), entityBeans, attrRsp.getAttrDefId());
     }
 
+
     private static EntityLinksBean entityLinksRspToEntityLinksBean(EntityLinksRsp entityLinksRsp) {
         EntityLinksBean oldBean = new EntityLinksBean();
         oldBean.setClassId(entityLinksRsp.getConceptId());
@@ -99,7 +120,6 @@ public class InfoBoxConverter extends BasicConverter {
         List<EntityLink> entityLinks = toListNoNull(entityLinksRsp.getEntityLinks(), a -> copy(a, EntityLink.class));
         consumerIfNoNull(entityLinks, a -> oldBean.setEntityLinks(Sets.newHashSet(a)));
         oldBean.setExtra(toListNoNull(entityLinksRsp.getExtraList(), InfoBoxConverter::extraRspToExtraKVBean));
-        consumerIfNoNull(entityLinksRsp.getMultiModals(), oldBean::setMultiModals);
         consumerIfNoNull(entityLinksRsp.getKnowledgeIndexs(), oldBean::setKnowledgeIndexs);
         consumerIfNoNull(entityLinksRsp.getDictList(), oldBean::setDictList);
         return oldBean;
@@ -140,5 +160,13 @@ public class InfoBoxConverter extends BasicConverter {
         links.setScore(linksRsp.getScore());
         links.setSource(linksRsp.getSource());
         return links;
+    }
+
+    public static BatchMultiModalReqList infoBoxMultiModalMoreToBatchMultiModalReq(InfoBoxMultiModalParameterMore infoBoxMultiModalParameterMore) {
+
+        BatchMultiModalReqList multiModalReq = new BatchMultiModalReqList();
+        multiModalReq.setIds(infoBoxMultiModalParameterMore.getIds());
+        multiModalReq.setKws(infoBoxMultiModalParameterMore.getKws());
+        return multiModalReq;
     }
 }

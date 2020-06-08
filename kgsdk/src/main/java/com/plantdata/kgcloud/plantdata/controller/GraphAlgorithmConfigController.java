@@ -45,11 +45,12 @@ public class GraphAlgorithmConfigController implements SdkOldApiInterface {
     @ApiOperation("算法配置-分页")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "type", defaultValue = "1", dataType = "int", paramType = "query", value = "算法类型 1面板类 2统计类"),
             @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
             @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页最小为1"),
     })
     public RestResp<RestData<GraphBusinessAlgorithmBean>> listByPage(@Valid @ApiIgnore ListByPageParameter param) {
-        ApiReturn<BasePage<GraphConfAlgorithmRsp>> returnList = kgmsClient.select(param.getKgName(), param.getPageNo(), param.getPageSize());
+        ApiReturn<BasePage<GraphConfAlgorithmRsp>> returnList = kgmsClient.select(param.getKgName(),param.getType(), param.getPageNo(), param.getPageSize());
         RestData<GraphBusinessAlgorithmBean> restData = BasicConverter.convert(returnList,
                 a -> BasicConverter.basePageToRestData(a, GraphAlgorithmConverter::graphConfAlgorithmRspToGraphBusinessAlgorithmBean));
         return new RestResp<>(restData);

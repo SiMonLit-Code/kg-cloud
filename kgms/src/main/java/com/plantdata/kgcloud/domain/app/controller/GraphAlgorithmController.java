@@ -5,6 +5,7 @@ import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.GraphAlgorithmService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.statistic.AlgorithmStatisticeRsp;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -72,5 +73,19 @@ public class GraphAlgorithmController {
             throw BizException.of(AppErrorCodeEnum.ALGORITHM_EXECUTE_ERROR);
         }
         return ApiReturn.success(businessGraphRsp);
+    }
+
+    @PostMapping("statistics/run/{kgName}/{id}")
+    @ApiOperation("统计类业务算法算法调用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "id", required = true, dataType = "long", paramType = "form", value = "id"),
+            @ApiImplicitParam(name = "graphBean", required = true, dataType = "string", paramType = "form", value = "graphBean"),
+    })
+    public ApiReturn<AlgorithmStatisticeRsp> executeStatisticsAlgorithm(@PathVariable("kgName") String kgName,
+                                                                        @PathVariable("id") long id,
+                                                                        @Valid @RequestBody BusinessGraphRsp graphBean) {
+        AlgorithmStatisticeRsp algorithmStatisticeRsp = graphAlgorithmService.runStatistics(kgName, id, graphBean);
+        return ApiReturn.success(algorithmStatisticeRsp);
     }
 }

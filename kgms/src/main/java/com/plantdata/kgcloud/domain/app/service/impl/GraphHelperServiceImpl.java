@@ -32,6 +32,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.*;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
@@ -207,6 +208,32 @@ public class GraphHelperServiceImpl implements GraphHelperService {
 
     @Override
     public void replaceKwToId(String kgName, BatchInfoBoxReqList req) {
+        List<Long> entityIdList = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(req.getIds()) || req.getIds().get(0) == null) {
+            List<String> kws = req.getKws();
+            if (CollectionUtils.isEmpty(kws)) {
+                return;
+            }
+            for (String kw : kws) {
+                MongoQueryFrom query = new MongoQueryFrom();
+                query.setKgName(KGUtil.dbName(kgName));
+                query.setCollection("basic_info");
+                List<Map<String, Object>> mathMapList = Lists.newArrayList();
+                mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", kw)));
+                query.setQuery(mathMapList);
+                RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
+                List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
+                entityIdList.addAll(ids);
+            }
+            if (CollectionUtils.isEmpty(entityIdList)) {
+                return;
+            }
+            req.setIds(entityIdList);
+        }
+    }
+
+    @Override
+    public void replaceKwToId(String kgName, BatchMultiModalReqList req) {
         List<Long> entityIdList = Lists.newArrayList();
         if (CollectionUtils.isEmpty(req.getIds()) || req.getIds().get(0) == null) {
             List<String> kws = req.getKws();

@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfAlgorithmRe
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfAlgorithmService;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
+import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReqList;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.KgKeyGenerator;
@@ -62,10 +63,10 @@ public class GraphConfAlgorithmServiceImpl implements GraphConfAlgorithmService 
     }
 
     @Override
-    public Page<GraphConfAlgorithmRsp> findByKgName(String kgName, BaseReq baseReq) {
+    public Page<GraphConfAlgorithmRsp> findByKgName(String kgName, GraphConfAlgorithmReqList baseReq) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), sort);
-        Page<GraphConfAlgorithm> all = graphConfAlgorithmRepository.findByKgName(kgName, pageable);
+        Page<GraphConfAlgorithm> all = graphConfAlgorithmRepository.findByKgNameAndType(kgName,baseReq.getType(), pageable);
         return all.map(ConvertUtils.convert(GraphConfAlgorithmRsp.class));
     }
 

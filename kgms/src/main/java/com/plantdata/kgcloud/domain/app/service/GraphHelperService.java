@@ -7,6 +7,7 @@ import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.*;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 
@@ -62,6 +63,13 @@ public interface GraphHelperService {
      * @param req
      */
     void replaceKwToId(String kgName, BatchInfoBoxReqList req);
+
+    /**
+     * 替换知识卡片多模态文化部中实体名称 为 实体id
+     * @param kgName
+     * @param req
+     */
+    void replaceKwToId(String kgName, BatchMultiModalReqList req);
 
     /**
      * 替换知识推荐片中实体名称 为 实体id

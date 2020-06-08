@@ -24,6 +24,7 @@ public class GraphBusinessAlgorithmBean implements MarkObject {
     private String name;
     private String abs;
     private String url;
+    private Integer type;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT-5")
     private Date createTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT-5")

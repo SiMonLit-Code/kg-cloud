@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.sdk.req;
 
+import com.plantdata.kgcloud.bean.BaseReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -10,19 +11,9 @@ import lombok.Data;
  */
 @ApiModel("图谱算法设置")
 @Data
-public class GraphConfAlgorithmReq {
-
-    @ApiModelProperty("算法名称")
-    private String algorithmName;
-
-    @ApiModelProperty("接口")
-    private String algorithmUrl;
-
-    @ApiModelProperty("描述")
-    private String remark;
+public class GraphConfAlgorithmReqList extends BaseReq {
 
     @ApiModelProperty("类别 1面板类 2统计类")
     private Integer type;
-
 
 }

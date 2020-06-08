@@ -13,12 +13,11 @@ import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +91,20 @@ public class GraphApplicationController implements GraphApplicationInterface {
     public ApiReturn<InfoBoxRsp> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                          @RequestBody InfoBoxReq infoBoxReq) {
         return appClient.infoBox(kgName, infoBoxReq);
+    }
+
+    @ApiOperation(value = "批量读取知识卡片多模态文件", notes = "批量获取实体知识卡片关联的多模态文件。")
+    @PostMapping("infoBox/list/multi/modal/{kgName}")
+    public ApiReturn<List<InfoboxMultiModelRsp>> listInfoBoxMultiModal(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                                       @RequestBody @Valid BatchMultiModalReqList batchMultiModalReq)  {
+        return appClient.listInfoBoxMultiModal(kgName, batchMultiModalReq);
+    }
+
+    @ApiOperation(value = "读取知识卡片多模态文件", notes = "实体知识卡片关联的多模态文件。")
+    @PostMapping("infoBox/multi/modal/{kgName}")
+    public ApiReturn<InfoboxMultiModelRsp> infoBoxMultiModal(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                             @RequestBody @Valid InfoboxMultiModalReq infoboxMultiModalReq) {
+        return appClient.infoBoxMultiModal(kgName, infoboxMultiModalReq);
     }
 
     @ApiOperation("spa分享-查看")

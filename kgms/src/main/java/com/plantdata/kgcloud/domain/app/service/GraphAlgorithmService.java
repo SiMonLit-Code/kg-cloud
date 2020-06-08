@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.service;
 
 import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.statistic.AlgorithmStatisticeRsp;
 
 /**
  * @author cjw
@@ -10,4 +11,6 @@ import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
 public interface GraphAlgorithmService {
 
     BusinessGraphRsp run(String kgName, Long id, BusinessGraphRsp graphBean);
+
+    AlgorithmStatisticeRsp runStatistics(String kgName, long id, BusinessGraphRsp graphBean);
 }

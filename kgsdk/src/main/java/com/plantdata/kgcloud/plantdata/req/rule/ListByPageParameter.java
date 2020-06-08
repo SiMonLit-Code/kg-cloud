@@ -19,4 +19,6 @@ import javax.validation.constraints.NotBlank;
 public class ListByPageParameter extends PageModel {
     @NotBlank(message = "kgName不能为空")
     private String kgName;
+
+    private Integer type = 1;
 }

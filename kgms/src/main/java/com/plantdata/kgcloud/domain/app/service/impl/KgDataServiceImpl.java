@@ -1,6 +1,8 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
 import ai.plantdata.kg.api.edit.AttributeApi;
+import ai.plantdata.kg.api.edit.ConceptEntityApi;
+import ai.plantdata.kg.api.edit.req.BasicInfoListFrom;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.SparqlApi;
@@ -16,9 +18,11 @@ import ai.plantdata.kg.api.pub.resp.NodeBean;
 import ai.plantdata.kg.api.pub.resp.QueryResultVO;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kg.common.bean.BasicInfo;
+import cn.hiboot.mcn.core.model.result.RestResp;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.google.common.collect.Lists;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.AppConstants;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.constant.StatisticResultTypeEnum;
@@ -27,6 +31,7 @@ import com.plantdata.kgcloud.domain.app.bo.GraphRelationStatisticBO;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import com.plantdata.kgcloud.domain.app.converter.GraphStatisticConverter;
+import com.plantdata.kgcloud.domain.app.converter.TraceabilityConverter;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.app.service.KgDataService;
@@ -35,15 +40,21 @@ import com.plantdata.kgcloud.domain.app.util.PageUtils;
 import com.plantdata.kgcloud.domain.app.util.TextUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
+import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.req.app.TraceabilityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.*;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatDataRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -69,6 +80,8 @@ public class KgDataServiceImpl implements KgDataService {
     public StatisticsApi statisticsApi;
     @Autowired
     public SparqlApi sparqlApi;
+    @Autowired
+    public ConceptEntityApi conceptEntityApi;
     @Autowired
     private GraphHelperService graphHelperService;
 
@@ -225,6 +238,27 @@ public class KgDataServiceImpl implements KgDataService {
             return Collections.emptyList();
         }
         return BasicConverter.listToRsp(entityOpt.get(), EntityConverter::voToOpenEntityRsp);
+    }
+
+    @Override
+    public BasePage<OpenEntityRsp> queryEntityBySource(String kgName, TraceabilityQueryReq req) {
+        BasicInfoListFrom basicInfoListFrom = TraceabilityConverter.traceabilityToMetaDataQuery(req);
+        Integer size = req.getSize();
+        Integer page = (req.getPage() - 1) * size;
+        basicInfoListFrom.setSkip(page);
+        basicInfoListFrom.setLimit(size + 1);
+        RestResp<List<ai.plantdata.kg.api.edit.resp.EntityVO>> restResp = conceptEntityApi.list(KGUtil.dbName(kgName),
+                basicInfoListFrom);
+        Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> optional = RestRespConverter.convert(restResp);
+        List<OpenEntityRsp> basicInfoRspList =
+                optional.orElse(new ArrayList<>()).stream().map(EntityConverter::voToEditOpenEntityRsp).collect(Collectors.toList());
+        int count = basicInfoRspList.size();
+        if (count > size) {
+            basicInfoRspList.remove(size.intValue());
+            count += page;
+        }
+
+        return new BasePage<>(count,basicInfoRspList);
     }
 }
 

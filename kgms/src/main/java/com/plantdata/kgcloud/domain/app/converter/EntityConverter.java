@@ -90,6 +90,13 @@ public class EntityConverter extends BasicConverter {
         return openEntityRsp;
     }
 
+    public static OpenEntityRsp voToEditOpenEntityRsp(ai.plantdata.kg.api.edit.resp.EntityVO entityVO) {
+        OpenEntityRsp openEntityRsp = entityVoToBasicEntityRsp(entityVO, new OpenEntityRsp());
+        openEntityRsp.setConceptIdList(Lists.newArrayList(entityVO.getConceptId()));
+        openEntityRsp.setSynonyms(entityVO.getSynonyms());
+        return openEntityRsp;
+    }
+
     public static List<GraphInitRsp.GraphInitEntityRsp> entityVoToGraphInitEntityRsp(@NonNull List<EntityVO> entityList) {
         return entityList.stream().map(entity -> {
             GraphInitRsp.GraphInitEntityRsp simpleEntity = new GraphInitRsp.GraphInitEntityRsp();

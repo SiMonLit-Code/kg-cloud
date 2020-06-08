@@ -30,6 +30,9 @@ public class GraphConfAlgorithmRsp {
     @ApiModelProperty(value = "描述")
     private String remark;
 
+    @ApiModelProperty("类别 1面板类 2统计类")
+    private Integer type;
+
     @ApiModelProperty(value = "创建时间")
     private Date createAt;
 

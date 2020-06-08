@@ -5,12 +5,10 @@ import com.plantdata.kgcloud.plantdata.constant.MetaDataEnum;
 import com.plantdata.kgcloud.plantdata.req.common.Additional;
 import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
+import com.plantdata.kgcloud.plantdata.req.data.TraceabilityParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
-import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
-import com.plantdata.kgcloud.sdk.req.app.DataAttrReq;
-import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
-import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.req.app.*;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
@@ -66,6 +64,16 @@ public class EntityConverter extends BasicConverter {
         entityQueryReq.setPage(parameter.getPageNo());
         entityQueryReq.setSize(parameter.getPageSize());
         return entityQueryReq;
+    }
+
+    public static TraceabilityQueryReq traceabilityParameterToTraceabilityReq(TraceabilityParameter parameter) {
+        TraceabilityQueryReq traceabilityQueryReq = new TraceabilityQueryReq();
+        traceabilityQueryReq.setDataName(parameter.getDataName());
+        traceabilityQueryReq.setTableName(parameter.getTableName());
+        traceabilityQueryReq.setId(parameter.getId());
+        traceabilityQueryReq.setPage(parameter.getPageNo());
+        traceabilityQueryReq.setSize(parameter.getPageSize());
+        return traceabilityQueryReq;
     }
 
     public static ImportEntityBean OpenBatchSaveEntityRspToImportEntityBean(@NonNull  OpenBatchSaveEntityRsp entityRsp) {

@@ -5,8 +5,10 @@ import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.rule.BusinessGraphBean;
 import com.plantdata.kgcloud.plantdata.rsp.app.EntityBeanAnalysisa;
 import com.plantdata.kgcloud.plantdata.rsp.app.GraphAnalysisaBean;
+import com.plantdata.kgcloud.plantdata.rsp.app.statistic.AlgorithmStatisticeBean;
 import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.statistic.AlgorithmStatisticeRsp;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -23,6 +25,10 @@ public class AlgorithmConverter extends BasicConverter {
 
     public static BusinessGraphBean businessGraphRspToBean(@NonNull BusinessGraphRsp graphRsp) {
         return copy(graphRsp, BusinessGraphBean.class);
+    }
+
+    public static AlgorithmStatisticeBean algorithmStatisticeRspToBean(@NonNull AlgorithmStatisticeRsp statisticeRsp) {
+        return copy(statisticeRsp, AlgorithmStatisticeBean.class);
     }
 
     public static GraphAnalysisaBean complexGraphVisualRspToGraphAnalysisaBean(@NonNull ComplexGraphVisualRsp visualRsp) {

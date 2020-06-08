@@ -55,8 +55,8 @@ public class GraphBusinessAlgorithmController implements GraphDataObtainInterfac
 
     @ApiOperation("图谱配置-算法-获取")
     @GetMapping("{kgName}")
-    public ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, BaseReq baseReq) {
-        return kgmsClient.select(kgName, baseReq.getPage(), baseReq.getSize());
+    public ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, Integer type,BaseReq baseReq) {
+        return kgmsClient.select(kgName,type, baseReq.getPage(), baseReq.getSize());
     }
 
     @ApiOperation("图谱配置-算法-详情")

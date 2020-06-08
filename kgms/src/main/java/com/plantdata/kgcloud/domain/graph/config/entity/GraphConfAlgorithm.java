@@ -46,6 +46,10 @@ public class GraphConfAlgorithm {
     private String remark;
 
     @Basic
+    @Column(name = "type")
+    private Integer type;
+
+    @Basic
     @Column(name = "create_at", updatable = false)
     @CreatedDate
     private Date createAt;

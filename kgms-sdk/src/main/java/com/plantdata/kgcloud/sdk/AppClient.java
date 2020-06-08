@@ -24,7 +24,9 @@ import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReqLis
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationTimingAnalysisReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
@@ -37,13 +39,10 @@ import com.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.*;
+import com.plantdata.kgcloud.sdk.rsp.app.statistic.AlgorithmStatisticeRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -95,6 +94,21 @@ public interface AppClient {
     @PostMapping("infoBox/{kgName}")
     ApiReturn<InfoBoxRsp> infoBox(@PathVariable("kgName") String kgName,
                                   @RequestBody InfoBoxReq infoBoxReq);
+
+    /**
+     * 批量读取知识卡片多模态文件
+     *
+     * @param kgName          kgName
+     * @param batchMultiModalReq batchReq
+     * @return .
+     */
+    @PostMapping("infoBox/list/multi/modal/{kgName}")
+    ApiReturn<List<InfoboxMultiModelRsp>> listInfoBoxMultiModal(@PathVariable("kgName") String kgName,
+                                                                       @RequestBody BatchMultiModalReqList batchMultiModalReq);
+
+    @PostMapping("infoBox/multi/modal/{kgName}")
+    ApiReturn<InfoboxMultiModelRsp> infoBoxMultiModal(@PathVariable("kgName") String kgName,
+                                                             @RequestBody InfoboxMultiModalReq infoboxMultiModalReq);
 
     /**
      * 复杂算法分析 可视化
@@ -201,6 +215,19 @@ public interface AppClient {
     ApiReturn<BusinessGraphRsp> executeAlgorithm(@PathVariable("kgName") String kgName,
                                     @PathVariable("id") long id,
                                     @RequestBody BusinessGraphRsp graphBean);
+
+    /**
+     * 统计业务 算法调用
+     *
+     * @param kgName    kgName
+     * @param id        long
+     * @param graphBean 。。
+     * @return 。。
+     */
+    @PostMapping("algorithm/statistics/run/{kgName}/{id}")
+    ApiReturn<AlgorithmStatisticeRsp> executeStatisticsAlgorithm(@PathVariable("kgName") String kgName,
+                                                                 @PathVariable("id") long id,
+                                                                 @Valid @RequestBody BusinessGraphRsp graphBean);
 
     /**
      * 初始化图探索焦点

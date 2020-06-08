@@ -6,8 +6,10 @@ import com.plantdata.kgcloud.plantdata.converter.algorithm.AlgorithmConverter;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.app.GraphBusinessAlgorithmRequestRun;
 import com.plantdata.kgcloud.plantdata.req.rule.BusinessGraphBean;
+import com.plantdata.kgcloud.plantdata.rsp.app.statistic.AlgorithmStatisticeBean;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.statistic.AlgorithmStatisticeRsp;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -43,6 +45,23 @@ public class GraphAlgorithmAppController implements SdkOldApiInterface{
         BusinessGraphBean graphBean = returnFunction
                 .compose(AlgorithmConverter::businessGraphBeanToRsp)
                 .andThen(a -> BasicConverter.convert(a, AlgorithmConverter::businessGraphRspToBean))
+                .apply(param.getGraphBean());
+        return new RestResp<>(graphBean);
+    }
+
+    @PostMapping("statistics/run")
+    @ApiOperation("统计业务算法算法调用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "id", required = true, dataType = "int", paramType = "form", value = "id"),
+            @ApiImplicitParam(name = "graphBean", required = true, dataType = "string", paramType = "form", value = "graphBean"),
+    })
+    public RestResp<AlgorithmStatisticeBean> statisticsRun(@Valid @ApiIgnore GraphBusinessAlgorithmRequestRun param) {
+
+        Function<BusinessGraphRsp, ApiReturn<AlgorithmStatisticeRsp>> returnFunction = a -> appClient.executeStatisticsAlgorithm(param.getKgName(), param.getId(), a);
+        AlgorithmStatisticeBean graphBean = returnFunction
+                .compose(AlgorithmConverter::businessGraphBeanToRsp)
+                .andThen(a -> BasicConverter.convert(a, AlgorithmConverter::algorithmStatisticeRspToBean))
                 .apply(param.getGraphBean());
         return new RestResp<>(graphBean);
     }

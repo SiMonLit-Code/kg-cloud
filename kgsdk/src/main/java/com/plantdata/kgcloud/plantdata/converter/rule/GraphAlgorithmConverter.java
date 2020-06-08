@@ -21,6 +21,7 @@ public class GraphAlgorithmConverter extends BasicConverter {
         algorithmBean.setName(algorithmRsp.getAlgorithmName());
         algorithmBean.setUpdateTime(algorithmRsp.getUpdateAt());
         algorithmBean.setUrl(algorithmRsp.getAlgorithmUrl());
+        algorithmBean.setType(algorithmRsp.getType());
         return algorithmBean;
     }
 
@@ -29,6 +30,7 @@ public class GraphAlgorithmConverter extends BasicConverter {
         algorithmReq.setAlgorithmName(algorithmBean.getName());
         algorithmReq.setAlgorithmUrl(algorithmBean.getUrl());
         algorithmReq.setRemark(algorithmBean.getUrl());
+        algorithmReq.setType(algorithmBean.getType());
         return algorithmReq;
     }
 }

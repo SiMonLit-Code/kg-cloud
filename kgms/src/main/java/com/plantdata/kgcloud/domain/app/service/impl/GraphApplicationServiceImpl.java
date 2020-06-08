@@ -4,7 +4,6 @@ import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.GraphApi;
 import ai.plantdata.kg.api.edit.req.BasicDetailFilter;
-import ai.plantdata.kg.api.edit.req.RelationListFrom;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.EntityApi;
@@ -25,7 +24,6 @@ import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
 import com.plantdata.kgcloud.domain.edit.service.DomainDictService;
@@ -43,22 +41,19 @@ import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
 import com.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.DataLinkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.DictRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -66,7 +61,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -266,7 +260,6 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 BasicConverter.consumerIfNoNull(entity.getAttrValue(),
                         a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
-            Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(kgName, entityIds);
             Map<Long, List<KnowledgeIndexRsp>> indexMap = basicInfoService.listKnowledgeIndexs(kgName, entityIds);
             //查询对象属性
             Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
@@ -283,7 +276,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 }));
             }
             BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
-                    a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()), indexMap.get(a.getId()),
+                    a -> InfoBoxConverter.entityToInfoBoxRsp(a,indexMap.get(a.getId()),
                             positiveMap.get(a.getId()), reverseMap.get(a.getId()))), infoBoxRspList::addAll);
 
         });
@@ -313,5 +306,41 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         List<ComplexGraphVisualRsp.CoordinatesEntityRsp> entityRspList = BasicConverter.listConvert(entityOpt.get(), a -> ComplexGraphAnalysisConverter.entityVoToCoordinatesEntityRsp(a, conceptIdMap, dataMap.get(a.getId())));
         visualRsp.setEntityList(entityRspList);
         return visualRsp;
+    }
+
+    @Override
+    public InfoboxMultiModelRsp infoBoxMultiModal(String kgName, String userId, InfoboxMultiModalReq infoboxMultiModalReq) {
+        BatchMultiModalReqList batchMultiModalReq = new BatchMultiModalReqList();
+        batchMultiModalReq.setIds(Lists.newArrayList(infoboxMultiModalReq.getId()));
+        batchMultiModalReq.setKws(Lists.newArrayList(infoboxMultiModalReq.getKw()));
+        List<InfoboxMultiModelRsp> list = listInfoBoxMultiModal(kgName, batchMultiModalReq);
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+        InfoboxMultiModelRsp infoBoxRsp = list.get(0);
+        return infoBoxRsp;
+    }
+
+    @Override
+    public List<InfoboxMultiModelRsp> listInfoBoxMultiModal(String kgName, BatchMultiModalReqList req) {
+
+        List<InfoboxMultiModelRsp> infoboxMultiModelRspList = Lists.newArrayList();
+        // 判断id是否为空，为空用实体名称查询
+        graphHelperService.replaceKwToId(kgName,req);
+
+        //实体
+        BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxMultiModalReqToBasicDetailFilter(req);
+        Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
+
+        entityListOpt.ifPresent(entityList ->
+        {
+            List<Long> entityIds = entityList.stream().map(ai.plantdata.kg.api.edit.resp.EntityVO::getId).collect(Collectors.toList());
+
+            Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(kgName, entityIds);
+            BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
+                    a -> InfoBoxConverter.entityToInfoBoxMultiModelRsp(a, map.get(a.getId()))), infoboxMultiModelRspList::addAll);
+
+        });
+        return infoboxMultiModelRspList;
     }
 }

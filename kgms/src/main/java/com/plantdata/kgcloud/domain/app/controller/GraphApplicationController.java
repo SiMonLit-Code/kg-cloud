@@ -12,16 +12,13 @@ import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
@@ -95,6 +92,22 @@ public class GraphApplicationController implements GraphAppInterface {
     public ApiReturn<InfoBoxRsp> infoBox(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                          @RequestBody @Valid InfoBoxReq infoBoxReq) throws IOException {
         return ApiReturn.success(graphApplicationService.infoBox(kgName, SessionHolder.getUserId(), infoBoxReq));
+    }
+
+
+    @ApiOperation("批量读取多模态文件")
+    @PostMapping("infoBox/list/multi/modal/{kgName}")
+    public ApiReturn<List<InfoboxMultiModelRsp>> listInfoBoxMultiModal(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                   @RequestBody @Valid BatchMultiModalReqList batchMultiModalReq) {
+        return ApiReturn.success(graphApplicationService.listInfoBoxMultiModal(kgName, batchMultiModalReq));
+    }
+
+
+    @ApiOperation("读取实体多模态文件")
+    @PostMapping("infoBox/multi/modal/{kgName}")
+    public ApiReturn<InfoboxMultiModelRsp> infoBoxMultiModal(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                             @RequestBody @Valid InfoboxMultiModalReq infoboxMultiModalReq) throws IOException {
+        return ApiReturn.success(graphApplicationService.infoBoxMultiModal(kgName, SessionHolder.getUserId(), infoboxMultiModalReq));
     }
 
     @ApiOperation("复杂图分析-可视化展示")

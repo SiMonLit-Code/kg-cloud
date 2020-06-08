@@ -8,13 +8,12 @@ import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
+import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
+import com.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.ApkRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.InfoBoxRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 
 import javax.validation.Valid;
@@ -109,4 +108,8 @@ public interface GraphApplicationService {
      * @return .
      */
     ComplexGraphVisualRsp complexGraphVisual(String kgName, ComplexGraphVisualReq analysisReq);
+
+    InfoboxMultiModelRsp infoBoxMultiModal(String kgName, String userId, InfoboxMultiModalReq infoboxMultiModalReq);
+
+    List<InfoboxMultiModelRsp> listInfoBoxMultiModal(String kgName, BatchMultiModalReqList batchMultiModalReq);
 }

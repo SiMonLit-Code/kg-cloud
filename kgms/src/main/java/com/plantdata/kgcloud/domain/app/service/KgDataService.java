@@ -1,10 +1,14 @@
 package com.plantdata.kgcloud.domain.app.service;
 
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
+import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.req.app.TraceabilityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.*;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.EdgeStatisticByEntityIdRsp;
+import org.springframework.data.domain.Page;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -85,4 +89,6 @@ public interface KgDataService {
      * @return
      */
     List<OpenEntityRsp> queryEntityByNameAndMeaningTag(String kgName, List<EntityQueryWithConditionReq> conditionReqs);
+
+    BasePage<OpenEntityRsp> queryEntityBySource(String kgName, TraceabilityQueryReq req);
 }

@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.domain.graph.config.service;
 
 import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
+import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReqList;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
 import org.springframework.data.domain.Page;
 
@@ -43,7 +44,7 @@ public interface GraphConfAlgorithmService {
      * @param baseReq
      * @return
      */
-    Page<GraphConfAlgorithmRsp> findByKgName(String kgName, BaseReq baseReq);
+    Page<GraphConfAlgorithmRsp> findByKgName(String kgName, GraphConfAlgorithmReqList baseReq);
 
     /**
      * 详情

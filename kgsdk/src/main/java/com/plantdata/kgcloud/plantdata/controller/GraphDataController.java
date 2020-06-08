@@ -3,24 +3,14 @@ package com.plantdata.kgcloud.plantdata.controller;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import com.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
 import com.plantdata.kgcloud.plantdata.bean.ImportRelationBean;
+import com.plantdata.kgcloud.plantdata.bean.rule.RuleBean;
 import com.plantdata.kgcloud.plantdata.converter.common.*;
-import com.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
-import com.plantdata.kgcloud.plantdata.req.data.ConceptParameter;
-import com.plantdata.kgcloud.plantdata.req.data.DelectEntityParameter;
-import com.plantdata.kgcloud.plantdata.req.data.DelectRelationParameter;
-import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
-import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
-import com.plantdata.kgcloud.plantdata.req.data.EntityInsertParameter;
-import com.plantdata.kgcloud.plantdata.req.data.ImportAttributeParameter;
-import com.plantdata.kgcloud.plantdata.req.data.ImportEntityParameter;
-import com.plantdata.kgcloud.plantdata.req.data.ImportRelationParameter;
-import com.plantdata.kgcloud.plantdata.req.data.InsertConceptParameter;
-import com.plantdata.kgcloud.plantdata.req.data.QueryRelationParameter;
-import com.plantdata.kgcloud.plantdata.req.data.UpdataConceptParameter;
-import com.plantdata.kgcloud.plantdata.req.data.UpdataRelationParameter;
+import com.plantdata.kgcloud.plantdata.converter.semantic.ReasonConverter;
+import com.plantdata.kgcloud.plantdata.req.data.*;
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import com.plantdata.kgcloud.plantdata.rsp.data.RelationBeanScore;
 import com.plantdata.kgcloud.plantdata.rsp.data.TreeBean;
@@ -32,6 +22,7 @@ import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
+import com.plantdata.kgcloud.sdk.req.app.TraceabilityQueryReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
@@ -40,6 +31,7 @@ import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
@@ -54,6 +46,7 @@ import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -411,5 +404,25 @@ public class GraphDataController implements SdkOldApiInterface {
     })
     public RestResp<Object> execQl(@ApiParam(required = true) @NotBlank @RequestParam("query") String query) {
         return new RestResp<>(editClient.executeQl(new KgqlReq(query)));
+    }
+
+
+    @ApiOperation(value = "根据溯源信息查实体", notes = "根据溯源信息查实体。")
+    @PostMapping("data/source/entity/query")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "form", value = "图谱名称"),
+            @ApiImplicitParam(name = "dataName", required = true, dataType = "string", paramType = "form", value = "数仓标识"),
+            @ApiImplicitParam(name = "tableName", required = true, dataType = "string", paramType = "form", value = "表标识"),
+            @ApiImplicitParam(name = "id", required = true, dataType = "string", paramType = "form", value = "数据id"),
+            @ApiImplicitParam(name = "pageNo", defaultValue = "1", dataType = "int", paramType = "query", value = "分页页码最小值为1"),
+            @ApiImplicitParam(name = "pageSize", defaultValue = "10", dataType = "int", paramType = "query", value = "分页每页数量默认10")
+    })
+    public RestResp<RestData<ImportEntityBean>> queryEntityBySource(@Valid @ApiIgnore TraceabilityParameter param) {
+        TraceabilityQueryReq traceabilityQueryReq = EntityConverter.traceabilityParameterToTraceabilityReq(param);
+        ApiReturn<BasePage<OpenEntityRsp>> apiReturn = kgDataClient.queryEntityBySource(param.getKgName(), traceabilityQueryReq);
+
+        RestData<ImportEntityBean> restData = BasicConverter.convert(apiReturn,
+                a -> BasicConverter.basePageToRestData(a, EntityConverter::openEntityRspToImportEntityBean));
+        return new RestResp<>(restData);
     }
 }
