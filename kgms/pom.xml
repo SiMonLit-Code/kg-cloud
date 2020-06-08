@@ -167,7 +167,7 @@
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <configuration>
-                            <excludeGroupIds>
+                            <!--<excludeGroupIds>
                                 org.projectlombok,
                                 io.springfox
                             </excludeGroupIds>
@@ -176,7 +176,7 @@
                                     <groupId>com.plantdata</groupId>
                                     <artifactId>kg-cloud-swagger</artifactId>
                                 </exclude>
-                            </excludes>
+                            </excludes>-->
                         </configuration>
                     </plugin>
                 </plugins>
