@@ -960,6 +960,20 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
     }
 
+    @Override
+    public List<StandardTemplateRsp> findIds(List<Integer> ids) {
+
+        if(ids == null || ids.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        List<DWPrebuildModel> all = prebuildModelRepository.findAllById(ids);
+        if(all == null || all.isEmpty()){
+            return Lists.newArrayList();
+        }
+        return all.stream().map(st2rsp).collect(Collectors.toList());
+    }
+
     private void addSchema2PreBuilder(SchemaRsp schemaRsp, Integer modelId) {
 
         List<BaseConceptRsp> conceptRsps = schemaRsp.getTypes();
