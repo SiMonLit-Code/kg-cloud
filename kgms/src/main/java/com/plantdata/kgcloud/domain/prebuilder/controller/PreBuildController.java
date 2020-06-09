@@ -13,6 +13,7 @@ import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.prebuilder.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.sdk.req.StandardSearchReq;
+import com.plantdata.kgcloud.sdk.rsp.StandardTemplateRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -97,7 +98,7 @@ public class PreBuildController {
 
     @ApiOperation("预构建模式-根据id查找模式")
     @PostMapping("/find/ids")
-    public ApiReturn findIds(@RequestBody List<Integer> ids) {
+    public ApiReturn<List<StandardTemplateRsp>> findIds(@RequestBody List<Integer> ids) {
         return ApiReturn.success(preBuilderService.findIds(ids));
     }
 
