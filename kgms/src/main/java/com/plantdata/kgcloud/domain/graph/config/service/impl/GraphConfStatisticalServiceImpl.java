@@ -46,10 +46,11 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
     public GraphConfStatisticalRsp createStatistical(String kgName, GraphConfStatisticalReq req) {
         GraphConfStatistical targe = new GraphConfStatistical();
         BeanUtils.copyProperties(req, targe);
+        targe.setStatisType(req.getStatisticType());
         String strStatisRule = JacksonUtils.writeValueAsString(req.getStatisticRule());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strStatisRule);
-        if (!jsonNode.isPresent()){
-            throw  BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
+        if (!jsonNode.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
         }
         targe.setStatisRule(jsonNode.get());
         targe.setId(kgKeyGenerator.getNextId());
@@ -67,11 +68,12 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         for (GraphConfStatisticalReq req : listReq) {
             GraphConfStatistical targe = new GraphConfStatistical();
             BeanUtils.copyProperties(req, targe);
+            targe.setStatisType(req.getStatisticType());
             targe.setId(kgKeyGenerator.getNextId());
             String strStatisRule = JacksonUtils.writeValueAsString(req.getStatisticRule());
             Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strStatisRule);
-            if (!jsonNode.isPresent()){
-                throw  BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
+            if (!jsonNode.isPresent()) {
+                throw BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
             }
             targe.setStatisRule(jsonNode.get());
             list.add(targe);
@@ -89,10 +91,11 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
         GraphConfStatistical graphConfStatistical = graphConfStatisticalRepository.findById(id)
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.CONF_STATISTICAL_NOT_EXISTS));
         BeanUtils.copyProperties(req, graphConfStatistical);
+        graphConfStatistical.setStatisType(req.getStatisticType());
         String strStatisRule = JacksonUtils.writeValueAsString(req.getStatisticRule());
         Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strStatisRule);
-        if (!jsonNode.isPresent()){
-            throw  BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
+        if (!jsonNode.isPresent()) {
+            throw BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
         }
         graphConfStatistical.setStatisRule(jsonNode.get());
         GraphConfStatistical save = graphConfStatisticalRepository.save(graphConfStatistical);
@@ -117,10 +120,11 @@ public class GraphConfStatisticalServiceImpl implements GraphConfStatisticalServ
                 throw BizException.of(KgmsErrorCodeEnum.CONF_STATISTICALID_NOT_EXISTS);
             }
             BeanUtils.copyProperties(req, confStatisticalMap.get(req.getId()));
+            confStatisticalMap.get(req.getId()).setStatisType(req.getStatisticType());
             String strStatisRule = JacksonUtils.writeValueAsString(req.getStatisticRule());
             Optional<JsonNode> jsonNode = JsonUtils.parseJsonNode(strStatisRule);
             if (!jsonNode.isPresent()) {
-                throw  BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
+                throw BizException.of(KgmsErrorCodeEnum.CONF_QUERYSETTING_ERROR);
             }
             confStatisticalMap.get(req.getId()).setStatisRule(jsonNode.get());
             statisticalArrayList.add(confStatisticalMap.get(req.getId()));

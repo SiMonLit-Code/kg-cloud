@@ -14,7 +14,6 @@ import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.*;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
-import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
@@ -25,13 +24,11 @@ import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import com.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.exception.SystemException;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
@@ -266,7 +263,16 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String importRdf(String kgName, MultipartFile file, String userId, String format) {
-        return handleUploadError(rdfApi.importRdf(KGUtil.dbName(kgName),format, userId,  file));
+        String filename = file.getOriginalFilename();
+        String suffix = filename.substring(filename.lastIndexOf(".") + 1);
+        // 文件校验
+        if (("RDF/XML".equals(format) && "rdf".equals(suffix))
+                || ("N-TRIPLES".equals(format) && "nt".equals(suffix))
+                || ("TURTLE".equals(format) && "ttl".equals(suffix))
+                || ("N3".equals(format) && "n3".equals(suffix))) {
+            return handleUploadError(rdfApi.importRdf(KGUtil.dbName(kgName), format, userId, file));
+        }
+        throw BizException.of(KgmsErrorCodeEnum.FILE_TYPE_ERROR);
     }
 
     @Override
@@ -438,9 +444,9 @@ public class ImportServiceImpl implements ImportService {
      */
     private String handleUploadError(ResponseEntity<byte[]> body) {
         if (!body.getStatusCode().equals(HttpStatus.CREATED)) {
-            RestResp restResp = JSON.parseObject(new String(body.getBody()),RestResp.class);
-            if(restResp != null && restResp.getActionStatus() == RestResp.ActionStatusMethod.FAIL){
-                throw new BizException(KgmsErrorCodeEnum.FILE_IMPORT_ERROR.getErrorCode(),restResp.getErrorInfo());
+            RestResp restResp = JSON.parseObject(new String(body.getBody()), RestResp.class);
+            if (restResp != null && restResp.getActionStatus() == RestResp.ActionStatusMethod.FAIL) {
+                throw new BizException(KgmsErrorCodeEnum.FILE_IMPORT_ERROR.getErrorCode(), restResp.getErrorInfo());
             }
             throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
         }
