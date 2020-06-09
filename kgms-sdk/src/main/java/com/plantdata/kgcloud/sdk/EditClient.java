@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.req.EdgeAttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -22,6 +23,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -262,4 +264,10 @@ public interface EditClient {
      */
     @PostMapping("basic/{kgName}/list/name")
     ApiReturn<List<SimpleBasicRsp>> listNames(@PathVariable("kgName") String kgName, @RequestBody List<String> names);
+
+    @ApiOperation("属性定义-边属性定义-添加")
+    @PostMapping("/{kgName}/{attrId}/edge/definition")
+    ApiReturn<Integer> addEdgeAttr(@PathVariable("kgName") String kgName,
+                                   @PathVariable("attrId") Integer attrId,
+                                   @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq);
 }
