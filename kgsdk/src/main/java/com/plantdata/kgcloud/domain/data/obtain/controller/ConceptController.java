@@ -57,6 +57,6 @@ public class ConceptController implements GraphDataObtainInterface {
     @DeleteMapping("{kgName}/{conceptId}")
     public ApiReturn deleteConcept(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                    @ApiParam(value = "概念id", required = true) @PathVariable("conceptId") Long conceptId) {
-        return editClient.deleteConcept(kgName, conceptId);
+        return editClient.deleteConcept(kgName, conceptId,false);
     }
 }
