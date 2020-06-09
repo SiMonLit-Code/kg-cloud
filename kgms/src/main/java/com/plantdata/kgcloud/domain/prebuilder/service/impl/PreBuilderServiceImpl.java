@@ -173,10 +173,9 @@ public class PreBuilderServiceImpl implements PreBuilderService {
 
         PageRequest pageable = PageRequest.of(req.getPage() - 1, req.getSize(),SortUtil.buildSort(req.getSorts()));
 
-        if (!req.isGraph() && !req.isManage() && !req.isUser() && !req.isDw()) {
+        if (!req.isManage() && !req.isUser()) {
             return Page.empty();
         }
-
 
         Specification<DWPrebuildModel> specification = new Specification<DWPrebuildModel>() {
             @Override
@@ -191,13 +190,6 @@ public class PreBuilderServiceImpl implements PreBuilderService {
                 }
 
                 List<Predicate> tags = new ArrayList<>();
-                if (req.isDw()) {
-                    tags.add(criteriaBuilder.isNotNull(root.get("databaseId")));
-                }
-
-                if (req.isGraph()) {
-                    tags.add(criteriaBuilder.isNull(root.get("databaseId")));
-                }
 
                 if (req.isManage()) {
                     tags.add(criteriaBuilder.equal(root.get("username").as(String.class), "admin"));
