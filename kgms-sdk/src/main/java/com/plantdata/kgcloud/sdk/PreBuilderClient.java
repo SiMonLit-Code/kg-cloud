@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author cjw
+ * @author czj
  * @version 1.0
- * @date 2019/12/27 10:59
+ * @date 2020/6/8 10:59
  */
 @FeignClient(value = "kgms", path = "builder/", contextId = "preBuilderClient")
 public interface PreBuilderClient {
@@ -36,5 +36,15 @@ public interface PreBuilderClient {
      * @return
      */
     @PostMapping("/standard/list")
-    public ApiReturn standardList(@RequestBody StandardSearchReq req) ;
+    ApiReturn standardList(@RequestBody StandardSearchReq req) ;
+
+
+    /**
+     * 模式获取
+     *
+     * @param ids
+     * @return
+     */
+    @PostMapping("/find/ids")
+    ApiReturn findIds(@RequestBody List<Integer> ids);
 }

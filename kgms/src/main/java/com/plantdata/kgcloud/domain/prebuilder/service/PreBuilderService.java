@@ -38,4 +38,6 @@ public interface PreBuilderService {
     PreBuilderCountReq matchAttrCount(String userId, PreBuilderMatchAttrReq preBuilderMatchAttrReq);
 
     BasePage<StandardTemplateRsp> standardList(String userId, StandardSearchReq req);
+
+    List<StandardTemplateRsp> findIds(List<Integer> ids);
 }

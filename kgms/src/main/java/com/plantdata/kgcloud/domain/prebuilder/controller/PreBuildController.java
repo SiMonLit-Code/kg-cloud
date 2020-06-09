@@ -94,4 +94,11 @@ public class PreBuildController {
         return ApiReturn.success();
     }
 
+
+    @ApiOperation("预构建模式-根据id查找模式")
+    @PostMapping("/find/ids")
+    public ApiReturn findIds(@RequestBody List<Integer> ids) {
+        return ApiReturn.success(preBuilderService.findIds(ids));
+    }
+
 }
