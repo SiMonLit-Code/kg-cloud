@@ -17,6 +17,9 @@ public class PreBuilderMatchAttrReq extends BaseHandlerReq {
     @ApiModelProperty("要引入的模式id")
     private Integer modelId;
 
+    @ApiModelProperty("模式类型 kg dw")
+    private String schemaType;
+
     @ApiModelProperty("已经引入的概念id集合")
     private List<Integer> conceptIds;
 
