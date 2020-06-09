@@ -42,6 +42,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -72,6 +73,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     private FileDataService fileDataService;
     @Autowired
     private GraphRepository graphRepository;
+
+    @Value("${mongo.prefix:}")
+    private String mongoPrefix;
 
 
     public static List<LinkedHashMap<String, String>> readExcel(MultipartFile file, Integer indexType) throws IOException {
@@ -165,7 +169,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
     }
 
     private MongoCollection<Document> getFileCollection() {
-        return mongoClient.getDatabase(FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
+        return mongoClient.getDatabase(mongoPrefix + FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
     }
 
     private MongoDatabase getDatabase() {
@@ -311,7 +315,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
             try {
                 KGUtil.dbName(kgName);
                 getRelationCollection(kgName).deleteMany(Filters.eq("fileId", new ObjectId(fileId)));
-            }catch (BizException e){
+            } catch (BizException e) {
             }
         }
     }

@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.prebuilder.converter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.plantdata.kgcloud.domain.prebuilder.rsp.TableKtrRsp;
+import com.plantdata.kgcloud.sdk.rsp.TableKtrRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 
 import javax.persistence.AttributeConverter;

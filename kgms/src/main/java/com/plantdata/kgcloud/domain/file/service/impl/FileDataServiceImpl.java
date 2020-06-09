@@ -23,6 +23,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -52,8 +53,12 @@ public class FileDataServiceImpl implements FileDataService {
     @Autowired
     private EntityFileRelationService entityFileRelationService;
 
+
+    @Value("${mongo.prefix:}")
+    private String mongoPrefix;
+
     private MongoCollection<Document> getFileCollection() {
-        return mongoClient.getDatabase(FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
+        return mongoClient.getDatabase(mongoPrefix+FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
     }
 
     private final Function<FileData, FileDataRsp> fileData2rsp = (s) -> {

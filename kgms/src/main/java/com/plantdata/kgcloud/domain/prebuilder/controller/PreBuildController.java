@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.prebuilder.service.PreBuilderService;
 import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderGraphMapReq;
+import com.plantdata.kgcloud.sdk.req.StandardSearchReq;
 import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +36,13 @@ public class PreBuildController {
     public ApiReturn findModel(@RequestBody PreBuilderSearchReq preBuilderSearchReq) {
         String userId = SessionHolder.getUserId();
         return ApiReturn.success(preBuilderService.findModel(userId, preBuilderSearchReq));
+    }
+
+    @ApiOperation("预构建模式-查找行业标准模式")
+    @PostMapping("/standard/list")
+    public ApiReturn standardList(@RequestBody StandardSearchReq req) {
+        String userId = SessionHolder.getUserId();
+        return ApiReturn.success(preBuilderService.standardList(userId, req));
     }
 
     @ApiOperation("预构建模式-匹配属性统计")
