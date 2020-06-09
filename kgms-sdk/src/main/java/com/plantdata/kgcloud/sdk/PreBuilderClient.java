@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.sdk.req.ReasoningQueryReq;
 import com.plantdata.kgcloud.sdk.req.StandardSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
 import com.plantdata.kgcloud.sdk.rsp.ReasoningRsp;
+import com.plantdata.kgcloud.sdk.rsp.StandardTemplateRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
@@ -46,5 +47,5 @@ public interface PreBuilderClient {
      * @return
      */
     @PostMapping("/find/ids")
-    ApiReturn findIds(@RequestBody List<Integer> ids);
+    ApiReturn<List<StandardTemplateRsp>> findIds(@RequestBody List<Integer> ids);
 }
