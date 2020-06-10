@@ -17,12 +17,7 @@ import com.plantdata.kgcloud.sdk.req.edit.PrivateAttrDataReq;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
-import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
-import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
-import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -270,4 +265,9 @@ public interface EditClient {
     ApiReturn<Integer> addEdgeAttr(@PathVariable("kgName") String kgName,
                                    @PathVariable("attrId") Integer attrId,
                                    @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq);
+
+    @ApiOperation("获取概念树")
+    @PostMapping("/concept/{kgName}/{conceptId}/tree")
+    ApiReturn<List<BasicInfoVO>> getConceptTree(@PathVariable("kgName") String kgName,
+                                                @PathVariable("conceptId") Long conceptId);
 }
