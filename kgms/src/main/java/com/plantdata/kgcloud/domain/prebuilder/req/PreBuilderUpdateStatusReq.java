@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.prebuilder.req;
 
 import com.plantdata.kgcloud.domain.prebuilder.aop.BaseHandlerReq;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import lombok.Data;
  * @create: 2020-06-10 15:50
  **/
 @Data
+@ApiModel("预构建模式状态")
 public class PreBuilderUpdateStatusReq extends BaseHandlerReq {
 
 

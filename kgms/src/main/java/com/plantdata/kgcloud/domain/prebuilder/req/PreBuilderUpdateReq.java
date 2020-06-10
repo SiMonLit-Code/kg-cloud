@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.prebuilder.req;
 
 import com.plantdata.kgcloud.domain.prebuilder.aop.DefaultHandlerReq;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import lombok.Data;
  * @create: 2020-03-24 22:05
  **/
 @Data
+@ApiModel("预构建模式编辑")
 public class PreBuilderUpdateReq extends DefaultHandlerReq {
 
     @ApiModelProperty("行业类别")
