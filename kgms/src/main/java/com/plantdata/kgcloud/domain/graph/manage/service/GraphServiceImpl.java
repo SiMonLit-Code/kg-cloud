@@ -157,13 +157,13 @@ public class GraphServiceImpl implements GraphService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public GraphRsp createDefault(String userId) {
-        String kgName = userId + JOIN + GRAPH_PREFIX + JOIN + "default";
+        String kgName = mongoPrefix + userId + JOIN + GRAPH_PREFIX + JOIN + "default";
         String dbName = kgName;
         GraphPk graphPk = new GraphPk(userId, kgName);
         Optional<Graph> one = graphRepository.findById(graphPk);
         return one.map(ConvertUtils.convert(GraphRsp.class)).orElseGet(() -> {
                     CopyGraphFrom copyGraphFrom = new CopyGraphFrom();
-                    copyGraphFrom.setSourceKgName("default_graph");
+                    copyGraphFrom.setSourceKgName(mongoPrefix + "default_graph");
                     copyGraphFrom.setTargetKgName(dbName);
                     RestRespConverter.convertVoid(graphApi.copy(copyGraphFrom));
                     Graph target = new Graph();
