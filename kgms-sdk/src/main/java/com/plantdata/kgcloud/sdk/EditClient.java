@@ -266,7 +266,7 @@ public interface EditClient {
     ApiReturn<List<SimpleBasicRsp>> listNames(@PathVariable("kgName") String kgName, @RequestBody List<String> names);
 
     @ApiOperation("属性定义-边属性定义-添加")
-    @PostMapping("/{kgName}/{attrId}/edge/definition")
+    @PostMapping("/attribute/{kgName}/{attrId}/edge/definition")
     ApiReturn<Integer> addEdgeAttr(@PathVariable("kgName") String kgName,
                                    @PathVariable("attrId") Integer attrId,
                                    @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq);
