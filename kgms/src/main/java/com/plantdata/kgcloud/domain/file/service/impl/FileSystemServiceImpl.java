@@ -21,6 +21,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -50,8 +51,12 @@ public class FileSystemServiceImpl implements FileSystemService {
     @Autowired
     private FileDataService fileDataService;
 
+
+    @Value("${mongo.prefix:}")
+    private String mongoPrefix;
+
     private MongoCollection<Document> getFileCollection() {
-        return mongoClient.getDatabase(FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
+        return mongoClient.getDatabase(mongoPrefix+FileConstants.ENTITY_FILE_PREFIX + SessionHolder.getUserId()).getCollection(FileConstants.FILE);
     }
 
     private final Function<FileSystem, FileSystemRsp> fileSystem2rsp = (s) -> {

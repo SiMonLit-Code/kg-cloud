@@ -17,6 +17,7 @@ import com.plantdata.kgcloud.sdk.rsp.UserLimitRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +49,9 @@ public class GraphServiceImpl implements GraphService {
     @Autowired
     private GraphApi graphApi;
 
+    @Value("${mongo.prefix:}")
+    private String mongoPrefix;
+
     @Autowired
     private UserClient userClient;
 
@@ -63,7 +67,7 @@ public class GraphServiceImpl implements GraphService {
     }
 
     private String genKgName(String userId) {
-        return userId + JOIN + GRAPH_PREFIX + JOIN + Long.toHexString(System.currentTimeMillis());
+        return mongoPrefix + userId + JOIN + GRAPH_PREFIX + JOIN + Long.toHexString(System.currentTimeMillis());
     }
 
     @Override

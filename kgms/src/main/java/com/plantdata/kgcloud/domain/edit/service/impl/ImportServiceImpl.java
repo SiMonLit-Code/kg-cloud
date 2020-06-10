@@ -14,7 +14,6 @@ import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.*;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
-import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicReq;
 import com.plantdata.kgcloud.domain.edit.req.upload.ImportTemplateReq;
@@ -25,13 +24,11 @@ import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import com.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
 import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.exception.SystemException;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
@@ -266,7 +263,16 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public String importRdf(String kgName, MultipartFile file, String userId, String format) {
-        return handleUploadError(rdfApi.importRdf(KGUtil.dbName(kgName),format, userId,  file));
+        String filename = file.getOriginalFilename();
+        String suffix = filename.substring(filename.lastIndexOf(".") + 1);
+        // 文件校验
+        if (("RDF/XML".equals(format) && "rdf".equals(suffix))
+                || ("N-TRIPLES".equals(format) && "nt".equals(suffix))
+                || ("TURTLE".equals(format) && "ttl".equals(suffix))
+                || ("N3".equals(format) && "n3".equals(suffix))) {
+            return handleUploadError(rdfApi.importRdf(KGUtil.dbName(kgName), format, userId, file));
+        }
+        throw BizException.of(KgmsErrorCodeEnum.FILE_TYPE_ERROR);
     }
 
     @Override
@@ -288,68 +294,70 @@ public class ImportServiceImpl implements ImportService {
     @Override
     public void exportEntity(String kgName, HttpServletResponse response) {
         SchemaRsp schemaRsp = graphApplicationService.querySchema(kgName);
-        if (schemaRsp == null || schemaRsp.getTypes() == null || schemaRsp.getTypes().isEmpty()) {
-            throw BizException.of(KgmsErrorCodeEnum.SCHEMA_CONCEPT_NOT_EXIST_ERROR);
-        }
-        // 剔除不要的属性
-        List<AttributeDefinitionGroupRsp> attrGroups = schemaRsp.getAttrGroups();
-        attrGroups.clear();
-        attrGroups = null;
 
         String title = schemaRsp.getKgTitle() + "图谱实体概念模型";
-        List<BaseConceptRsp> conceptList = schemaRsp.getTypes();
-        List<AttributeDefinitionRsp> attrList = schemaRsp.getAttrs();
-        Map<Long, String> conceptMap = Maps.newHashMap();
-        for (BaseConceptRsp baseConceptRsp : conceptList) {
-            conceptMap.put(baseConceptRsp.getId(), baseConceptRsp.getName());
-        }
-
         Map<String, List<List<String>>> dataMap = Maps.newHashMap();
-        for (BaseConceptRsp baseConceptRsp : conceptList) {
-            Long conceptId = baseConceptRsp.getId();
-            List<AttributeDefinitionRsp> collect = attrList == null ? new ArrayList<>() : attrList.stream()
-                    .filter(attr -> conceptId.equals(attr.getDomainValue())).collect(Collectors.toList());
 
-            List<List<String>> dataList = Lists.newArrayList();
+        if (schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()) {
+            // 剔除不要的属性
+            List<AttributeDefinitionGroupRsp> attrGroups = schemaRsp.getAttrGroups();
+            attrGroups.clear();
+            attrGroups = null;
 
-            for (AttributeDefinitionRsp attr : collect) {
-                String rangeValue = attr.getRangeValue() == null ? "-" : attr.getRangeValue().stream()
-                        .map(conceptMap::get).collect(Collectors.joining("、"));
-                if (StringUtils.isEmpty(rangeValue)) {
-                    rangeValue = "-";
-                }
-
-                String extraInfo = attr.getExtraInfos() == null ? "-" : attr.getExtraInfos().stream()
-                        .map(AttrExtraRsp::getName).collect(Collectors.joining("、"));
-                if (StringUtils.isEmpty(extraInfo)) {
-                    extraInfo = "-";
-                }
-
-                List<String> list = Lists.newArrayList();
-                list.add(attr.getName());
-                list.add(CollectionUtils.isEmpty(attr.getRangeValue()) ? "数值" : "对象");
-                list.add(rangeValue);
-                list.add(extraInfo);
-                dataList.add(list);
+            List<BaseConceptRsp> conceptList = schemaRsp.getTypes();
+            List<AttributeDefinitionRsp> attrList = schemaRsp.getAttrs();
+            Map<Long, String> conceptMap = Maps.newHashMap();
+            for (BaseConceptRsp baseConceptRsp : conceptList) {
+                conceptMap.put(baseConceptRsp.getId(), baseConceptRsp.getName());
             }
-            if (collect.size() == 0) {
-                List<String> list = Lists.newArrayList();
-                list.add("-");
-                list.add("-");
-                list.add("-");
-                list.add("-");
-                dataList.add(list);
+
+
+            for (BaseConceptRsp baseConceptRsp : conceptList) {
+                Long conceptId = baseConceptRsp.getId();
+                List<AttributeDefinitionRsp> collect = attrList == null ? new ArrayList<>() : attrList.stream()
+                        .filter(attr -> conceptId.equals(attr.getDomainValue())).collect(Collectors.toList());
+
+                List<List<String>> dataList = Lists.newArrayList();
+
+                for (AttributeDefinitionRsp attr : collect) {
+                    String rangeValue = attr.getRangeValue() == null ? "-" : attr.getRangeValue().stream()
+                            .map(conceptMap::get).collect(Collectors.joining("、"));
+                    if (StringUtils.isEmpty(rangeValue)) {
+                        rangeValue = "-";
+                    }
+
+                    String extraInfo = attr.getExtraInfos() == null ? "-" : attr.getExtraInfos().stream()
+                            .map(AttrExtraRsp::getName).collect(Collectors.joining("、"));
+                    if (StringUtils.isEmpty(extraInfo)) {
+                        extraInfo = "-";
+                    }
+
+                    List<String> list = Lists.newArrayList();
+                    list.add(attr.getName());
+                    list.add(CollectionUtils.isEmpty(attr.getRangeValue()) ? "数值" : "对象");
+                    list.add(rangeValue);
+                    list.add(extraInfo);
+                    dataList.add(list);
+                }
+                if (collect.size() == 0) {
+                    List<String> list = Lists.newArrayList();
+                    list.add("-");
+                    list.add("-");
+                    list.add("-");
+                    list.add("-");
+                    dataList.add(list);
+                }
+                dataMap.put(conceptMap.get(conceptId), dataList);
+                collect.clear();
+                collect = null;
             }
-            dataMap.put(conceptMap.get(conceptId), dataList);
-            collect.clear();
-            collect = null;
+            if (attrList != null) {
+                attrList.clear();
+            }
+            attrList = null;
+            conceptList.clear();
+            conceptList = null;
         }
-        if (attrList != null) {
-            attrList.clear();
-        }
-        attrList = null;
-        conceptList.clear();
-        conceptList = null;
         try {
             XWPFDocument document = createWord(title, dataMap);
 
@@ -438,9 +446,9 @@ public class ImportServiceImpl implements ImportService {
      */
     private String handleUploadError(ResponseEntity<byte[]> body) {
         if (!body.getStatusCode().equals(HttpStatus.CREATED)) {
-            RestResp restResp = JSON.parseObject(new String(body.getBody()),RestResp.class);
-            if(restResp != null && restResp.getActionStatus() == RestResp.ActionStatusMethod.FAIL){
-                throw new BizException(KgmsErrorCodeEnum.FILE_IMPORT_ERROR.getErrorCode(),restResp.getErrorInfo());
+            RestResp restResp = JSON.parseObject(new String(body.getBody()), RestResp.class);
+            if (restResp != null && restResp.getActionStatus() == RestResp.ActionStatusMethod.FAIL) {
+                throw new BizException(KgmsErrorCodeEnum.FILE_IMPORT_ERROR.getErrorCode(), restResp.getErrorInfo());
             }
             throw BizException.of(KgmsErrorCodeEnum.FILE_IMPORT_ERROR);
         }

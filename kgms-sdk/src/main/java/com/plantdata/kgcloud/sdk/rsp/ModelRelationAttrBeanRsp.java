@@ -1,24 +1,24 @@
-package com.plantdata.kgcloud.domain.prebuilder.rsp;
+package com.plantdata.kgcloud.sdk.rsp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 /**
  * @program: kg-cloud-kgms
  * @description:
  * @author: czj
- * @create: 2020-05-19 15:48
+ * @create: 2020-04-17 17:48
  **/
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TableKtrRsp {
+public class ModelRelationAttrBeanRsp {
 
-    private String tableName;
-    private String ktr;
+    private String name;
+
+    private Integer dataType;
+
 }
-

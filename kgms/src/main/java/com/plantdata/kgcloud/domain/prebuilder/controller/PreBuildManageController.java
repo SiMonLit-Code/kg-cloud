@@ -2,10 +2,9 @@ package com.plantdata.kgcloud.domain.prebuilder.controller;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
+import com.plantdata.kgcloud.constant.SchemaType;
 import com.plantdata.kgcloud.domain.prebuilder.aop.PostHandler;
-import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderCreateReq;
-import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderSearchReq;
-import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderUpdateReq;
+import com.plantdata.kgcloud.domain.prebuilder.req.*;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.prebuilder.service.PreBuilderService;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -39,21 +38,24 @@ public class PreBuildManageController {
     }
 
     @ApiOperation("预构建模式管理-删除")
-    @PatchMapping("/delete/{id}")
+    @PostMapping("/delete")
     @PostHandler(id = 12021012)
-    public ApiReturn delete(@PathVariable("id") Integer id) {
-        String userId = SessionHolder.getUserId();
-        preBuilderService.delete(userId, id);
+    public ApiReturn delete(@RequestBody PreBuilderDeleteReq req) {
+        if(SchemaType.isKG(req.getSchemaType())){
+            String userId = SessionHolder.getUserId();
+            preBuilderService.delete(userId, req.getModelId());
+        }
         return ApiReturn.success();
     }
 
     @ApiOperation("预构建模式管理-发布(1)/禁用(0)")
-    @PatchMapping("/update/{id}/{status}")
+    @PostMapping("/update/status")
     @PostHandler(id = 12021013)
-    public ApiReturn update(@PathVariable("id") Integer id,
-                            @PathVariable("status") String status) {
-        String userId = SessionHolder.getUserId();
-        preBuilderService.update(userId, id, status);
+    public ApiReturn update(@RequestBody PreBuilderUpdateStatusReq req) {
+        if(SchemaType.isKG(req.getSchemaType())){
+            String userId = SessionHolder.getUserId();
+            preBuilderService.update(userId, req.getModelId(), req.getStatus());
+        }
         return ApiReturn.success();
     }
 
@@ -74,7 +76,9 @@ public class PreBuildManageController {
     @PostMapping("/update")
     @PostHandler(id = 12021015)
     public ApiReturn update(@RequestBody PreBuilderUpdateReq req) {
-        preBuilderService.updateModel(req);
+        if(SchemaType.isKG(req.getSchemaType())){
+            preBuilderService.updateModel(req);
+        }
         return ApiReturn.success();
     }
 

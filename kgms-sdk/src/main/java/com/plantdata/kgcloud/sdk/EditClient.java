@@ -61,7 +61,8 @@ public interface EditClient {
      * @return 。
      */
     @DeleteMapping("basic/{kgName}/{id}")
-    ApiReturn deleteConcept(@PathVariable("kgName") String kgName, @PathVariable("id") Long id);
+    ApiReturn deleteConcept(@PathVariable("kgName") String kgName, @PathVariable("id") Long id,
+                            @RequestParam(defaultValue = "false", required = false) Boolean force);
 
     /**
      * 删除属性定义
