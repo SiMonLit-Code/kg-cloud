@@ -22,6 +22,8 @@ public class PreBuilderUpdateReq extends DefaultHandlerReq {
     @ApiModelProperty("描述")
     private String desc;
 
+    @ApiModelProperty("模式类型 kg(图谱) dw(数仓)")
+    private String schemaType;
 
     @ApiModelProperty("数据id")
     private Integer id;
