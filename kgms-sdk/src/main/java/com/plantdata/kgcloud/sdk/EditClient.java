@@ -270,4 +270,9 @@ public interface EditClient {
     @PostMapping("/concept/{kgName}/{conceptId}/tree")
     ApiReturn<List<BasicInfoVO>> getConceptTree(@PathVariable("kgName") String kgName,
                                                 @PathVariable("conceptId") Long conceptId);
+
+    @ApiOperation("属性定义-查询概念的属性定义")
+    @GetMapping("/attribute/{kgName}")
+    ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptId(@PathVariable("kgName") String kgName,
+                                                                    @RequestParam("conceptId") Long conceptId);
 }
