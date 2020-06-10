@@ -294,68 +294,70 @@ public class ImportServiceImpl implements ImportService {
     @Override
     public void exportEntity(String kgName, HttpServletResponse response) {
         SchemaRsp schemaRsp = graphApplicationService.querySchema(kgName);
-        if (schemaRsp == null || schemaRsp.getTypes() == null || schemaRsp.getTypes().isEmpty()) {
-            throw BizException.of(KgmsErrorCodeEnum.SCHEMA_CONCEPT_NOT_EXIST_ERROR);
-        }
-        // 剔除不要的属性
-        List<AttributeDefinitionGroupRsp> attrGroups = schemaRsp.getAttrGroups();
-        attrGroups.clear();
-        attrGroups = null;
 
         String title = schemaRsp.getKgTitle() + "图谱实体概念模型";
-        List<BaseConceptRsp> conceptList = schemaRsp.getTypes();
-        List<AttributeDefinitionRsp> attrList = schemaRsp.getAttrs();
-        Map<Long, String> conceptMap = Maps.newHashMap();
-        for (BaseConceptRsp baseConceptRsp : conceptList) {
-            conceptMap.put(baseConceptRsp.getId(), baseConceptRsp.getName());
-        }
-
         Map<String, List<List<String>>> dataMap = Maps.newHashMap();
-        for (BaseConceptRsp baseConceptRsp : conceptList) {
-            Long conceptId = baseConceptRsp.getId();
-            List<AttributeDefinitionRsp> collect = attrList == null ? new ArrayList<>() : attrList.stream()
-                    .filter(attr -> conceptId.equals(attr.getDomainValue())).collect(Collectors.toList());
 
-            List<List<String>> dataList = Lists.newArrayList();
+        if (schemaRsp.getTypes() != null && !schemaRsp.getTypes().isEmpty()) {
+            // 剔除不要的属性
+            List<AttributeDefinitionGroupRsp> attrGroups = schemaRsp.getAttrGroups();
+            attrGroups.clear();
+            attrGroups = null;
 
-            for (AttributeDefinitionRsp attr : collect) {
-                String rangeValue = attr.getRangeValue() == null ? "-" : attr.getRangeValue().stream()
-                        .map(conceptMap::get).collect(Collectors.joining("、"));
-                if (StringUtils.isEmpty(rangeValue)) {
-                    rangeValue = "-";
-                }
-
-                String extraInfo = attr.getExtraInfos() == null ? "-" : attr.getExtraInfos().stream()
-                        .map(AttrExtraRsp::getName).collect(Collectors.joining("、"));
-                if (StringUtils.isEmpty(extraInfo)) {
-                    extraInfo = "-";
-                }
-
-                List<String> list = Lists.newArrayList();
-                list.add(attr.getName());
-                list.add(CollectionUtils.isEmpty(attr.getRangeValue()) ? "数值" : "对象");
-                list.add(rangeValue);
-                list.add(extraInfo);
-                dataList.add(list);
+            List<BaseConceptRsp> conceptList = schemaRsp.getTypes();
+            List<AttributeDefinitionRsp> attrList = schemaRsp.getAttrs();
+            Map<Long, String> conceptMap = Maps.newHashMap();
+            for (BaseConceptRsp baseConceptRsp : conceptList) {
+                conceptMap.put(baseConceptRsp.getId(), baseConceptRsp.getName());
             }
-            if (collect.size() == 0) {
-                List<String> list = Lists.newArrayList();
-                list.add("-");
-                list.add("-");
-                list.add("-");
-                list.add("-");
-                dataList.add(list);
+
+
+            for (BaseConceptRsp baseConceptRsp : conceptList) {
+                Long conceptId = baseConceptRsp.getId();
+                List<AttributeDefinitionRsp> collect = attrList == null ? new ArrayList<>() : attrList.stream()
+                        .filter(attr -> conceptId.equals(attr.getDomainValue())).collect(Collectors.toList());
+
+                List<List<String>> dataList = Lists.newArrayList();
+
+                for (AttributeDefinitionRsp attr : collect) {
+                    String rangeValue = attr.getRangeValue() == null ? "-" : attr.getRangeValue().stream()
+                            .map(conceptMap::get).collect(Collectors.joining("、"));
+                    if (StringUtils.isEmpty(rangeValue)) {
+                        rangeValue = "-";
+                    }
+
+                    String extraInfo = attr.getExtraInfos() == null ? "-" : attr.getExtraInfos().stream()
+                            .map(AttrExtraRsp::getName).collect(Collectors.joining("、"));
+                    if (StringUtils.isEmpty(extraInfo)) {
+                        extraInfo = "-";
+                    }
+
+                    List<String> list = Lists.newArrayList();
+                    list.add(attr.getName());
+                    list.add(CollectionUtils.isEmpty(attr.getRangeValue()) ? "数值" : "对象");
+                    list.add(rangeValue);
+                    list.add(extraInfo);
+                    dataList.add(list);
+                }
+                if (collect.size() == 0) {
+                    List<String> list = Lists.newArrayList();
+                    list.add("-");
+                    list.add("-");
+                    list.add("-");
+                    list.add("-");
+                    dataList.add(list);
+                }
+                dataMap.put(conceptMap.get(conceptId), dataList);
+                collect.clear();
+                collect = null;
             }
-            dataMap.put(conceptMap.get(conceptId), dataList);
-            collect.clear();
-            collect = null;
+            if (attrList != null) {
+                attrList.clear();
+            }
+            attrList = null;
+            conceptList.clear();
+            conceptList = null;
         }
-        if (attrList != null) {
-            attrList.clear();
-        }
-        attrList = null;
-        conceptList.clear();
-        conceptList = null;
         try {
             XWPFDocument document = createWord(title, dataMap);
 
