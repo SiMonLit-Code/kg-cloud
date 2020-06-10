@@ -4,14 +4,10 @@ package com.plantdata.kgcloud.domain.prebuilder.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.prebuilder.aop.PostHandler;
-import com.plantdata.kgcloud.domain.prebuilder.req.ModelPushReq;
-import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderCountReq;
-import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderMatchAttrReq;
-import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderSearchReq;
+import com.plantdata.kgcloud.domain.prebuilder.req.*;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.prebuilder.service.PreBuilderService;
-import com.plantdata.kgcloud.domain.prebuilder.req.PreBuilderGraphMapReq;
 import com.plantdata.kgcloud.sdk.req.StandardSearchReq;
 import com.plantdata.kgcloud.sdk.rsp.StandardTemplateRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
@@ -79,11 +75,11 @@ public class PreBuildController {
     }
 
     @ApiOperation("预构建模式-查询分类")
-    @GetMapping("/get/types")
+    @PostMapping("/get/types")
     @PostHandler(id = 12021006)
-    public ApiReturn<List<String>> getTypes(Boolean isManage) {
+    public ApiReturn<List<String>> getTypes(@RequestBody PreBuilderQueryTypeReq req) {
         String userId = SessionHolder.getUserId();
-        return ApiReturn.success(preBuilderService.getTypes(userId, isManage));
+        return ApiReturn.success(preBuilderService.getTypes(userId, req.getIsManage()));
     }
 
     @ApiOperation("预构建模式-发布图谱模式")
