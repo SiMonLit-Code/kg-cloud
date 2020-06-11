@@ -163,7 +163,7 @@ public class GraphServiceImpl implements GraphService {
         Optional<Graph> one = graphRepository.findById(graphPk);
         return one.map(ConvertUtils.convert(GraphRsp.class)).orElseGet(() -> {
                     CopyGraphFrom copyGraphFrom = new CopyGraphFrom();
-                    copyGraphFrom.setSourceKgName(mongoPrefix + "default_graph");
+                    copyGraphFrom.setSourceKgName("default_graph");
                     copyGraphFrom.setTargetKgName(dbName);
                     RestRespConverter.convertVoid(graphApi.copy(copyGraphFrom));
                     Graph target = new Graph();
