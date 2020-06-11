@@ -157,7 +157,7 @@ public class GraphServiceImpl implements GraphService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public GraphRsp createDefault(String userId) {
-        String kgName = userId + JOIN + GRAPH_PREFIX + JOIN + "default";
+        String kgName = mongoPrefix + userId + JOIN + GRAPH_PREFIX + JOIN + "default";
         String dbName = kgName;
         GraphPk graphPk = new GraphPk(userId, kgName);
         Optional<Graph> one = graphRepository.findById(graphPk);
