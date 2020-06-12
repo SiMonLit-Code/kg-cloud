@@ -98,6 +98,7 @@ public class EntityConverter extends BasicConverter {
         saveEntityRsp.setSynonyms(entityRsp.getSynonyms());
         saveEntityRsp.setMeaningTag(entityRsp.getMeaningTag());
         saveEntityRsp.setMetaDataMap(entityRsp.getMetaData());
+        saveEntityRsp.setAttrValueMetaData(entityRsp.getAttrValueMetaData());
         return saveEntityRsp;
     }
 
