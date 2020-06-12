@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.req.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.sun.javafx.collections.MappingChange;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * @Author: LinHo
@@ -31,6 +33,9 @@ public class NumericalAttrValueReq {
 
     @ApiModelProperty(value = "url类型属性值")
     private UrlAttrValue urlAttrValue;
+
+    @ApiModelProperty(value = "属性meta_data")
+    private Map<String,Object> metaData;
 
     @Getter
     @Setter

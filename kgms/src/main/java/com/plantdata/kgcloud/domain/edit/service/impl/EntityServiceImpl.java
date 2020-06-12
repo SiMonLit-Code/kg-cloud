@@ -666,6 +666,8 @@ public class EntityServiceImpl implements EntityService {
         if (Objects.isNull(numericalAttrValueReq.getAttrValue()) && Objects.nonNull(urlAttrValue)) {
             attributeValueFrom.setAttrValue(JacksonUtils.writeValueAsString(urlAttrValue));
         }
+
+        attributeValueFrom.setMetaData(MetaDataUtils.getDefaultSourceMetaData(numericalAttrValueReq.getMetaData(),SessionHolder.getUserId()));
         RestRespConverter.convertVoid(conceptEntityApi.addNumericAttrValue(KGUtil.dbName(kgName), attributeValueFrom));
     }
 

@@ -2,7 +2,6 @@ package com.plantdata.kgcloud.plantdata.converter.common;
 
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.plantdata.bean.ImportRelationBean;
-import com.plantdata.kgcloud.plantdata.constant.MetaDataEnum;
 import com.plantdata.kgcloud.plantdata.req.data.QueryRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.explore.common.AttrScreeningBean;
 import com.plantdata.kgcloud.plantdata.rsp.data.RelationBeanScore;
@@ -12,13 +11,9 @@ import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.JsonUtils;
-import com.plantdata.kgcloud.util.MetaDataUtils;
 import lombok.NonNull;
-import org.springframework.plugin.metadata.MetadataProvider;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +37,7 @@ public class RelationConverter extends BasicConverter {
         relationRsp.setEntityName(relationBean.getEntityName());
         relationRsp.setEntityConcept(relationBean.getEntityConcept());
         relationRsp.setEntityMeaningTag(relationBean.getEntityMeaningTag());
-        relationRsp.setMetaData(MetaDataUtils.getDefaultMetaData(relationBean.getMetaData()));
+        relationRsp.setMetaData(relationBean.getMetaData());
 
         consumerIfNoNull(relationBean.getExtraInfoMap(), a -> relationRsp.setExtraInfoMap(keyStringToInt(a)));
         return relationRsp;

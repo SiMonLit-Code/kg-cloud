@@ -66,7 +66,12 @@ public class GraphConfAlgorithmServiceImpl implements GraphConfAlgorithmService 
     public Page<GraphConfAlgorithmRsp> findByKgName(String kgName, GraphConfAlgorithmReqList baseReq) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createAt");
         Pageable pageable = PageRequest.of(baseReq.getPage() - 1, baseReq.getSize(), sort);
-        Page<GraphConfAlgorithm> all = graphConfAlgorithmRepository.findByKgNameAndType(kgName,baseReq.getType(), pageable);
+        Page<GraphConfAlgorithm> all;
+        if(baseReq.getType() == null){
+            all = graphConfAlgorithmRepository.findByKgName(kgName,pageable);
+        }else{
+            all = graphConfAlgorithmRepository.findByKgNameAndType(kgName,baseReq.getType(), pageable);
+        }
         return all.map(ConvertUtils.convert(GraphConfAlgorithmRsp.class));
     }
 
