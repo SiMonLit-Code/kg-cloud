@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.util;
 
 import com.plantdata.kgcloud.constant.MetaDataInfo;
+import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.security.SessionHolder;
 import org.terracotta.offheapstore.MetadataTuple;
 
@@ -26,5 +27,33 @@ public class MetaDataUtils {
         }
 
         return metaData;
+    }
+
+    public static void getDefaultAttrSourceMetaData(OpenBatchSaveEntityRsp entityRsp, Map<Integer, Map<String, Object>> attrValueMetaData, String userId) {
+
+        Map<Integer,String> attr = entityRsp.getAttributes();
+
+        if(attr == null || attr.isEmpty()){
+            return;
+        }
+
+        for(Integer key : attr.keySet()){
+
+            if(!attrValueMetaData.containsKey(key)){
+
+                Map<String, Object> attrMetaData = new HashMap<>();
+                attrMetaData.put(MetaDataInfo.SOURCE_USER.getFieldName(), userId);
+                attrValueMetaData.put(key,attrMetaData);
+
+            }else{
+
+                Map<String, Object> attrMetaData = attrValueMetaData.get(key);
+                if(!attrMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())){
+                    attrMetaData.put(MetaDataInfo.SOURCE_USER.getFieldName(), userId);
+                }
+
+            }
+
+        }
     }
 }

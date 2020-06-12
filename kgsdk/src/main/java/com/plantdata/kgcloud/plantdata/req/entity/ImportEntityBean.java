@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -61,4 +62,9 @@ public class ImportEntityBean {
     private String note;
 
     private Map<String,Object>metaData;
+
+    /**
+     * 属性metadata
+     */
+    private Map<Integer, Map<String, Object>> attrValueMetaData;
 }

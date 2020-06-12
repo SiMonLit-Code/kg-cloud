@@ -26,9 +26,9 @@ public class AlgorithmStatisticeSeriesItemBean {
 
     private List<Object> data;
 
-    @ApiModelProperty("data中统计的实体、关系id")
-    private List<List<Object>> ids;
+    @ApiModelProperty("data中统计的实体id")
+    private List<List<Object>> entityIds;
 
-    @ApiModelProperty("表名ids中id是实体id还是关系id 1 实体 2关系")
-    private Integer type;
+    @ApiModelProperty("data中统计的关系id")
+    private List<List<Object>> relationIds;
 }

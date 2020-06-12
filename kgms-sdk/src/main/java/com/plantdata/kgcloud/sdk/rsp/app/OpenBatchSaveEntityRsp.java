@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,8 @@ public class OpenBatchSaveEntityRsp {
     private Map<String,Object> metaDataMap;
     @ApiModelProperty("错误信息")
     private String note;
+    @ApiModelProperty("属性metaData")
+    private Map<Integer, Map<String, Object>> attrValueMetaData;
 
     @ApiModel("元数据")
     @Getter
