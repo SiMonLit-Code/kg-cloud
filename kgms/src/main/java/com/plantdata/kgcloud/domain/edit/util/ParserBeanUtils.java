@@ -18,6 +18,7 @@ import com.plantdata.kgcloud.domain.edit.vo.GisVO;
 import com.plantdata.kgcloud.domain.edit.vo.ObjectAttrValueVO;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
+import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -177,15 +178,47 @@ public class ParserBeanUtils {
         }
         List<EntityAttrValueVO> attrValue = basicInfoRsp.getAttrValue();
         if (!CollectionUtils.isEmpty(attrValue)) {
-            //填充关系的metadata
             List<EntityAttrValueVO> entityAttrValues = attrValue.stream().peek(entityAttrValueVO -> {
+
+                //填充关系的metadata
                 List<ObjectAttrValueVO> objectValues = entityAttrValueVO.getObjectValues();
                 if (Objects.nonNull(objectValues) && !objectValues.isEmpty()) {
                     List<ObjectAttrValueVO> relationAttrValues = objectValues.stream()
                             .map(ParserBeanUtils::parserRelationValue).collect(Collectors.toList());
                     entityAttrValueVO.setObjectValues(relationAttrValues);
                 }
+
+                //填充数值属性来源
+                Map<String, Object> attrMetaData = entityAttrValueVO.getMetaData();
+                if (Objects.nonNull(attrMetaData)) {
+
+                    if (attrMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
+                        entityAttrValueVO.setSource(attrMetaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
+                    }
+
+                    if (attrMetaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())) {
+                        Object value = attrMetaData.get(MetaDataInfo.TRUE_SOURCE.getFieldName());
+                        attrMetaData.remove(MetaDataInfo.TRUE_SOURCE.getFieldName());
+                        if(value != null){
+                            try {
+                                entityAttrValueVO.setTrueSource(JSON.parseObject(JSON.toJSONString(value)));
+                            }catch (Exception e){
+                                entityAttrValueVO.setTrueSource(Maps.newHashMap());
+                            }
+                        }
+                    }
+                    if (attrMetaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())) {
+                        String userId = attrMetaData.get(MetaDataInfo.SOURCE_USER.getFieldName()).toString();
+                        entityAttrValueVO.setSourceUser(userId);
+                    }
+
+                    if (attrMetaData.containsKey(MetaDataInfo.SOURCE_ACTION.getFieldName())) {
+                        entityAttrValueVO.setSourceAction(attrMetaData.get(MetaDataInfo.SOURCE_ACTION.getFieldName()).toString());
+                    }
+                }
+
             }).collect(Collectors.toList());
+
             basicInfoRsp.setAttrValue(entityAttrValues);
 
         }

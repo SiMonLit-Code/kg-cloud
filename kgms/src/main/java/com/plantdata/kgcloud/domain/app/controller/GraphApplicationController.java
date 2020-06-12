@@ -4,13 +4,7 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
-import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
-import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
-import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.PromptReq;
-import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.*;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
@@ -62,6 +56,13 @@ public class GraphApplicationController implements GraphAppInterface {
     public ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                   @RequestBody @Valid KnowledgeRecommendReqList recommendParam) {
         return ApiReturn.success(graphApplicationService.knowledgeRecommend(kgName, recommendParam));
+    }
+
+    @ApiOperation("多层知识推荐")
+    @PostMapping("layer/knowledgeRecommend/{kgName}")
+    public ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
+                                                                  @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam) {
+        return ApiReturn.success(graphApplicationService.layerKnowledgeRecommend(kgName, recommendParam));
     }
 
     @ApiOperation("获取模型可视化数据")

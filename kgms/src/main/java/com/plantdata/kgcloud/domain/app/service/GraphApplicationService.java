@@ -2,11 +2,7 @@ package com.plantdata.kgcloud.domain.app.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
-import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
-import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
-import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.*;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
@@ -112,4 +108,6 @@ public interface GraphApplicationService {
     InfoboxMultiModelRsp infoBoxMultiModal(String kgName, String userId, InfoboxMultiModalReq infoboxMultiModalReq);
 
     List<InfoboxMultiModelRsp> listInfoBoxMultiModal(String kgName, BatchMultiModalReqList batchMultiModalReq);
+
+    List<ObjectAttributeRsp> layerKnowledgeRecommend(String kgName, LayerKnowledgeRecommendReqList recommendParam);
 }

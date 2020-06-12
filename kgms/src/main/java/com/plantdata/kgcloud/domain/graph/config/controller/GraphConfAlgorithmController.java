@@ -61,15 +61,6 @@ public class GraphConfAlgorithmController {
         return ApiReturn.success(graphConfAlgorithmService.findById(id));
     }
 
-    @ApiOperation("test")
-    @PostMapping("/test")
-    public RestResp<AlgorithmStatisticeRsp> test() {
-
-        String str = "{\"series\":[{\"name\":\"分类一\",\"data\":[2,3,6,0],\"entityIds\":[[15],[11,27],[29,33,32,12,48],[]],\"relationIds\":[[\"5e1552e3873cef639f1c637e\"],[\"5e1552e3873cef639f1c6381\",\"5e1552e3873cef639f1c6391\"],[\"5e1552e3873cef639f1c637f\",\"5e1552e3873cef639f1c6395\",\"5e1552e3873cef639f1c63b0\"],[\"5e1552e3873cef639f1c639f\"]]},{\"name\":\"分类二\",\"data\":[9,3,5,2],\"entityIds\":[[93],[11,27],[29,33,32],[7]],\"relationIds\":[[\"5e1552e3873cef639f1c637e\"],[\"5e12e043e6df6c6acdee653b\",\"5e12e043e6df6c6acdee6548\"],[\"5e12e043e6df6c6acdee6538\",\"5e12e043e6df6c6acdee655c\"],[\"5e12e043e6df6c6acdee654c\"]]},{\"name\":\"分类三\",\"data\":[2,3,5,5],\"entityIds\":[[15],[11,27],[29,33,32,12,48],[93]],\"relationIds\":[[\"5e12e043e6df6c6acdee6538\"],[],[],[]]},{\"name\":\"分类四\",\"data\":[7,3,5,8],\"entityIds\":[[15],[11,27],[29,33,32,12,48],[93]],\"relationIds\":[[\"5e12e043e6df6c6acdee654c\"],[],[],[]]}],\"xaxis\":[\"投资机构\",\"产品\",\"学校学校学校学校学校学校学校学校\",\"人物\"]}";
-        AlgorithmStatisticeRsp rsp = JSON.parseObject(str,AlgorithmStatisticeRsp.class);
-        return new RestResp(rsp);
-    }
-
     @ApiOperation("test1")
     @PostMapping("/test1")
     public RestResp<AlgorithmStatisticeRsp> test1() {

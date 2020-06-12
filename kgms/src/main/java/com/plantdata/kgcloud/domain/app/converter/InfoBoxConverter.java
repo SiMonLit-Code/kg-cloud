@@ -78,13 +78,13 @@ public class InfoBoxConverter extends BasicConverter {
 
     public static InfoBoxRsp conceptToInfoBoxRsp(EntityVO entity) {
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
-        infoBoxRsp.setSelf(voToSelf(entity, Collections.emptyList(), Collections.emptyList()));
+        infoBoxRsp.setSelf(voToSelf(entity, Collections.emptyList(),Collections.emptyList(), Collections.emptyList()));
         infoBoxRsp.setParents(listToRsp(entity.getParent(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         return infoBoxRsp;
     }
 
-    public static InfoBoxRsp entityToInfoBoxRsp(EntityVO entity,  List<KnowledgeIndexRsp> knowledgeIndexRsps, List<RelationVO> relationList,
+    public static InfoBoxRsp entityToInfoBoxRsp(EntityVO entity, List<MultiModalRsp> modalRsps, List<KnowledgeIndexRsp> knowledgeIndexRsps, List<RelationVO> relationList,
                                                 List<RelationVO> reverseRelationList) {
 
         InfoBoxRsp infoBoxRsp = new InfoBoxRsp();
@@ -93,7 +93,7 @@ public class InfoBoxConverter extends BasicConverter {
         //设置子概念
         infoBoxRsp.setSons(listToRsp(entity.getSons(), InfoBoxConverter::basicInfoToInfoBoxConceptRsp));
         //基本字段
-        infoBoxRsp.setSelf(voToSelf(entity, entity.getAttrValue(),  knowledgeIndexRsps));
+        infoBoxRsp.setSelf(voToSelf(entity, entity.getAttrValue(), modalRsps, knowledgeIndexRsps));
         //对象属性
         BasicConverter.consumerIfNoNull(relationList, a -> infoBoxRsp.setAttrs(convertObjectAttr(a, false)));
         //反向对象属性
@@ -112,7 +112,7 @@ public class InfoBoxConverter extends BasicConverter {
         return infoBoxRsp;
     }
 
-    private static EntityLinksRsp voToSelf(EntityVO entity, List<EntityAttributeValueVO> dataAttrList,  List<KnowledgeIndexRsp> knowledgeIndexRsps) {
+    private static EntityLinksRsp voToSelf(EntityVO entity, List<EntityAttributeValueVO> dataAttrList, List<MultiModalRsp> modalRsps,  List<KnowledgeIndexRsp> knowledgeIndexRsps) {
         EntityLinksRsp self = EntityConverter.entityVoToBasicEntityRsp(entity, new EntityLinksRsp());
         if (StringUtils.isNotEmpty(entity.getImageUrl())) {
             self.setImgUrl(entity.getImageUrl());
@@ -132,6 +132,12 @@ public class InfoBoxConverter extends BasicConverter {
         //设置数值,私有属性
         consumerIfNoNull(dataAttrList, a -> fillAttr(extraList, a));
         self.setExtraList(extraList);
+
+        if (!CollectionUtils.isEmpty(modalRsps)) {
+            self.setMultiModals(modalRsps);
+        }
+
+
         if (!CollectionUtils.isEmpty(knowledgeIndexRsps)){
             self.setKnowledgeIndexs(knowledgeIndexRsps);
         }

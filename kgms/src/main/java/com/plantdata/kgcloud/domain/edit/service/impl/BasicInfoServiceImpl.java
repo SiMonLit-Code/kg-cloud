@@ -33,9 +33,11 @@ import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupSearchReq;
 import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import com.plantdata.kgcloud.exception.BizException;
+import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
@@ -83,10 +85,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     private LogSender logSender;
 
     @Autowired
-    private MongoClient mongoClient;
+    private UserClient userClient;
 
-    @Autowired
-    private DocumentConverter documentConverter;
 
     @Autowired
     private EntityFileRelationService entityFileRelationService;
@@ -150,6 +150,22 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         if (CollectionUtils.isEmpty(attrValue) || BasicInfoType.isConcept(basicInfoRsp.getType())) {
             return basicInfoRsp;
         } else {
+
+            Map<String,String> usernameMap = new HashMap<>();
+            attrValue.forEach(entityAttrValueVO -> {
+
+                if(entityAttrValueVO.getSourceUser() != null && !entityAttrValueVO.getSourceUser().isEmpty()){
+                    if(!usernameMap.containsKey(entityAttrValueVO.getSourceUser())){
+                        UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(entityAttrValueVO.getSourceUser()).getData();
+                        if(userDetailRsp != null){
+                            usernameMap.put(userDetailRsp.getId(),userDetailRsp.getRealname());
+                        }
+                    }
+                    entityAttrValueVO.setSourceUser(usernameMap.get(entityAttrValueVO.getSourceUser()));
+                }
+            });
+
+
             List<GraphAttrGroupRsp> groupRsps = graphAttrGroupService.listAttrGroups(KGUtil.dbName(kgName),
                     new AttrGroupSearchReq());
             if (CollectionUtils.isEmpty(groupRsps)) {
