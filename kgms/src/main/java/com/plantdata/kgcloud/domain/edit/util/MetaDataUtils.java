@@ -21,23 +21,10 @@ public class MetaDataUtils {
             metaData = new HashMap<>();
         }
 
-        if(!metaData.containsKey(MetaDataInfo.SOURCE.getFieldName())){
-            metaData.put(MetaDataInfo.SOURCE.getFieldName(), "用户写入");
-        }
-
-        if(!metaData.containsKey(MetaDataInfo.TRUE_SOURCE.getFieldName())){
-            Map<String,Object> trueSource = new HashMap<>();
-            trueSource.put("source","用户写入");
-            metaData.put(MetaDataInfo.TRUE_SOURCE.getFieldName(), trueSource);
-        }
-
         if(!metaData.containsKey(MetaDataInfo.SOURCE_USER.getFieldName())){
             metaData.put(MetaDataInfo.SOURCE_USER.getFieldName(), userId);
         }
 
-        if(!metaData.containsKey(MetaDataInfo.SOURCE_ACTION.getFieldName())){
-            metaData.put(MetaDataInfo.SOURCE_ACTION.getFieldName(), "在线编辑");
-        }
         return metaData;
     }
 }

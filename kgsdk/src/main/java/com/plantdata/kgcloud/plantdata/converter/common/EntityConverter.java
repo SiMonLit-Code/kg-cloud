@@ -1,7 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.plantdata.constant.MetaDataEnum;
 import com.plantdata.kgcloud.plantdata.req.common.Additional;
 import com.plantdata.kgcloud.plantdata.req.data.EntityAttrDelectParameter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityByDataAttributeParameter;
@@ -9,14 +8,10 @@ import com.plantdata.kgcloud.plantdata.req.data.TraceabilityParameter;
 import com.plantdata.kgcloud.plantdata.req.entity.EntityBean;
 import com.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import com.plantdata.kgcloud.sdk.req.app.*;
-import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicEntityRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.MetaDataUtils;
 import lombok.NonNull;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -102,7 +97,7 @@ public class EntityConverter extends BasicConverter {
         saveEntityRsp.setImageUrl(entityRsp.getImageUrl());
         saveEntityRsp.setSynonyms(entityRsp.getSynonyms());
         saveEntityRsp.setMeaningTag(entityRsp.getMeaningTag());
-        saveEntityRsp.setMetaDataMap(MetaDataUtils.getDefaultMetaData(entityRsp.getMetaData()));
+        saveEntityRsp.setMetaDataMap(entityRsp.getMetaData());
         return saveEntityRsp;
     }
 
