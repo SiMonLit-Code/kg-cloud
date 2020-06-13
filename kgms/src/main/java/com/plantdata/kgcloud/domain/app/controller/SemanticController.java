@@ -1,40 +1,26 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
 import ai.plantdata.kg.api.pub.SemanticApi;
-import ai.plantdata.kg.api.pub.req.SemanticDistanceFrom;
 import ai.plantdata.kg.api.semantic.QuestionAnswersApi;
-import ai.plantdata.kg.api.semantic.ReasoningApi;
 import ai.plantdata.kg.api.semantic.req.QueryReq;
 import ai.plantdata.kg.api.semantic.rsp.AnswerDataRsp;
 import ai.plantdata.kg.api.semantic.rsp.IntentDataBean;
-import ai.plantdata.kg.common.bean.SemanticDistance;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.app.converter.DistanceConverter;
 import com.plantdata.kgcloud.domain.app.converter.SegmentConverter;
-import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
-import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.GremlinRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBeanRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -50,6 +36,26 @@ public class SemanticController implements SdkOpenApiInterface {
     private QuestionAnswersApi questionAnswersApi;
     @Autowired
     private SemanticApi semanticApi;
+
+    //    @Autowired
+//    private QlApi qlApi;
+
+    @ApiOperation("gremlin查询")
+    @PostMapping("gremlin/query/{kgName}")
+    public ApiReturn<GremlinRsp> gremlinQuery(@PathVariable("kgName") String kgName, @RequestParam String gremlinQuery) {
+
+        /*Gremlin gremlin = new Gremlin();
+        gremlin.setKgName(KGUtil.dbName(kgName));
+        gremlin.setGremlin(gremlinQuery);
+        Optional<ResultSet> resOpt = RestRespConverter.convert(qlApi.gremlin(gremlin));
+        if (!resOpt.isPresent()) {
+            return ApiReturn.success(new GremlinRsp());
+        }
+        GremlinRsp copy = BasicConverter.copy(resOpt.get(), GremlinRsp.class);
+        return ApiReturn.success(copy);*/
+        return ApiReturn.success();
+    }
+
 
     @ApiOperation("意图图谱生成")
     @GetMapping("qa/init/{kgName}")
@@ -93,5 +99,7 @@ public class SemanticController implements SdkOpenApiInterface {
         Optional<Double> distanceOpt = RestRespConverter.convert(semanticApi.distanceScore(KGUtil.dbName(kgName), entityIdOne, entityIdTwo));
         return ApiReturn.success(distanceOpt.orElse(NumberUtils.DOUBLE_ZERO));
     }
+
+
 
 }

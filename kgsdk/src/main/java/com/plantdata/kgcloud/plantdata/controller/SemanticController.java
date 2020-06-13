@@ -7,11 +7,13 @@ import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter;
 import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
+import com.plantdata.kgcloud.plantdata.converter.semantic.GremlinConverter;
 import com.plantdata.kgcloud.plantdata.converter.semantic.QaConverter;
 import com.plantdata.kgcloud.plantdata.converter.semantic.ReasonConverter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityFileRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.nlp.AnnotationParameter;
 import com.plantdata.kgcloud.plantdata.req.reason.InferenceParameter;
+import com.plantdata.kgcloud.plantdata.req.semantic.GremlinParameter;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
 import com.plantdata.kgcloud.sdk.EntityFileClient;
 import com.plantdata.kgcloud.sdk.NlpClient;
@@ -21,6 +23,7 @@ import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
+import com.plantdata.kgcloud.sdk.rsp.app.GremlinRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
@@ -84,6 +87,21 @@ public class SemanticController implements SdkOldApiInterface {
                 .andThen(BasicConverter::apiReturnData)
                 .apply(param);
         return new RestResp<>(dataRsp.orElse(new QaAnswerDataRsp()));
+    }
+
+    @ApiOperation("gremlin查询")
+    @PostMapping("gremlin")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "gremlin", required = true, dataType = "string", paramType = "form", value = "gremlin查询语句")
+    })
+    public RestResp<GremlinRsp> qaGremlin(@Valid @ApiIgnore GremlinParameter param) {
+        Function<String, ApiReturn<GremlinRsp>> returnFunction = a -> semanticClient.gremlinQuery(param.getKgName(), a);
+        Optional<GremlinRsp> dataRsp = returnFunction
+                .compose(GremlinConverter::gremlinParameterToQueryReq)
+                .andThen(BasicConverter::apiReturnData)
+                .apply(param);
+        return new RestResp<>(dataRsp.orElse(new GremlinRsp()));
     }
 
     @ApiOperation("隐含关系推理")
