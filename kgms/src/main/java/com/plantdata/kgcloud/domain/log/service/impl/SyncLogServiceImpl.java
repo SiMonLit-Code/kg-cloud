@@ -28,7 +28,6 @@ public class SyncLogServiceImpl implements SyncLogService {
     @Autowired
     private MongoClient mongoClient;
 
-
     @Value("${mongo.prefix:}")
     private String mongoPrefix;
 
