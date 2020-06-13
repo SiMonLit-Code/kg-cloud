@@ -273,12 +273,31 @@ public class AppController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "direction", dataType = "int", paramType = "form", value = "关系方向。默认正向，0表示双向，1表示出发，2表示到达,默认0"),
             @ApiImplicitParam(name = "allowAtts", dataType = "string", paramType = "form", value = "推荐范围，格式为json数组的属性定义id,必须指定范围"),
             @ApiImplicitParam(name = "allowAttsKey", dataType = "string", paramType = "form", value = "allowAtts 为空时生效"),
-            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "form", value = "每个属性要显示的数量"),
+            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "form", value = "显示的数量"),
     })
     public RestResp<List<KVBean<String, List<EntityBean>>>> association(@Valid @ApiIgnore AssociationParameter param) {
         Function<KnowledgeRecommendReqList, ApiReturn<List<ObjectAttributeRsp>>> returnFunction = a -> appClient.knowledgeRecommend(param.getKgName(), a);
         List<KVBean<String, List<EntityBean>>> kvBeanList = returnFunction
                 .compose(AppConverter::associationParameterToKnowledgeRecommendReq)
+                .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, AppConverter::infoBoxAttrRspToKvBean)))
+                .apply(param);
+        return new RestResp<>(kvBeanList);
+    }
+
+    @ApiOperation("知识推荐（两层）")
+    @PostMapping("layer/recommend/knowledge")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
+            @ApiImplicitParam(name = "entityId", dataType = "long", paramType = "form", value = "实体id"),
+            @ApiImplicitParam(name = "kw", dataType = "string", paramType = "form", value = "实体名称"),
+            @ApiImplicitParam(name = "layerFilter", dataType = "string", paramType = "form", value = "Map<Integer,Filter>，key为层数，filter为图探索过滤参数，可指定每一层的过滤条件"),
+            @ApiImplicitParam(name = "pageNo", dataType = "int", paramType = "query", value = "当前页，默认1"),
+            @ApiImplicitParam(name = "pageSize", dataType = "int", paramType = "query", value = "每页数，默认10"),
+    })
+    public RestResp<List<KVBean<String, List<EntityBean>>>> layerRecommendKnowledge(@Valid @ApiIgnore LayerAssociationParameter param) {
+        Function<LayerKnowledgeRecommendReqList, ApiReturn<List<ObjectAttributeRsp>>> returnFunction = a -> appClient.layerKnowledgeRecommend(param.getKgName(), a);
+        List<KVBean<String, List<EntityBean>>> kvBeanList = returnFunction
+                .compose(AppConverter::layerAssociationParameterToKnowledgeRecommendReq)
                 .andThen(a -> BasicConverter.convert(a, b -> BasicConverter.toListNoNull(b, AppConverter::infoBoxAttrRspToKvBean)))
                 .apply(param);
         return new RestResp<>(kvBeanList);

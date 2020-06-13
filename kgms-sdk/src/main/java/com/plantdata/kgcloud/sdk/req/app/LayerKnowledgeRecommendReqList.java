@@ -13,7 +13,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/11/4 14:32
  */
-@ApiModel("知识推荐参数")
+@ApiModel("多层知识推荐参数")
 @Data
 public class LayerKnowledgeRecommendReqList {
 
@@ -24,11 +24,6 @@ public class LayerKnowledgeRecommendReqList {
 
     @ApiModelProperty("分页")
     private PageReq page;
-
-    @ApiModelProperty("步数 默认2步")
-    @Min(1)
-    @Max(10)
-    private int distance = 2;
 
     @ApiModelProperty("分层过滤条件，key是层数，value是过滤条件")
     private Map<Integer, KnowledgeRecommendCommonFilterReq> layerFilter;

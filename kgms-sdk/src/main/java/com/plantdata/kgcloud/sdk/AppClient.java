@@ -3,16 +3,7 @@ package com.plantdata.kgcloud.sdk;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
-import com.plantdata.kgcloud.sdk.req.app.DataSetStatisticRsp;
-import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
-import com.plantdata.kgcloud.sdk.req.app.ExploreByKgQlReq;
-import com.plantdata.kgcloud.sdk.req.app.GisGraphExploreReq;
-import com.plantdata.kgcloud.sdk.req.app.GisLocusReq;
-import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
-import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.PromptReq;
-import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
+import com.plantdata.kgcloud.sdk.req.app.*;
 import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.CommonReasoningExploreReqList;
@@ -134,6 +125,16 @@ public interface AppClient {
      */
     @PostMapping("knowledgeRecommend/{kgName}")
     ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@PathVariable("kgName") String kgName, @RequestBody KnowledgeRecommendReqList recommendParam);
+
+    /**
+     * 知识推荐（两层）
+     * @param kgName
+     * @param recommendParam
+     * @return
+     */
+    @PostMapping("layer/knowledgeRecommend/{kgName}")
+    public ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@PathVariable("kgName") String kgName,
+                                                                       @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam);
 
     /**
      * 获取模型可视化数据

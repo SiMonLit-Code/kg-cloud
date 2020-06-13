@@ -58,7 +58,7 @@ public class GraphApplicationController implements GraphAppInterface {
         return ApiReturn.success(graphApplicationService.knowledgeRecommend(kgName, recommendParam));
     }
 
-    @ApiOperation("多层知识推荐")
+    @ApiOperation("多层知识推荐,暂支持两层")
     @PostMapping("layer/knowledgeRecommend/{kgName}")
     public ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                   @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam) {
