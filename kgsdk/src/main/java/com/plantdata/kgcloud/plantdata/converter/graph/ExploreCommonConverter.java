@@ -242,12 +242,12 @@ public class ExploreCommonConverter extends BasicConverter {
         return infoBean;
     }
 
-    private static RelationAttrReq attrScreeningBeanToRelationAttrReq(@NonNull AttrScreeningBean screeningBean) {
+    public static RelationAttrReq attrScreeningBeanToRelationAttrReq(@NonNull AttrScreeningBean screeningBean) {
         RelationAttrReq relationAttrReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), RelationAttrReq.class);
         consumerIfNoNull(relationAttrReq, a -> a.set$ne(screeningBean.get$neq()));
         return relationAttrReq;
     }
-    private static MetaDataReq attrScreeningBeanToMetaDataReq(@NonNull AttrScreeningBean screeningBean) {
+    public static MetaDataReq attrScreeningBeanToMetaDataReq(@NonNull AttrScreeningBean screeningBean) {
         MetaDataReq metaDataReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), MetaDataReq.class);
         consumerIfNoNull(metaDataReq, a -> a.set$ne(screeningBean.get$neq()));
         return metaDataReq;

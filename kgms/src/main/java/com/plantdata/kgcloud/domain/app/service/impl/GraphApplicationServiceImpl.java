@@ -9,16 +9,22 @@ import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.MongoApi;
 import ai.plantdata.kg.api.pub.RelationApi;
+import ai.plantdata.kg.api.pub.req.CommonFilter;
+import ai.plantdata.kg.api.pub.req.GraphFrom;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
+import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.api.pub.resp.RelationVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.*;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
+import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import com.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
@@ -33,13 +39,10 @@ import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfFocusRepository;
 import com.plantdata.kgcloud.domain.graph.manage.entity.Graph;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
+import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
-import com.plantdata.kgcloud.sdk.req.app.ComplexGraphVisualReq;
-import com.plantdata.kgcloud.sdk.req.app.GraphInitRsp;
-import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
-import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
-import com.plantdata.kgcloud.sdk.req.app.PageReq;
+import com.plantdata.kgcloud.sdk.req.app.*;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
@@ -47,13 +50,16 @@ import com.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
 import com.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
+import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.edit.DictRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
+import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -61,12 +67,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -108,6 +109,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private DomainDictService domainDictService;
     @Autowired
     private RelationApi relationApi;
+    @Autowired
+    private ai.plantdata.kg.api.pub.GraphApi pubGraphApi;
 
     @Override
     public SchemaRsp querySchema(String kgName) {
@@ -260,6 +263,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 BasicConverter.consumerIfNoNull(entity.getAttrValue(),
                         a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
+            Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(kgName, entityIds);
             Map<Long, List<KnowledgeIndexRsp>> indexMap = basicInfoService.listKnowledgeIndexs(kgName, entityIds);
             //查询对象属性
             Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
@@ -276,7 +280,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 }));
             }
             BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
-                    a -> InfoBoxConverter.entityToInfoBoxRsp(a,indexMap.get(a.getId()),
+                    a -> InfoBoxConverter.entityToInfoBoxRsp(a,map.get(a.getId()),indexMap.get(a.getId()),
                             positiveMap.get(a.getId()), reverseMap.get(a.getId()))), infoBoxRspList::addAll);
 
         });
@@ -342,5 +346,65 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
         });
         return infoboxMultiModelRspList;
+    }
+
+    @Override
+    public List<ObjectAttributeRsp> layerKnowledgeRecommend(String kgName, LayerKnowledgeRecommendReqList recommendParam) {
+
+        Map<Integer,KnowledgeRecommendCommonFilterReq> recommendCommonFilterReqMap = recommendParam.getLayerFilter();
+        if(recommendCommonFilterReqMap == null || recommendCommonFilterReqMap.size() != 2){
+            return null;
+        }
+
+
+        // 实体id为空时，将实体名称转成实体id
+        graphHelperService.replaceKwToId(kgName,recommendParam);
+
+        if (recommendParam.getEntityId() == null && org.springframework.util.StringUtils.isEmpty(recommendParam.getKw())) {
+            throw BizException.of(AppErrorCodeEnum.NULL_KW_AND_ID);
+        }
+        if (recommendParam.getPage() == null) {
+            PageReq page = new PageReq();
+            page.setPage(NumberUtils.INTEGER_ONE);
+            page.setSize(BaseReq.DEFAULT_SIZE);
+            recommendParam.setPage(page);
+        }
+
+
+        GraphFrom graphFrom = new GraphFrom();
+        //通用参数
+        graphFrom.setId(recommendParam.getEntityId());
+        graphFrom.setName(recommendParam.getKw());
+
+        Map<Integer,CommonFilter> layerFilter = new HashMap<>();
+        //每层参数
+        for(Map.Entry<Integer,KnowledgeRecommendCommonFilterReq> entry : recommendCommonFilterReqMap.entrySet()){
+            KnowledgeRecommendCommonFilterReq filter = entry.getValue();
+
+            graphHelperService.keyToId(kgName,filter);
+
+            CommonFilter commonFilter = knowledgeRecommendCommonFilterReq2CommonFilter(filter,new CommonFilter());
+
+            if(entry.getKey() == 2){
+                commonFilter.setSkip((recommendParam.getPage().getOffset()));
+                commonFilter.setLimit(recommendParam.getPage().getSize());
+            }
+            layerFilter.put(entry.getKey(),commonFilter);
+        }
+
+        graphFrom.setLayerFilters(layerFilter);
+        graphFrom.setDistance(2);
+        System.out.println(JacksonUtils.writeValueAsString(graphFrom));
+
+        Optional<GraphVO> graphOpt = RestRespConverter.convert(pubGraphApi.graph(KGUtil.dbName(kgName), graphFrom));
+        return KnowledgeRecommendConverter.graphVOToRsp(graphOpt.get(),2);
+
+    }
+
+    private CommonFilter knowledgeRecommendCommonFilterReq2CommonFilter(KnowledgeRecommendCommonFilterReq filter,CommonFilter commonFilter) {
+        BeanUtils.copyProperties(filter,commonFilter);
+        commonFilter.setQueryPrivate(false);
+        return commonFilter;
+
     }
 }

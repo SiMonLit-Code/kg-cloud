@@ -29,4 +29,5 @@ public class EntityLinksBean {
     private Set<EntityLink> entityLinks;
     private List<DictRsp> dictList;
     private List<KnowledgeIndexRsp> knowledgeIndexs;
+    private List<MultiModalRsp> multiModals;
 }

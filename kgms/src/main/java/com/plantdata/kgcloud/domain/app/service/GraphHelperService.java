@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.app.service;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
+import com.plantdata.kgcloud.sdk.req.app.LayerKnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.*;
@@ -77,6 +78,13 @@ public interface GraphHelperService {
      * @param req
      */
     void replaceKwToId(String kgName, KnowledgeRecommendReqList req);
+
+    /**
+     * 替换知识推荐片中实体名称 为 实体id
+     * @param kgName
+     * @param req
+     */
+    void replaceKwToId(String kgName, LayerKnowledgeRecommendReqList req);
 
     Map<Long, BasicInfo> getConceptIdMap(String kgName);
 

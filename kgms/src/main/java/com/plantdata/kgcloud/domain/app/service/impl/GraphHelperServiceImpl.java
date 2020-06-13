@@ -28,6 +28,7 @@ import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
+import com.plantdata.kgcloud.sdk.req.app.LayerKnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import com.plantdata.kgcloud.sdk.req.app.function.*;
@@ -110,6 +111,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
             }
         }
         return exploreReq;
+
     }
 
 
@@ -260,6 +262,28 @@ public class GraphHelperServiceImpl implements GraphHelperService {
 
     @Override
     public void replaceKwToId(String kgName, KnowledgeRecommendReqList req) {
+        if (req.getEntityId() == null) {
+            String kw = req.getKw();
+            if (StringUtils.isBlank(kw)) {
+                return;
+            }
+            MongoQueryFrom query = new MongoQueryFrom();
+            query.setKgName(KGUtil.dbName(kgName));
+            query.setCollection("basic_info");
+            List<Map<String, Object>> mathMapList = Lists.newArrayList();
+            mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", kw)));
+            query.setQuery(mathMapList);
+            RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
+            List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(ids)) {
+                return;
+            }
+            req.setEntityId(ids.get(0));
+        }
+    }
+
+    @Override
+    public void replaceKwToId(String kgName, LayerKnowledgeRecommendReqList req) {
         if (req.getEntityId() == null) {
             String kw = req.getKw();
             if (StringUtils.isBlank(kw)) {

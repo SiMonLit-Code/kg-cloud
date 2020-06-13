@@ -111,4 +111,5 @@ public class BasicInfoRsp extends BasicInfoVO {
 
     @ApiModelProperty(value = "多模态数据")
     private List<MultiModalRsp> multiModals;
+
 }
