@@ -4,6 +4,7 @@ package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
+import com.plantdata.kgcloud.sdk.req.app.sematic.GremlinReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.NerSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import com.plantdata.kgcloud.sdk.rsp.app.GremlinRsp;
@@ -43,7 +44,7 @@ public interface SemanticClient {
      * @return
      */
     @PostMapping("gremlin/query/{kgName}")
-    public ApiReturn<GremlinRsp> gremlinQuery(@PathVariable("kgName") String kgName, @RequestParam String gremlinQuery);
+    ApiReturn<GremlinRsp> gremlinQuery(@PathVariable("kgName") String kgName, @RequestBody GremlinReq req);
 
     /**
      * 初始化意图

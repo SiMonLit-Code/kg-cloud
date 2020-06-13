@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.plantdata.converter.semantic;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.semantic.GremlinParameter;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
+import com.plantdata.kgcloud.sdk.req.app.sematic.GremlinReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import lombok.NonNull;
 
@@ -13,7 +14,9 @@ import lombok.NonNull;
  */
 public class GremlinConverter extends BasicConverter {
 
-    public static String gremlinParameterToQueryReq(@NonNull GremlinParameter param) {
-        return param.getGremlin();
+    public static GremlinReq gremlinParameterToQueryReq(@NonNull GremlinParameter param) {
+        GremlinReq req = new GremlinReq();
+        req.setGremlin(param.getGremlin());
+        return req;
     }
 }

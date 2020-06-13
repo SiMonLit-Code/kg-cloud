@@ -12,6 +12,7 @@ import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.SegmentConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import com.plantdata.kgcloud.sdk.req.app.sematic.GremlinReq;
 import com.plantdata.kgcloud.sdk.rsp.app.GremlinRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBeanRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
@@ -42,7 +43,7 @@ public class SemanticController implements SdkOpenApiInterface {
 
     @ApiOperation("gremlin查询")
     @PostMapping("gremlin/query/{kgName}")
-    public ApiReturn<GremlinRsp> gremlinQuery(@PathVariable("kgName") String kgName, @RequestParam String gremlinQuery) {
+    public ApiReturn<GremlinRsp> gremlinQuery(@PathVariable("kgName") String kgName, @RequestBody GremlinReq req) {
 
         /*Gremlin gremlin = new Gremlin();
         gremlin.setKgName(KGUtil.dbName(kgName));
