@@ -12,18 +12,15 @@ import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.domain.edit.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.TraceabilityQueryReq;
-import com.plantdata.kgcloud.sdk.rsp.app.GremlinRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -47,23 +44,7 @@ public class KgDataController implements GraphAppInterface {
     private SparqlApi sparqlApi;
     @Autowired
     private HttpServletResponse response;
-//    @Autowired
-//    private QlApi qlApi;
 
-/*    @ApiOperation("gremlin查询")
-    @PostMapping("gremlin/query/{kgName}")
-    public ApiReturn<GremlinRsp> gremlinQuery(@PathVariable("kgName") String kgName, @RequestParam String gremlinQuery) {
-
-        Gremlin gremlin = new Gremlin();
-        gremlin.setKgName(KGUtil.dbName(kgName));
-        gremlin.setGremlin(gremlinQuery);
-        Optional<ResultSet> resOpt = RestRespConverter.convert(qlApi.gremlin(gremlin));
-        if (!resOpt.isPresent()) {
-            return ApiReturn.success(new GremlinRsp());
-        }
-        GremlinRsp copy = BasicConverter.copy(resOpt.get(), GremlinRsp.class);
-        return ApiReturn.success(copy);
-    }*/
 
     @ApiOperation("sparql查询")
     @PostMapping("sparQl/query/{kgName}")
