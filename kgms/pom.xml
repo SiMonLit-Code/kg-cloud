@@ -37,7 +37,7 @@
 
         <dependency>
             <groupId>com.plantdata.log</groupId>
-            <artifactId>graph-logging</artifactId>
+            <artifactId>graph-logging</artifactId>mongoClient
         </dependency>
 
         <dependency>

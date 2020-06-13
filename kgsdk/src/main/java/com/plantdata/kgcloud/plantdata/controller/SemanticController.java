@@ -21,6 +21,7 @@ import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.SemanticClient;
 import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
+import com.plantdata.kgcloud.sdk.req.app.sematic.GremlinReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
 import com.plantdata.kgcloud.sdk.rsp.app.GremlinRsp;
@@ -96,7 +97,7 @@ public class SemanticController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "gremlin", required = true, dataType = "string", paramType = "form", value = "gremlin查询语句")
     })
     public RestResp<GremlinRsp> qaGremlin(@Valid @ApiIgnore GremlinParameter param) {
-        Function<String, ApiReturn<GremlinRsp>> returnFunction = a -> semanticClient.gremlinQuery(param.getKgName(), a);
+        Function<GremlinReq, ApiReturn<GremlinRsp>> returnFunction = a -> semanticClient.gremlinQuery(param.getKgName(), a);
         Optional<GremlinRsp> dataRsp = returnFunction
                 .compose(GremlinConverter::gremlinParameterToQueryReq)
                 .andThen(BasicConverter::apiReturnData)
