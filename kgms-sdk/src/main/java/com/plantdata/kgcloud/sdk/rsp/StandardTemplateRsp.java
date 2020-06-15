@@ -31,6 +31,9 @@ public class StandardTemplateRsp {
     @ApiModelProperty("行业标准描述")
     private String description;
 
+    @ApiModelProperty("图谱名")
+    private String kgName;
+
     @ApiModelProperty("行业模板schema")
     private List<StandardTemplateSchemaRsp> schemas;
 
