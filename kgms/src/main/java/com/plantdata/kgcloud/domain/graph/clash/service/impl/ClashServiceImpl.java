@@ -74,10 +74,12 @@ public class ClashServiceImpl implements ClashService {
                     .find(new Document("id", attrId)).iterator();
 
             int attrType = 0;
+            int dataType = 0;
             String attrName = "";
             if (cursor1.hasNext()) {
                 Document define = cursor1.next();
                 attrType = define.getInteger("type");
+                dataType = define.getInteger("data_type");
                 attrName = define.getString("name");
                 if (attrType == 0 && define.containsKey("constraints")) {
                     clashInfo = define.getString("constraints");
@@ -87,6 +89,7 @@ public class ClashServiceImpl implements ClashService {
             }
             s.put("clash_info", clashInfo);
             s.put("attr_type", attrType);
+            s.put("data_type", dataType);
             s.put("attr_name", attrName);
             s.remove("basic");
 
