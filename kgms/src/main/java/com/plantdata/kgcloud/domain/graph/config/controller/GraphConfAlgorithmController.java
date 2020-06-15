@@ -60,16 +60,4 @@ public class GraphConfAlgorithmController {
     public ApiReturn<GraphConfAlgorithmRsp> detailAlgorithm(@PathVariable("id") Long id) {
         return ApiReturn.success(graphConfAlgorithmService.findById(id));
     }
-
-    @ApiOperation("test1")
-    @PostMapping("/test1")
-    public RestResp<AlgorithmStatisticeRsp> test1() {
-
-
-        int i = 0;
-        int j = 1 / i;
-        String str = "{\"xaxis\":[\"x1\",\"x2\",\"x3\"],\"chartTypes\":[\"line\",\"chart\"],\"series\":[{\"name\":\"名称\",\"data\":[3,5,1],\"ids\":[[\"id1\",\"id2\",\"id3\"],[\"id4\",\"id5\",\"id6\",\"id7\",\"id8\"],[\"id9\"]]}]}";
-        AlgorithmStatisticeRsp rsp = JSON.parseObject(str,AlgorithmStatisticeRsp.class);
-        return new RestResp(rsp);
-    }
 }

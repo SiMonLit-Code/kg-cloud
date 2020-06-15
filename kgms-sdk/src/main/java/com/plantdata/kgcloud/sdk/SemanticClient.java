@@ -40,7 +40,7 @@ public interface SemanticClient {
     /**
      * gremlin查询
      * @param kgName
-     * @param gremlinQuery
+     * @param req
      * @return
      */
     @PostMapping("gremlin/query/{kgName}")

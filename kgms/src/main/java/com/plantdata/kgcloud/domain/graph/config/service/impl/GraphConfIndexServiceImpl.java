@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
+import ai.plantdata.kg.api.edit.IndexApi;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfIndex;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfQaStatus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfIndexRepository;
@@ -25,6 +27,12 @@ public class GraphConfIndexServiceImpl implements GraphConfIndexService {
     @Autowired
     private GraphConfIndexRepository graphConfIndexRepository;
 
+    @Autowired
+    private IndexApi indexApi;
+
+    private static String ENAITTY_TABLE = "basic_info";
+
+    private static String ENATITY_UPDATE_DATE_FIELD = "meta_data.meta_data_2";
 
     @Override
     public GraphConfIndexStatusRsp getStatus(String kgName) {
@@ -51,5 +59,7 @@ public class GraphConfIndexServiceImpl implements GraphConfIndexService {
         GraphConfIndex newGraphConfIndexStatus = optional.get();
         newGraphConfIndexStatus.setStatus(status);
         graphConfIndexRepository.save(newGraphConfIndexStatus);
+
+        indexApi.create(KGUtil.dbName(kgName),ENAITTY_TABLE,ENATITY_UPDATE_DATE_FIELD);
     }
 }
