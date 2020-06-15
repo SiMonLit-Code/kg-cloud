@@ -24,6 +24,4 @@ public class AlgorithmStatisticeBean {
 
     private List<Object> xAxis = new ArrayList<>();
     private List<AlgorithmStatisticeSeriesItemBean> series = new ArrayList<>();
-
-    private List<String> chartTypes;
 }

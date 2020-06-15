@@ -24,7 +24,4 @@ public class AlgorithmStatisticeRsp {
 
     private List<Object> xAxis = new ArrayList<>();
     private List<AlgorithmStatisticeSeriesItemRsp> series = new ArrayList<>();
-
-    private List<String> chartTypes;
-
 }
