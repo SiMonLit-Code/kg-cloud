@@ -1,6 +1,9 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
+import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.SemanticApi;
+import ai.plantdata.kg.api.pub.req.Gremlin;
+import ai.plantdata.kg.api.pub.resp.ResultSet;
 import ai.plantdata.kg.api.semantic.QuestionAnswersApi;
 import ai.plantdata.kg.api.semantic.req.QueryReq;
 import ai.plantdata.kg.api.semantic.rsp.AnswerDataRsp;
@@ -38,23 +41,22 @@ public class SemanticController implements SdkOpenApiInterface {
     @Autowired
     private SemanticApi semanticApi;
 
-    //    @Autowired
-//    private QlApi qlApi;
+    @Autowired
+    private QlApi qlApi;
 
     @ApiOperation("gremlin查询")
     @PostMapping("gremlin/query/{kgName}")
     public ApiReturn<GremlinRsp> gremlinQuery(@PathVariable("kgName") String kgName, @RequestBody GremlinReq req) {
 
-        /*Gremlin gremlin = new Gremlin();
+        Gremlin gremlin = new Gremlin();
         gremlin.setKgName(KGUtil.dbName(kgName));
-        gremlin.setGremlin(gremlinQuery);
+        gremlin.setGremlin(req.getGremlin());
         Optional<ResultSet> resOpt = RestRespConverter.convert(qlApi.gremlin(gremlin));
         if (!resOpt.isPresent()) {
             return ApiReturn.success(new GremlinRsp());
         }
         GremlinRsp copy = BasicConverter.copy(resOpt.get(), GremlinRsp.class);
-        return ApiReturn.success(copy);*/
-        return ApiReturn.success();
+        return ApiReturn.success(copy);
     }
 
 

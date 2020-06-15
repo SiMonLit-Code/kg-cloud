@@ -28,7 +28,7 @@
         <kg-cloud-parent.version>3.1.10</kg-cloud-parent.version>
         <kg-cloud-public.version>3.3.1</kg-cloud-public.version>
         <kg-cloud-kguser.version>3.3.3</kg-cloud-kguser.version>
-        <kg-services-sdk.version>3.4.0</kg-services-sdk.version>
+        <kg-services-sdk.version>3.4.1</kg-services-sdk.version>
     </properties>
     <dependencyManagement>
         <dependencies>
