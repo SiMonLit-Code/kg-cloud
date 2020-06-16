@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class InduceConceptReq {
     @ApiModelProperty(value = "概念id")
     private Long conceptId;
 
+    @Size(max = 50)
     @ApiModelProperty(value = "概念名称")
     private String conceptName;
 
