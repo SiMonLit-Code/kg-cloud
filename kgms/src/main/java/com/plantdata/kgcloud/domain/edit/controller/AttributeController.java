@@ -26,6 +26,7 @@ import com.plantdata.kgcloud.domain.edit.rsp.AttrConstraintsRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
+import com.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
@@ -37,6 +38,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
+import com.plantdata.kgcloud.security.SessionHolder;
 import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -253,6 +255,10 @@ public class AttributeController {
                                                                        @RequestBody List<BatchRelationRsp> relationList) {
         List<BatchRelationVO> collect = BasicConverter.listConvert(relationList,
                 a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
+
+        collect.forEach(re -> {
+            re.setMetaData(MetaDataUtils.getDefaultSourceMetaData(re.getMetaData(), SessionHolder.getUserId()));
+        });
 
         Optional<BatchResult<BatchRelationVO>> resultRestResp =
                 RestRespConverter.convert(batchApi.addRelations(KGUtil.dbName(kgName), collect));

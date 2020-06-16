@@ -39,8 +39,8 @@ public class SyncLogServiceImpl implements SyncLogService {
         String mongoLogDb = mongoPrefix + SYNC_LOG_DB;
 
         Document document = new Document();
-        document.put("dbName",req.getDbName());
-        document.put("tbName",req.getTbName());
+        document.put("dataName",req.getDbName());
+        document.put("tableName",req.getTbName());
         MongoCursor<Document> iterable = mongoClient.getDatabase(mongoLogDb).getCollection(req.getKgName()).find(document).skip(req.getOffset()).limit(req.getSize()).iterator();
 
         List<SyncLogRsp> rsList = new ArrayList<>();
