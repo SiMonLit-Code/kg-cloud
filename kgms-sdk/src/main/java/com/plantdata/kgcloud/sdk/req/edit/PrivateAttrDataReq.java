@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.sdk.req.edit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -32,6 +33,7 @@ public class PrivateAttrDataReq {
     private Integer type;
 
     @NotEmpty
+    @Length(max = 50)
     @ApiModelProperty(value = "私有属性名称")
     private String attrName;
 
