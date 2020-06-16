@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.edit.req.induce;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * @Author: LinHo
@@ -16,6 +17,7 @@ public class InduceObjectReq {
     @ApiModelProperty(value = "规约出的属性id")
     private Integer attributeId;
 
+    @Length(max = 50)
     @ApiModelProperty(value = "规约出的属性名称")
     private String attributeName;
 
