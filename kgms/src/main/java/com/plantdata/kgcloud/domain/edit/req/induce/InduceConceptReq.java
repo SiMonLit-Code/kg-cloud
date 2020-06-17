@@ -21,7 +21,7 @@ public class InduceConceptReq {
     @ApiModelProperty(value = "概念id")
     private Long conceptId;
 
-    @Length(max = 50)
+    @Length(max = 50, message = "概念名称不能超过50")
     @ApiModelProperty(value = "概念名称")
     private String conceptName;
 

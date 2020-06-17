@@ -17,7 +17,7 @@ public class InduceObjectReq {
     @ApiModelProperty(value = "规约出的属性id")
     private Integer attributeId;
 
-    @Length(max = 50)
+    @Length(max = 50, message = "长度不能超过50")
     @ApiModelProperty(value = "规约出的属性名称")
     private String attributeName;
 
