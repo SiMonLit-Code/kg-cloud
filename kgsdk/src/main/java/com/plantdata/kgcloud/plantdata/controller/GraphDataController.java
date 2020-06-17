@@ -138,9 +138,9 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "conceptId", required = true, dataType = "long", paramType = "query", value = "概念id")
     })
-    public RestResp deleteConcept(@Valid @ApiIgnore @RequestParam("kgName") String kgName, @RequestParam("conceptId") Long conceptId) {
-        ApiReturnConverter.convert(editClient.deleteConcept(kgName, conceptId));
-        return new RestResp();
+    public RestResp<Object> deleteConcept(@Valid @ApiIgnore @RequestParam("kgName") String kgName, @RequestParam("conceptId") Long conceptId) {
+        ApiReturnConverter.convert(editClient.deleteConcept(kgName, conceptId, false));
+        return new RestResp<>();
     }
 
     @ApiOperation("批量属性定义新增")

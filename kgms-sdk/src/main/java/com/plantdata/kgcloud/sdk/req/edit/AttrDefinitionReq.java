@@ -21,7 +21,7 @@ import java.util.Map;
 public class AttrDefinitionReq {
 
     @NotEmpty
-    @ApiModelProperty(required = true,value = "属性名称")
+    @ApiModelProperty(required = true, value = "属性名称")
     @Length(max = 50, message = "属性名称长度不能超过50")
     private String name;
 
@@ -29,18 +29,18 @@ public class AttrDefinitionReq {
     @Length(max = 100, message = "属性别名长度不能超过100")
     private String alias;
 
-    @ApiModelProperty(required = true,value = "0：数值，1：对象", allowableValues = "0,1")
+    @ApiModelProperty(required = true, value = "0：数值，1：对象", allowableValues = "0,1")
     @NotNull
     private Integer type;
     @NotNull
-    @ApiModelProperty(required = true,value = "属性定义域")
+    @ApiModelProperty(required = true, value = "属性定义域")
     private Long domainValue;
 
     @ApiModelProperty(value = "属性值域")
     private List<Long> rangeValue;
 
     @NotNull
-    @ApiModelProperty(required = true,value = "属性类型")
+    @ApiModelProperty(required = true, value = "属性类型")
     private Integer dataType;
 
     @ApiModelProperty(value = "属性单位")
@@ -55,10 +55,10 @@ public class AttrDefinitionReq {
 
     @ApiModelProperty(value = "前端使用")
     private Map<String, Object> additionalInfo;
-
     @ApiModelProperty(value = "属性约束")
     private Map<String, Object> constraints;
-
+    @ApiModelProperty(value = "边属性定义")
+    private List<EdgeReq> extraInfo;
     @ApiModelProperty(value = "属性定义key")
     @KeyCheck
     @Length(max = 50, message = "长度不能超过50")

@@ -1,17 +1,20 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import com.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
-import com.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
-import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
+import com.plantdata.kgcloud.plantdata.rsp.schema.AttributeExtraInfoItem;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
+import com.plantdata.kgcloud.sdk.req.edit.EdgeReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
+
+import java.util.List;
 
 /**
  * @author cjw
@@ -20,13 +23,6 @@ import org.apache.commons.lang3.math.NumberUtils;
  */
 public class AttrDefConverter extends BasicConverter {
 
-    public static AttrDefQueryReq attributeParameterToAttrDefQueryReq(@NonNull AttributeParameter param) {
-        AttrDefQueryReq queryReq = new AttrDefQueryReq();
-        queryReq.setConceptId(param.getConceptId());
-        queryReq.setConceptKey(param.getConceptKey());
-        queryReq.setInherit(param.getIsInherit());
-        return queryReq;
-    }
 
     public static AttrDefinitionReq attributeConstraintDefinitionToAttrDefinitionReq(@NonNull AttributeConstraintDefinition attrDef) {
         return attrConDefToAttrDefinitionReq(attrDef, new AttrDefinitionReq());
@@ -69,6 +65,20 @@ public class AttrDefConverter extends BasicConverter {
         req.setDataType(attrDef.getDataType());
         req.setDirection(NumberUtils.INTEGER_ZERO);
         req.setDataUnit(attrDef.getDataUnit());
+        req.setExtraInfo(toListNoNull(attrDef.getExtraInfoList(), AttrDefConverter::attributeExtraInfoItem2EdgeReq));
         return req;
+    }
+
+    private static EdgeReq attributeExtraInfoItem2EdgeReq(AttributeExtraInfoItem extraInfoItem) {
+        EdgeReq edgeReq = new EdgeReq();
+        edgeReq.setDataType(extraInfoItem.getDataType());
+        edgeReq.setDataUnit(extraInfoItem.getDataUnit());
+        edgeReq.setIndexed(extraInfoItem.getIndexed());
+        edgeReq.setName(extraInfoItem.getName());
+        consumerIfNoNull(extraInfoItem.getObjRange(), a -> edgeReq.setObjRange(JsonUtils.jsonToObj(a, new TypeReference<List<Long>>() {
+        })));
+        edgeReq.setSeqNo(extraInfoItem.getSeqNo());
+        edgeReq.setType(extraInfoItem.getType());
+        return edgeReq;
     }
 }
