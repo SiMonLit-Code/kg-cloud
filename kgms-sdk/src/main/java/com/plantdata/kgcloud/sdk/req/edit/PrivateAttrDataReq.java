@@ -33,7 +33,7 @@ public class PrivateAttrDataReq {
     private Integer type;
 
     @NotEmpty
-    @Length(max = 50)
+    @Length(max = 50,message = "长度不能超过50")
     @ApiModelProperty(value = "私有属性名称")
     private String attrName;
 

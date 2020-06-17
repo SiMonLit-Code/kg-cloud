@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.edit.req.attr;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @ApiModel("边属性定义创建模型")
 public class EdgeAttrDefinitionReq {
 
+    @Length(max = 50, message = "长度不能超过50")
     @ApiModelProperty(required = true,value = "边属性名称")
     private String name;
 

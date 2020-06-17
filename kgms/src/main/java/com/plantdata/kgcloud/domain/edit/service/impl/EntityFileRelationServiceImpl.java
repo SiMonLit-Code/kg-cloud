@@ -476,6 +476,9 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
 
         if (relation.getIndexType().equals(0)) {
             FileData fileData = fileDataService.get(relation.getFileId());
+            if(fileData == null){
+                fileData = new FileData();
+            }
             List<String> kgNames = fileData.getKgNames();
             if (kgNames == null) {
                 kgNames = Lists.newArrayList(kgName);
