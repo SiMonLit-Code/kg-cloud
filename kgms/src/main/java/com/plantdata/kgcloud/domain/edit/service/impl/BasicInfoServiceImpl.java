@@ -243,7 +243,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         if (!CollectionUtils.isEmpty(synonym)) {
             // 去除空白和重复的同义词
             names = names.stream().filter(org.apache.commons.lang3.StringUtils::isNotBlank)
-                    .filter(s -> !synonym.contains(s))
+                    .filter(s -> !synonym.contains(s)).filter(s -> s.length() < 50)
                     .collect(Collectors.toSet());
         }
         synonymReq.setNames(names);

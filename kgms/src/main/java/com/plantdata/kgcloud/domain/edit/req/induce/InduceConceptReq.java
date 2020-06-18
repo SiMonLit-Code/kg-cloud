@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.domain.edit.req.induce;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -20,6 +21,7 @@ public class InduceConceptReq {
     @ApiModelProperty(value = "概念id")
     private Long conceptId;
 
+    @Length(max = 50, message = "长度不能超过50")
     @ApiModelProperty(value = "概念名称")
     private String conceptName;
 
