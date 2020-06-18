@@ -131,9 +131,13 @@ public class ParserBeanUtils {
                 //设置gis
                 GisVO gisVO = new GisVO();
                 if (entityMetaData.containsKey(MetaDataInfo.GIS_COORDINATE.getFieldName())) {
-                    List<Double> gis = (List<Double>) entityMetaData.get(MetaDataInfo.GIS_COORDINATE.getFieldName());
-                    gisVO.setLng(gis.get(0));
-                    gisVO.setLat(gis.get(1));
+                    try {
+                        List<Double> gis = (List<Double>) entityMetaData.get(MetaDataInfo.GIS_COORDINATE.getFieldName());
+                        gisVO.setLng(gis.get(0));
+                        gisVO.setLat(gis.get(1));
+                    }catch (Exception e){
+                        System.out.println("GIS格式不正确："+JSON.toJSONString(entityMetaData.get(MetaDataInfo.GIS_COORDINATE.getFieldName())));
+                    }
                 }
                 if (entityMetaData.containsKey(MetaDataInfo.OPEN_GIS.getFieldName())) {
                     gisVO.setIsOpenGis((Boolean) entityMetaData.get(MetaDataInfo.OPEN_GIS.getFieldName()));
