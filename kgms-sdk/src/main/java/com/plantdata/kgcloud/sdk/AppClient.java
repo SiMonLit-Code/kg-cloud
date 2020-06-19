@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.exection.client.AppClientEx;
 import com.plantdata.kgcloud.sdk.req.StatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.TableStatisticByDimensionalReq;
 import com.plantdata.kgcloud.sdk.req.app.*;
@@ -33,7 +34,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.AlgorithmStatisticeRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,7 +51,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019/11/21 14:03
  */
-@FeignClient(value = "kgms", path = "app", contextId = "app")
+@FeignClient(value = "kgms", path = "app", contextId = "app",fallback = AppClientEx.class)
 public interface AppClient {
 
     /**

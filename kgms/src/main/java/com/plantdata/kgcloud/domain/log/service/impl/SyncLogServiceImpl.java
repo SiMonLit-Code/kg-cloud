@@ -51,7 +51,7 @@ public class SyncLogServiceImpl implements SyncLogService {
             rsp.setDbName(req.getDbName());
             rsp.setTbName(req.getTbName());
             rsp.setId(doc.getString("dataId"));
-            rsp.setValue(doc.get("data", JSONObject.class));
+            rsp.setValue(doc.get("data", Document.class));
 
             rsList.add(rsp);
         }

@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.exection.client.ReasoningClientEx;
 import com.plantdata.kgcloud.sdk.req.ReasoningExecuteReq;
 import com.plantdata.kgcloud.sdk.req.ReasoningQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
@@ -24,7 +25,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/27 10:59
  */
-@FeignClient(value = "kgms", path = "app/reasoning", contextId = "reasoningClient")
+@FeignClient(value = "kgms", path = "app/reasoning", contextId = "reasoningClient",fallback = ReasoningClientEx.class)
 public interface ReasoningClient {
 
 

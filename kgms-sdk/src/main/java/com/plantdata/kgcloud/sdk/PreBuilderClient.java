@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.exection.client.PreBuilderClientEx;
 import com.plantdata.kgcloud.sdk.req.ReasoningExecuteReq;
 import com.plantdata.kgcloud.sdk.req.ReasoningQueryReq;
 import com.plantdata.kgcloud.sdk.req.StandardSearchReq;
@@ -26,7 +27,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2020/6/8 10:59
  */
-@FeignClient(value = "kgms", path = "builder/", contextId = "preBuilderClient")
+@FeignClient(value = "kgms", path = "builder/", contextId = "preBuilderClient",fallback = PreBuilderClientEx.class)
 public interface PreBuilderClient {
 
 

@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.exection.client.MergeClientEx;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +14,7 @@ import java.util.List;
  * @version 1.0
  * @date 2020/1/9 15:13
  */
-@FeignClient(value = "kgms", path = "/merge", contextId = "mergeClient")
+@FeignClient(value = "kgms", path = "/merge", contextId = "mergeClient",fallback = MergeClientEx.class)
 public interface MergeClient {
 
     /**
