@@ -3,6 +3,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.exection.client.SemanticClientEx;
 import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.GremlinReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.NerSearchReq;
@@ -24,7 +25,7 @@ import java.util.List;
 /**
  * @author Administrator
  */
-@FeignClient(value = "kgms", path = "app/semantic", contextId = "semanticClient")
+@FeignClient(value = "kgms", path = "app/semantic", contextId = "semanticClient",fallback = SemanticClientEx.class)
 public interface SemanticClient {
     /**
      * 问答

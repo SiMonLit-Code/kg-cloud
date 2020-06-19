@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
+import com.plantdata.kgcloud.sdk.exection.client.KgDataClientEx;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
@@ -24,7 +25,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/7 14:02
  */
-@FeignClient(value = "kgms", path = "kgdata", contextId = "kgDataClient")
+@FeignClient(value = "kgms", path = "kgdata", contextId = "kgDataClient",fallback = KgDataClientEx.class)
 public interface KgDataClient {
 
 

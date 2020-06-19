@@ -3,6 +3,7 @@ package com.plantdata.kgcloud.sdk;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.sdk.exection.client.KgmsClientEx;
 import com.plantdata.kgcloud.sdk.req.*;
 import com.plantdata.kgcloud.sdk.rsp.*;
 import io.swagger.annotations.ApiOperation;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-@FeignClient(value = "kgms", contextId = "kgms")
+@FeignClient(value = "kgms", contextId = "kgms",fallback = KgmsClientEx.class)
 public interface KgmsClient {
 
     @ApiOperation("图谱查找所有")

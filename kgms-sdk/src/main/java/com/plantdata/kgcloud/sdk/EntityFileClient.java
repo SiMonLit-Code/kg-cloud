@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.exection.client.EntityFileClientEx;
 import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.EntityFileRelationRsp;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @author lp
  * @date 2020/5/21 21:04
  */
-@FeignClient(value = "kgms", path = "entity/file", contextId = "entityFileClient")
+@FeignClient(value = "kgms", path = "entity/file", contextId = "entityFileClient",fallback = EntityFileClientEx.class)
 public interface EntityFileClient {
 
     /**

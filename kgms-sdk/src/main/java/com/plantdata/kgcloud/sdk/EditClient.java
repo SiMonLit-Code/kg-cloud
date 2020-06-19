@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
+import com.plantdata.kgcloud.sdk.exection.client.EditClientEx;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -39,7 +40,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019/12/5 12:21
  */
-@FeignClient(value = "kgms", path = "/edit", contextId = "basicInfoClient")
+@FeignClient(value = "kgms", path = "/edit", contextId = "basicInfoClient",fallback = EditClientEx.class)
 public interface EditClient {
 
     /**
