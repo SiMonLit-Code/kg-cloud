@@ -195,6 +195,7 @@ public class ParserBeanUtils {
                 //填充数值属性来源
                 Map<String, Object> attrMetaData = entityAttrValueVO.getMetaData();
                 if (Objects.nonNull(attrMetaData)) {
+                    attrMetaData.remove(MetaDataInfo.GIS_COORDINATE.getFieldName());
 
                     if (attrMetaData.containsKey(MetaDataInfo.SOURCE.getFieldName())) {
                         entityAttrValueVO.setSource(attrMetaData.get(MetaDataInfo.SOURCE.getFieldName()).toString());
