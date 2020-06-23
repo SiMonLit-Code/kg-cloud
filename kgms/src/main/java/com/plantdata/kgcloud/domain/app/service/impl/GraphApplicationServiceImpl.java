@@ -249,6 +249,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         graphHelperService.replaceKwToId(kgName,req);
         //实体
         BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxReqToBasicDetailFilter(req);
+
         detailFilter.setEntity(true);
         //概念
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
@@ -269,6 +270,12 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
             Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
             Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
             Map<Long, List<RelationVO>> reverseMap = Maps.newHashMap();
+
+            if(relationOpt.isPresent()){
+
+                BasicConverter.consumerIfNoNull(req.getAllowAttrs(), allowAttrIds -> BasicConverter.consumerIfNoNull(relationOpt.get(),
+                        a -> a.removeIf(b -> !allowAttrIds.contains(b.getAttrId()))));
+            }
             if(req.getRelationAttrs()) {
                 relationOpt.ifPresent(relations -> relations.forEach(a -> {
                     positiveMap.computeIfAbsent(a.getFrom().getId(), v -> Lists.newArrayList()).add(a);
