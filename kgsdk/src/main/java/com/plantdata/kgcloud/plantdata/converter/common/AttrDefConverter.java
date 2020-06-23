@@ -4,14 +4,20 @@ import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import com.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
 import com.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
+import com.plantdata.kgcloud.plantdata.rsp.schema.AttributeExtraInfoItem;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
+import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
+import com.plantdata.kgcloud.util.ConvertUtils;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author cjw
@@ -69,6 +75,16 @@ public class AttrDefConverter extends BasicConverter {
         req.setDataType(attrDef.getDataType());
         req.setDirection(NumberUtils.INTEGER_ZERO);
         req.setDataUnit(attrDef.getDataUnit());
+        req.setExtraInfoList(attributeExtraInfoItemExtraInfo(attrDef.getExtraInfoList()));
         return req;
+    }
+
+    private static List<ExtraInfoReq> attributeExtraInfoItemExtraInfo(List<AttributeExtraInfoItem> extraInfoList) {
+
+        if(extraInfoList == null|| extraInfoList.isEmpty()){
+            return Lists.newArrayList();
+        }
+
+        return extraInfoList.stream().map(e -> ConvertUtils.convert(ExtraInfoReq.class).apply(e)).collect(Collectors.toList());
     }
 }

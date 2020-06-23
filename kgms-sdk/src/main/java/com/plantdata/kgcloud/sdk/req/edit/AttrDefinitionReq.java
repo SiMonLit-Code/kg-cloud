@@ -59,6 +59,9 @@ public class AttrDefinitionReq {
     @ApiModelProperty(value = "属性约束")
     private Map<String, Object> constraints;
 
+    @ApiModelProperty(value = "边属性")
+    private List<ExtraInfoReq> extraInfoList;
+
     @ApiModelProperty(value = "属性定义key")
     @KeyCheck
     @Length(max = 50, message = "长度不能超过50")
