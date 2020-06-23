@@ -45,8 +45,7 @@ public class AttrConverterUtils {
             EdgeFrom edgeFrom = ConvertUtils.convert(EdgeFrom.class).apply(e);
 
             try {
-                edgeFrom.setObjRange(JacksonUtils.readValue(e.getObjRange(), new TypeReference<List<Long>>() {
-                }));
+                edgeFrom.setObjRange(Lists.newArrayList(Long.valueOf(e.getObjRange())));
             }catch (Exception ex){}
 
             return edgeFrom;
