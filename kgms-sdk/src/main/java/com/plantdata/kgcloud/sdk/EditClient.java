@@ -96,7 +96,7 @@ public interface EditClient {
      */
     @GetMapping("attribute/{kgName}/concepts")
     ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptIds(@PathVariable("kgName") String kgName,
-                                                                     AttrDefinitionConceptsReq attrDefinitionConceptsReq);
+                                                                     @RequestBody AttrDefinitionConceptsReq attrDefinitionConceptsReq);
 
     /**
      * 批量新增关系
