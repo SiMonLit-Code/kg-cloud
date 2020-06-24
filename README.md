@@ -1,15 +1,13 @@
-项目自动化构建tag
-
-在父项目中指定将要构建 tag 的版本号 next-tag.version  和 项目构建以后的开发版本号 next-develop.version
-
-```bash
-mvn scm:update versions:set -DnewVersion=${next-tag.version} versions:set-scm-tag -DnewTag=v${next-tag.version} versions:commit
-
-mvn scm:checkin -Dmessage="build(tag): release tag v${next-tag.version}" scm:tag -Dtag=v${next-tag.version}
-
-mvn clean package deploy -Dmaven.test.skip=true
-
-mvn scm:update versions:set -DnewVersion=${next-develop.version} versions:set-scm-tag -DnewTag=HEAD versions:commit scm:checkin -Dmessage="build(pom): pom.xml version change to ${next-develop.version}"
-
+### 2020年6月24日 3.4.x 
+- 多图融合菜单sql变更
+```
+INSERT INTO `kg_cloud_kgms`.`repo_menu`(`menu_id`, `repository_id`) VALUES (23, 1001003);
+UPDATE `kg_cloud_kgms`.`repo_menu` SET `repository_id` = 1001003 WHERE `menu_id` = 230;
+UPDATE `kg_cloud_kgms`.`repo_menu` SET `repository_id` = 1001003 WHERE `menu_id` = 231;
+```
+- nn推理菜单sql变更
+```
+UPDATE `kg_cloud_kgms`.`repo_menu` SET `repository_id` = 902004 WHERE `menu_id` = 148;
+INSERT INTO `kg_cloud_kgms`.`repo_menu`(`menu_id`, `repository_id`) VALUES (149, 902005);
 ```
 
