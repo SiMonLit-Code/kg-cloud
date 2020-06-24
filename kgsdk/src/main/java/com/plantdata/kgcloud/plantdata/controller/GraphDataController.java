@@ -151,11 +151,12 @@ public class GraphDataController implements SdkOldApiInterface {
                 .compose(reqFunction)
                 .andThen(BasicConverter::apiReturnData)
                 .apply(param.getData());
-        if (!batchRsps.isPresent() || CollectionUtils.isEmpty(batchRsps.get().getSuccess())) {
+        if (!batchRsps.isPresent()) {
             return new RestResp<>();
         }
-        List<Integer> idList = batchRsps.get().getSuccess().stream().map(AttrDefinitionBatchRsp::getId).collect(Collectors.toList());
-        return new RestResp<>(idList);
+//        List<Integer> idList = batchRsps.get().getSuccess().stream().map(AttrDefinitionBatchRsp::getId).collect(Collectors.toList());
+//        return new RestResp<>(idList);
+        return new RestResp<>(batchRsps.get());
     }
 
     @ApiOperation("属性修改")
