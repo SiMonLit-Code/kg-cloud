@@ -413,8 +413,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         if (StringUtils.hasText(query)) {
             try {
                 int s = query.indexOf("\"");
-                int e = query.indexOf("\"", s);
-                String kgName = query.substring(s, e);
+                int e = query.indexOf("\"", s+1);
+                String kgName = query.substring(s+1, e);
                 query = query.replace(kgName, KGUtil.dbName(kgName));
             } catch (Exception e) {
                 e.printStackTrace();
