@@ -1,4 +1,9 @@
 ### 2020年6月29日 3.4.x
+- 神经推理导航
+```
+UPDATE `kg_cloud_kgms`.`repo_item` SET `name` = '神经网络推理计算软件包', `type` = 'DATA', `group_id` = 902, `state` = 1, `rank` = 1, `remark` = '集成基于神经网络的推理模型，支持可视化配置神经网络任务、实时跟踪推理任务执行情况、查看推理结果并选择性入图。', `config` = '{}', `check_configs` = '[{\"checkType\":\"FILE\",\"content\":\"/work/azkaban_shell/nn-reasoning.sh\"},{\"checkType\":\"CONSUL\",\"content\":\"kgnnreasoning\"}]' WHERE `id` = 902005;
+```
+
 - 知识应用导航排序更新
 ```
 UPDATE `kg_cloud_kguser`.`system_menu` SET `p_id` = 12, `title` = '编辑视图', `is_enable` = 1, `is_checked` = 1, `menu_type` = 'menu', `rank` = 1, `config` = '{\"listDetail\":true,\"routeName\":\"KgApplySinglePage\",\"params\":{\"kgName\":{\"value\":\"fromVuex\",\"isReal\":true},\"apk\":{\"value\":\"fromVuex\",\"isReal\":true},\"pageType\":{\"value\":\"editor\",\"isReal\":true}},\"isDefault\":false,\"icon\":\"ic-zsyy-tpksh\"}', `create_at` = '2020-05-22 13:19:35.820', `update_at` = '2020-06-28 17:49:07.253' WHERE `id` = 1200;
