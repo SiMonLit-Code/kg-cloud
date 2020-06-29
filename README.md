@@ -1,3 +1,10 @@
+### 2020年6月29日 3.4.x
+- 知识应用导航排序更新
+```
+UPDATE `kg_cloud_kguser`.`system_menu` SET `p_id` = 12, `title` = '编辑视图', `is_enable` = 1, `is_checked` = 1, `menu_type` = 'menu', `rank` = 2, `config` = '{\"listDetail\":true,\"routeName\":\"KgApplySinglePage\",\"params\":{\"kgName\":{\"value\":\"fromVuex\",\"isReal\":true},\"apk\":{\"value\":\"fromVuex\",\"isReal\":true},\"pageType\":{\"value\":\"editor\",\"isReal\":true}},\"isDefault\":false,\"icon\":\"ic-zsyy-tpksh\"}', `create_at` = '2020-05-22 13:19:35.820', `update_at` = '2020-06-28 17:49:07.253' WHERE `id` = 1200;
+UPDATE `kg_cloud_kguser`.`system_menu` SET `p_id` = 12, `title` = '图谱探索', `is_enable` = 1, `is_checked` = 1, `menu_type` = 'menu', `rank` = 1, `config` = '{\"listDetail\":true,\"routeName\":\"KgApplySinglePage\",\"params\":{\"kgName\":{\"value\":\"fromVuex\",\"isReal\":true},\"apk\":{\"value\":\"fromVuex\",\"isReal\":true},\"pageType\":{\"value\":\"graph\",\"isReal\":true}},\"isDefault\":true,\"icon\":\"ic-zsyy-tts\"}', `create_at` = '2020-05-22 13:19:35.818', `update_at` = '2020-06-28 17:49:07.252' WHERE `id` = 1201;
+```
+
 ### 2020年6月28日 3.4.x
 - wrapper菜单配置更新
 ```
