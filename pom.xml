@@ -51,7 +51,7 @@
             <dependency>
                 <groupId>com.plantdata.log</groupId>
                 <artifactId>graph-logging</artifactId>
-                <version>3.1.1</version>
+                <version>3.4.0</version>
             </dependency>
 
             <dependency>
