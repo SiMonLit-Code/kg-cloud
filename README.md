@@ -1,3 +1,8 @@
+### 2020年7月4日 3.4.x
+- 导航：kgsearch跳转配置更新
+```
+UPDATE `kg_cloud_kgms`.`repo_item` SET `name` = 'KGSearch', `type` = 'SUB_SYSTEM', `group_id` = 2, `state` = 1, `rank` = 1, `remark` = '文本搜索引擎，提供基础的搜索能力，可通过增强软件包扩展搜索能力。', `config` = '{\"url\":[{\"string\":\"/kgsearch\"}]}', `check_configs` = '[{\"checkType\":\"CONSUL\",\"content\":\"kgsearch\"}]' WHERE `id` = 2001;
+```
 ### 2020年6月29日 3.4.x
 - 神经推理导航
 ```
