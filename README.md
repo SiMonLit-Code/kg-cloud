@@ -1,3 +1,11 @@
+### 2020年7月6日 3.4.x
+- 导航：文案更新
+```
+UPDATE `kg_cloud_kgms`.`repo_item` SET `name` = '多图融合', `type` = 'DATA', `group_id` = 1001, `state` = 1, `rank` = 1, `remark` = '针对多张图谱的模式、数据融合任务，其包括实体及其属性、关系、权重、置信度等信息的迁移。', `config` = '{}', `check_configs` = '[{\"checkType\":\"CONSUL\",\"content\":\"kgmerge\"},{\"checkType\":\"FILE\",\"content\":\"/work/azkaban_shell/graph_merge.sh\"}]' WHERE `id` = 1001003;
+UPDATE `kg_cloud_kgms`.`repo_item` SET `name` = 'Wrapper', `type` = 'DATA', `group_id` = 1001, `state` = 1, `rank` = 1, `remark` = '半结构化数据解析（Wrapper）提供可视化组件对半结构化数据如 html、xml 等进⾏行行解析配置，转换成结构化数据。', `config` = '{}', `check_configs` = '[{\"checkType\":\"FILE\",\"content\":\"/work/azkaban_shell/wrapper.sh\"}]' WHERE `id` = 1001004;
+INSERT INTO `kg_cloud_kgms`.`repo_item`(`id`, `name`, `type`, `group_id`, `state`, `rank`, `remark`, `config`, `check_configs`) VALUES (1002004, 'GBase', 'DATA', 1002, 1, 1, 'Gbase数据接入驱动，支持Gbase版本为8A。', '{}', '[{\"checkType\":\"CONSUL\",\"content\":\"kgdw\"}]');
+```
+
 ### 2020年7月4日 3.4.x
 - 导航：kgsearch跳转配置更新
 ```
