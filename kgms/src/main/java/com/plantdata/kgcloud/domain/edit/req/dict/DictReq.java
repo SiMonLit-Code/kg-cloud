@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -20,6 +21,7 @@ public class DictReq {
     private String nature;
 
     @NotEmpty(message = "领域词不能为空")
+    @NotBlank
     @ApiModelProperty(required = true, value = "领域词")
     @Length(max = 50, message = "领域词长度不能超过50")
     private String name;
