@@ -5,10 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.util.List;
 
 /**
@@ -33,6 +30,7 @@ public class PrivateAttrDataReq {
     private Integer type;
 
     @NotEmpty
+    @NotBlank
     @Length(max = 50,message = "长度不能超过50")
     @ApiModelProperty(value = "私有属性名称")
     private String attrName;
