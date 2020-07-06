@@ -29,7 +29,7 @@ public class BasicInfoModifyReq {
 
     @ApiModelProperty(required = true, value = "概念或实体名称")
     @NotEmpty
-    @Length(max = 50, message = "实体名称长度不能超过50")
+    @Length(max = 50, message = "概念或实体名称长度不能超过50")
     private String name;
 
     @ApiModelProperty(value = "消歧标识")
