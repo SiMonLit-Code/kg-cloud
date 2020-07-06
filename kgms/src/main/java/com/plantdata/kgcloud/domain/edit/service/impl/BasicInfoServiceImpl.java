@@ -245,6 +245,10 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         Set<String> names = synonymReq.getNames();
         if (CollectionUtils.isEmpty(names)) {
             return;
+        }else{
+            names = names.stream().filter(org.apache.commons.lang3.StringUtils::isNotBlank)
+                    .filter(s -> s.length() < 50)
+                    .collect(Collectors.toSet());
         }
 
         // 查询实体和概念的同义词信息

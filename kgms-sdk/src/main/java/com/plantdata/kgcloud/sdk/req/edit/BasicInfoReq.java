@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -33,7 +34,8 @@ public class BasicInfoReq {
 
     @ApiModelProperty(required = true, value = "概念或实体名称")
     @NotEmpty
-    @Length(max = 50, message = "实体名称长度不能超过50")
+    @NotBlank
+    @Length(min = 1,max = 50, message = "概念或实体名称长度不能超过50")
     private String name;
 
     @ApiModelProperty(value = "消歧标识")
