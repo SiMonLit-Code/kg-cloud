@@ -7,6 +7,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -29,6 +30,7 @@ public class BasicInfoModifyReq {
 
     @ApiModelProperty(required = true, value = "概念或实体名称")
     @NotEmpty
+    @NotBlank
     @Length(max = 50, message = "概念或实体名称长度不能超过50")
     private String name;
 

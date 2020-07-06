@@ -4,6 +4,9 @@
 UPDATE `kg_cloud_kgms`.`repo_item` SET `name` = '多图融合', `type` = 'DATA', `group_id` = 1001, `state` = 1, `rank` = 1, `remark` = '针对多张图谱的模式、数据融合任务，其包括实体及其属性、关系、权重、置信度等信息的迁移。', `config` = '{}', `check_configs` = '[{\"checkType\":\"CONSUL\",\"content\":\"kgmerge\"},{\"checkType\":\"FILE\",\"content\":\"/work/azkaban_shell/graph_merge.sh\"}]' WHERE `id` = 1001003;
 UPDATE `kg_cloud_kgms`.`repo_item` SET `name` = 'Wrapper', `type` = 'DATA', `group_id` = 1001, `state` = 1, `rank` = 1, `remark` = '半结构化数据解析（Wrapper）提供可视化组件对半结构化数据如 html、xml 等进⾏行行解析配置，转换成结构化数据。', `config` = '{}', `check_configs` = '[{\"checkType\":\"FILE\",\"content\":\"/work/azkaban_shell/wrapper.sh\"}]' WHERE `id` = 1001004;
 INSERT INTO `kg_cloud_kgms`.`repo_item`(`id`, `name`, `type`, `group_id`, `state`, `rank`, `remark`, `config`, `check_configs`) VALUES (1002004, 'GBase', 'DATA', 1002, 1, 1, 'Gbase数据接入驱动，支持Gbase版本为8A。', '{}', '[{\"checkType\":\"CONSUL\",\"content\":\"kgdw\"}]');
+UPDATE `kg_cloud_kguser`.`system_menu` SET `p_id` = 5, `title` = '反向同步', `is_enable` = 1, `is_checked` = 1, `menu_type` = 'iframe', `rank` = 5, `config` = '{\"routeName\":\"KgIfarme\",\"listDetail\":true,\"params\":{\"url\":[{\"string\":\"plugins/script/synclog/#/home\"},{\"fromVuex\":\"kgName\"},{\"string\":\"synclog\"}]},\"isDefault\":false}', `create_at` = '2020-06-24 16:11:10.271', `update_at` = '2020-07-06 21:49:22.036' WHERE `id` = 54;
+INSERT INTO `kg_cloud_kgms`.`repo_menu`(`menu_id`, `repository_id`) VALUES (54, 1001005);
+INSERT INTO `kg_cloud_kgms`.`repo_item`(`id`, `name`, `type`, `group_id`, `state`, `rank`, `remark`, `config`, `check_configs`) VALUES (1001005, '反向同步', 'DATA', 1001, 1, 1, '当通过数仓入图的数据在图谱上进行修改时，支持将数据变更同步回原业务系统。支持新建进行反向同步计算任务，查询待反向同步的数据。', '{}', '[{\"checkType\":\"CONSUL\",\"content\":\"synclog\"}]');
 ```
 
 ### 2020年7月4日 3.4.x
