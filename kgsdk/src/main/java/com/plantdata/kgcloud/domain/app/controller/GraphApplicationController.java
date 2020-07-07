@@ -7,9 +7,9 @@ import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.plantdata.converter.common.ApiReturnConverter;
 import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
+import com.plantdata.kgcloud.sdk.req.app.LayerKnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
@@ -51,6 +51,12 @@ public class GraphApplicationController implements GraphApplicationInterface {
     public ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                   @RequestBody @Valid KnowledgeRecommendReqList recommendParam) {
         return appClient.knowledgeRecommend(kgName, recommendParam);
+    }
+    @ApiOperation(value = "多层知识推荐", notes = "知识推荐（两层）")
+    @PostMapping("layer/knowledgeRecommend/{kgName}")
+    public  ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@PathVariable("kgName") String kgName,
+                                                                @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam){
+        return appClient.layerKnowledgeRecommend(kgName, recommendParam);
     }
 
     @ApiOperation(value = "schema查询", notes = "获取当前图谱的建模（Schema）包含实体类型、属性类型。")
