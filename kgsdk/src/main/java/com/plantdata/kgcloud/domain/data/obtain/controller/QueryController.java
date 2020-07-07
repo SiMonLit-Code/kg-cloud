@@ -18,14 +18,14 @@ import javax.validation.Valid;
  * @date 2020/7/7  14:56
  */
 @RestController
-@RequestMapping("v3/kgdata/rule/reasoning")
+@RequestMapping("v3/kgdata/query")
 public class QueryController implements GraphDataObtainInterface {
 
     @Autowired
     private EditClient editClient;
 
     @ApiOperation(value = "kgql查询",notes = "KGQL查询，使用PlantData知识图谱的查询语言查询数据。")
-    @PostMapping("basic/execute/kgql")
+    @PostMapping("kgql")
     public ApiReturn executeQl(@Valid @RequestBody KgqlReq kgqlReq) {
         return editClient.executeQl(kgqlReq);
     }
