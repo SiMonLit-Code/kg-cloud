@@ -1,3 +1,9 @@
+### 2020年7月7日 3.4.x
+- 导航：反向同步
+```
+INSERT INTO `kg_cloud_kguser`.`system_menu`(`id`, `p_id`, `title`, `is_enable`, `is_checked`, `menu_type`, `rank`, `config`, `create_at`, `update_at`) VALUES (54, 5, '反向同步', 1, 1, 'iframe', 5, '{\"routeName\":\"KgIfarme\",\"listDetail\":true,\"params\":{\"url\":[{\"string\":\"plugins/script/synclog/#/home\"},{\"fromVuex\":\"kgName\"},{\"string\":\"synclog\"}]},\"isDefault\":false}', '2020-06-24 16:11:10.271', '2020-07-06 21:49:22.036');
+```
+
 ### 2020年7月6日 3.4.x
 - 导航：文案更新
 ```
