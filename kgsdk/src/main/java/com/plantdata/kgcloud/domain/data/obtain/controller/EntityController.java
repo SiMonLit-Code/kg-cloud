@@ -6,6 +6,7 @@ import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.MergeClient;
+import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.TraceabilityQueryReq;
@@ -15,6 +16,7 @@ import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,5 +77,12 @@ public class EntityController implements GraphDataObtainInterface {
     public ApiReturn<BasePage<OpenEntityRsp>> queryEntityBySource(@PathVariable("kgName") String kgName,
                                                                   @RequestBody TraceabilityQueryReq req) {
         return kgDataClient.queryEntityBySource(kgName, req);
+    }
+
+    @ApiOperation(value = "批量删除实体数值属性", notes = "删除指定实体的多个数值属性")
+    @DeleteMapping("entity/attr/{kgName}")
+    public ApiReturn batchDeleteEntityAttr(@PathVariable("kgName") String kgName,
+                                           @RequestBody BatchEntityAttrDeleteReq deleteReq) {
+        return editClient.batchDeleteEntityAttr(kgName, deleteReq);
     }
 }
