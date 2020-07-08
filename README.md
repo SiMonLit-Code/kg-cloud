@@ -1,3 +1,8 @@
+### 2020年7月8日 3.4.x
+- 导航：kgtext
+```
+UPDATE `kg_cloud_kgms`.`repo_item` SET `name` = 'NLP Lab', `type` = 'SUB_SYSTEM', `group_id` = 11, `state` = 1, `rank` = 1, `remark` = 'NLP模型库，提供分词、命名实体识别、属性抽取、关系抽取、实体链接、关键词抽取、文本摘要生成等预构建模型。', `config` = '{\"url\":[{\"string\":\"/kgtext\"}]}', `check_configs` = '[{\"checkType\":\"CONSUL\",\"content\":\"kgtext\"}]' WHERE `id` = 11001;
+```
 ### 2020年7月7日 3.4.x
 - 导航：反向同步
 ```
