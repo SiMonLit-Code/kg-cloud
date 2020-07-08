@@ -71,7 +71,7 @@ public class EntityController implements GraphDataObtainInterface {
 
 
     @ApiOperation(value = "实体溯源", notes = "根据溯源信息查询实体的基本信息")
-    @PostMapping({"{kgName}/source/"})
+    @PostMapping({"{kgName}/source"})
     public ApiReturn<BasePage<OpenEntityRsp>> queryEntityBySource(@PathVariable("kgName") String kgName,
                                                                   @RequestBody TraceabilityQueryReq req) {
         return kgDataClient.queryEntityBySource(kgName, req);
