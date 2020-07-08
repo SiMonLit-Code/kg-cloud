@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.edit.vo;
+package com.plantdata.kgcloud.sdk.rsp.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;

@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.domain.graph.attr.rsp;
+package com.plantdata.kgcloud.sdk.rsp;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;

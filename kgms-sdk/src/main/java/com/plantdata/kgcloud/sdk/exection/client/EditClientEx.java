@@ -2,16 +2,19 @@ package com.plantdata.kgcloud.sdk.exection.client;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.EditClient;
+import com.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.edit.*;
+import com.plantdata.kgcloud.sdk.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -30,6 +33,11 @@ public class EditClientEx implements EditClient {
     }
 
     @Override
+    public ApiReturn<List<BasicInfoRsp>> batchEntityDetails(String kgName, List<Long> ids) {
+        return ApiReturn.fail(500,"请求超时");
+    }
+
+    @Override
     public ApiReturn deleteConcept(String kgName, Long id, Boolean force) {
         return ApiReturn.fail(500,"请求超时");
     }
@@ -41,6 +49,11 @@ public class EditClientEx implements EditClient {
 
     @Override
     public ApiReturn<OpenBatchResult<AttrDefinitionBatchRsp>> batchAddAttrDefinition(String kgName, List<AttrDefinitionReq> attrDefinitionReqs) {
+        return ApiReturn.fail(500,"请求超时");
+    }
+
+    @Override
+    public ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptId(String kgName, @RequestParam Long conceptId) {
         return ApiReturn.fail(500,"请求超时");
     }
 
@@ -61,6 +74,11 @@ public class EditClientEx implements EditClient {
 
     @Override
     public ApiReturn updateAttrDefinition(String kgName, AttrDefinitionModifyReq modifyReq) {
+        return ApiReturn.fail(500,"请求超时");
+    }
+
+    @Override
+    public ApiReturn<List<BasicInfoVO>> getConceptTree(String kgName, Long conceptId) {
         return ApiReturn.fail(500,"请求超时");
     }
 

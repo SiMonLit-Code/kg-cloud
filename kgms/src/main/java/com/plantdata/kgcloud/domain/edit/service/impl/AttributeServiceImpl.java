@@ -39,7 +39,7 @@ import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
-import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
+import com.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrTemplateReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
