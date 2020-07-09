@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.common.util;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.plantdata.kgcloud.constant.StringConstants;
-import com.plantdata.kgcloud.util.JacksonUtils;
 
 import java.util.HashMap;
 import java.util.Map;

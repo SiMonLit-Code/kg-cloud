@@ -1,13 +1,13 @@
 package com.plantdata.kgcloud.domain.prebuilder.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.SchemaType;
 import com.plantdata.kgcloud.domain.prebuilder.aop.PostHandler;
 import com.plantdata.kgcloud.domain.prebuilder.req.*;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.prebuilder.service.PreBuilderService;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

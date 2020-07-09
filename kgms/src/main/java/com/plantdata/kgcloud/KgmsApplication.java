@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud;
 
+import ai.plantdata.cloud.constant.CommonConstants;
 import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
-import com.plantdata.kgcloud.constant.CommonConstants;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 @EnableApolloConfig
 @EnableTransactionManagement
-@EnableFeignClients(basePackages = {CommonConstants.FeignConst.BASE_PKG, CommonConstants.FeignConst.PUBLIC_PKG})
+@EnableFeignClients(basePackages = {"ai.plantdata","com.plantdata"})
 @EnableJpaAuditing
 public class KgmsApplication extends SpringBootServletInitializer {
 

@@ -1,5 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.util.JacksonUtils;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
@@ -57,7 +60,6 @@ import com.plantdata.kgcloud.domain.edit.util.AttrConverterUtils;
 import com.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.IdNameVO;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
@@ -70,8 +72,6 @@ import com.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

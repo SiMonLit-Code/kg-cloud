@@ -14,14 +14,12 @@ import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
 import com.plantdata.kgcloud.domain.app.converter.ConditionConverter;
 import com.plantdata.kgcloud.domain.app.converter.MetaConverter;
-import com.plantdata.kgcloud.sdk.req.app.MetaDataReq;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.BasicRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -56,7 +54,7 @@ public class GraphCommonConverter extends BasicConverter {
             entityRsp.setConceptName(a.getName());
             entityRsp.setConceptIdList(ConceptConverter.getAllParentConceptId(Lists.newArrayList(conceptId), conceptId, conceptMap));
         });
-        entityRsp.setClassId(topConcept == null ? NumberUtils.LONG_ZERO : topConcept.getId());
+        entityRsp.setClassId(topConcept == null ? 0L : topConcept.getId());
     }
 
     /**

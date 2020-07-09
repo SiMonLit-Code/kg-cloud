@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.config;
 
-import com.plantdata.kgcloud.util.WebUtils;
+import ai.plantdata.cloud.web.util.WebUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;

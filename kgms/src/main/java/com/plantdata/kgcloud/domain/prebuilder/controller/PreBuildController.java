@@ -1,8 +1,9 @@
 package com.plantdata.kgcloud.domain.prebuilder.controller;
 
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.alibaba.fastjson.JSONObject;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.prebuilder.aop.PostHandler;
 import com.plantdata.kgcloud.domain.prebuilder.req.*;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderMatchAttrRsp;
@@ -10,7 +11,6 @@ import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;
 import com.plantdata.kgcloud.domain.prebuilder.service.PreBuilderService;
 import com.plantdata.kgcloud.sdk.req.StandardSearchReq;
 import com.plantdata.kgcloud.sdk.rsp.StandardTemplateRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

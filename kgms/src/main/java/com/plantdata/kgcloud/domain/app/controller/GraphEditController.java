@@ -6,14 +6,13 @@ package com.plantdata.kgcloud.domain.app.controller;
  * @date 2019/12/20 10:00
  */
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.exception.BizException;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.converter.AttrDefConverter;
 import com.plantdata.kgcloud.domain.app.service.GraphEditService;
 import com.plantdata.kgcloud.domain.app.service.GraphHelperService;
-import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictReq;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictSearchReq;
 import com.plantdata.kgcloud.domain.edit.rsp.DictRsp;

@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+
+import ai.plantdata.cloud.bean.ApiReturn;
 
 import java.util.function.Function;
 

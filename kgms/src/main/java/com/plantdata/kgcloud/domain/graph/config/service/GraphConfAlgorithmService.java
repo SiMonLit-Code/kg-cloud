@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReqList;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;

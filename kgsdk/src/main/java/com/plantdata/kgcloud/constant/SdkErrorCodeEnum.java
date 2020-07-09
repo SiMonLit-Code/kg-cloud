@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.constant;
 
+import ai.plantdata.cloud.constant.ErrorCode;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,15 +1,11 @@
 package com.plantdata.kgcloud.domain.common.converter;
 
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
-import cn.hiboot.mcn.core.model.result.RestResp;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
-import com.plantdata.kgcloud.util.ConvertUtils;
-import org.springframework.beans.BeanUtils;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**

@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.RelationApi;
@@ -25,7 +27,6 @@ import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfQaService;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.EdgeAttrPromptDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.req.app.PromptReq;
@@ -35,7 +36,6 @@ import com.plantdata.kgcloud.sdk.rsp.GraphConfQaStatusRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;

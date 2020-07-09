@@ -1,10 +1,10 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;

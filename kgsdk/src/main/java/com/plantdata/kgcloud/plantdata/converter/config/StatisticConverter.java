@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.plantdata.converter.config;
 
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.google.common.collect.Lists;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.bean.RelationbyFilterBean;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.req.config.InitStatisticalBean;

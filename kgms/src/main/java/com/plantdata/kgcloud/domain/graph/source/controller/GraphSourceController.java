@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.source.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.graph.source.req.GraphQueryReq;
 import com.plantdata.kgcloud.domain.graph.source.req.GraphSourceReq;
 import com.plantdata.kgcloud.domain.graph.source.rsp.GraphSourceRsp;

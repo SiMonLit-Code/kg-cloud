@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.attr.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.redis.util.KgKeyGenerator;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
@@ -11,10 +13,8 @@ import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupReposito
 import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupReq;
 import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupSearchReq;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.GraphAttrGroupRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
-import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;

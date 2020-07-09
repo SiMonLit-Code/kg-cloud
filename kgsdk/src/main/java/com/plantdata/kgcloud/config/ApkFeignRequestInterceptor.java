@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.config;
 
-import com.plantdata.kgcloud.util.WebUtils;
+import ai.plantdata.cloud.web.util.WebUtils;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import org.springframework.context.annotation.Configuration;

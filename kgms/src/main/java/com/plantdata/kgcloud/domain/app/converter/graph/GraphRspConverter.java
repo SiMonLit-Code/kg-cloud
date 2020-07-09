@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.converter.graph;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.kg.api.pub.resp.GraphVO;
 import ai.plantdata.kg.api.pub.resp.SimpleEntity;
 import ai.plantdata.kg.api.pub.resp.SimpleRelation;
@@ -21,7 +22,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 

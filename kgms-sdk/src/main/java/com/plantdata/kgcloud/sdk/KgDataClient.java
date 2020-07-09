@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.BasePage;
 import com.plantdata.kgcloud.sdk.exection.client.KgDataClientEx;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
@@ -9,12 +9,10 @@ import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import com.plantdata.kgcloud.sdk.req.app.TraceabilityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.statistic.*;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
-import com.plantdata.kgcloud.sdk.rsp.app.RestData;
 import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

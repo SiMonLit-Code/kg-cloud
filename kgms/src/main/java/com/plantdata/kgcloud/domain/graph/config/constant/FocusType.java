@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.constant;
 
+import ai.plantdata.cloud.exception.BizException;
 import com.google.common.collect.Sets;
-import com.plantdata.kgcloud.exception.BizException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 

@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.edit.service;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.plantdata.kgcloud.constant.TaskStatus;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.sdk.req;
 
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.BaseReq;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

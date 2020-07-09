@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
+import ai.plantdata.cloud.redis.util.KgKeyGenerator;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfQa;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfQaStatus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfQaRepository;
@@ -8,8 +10,6 @@ import com.plantdata.kgcloud.domain.graph.config.service.GraphConfQaService;
 import com.plantdata.kgcloud.sdk.req.GraphConfQaReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfQaStatusRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
-import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;

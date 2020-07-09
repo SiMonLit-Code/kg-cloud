@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.rsp.app.main;
 
-import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -8,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,8 +29,8 @@ public class BasicConceptTreeRsp extends BasicConceptRsp {
     private List<ObjectAttr> objAttrs;
 
     public BasicConceptTreeRsp(Long id, String name) {
-        this.children = Lists.newArrayList();
-        this.numAttrs = Lists.newArrayList();
+        this.children = new ArrayList<>();
+        this.numAttrs = new ArrayList<>();
         this.setId(id);
         this.setName(name);
     }

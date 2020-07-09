@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.service.GraphRelationAnalysisService;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.RelationReasoningAnalysisReqList;

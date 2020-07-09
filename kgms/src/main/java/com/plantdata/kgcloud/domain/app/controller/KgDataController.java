@@ -1,9 +1,10 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.BasePage;
+import ai.plantdata.cloud.exception.BizException;
 import ai.plantdata.kg.api.pub.SparqlApi;
 import ai.plantdata.kg.api.pub.resp.QueryResultVO;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
@@ -12,7 +13,6 @@ import com.plantdata.kgcloud.domain.app.service.KgDataService;
 import com.plantdata.kgcloud.domain.common.util.EnumUtils;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
@@ -82,7 +82,7 @@ public class KgDataController implements GraphAppInterface {
     @ApiOperation("根据溯源信息查询实体")
     @PostMapping({"{kgName}/source/entity/query"})
     public ApiReturn<BasePage<OpenEntityRsp>> queryEntityBySource(@PathVariable("kgName") String kgName,
-                                                             @RequestBody TraceabilityQueryReq req) {
+                                                                  @RequestBody TraceabilityQueryReq req) {
         BasePage<OpenEntityRsp> entitys = kgDataService.queryEntityBySource(kgName, req);
         return ApiReturn.success(entitys);
     }

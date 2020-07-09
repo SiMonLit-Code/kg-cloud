@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.audit.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.audit.req.ApiAuditReq;
 import com.plantdata.kgcloud.domain.audit.req.ApiAuditTopReq;
 import com.plantdata.kgcloud.domain.audit.req.ApiAuditUrlReq;

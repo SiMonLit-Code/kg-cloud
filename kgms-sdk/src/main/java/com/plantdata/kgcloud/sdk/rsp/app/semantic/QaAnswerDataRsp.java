@@ -3,7 +3,6 @@ package com.plantdata.kgcloud.sdk.rsp.app.semantic;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 
 import java.util.List;
 

@@ -1,10 +1,13 @@
 package com.plantdata.kgcloud.domain.graph.quality.service.impl;
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.web.util.ConvertUtils;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.domain.graph.quality.entity.GraphAttrQuality;
@@ -19,11 +22,8 @@ import com.plantdata.kgcloud.domain.graph.quality.util.ConceptUtils;
 import com.plantdata.kgcloud.domain.graph.quality.util.InitFunc;
 import com.plantdata.kgcloud.domain.graph.quality.util.SchemaUtils;
 import com.plantdata.kgcloud.domain.graph.quality.vo.AttrQualityVO;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.XxlAdminClient;
 import com.plantdata.kgcloud.sdk.bean.*;
-import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.quality.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.graph.quality.rsp.GraphAttrQualityRsp;
 import com.plantdata.kgcloud.domain.graph.quality.rsp.GraphQualityRsp;
 import com.plantdata.kgcloud.domain.graph.quality.service.GraphQualityService;

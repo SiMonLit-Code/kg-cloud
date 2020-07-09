@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.menu.service;
 
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import com.plantdata.kgcloud.domain.menu.entity.MenuFavor;
 import com.plantdata.kgcloud.domain.menu.repository.MenuFavorRepository;
 import com.plantdata.kgcloud.domain.menu.rsp.MenuFavorRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

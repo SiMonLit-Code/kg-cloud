@@ -1,14 +1,12 @@
 package com.plantdata.kgcloud.domain.file.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.file.entity.FileData;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.file.req.FileDataBatchReq;
 import com.plantdata.kgcloud.domain.file.req.FileDataQueryReq;
 import com.plantdata.kgcloud.domain.file.req.FileDataReq;
 import com.plantdata.kgcloud.domain.file.req.FileDataUpdateReq;
 import com.plantdata.kgcloud.domain.file.rsq.FileDataRsp;
 import com.plantdata.kgcloud.domain.file.service.FileDataService;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

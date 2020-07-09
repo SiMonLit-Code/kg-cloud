@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.semantic;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -9,7 +10,6 @@ import com.plantdata.kgcloud.plantdata.req.reason.InferenceParameter;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 

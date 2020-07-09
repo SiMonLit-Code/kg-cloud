@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.config;
 
-import  com.plantdata.kgcloud.security.SessionHolder;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 

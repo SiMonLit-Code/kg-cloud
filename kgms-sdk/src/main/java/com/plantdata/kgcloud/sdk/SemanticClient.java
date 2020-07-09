@@ -2,14 +2,12 @@
 
 package com.plantdata.kgcloud.sdk;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.exection.client.SemanticClientEx;
-import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.GremlinReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.NerSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
 import com.plantdata.kgcloud.sdk.rsp.app.GremlinRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.nlp.DistanceEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.IntentDataBeanRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.SemanticSegWordRsp;

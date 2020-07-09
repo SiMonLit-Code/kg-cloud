@@ -2,8 +2,6 @@ package com.plantdata.kgcloud.domain.edit.util;
 
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
-import org.terracotta.offheapstore.MetadataTuple;
 
 import java.util.HashMap;
 import java.util.Map;

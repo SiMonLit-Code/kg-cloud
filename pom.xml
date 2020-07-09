@@ -4,13 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>kg-cloud-parent</artifactId>
-        <groupId>com.plantdata</groupId>
-        <version>3.1.10</version>
+        <groupId>ai.plantdata</groupId>
+        <version>3.4.3</version>
         <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.4.3</version>
+    <groupId>com.plantdata</groupId>
+    <version>${kg-cloud-kgms.version}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -23,11 +24,10 @@
     </modules>
 
     <properties>
+        <kg-cloud-kgms.version>3.4.3</kg-cloud-kgms.version>
         <next-tag.version>3.4.3</next-tag.version>
         <next-develop.version>3.4.3</next-develop.version>
-        <kg-cloud-parent.version>3.1.10</kg-cloud-parent.version>
-        <kg-cloud-public.version>3.3.1</kg-cloud-public.version>
-        <kg-cloud-kguser.version>3.3.3</kg-cloud-kguser.version>
+        <kg-cloud-public.version>3.4.3</kg-cloud-public.version>
         <kg-services-sdk.version>3.4.5</kg-services-sdk.version>
     </properties>
     <dependencyManagement>
@@ -36,17 +36,17 @@
             <dependency>
                 <groupId>com.plantdata</groupId>
                 <artifactId>kgms-sdk</artifactId>
-                <version>${project.version}</version>
+                <version>${kg-cloud-kgms.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.plantdata</groupId>
                 <artifactId>nlp-sdk</artifactId>
-                <version>${project.version}</version>
+                <version>${kg-cloud-kgms.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.plantdata</groupId>
                 <artifactId>kgrepo-sdk</artifactId>
-                <version>${project.version}</version>
+                <version>${kg-cloud-kgms.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.plantdata.log</groupId>
@@ -65,62 +65,11 @@
                 <version>portable-1.7.2</version>
             </dependency>
 
-            <!-- ********** parent 依赖 *************-->
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-persistence</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-web</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-nosql-mongo</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-swagger</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-redis</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-oss</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-mq-kafka</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-common</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-swagger</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.plantdata</groupId>
-                <artifactId>kg-cloud-swagger</artifactId>
-                <version>${kg-cloud-parent.version}</version>
-            </dependency>
             <!-- ********** public sdk *************-->
             <dependency>
                 <groupId>com.plantdata</groupId>
                 <artifactId>kguser-sdk</artifactId>
-                <version>${kg-cloud-kguser.version}</version>
+                <version>${kg-cloud-public.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.plantdata</groupId>

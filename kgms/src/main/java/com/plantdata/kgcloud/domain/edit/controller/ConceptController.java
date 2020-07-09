@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ConceptReplaceReq;

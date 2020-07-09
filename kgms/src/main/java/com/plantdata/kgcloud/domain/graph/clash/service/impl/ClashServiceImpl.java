@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.clash.service.impl;
 
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCursor;
@@ -13,7 +14,6 @@ import com.plantdata.kgcloud.domain.graph.clash.entity.ClashListReq;
 import com.plantdata.kgcloud.domain.graph.clash.entity.ClashToGraphReq;
 import com.plantdata.kgcloud.domain.graph.clash.service.ClashService;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
-import com.plantdata.kgcloud.security.SessionHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;

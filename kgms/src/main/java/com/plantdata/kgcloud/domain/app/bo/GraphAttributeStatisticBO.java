@@ -1,11 +1,11 @@
 package com.plantdata.kgcloud.domain.app.bo;
 
+import ai.plantdata.cloud.exception.BizException;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDTO;
 import com.plantdata.kgcloud.domain.app.dto.StatisticDateDTO;
 import com.plantdata.kgcloud.domain.common.util.RemindDateUtils;
 import com.plantdata.kgcloud.domain.edit.util.VeDateUtils;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.constant.AttributeDataTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.statistic.DateTypeReq;
 import org.apache.commons.lang3.StringUtils;

@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kg.api.edit.DomainDicApi;
 import ai.plantdata.kg.api.edit.req.DomainFrom;
 import ai.plantdata.kg.api.edit.resp.DomainDicVO;
@@ -11,8 +13,6 @@ import com.plantdata.kgcloud.domain.edit.req.dict.DictReq;
 import com.plantdata.kgcloud.domain.edit.req.dict.DictSearchReq;
 import com.plantdata.kgcloud.domain.edit.rsp.DictRsp;
 import com.plantdata.kgcloud.domain.edit.service.DomainDictService;
-import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

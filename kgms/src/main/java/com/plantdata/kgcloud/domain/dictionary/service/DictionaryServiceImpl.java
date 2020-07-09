@@ -1,16 +1,16 @@
 package com.plantdata.kgcloud.domain.dictionary.service;
 
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.BaseReq;
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.redis.util.KgKeyGenerator;
+import ai.plantdata.cloud.web.util.ConvertUtils;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.dictionary.constant.DictConst;
 import com.plantdata.kgcloud.domain.dictionary.entity.Dictionary;
 import com.plantdata.kgcloud.domain.dictionary.repository.DictionaryRepository;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.DictionaryReq;
 import com.plantdata.kgcloud.sdk.rsp.DictionaryRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.ConvertUtils;
-import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;

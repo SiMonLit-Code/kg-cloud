@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.sdk.req.app;
 
-import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -26,14 +25,14 @@ public class DataSetStatisticRsp {
 
     public void addData2xAxis(List<String> data) {
         if(CollectionUtils.isEmpty(this.xAxis)){
-            this.xAxis= Lists.newArrayList();
+            this.xAxis= new ArrayList<>();
         }
         this.xAxis.add(data);
     }
 
     public void addData2Series(Map<String, Object> map) {
         if(CollectionUtils.isEmpty(this.series)){
-            this.series= Lists.newArrayList();
+            this.series= new ArrayList<>();
         }
         this.series.add(map);
     }

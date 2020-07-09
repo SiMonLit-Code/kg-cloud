@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.util;
 
+import ai.plantdata.cloud.exception.BizException;
 import com.google.gson.Gson;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
-import com.plantdata.kgcloud.exception.BizException;
 import ma.glasnost.orika.CustomConverter;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.MappingContext;

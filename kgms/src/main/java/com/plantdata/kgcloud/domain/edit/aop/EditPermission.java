@@ -1,10 +1,10 @@
 package com.plantdata.kgcloud.domain.edit.aop;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

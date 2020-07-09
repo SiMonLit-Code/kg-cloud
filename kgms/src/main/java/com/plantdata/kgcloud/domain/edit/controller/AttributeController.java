@@ -1,12 +1,14 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ValidableList;
+import ai.plantdata.cloud.web.util.ConvertUtils;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.ValidableList;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
@@ -38,8 +40,6 @@ import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

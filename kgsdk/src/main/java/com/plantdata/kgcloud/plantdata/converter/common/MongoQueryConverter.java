@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.plantdata.kgcloud.plantdata.req.explore.common.EntityScreeningBean;
 import com.plantdata.kgcloud.sdk.req.app.DataAttrReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryFiltersReq;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 

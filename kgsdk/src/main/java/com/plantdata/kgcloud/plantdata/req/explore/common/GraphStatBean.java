@@ -1,9 +1,6 @@
 package com.plantdata.kgcloud.plantdata.req.explore.common;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.config.service;
 
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
 import org.springframework.data.domain.Page;

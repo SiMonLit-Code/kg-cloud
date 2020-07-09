@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.repo.factory;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.web.util.SpringContextUtils;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.domain.repo.checker.ConsulServiceChecker;
 import com.plantdata.kgcloud.domain.repo.checker.FileServiceChecker;
@@ -7,8 +9,6 @@ import com.plantdata.kgcloud.domain.repo.checker.MongoServiceChecker;
 import com.plantdata.kgcloud.domain.repo.checker.ServiceChecker;
 import com.plantdata.kgcloud.domain.repo.enums.RepoCheckType;
 import com.plantdata.kgcloud.domain.repo.model.RepoCheckConfig;
-import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.util.SpringContextUtils;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.util.Arrays;

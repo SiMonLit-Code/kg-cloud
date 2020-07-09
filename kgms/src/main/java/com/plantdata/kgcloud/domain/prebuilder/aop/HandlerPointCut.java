@@ -1,12 +1,13 @@
 package com.plantdata.kgcloud.domain.prebuilder.aop;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.util.JacksonUtils;
+import ai.plantdata.cloud.web.util.SessionHolder;
+import ai.plantdata.cloud.web.util.WebUtils;
 import com.plantdata.kgcloud.domain.repo.entity.RepoHandler;
 import com.plantdata.kgcloud.domain.repo.enums.HandleType;
 import com.plantdata.kgcloud.domain.repo.repository.RepoHandlerRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
-import com.plantdata.kgcloud.util.JacksonUtils;
-import com.plantdata.kgcloud.util.WebUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -105,7 +106,7 @@ public class HandlerPointCut {
         String method = repoHandler.getRequestMethod().toUpperCase();
         HttpMethod requestMethod = HttpMethod.resolve(method);
         HttpHeaders httpHeaders = new HttpHeaders();
-        String authorization = WebUtils.getAuthorization();
+        String authorization = SessionHolder.getAuthorization();
         if (authorization != null) {
             httpHeaders.add(WebUtils.AUTHORIZATION, authorization);
         }

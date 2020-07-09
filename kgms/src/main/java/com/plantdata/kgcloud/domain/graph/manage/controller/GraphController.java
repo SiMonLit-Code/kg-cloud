@@ -1,12 +1,12 @@
 package com.plantdata.kgcloud.domain.graph.manage.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
 import com.plantdata.kgcloud.sdk.req.GraphPageReq;
 import com.plantdata.kgcloud.sdk.req.GraphReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

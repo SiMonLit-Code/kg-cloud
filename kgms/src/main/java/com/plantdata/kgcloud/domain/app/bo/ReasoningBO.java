@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.bo;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.kg.api.semantic.req.ReasoningReq;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
@@ -7,7 +8,6 @@ import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.sdk.rsp.app.RelationReasonRuleRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.util.CollectionUtils;

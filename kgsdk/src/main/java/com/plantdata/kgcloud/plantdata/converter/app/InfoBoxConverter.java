@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.app;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.bean.EntityLink;
@@ -23,7 +24,6 @@ import com.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import com.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 

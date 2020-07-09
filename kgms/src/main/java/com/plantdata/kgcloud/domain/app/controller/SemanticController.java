@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
 import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.SemanticApi;
 import ai.plantdata.kg.api.pub.req.Gremlin;
@@ -9,7 +10,6 @@ import ai.plantdata.kg.api.semantic.req.QueryReq;
 import ai.plantdata.kg.api.semantic.rsp.AnswerDataRsp;
 import ai.plantdata.kg.api.semantic.rsp.IntentDataBean;
 import cn.hiboot.mcn.core.model.result.RestResp;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.app.controller.module.SdkOpenApiInterface;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.app.converter.SegmentConverter;

@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.req.UpdateBasicInfoFrom;
 import ai.plantdata.kg.common.bean.BasicInfo;
@@ -11,9 +13,7 @@ import com.plantdata.kgcloud.domain.edit.req.basic.AdditionalModifyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.ConceptReplaceReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.GisModifyReq;
 import com.plantdata.kgcloud.domain.edit.service.ConceptService;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.config;
 
+import ai.plantdata.cloud.web.util.WebUtils;
 import com.plantdata.kgcloud.filter.ApkAuthFilter;
-import com.plantdata.kgcloud.util.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

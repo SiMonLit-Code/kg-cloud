@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.data.obtain.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.BasePage;
+import ai.plantdata.cloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
@@ -55,7 +55,7 @@ public class GraphBusinessAlgorithmController implements GraphDataObtainInterfac
 
     @ApiOperation("图谱配置-算法-获取")
     @GetMapping("{kgName}")
-    public ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, Integer type,BaseReq baseReq) {
+    public ApiReturn<BasePage<GraphConfAlgorithmRsp>> select(@PathVariable("kgName") String kgName, Integer type, BaseReq baseReq) {
         return kgmsClient.select(kgName,type, baseReq.getPage(), baseReq.getSize());
     }
 

@@ -1,13 +1,13 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.oss.dto.FastdfsPathDto;
+import ai.plantdata.cloud.oss.template.FastdfsTemplate;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.rsp.FilePathRsp;
 import com.plantdata.kgcloud.domain.edit.rsp.ThumbPathRsp;
 import com.plantdata.kgcloud.domain.edit.service.FileUploadService;
-import com.plantdata.kgcloud.dto.FastdfsPathDto;
-import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.template.FastdfsTemplate;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

@@ -1,7 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListBodyReq;
 import com.plantdata.kgcloud.domain.edit.req.basic.BasicInfoListReq;
@@ -23,7 +24,6 @@ import com.plantdata.kgcloud.sdk.rsp.edit.EntityModifyReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.sdk.rsp.vo.EntityTagVO;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

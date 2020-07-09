@@ -1,10 +1,9 @@
 package com.plantdata.kgcloud.domain.data.obtain.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.KgmsClient;
-import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.req.app.PageReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
@@ -34,8 +33,6 @@ import java.util.Map;
 public class ReasoningRuleController implements GraphDataObtainInterface {
     @Autowired
     private KgmsClient kgmsClient;
-    @Autowired
-    private ReasoningClient reasoningClient;
 
     @GetMapping("page/{kgName}")
     @ApiOperation("推理规则-列表")
@@ -69,9 +66,4 @@ public class ReasoningRuleController implements GraphDataObtainInterface {
         return kgmsClient.updateReasoning(id, reasoningRuleReq);
     }
 
-    @ApiOperation("推理规则-生成")
-    @PostMapping("generate")
-    public ApiReturn<List<RelationReasonRuleRsp>> reasoningRuleGenerate(@RequestBody Map<Long, Object> reasonConfig) {
-        return reasoningClient.reasoningRuleGenerate(reasonConfig);
-    }
 }

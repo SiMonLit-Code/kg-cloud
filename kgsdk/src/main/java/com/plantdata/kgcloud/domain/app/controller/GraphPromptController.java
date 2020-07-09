@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
 import com.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
 import com.plantdata.kgcloud.sdk.AppClient;
@@ -8,7 +9,6 @@ import com.plantdata.kgcloud.sdk.req.app.PromptReq;
 import com.plantdata.kgcloud.sdk.req.app.SeniorPromptReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;

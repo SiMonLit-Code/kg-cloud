@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.mq;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.databind.JavaType;
 import com.mongodb.MongoClient;
@@ -9,9 +10,8 @@ import com.plantdata.graph.logging.core.GraphLogScope;
 import com.plantdata.graph.logging.core.GraphServiceLog;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;

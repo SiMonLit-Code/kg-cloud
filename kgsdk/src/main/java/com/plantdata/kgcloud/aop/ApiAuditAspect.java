@@ -1,10 +1,10 @@
 package com.plantdata.kgcloud.aop;
 
-import com.plantdata.kgcloud.producer.KafkaMessageProducer;
+import ai.plantdata.cloud.kafka.producer.KafkaMessageProducer;
+import ai.plantdata.cloud.web.util.WebUtils;
 import com.plantdata.kgcloud.sdk.constant.ApiAuditStatusEnum;
 import com.plantdata.kgcloud.sdk.mq.ApiAuditMessage;
-import com.plantdata.kgcloud.util.WebUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;

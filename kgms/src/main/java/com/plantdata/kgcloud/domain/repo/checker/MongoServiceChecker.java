@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.repo.checker;
 
+import ai.plantdata.cloud.web.util.SpringContextUtils;
 import com.mongodb.MongoClient;
 import com.plantdata.kgcloud.domain.repo.model.RepoCheckConfig;
-import com.plantdata.kgcloud.util.SpringContextUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;

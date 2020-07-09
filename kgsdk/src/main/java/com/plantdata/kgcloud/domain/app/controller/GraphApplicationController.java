@@ -1,13 +1,12 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.exception.BizException;
 import com.plantdata.kgcloud.config.CurrentUser;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.plantdata.converter.common.ApiReturnConverter;
 import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.EditClient;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
@@ -21,13 +20,7 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;

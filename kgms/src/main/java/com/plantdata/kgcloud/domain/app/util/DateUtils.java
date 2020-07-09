@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.app.util;
 
+import ai.plantdata.cloud.exception.BizException;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
-import com.plantdata.kgcloud.exception.BizException;
 import lombok.NonNull;
 
 import java.util.Map;

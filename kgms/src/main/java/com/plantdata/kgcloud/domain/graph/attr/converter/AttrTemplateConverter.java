@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.graph.attr.converter;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.domain.edit.req.attr.AttrTemplateReq;
-import com.plantdata.kgcloud.util.JacksonUtils;
 
 import javax.persistence.AttributeConverter;
 import java.util.List;

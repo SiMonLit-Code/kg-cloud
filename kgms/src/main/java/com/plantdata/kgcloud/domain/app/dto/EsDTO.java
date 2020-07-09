@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.app.dto;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

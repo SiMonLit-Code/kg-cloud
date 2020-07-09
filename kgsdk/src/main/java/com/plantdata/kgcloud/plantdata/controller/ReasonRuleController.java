@@ -1,9 +1,10 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.BasePage;
+import ai.plantdata.cloud.util.JacksonUtils;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.plantdata.bean.rule.RuleBean;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.semantic.ReasonConverter;
@@ -11,11 +12,9 @@ import com.plantdata.kgcloud.plantdata.req.rule.FormatParameter;
 import com.plantdata.kgcloud.plantdata.req.rule.RuleAdd;
 import com.plantdata.kgcloud.plantdata.req.rule.RuleUpdate;
 import com.plantdata.kgcloud.sdk.KgmsClient;
-import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.RestData;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.JsonUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -42,8 +41,6 @@ public class ReasonRuleController implements SdkOldApiInterface {
 
     @Autowired
     private KgmsClient kgmsClient;
-    @Autowired
-    private ReasoningClient reasoningClient;
 
     @GetMapping("get/list")
     @ApiOperation("推理规则-分页")
@@ -119,16 +116,4 @@ public class ReasonRuleController implements SdkOldApiInterface {
     }
 
 
-    @PostMapping("format")
-    @ApiOperation("推理规则-生成")
-    public RestResp<String> format(@Valid @ApiIgnore FormatParameter formatParameter) {
-        String configStr = JacksonUtils.writeValueAsString(formatParameter.getRuleSetting());
-        if (StringUtils.isNoneBlank(configStr)) {
-            return new RestResp<>();
-        }
-        Map<Integer, Object> objectMap = JsonUtils.jsonToObj(configStr, new TypeReference<Map<Integer, Object>>() {
-        });
-        Map<Long, Object> ruleMap = BasicConverter.keyIntToLong(objectMap);
-        return new RestResp<>(BasicConverter.convert(reasoningClient.reasoningRuleGenerate(ruleMap), JacksonUtils::writeValueAsString));
-    }
 }

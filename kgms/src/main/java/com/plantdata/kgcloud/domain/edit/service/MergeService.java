@@ -2,10 +2,8 @@ package com.plantdata.kgcloud.domain.edit.service;
 
 import ai.plantdata.kg.api.edit.merge.EntityMergeSourceVO;
 import ai.plantdata.kg.api.edit.merge.MergeEntity4Edit;
-import ai.plantdata.kg.api.edit.merge.MergeEntityDetail;
 import ai.plantdata.kg.api.edit.merge.MergeFinalEntityFrom;
 import ai.plantdata.kg.api.edit.merge.WaitMergeVO;
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.edit.req.merge.WaitMergeReq;
 import com.plantdata.kgcloud.domain.edit.rsp.MergeEntityDetailRsp;
 import org.springframework.data.domain.Page;

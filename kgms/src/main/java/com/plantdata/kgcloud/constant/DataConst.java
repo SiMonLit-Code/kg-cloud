@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.constant;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.plantdata.kgcloud.util.JacksonUtils;
 
 /**
  * @description:

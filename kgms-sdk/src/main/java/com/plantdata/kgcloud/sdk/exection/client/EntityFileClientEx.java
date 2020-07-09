@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.sdk.exection.client;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.EntityFileClient;
 import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.EntityFileRelationRsp;

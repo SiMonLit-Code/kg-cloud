@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.data.statistics.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataStatisticsInterface;
 import com.plantdata.kgcloud.sdk.KgDataClient;
 import com.plantdata.kgcloud.sdk.req.app.statistic.EdgeStatisticByEntityIdReq;

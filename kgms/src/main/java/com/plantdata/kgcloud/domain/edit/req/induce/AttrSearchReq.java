@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.req.induce;
 
+import ai.plantdata.cloud.bean.BaseReq;
 import ai.plantdata.kg.api.edit.validator.TypeRange;
-import com.plantdata.kgcloud.bean.BaseReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

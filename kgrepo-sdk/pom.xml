@@ -5,7 +5,7 @@
     <parent>
         <artifactId>kg-cloud-kgms</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.4.3</version>
+        <version>${kg-cloud-kgms.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,9 +13,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.plantdata</groupId>
-            <artifactId>kg-cloud-web</artifactId>
+            <groupId>ai.plantdata</groupId>
+            <artifactId>kg-cloud-common</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
     </dependencies>
 </project>

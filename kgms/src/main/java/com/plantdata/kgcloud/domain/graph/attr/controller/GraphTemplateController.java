@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.attr.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.edit.aop.EditPermissionUnwanted;
 import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrTemplateRsp;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrTemplateService;

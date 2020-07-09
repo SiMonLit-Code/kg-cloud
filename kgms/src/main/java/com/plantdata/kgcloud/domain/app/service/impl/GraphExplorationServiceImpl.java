@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.kg.api.pub.GisApi;
 import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.req.GisLocusParam;
@@ -27,7 +28,6 @@ import com.plantdata.kgcloud.sdk.req.app.function.GraphReqAfterInterface;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

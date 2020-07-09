@@ -1,10 +1,10 @@
 package com.plantdata.kgcloud.domain.graph.config.converter;
 
+import ai.plantdata.cloud.util.JacksonUtils;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfReasoning;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 
 import java.util.Map;
 

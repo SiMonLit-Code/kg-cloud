@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.structure.analysis;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphStructureAnalysisInterface;
 import com.plantdata.kgcloud.sdk.AppClient;
 import com.plantdata.kgcloud.sdk.req.app.explore.PathReasoningAnalysisReqList;

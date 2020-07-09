@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.bean.EditAttDefBeanMole;
 import com.plantdata.kgcloud.plantdata.req.data.InsertConceptParameter;
@@ -11,7 +12,6 @@ import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;

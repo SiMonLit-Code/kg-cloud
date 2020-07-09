@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.BasePage;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import com.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
 import com.plantdata.kgcloud.plantdata.bean.ImportRelationBean;

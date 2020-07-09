@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfIndexService;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfIndexStatusRsp;
 import io.swagger.annotations.Api;

@@ -1,12 +1,12 @@
 package com.plantdata.kgcloud.domain.share.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.plantdata.kgcloud.domain.share.rsp.LinkShareRsp;
 
 import com.plantdata.kgcloud.domain.share.service.LinkShareService;
 import com.plantdata.kgcloud.sdk.req.SelfSharedRsp;
 import com.plantdata.kgcloud.sdk.rsp.LinkShareSpaRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

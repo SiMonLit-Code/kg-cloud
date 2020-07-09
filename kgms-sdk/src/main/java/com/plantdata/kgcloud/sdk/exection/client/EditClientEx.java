@@ -1,8 +1,7 @@
 package com.plantdata.kgcloud.sdk.exection.client;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.EditClient;
-import com.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;

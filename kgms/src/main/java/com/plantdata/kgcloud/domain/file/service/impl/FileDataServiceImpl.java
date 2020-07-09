@@ -1,5 +1,8 @@
 package com.plantdata.kgcloud.domain.file.service.impl;
 
+import ai.plantdata.cloud.oss.template.FastdfsTemplate;
+import ai.plantdata.cloud.web.util.ConvertUtils;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -14,9 +17,6 @@ import com.plantdata.kgcloud.domain.file.req.FileDataReq;
 import com.plantdata.kgcloud.domain.file.req.FileDataUpdateReq;
 import com.plantdata.kgcloud.domain.file.rsq.FileDataRsp;
 import com.plantdata.kgcloud.domain.file.service.FileDataService;
-import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.template.FastdfsTemplate;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;

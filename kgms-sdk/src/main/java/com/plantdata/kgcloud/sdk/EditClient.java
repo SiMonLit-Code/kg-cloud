@@ -1,33 +1,19 @@
 package com.plantdata.kgcloud.sdk;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.exection.client.EditClientEx;
-import com.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
-import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
-import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
-import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
-import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
-import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
-import com.plantdata.kgcloud.sdk.req.edit.BatchPrivateRelationReq;
-import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
-import com.plantdata.kgcloud.sdk.req.edit.PrivateAttrDataReq;
+import com.plantdata.kgcloud.sdk.req.edit.*;
 import com.plantdata.kgcloud.sdk.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.*;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -70,7 +56,7 @@ public interface EditClient {
      */
     @DeleteMapping("basic/{kgName}/{id}")
     ApiReturn deleteConcept(@PathVariable("kgName") String kgName, @PathVariable("id") Long id,
-                            @RequestParam(defaultValue = "false", required = false) Boolean force);
+                            @RequestParam(value = "force", defaultValue = "false", required = false) Boolean force);
 
     /**
      * 删除属性定义
@@ -102,7 +88,7 @@ public interface EditClient {
      */
     @GetMapping("attribute/{kgName}")
     ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptId(@PathVariable("kgName") String kgName,
-                                                                    @RequestParam Long conceptId);
+                                                                    @RequestParam("conceptId") Long conceptId);
     /**
      * 查询多概念下的属性定义
      *

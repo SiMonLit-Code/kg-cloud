@@ -1,9 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.config.entity;
 
-import ai.plantdata.kg.api.pub.resp.QuerySetting;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.plantdata.kgcloud.domain.common.converter.JsonNodeConverter;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

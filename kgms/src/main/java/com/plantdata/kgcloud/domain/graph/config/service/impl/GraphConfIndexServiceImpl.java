@@ -1,14 +1,12 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kg.api.edit.IndexApi;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfIndex;
-import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfQaStatus;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfIndexRepository;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfIndexService;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfIndexStatusRsp;
-import com.plantdata.kgcloud.sdk.rsp.GraphConfQaStatusRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;

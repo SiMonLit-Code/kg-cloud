@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.constant;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.Getter;
 
 import java.math.BigDecimal;

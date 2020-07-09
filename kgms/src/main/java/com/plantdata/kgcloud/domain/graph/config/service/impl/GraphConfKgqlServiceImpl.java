@@ -1,9 +1,13 @@
 package com.plantdata.kgcloud.domain.graph.config.service.impl;
 
+import ai.plantdata.cloud.bean.BaseReq;
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.redis.util.KgKeyGenerator;
+import ai.plantdata.cloud.util.JacksonUtils;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kg.api.pub.QlApi;
 import ai.plantdata.kg.api.pub.resp.QuerySetting;
 import cn.hiboot.mcn.core.model.result.RestResp;
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
@@ -11,12 +15,8 @@ import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.config.entity.GraphConfKgql;
 import com.plantdata.kgcloud.domain.graph.config.repository.GraphConfKgqlRepository;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfKgqlService;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfKgqlRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
-import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

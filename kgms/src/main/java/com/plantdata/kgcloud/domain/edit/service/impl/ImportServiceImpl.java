@@ -1,5 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.util.JacksonUtils;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import ai.plantdata.kg.api.edit.RdfApi;
 import ai.plantdata.kg.api.edit.UploadApi;
 import cn.hiboot.mcn.core.model.result.RestResp;
@@ -21,15 +24,12 @@ import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.edit.service.BasicInfoService;
 import com.plantdata.kgcloud.domain.edit.service.ImportService;
 import com.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoVO;
 import com.plantdata.kgcloud.sdk.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.vo.GisVO;
-import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;

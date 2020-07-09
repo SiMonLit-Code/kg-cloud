@@ -1,14 +1,10 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
-import cn.hiboot.mcn.core.model.result.RestResp;
-import com.alibaba.fastjson.JSON;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfAlgorithmService;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReq;
 import com.plantdata.kgcloud.sdk.req.GraphConfAlgorithmReqList;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfAlgorithmRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.statistic.AlgorithmStatisticeRsp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

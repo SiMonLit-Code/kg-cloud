@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.ImageRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;

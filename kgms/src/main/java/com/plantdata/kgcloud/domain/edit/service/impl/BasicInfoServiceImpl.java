@@ -1,5 +1,8 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.web.util.ConvertUtils;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.GraphApi;
@@ -28,7 +31,6 @@ import com.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import com.plantdata.kgcloud.domain.edit.vo.StatisticVO;
 import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupSearchReq;
 import com.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
@@ -40,8 +42,6 @@ import com.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
 import com.plantdata.kgcloud.sdk.rsp.vo.EntityAttrValueVO;
-import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -100,7 +100,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         }
         BasicInfoFrom basicInfoFrom = ConvertUtils.convert(BasicInfoFrom.class).apply(basicInfoReq);
         if(BasicInfoType.isEntity(basicInfoReq.getType())){
-            basicInfoFrom.setMetaData(MetaDataUtils.getDefaultSourceMetaData(null,SessionHolder.getUserId()));
+            basicInfoFrom.setMetaData(MetaDataUtils.getDefaultSourceMetaData(null, SessionHolder.getUserId()));
         }
         RestResp<Long> restResp = conceptEntityApi.add(KGUtil.dbName(kgName), basicInfoFrom);
         logSender.remove();

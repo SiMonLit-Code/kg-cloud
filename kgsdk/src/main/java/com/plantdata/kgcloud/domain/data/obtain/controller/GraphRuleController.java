@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.data.obtain.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.BasePage;
+import ai.plantdata.cloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfKgqlReq;
@@ -11,14 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 

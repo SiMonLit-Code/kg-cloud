@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.kg.api.edit.req.BasicInfoFrom;
 import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
@@ -13,7 +14,6 @@ import com.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AdditionalRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BasicConceptTreeRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;

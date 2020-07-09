@@ -3,10 +3,7 @@ package com.plantdata.kgcloud.exception;
 
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.netflix.hystrix.exception.HystrixBadRequestException;
-import com.plantdata.kgcloud.constant.ErrorCode;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
-import feign.FeignException;
-import feign.Request;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

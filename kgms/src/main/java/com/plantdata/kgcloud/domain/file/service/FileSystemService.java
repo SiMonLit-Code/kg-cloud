@@ -1,6 +1,5 @@
 package com.plantdata.kgcloud.domain.file.service;
 
-import com.plantdata.kgcloud.domain.file.req.FileSystemReq;
 import com.plantdata.kgcloud.domain.file.rsq.FileSystemRsp;
 import com.plantdata.kgcloud.domain.file.rsq.FolderRsp;
 

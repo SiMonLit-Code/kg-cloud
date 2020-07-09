@@ -1,5 +1,8 @@
 package com.plantdata.kgcloud.domain.task.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.redis.util.KgKeyGenerator;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.constant.TaskStatus;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
@@ -8,9 +11,6 @@ import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
 import com.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusCheckRsp;
 import com.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusRsp;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
-import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.util.ConvertUtils;
-import com.plantdata.kgcloud.util.KgKeyGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;

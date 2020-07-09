@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service;
 
-import com.plantdata.kgcloud.bean.BasePage;
+import ai.plantdata.cloud.bean.BasePage;
 import com.plantdata.kgcloud.constant.ExportTypeEnum;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import com.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;

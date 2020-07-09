@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.common.converter;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.domain.app.util.JsonUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.AttributeConverter;

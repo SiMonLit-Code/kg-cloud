@@ -1,10 +1,10 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.exception.BizException;
 import cn.hiboot.mcn.core.model.result.RestResp;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.config.CurrentUser;
 import com.plantdata.kgcloud.constant.SdkErrorCodeEnum;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.plantdata.bean.AttrPromtRemoteBean;
 import com.plantdata.kgcloud.plantdata.converter.app.AppConverter;
 import com.plantdata.kgcloud.plantdata.converter.app.InfoBoxConverter;

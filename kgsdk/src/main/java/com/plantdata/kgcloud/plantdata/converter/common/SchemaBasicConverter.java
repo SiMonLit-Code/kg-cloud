@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.plantdata.kgcloud.plantdata.rsp.schema.Additional;
 import com.plantdata.kgcloud.plantdata.rsp.schema.AttBean;
 import com.plantdata.kgcloud.plantdata.rsp.schema.AttrCategoryOutputBean;
@@ -12,7 +13,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionGroupRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.BaseConceptRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SchemaRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 
 import java.util.List;

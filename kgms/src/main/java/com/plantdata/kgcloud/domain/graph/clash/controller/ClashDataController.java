@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.graph.clash.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.graph.clash.entity.ClashListReq;
 import com.plantdata.kgcloud.domain.graph.clash.entity.ClashToGraphReq;
 import com.plantdata.kgcloud.domain.graph.clash.service.ClashService;

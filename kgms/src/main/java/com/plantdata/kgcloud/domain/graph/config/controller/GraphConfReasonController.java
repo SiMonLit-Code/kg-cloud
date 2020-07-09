@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.graph.config.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.BasePage;
+import ai.plantdata.cloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.graph.config.service.GraphConfReasonService;
 import com.plantdata.kgcloud.sdk.req.GraphConfReasonReq;
 import com.plantdata.kgcloud.sdk.rsp.GraphConfReasonRsp;

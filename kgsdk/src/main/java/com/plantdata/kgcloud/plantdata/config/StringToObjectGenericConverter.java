@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.config;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,8 +8,7 @@ import com.google.common.collect.Sets;
 import com.plantdata.kgcloud.plantdata.rsp.MarkObject;
 import com.plantdata.kgcloud.sdk.constant.BaseEnum;
 import com.plantdata.kgcloud.util.EnumUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
@@ -43,7 +43,7 @@ public class StringToObjectGenericConverter implements GenericConverter {
         if (StringUtils.isEmpty(source)) {
             return null;
         }
-        String sourceStr = StringEscapeUtils.unescapeHtml(source.toString());
+        String sourceStr = StringEscapeUtils.unescapeHtml4(source.toString());
         if (targetType.getType() == String.class) {
             return sourceStr;
         }

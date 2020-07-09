@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.sdk;
 
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.hiekn.pddocument.bean.PdDocument;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.NerReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.SegmentReq;

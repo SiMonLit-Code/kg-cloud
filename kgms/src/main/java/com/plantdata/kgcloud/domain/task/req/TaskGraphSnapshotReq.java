@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.task.req;
 
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.BaseReq;
 import lombok.Data;
 
 /**

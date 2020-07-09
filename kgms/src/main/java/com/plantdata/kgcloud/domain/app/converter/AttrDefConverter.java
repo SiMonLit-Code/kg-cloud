@@ -1,12 +1,12 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttrExtraRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.AttributeDefinitionRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;

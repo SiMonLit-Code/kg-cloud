@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.audit.listener;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.plantdata.kgcloud.domain.audit.service.ApiAuditService;
 import com.plantdata.kgcloud.sdk.mq.ApiAuditMessage;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;

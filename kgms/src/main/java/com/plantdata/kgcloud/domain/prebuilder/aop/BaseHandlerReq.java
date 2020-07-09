@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.prebuilder.aop;
 
-import com.plantdata.kgcloud.bean.BaseReq;
+
+import ai.plantdata.cloud.bean.BaseReq;
 
 /**
  * @author Bovin

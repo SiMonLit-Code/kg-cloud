@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.graph;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -27,7 +28,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.GraphStatisticRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;

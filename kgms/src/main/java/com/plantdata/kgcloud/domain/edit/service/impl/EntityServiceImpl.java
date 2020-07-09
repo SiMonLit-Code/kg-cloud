@@ -1,5 +1,10 @@
 package com.plantdata.kgcloud.domain.edit.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.kafka.producer.KafkaMessageProducer;
+import ai.plantdata.cloud.util.JacksonUtils;
+import ai.plantdata.cloud.web.util.ConvertUtils;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.req.*;
@@ -45,8 +50,6 @@ import com.plantdata.kgcloud.domain.file.service.FileDataService;
 import com.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
 import com.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
-import com.plantdata.kgcloud.exception.BizException;
-import com.plantdata.kgcloud.producer.KafkaMessageProducer;
 import com.plantdata.kgcloud.sdk.UserClient;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -62,9 +65,6 @@ import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
 import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import com.plantdata.kgcloud.sdk.rsp.vo.EntityAttrValueVO;
 import com.plantdata.kgcloud.sdk.rsp.vo.EntityTagVO;
-import com.plantdata.kgcloud.security.SessionHolder;
-import com.plantdata.kgcloud.util.ConvertUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -667,7 +667,7 @@ public class EntityServiceImpl implements EntityService {
             attributeValueFrom.setAttrValue(JacksonUtils.writeValueAsString(urlAttrValue));
         }
 
-        attributeValueFrom.setMetaData(MetaDataUtils.getDefaultSourceMetaData(numericalAttrValueReq.getMetaData(),SessionHolder.getUserId()));
+        attributeValueFrom.setMetaData(MetaDataUtils.getDefaultSourceMetaData(numericalAttrValueReq.getMetaData(), SessionHolder.getUserId()));
         RestRespConverter.convertVoid(conceptEntityApi.addNumericAttrValue(KGUtil.dbName(kgName), attributeValueFrom));
     }
 

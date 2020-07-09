@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.BasePage;
 import cn.hiboot.mcn.core.model.result.RestResp;
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.plantdata.bean.rule.GraphmRuleMapBean;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.rule.GraphRuleConverter;

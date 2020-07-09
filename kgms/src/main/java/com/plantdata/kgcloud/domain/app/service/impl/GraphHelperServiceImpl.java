@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.app.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.MongoApi;
@@ -26,7 +27,6 @@ import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import com.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import com.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.LayerKnowledgeRecommendReqList;
 import com.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.data.obtain.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
 import com.plantdata.kgcloud.sdk.KgmsClient;
 import com.plantdata.kgcloud.sdk.req.GraphConfStatisticalReq;

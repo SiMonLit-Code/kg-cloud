@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.common.util;
 
+import ai.plantdata.cloud.web.util.SpringContextUtils;
 import com.plantdata.kgcloud.domain.graph.manage.service.GraphService;
-import com.plantdata.kgcloud.util.SpringContextUtils;
 
 /**
  * @description:

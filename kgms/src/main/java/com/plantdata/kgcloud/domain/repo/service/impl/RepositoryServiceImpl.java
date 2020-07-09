@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.domain.repo.service.impl;
 
+import ai.plantdata.cloud.exception.BizException;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.repo.checker.ServiceChecker;
 import com.plantdata.kgcloud.domain.repo.converter.RepositoryConverter;
@@ -16,7 +17,6 @@ import com.plantdata.kgcloud.domain.repo.repository.RepoMenuRepository;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryMenuService;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryService;
 import com.plantdata.kgcloud.domain.repo.service.RepositoryUseLogService;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.rsp.RepositoryLogMenuRsp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

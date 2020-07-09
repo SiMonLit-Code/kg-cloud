@@ -64,7 +64,7 @@ public class RelationConverter extends BasicConverter {
         relationRsp.setDirection(relation.getDirection());
         relationRsp.setFrom(relation.getFromId());
         relationRsp.setTo(relation.getToId());
-        Function<Date, String> dateFormat = a -> a == null ? StringUtils.EMPTY : com.plantdata.kgcloud.util.DateUtils.formatDatetime(a);
+        Function<Date, String> dateFormat = a -> a == null ? StringUtils.EMPTY : ai.plantdata.cloud.util.DateUtils.formatDatetime(a);
         relationRsp.setStartTime(dateFormat.apply(relation.getStartTime()));
         relationRsp.setEndTime(dateFormat.apply(relation.getEndTime()));
         return relationRsp;

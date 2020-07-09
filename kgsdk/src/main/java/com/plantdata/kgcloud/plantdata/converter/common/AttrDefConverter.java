@@ -1,5 +1,7 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
+import ai.plantdata.cloud.util.JacksonUtils;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import com.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
@@ -10,8 +12,6 @@ import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import com.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import com.plantdata.kgcloud.sdk.req.edit.ExtraInfoReq;
 import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import com.plantdata.kgcloud.util.JsonUtils;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;

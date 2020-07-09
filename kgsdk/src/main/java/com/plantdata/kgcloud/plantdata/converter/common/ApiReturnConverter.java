@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.exception.BizException;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.exception.BizException;
 
 /**
  * @author cjw

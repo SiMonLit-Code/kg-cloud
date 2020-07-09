@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.app.converter;
 
+import ai.plantdata.cloud.bean.BaseReq;
 import ai.plantdata.kg.api.pub.req.SemanticDistanceFrom;
-import com.plantdata.kgcloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.DistanceListReq;
 
 /**

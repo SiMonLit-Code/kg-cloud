@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.app;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.bean.AttrPromtRemoteBean;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
@@ -19,7 +20,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import com.plantdata.kgcloud.util.EnumUtils;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.NonNull;
 
 import java.util.Optional;

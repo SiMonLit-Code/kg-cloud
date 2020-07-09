@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud.domain.prebuilder.converter;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.plantdata.kgcloud.sdk.rsp.StandardTemplateSchemaRsp;
-import com.plantdata.kgcloud.util.JacksonUtils;
 
 import javax.persistence.AttributeConverter;
 import java.util.ArrayList;

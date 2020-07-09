@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.edit.req.merge;
 
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.BaseReq;
 import lombok.Getter;
 import lombok.Setter;
 

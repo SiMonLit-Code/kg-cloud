@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.menu.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.plantdata.kgcloud.domain.menu.rsp.MenuFavorRsp;
 import com.plantdata.kgcloud.domain.menu.service.MenuFavorService;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

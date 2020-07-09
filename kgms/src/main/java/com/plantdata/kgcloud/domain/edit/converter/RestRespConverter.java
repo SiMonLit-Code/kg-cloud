@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.edit.converter;
 
+import ai.plantdata.cloud.exception.BizException;
 import cn.hiboot.mcn.core.model.result.RestResp;
-import com.plantdata.kgcloud.exception.BizException;
 
 import java.util.Optional;
 

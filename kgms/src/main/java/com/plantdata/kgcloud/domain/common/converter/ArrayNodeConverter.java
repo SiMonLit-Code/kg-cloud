@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.common.converter;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.plantdata.kgcloud.util.JacksonUtils;
 
 import javax.persistence.AttributeConverter;
 

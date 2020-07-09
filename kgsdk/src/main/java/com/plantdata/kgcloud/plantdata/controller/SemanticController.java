@@ -1,23 +1,21 @@
 package com.plantdata.kgcloud.plantdata.controller;
 
 
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.hiekn.pddocument.bean.PdDocument;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter;
 import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
 import com.plantdata.kgcloud.plantdata.converter.semantic.GremlinConverter;
 import com.plantdata.kgcloud.plantdata.converter.semantic.QaConverter;
-import com.plantdata.kgcloud.plantdata.converter.semantic.ReasonConverter;
 import com.plantdata.kgcloud.plantdata.req.data.EntityFileRelationParameter;
 import com.plantdata.kgcloud.plantdata.req.nlp.AnnotationParameter;
-import com.plantdata.kgcloud.plantdata.req.reason.InferenceParameter;
 import com.plantdata.kgcloud.plantdata.req.semantic.GremlinParameter;
 import com.plantdata.kgcloud.plantdata.req.semantic.QaKbqaParameter;
 import com.plantdata.kgcloud.sdk.EntityFileClient;
 import com.plantdata.kgcloud.sdk.NlpClient;
-import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.SemanticClient;
 import com.plantdata.kgcloud.sdk.req.EntityFileRelationAddReq;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
@@ -29,7 +27,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.nlp.TaggingItemRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 import com.plantdata.kgcloud.sdk.rsp.edit.EntityFileRelationRsp;
-import com.plantdata.kgcloud.util.ConvertUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -57,8 +54,6 @@ public class SemanticController implements SdkOldApiInterface {
 
     @Autowired
     private SemanticClient semanticClient;
-    @Autowired
-    private ReasoningClient reasoningClient;
     @Autowired
     public NlpClient nlpClient;
 
@@ -105,19 +100,6 @@ public class SemanticController implements SdkOldApiInterface {
         return new RestResp<>(dataRsp.orElse(new GremlinRsp()));
     }
 
-    @ApiOperation("隐含关系推理")
-    @PostMapping("reasoning")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
-            @ApiImplicitParam(name = "ids", required = true, dataType = "array", paramType = "form", value = "推理的实例ids[71]"),
-            @ApiImplicitParam(name = "ruleConfig", required = true, dataType = "string", paramType = "form", value = "推理规则"),
-            @ApiImplicitParam(name = "pos", required = true, dataType = "string", paramType = "form", value = "页数"),
-            @ApiImplicitParam(name = "size", dataType = "string", paramType = "form", value = "定义域"),
-    })
-    public RestResp<GraphReasoningResultRsp> inference(@RequestParam("kgName")String kgName,@Valid @ApiIgnore ReasoningReq reasoningReq) {
-        ApiReturn<GraphReasoningResultRsp> reasoning = reasoningClient.reasoning(kgName,reasoningReq);
-        return new RestResp<>(BasicConverter.apiReturnData(reasoning).orElse(new GraphReasoningResultRsp()));
-    }
 
     @ApiOperation("文本语义标注")
     @PostMapping("annotation")

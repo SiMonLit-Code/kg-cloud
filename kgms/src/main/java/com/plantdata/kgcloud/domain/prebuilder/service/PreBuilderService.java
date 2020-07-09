@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.prebuilder.service;
 
+import ai.plantdata.cloud.bean.BasePage;
 import com.alibaba.fastjson.JSONObject;
-import com.plantdata.kgcloud.bean.BasePage;
 import com.plantdata.kgcloud.domain.prebuilder.req.*;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderMatchAttrRsp;
 import com.plantdata.kgcloud.domain.prebuilder.rsp.PreBuilderSearchRsp;

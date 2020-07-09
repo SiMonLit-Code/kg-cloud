@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.dictionary.service;
 
 
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.BaseReq;
 import com.plantdata.kgcloud.sdk.req.DictionaryReq;
 import com.plantdata.kgcloud.sdk.rsp.DictionaryRsp;
 import org.springframework.data.domain.Page;

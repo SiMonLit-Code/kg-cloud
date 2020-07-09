@@ -1,6 +1,7 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.web.util.SessionHolder;
 import com.plantdata.kgcloud.domain.app.controller.module.GraphAppInterface;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphPromptService;
@@ -14,7 +15,6 @@ import com.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.PageRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.main.*;
 import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
-import com.plantdata.kgcloud.security.SessionHolder;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;

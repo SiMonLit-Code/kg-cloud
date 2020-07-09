@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.domain.app.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.exception.BizException;
 import com.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.GraphAlgorithmService;
-import com.plantdata.kgcloud.exception.BizException;
 import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.statistic.AlgorithmStatisticeRsp;
 import io.swagger.annotations.ApiImplicitParam;

@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.exception;
 
-import com.plantdata.kgcloud.constant.ErrorCode;
+import ai.plantdata.cloud.constant.ErrorCode;
 import lombok.Getter;
 import lombok.Setter;
 

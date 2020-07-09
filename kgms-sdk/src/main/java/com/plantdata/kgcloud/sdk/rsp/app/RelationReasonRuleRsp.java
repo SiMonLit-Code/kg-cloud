@@ -1,14 +1,12 @@
 package com.plantdata.kgcloud.sdk.rsp.app;
 
+import com.alibaba.fastjson.JSONObject;
 import com.plantdata.kgcloud.sdk.constant.AggregateEnum;
-import com.plantdata.kgcloud.sdk.constant.AttrDefinitionTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.CubeTypeEnum;
 import com.plantdata.kgcloud.sdk.constant.SecEnum;
 import com.plantdata.kgcloud.sdk.constant.SignEnum;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;

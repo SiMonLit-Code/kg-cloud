@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.log.service;
 
-import com.plantdata.kgcloud.bean.BasePage;
-import com.plantdata.kgcloud.bean.BaseReq;
+import ai.plantdata.cloud.bean.BasePage;
+import ai.plantdata.cloud.bean.BaseReq;
 import com.plantdata.kgcloud.domain.graph.log.entity.DataLogRsp;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogReq;
 import com.plantdata.kgcloud.domain.graph.log.entity.ServiceLogRsp;

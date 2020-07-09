@@ -1,16 +1,13 @@
 package com.plantdata.kgcloud.domain.semantic;
 
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.hiekn.pddocument.bean.PdDocument;
-import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.common.module.GraphSemanticApplicationInterface;
 import com.plantdata.kgcloud.plantdata.converter.nlp.NlpConverter2;
 import com.plantdata.kgcloud.sdk.NlpClient;
-import com.plantdata.kgcloud.sdk.ReasoningClient;
 import com.plantdata.kgcloud.sdk.SemanticClient;
 import com.plantdata.kgcloud.sdk.req.app.nlp.EntityLinkingReq;
 import com.plantdata.kgcloud.sdk.req.app.sematic.QueryReq;
-import com.plantdata.kgcloud.sdk.req.app.sematic.ReasoningReq;
-import com.plantdata.kgcloud.sdk.rsp.app.semantic.GraphReasoningResultRsp;
 import com.plantdata.kgcloud.sdk.rsp.app.semantic.QaAnswerDataRsp;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -36,8 +33,6 @@ public class GraphSemanticController implements GraphSemanticApplicationInterfac
     @Autowired
     private SemanticClient semanticClient;
     @Autowired
-    private ReasoningClient reasoningClient;
-    @Autowired
     public NlpClient nlpClient;
 
     @ApiOperation(value = "知识图谱问答初始化",notes = "意图初始化接口。基于给定的知识图谱进行意图识别模块的初始化，" +
@@ -59,12 +54,6 @@ public class GraphSemanticController implements GraphSemanticApplicationInterfac
         return semanticClient.qaKbQa(kgName, queryReq);
     }
 
-    @ApiOperation(value = "隐含关系推理",notes = "关系推理接口。在给定的知识图谱中基于路径规则进行隐含关系的推理。")
-    @PostMapping("/execute/{kgName}")
-    public ApiReturn<GraphReasoningResultRsp> reasoning(@ApiParam(value = "图谱名称") @PathVariable("kgName") String kgName,
-                                                        @RequestBody ReasoningReq reasoningReq) {
-        return reasoningClient.reasoning(kgName, reasoningReq);
-    }
 
     @ApiOperation(value = "文本语义标注", notes = "文本语义标注，以知识图谱的实体，对输入文本进行标注。")
     @PostMapping("annotation/{kgName}")

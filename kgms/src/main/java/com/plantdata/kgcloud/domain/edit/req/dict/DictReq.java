@@ -21,7 +21,7 @@ public class DictReq {
     private String nature;
 
     @NotEmpty(message = "领域词不能为空")
-    @NotBlank
+    @NotBlank(message = "领域词不能为空")
     @ApiModelProperty(required = true, value = "领域词")
     @Length(max = 50, message = "领域词长度不能超过50")
     private String name;

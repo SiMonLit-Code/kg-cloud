@@ -1,9 +1,9 @@
 package com.plantdata.kgcloud.sdk.validator;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.plantdata.kgcloud.util.JacksonUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.NumberUtils;
+import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -22,7 +22,7 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
     public static <T> T jsonToObj(String jsonString, TypeReference<T> tr) {
         if (jsonString != null && !("".equals(jsonString))) {
             try {
-                return JacksonUtils.getInstance().readValue(jsonString, tr);
+                return JacksonUtils.readValue(jsonString, tr);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -54,11 +54,11 @@ public class ChooseValidator implements ConstraintValidator<ChooseCheck, Object>
         if (Objects.nonNull(value)) {
             context.disableDefaultConstraintViolation();
             String msg = "";
-            if (StringUtils.isNoneBlank(name)) {
+            if (StringUtils.hasText(name)) {
                 msg = "参数" + name;
             }
             Class<? extends Number> numberClass = getNumberClass(type);
-            if (numberClass != null && org.apache.commons.lang.math.NumberUtils.isNumber(value.toString())) {
+            if (numberClass != null && org.apache.commons.lang3.math.NumberUtils.isCreatable(value.toString())) {
                 value = NumberUtils.parseNumber(value.toString(), Integer.class);
             }
             List<?> list;

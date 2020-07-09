@@ -1,12 +1,11 @@
 package com.plantdata.kgcloud.domain.edit.converter;
 
+import ai.plantdata.cloud.web.util.SessionHolder;
 import ai.plantdata.kg.api.edit.resp.BatchEntityVO;
-import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.constant.MetaDataInfo;
 import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import com.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
-import com.plantdata.kgcloud.security.SessionHolder;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;

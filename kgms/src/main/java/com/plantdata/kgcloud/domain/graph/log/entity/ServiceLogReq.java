@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.domain.graph.log.entity;
 
+import ai.plantdata.cloud.bean.BaseReq;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import com.plantdata.kgcloud.bean.BaseReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;

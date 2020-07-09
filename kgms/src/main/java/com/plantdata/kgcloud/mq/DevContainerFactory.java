@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud.mq;
 
-import com.plantdata.kgcloud.config.KafkaProperties;
-import com.plantdata.kgcloud.constant.CommonConstants;
+import ai.plantdata.cloud.constant.CommonConstants;
+import ai.plantdata.cloud.swagger.KafkaProperties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;

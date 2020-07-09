@@ -1,7 +1,7 @@
 package com.plantdata.kgcloud;
 
+import ai.plantdata.cloud.constant.CommonConstants;
 import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
-import com.plantdata.kgcloud.constant.CommonConstants;
 import feign.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,9 +16,9 @@ import org.springframework.context.annotation.Bean;
  * @author wanglong
  */
 @EnableDiscoveryClient
-@SpringBootApplication(scanBasePackages = CommonConstants.WebConst.ROOT_PKG, exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication
 @EnableApolloConfig
-@EnableFeignClients(basePackages = {CommonConstants.FeignConst.BASE_PKG, CommonConstants.FeignConst.PUBLIC_PKG})
+@EnableFeignClients(basePackages = {"ai.plantdata","com.plantdata"})
 public class KgsdkApplication extends SpringBootServletInitializer {
     public static void main(String[] args) {
         SpringApplication.run(KgsdkApplication.class, args);

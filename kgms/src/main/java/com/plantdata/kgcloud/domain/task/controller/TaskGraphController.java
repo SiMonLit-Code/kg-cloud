@@ -1,6 +1,6 @@
 package com.plantdata.kgcloud.domain.task.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ApiReturn;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotNameReq;
 import com.plantdata.kgcloud.domain.task.req.TaskGraphSnapshotReq;
 import com.plantdata.kgcloud.domain.task.rsp.TaskGraphSnapshotRsp;
