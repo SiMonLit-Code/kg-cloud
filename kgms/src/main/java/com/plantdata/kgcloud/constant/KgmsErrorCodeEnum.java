@@ -86,6 +86,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     ILLEGAL_PARAM(120512, "参数不合法"),
 
+    ENTITY_NAME_LENGTH_ERROR(120513, "实体名称长度不能超过50"),
+
     PERMISSION_NOT_MODEL_UPLOAD_ERROR(120601, "没有模式上传权限"),
 
     MODEL_PARSER_ERROR(120602, "模式解析错误"),
@@ -129,6 +131,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     FILE_NOT_EXIST(120621, "文件不存在"),
 
     UPLOAD_FILENAME_NOT_TRUE(120622, "上传的文件名称不规范"),
+
 
     ;
     private final int errorCode;
