@@ -288,20 +288,4 @@ public interface EditClient {
      */
     @PostMapping("basic/{kgName}/list/name")
     ApiReturn<List<SimpleBasicRsp>> listNames(@PathVariable("kgName") String kgName, @RequestBody List<String> names);
-
-    @ApiOperation("属性定义-边属性定义-添加")
-    @PostMapping("/attribute/{kgName}/{attrId}/edge/definition")
-    ApiReturn<Integer> addEdgeAttr(@PathVariable("kgName") String kgName,
-                                   @PathVariable("attrId") Integer attrId,
-                                   @RequestBody EdgeAttrDefinitionReq edgeAttrDefinitionReq);
-
-    @ApiOperation("获取概念树")
-    @PostMapping("/concept/{kgName}/{conceptId}/tree")
-    ApiReturn<List<BasicInfoVO>> getConceptTree(@PathVariable("kgName") String kgName,
-                                                @PathVariable("conceptId") Long conceptId);
-
-    @ApiOperation("属性定义-查询概念的属性定义")
-    @GetMapping("/attribute/{kgName}")
-    ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptId(@PathVariable("kgName") String kgName,
-                                                                    @RequestParam("conceptId") Long conceptId);
 }
