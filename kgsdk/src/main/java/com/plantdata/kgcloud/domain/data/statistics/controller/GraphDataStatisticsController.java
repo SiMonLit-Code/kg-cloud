@@ -22,13 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping("kgData/relation/statistic/")
+@RequestMapping("v3/kgData/relation/statistic/")
 public class GraphDataStatisticsController implements GraphDataStatisticsInterface {
 
     @Autowired
     private KgDataClient kgDataClient;
 
-    @ApiOperation("对象属性统计，统计对象属性的数量，按关系分组")
+    @ApiOperation(value ="实体按属性类型统计",notes = "统计知识图谱不同类型属性（对象属性）的分布。")
     @PostMapping("{kgName}/attrValue")
     public ApiReturn<Object> relationCountByAttrValue(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                       @RequestBody EdgeStatisticByConceptIdReq conceptIdReq) {
