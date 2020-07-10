@@ -133,8 +133,8 @@ public interface AppClient {
      * @return
      */
     @PostMapping("layer/knowledgeRecommend/{kgName}")
-    public ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@PathVariable("kgName") String kgName,
-                                                                       @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam);
+    ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@PathVariable("kgName") String kgName,
+                                                                @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam);
 
     /**
      * 获取模型可视化数据

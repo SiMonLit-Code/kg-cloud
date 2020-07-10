@@ -134,6 +134,6 @@ public interface KgDataClient {
      * @return List<OpenEntityRsp>
      */
     @PostMapping({"{kgName}/source/entity/query"})
-    public ApiReturn<BasePage<OpenEntityRsp>> queryEntityBySource(@PathVariable("kgName") String kgName,
-                                                                  @RequestBody TraceabilityQueryReq req);
+    ApiReturn<BasePage<OpenEntityRsp>> queryEntityBySource(@PathVariable("kgName") String kgName,
+                                                           @RequestBody TraceabilityQueryReq req);
 }
