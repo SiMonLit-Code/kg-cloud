@@ -189,7 +189,7 @@ public interface AppClient {
      * @param seniorPromptReq s
      * @return ...
      */
-    @GetMapping("prompt/senior/{kgName}")
+    @PostMapping("prompt/senior/{kgName}")
     ApiReturn<List<SeniorPromptRsp>> seniorPrompt(@PathVariable("kgName") String kgName,
                                                   @RequestBody SeniorPromptReq seniorPromptReq);
 

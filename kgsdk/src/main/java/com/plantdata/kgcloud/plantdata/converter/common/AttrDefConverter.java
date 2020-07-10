@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.plantdata.converter.common;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import com.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
@@ -26,13 +27,6 @@ import java.util.stream.Collectors;
  */
 public class AttrDefConverter extends BasicConverter {
 
-    public static AttrDefQueryReq attributeParameterToAttrDefQueryReq(@NonNull AttributeParameter param) {
-        AttrDefQueryReq queryReq = new AttrDefQueryReq();
-        queryReq.setConceptId(param.getConceptId());
-        queryReq.setConceptKey(param.getConceptKey());
-        queryReq.setInherit(param.getIsInherit());
-        return queryReq;
-    }
 
     public static AttrDefinitionReq attributeConstraintDefinitionToAttrDefinitionReq(@NonNull AttributeConstraintDefinition attrDef) {
         return attrConDefToAttrDefinitionReq(attrDef, new AttrDefinitionReq());

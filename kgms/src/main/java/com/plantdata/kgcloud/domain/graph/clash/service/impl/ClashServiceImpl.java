@@ -74,6 +74,7 @@ public class ClashServiceImpl implements ClashService {
                     .find(new Document("id", attrId)).iterator();
 
             int attrType = 0;
+            int dataType = 0;
             String attrName = "";
             int dataType = 0;
             if (cursor1.hasNext()) {
@@ -89,6 +90,7 @@ public class ClashServiceImpl implements ClashService {
             }
             s.put("clash_info", clashInfo);
             s.put("attr_type", attrType);
+            s.put("data_type", dataType);
             s.put("attr_name", attrName);
             s.put("data_type", dataType);
             s.remove("basic");
