@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
-    <version>3.2.13-SNAPSHOT</version>
+    <version>develop.version</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -21,8 +21,8 @@
     </modules>
 
     <properties>
-        <next-tag.version>3.2.14</next-tag.version>
-        <next-develop.version>3.2.15-SNAPSHOT</next-develop.version>
+        <next-tag.version>3.2.16</next-tag.version>
+        <next-develop.version>3.2.16-SNAPSHOT</next-develop.version>
         <kg-cloud-parent.version>3.1.5</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
         <kg-cloud-kguser.version>3.2.0-SNAPSHOT</kg-cloud-kguser.version>
