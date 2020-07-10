@@ -31,7 +31,7 @@ public class GraphConfQaServiceImpl implements GraphConfQaService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<GraphConfQaRsp> saveQa(String kgName, List<GraphConfQaReq> reqs) {
-        graphConfQaRepository.deleteAll();
+        graphConfQaRepository.deleteAllByKgName(kgName);
         List<GraphConfQa> list = new ArrayList<>();
         for (GraphConfQaReq req : reqs) {
             GraphConfQa targe = new GraphConfQa();
@@ -57,7 +57,7 @@ public class GraphConfQaServiceImpl implements GraphConfQaService {
 
     @Override
     public List<GraphConfQaRsp> findByKgName(String kgName) {
-        List<GraphConfQa> all = graphConfQaRepository.findAll();
+        List<GraphConfQa> all = graphConfQaRepository.findAllByKgName(kgName);
         return all.stream().map(ConvertUtils.convert(GraphConfQaRsp.class)).collect(Collectors.toList());
     }
 }

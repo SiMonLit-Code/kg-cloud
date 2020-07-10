@@ -5,11 +5,10 @@
     <parent>
         <artifactId>kg-cloud-parent</artifactId>
         <groupId>com.plantdata</groupId>
-        <version>3.0.4</version>
+        <version>3.1.5</version>
         <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.plantdata</groupId>
     <artifactId>kg-cloud-kgms</artifactId>
     <version>3.1.6-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -24,12 +23,11 @@
     <properties>
         <next-tag.version>3.1.5</next-tag.version>
         <next-develop.version>3.1.6-SNAPSHOT</next-develop.version>
-        <kg-cloud-parent.version>3.0.4</kg-cloud-parent.version>
+        <kg-cloud-parent.version>3.1.5</kg-cloud-parent.version>
         <kg-cloud-public.version>3.0.5</kg-cloud-public.version>
-        <kg-usersdk.version>3.0.5</kg-usersdk.version>
-        <kg-services-sdk.version>3.0.0-SNAPSHOT</kg-services-sdk.version>
-        <kgtext-sdk.version>3.0.11-SNAPSHOT</kgtext-sdk.version>
-        <kgcomponent-sdk.version>3.0.0-SNAPSHOT</kgcomponent-sdk.version>
+        <kg-services-sdk.version>3.0.38</kg-services-sdk.version>
+        <kgtext-sdk.version>3.0.18</kgtext-sdk.version>
+        <kgcomponent-sdk.version>3.0.0.1</kgcomponent-sdk.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -96,6 +94,11 @@
             <dependency>
                 <groupId>com.plantdata</groupId>
                 <artifactId>kg-cloud-common</artifactId>
+                <version>${kg-cloud-parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.plantdata</groupId>
+                <artifactId>kg-cloud-swagger</artifactId>
                 <version>${kg-cloud-parent.version}</version>
             </dependency>
 

@@ -65,36 +65,35 @@ public class LinkShareServiceImpl implements LinkShareService {
 
     @Override
     public LinkShareRsp shareStatus(String userId, String kgName) {
-        ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
-        UserLimitRsp data = detail.getData();
-        LinkShareRsp linkShareRsp = new LinkShareRsp();
-        if (data != null && data.getShareable()) {
-            linkShareRsp.setHasRole(1);
-        } else {
-            linkShareRsp.setHasRole(0);
-        }
+        LinkShareRsp linkShareRsp = linkShareRsp();
         List<LinkShare> all = linkShareRepository.findByUserIdAndKgName(userId, kgName);
         List<ShareRsp> collect = all.stream().map(ConvertUtils.convert(ShareRsp.class)).collect(Collectors.toList());
         linkShareRsp.setShareList(collect);
         return linkShareRsp;
     }
 
+
     @Override
     public LinkShareRsp liteShareStatus(String userId) {
-        ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
-        UserLimitRsp data = detail.getData();
-        LinkShareRsp linkShareRsp = new LinkShareRsp();
-        if (data.getShareable()) {
-            linkShareRsp.setHasRole(1);
-        } else {
-            linkShareRsp.setHasRole(0);
-        }
+        LinkShareRsp linkShareRsp = linkShareRsp();
         LinkShare linkShare = new LinkShare();
         linkShare.setUserId(userId);
         linkShare.setSpaId("graph");
         List<LinkShare> all = linkShareRepository.findAll(Example.of(linkShare));
         List<ShareRsp> collect = all.stream().map(ConvertUtils.convert(ShareRsp.class)).collect(Collectors.toList());
         linkShareRsp.setShareList(collect);
+        return linkShareRsp;
+    }
+
+    private LinkShareRsp linkShareRsp() {
+        ApiReturn<UserLimitRsp> detail = userClient.getCurrentUserLimitDetail();
+        UserLimitRsp data = detail.getData();
+        LinkShareRsp linkShareRsp = new LinkShareRsp();
+        if (data != null && data.getShareable() != null && data.getShareable()) {
+            linkShareRsp.setHasRole(1);
+        } else {
+            linkShareRsp.setHasRole(0);
+        }
         return linkShareRsp;
     }
 
@@ -133,26 +132,13 @@ public class LinkShareServiceImpl implements LinkShareService {
         if (!StringUtils.hasText(token)) {
             selfSharedRsp.setLogin(false);
         }
-        String user = null;
-        try {
-            user = jwtClient.parseClaimUserId(token);
-        } catch (Exception e) {
-        }
-
-        if (user == null) {
-            selfSharedRsp.setLogin(false);
-        } else {
-            selfSharedRsp.setLogin(true);
-        }
-        if (user != null && userId != null) {
-            if (Objects.equals(user, userId)) {
-                selfSharedRsp.setSelf(true);
-            }
-        } else {
-            selfSharedRsp.setSelf(false);
-        }
+        selfSharedRsp.setSelf(true);
         UserLimitRsp data = userClient.getCurrentUserLimitDetail().getData();
+        if(data !=null){
         selfSharedRsp.setSharePermission(data.getShareable());
+        }else {
+            selfSharedRsp.setSharePermission(false);
+        }
         LinkShare linkShare = getOne(kgName, spaId);
         Boolean shared = linkShare.getShared();
         if (shared != null) {

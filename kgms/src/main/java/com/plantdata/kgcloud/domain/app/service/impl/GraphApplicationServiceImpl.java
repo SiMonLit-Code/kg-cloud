@@ -9,20 +9,15 @@ import ai.plantdata.kg.api.edit.resp.AttrDefVO;
 import ai.plantdata.kg.api.edit.resp.SchemaVO;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.MongoApi;
+import ai.plantdata.kg.api.pub.RelationApi;
 import ai.plantdata.kg.api.pub.req.MongoQueryFrom;
 import ai.plantdata.kg.api.pub.resp.EntityVO;
+import ai.plantdata.kg.api.pub.resp.RelationVO;
 import ai.plantdata.kg.common.bean.BasicInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.app.converter.ApkConverter;
-import com.plantdata.kgcloud.domain.app.converter.AttrDefConverter;
-import com.plantdata.kgcloud.domain.app.converter.AttrDefGroupConverter;
-import com.plantdata.kgcloud.domain.app.converter.BasicConverter;
-import com.plantdata.kgcloud.domain.app.converter.ComplexGraphAnalysisConverter;
-import com.plantdata.kgcloud.domain.app.converter.ConceptConverter;
-import com.plantdata.kgcloud.domain.app.converter.EntityConverter;
-import com.plantdata.kgcloud.domain.app.converter.InfoBoxConverter;
-import com.plantdata.kgcloud.domain.app.converter.KnowledgeRecommendConverter;
+import com.plantdata.kgcloud.domain.app.converter.*;
 import com.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import com.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
 import com.plantdata.kgcloud.domain.app.service.DataSetSearchService;
@@ -114,6 +109,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     private DataSetSearchService dataSetSearchService;
     @Autowired
     private BasicInfoService basicInfoService;
+    @Autowired
+    private RelationApi relationApi;
 
     @Override
     public SchemaRsp querySchema(String kgName) {
@@ -149,7 +146,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (CollectionUtils.isEmpty(entityIdList)) {
             return Collections.emptyList();
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList,true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList, true)));
         return KnowledgeRecommendConverter.voToRsp(entityAttrOpt.get(), entityOpt.orElse(Collections.emptyList()));
     }
 
@@ -197,7 +194,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (!entityIdOpt.isPresent()) {
             return graphInitRsp;
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdOpt.get(),true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdOpt.get(), true)));
         if (!entityOpt.isPresent()) {
             return graphInitRsp;
         }
@@ -262,17 +259,32 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
         detailFilter.setEntity(false);
         Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> conceptListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
-        List<Long> entityIds = new ArrayList<>();
+
         entityListOpt.ifPresent(entityList ->
         {
-            entityList.forEach(entity ->entityIds.add(entity.getId()));
+            List<Long> entityIds = entityList.stream().map(ai.plantdata.kg.api.edit.resp.EntityVO::getId).collect(Collectors.toList());
+
             BasicConverter.consumerIfNoNull(req.getAllowAttrs(), allowAttrIds -> entityList.forEach(entity -> {
                 BasicConverter.consumerIfNoNull(entity.getAttrValue(),
                         a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
-            Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(kgName, entityIds);
+            //查询对象属性
+            Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
+            Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
+            Map<Long, List<RelationVO>> reverseMap = Maps.newHashMap();
+            if (req.getRelationAttrs()) {
+                relationOpt.ifPresent(relations -> relations.forEach(a -> {
+                    positiveMap.computeIfAbsent(a.getFrom().getId(), v -> Lists.newArrayList()).add(a);
+                }));
+            }
+            if (req.getReverseRelationAttrs()) {
+                relationOpt.ifPresent(relations -> relations.forEach(a -> {
+                    reverseMap.computeIfAbsent(a.getTo().getId(), v -> Lists.newArrayList()).add(a);
+                }));
+            }
             BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
-                    a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()))), infoBoxRspList::addAll);
+                    a -> InfoBoxConverter.entityToInfoBoxRsp(a,
+                            positiveMap.get(a.getId()), reverseMap.get(a.getId()))), infoBoxRspList::addAll);
 
         });
         conceptListOpt.ifPresent(conceptList ->
@@ -293,7 +305,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 .map(ComplexGraphAnalysisConverter::mapToCoordinatesDTO)
                 .collect(Collectors.toMap(CoordinatesDTO::getId, Function.identity()));
 
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(Lists.newArrayList(dataMap.keySet()),true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(Lists.newArrayList(dataMap.keySet()), true)));
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return visualRsp;
         }
