@@ -8,6 +8,7 @@ import com.plantdata.graph.logging.core.GraphLogMessage;
 import com.plantdata.graph.logging.core.GraphLogScope;
 import com.plantdata.graph.logging.core.GraphServiceLog;
 import com.plantdata.kgcloud.domain.common.util.KGUtil;
+import com.plantdata.kgcloud.domain.common.util.KGUtil;
 import com.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
 import com.plantdata.kgcloud.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +76,7 @@ public class KgLogListener {
 
     /**
      * 业务层日志监听
+     *
      * @author xiezhenxiang 2020/1/15
      **/
     @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.service.log}"}, groupId = "graphLog")
