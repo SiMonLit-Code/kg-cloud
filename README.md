@@ -1,3 +1,15 @@
+### 2020年7月9日 3.4.x
+- 导航：kgtext
+```
+UPDATE `kg_cloud_kgms`.`repo_item` SET `name` = 'NLP Lab', `type` = 'SUB_SYSTEM', `group_id` = 11, `state` = 1, `rank` = 1, `remark` = 'NLP模型库，提供分词、命名实体识别、属性抽取、关系抽取、实体链接、关键词抽取、文本摘要生成等预构建模型。', `config` = '{\"url\":[{\"string\":\"/kgtext\"}]}', `check_configs` = '[{\"checkType\":\"CONSUL\",\"content\":\"kgtext\"}]' WHERE `id` = 11001;
+```
+### 2020年7月7日 3.4.x
+- 导航：反向同步
+```
+INSERT INTO `kg_cloud_kguser`.`system_menu`(`id`, `p_id`, `title`, `is_enable`, `is_checked`, `menu_type`, `rank`, `config`, `create_at`, `update_at`) VALUES (54, 5, '反向同步', 1, 1, 'iframe', 5, '{\"routeName\":\"KgIfarme\",\"listDetail\":true,\"params\":{\"url\":[{\"string\":\"plugins/script/synclog/#/home\"},{\"fromVuex\":\"kgName\"},{\"string\":\"synclog\"}]},\"isDefault\":false}', '2020-06-24 16:11:10.271', '2020-07-06 21:49:22.036');
+UPDATE `kg_cloud_kgms`.`repo_item` SET `name` = '反向同步', `type` = 'DATA', `group_id` = 1001, `state` = 1, `rank` = 1, `remark` = '当通过数仓入图的数据在图谱上进行修改时，支持将数据变更同步回原业务系统。支持新建进行反向同步计算任务，查询待反向同步的数据。', `config` = '{}', `check_configs` = '[{\"checkType\":\"CONSUL\",\"content\":\"kgsynclog\"}]' WHERE `id` = 1001005;
+```
+
 ### 2020年7月6日 3.4.x
 - 导航：文案更新
 ```

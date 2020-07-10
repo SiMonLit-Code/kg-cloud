@@ -40,5 +40,6 @@ public class PrivateAttrDataReq {
 
     @NotEmpty
     @ApiModelProperty(value = "私有属性值")
+    @Length(max = 100,message = "属性值长度不能超过100")
     private String attrValue;
 }

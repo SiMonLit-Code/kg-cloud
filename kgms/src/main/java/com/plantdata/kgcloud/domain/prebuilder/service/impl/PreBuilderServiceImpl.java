@@ -13,7 +13,7 @@ import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import com.plantdata.kgcloud.domain.app.service.GraphEditService;
 import com.plantdata.kgcloud.constant.FieldType;
-import com.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionSearchReq;
+import com.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
 import com.plantdata.kgcloud.domain.edit.service.AttributeService;
 import com.plantdata.kgcloud.domain.prebuilder.entity.DWPrebuildAttr;

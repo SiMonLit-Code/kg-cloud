@@ -2,6 +2,7 @@ package com.plantdata.kgcloud.sdk;
 
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.sdk.exection.client.EditClientEx;
+import com.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import com.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import com.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import com.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
@@ -14,15 +15,11 @@ import com.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import com.plantdata.kgcloud.sdk.req.edit.BatchPrivateRelationReq;
 import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
 import com.plantdata.kgcloud.sdk.req.edit.PrivateAttrDataReq;
+import com.plantdata.kgcloud.sdk.rsp.BasicInfoRsp;
 import com.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import com.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import com.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
-import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
-import com.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
-import com.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
-import com.plantdata.kgcloud.sdk.rsp.edit.SimpleBasicRsp;
+import com.plantdata.kgcloud.sdk.rsp.edit.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +50,16 @@ public interface EditClient {
     @PostMapping("basic/{kgName}")
     ApiReturn<Long> createConcept(@PathVariable("kgName") String kgName,
                                   @RequestBody BasicInfoReq basicInfoReq);
+
+    /**
+     * 添加概念或实体
+     *
+     * @param kgName
+     * @return .
+     */
+    @PostMapping("entity/{kgName}/entities")
+    ApiReturn<List<BasicInfoRsp>> batchEntityDetails(@PathVariable("kgName") String kgName,
+                                                            @RequestBody List<Long> ids);
 
     /**
      * 删除概念
@@ -88,13 +95,22 @@ public interface EditClient {
                                                                               @RequestBody List<AttrDefinitionReq> attrDefinitionReqs);
 
     /**
+     * 属性定义-查询概念的属性定义
+     * @param kgName
+     * @param conceptId
+     * @return
+     */
+    @GetMapping("attribute/{kgName}")
+    ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptId(@PathVariable("kgName") String kgName,
+                                                                    @RequestParam Long conceptId);
+    /**
      * 查询多概念下的属性定义
      *
      * @param kgName                    图谱名称
      * @param attrDefinitionConceptsReq 批量参数
      * @return .
      */
-    @GetMapping("attribute/{kgName}/concepts")
+    @PostMapping("attribute/{kgName}/concepts")
     ApiReturn<List<AttrDefinitionRsp>> getAttrDefinitionByConceptIds(@PathVariable("kgName") String kgName,
                                                                      @RequestBody AttrDefinitionConceptsReq attrDefinitionConceptsReq);
 
@@ -131,6 +147,15 @@ public interface EditClient {
     ApiReturn updateAttrDefinition(@PathVariable("kgName") String kgName,
                                    @RequestBody AttrDefinitionModifyReq modifyReq);
 
+    /**
+     * 获取概念树
+     * @param kgName
+     * @param conceptId
+     * @return
+     */
+    @PostMapping("concept/{kgName}/{conceptId}/tree")
+    ApiReturn<List<BasicInfoVO>> getConceptTree(@PathVariable("kgName") String kgName,
+                                                       @PathVariable("conceptId") Long conceptId);
     /**
      * 批量修改属性定义
      *

@@ -7,10 +7,12 @@ import ai.plantdata.kg.api.edit.merge.WaitMergeVO;
 import com.plantdata.graph.logging.core.ServiceEnum;
 import com.plantdata.kgcloud.bean.ApiReturn;
 import com.plantdata.kgcloud.bean.BaseReq;
+import com.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import com.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import com.plantdata.kgcloud.domain.edit.req.merge.WaitMergeReq;
 import com.plantdata.kgcloud.domain.edit.rsp.MergeEntityDetailRsp;
 import com.plantdata.kgcloud.domain.edit.service.MergeService;
+import com.plantdata.kgcloud.exception.BizException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,6 +134,10 @@ public class MergeController {
             @RequestParam("objId") String objId,
             @RequestBody MergeFinalEntityFrom entity
     ) {
+
+        if(entity != null && entity.getName() != null && entity.getName().trim().length() > 50){
+            throw BizException.of(KgmsErrorCodeEnum.ENTITY_NAME_LENGTH_ERROR);
+        }
         mergeService.doMergeEntity(kgName, objId, entity);
         return ApiReturn.success();
     }

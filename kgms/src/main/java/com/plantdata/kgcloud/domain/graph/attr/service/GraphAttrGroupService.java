@@ -3,7 +3,7 @@ package com.plantdata.kgcloud.domain.graph.attr.service;
 import com.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
 import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupReq;
 import com.plantdata.kgcloud.domain.graph.attr.req.AttrGroupSearchReq;
-import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
+import com.plantdata.kgcloud.sdk.rsp.GraphAttrGroupRsp;
 
 import java.util.List;
 

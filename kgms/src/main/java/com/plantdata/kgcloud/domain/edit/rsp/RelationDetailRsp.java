@@ -3,13 +3,6 @@ package com.plantdata.kgcloud.domain.edit.rsp;
 
 import ai.plantdata.kg.common.bean.BasicInfo;
 import ai.plantdata.kg.common.bean.ExtraInfo;
-import com.plantdata.kgcloud.domain.edit.vo.EntityAttrValueVO;
-import com.plantdata.kgcloud.domain.edit.vo.EntityTagVO;
-import com.plantdata.kgcloud.domain.edit.vo.GisVO;
-import com.plantdata.kgcloud.domain.graph.attr.rsp.GraphAttrGroupRsp;
-import com.plantdata.kgcloud.sdk.rsp.EntityLinkVO;
-import com.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
-import com.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -19,7 +12,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @Author: LinHo
