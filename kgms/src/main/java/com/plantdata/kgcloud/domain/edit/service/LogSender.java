@@ -40,9 +40,15 @@ public class LogSender {
 
     public void sendLog(String kgName, ServiceEnum serviceEnum) {
         if (enableLog) {
+            String userId = "";
+            try {
+                userId = SessionHolder.getUserId();
+            } catch (Exception e) {
+
+            }
             kafkaTemplate.send(topicKgServiceLog, kgName,
                     JacksonUtils.writeValueAsString(new GraphServiceLog(KGUtil.dbName(kgName), serviceEnum,
-                            ThreadLocalUtils.getBatchNo(), SessionHolder.getUserId())));
+                            ThreadLocalUtils.getBatchNo(), userId)));
         }
     }
 
