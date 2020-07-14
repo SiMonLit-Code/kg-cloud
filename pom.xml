@@ -5,12 +5,12 @@
     <parent>
         <artifactId>kg-cloud-parent</artifactId>
         <groupId>ai.plantdata</groupId>
-        <version>3.4.3</version>
+        <version>3.4.4</version>
         <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
-    <groupId>com.plantdata</groupId>
+    <groupId>ai.plantdata</groupId>
     <version>${kg-cloud-kgms.version}</version>
     <packaging>pom</packaging>
 
@@ -24,27 +24,27 @@
     </modules>
 
     <properties>
-        <kg-cloud-kgms.version>3.4.3</kg-cloud-kgms.version>
+        <kg-cloud-kgms.version>3.4.4</kg-cloud-kgms.version>
         <next-tag.version>3.4.3</next-tag.version>
         <next-develop.version>3.4.3</next-develop.version>
-        <kg-cloud-public.version>3.4.3</kg-cloud-public.version>
+        <kg-cloud-public.version>3.4.4</kg-cloud-public.version>
         <kg-services-sdk.version>3.4.5</kg-services-sdk.version>
     </properties>
     <dependencyManagement>
         <dependencies>
             <!-- ********** kgms 依赖 *************-->
             <dependency>
-                <groupId>com.plantdata</groupId>
+                <groupId>ai.plantdata</groupId>
                 <artifactId>kgms-sdk</artifactId>
                 <version>${kg-cloud-kgms.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.plantdata</groupId>
+                <groupId>ai.plantdata</groupId>
                 <artifactId>nlp-sdk</artifactId>
                 <version>${kg-cloud-kgms.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.plantdata</groupId>
+                <groupId>ai.plantdata</groupId>
                 <artifactId>kgrepo-sdk</artifactId>
                 <version>${kg-cloud-kgms.version}</version>
             </dependency>
@@ -67,12 +67,12 @@
 
             <!-- ********** public sdk *************-->
             <dependency>
-                <groupId>com.plantdata</groupId>
+                <groupId>ai.plantdata</groupId>
                 <artifactId>kguser-sdk</artifactId>
                 <version>${kg-cloud-public.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.plantdata</groupId>
+                <groupId>ai.plantdata</groupId>
                 <artifactId>xxl-admin-sdk</artifactId>
                 <version>${kg-cloud-public.version}</version>
             </dependency>
