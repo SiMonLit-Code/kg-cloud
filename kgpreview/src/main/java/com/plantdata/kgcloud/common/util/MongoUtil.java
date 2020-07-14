@@ -1,5 +1,6 @@
 package com.plantdata.kgcloud.common.util;
 
+import ai.plantdata.cloud.exception.BizException;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
@@ -10,13 +11,11 @@ import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
 import com.mongodb.client.model.UpdateManyModel;
 import com.mongodb.client.model.UpdateOptions;
-import com.plantdata.kgcloud.exception.BizException;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.springframework.beans.BeanUtils;
 
 import java.io.*;
 import java.util.ArrayList;
