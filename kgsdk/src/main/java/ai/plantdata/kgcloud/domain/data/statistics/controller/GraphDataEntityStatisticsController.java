@@ -9,11 +9,7 @@ import ai.plantdata.kgcloud.sdk.req.app.statistic.EntityStatisticGroupByConceptR
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -45,7 +41,7 @@ public class GraphDataEntityStatisticsController implements GraphDataStatisticsI
         return kgDataClient.statisticEntityGroupByConcept(kgName, conceptReq);
     }
 
-    @ApiOperation(value = "实体按属性类型统计",notes = "统计知识图谱不同类型属性（对象属性）的分布。")
+    @ApiOperation(value = "实体按属性值统计",notes = "按照实体指定属性，统计值的分布情况。")
     @PostMapping("attrValue/{kgName}")
     public ApiReturn byAttrValue(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                  @RequestBody @Valid EntityStatisticGroupByAttrIdReq attrIdReq) {

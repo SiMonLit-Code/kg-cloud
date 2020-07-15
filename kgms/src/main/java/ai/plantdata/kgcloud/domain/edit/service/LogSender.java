@@ -2,11 +2,11 @@ package ai.plantdata.kgcloud.domain.edit.service;
 
 import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.cloud.web.util.SessionHolder;
+import ai.plantdata.kgcloud.domain.common.util.KGUtil;
+import ai.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import com.plantdata.graph.logging.core.GraphLog;
 import com.plantdata.graph.logging.core.GraphServiceLog;
 import com.plantdata.graph.logging.core.ServiceEnum;
-import ai.plantdata.kgcloud.domain.common.util.KGUtil;
-import ai.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,9 +40,15 @@ public class LogSender {
 
     public void sendLog(String kgName, ServiceEnum serviceEnum) {
         if (enableLog) {
+            String userId = "";
+            try {
+                userId = SessionHolder.getUserId();
+            } catch (Exception e) {
+
+            }
             kafkaTemplate.send(topicKgServiceLog, kgName,
                     JacksonUtils.writeValueAsString(new GraphServiceLog(KGUtil.dbName(kgName), serviceEnum,
-                            ThreadLocalUtils.getBatchNo(), SessionHolder.getUserId())));
+                            ThreadLocalUtils.getBatchNo(), userId)));
         }
     }
 

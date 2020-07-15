@@ -23,38 +23,38 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import ai.plantdata.kgcloud.constant.AppErrorCodeEnum;
 import ai.plantdata.kgcloud.domain.app.converter.*;
 import ai.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
-import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import ai.plantdata.kgcloud.domain.edit.service.BasicInfoService;
-import ai.plantdata.kgcloud.domain.edit.service.ConceptService;
-import ai.plantdata.kgcloud.domain.edit.service.DomainDictService;
-import ai.plantdata.kgcloud.sdk.UserClient;
-import ai.plantdata.kgcloud.sdk.req.app.*;
-import ai.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
-import ai.plantdata.kgcloud.sdk.rsp.app.main.*;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import ai.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
 import ai.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import ai.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import ai.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import ai.plantdata.kgcloud.domain.common.util.KGUtil;
+import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
+import ai.plantdata.kgcloud.domain.edit.service.BasicInfoService;
+import ai.plantdata.kgcloud.domain.edit.service.ConceptService;
+import ai.plantdata.kgcloud.domain.edit.service.DomainDictService;
 import ai.plantdata.kgcloud.domain.graph.attr.dto.AttrDefGroupDTO;
 import ai.plantdata.kgcloud.domain.graph.attr.service.GraphAttrGroupService;
 import ai.plantdata.kgcloud.domain.graph.config.entity.GraphConfFocus;
 import ai.plantdata.kgcloud.domain.graph.config.repository.GraphConfFocusRepository;
 import ai.plantdata.kgcloud.domain.graph.manage.entity.Graph;
 import ai.plantdata.kgcloud.domain.graph.manage.repository.GraphRepository;
+import ai.plantdata.kgcloud.sdk.UserClient;
 import ai.plantdata.kgcloud.sdk.constant.GraphInitBaseEnum;
+import ai.plantdata.kgcloud.sdk.req.app.*;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
+import ai.plantdata.kgcloud.sdk.rsp.UserApkRelationRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.PageRsp;
+import ai.plantdata.kgcloud.sdk.rsp.app.main.*;
 import ai.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import ai.plantdata.kgcloud.sdk.rsp.edit.DictRsp;
 import ai.plantdata.kgcloud.sdk.rsp.edit.KnowledgeIndexRsp;
 import ai.plantdata.kgcloud.sdk.rsp.edit.MultiModalRsp;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
@@ -146,7 +146,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (CollectionUtils.isEmpty(entityIdList)) {
             return Collections.emptyList();
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList,true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdList, true)));
         return KnowledgeRecommendConverter.voToRsp(entityAttrOpt.get(), entityOpt.orElse(Collections.emptyList()));
     }
 
@@ -194,7 +194,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         if (!entityIdOpt.isPresent()) {
             return graphInitRsp;
         }
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdOpt.get(),true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIdOpt.get(), true)));
         if (!entityOpt.isPresent()) {
             return graphInitRsp;
         }
@@ -307,7 +307,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 .map(ComplexGraphAnalysisConverter::mapToCoordinatesDTO)
                 .collect(Collectors.toMap(CoordinatesDTO::getId, Function.identity()));
 
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(Lists.newArrayList(dataMap.keySet()),true)));
+        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(Lists.newArrayList(dataMap.keySet()), true)));
         if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
             return visualRsp;
         }

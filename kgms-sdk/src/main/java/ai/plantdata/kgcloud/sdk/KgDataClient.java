@@ -9,8 +9,8 @@ import ai.plantdata.kgcloud.sdk.req.app.SparQlReq;
 import ai.plantdata.kgcloud.sdk.req.app.TraceabilityQueryReq;
 import ai.plantdata.kgcloud.sdk.req.app.statistic.*;
 import ai.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
-import ai.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
+import ai.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -132,6 +132,6 @@ public interface KgDataClient {
      * @return List<OpenEntityRsp>
      */
     @PostMapping({"{kgName}/source/entity/query"})
-    public ApiReturn<BasePage<OpenEntityRsp>> queryEntityBySource(@PathVariable("kgName") String kgName,
-                                                                  @RequestBody TraceabilityQueryReq req);
+    ApiReturn<BasePage<OpenEntityRsp>> queryEntityBySource(@PathVariable("kgName") String kgName,
+                                                           @RequestBody TraceabilityQueryReq req);
 }

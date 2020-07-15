@@ -1,15 +1,16 @@
-package com.plantdata.kgcloud.domain.data.obtain.controller;
+package ai.plantdata.kgcloud.domain.data.obtain.controller;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
-import com.plantdata.kgcloud.sdk.EditClient;
-import com.plantdata.kgcloud.sdk.KgDataClient;
-import com.plantdata.kgcloud.sdk.SemanticClient;
-import com.plantdata.kgcloud.sdk.req.app.SparQlReq;
-import com.plantdata.kgcloud.sdk.req.app.sematic.GremlinReq;
-import com.plantdata.kgcloud.sdk.req.edit.KgqlReq;
-import com.plantdata.kgcloud.sdk.rsp.app.GremlinRsp;
-import com.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
+
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.kgcloud.domain.common.module.GraphDataObtainInterface;
+import ai.plantdata.kgcloud.sdk.EditClient;
+import ai.plantdata.kgcloud.sdk.KgDataClient;
+import ai.plantdata.kgcloud.sdk.SemanticClient;
+import ai.plantdata.kgcloud.sdk.req.app.SparQlReq;
+import ai.plantdata.kgcloud.sdk.req.app.sematic.GremlinReq;
+import ai.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import ai.plantdata.kgcloud.sdk.rsp.app.GremlinRsp;
+import ai.plantdata.kgcloud.sdk.rsp.app.sparql.QueryResultRsp;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;

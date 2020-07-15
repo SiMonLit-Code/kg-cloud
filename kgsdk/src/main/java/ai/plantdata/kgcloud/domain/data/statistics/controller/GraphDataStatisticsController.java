@@ -9,11 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author cjw
@@ -22,13 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping("kgData/relation/statistic/")
+@RequestMapping("v3/kgData/relation/statistic/")
 public class GraphDataStatisticsController implements GraphDataStatisticsInterface {
 
     @Autowired
     private KgDataClient kgDataClient;
 
-    @ApiOperation("对象属性统计，统计对象属性的数量，按关系分组")
+    @ApiOperation(value ="实体按属性类型统计",notes = "统计知识图谱不同类型属性（对象属性）的分布。")
     @PostMapping("{kgName}/attrValue")
     public ApiReturn<Object> relationCountByAttrValue(@ApiParam("图谱名称") @PathVariable("kgName") String kgName,
                                                       @RequestBody EdgeStatisticByConceptIdReq conceptIdReq) {

@@ -11,7 +11,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableApolloConfig
-@EnableFeignClients(basePackages = {"ai.plantdata","com.plantdata"})
+@EnableFeignClients(basePackages = {"ai.plantdata.kgcloud.sdk"})
 public class KgpreviewApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

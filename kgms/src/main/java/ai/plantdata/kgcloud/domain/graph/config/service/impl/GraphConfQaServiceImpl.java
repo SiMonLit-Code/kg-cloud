@@ -2,10 +2,10 @@ package ai.plantdata.kgcloud.domain.graph.config.service.impl;
 
 import ai.plantdata.cloud.redis.util.KgKeyGenerator;
 import ai.plantdata.cloud.web.util.ConvertUtils;
-import ai.plantdata.kgcloud.domain.graph.config.repository.GraphConfQaRepository;
-import ai.plantdata.kgcloud.domain.graph.config.repository.GraphConfQaStatusRepository;
 import ai.plantdata.kgcloud.domain.graph.config.entity.GraphConfQa;
 import ai.plantdata.kgcloud.domain.graph.config.entity.GraphConfQaStatus;
+import ai.plantdata.kgcloud.domain.graph.config.repository.GraphConfQaRepository;
+import ai.plantdata.kgcloud.domain.graph.config.repository.GraphConfQaStatusRepository;
 import ai.plantdata.kgcloud.domain.graph.config.service.GraphConfQaService;
 import ai.plantdata.kgcloud.sdk.req.GraphConfQaReq;
 import ai.plantdata.kgcloud.sdk.rsp.GraphConfQaRsp;
@@ -39,7 +39,7 @@ public class GraphConfQaServiceImpl implements GraphConfQaService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<GraphConfQaRsp> saveQa(String kgName, List<GraphConfQaReq> reqs) {
-        graphConfQaRepository.deleteByKgName(kgName);
+        graphConfQaRepository.deleteAllByKgName(kgName);
         List<GraphConfQa> list = new ArrayList<>();
         for (GraphConfQaReq req : reqs) {
             GraphConfQa targe = new GraphConfQa();
@@ -65,7 +65,7 @@ public class GraphConfQaServiceImpl implements GraphConfQaService {
 
     @Override
     public List<GraphConfQaRsp> findByKgName(String kgName) {
-        List<GraphConfQa> all = graphConfQaRepository.findAll();
+        List<GraphConfQa> all = graphConfQaRepository.findAllByKgName(kgName);
         List<GraphConfQa> newList = new ArrayList<>();
         if (all != null) {
             for (GraphConfQa qa : all) {

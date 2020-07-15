@@ -11,19 +11,23 @@ import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
-import ai.plantdata.kgcloud.sdk.rsp.app.analysis.*;
-import ai.plantdata.kgcloud.sdk.rsp.app.main.*;
-import ai.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import ai.plantdata.kgcloud.sdk.rsp.app.ComplexGraphVisualRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.PageRsp;
+import ai.plantdata.kgcloud.sdk.rsp.app.analysis.*;
 import ai.plantdata.kgcloud.sdk.rsp.app.explore.CommonBasicGraphExploreRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.explore.GisGraphExploreRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.explore.GisLocusAnalysisRsp;
+import ai.plantdata.kgcloud.sdk.rsp.app.main.*;
 import ai.plantdata.kgcloud.sdk.rsp.app.statistic.AlgorithmStatisticeRsp;
+import ai.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -82,7 +86,7 @@ public interface AppClient {
 
     @PostMapping("infoBox/multi/modal/{kgName}")
     ApiReturn<InfoboxMultiModelRsp> infoBoxMultiModal(@PathVariable("kgName") String kgName,
-                                                             @RequestBody InfoboxMultiModalReq infoboxMultiModalReq);
+                                                      @RequestBody InfoboxMultiModalReq infoboxMultiModalReq);
 
     /**
      * 复杂算法分析 可视化
@@ -116,8 +120,8 @@ public interface AppClient {
      * @return
      */
     @PostMapping("layer/knowledgeRecommend/{kgName}")
-    public ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@PathVariable("kgName") String kgName,
-                                                                       @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam);
+    ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@PathVariable("kgName") String kgName,
+                                                                @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam);
 
     /**
      * 获取模型可视化数据
@@ -172,7 +176,7 @@ public interface AppClient {
      * @param seniorPromptReq s
      * @return ...
      */
-    @GetMapping("prompt/senior/{kgName}")
+    @PostMapping("prompt/senior/{kgName}")
     ApiReturn<List<SeniorPromptRsp>> seniorPrompt(@PathVariable("kgName") String kgName,
                                                   @RequestBody SeniorPromptReq seniorPromptReq);
 

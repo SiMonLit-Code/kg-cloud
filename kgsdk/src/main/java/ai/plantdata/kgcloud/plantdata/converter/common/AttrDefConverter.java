@@ -4,15 +4,13 @@ import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import ai.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
-import ai.plantdata.kgcloud.plantdata.req.data.AttributeParameter;
 import ai.plantdata.kgcloud.plantdata.rsp.schema.AttributeExtraInfoItem;
-import ai.plantdata.kgcloud.util.JsonUtils;
-import com.google.common.collect.Lists;
-import ai.plantdata.kgcloud.sdk.req.app.AttrDefQueryReq;
 import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
 import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
 import ai.plantdata.kgcloud.sdk.req.edit.ExtraInfoReq;
 import ai.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
+import ai.plantdata.kgcloud.util.JsonUtils;
+import com.google.common.collect.Lists;
 import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -26,13 +24,6 @@ import java.util.stream.Collectors;
  */
 public class AttrDefConverter extends BasicConverter {
 
-    public static AttrDefQueryReq attributeParameterToAttrDefQueryReq(@NonNull AttributeParameter param) {
-        AttrDefQueryReq queryReq = new AttrDefQueryReq();
-        queryReq.setConceptId(param.getConceptId());
-        queryReq.setConceptKey(param.getConceptKey());
-        queryReq.setInherit(param.getIsInherit());
-        return queryReq;
-    }
 
     public static AttrDefinitionReq attributeConstraintDefinitionToAttrDefinitionReq(@NonNull AttributeConstraintDefinition attrDef) {
         return attrConDefToAttrDefinitionReq(attrDef, new AttrDefinitionReq());

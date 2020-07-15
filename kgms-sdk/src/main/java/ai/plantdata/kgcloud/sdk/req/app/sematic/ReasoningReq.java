@@ -1,10 +1,10 @@
 package ai.plantdata.kgcloud.sdk.req.app.sematic;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -14,6 +14,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@ApiModel("推理参数")
 public class ReasoningReq {
 
     @ApiModelProperty(value = "推理规则语言")

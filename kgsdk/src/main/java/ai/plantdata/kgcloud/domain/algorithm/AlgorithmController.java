@@ -1,8 +1,9 @@
-package com.plantdata.kgcloud.domain.algorithm;
+package ai.plantdata.kgcloud.domain.algorithm;
 
-import com.plantdata.kgcloud.bean.ApiReturn;
-import com.plantdata.kgcloud.sdk.AppClient;
-import com.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
+
+import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.kgcloud.sdk.AppClient;
+import ai.plantdata.kgcloud.sdk.req.app.algorithm.BusinessGraphRsp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +24,8 @@ public class AlgorithmController {
 
     @PostMapping("run/{kgName}/{id}")
     public ApiReturn<BusinessGraphRsp> executeAlgorithm(@PathVariable("kgName") String kgName,
-                                                 @PathVariable("id") long id,
-                                                 @RequestBody BusinessGraphRsp graphBean) {
+                                                        @PathVariable("id") long id,
+                                                        @RequestBody BusinessGraphRsp graphBean) {
         return appClient.executeAlgorithm(kgName, id, graphBean);
     }
 }

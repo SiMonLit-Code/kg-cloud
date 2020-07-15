@@ -2,7 +2,6 @@ package ai.plantdata.kgcloud.domain.app.controller;
 
 import ai.plantdata.cloud.bean.ApiReturn;
 import ai.plantdata.cloud.exception.BizException;
-import ai.plantdata.kgcloud.sdk.rsp.app.main.*;
 import ai.plantdata.kgcloud.config.CurrentUser;
 import ai.plantdata.kgcloud.constant.SdkErrorCodeEnum;
 import ai.plantdata.kgcloud.domain.common.module.GraphApplicationInterface;
@@ -10,6 +9,7 @@ import ai.plantdata.kgcloud.plantdata.converter.common.ApiReturnConverter;
 import ai.plantdata.kgcloud.sdk.AppClient;
 import ai.plantdata.kgcloud.sdk.KgmsClient;
 import ai.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
+import ai.plantdata.kgcloud.sdk.req.app.LayerKnowledgeRecommendReqList;
 import ai.plantdata.kgcloud.sdk.req.app.ObjectAttributeRsp;
 import ai.plantdata.kgcloud.sdk.req.app.PageReq;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
@@ -17,6 +17,7 @@ import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.InfoBoxReq;
 import ai.plantdata.kgcloud.sdk.req.app.infobox.InfoboxMultiModalReq;
 import ai.plantdata.kgcloud.sdk.rsp.app.PageRsp;
+import ai.plantdata.kgcloud.sdk.rsp.app.main.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,12 @@ public class GraphApplicationController implements GraphApplicationInterface {
     public ApiReturn<List<ObjectAttributeRsp>> knowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
                                                                   @RequestBody @Valid KnowledgeRecommendReqList recommendParam) {
         return appClient.knowledgeRecommend(kgName, recommendParam);
+    }
+    @ApiOperation(value = "多层知识推荐", notes = "知识推荐（两层）")
+    @PostMapping("layer/knowledgeRecommend/{kgName}")
+    public  ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@PathVariable("kgName") String kgName,
+                                                                @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam){
+        return appClient.layerKnowledgeRecommend(kgName, recommendParam);
     }
 
     @ApiOperation(value = "schema查询", notes = "获取当前图谱的建模（Schema）包含实体类型、属性类型。")

@@ -1,4 +1,4 @@
-package com.plantdata.kgcloud.sdk.req.edit;
+package ai.plantdata.kgcloud.sdk.req.edit;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

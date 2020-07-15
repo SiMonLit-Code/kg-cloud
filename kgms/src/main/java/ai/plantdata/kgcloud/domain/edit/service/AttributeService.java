@@ -1,18 +1,11 @@
 package ai.plantdata.kgcloud.domain.edit.service;
 
-import ai.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
-import ai.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
-import ai.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
-import ai.plantdata.kgcloud.domain.edit.req.attr.AttrTemplateReq;
-import ai.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
-import ai.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
-import ai.plantdata.kgcloud.domain.edit.req.attr.RelationMetaReq;
-import ai.plantdata.kgcloud.domain.edit.req.attr.RelationSearchMetaReq;
-import ai.plantdata.kgcloud.domain.edit.req.attr.RelationSearchReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.*;
 import ai.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import ai.plantdata.kgcloud.domain.edit.rsp.AttrConstraintsRsp;
 import ai.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
 import ai.plantdata.kgcloud.domain.edit.rsp.TripleRsp;
+import ai.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import ai.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
 import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
 import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;

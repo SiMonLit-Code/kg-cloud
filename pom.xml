@@ -24,7 +24,7 @@
     </modules>
 
     <properties>
-        <kg-cloud-kgms.version>3.4.4</kg-cloud-kgms.version>
+        <kg-cloud-kgms.version>3.4.5</kg-cloud-kgms.version>
         <next-tag.version>3.4.3</next-tag.version>
         <next-develop.version>3.4.3</next-develop.version>
         <kg-cloud-public.version>3.4.4</kg-cloud-public.version>

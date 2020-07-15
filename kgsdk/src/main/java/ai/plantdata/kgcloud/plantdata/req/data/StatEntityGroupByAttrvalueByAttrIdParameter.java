@@ -3,11 +3,7 @@ package ai.plantdata.kgcloud.plantdata.req.data;
 
 import ai.plantdata.kgcloud.plantdata.bean.DateTypeBean;
 import ai.plantdata.kgcloud.sdk.validator.ChooseCheck;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -32,7 +28,7 @@ public class StatEntityGroupByAttrvalueByAttrIdParameter {
     private String allowValues;
     @ChooseCheck(value = "[0,1]",name = "returnType")
     private Integer returnType = 0;
-    @Min(1)
+    @Min(-1)
     @Max(10000)
     private Integer size = 10;
     private boolean isMerge = false;

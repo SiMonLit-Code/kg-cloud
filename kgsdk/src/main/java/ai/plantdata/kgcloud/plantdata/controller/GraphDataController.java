@@ -2,13 +2,11 @@ package ai.plantdata.kgcloud.plantdata.controller;
 
 import ai.plantdata.cloud.bean.ApiReturn;
 import ai.plantdata.cloud.bean.BasePage;
-import ai.plantdata.kgcloud.plantdata.converter.common.*;
-import ai.plantdata.kgcloud.plantdata.req.data.*;
-import cn.hiboot.mcn.core.model.result.RestResp;
-import com.google.common.collect.Maps;
 import ai.plantdata.kgcloud.plantdata.bean.AttributeConstraintDefinition;
 import ai.plantdata.kgcloud.plantdata.bean.AttributeDefinition;
 import ai.plantdata.kgcloud.plantdata.bean.ImportRelationBean;
+import ai.plantdata.kgcloud.plantdata.converter.common.*;
+import ai.plantdata.kgcloud.plantdata.req.data.*;
 import ai.plantdata.kgcloud.plantdata.req.entity.ImportEntityBean;
 import ai.plantdata.kgcloud.plantdata.rsp.data.RelationBeanScore;
 import ai.plantdata.kgcloud.plantdata.rsp.data.TreeBean;
@@ -21,22 +19,15 @@ import ai.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import ai.plantdata.kgcloud.sdk.req.app.EntityQueryWithConditionReq;
 import ai.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
 import ai.plantdata.kgcloud.sdk.req.app.TraceabilityQueryReq;
-import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
-import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
-import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
-import ai.plantdata.kgcloud.sdk.req.edit.BasicInfoModifyReq;
-import ai.plantdata.kgcloud.sdk.req.edit.ConceptAddReq;
-import ai.plantdata.kgcloud.sdk.req.edit.KgqlReq;
+import ai.plantdata.kgcloud.sdk.req.edit.*;
 import ai.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import ai.plantdata.kgcloud.sdk.rsp.app.OpenBatchSaveEntityRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.RestData;
 import ai.plantdata.kgcloud.sdk.rsp.data.RelationUpdateReq;
-import ai.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
-import ai.plantdata.kgcloud.sdk.rsp.edit.BasicInfoVO;
-import ai.plantdata.kgcloud.sdk.rsp.edit.BatchRelationRsp;
-import ai.plantdata.kgcloud.sdk.rsp.edit.DeleteResult;
-import ai.plantdata.kgcloud.sdk.rsp.edit.EdgeSearchRsp;
+import ai.plantdata.kgcloud.sdk.rsp.edit.*;
 import ai.plantdata.kgcloud.util.JsonUtils;
+import cn.hiboot.mcn.core.model.result.RestResp;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -44,16 +35,15 @@ import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -126,9 +116,9 @@ public class GraphDataController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "conceptId", required = true, dataType = "long", paramType = "query", value = "概念id")
     })
-    public RestResp deleteConcept(@Valid @ApiIgnore @RequestParam("kgName") String kgName, @RequestParam("conceptId") Long conceptId) {
-        ApiReturnConverter.convert(editClient.deleteConcept(kgName, conceptId,false));
-        return new RestResp();
+    public RestResp<Object> deleteConcept(@Valid @ApiIgnore @RequestParam("kgName") String kgName, @RequestParam("conceptId") Long conceptId) {
+        ApiReturnConverter.convert(editClient.deleteConcept(kgName, conceptId, false));
+        return new RestResp<>();
     }
 
     @ApiOperation("批量属性定义新增")

@@ -25,11 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -134,7 +130,13 @@ public class GraphStatisticConverter extends BasicConverter {
         if (AttributeValueType.isNumeric(valueType) && AttributeDataTypeEnum.DATE_SET.contains(dataType)) {
             return StatisticConstants.STATISTIC_MAX_SIZE;
         }
-        return size == null ? 10 : size;
+        if (size == null) {
+            return 10;
+        }
+        if (size == -1) {
+            return Integer.MAX_VALUE - 1;
+        }
+        return size;
     }
 
     private static int defaultStatisticSize(Integer size) {
