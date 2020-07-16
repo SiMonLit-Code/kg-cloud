@@ -26,7 +26,7 @@ public class BusinessRelationBean {
     private String id;
     private Long from;
     private Long to;
-    private Integer attId;
+    private Long attId;
     private String attName;
     private List<String> startTime;
     private List<String> endTime;
@@ -75,7 +75,7 @@ public class BusinessRelationBean {
     }
 
 
-    public BusinessRelationBean(String id, Long from, Long to, Integer attId) {
+    public BusinessRelationBean(String id, Long from, Long to, Long attId) {
         this.id = id;
         this.from = from;
         this.to = to;

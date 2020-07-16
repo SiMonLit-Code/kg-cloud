@@ -46,7 +46,7 @@ public class GraphConfReasonServiceImpl implements GraphConfReasonService {
     public GraphConfReasonRsp createReasoning(String kgName, GraphConfReasonReq req) {
         GraphConfReasoning targe = new GraphConfReasoning();
         BeanUtils.copyProperties(req, targe);
-        if (targe.getRuleName().length()>64){
+        if (targe.getRuleName().length()>50){
             throw BizException.of(KgmsErrorCodeEnum.CONF_RULENAME_ERROR);
         }
         String strRuleConfig = JacksonUtils.writeValueAsString(req.getRuleConfig());

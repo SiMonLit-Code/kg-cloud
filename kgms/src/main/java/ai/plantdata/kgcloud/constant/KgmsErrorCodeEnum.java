@@ -52,7 +52,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     DOMAIN_WORD_NOT_EMPTY(120625, "领域词不能为空"),
     DOMAIN_CONCEPT_NOT_EMPTY(120626, "领域词相关概念不能为空"),
     CONF_QUERYSETTING_ERROR(120627, "图谱关系配置错误"),
-    CONF_RULENAME_ERROR(120628, "图谱关系名称要在64位以内"),
+    CONF_RULENAME_ERROR(120628, "图谱关系名称要在50位以内"),
     TRIPLE_ID_NOT_EXISTS(120513, "三元组id不存在"),
 
     WORD_NOT_EXISTS(120302, "词条不存在"),
@@ -88,6 +88,8 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     ILLEGAL_PARAM(120512, "参数不合法"),
 
     ENTITY_NAME_LENGTH_ERROR(120513, "实体名称长度不能超过50"),
+
+    MERGE_ENTITY_SIZE_ERROR(120514,"融合实体至少需要2个"),
 
     PERMISSION_NOT_MODEL_UPLOAD_ERROR(120601, "没有模式上传权限"),
 

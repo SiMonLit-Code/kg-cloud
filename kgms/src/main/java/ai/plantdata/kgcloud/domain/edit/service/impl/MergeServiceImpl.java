@@ -2,6 +2,7 @@ package ai.plantdata.kgcloud.domain.edit.service.impl;
 
 import ai.plantdata.cloud.exception.BizException;
 import ai.plantdata.cloud.web.util.ConvertUtils;
+import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.MergeApi;
 import ai.plantdata.kg.api.edit.merge.EntityMergeSourceVO;
 import ai.plantdata.kg.api.edit.merge.MergeEntity4Edit;
@@ -22,12 +23,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +37,8 @@ public class MergeServiceImpl implements MergeService {
     @Autowired
     private MergeApi mergeApi;
 
+    @Autowired
+    private ConceptEntityApi conceptEntityApi;
 
     @Override
     public Set<String> allSource(String kgName) {
@@ -71,7 +69,25 @@ public class MergeServiceImpl implements MergeService {
 
     @Override
     public String createMergeEntity(String kgName, Set<Long> ids) {
-        return RestRespConverter.convert(mergeApi.createMergeEntity(KGUtil.dbName(kgName), new ArrayList<>(ids)))
+
+        if(Objects.isNull(ids)){
+            throw BizException.of(KgmsErrorCodeEnum.MERGE_ENTITY_SIZE_ERROR);
+        }
+
+        List<Long> idList = ids.stream().filter(id -> {
+            Integer isEnrity = RestRespConverter.convert(conceptEntityApi.listBatch(KGUtil.dbName(kgName),id)).orElse(0);
+            if(isEnrity == 1){
+                return true;
+            }else {
+                return false;
+            }
+        }).collect(Collectors.toList());
+
+        if(Objects.isNull(idList) || idList.size() < 2){
+            throw BizException.of(KgmsErrorCodeEnum.MERGE_ENTITY_SIZE_ERROR);
+        }
+
+        return RestRespConverter.convert(mergeApi.createMergeEntity(KGUtil.dbName(kgName), idList))
                 .orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.ATTRIBUTE_DEFINITION_NOT_EXISTS));
     }
 
