@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>kg-cloud-kgms</artifactId>
-        <groupId>com.plantdata</groupId>
-        <version>3.3.0-SNAPSHOT</version>
+        <groupId>ai.plantdata</groupId>
+        <version>${kg-cloud-kgms.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,7 +19,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kgms-sdk</artifactId>
         </dependency>
 
@@ -34,7 +34,6 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>com.plantdata.log</groupId>
@@ -51,35 +50,52 @@
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.ctrip.framework.apollo</groupId>
+            <artifactId>apollo-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-oauth2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
 
         <!-- ******************* parent start ****************** -->
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kg-cloud-persistence</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kg-cloud-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kg-cloud-swagger</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kg-cloud-oss</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kg-cloud-mq-kafka</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kg-cloud-nosql-mongo</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kg-cloud-redis</artifactId>
         </dependency>
         <!-- ******************* parent end ****************** -->
@@ -87,11 +103,11 @@
 
         <!-- ******************* public-sdk start ****************** -->
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kguser-sdk</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>xxl-admin-sdk</artifactId>
         </dependency>
         <!-- ******************* public-sdk  end ****************** -->
@@ -140,7 +156,7 @@
             <version>2.0.8</version>
         </dependency>
         <dependency>
-            <groupId>com.plantdata</groupId>
+            <groupId>ai.plantdata</groupId>
             <artifactId>kgrepo-sdk</artifactId>
         </dependency>
     </dependencies>

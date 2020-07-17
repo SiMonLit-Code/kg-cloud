@@ -1,8 +1,8 @@
 package com.plantdata.kgcloud;
 
+import ai.plantdata.cloud.util.JacksonUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.plantdata.kgcloud.util.JacksonUtils;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;

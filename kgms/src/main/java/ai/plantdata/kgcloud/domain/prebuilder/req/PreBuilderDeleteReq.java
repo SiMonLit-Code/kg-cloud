@@ -1,0 +1,24 @@
+package ai.plantdata.kgcloud.domain.prebuilder.req;
+
+import ai.plantdata.kgcloud.domain.prebuilder.aop.BaseHandlerReq;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+/**
+ * @program: kg-cloud-kgms
+ * @description:
+ * @author: czj
+ * @create: 2020-06-10 15:50
+ **/
+@Data
+@ApiModel("预构建模式删除")
+public class PreBuilderDeleteReq  extends BaseHandlerReq {
+
+
+    @ApiModelProperty("模式id")
+    private Integer modelId;
+
+    @ApiModelProperty("模式类型 kg(图谱) dw(数仓)")
+    private String schemaType;
+}
