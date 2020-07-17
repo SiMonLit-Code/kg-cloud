@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -16,6 +17,7 @@ import java.util.List;
  * @date 2019/11/14 11:37
  */
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
