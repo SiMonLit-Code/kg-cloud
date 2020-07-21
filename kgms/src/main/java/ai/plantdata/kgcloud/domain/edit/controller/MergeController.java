@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +134,7 @@ public class MergeController {
     public ApiReturn doMergeEntity(
             @PathVariable("kgName") String kgName,
             @RequestParam("objId") String objId,
-            @RequestBody MergeFinalEntityReq entity
+            @Valid @RequestBody MergeFinalEntityReq entity
     ) {
 
         if (entity != null && entity.getName() != null && entity.getName().trim().length() > 50) {

@@ -3,6 +3,10 @@ package ai.plantdata.kgcloud.sdk.rsp.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * @Author: LinHo
@@ -14,6 +18,9 @@ import lombok.Data;
 public class EntityTagVO {
 
     @ApiModelProperty(required = true, value = "标签名称")
+    @NotEmpty
+    @NotBlank
+    @Length(max = 50, message = "长度不能超过50")
     private String name;
 
     @ApiModelProperty(value = "标签来源")
