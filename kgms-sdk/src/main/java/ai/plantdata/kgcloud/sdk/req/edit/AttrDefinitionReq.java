@@ -26,12 +26,13 @@ public class AttrDefinitionReq {
     private String name;
 
     @ApiModelProperty(value = "属性名称别名")
-    @Length(max = 100, message = "属性别名长度不能超过100")
+    @Length(max = 50, message = "属性别名长度不能超过50")
     private String alias;
 
     @ApiModelProperty(required = true, value = "0：数值，1：对象", allowableValues = "0,1")
     @NotNull
     private Integer type;
+
     @NotNull
     @ApiModelProperty(required = true, value = "属性定义域")
     private Long domainValue;

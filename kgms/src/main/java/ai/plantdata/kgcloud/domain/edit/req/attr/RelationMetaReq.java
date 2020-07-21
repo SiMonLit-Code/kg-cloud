@@ -3,6 +3,7 @@ package ai.plantdata.kgcloud.domain.edit.req.attr;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * @Author: LinHo
@@ -14,6 +15,7 @@ import lombok.Data;
 public class RelationMetaReq {
 
     @ApiModelProperty(value = "来源")
+    @Length(max = 50, message = "长度不能超过50")
     private String source;
 
     @ApiModelProperty(value = "批次号")

@@ -4,6 +4,7 @@ import ai.plantdata.cloud.bean.BaseReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
@@ -19,6 +20,7 @@ public class PromptReq extends BaseReq {
 
     @NotEmpty
     @ApiModelProperty(value = "关键词")
+    @Length(max = 50, message = "长度不能超过50")
     private String kw;
 
     @ApiModelProperty(value = "是否忽略大小写,默认忽略大小写")
@@ -43,6 +45,7 @@ public class PromptReq extends BaseReq {
     private Boolean inherit = false;
 
     @ApiModelProperty(value = "消歧标识")
+    @Length(max = 100, message = "长度不能超过100")
     private String meaningTag;
 
 }

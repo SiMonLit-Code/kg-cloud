@@ -5,6 +5,7 @@ import ai.plantdata.kgcloud.domain.edit.vo.IdNameVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -23,9 +24,11 @@ public class AttrTemplateReq {
     @NotEmpty
     @NotBlank
     @ApiModelProperty(value = "属性名称")
+    @Length(max = 50, message = "长度不能超过50")
     private String name;
 
     @ApiModelProperty(value = "属性名称别名")
+    @Length(max = 50, message = "长度不能超过50")
     private String alias;
 
     @ApiModelProperty(value = "0：数值，1：对象", allowableValues = "0,1")
@@ -44,6 +47,7 @@ public class AttrTemplateReq {
     private Integer dataType;
 
     @ApiModelProperty(value = "属性单位")
+    @Length(max = 10, message = "单位不能超过10")
     private String dataUnit;
 
     @ApiModelProperty(value = "对象属性是否唯一,0:N,1:Y")

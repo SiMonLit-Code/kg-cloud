@@ -3,6 +3,7 @@ package ai.plantdata.kgcloud.sdk.rsp.edit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Map;
 
@@ -19,16 +20,20 @@ public class BatchRelationRsp {
     @ApiModelProperty(value = "实体id entityId/(entityName+entityMeaningTag)二选一必填", required = true)
     private Long entityId;
     @ApiModelProperty("实体名称 不存在则新增实体")
+    @Length(max = 50, message = "长度不能超过50")
     private String entityName;
     @ApiModelProperty("实体消歧标识")
+    @Length(max = 50, message = "长度不能超过50")
     private String entityMeaningTag;
     @ApiModelProperty("实体概念")
     private Long entityConcept;
     @ApiModelProperty("终点实体id attrValueId/(attrValueName+attrValueMeaningTag)二选一必填")
     private Long attrValueId;
     @ApiModelProperty("终点实体名称")
+    @Length(max = 50, message = "长度不能超过50")
     private String attrValueName;
     @ApiModelProperty("终点实体消歧标识")
+    @Length(max = 50, message = "长度不能超过50")
     private String attrValueMeaningTag;
     @ApiModelProperty("终点实体消歧标识")
     private Long attrValueConcept;

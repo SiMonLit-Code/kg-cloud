@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import java.util.Map;
 @ApiModel("关系溯源条件查询")
 public class RelationSearchMetaReq {
     @ApiModelProperty(value = "来源")
+    @Length(max = 50, message = "长度不能超过50")
     private String source;
 
     @ApiModelProperty(value = "批次号")
@@ -30,11 +32,13 @@ public class RelationSearchMetaReq {
      * 来源操作者
      */
     @ApiModelProperty(value = "来源操作者")
+    @Length(max = 50, message = "长度不能超过50")
     private String sourceUser="";
 
     /**
      * 来源动作
      */
     @ApiModelProperty(value = "来源动作")
+    @Length(max = 50, message = "长度不能超过50")
     private String sourceAction="";
 }

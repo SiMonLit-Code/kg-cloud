@@ -4,6 +4,7 @@ import ai.plantdata.cloud.bean.BaseReq;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * @Author: LinHo
@@ -18,9 +19,11 @@ public class RelationSearchReq extends BaseReq {
     private Long conceptId;
 
     @ApiModelProperty(value = "实体名称")
+    @Length(max = 50, message = "长度不能超过50")
     private String entityName;
 
     @ApiModelProperty(value = "关系名称")
+    @Length(max = 50, message = "长度不能超过50")
     private String name;
 
 }

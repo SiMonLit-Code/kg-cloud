@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ public class OpenBatchSaveEntityRsp {
     @ApiModelProperty(value = "概念id", required = true)
     private Long conceptId;
     @ApiModelProperty(value = "实体名称", required = true)
+    @Length(max = 50, message = "长度不能超过50")
     private String name;
     @ApiModelProperty("消歧标识")
     private String meaningTag;

@@ -30,6 +30,7 @@ public class EdgeAttrDefinitionReq {
     private Integer type;
 
     @ApiModelProperty(value = "边属性单位")
+    @Length(max = 10, message = "单位不能超过10")
     private String dataUnit;
 
     @ApiModelProperty(value = "边属性值域")

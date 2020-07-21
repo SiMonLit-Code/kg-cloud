@@ -2,16 +2,18 @@ package ai.plantdata.kgcloud.domain.edit.controller;
 
 import ai.plantdata.cloud.bean.ApiReturn;
 import ai.plantdata.cloud.exception.BizException;
+import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kg.api.edit.merge.EntityMergeSourceVO;
 import ai.plantdata.kg.api.edit.merge.MergeEntity4Edit;
 import ai.plantdata.kg.api.edit.merge.MergeFinalEntityFrom;
 import ai.plantdata.kg.api.edit.merge.WaitMergeVO;
-import com.plantdata.graph.logging.core.ServiceEnum;
 import ai.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import ai.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
+import ai.plantdata.kgcloud.domain.edit.req.merge.MergeFinalEntityReq;
 import ai.plantdata.kgcloud.domain.edit.req.merge.WaitMergeReq;
 import ai.plantdata.kgcloud.domain.edit.rsp.MergeEntityDetailRsp;
 import ai.plantdata.kgcloud.domain.edit.service.MergeService;
+import com.plantdata.graph.logging.core.ServiceEnum;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,13 +133,20 @@ public class MergeController {
     public ApiReturn doMergeEntity(
             @PathVariable("kgName") String kgName,
             @RequestParam("objId") String objId,
-            @RequestBody MergeFinalEntityFrom entity
+            @RequestBody MergeFinalEntityReq entity
     ) {
 
-        if(entity != null && entity.getName() != null && entity.getName().trim().length() > 50){
+        if (entity != null && entity.getName() != null && entity.getName().trim().length() > 50) {
             throw BizException.of(KgmsErrorCodeEnum.ENTITY_NAME_LENGTH_ERROR);
         }
-        mergeService.doMergeEntity(kgName, objId, entity);
+        final MergeFinalEntityFrom from = ConvertUtils.convert(MergeFinalEntityFrom.class).apply(entity);
+        assert entity != null;
+        Double reliability = entity.getReliability();
+        if (reliability != null) {
+            from.setReliability(reliability.toString());
+        }
+
+        mergeService.doMergeEntity(kgName, objId, from);
         return ApiReturn.success();
     }
 

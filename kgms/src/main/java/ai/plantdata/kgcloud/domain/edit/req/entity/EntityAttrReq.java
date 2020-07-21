@@ -3,6 +3,7 @@ package ai.plantdata.kgcloud.domain.edit.req.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 
@@ -23,6 +24,7 @@ public class EntityAttrReq {
     private Integer attrId;
 
     @ApiModelProperty("关系属性私有属性名称")
+    @Length(max = 50, message = "长度不能超过50")
     private String attrName;
 
     private Integer page = 1;

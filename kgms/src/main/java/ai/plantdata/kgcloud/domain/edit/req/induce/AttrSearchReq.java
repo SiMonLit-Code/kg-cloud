@@ -5,6 +5,7 @@ import ai.plantdata.kg.api.edit.validator.TypeRange;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +22,7 @@ public class AttrSearchReq extends BaseReq {
     private Long conceptId;
 
     @ApiModelProperty(value = "属性名称,支持模糊查询")
+    @Length(max = 50, message = "长度不能超过50")
     private String attrName;
 
     @ApiModelProperty(value = "属性类型,0:数值属性,1:对象属性")

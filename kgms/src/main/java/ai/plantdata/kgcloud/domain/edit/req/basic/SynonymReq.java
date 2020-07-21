@@ -3,6 +3,7 @@ package ai.plantdata.kgcloud.domain.edit.req.basic;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
@@ -20,6 +21,7 @@ public class SynonymReq {
     @ApiModelProperty(value = "概念或实体的ID", required = true)
     private Long id;
 
+    @Length(max = 50, message = "长度不能超过50")
     private String name;
 
     private Set<String> names;

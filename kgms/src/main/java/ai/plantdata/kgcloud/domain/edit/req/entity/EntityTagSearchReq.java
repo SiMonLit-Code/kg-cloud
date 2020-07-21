@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * @Author: LinHo
@@ -18,6 +19,7 @@ public class EntityTagSearchReq {
     private Long conceptId;
 
     @ApiModelProperty(value = "标签关键字前缀搜索")
+    @Length(max = 50, message = "长度不能超过50")
     private String kw;
 
     @ApiModelProperty(value = "数量")
