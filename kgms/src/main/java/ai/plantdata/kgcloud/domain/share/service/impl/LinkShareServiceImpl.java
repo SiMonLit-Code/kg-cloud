@@ -179,7 +179,7 @@ public class LinkShareServiceImpl implements LinkShareService {
                         if (shared != null && shared) {
                             String kgName = linkShare.getKgName();
                             String spaId = linkShare.getSpaId();
-                            UriComponents build = UriComponentsBuilder.newInstance().pathSegment("spa", "Container", kgName, apk, spaId).build();
+                            UriComponents build = UriComponentsBuilder.newInstance().pathSegment("spa", "container", kgName, apk, spaId).build();
                             String s = build.toUriString();
                             setMap.computeIfAbsent(apk, (a) -> new HashSet<>()).add(s);
                         }
