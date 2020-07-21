@@ -171,7 +171,7 @@ public class BasicInfoServiceImpl implements BasicInfoService {
             });
 
 
-            List<GraphAttrGroupRsp> groupRsps = graphAttrGroupService.listAttrGroups(KGUtil.dbName(kgName),
+            List<GraphAttrGroupRsp> groupRsps = graphAttrGroupService.listAttrGroups(kgName,
                     new AttrGroupSearchReq());
             if (CollectionUtils.isEmpty(groupRsps)) {
                 return basicInfoRsp;
