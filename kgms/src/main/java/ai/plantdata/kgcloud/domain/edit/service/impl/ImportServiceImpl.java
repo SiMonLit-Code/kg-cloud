@@ -389,8 +389,7 @@ public class ImportServiceImpl implements ImportService {
             XWPFTable table = doc.createTable(dataMap.get(concept).size() + 2, 4);
             // 设置列宽
             CTTblPr tblPr = table.getCTTbl().getTblPr();
-            tblPr.getTblW().setType(STTblWidth.DXA);
-            tblPr.getTblW().setW(new BigInteger("8000"));
+            tblPr.getTblW().setType(STTblWidth.AUTO);
             // 当前行
             int currectRow = 0;
 
@@ -408,7 +407,7 @@ public class ImportServiceImpl implements ImportService {
             table.getRow(currectRow).getCell(0).getCTTc().addNewTcPr().addNewShd().setFill("D7D7D7");
             // 概念
             XWPFParagraph cParagraph = table.getRow(currectRow).getCell(0).getParagraphArray(0);
-            cParagraph.setAlignment(ParagraphAlignment.NUM_TAB);
+            cParagraph.setAlignment(ParagraphAlignment.CENTER);
             XWPFRun cContent = cParagraph.createRun();
             cContent.setText(concept);
             currectRow++;
@@ -416,7 +415,7 @@ public class ImportServiceImpl implements ImportService {
             for (int i = 0; i < parameters.size(); i++) {
                 table.getRow(currectRow).getCtRow().addNewTrPr().addNewTrHeight().setVal(new BigInteger("400"));
                 XWPFParagraph paragraph = table.getRow(currectRow).getCell(i).getParagraphArray(0);
-                paragraph.setAlignment(ParagraphAlignment.NUM_TAB);
+                paragraph.setAlignment(ParagraphAlignment.LEFT);
                 XWPFRun content = paragraph.createRun();
                 content.setText(parameters.get(i));
             }
@@ -426,7 +425,7 @@ public class ImportServiceImpl implements ImportService {
                 for (int j = 0; j < parameters.size(); j++) {
                     table.getRow(currectRow).getCtRow().addNewTrPr().addNewTrHeight().setVal(new BigInteger("400"));
                     XWPFParagraph paragraph = table.getRow(currectRow).getCell(j).getParagraphArray(0);
-                    paragraph.setAlignment(ParagraphAlignment.NUM_TAB);
+                    paragraph.setAlignment(ParagraphAlignment.LEFT);
                     XWPFRun content = paragraph.createRun();
                     content.setText(dataMap.get(concept).get(i).get(j));
                 }
