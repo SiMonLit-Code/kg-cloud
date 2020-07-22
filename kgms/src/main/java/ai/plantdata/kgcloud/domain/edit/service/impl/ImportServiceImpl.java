@@ -33,6 +33,7 @@ import ai.plantdata.kgcloud.sdk.rsp.vo.GisVO;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTbl;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblGrid;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblGridCol;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblWidth;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
@@ -395,12 +396,13 @@ public class ImportServiceImpl implements ImportService {
             CTTblPr tblPr = ctTbl.getTblPr();
             CTTblWidth tblW = tblPr.getTblW();
             tblW.setType(STTblWidth.DXA);
-            tblW.setW(new BigInteger("9072"));
+            tblW.setW(new BigInteger("8192"));
 
-            CTTblGrid ctTblGrid = ctTbl.addNewTblGrid();
-            for (int i = 0; i < 4; i++) {
-                ctTblGrid.addNewGridCol().setW(new BigInteger("2268"));
-            }
+//            CTTblGrid ctTblGrid = ctTbl.getTblGrid() != null ? ctTbl.getTblGrid() : ctTbl.addNewTblGrid();
+//            for (int i = 0; i < 4; i++) {
+//                CTTblGridCol ctTblGridCol = ctTblGrid.addNewGridCol();
+//                ctTblGridCol.setW(new BigInteger("2048"));
+//            }
             
             
             // 当前行
@@ -428,6 +430,7 @@ public class ImportServiceImpl implements ImportService {
             for (int i = 0; i < parameters.size(); i++) {
                 table.getRow(currectRow).getCtRow().addNewTrPr().addNewTrHeight().setVal(new BigInteger("400"));
                 XWPFParagraph paragraph = table.getRow(currectRow).getCell(i).getParagraphArray(0);
+                table.getRow(currectRow).getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(new BigInteger("2048"));
                 paragraph.setAlignment(ParagraphAlignment.LEFT);
                 XWPFRun content = paragraph.createRun();
                 content.setText(parameters.get(i));
