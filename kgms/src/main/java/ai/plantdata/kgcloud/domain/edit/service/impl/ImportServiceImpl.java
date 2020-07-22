@@ -31,7 +31,10 @@ import ai.plantdata.kgcloud.sdk.rsp.BasicInfoRsp;
 import ai.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionRsp;
 import ai.plantdata.kgcloud.sdk.rsp.vo.GisVO;
 import org.apache.poi.xwpf.usermodel.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTbl;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblGrid;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblWidth;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -388,8 +391,18 @@ public class ImportServiceImpl implements ImportService {
             // 创建表格
             XWPFTable table = doc.createTable(dataMap.get(concept).size() + 2, 4);
             // 设置列宽
-            CTTblPr tblPr = table.getCTTbl().getTblPr();
-            tblPr.getTblW().setType(STTblWidth.AUTO);
+            CTTbl ctTbl = table.getCTTbl();
+            CTTblPr tblPr = ctTbl.getTblPr();
+            CTTblWidth tblW = tblPr.getTblW();
+            tblW.setType(STTblWidth.DXA);
+            tblW.setW(new BigInteger("9072"));
+
+            CTTblGrid ctTblGrid = ctTbl.addNewTblGrid();
+            for (int i = 0; i < 4; i++) {
+                ctTblGrid.addNewGridCol().setW(new BigInteger("2268"));
+            }
+            
+            
             // 当前行
             int currectRow = 0;
 
