@@ -49,7 +49,7 @@ public class RelationChecker {
                 if (textTest.test(a.getMetaData().get(MetaDataInfo.SOURCE.getFieldName()))) {
                     throw new BizException(403, "来源长度不得超过50");
                 }
-                if (textTest.test(a.getMetaData().get(MetaDataInfo.TRUE_SOURCE.getFieldName()))) {
+                if (textTest.test(a.getMetaData().get(MetaDataInfo.SOURCE_ACTION.getFieldName()))) {
                     throw new BizException(403, "入图方式不得超过50");
                 }
             }
