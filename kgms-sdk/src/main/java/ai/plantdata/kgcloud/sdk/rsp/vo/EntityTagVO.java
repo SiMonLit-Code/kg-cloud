@@ -22,7 +22,7 @@ public class EntityTagVO {
     @ApiModelProperty(required = true, value = "标签名称")
     @NotEmpty
     @NotBlank
-    @Length(max = 50, message = "长度不能超过50")
+    @Length(max = 50, message = "标签名称长度不能超过50")
     private String name;
 
     @ApiModelProperty(value = "标签来源")
