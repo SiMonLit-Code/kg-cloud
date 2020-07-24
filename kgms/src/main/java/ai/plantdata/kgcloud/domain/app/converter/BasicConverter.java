@@ -139,6 +139,11 @@ public class BasicConverter {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyMap() : function.apply(list1);
     }
 
+    public static <T, K> Map<K, T> list2Map(List<T> list1, Function<T,K> function) {
+        return CollectionUtils.isEmpty(list1) ? Collections.emptyMap()
+                :list1.stream().collect(Collectors.toMap(function,Function.identity(),(a,b)->b));
+    }
+
     protected static void infoLog(String name, Object obj) {
         ObjectMapper instance = JacksonUtils.getInstance();
         instance.setSerializationInclusion(JsonInclude.Include.NON_NULL);

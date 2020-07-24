@@ -4,14 +4,17 @@ import ai.plantdata.cloud.bean.ApiReturn;
 import ai.plantdata.cloud.bean.ValidableList;
 import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.cloud.web.util.SessionHolder;
+import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.resp.BatchRelationVO;
 import ai.plantdata.kg.api.edit.resp.BatchResult;
 import ai.plantdata.kg.api.edit.resp.UpdateEdgeVO;
+import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import ai.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import ai.plantdata.kgcloud.domain.common.util.KGUtil;
 import ai.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
+import ai.plantdata.kgcloud.domain.edit.converter.RelationChecker;
 import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import ai.plantdata.kgcloud.domain.edit.req.attr.*;
 import ai.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
@@ -50,6 +53,7 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @Author: LinHo
@@ -65,6 +69,8 @@ public class AttributeController {
     private AttributeService attributeService;
     @Autowired
     private BatchApi batchApi;
+    @Autowired
+    private AttributeApi attributeApi;
 
     @ApiOperation("属性定义-查询概念的属性定义")
     @GetMapping("/{kgName}")
@@ -245,13 +251,16 @@ public class AttributeController {
     @PostMapping("relation/insert/{kgName}")
     @EditLogOperation(serviceEnum = ServiceEnum.SDK)
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
-                                                                       @RequestBody List<BatchRelationRsp> relationList) {
+                                                                       @RequestBody @Valid ValidableList<BatchRelationRsp> relationList) {
+
+        Function<List<Integer>, List<AttributeDefinition>> selectAttrDef =
+                a -> RestRespConverter.convert(attributeApi.listByIds(kgName, a))
+                        .orElse(Collections.emptyList());
+        new RelationChecker(relationList, selectAttrDef).check();
         List<BatchRelationVO> collect = BasicConverter.listConvert(relationList,
                 a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
 
-        collect.forEach(re -> {
-            re.setMetaData(MetaDataUtils.getDefaultSourceMetaData(re.getMetaData(), SessionHolder.getUserId()));
-        });
+        collect.forEach(re -> re.setMetaData(MetaDataUtils.getDefaultSourceMetaData(re.getMetaData(), SessionHolder.getUserId())));
 
         Optional<BatchResult<BatchRelationVO>> resultRestResp =
                 RestRespConverter.convert(batchApi.addRelations(KGUtil.dbName(kgName), collect));
