@@ -228,7 +228,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         this.sendLog(kgName, abstractModifyReq.getId());
         UpdateBasicInfoFrom updateBasicInfoFrom =
                 ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(abstractModifyReq);
-        RestRespConverter.convertVoid(conceptEntityApi.update(KGUtil.dbName(kgName), updateBasicInfoFrom));
+        final String dbName = KGUtil.dbName(kgName);
+        RestRespConverter.convertVoid(conceptEntityApi.update(dbName, updateBasicInfoFrom));
         logSender.remove();
     }
 
@@ -239,7 +240,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         basicDetailFilter.setEntity(true);
         basicDetailFilter.setReadObj(true);
         basicDetailFilter.setReadReverseObj(false);
-        RestResp<List<EntityVO>> restResp = conceptEntityApi.listByIds(KGUtil.dbName(kgName),
+        final String dbName = KGUtil.dbName(kgName);
+        RestResp<List<EntityVO>> restResp = conceptEntityApi.listByIds(dbName,
                 basicDetailFilter);
         Optional<List<EntityVO>> optional = RestRespConverter.convert(restResp);
         return optional.orElse(new ArrayList<>()).stream().map(ParserBeanUtils::parserEntityVO).collect(Collectors.toList());
@@ -257,9 +259,10 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         }
 
         // 查询实体和概念的同义词信息
-        EntityVO entityVO = conceptEntityApi.get(kgName, false, synonymReq.getId()).getData();
+        final String dbName = KGUtil.dbName(kgName);
+        EntityVO entityVO = conceptEntityApi.get(dbName, false, synonymReq.getId()).getData();
         if (entityVO == null) {
-            entityVO = conceptEntityApi.get(kgName, true, synonymReq.getId()).getData();
+            entityVO = conceptEntityApi.get(dbName, true, synonymReq.getId()).getData();
         }
         if (entityVO == null) {
             throw BizException.of(KgmsErrorCodeEnum.BASIC_INFO_NOT_EXISTS);
@@ -280,27 +283,30 @@ public class BasicInfoServiceImpl implements BasicInfoService {
             return;
         }
         SynonymFrom synonymFrom = ConvertUtils.convert(SynonymFrom.class).apply(synonymReq);
-        RestResp restResp = conceptEntityApi.addSynonym(KGUtil.dbName(kgName), synonymFrom);
+        RestResp restResp = conceptEntityApi.addSynonym(dbName, synonymFrom);
         RestRespConverter.convertVoid(restResp);
     }
 
     @Override
     public void deleteSynonym(String kgName, SynonymReq synonymReq) {
         SynonymFrom synonymFrom = ConvertUtils.convert(SynonymFrom.class).apply(synonymReq);
-        RestRespConverter.convertVoid(conceptEntityApi.deleteSynonym(KGUtil.dbName(kgName), synonymFrom));
+        final String dbName = KGUtil.dbName(kgName);
+        RestRespConverter.convertVoid(conceptEntityApi.deleteSynonym(dbName, synonymFrom));
     }
 
     @Override
     public void saveImageUrl(String kgName, ImageUrlReq imageUrlReq) {
         sendLog(kgName, imageUrlReq.getId());
         UpdateBasicInfoFrom updateBasicInfoFrom = ConvertUtils.convert(UpdateBasicInfoFrom.class).apply(imageUrlReq);
-        RestRespConverter.convertVoid(conceptEntityApi.update(KGUtil.dbName(kgName), updateBasicInfoFrom));
+        final String dbName = KGUtil.dbName(kgName);
+        RestRespConverter.convertVoid(conceptEntityApi.update(dbName, updateBasicInfoFrom));
         logSender.remove();
     }
 
     private void sendLog(String kgName, Long id) {
         logSender.setActionId();
-        Optional<Integer> optional = RestRespConverter.convert(conceptEntityApi.listBatch(KGUtil.dbName(kgName), id));
+        final String dbName = KGUtil.dbName(kgName);
+        Optional<Integer> optional = RestRespConverter.convert(conceptEntityApi.listBatch(dbName, id));
         if (BasicInfoType.isConcept(optional.get())) {
             logSender.sendLog(kgName, ServiceEnum.CONCEPT_DEFINE);
         } else {
@@ -314,7 +320,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         //第一页
         promptFrom.setSkip(0);
         promptFrom.setLimit(promptReq.getSize());
-        Optional<List<PromptVO>> optional = RestRespConverter.convert(graphApi.prompt(KGUtil.dbName(kgName),
+        final String dbName = KGUtil.dbName(kgName);
+        Optional<List<PromptVO>> optional = RestRespConverter.convert(graphApi.prompt(dbName,
                 promptFrom));
         return optional.orElse(new ArrayList<>()).stream().map(promptVO -> {
             PromptRsp promptRsp = new PromptRsp();
@@ -328,22 +335,23 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     public GraphStatisRsp graphStatis(String kgName) {
         long defaultValue = 0L;
         StatisticVO.StatisticVOBuilder builder = StatisticVO.builder();
-        Optional<Long> concept = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
+        final String dbName = KGUtil.dbName(kgName);
+        Optional<Long> concept = RestRespConverter.convert(countApi.countElement(dbName,
                 CountType.CONCEPT.getCode()));
         Long conceptCount = concept.orElse(defaultValue);
-        Optional<Long> entity = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
+        Optional<Long> entity = RestRespConverter.convert(countApi.countElement(dbName,
                 CountType.ENTITY.getCode()));
         Long entityCount = entity.orElse(defaultValue);
-        Optional<Long> number = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
+        Optional<Long> number = RestRespConverter.convert(countApi.countElement(dbName,
                 CountType.NUMERICAL_ATTR.getCode()));
         Long numberCount = number.orElse(defaultValue);
-        Optional<Long> privateNumber = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
+        Optional<Long> privateNumber = RestRespConverter.convert(countApi.countElement(dbName,
                 CountType.PRIVATE_NUMERICAL_ATTR.getCode()));
         Long privateNumberCount = privateNumber.orElse(defaultValue);
-        Optional<Long> object = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
+        Optional<Long> object = RestRespConverter.convert(countApi.countElement(dbName,
                 CountType.OBJECT_ATTR.getCode()));
         Long objectCount = object.orElse(defaultValue);
-        Optional<Long> privateObject = RestRespConverter.convert(countApi.countElement(KGUtil.dbName(kgName),
+        Optional<Long> privateObject = RestRespConverter.convert(countApi.countElement(dbName,
                 CountType.PRIVATE_OBJECT_ATTR.getCode()));
         Long privateObjectCount = privateObject.orElse(defaultValue);
         int baseValue = 10000;
@@ -398,14 +406,15 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         ConceptStatisticsBean statisticsBean =
                 ConvertUtils.convert(ConceptStatisticsBean.class).apply(new StatisticsReq());
         Optional<List<Map<String, Object>>> optional =
-                RestRespConverter.convert(statisticsApi.conceptStatistics(KGUtil.dbName(kgName), statisticsBean));
+                RestRespConverter.convert(statisticsApi.conceptStatistics(dbName, statisticsBean));
         return GraphStatisRsp.builder().statistics(statisticVO).conceptDetails(optional.orElse(new ArrayList<>())).build();
     }
 
     @Override
     public void batchAddMetaData(String kgName, AdditionalReq additionalReq) {
         MetaDataFrom metaDataFrom = ConvertUtils.convert(MetaDataFrom.class).apply(additionalReq);
-        RestRespConverter.convertVoid(batchApi.addMetaData(KGUtil.dbName(kgName), metaDataFrom));
+        final String dbName = KGUtil.dbName(kgName);
+        RestRespConverter.convertVoid(batchApi.addMetaData(dbName, metaDataFrom));
     }
 
     @Override
@@ -413,7 +422,8 @@ public class BasicInfoServiceImpl implements BasicInfoService {
         MetaDataFrom metaDataFrom = new MetaDataFrom();
         //默认清除meta 14
         metaDataFrom.setId(14);
-        RestRespConverter.convertVoid(batchApi.deleteMetaData(KGUtil.dbName(kgName), metaDataFrom));
+        final String dbName = KGUtil.dbName(kgName);
+        RestRespConverter.convertVoid(batchApi.deleteMetaData(dbName, metaDataFrom));
     }
 
     @Override
@@ -436,15 +446,17 @@ public class BasicInfoServiceImpl implements BasicInfoService {
     public List<SimpleBasicRsp> listNames(String kgName, List<String> names) {
         BasicQuery basicQuery = new BasicQuery();
         basicQuery.setNames(names);
+        final String dbName = KGUtil.dbName(kgName);
         Optional<List<SimpleBasic>> optional =
-                RestRespConverter.convert(conceptEntityApi.listBatch(KGUtil.dbName(kgName), basicQuery));
+                RestRespConverter.convert(conceptEntityApi.listBatch(dbName, basicQuery));
 
         return optional.orElse(new ArrayList<>()).stream().map(ConvertUtils.convert(SimpleBasicRsp.class)).collect(Collectors.toList());
     }
 
     @Override
     public RelationDetailRsp getRelationDetails(String kgName, String id) {
-        RestResp<RelationDetailVO> restResp = conceptEntityApi.relationDetail(kgName, id);
+        final String dbName = KGUtil.dbName(kgName);
+        RestResp<RelationDetailVO> restResp = conceptEntityApi.relationDetail(dbName, id);
         Optional<RelationDetailVO> optional = RestRespConverter.convert(restResp);
         if (!optional.isPresent()) {
             throw BizException.of(KgmsErrorCodeEnum.TRIPLE_ID_NOT_EXISTS);

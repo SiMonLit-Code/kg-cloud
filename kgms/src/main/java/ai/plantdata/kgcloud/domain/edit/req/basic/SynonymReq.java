@@ -1,6 +1,5 @@
 package ai.plantdata.kgcloud.domain.edit.req.basic;
 
-import ai.plantdata.cloud.bean.ValidableList;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -24,6 +23,6 @@ public class SynonymReq {
 
     private String name;
 
-    private ValidableList<String> names;
+    private Set<String> names;
 
 }
