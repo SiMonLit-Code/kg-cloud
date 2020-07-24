@@ -18,6 +18,6 @@ public class AttrGroupReq {
 
     @ApiModelProperty(value = "属性分组名称")
     @NotEmpty(message = "属性分组名称不能为空")
-    @Length(max = 100, message = "属性分组名称不能超过100")
+    @Length(max = 50, message = "属性分组名称不能超过50")
     private String groupName;
 }
