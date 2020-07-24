@@ -21,7 +21,6 @@ public class SynonymReq {
     @ApiModelProperty(value = "概念或实体的ID", required = true)
     private Long id;
 
-    @Length(max = 50, message = "长度不能超过50")
     private String name;
 
     private Set<String> names;

@@ -1,6 +1,7 @@
 package ai.plantdata.kgcloud.domain.edit.controller;
 
 import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.cloud.bean.ValidableList;
 import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kgcloud.domain.edit.req.entity.*;
 import com.plantdata.graph.logging.core.ServiceEnum;
@@ -215,7 +216,7 @@ public class EntityController {
     @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
     public ApiReturn addEntityTag(@PathVariable("kgName") String kgName,
                                   @PathVariable("entityId") Long entityId,
-                                  @Valid @RequestBody List<EntityTagVO> vos) {
+                                  @Valid @RequestBody ValidableList<EntityTagVO> vos) {
         entityService.addEntityTag(kgName, entityId, vos);
         return ApiReturn.success();
     }
@@ -225,7 +226,7 @@ public class EntityController {
     @EditLogOperation(serviceEnum = ServiceEnum.ENTITY_EDIT)
     public ApiReturn updateEntityTag(@PathVariable("kgName") String kgName,
                                      @PathVariable("entityId") Long entityId,
-                                     @Valid @RequestBody List<EntityTagVO> vos) {
+                                     @Valid @RequestBody ValidableList<EntityTagVO> vos) {
         entityService.updateEntityTag(kgName, entityId, vos);
         return ApiReturn.success();
     }

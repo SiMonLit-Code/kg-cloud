@@ -55,6 +55,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static ai.plantdata.kgcloud.constant.AppErrorCodeEnum.NULL_IS_FILE_FOLDER;
+
 /**
  * @author lp
  */
@@ -546,7 +548,7 @@ public class EntityFileRelationServiceImpl implements EntityFileRelationService 
         FindIterable<Document> findIterable = getFileCollection().find(Filters.and(query));
         List<FileData> fileDatas = documentConverter.toBeans(findIterable, FileData.class);
         if (CollectionUtils.isEmpty(fileDatas)) {
-            return;
+            throw new BizException(NULL_IS_FILE_FOLDER);
         }
 
         // 查询该文件是否已存在标引记录中

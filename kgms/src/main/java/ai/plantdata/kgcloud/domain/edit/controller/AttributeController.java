@@ -210,7 +210,7 @@ public class AttributeController {
     @ApiOperation("属性约束-查询不满足属性约束列表")
     @PostMapping("/{kgName}/constraints")
     public ApiReturn<List<AttrConstraintsRsp>> listAttrConstraints(@PathVariable("kgName") String kgName,
-                                                                   @RequestBody AttrConstraintsReq attrConstraintsReq) {
+                                                                   @Valid @RequestBody AttrConstraintsReq attrConstraintsReq) {
         return ApiReturn.success(attributeService.listAttrConstraints(kgName, attrConstraintsReq));
     }
 
