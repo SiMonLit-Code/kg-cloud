@@ -136,6 +136,7 @@ public class GraphPromptServiceImpl implements GraphPromptService {
                 resultWithoutConcept.add(rsp);
             }
         }
+        resultWithoutConcept.sort(Comparator.comparing(SeniorPromptRsp::getName));
         return resultWithoutConcept;
     }
 
