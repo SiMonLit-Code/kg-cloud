@@ -16,16 +16,17 @@ import ai.plantdata.kg.support.SegmentWordVO;
 import ai.plantdata.kgcloud.constant.AppConstants;
 import ai.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import ai.plantdata.kgcloud.constant.PromptQaTypeEnum;
-import ai.plantdata.kgcloud.domain.app.converter.*;
-import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import ai.plantdata.kgcloud.domain.app.converter.BasicConverter;
+import ai.plantdata.kgcloud.domain.app.converter.ConditionConverter;
+import ai.plantdata.kgcloud.domain.app.converter.EntityConverter;
+import ai.plantdata.kgcloud.domain.app.converter.PromptConverter;
+import ai.plantdata.kgcloud.domain.app.converter.RelationConverter;
 import ai.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import ai.plantdata.kgcloud.domain.app.service.GraphPromptService;
 import ai.plantdata.kgcloud.domain.app.util.PageUtils;
 import ai.plantdata.kgcloud.domain.common.util.EnumUtils;
 import ai.plantdata.kgcloud.domain.common.util.KGUtil;
+import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import ai.plantdata.kgcloud.domain.graph.config.service.GraphConfQaService;
 import ai.plantdata.kgcloud.sdk.constant.EdgeAttrPromptDataTypeEnum;
 import ai.plantdata.kgcloud.sdk.req.app.EdgeAttrPromptReq;
@@ -36,13 +37,24 @@ import ai.plantdata.kgcloud.sdk.rsp.GraphConfQaStatusRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.EdgeAttributeRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.main.PromptEntityRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
+import cn.hiboot.mcn.core.model.result.RestResp;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -76,25 +88,17 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         GraphConfQaStatusRsp graphConfQaStatusRsp = graphConfQaService.getStatus(kgName);
         PromptQaTypeEnum qaType = PromptQaTypeEnum.parseWitDefault(promptReq.getPromptType());
 
-        if (PromptQaTypeEnum.BEFORE.equals(qaType)  && graphConfQaStatusRsp != null && graphConfQaStatusRsp.getStatus() == 1) {
-            Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq)));
-            List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
+        RestResp<List<PromptItemVO>> promptList = entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq));
+        if (PromptQaTypeEnum.BEFORE.equals(qaType) && graphConfQaStatusRsp != null && graphConfQaStatusRsp.getStatus() == 1) {
+            List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(RestRespConverter.convert(promptList).orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
             // 是否返回顶层概念
             if (!promptReq.getIsReturnTop()) {
                 entityRspList = entityRspList.stream().filter(s -> s.getId() != 0).collect(Collectors.toList());
             }
             return BasicConverter.mergeList(queryAnswer(kgName, promptReq), entityRspList);
         }
-     /*   if (promptReq.getOpenExportDate()) {
-            //执行es搜索
-            List<PromptEntityRsp> entityRspList = queryFromEs(kgName, promptReq);
-            if (!CollectionUtils.isEmpty(entityRspList)) {
-                return entityRspList;
-            }
-        }*/
-        Optional<List<PromptItemVO>> promptOpt = RestRespConverter.convert(entityApi.promptList(KGUtil.dbName(kgName), PromptConverter.promptReqReqToPromptListFrom(promptReq)));
 
-        List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(promptOpt.orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
+        List<PromptEntityRsp> entityRspList = BasicConverter.listConvert(RestRespConverter.convert(promptList).orElse(Collections.emptyList()), PromptConverter::promptItemVoToPromptEntityRsp);
         // 是否返回顶层概念
         if (!promptReq.getIsReturnTop()) {
             entityRspList = entityRspList.stream().filter(s -> s.getId() != 0).collect(Collectors.toList());
@@ -105,6 +109,9 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         }
         if (promptReq.getSort() == -1) {
             Collections.reverse(entityRspList);
+        }
+        if (promptReq.getSort() == 1) {
+            entityRspList.sort(Comparator.comparing(PromptEntityRsp::getName));
         }
         return entityRspList;
     }
