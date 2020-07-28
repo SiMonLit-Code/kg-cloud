@@ -14,7 +14,7 @@ import ai.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import ai.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import ai.plantdata.kgcloud.domain.common.util.KGUtil;
 import ai.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
-import ai.plantdata.kgcloud.domain.edit.converter.RelationChecker;
+import ai.plantdata.kgcloud.domain.edit.checker.RelationChecker;
 import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import ai.plantdata.kgcloud.domain.edit.req.attr.*;
 import ai.plantdata.kgcloud.domain.edit.req.entity.TripleReq;

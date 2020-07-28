@@ -57,7 +57,7 @@ public class BasicConverter {
     /**
      * 非空 消费 批量
      */
-    public static <T> void listConsumerIfNoNull(List<T> paramList, Consumer<T> function) {
+    public static <T> void listConsumerIfNoNull(Collection<T> paramList, Consumer<T> function) {
         if (!CollectionUtils.isEmpty(paramList)) {
             paramList.forEach(a -> consumerIfNoNull(a, function));
         }
