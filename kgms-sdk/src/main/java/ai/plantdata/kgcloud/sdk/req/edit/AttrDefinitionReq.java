@@ -39,7 +39,6 @@ public class AttrDefinitionReq {
     private Long domainValue;
 
     @ApiModelProperty(value = "属性值域")
-    @Size(min = 1,message = "属性值域不能为空")
     private List<Long> rangeValue;
 
     @NotNull

@@ -2,6 +2,7 @@ package ai.plantdata.kgcloud.domain.edit.controller;
 
 import ai.plantdata.cloud.bean.ApiReturn;
 import ai.plantdata.cloud.bean.ValidableList;
+import ai.plantdata.cloud.exception.BizException;
 import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.cloud.web.util.SessionHolder;
 import ai.plantdata.kg.api.edit.AttributeApi;
@@ -16,7 +17,14 @@ import ai.plantdata.kgcloud.domain.common.util.KGUtil;
 import ai.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import ai.plantdata.kgcloud.domain.edit.checker.RelationChecker;
 import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import ai.plantdata.kgcloud.domain.edit.req.attr.*;
+import ai.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.AttrTemplateReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.RelationMetaReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.RelationSearchMetaReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.RelationSearchReq;
 import ai.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import ai.plantdata.kgcloud.domain.edit.rsp.AttrConstraintsRsp;
 import ai.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
@@ -52,8 +60,11 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+
+import static ai.plantdata.kgcloud.constant.AppErrorCodeEnum.NULL_RANGE_VALUE;
 
 /**
  * @Author: LinHo
@@ -106,6 +117,12 @@ public class AttributeController {
     @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn<Integer> addAttrDefinition(@PathVariable("kgName") String kgName,
                                                 @Valid @RequestBody AttrDefinitionReq attrDefinitionReq) {
+        if (Objects.equals(attrDefinitionReq.getType(), 1)) {
+            List<Long> rangeValue = attrDefinitionReq.getRangeValue();
+            if (rangeValue == null || rangeValue.isEmpty()) {
+                throw BizException.of(NULL_RANGE_VALUE);
+            }
+        }
         return ApiReturn.success(attributeService.addAttrDefinition(kgName, attrDefinitionReq));
     }
 
@@ -130,6 +147,12 @@ public class AttributeController {
     @EditLogOperation(serviceEnum = ServiceEnum.ATTR_DEFINE)
     public ApiReturn updateAttrDefinition(@PathVariable("kgName") String kgName,
                                           @Valid @RequestBody AttrDefinitionModifyReq modifyReq) {
+        if (Objects.equals(modifyReq.getType(), 1)) {
+            List<Long> rangeValue = modifyReq.getRangeValue();
+            if (rangeValue == null || rangeValue.isEmpty()) {
+                throw BizException.of(NULL_RANGE_VALUE);
+            }
+        }
         attributeService.updateAttrDefinition(kgName, modifyReq);
         return ApiReturn.success();
     }
