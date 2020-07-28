@@ -1,4 +1,4 @@
-package ai.plantdata.kgcloud.domain.edit.converter;
+package ai.plantdata.kgcloud.domain.edit.checker;
 
 import ai.plantdata.cloud.exception.BizException;
 import ai.plantdata.kg.common.bean.AttributeDefinition;
@@ -13,23 +13,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * @author cjw
  * @date 2020/7/24  16:44
  */
-public class RelationChecker {
+public class RelationChecker extends BaseAttributeChecker{
 
     private final List<BatchRelationRsp> rspList;
-    private final Function<List<Integer>, List<AttributeDefinition>> searchAttribute;
-    private final Predicate<Object> textTest = a -> a != null && a.toString().length() > 50;
 
     public RelationChecker(List<BatchRelationRsp> rspList, Function<List<Integer>, List<AttributeDefinition>> searchAttribute) {
+        super(searchAttribute);
         this.rspList = rspList;
-        this.searchAttribute = searchAttribute;
+
     }
 
+    @Override
     public void check() {
         List<Integer> relAttrIds = BasicConverter.listToRsp(rspList, BatchRelationRsp::getAttrId);
         List<AttributeDefinition> attrDefList = searchAttribute.apply(relAttrIds);
@@ -59,7 +58,7 @@ public class RelationChecker {
     private boolean check(Map<Integer, Object> extraValMap, Map<Integer, ExtraInfo> extraInfoMap) {
         return extraValMap.entrySet().stream().allMatch(a -> {
             ExtraInfo extraInfo = extraInfoMap.get(a.getKey());
-            return !Objects.equals(extraInfo.getDataType(), DataTypeEnum.ATTACHMENT.getType()) && textTest.test(a.getValue());
+            return !Objects.equals(extraInfo.getDataType(), DataTypeEnum.STRING.getType()) && textTest.test(a.getValue());
         });
     }
 
