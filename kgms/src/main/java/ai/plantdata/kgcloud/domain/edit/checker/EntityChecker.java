@@ -56,10 +56,14 @@ public class EntityChecker extends BaseAttributeChecker {
             });
 
             BasicConverter.consumerIfNoNull(a.getPrivateAttributes(), p -> {
-                boolean anyMatch = p.entrySet().stream().anyMatch(v -> textTest.test(v.getValue()));
-                if (anyMatch) {
-                    throw new BizException(403, "私有属性值长度不能超过50");
-                }
+                p.forEach((k, v) -> {
+                    if (textTest.test(k)) {
+                        throw new BizException(403, "私有属性名称长度不能超过50");
+                    }
+                    if (textTest.test(v)) {
+                        throw new BizException(403, "私有属性值长度不能超过50");
+                    }
+                });
             });
             //metadata
             super.metaDataCheck(a.getMetaDataMap());
