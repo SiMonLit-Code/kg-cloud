@@ -95,7 +95,7 @@ public class PromptConverter extends BasicConverter {
         from.setLimit(req.getLimit());
         from.setAttrId(String.valueOf(req.getAttrId()));
         from.setIsPrivate(NumberUtils.INTEGER_ZERO);
-        from.setSearchOption(req.getSearchOption());
+        from.setSearchOption(StringUtils.isEmpty(req.getSearchOption()) ? req.getKw() : req.getSearchOption());
         Integer sortDirection = SortTypeEnum.parseByValue(from.getSortDirection()).orElse(SortTypeEnum.DESC).getValue();
         from.setSortDirection(sortDirection);
         return from;

@@ -229,7 +229,7 @@ public class ExploreCommonConverter extends BasicConverter {
     private static RelationInfoBean edgeInfoToRelationInfoBean(GraphRelationRsp relationBean, Long conceptId) {
         RelationInfoBean infoBean = new RelationInfoBean();
         infoBean.setId(relationBean.getId());
-        consumerIfNoNull(toListNoNull(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId(), conceptId)),infoBean::setKvs);
+        consumerIfNoNull(toListNoNull(relationBean.getDataValAttrs(), a -> edgeInfoToKvBean(a, relationBean.getAttId(), conceptId)), infoBean::setKvs);
         consumerIfNoNull(relationBean.getStartTime(), a -> infoBean.addKv(RELATION_START_TIME_SSE_KEY, a));
         consumerIfNoNull(relationBean.getEndTime(), a -> infoBean.addKv(RELATION_END_TIME_SSE_KEY, a));
         return infoBean;
@@ -247,6 +247,7 @@ public class ExploreCommonConverter extends BasicConverter {
         consumerIfNoNull(relationAttrReq, a -> a.set$ne(screeningBean.get$neq()));
         return relationAttrReq;
     }
+
     public static MetaDataReq attrScreeningBeanToMetaDataReq(@NonNull AttrScreeningBean screeningBean) {
         MetaDataReq metaDataReq = JsonUtils.parseObj(JacksonUtils.writeValueAsString(screeningBean), MetaDataReq.class);
         consumerIfNoNull(metaDataReq, a -> a.set$ne(screeningBean.get$neq()));

@@ -22,10 +22,12 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -96,8 +98,8 @@ public class GraphCommonConverter extends BasicConverter {
         relationMetaData.setRead(true);
         graphFrom.setRelationMeta(relationMetaData);
 
-        consumerIfNoNull(exploreReq.getReservedAttFilters(), a ->  entityMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
-        consumerIfNoNull(exploreReq.getReservedAttFilters(), a ->  relationMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
+        consumerIfNoNull(exploreReq.getReservedAttFilters(), a -> entityMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
+        consumerIfNoNull(exploreReq.getReservedAttFilters(), a -> relationMetaData.setFilter(Maps.newHashMap(ConditionConverter.metaDataReqToMap(a))));
 
         return graphFrom;
     }
@@ -147,7 +149,13 @@ public class GraphCommonConverter extends BasicConverter {
     }
 
     private static List<BasicRelationRsp.EdgeDataInfo> edgeVoListToEdgeInfo(@NonNull List<EdgeVO> edgeList) {
-        return listToRsp(edgeList, a -> new BasicRelationRsp.EdgeDataInfo(a.getName(), a.getSeqNo(), a.getValue(), a.getDataType()));
+        Function<Object, Object> double2String = a -> {
+            if (a instanceof Double) {
+                return BigDecimal.valueOf((Double) a).toPlainString();
+            }
+            return a;
+        };
+        return listToRsp(edgeList, a -> new BasicRelationRsp.EdgeDataInfo(a.getName(), a.getSeqNo(), double2String.apply(a.getValue()), a.getDataType()));
     }
 
     /**

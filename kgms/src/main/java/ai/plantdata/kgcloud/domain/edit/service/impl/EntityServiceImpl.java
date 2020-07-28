@@ -5,6 +5,7 @@ import ai.plantdata.cloud.kafka.producer.KafkaMessageProducer;
 import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.cloud.web.util.SessionHolder;
+import ai.plantdata.kg.api.edit.AttributeApi;
 import ai.plantdata.kg.api.edit.BatchApi;
 import ai.plantdata.kg.api.edit.ConceptEntityApi;
 import ai.plantdata.kg.api.edit.req.*;
@@ -12,8 +13,10 @@ import ai.plantdata.kg.api.edit.resp.*;
 import ai.plantdata.kg.api.pub.EntityApi;
 import ai.plantdata.kg.api.pub.req.EntityTagFrom;
 import ai.plantdata.kg.api.pub.req.SearchByAttributeFrom;
+import ai.plantdata.kg.common.bean.AttributeDefinition;
 import ai.plantdata.kgcloud.constant.*;
 import ai.plantdata.kgcloud.domain.edit.converter.DocumentConverter;
+import ai.plantdata.kgcloud.domain.edit.checker.EntityChecker;
 import ai.plantdata.kgcloud.domain.edit.converter.OpenEntityConverter;
 import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import ai.plantdata.kgcloud.domain.edit.req.entity.*;
@@ -124,6 +127,8 @@ public class EntityServiceImpl implements EntityService {
 
     @Autowired
     private UserClient userClient;
+    @Autowired
+    private AttributeApi attributeApi;
 
     @Override
     public void addMultipleConcept(String kgName, Long conceptId, Long entityId) {
@@ -295,14 +300,14 @@ public class EntityServiceImpl implements EntityService {
             count += page;
         }
 
-        Map<String,String> usernameMap = new HashMap<>();
+        Map<String, String> usernameMap = new HashMap<>();
         basicInfoRspList.forEach(basicInfoRsp -> {
 
-            if(basicInfoRsp.getSourceUser() != null && !basicInfoRsp.getSourceUser().isEmpty()){
-                if(!usernameMap.containsKey(basicInfoRsp.getSourceUser())){
+            if (basicInfoRsp.getSourceUser() != null && !basicInfoRsp.getSourceUser().isEmpty()) {
+                if (!usernameMap.containsKey(basicInfoRsp.getSourceUser())) {
                     UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(basicInfoRsp.getSourceUser()).getData();
-                    if(userDetailRsp != null){
-                        usernameMap.put(userDetailRsp.getId(),userDetailRsp.getRealname());
+                    if (userDetailRsp != null) {
+                        usernameMap.put(userDetailRsp.getId(), userDetailRsp.getRealname());
                     }
                 }
                 basicInfoRsp.setSourceUser(usernameMap.get(basicInfoRsp.getSourceUser()));
@@ -687,7 +692,7 @@ public class EntityServiceImpl implements EntityService {
 
         UpdateRelationMetaReq updateRelationMetaReq = new UpdateRelationMetaReq();
         updateRelationMetaReq.setTripleId(tripleId);
-        updateRelationMetaReq.setMetaData(MetaDataUtils.getDefaultSourceMetaData(null,SessionHolder.getUserId()));
+        updateRelationMetaReq.setMetaData(MetaDataUtils.getDefaultSourceMetaData(null, SessionHolder.getUserId()));
         UpdateRelationFrom updateRelationFrom =
                 ConvertUtils.convert(UpdateRelationFrom.class).apply(updateRelationMetaReq);
         RestRespConverter.convertVoid(conceptEntityApi.addObjAttrValue(KGUtil.dbName(kgName), updateRelationFrom));
@@ -835,6 +840,10 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean add,
                                                                 List<OpenBatchSaveEntityRsp> batchEntity) {
+        Function<List<Integer>, List<AttributeDefinition>> selectAttrDef =
+                a -> RestRespConverter.convert(attributeApi.listByIds(kgName, a))
+                        .orElse(Collections.emptyList());
+        new EntityChecker(batchEntity, selectAttrDef).check();
         List<BatchEntityVO> entityList = BasicConverter.listToRsp(batchEntity,
                 OpenEntityConverter::openBatchSaveEntityRspToVo);
 

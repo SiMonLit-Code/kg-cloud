@@ -57,7 +57,7 @@ public class BasicConverter {
     /**
      * 非空 消费 批量
      */
-    public static <T> void listConsumerIfNoNull(List<T> paramList, Consumer<T> function) {
+    public static <T> void listConsumerIfNoNull(Collection<T> paramList, Consumer<T> function) {
         if (!CollectionUtils.isEmpty(paramList)) {
             paramList.forEach(a -> consumerIfNoNull(a, function));
         }
@@ -137,6 +137,11 @@ public class BasicConverter {
 
     public static <T, K, V> Map<K, V> listToMapNoNull(List<T> list1, Function<List<T>, Map<K, V>> function) {
         return CollectionUtils.isEmpty(list1) ? Collections.emptyMap() : function.apply(list1);
+    }
+
+    public static <T, K> Map<K, T> list2Map(List<T> list1, Function<T,K> function) {
+        return CollectionUtils.isEmpty(list1) ? Collections.emptyMap()
+                :list1.stream().collect(Collectors.toMap(function,Function.identity(),(a,b)->b));
     }
 
     protected static void infoLog(String name, Object obj) {
