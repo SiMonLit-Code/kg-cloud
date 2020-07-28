@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ public class AttrDefinitionReq {
     private Long domainValue;
 
     @ApiModelProperty(value = "属性值域")
+    @Size(min = 1,message = "属性值域不能为空")
     private List<Long> rangeValue;
 
     @NotNull
