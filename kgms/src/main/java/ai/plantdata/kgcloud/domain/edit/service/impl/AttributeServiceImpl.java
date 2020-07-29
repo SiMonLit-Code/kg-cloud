@@ -214,6 +214,8 @@ public class AttributeServiceImpl implements AttributeService {
     public void updateAttrDefinition(String kgName, AttrDefinitionModifyReq modifyReq) {
         AttributeDefinitionFrom attributeDefinitionFrom =
                 AttrConverterUtils.attrDefinitionReqConvert(modifyReq);
+
+
         RestRespConverter.convertVoid(attributeApi.update(KGUtil.dbName(kgName), attributeDefinitionFrom));
     }
 
