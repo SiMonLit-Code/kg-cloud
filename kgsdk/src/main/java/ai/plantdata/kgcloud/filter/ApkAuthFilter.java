@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -42,10 +44,24 @@ public class ApkAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
-            if(authentication instanceof OAuth2Authentication) {
+            if (authentication instanceof OAuth2Authentication) {
                 OAuth2Authentication oauth = (OAuth2Authentication) authentication;
                 OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) oauth.getDetails();
-                CurrentUser.setAdmin(false);
+                Object principal = oauth.getPrincipal();
+                boolean isAdmin = false;
+                if (principal instanceof LinkedHashMap) {
+                    Object authorities = ((LinkedHashMap) principal).get("authorities");
+                    if (authorities instanceof List) {
+                        isAdmin = ((List) authorities).stream().anyMatch(a -> {
+                            if (a instanceof LinkedHashMap) {
+                                LinkedHashMap<String, String> authMap = (LinkedHashMap<String, String>) a;
+                                return authMap.containsKey("authority") && "ROLE_ADMIN".equals(authMap.get("authority"));
+                            }
+                            return false;
+                        });
+                    }
+                }
+                CurrentUser.setAdmin(isAdmin);
                 CurrentUser.setToken(details.getTokenType() + " " + details.getTokenValue());
                 filterChain.doFilter(request, response);
                 return;
@@ -70,7 +86,7 @@ public class ApkAuthFilter extends OncePerRequestFilter {
 
 
         UsernamePasswordAuthenticationToken result =
-                new UsernamePasswordAuthenticationToken("a","b", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+                new UsernamePasswordAuthenticationToken("a", "b", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
         eventPublisher.publishEvent(new AuthenticationSuccessEvent(result));
         SecurityContextHolder.getContext().setAuthentication(result);
         filterChain.doFilter(request, response);
@@ -81,7 +97,7 @@ public class ApkAuthFilter extends OncePerRequestFilter {
         try {
             loginRspApiReturn = this.ssoClient.loginByApk(apk);
         } catch (Exception e) {
-            log.error(" ",e);
+            log.error(" ", e);
             WebUtils.sendResponse(httpServletResponse, ApiReturn.fail(CommonErrorCode.INTERNAL_SERVER_ERROR));
             return Optional.empty();
         }
@@ -90,7 +106,7 @@ public class ApkAuthFilter extends OncePerRequestFilter {
             return Optional.empty();
         }
         if (CommonErrorCode.SUCCESS.getErrorCode() != loginRspApiReturn.getErrCode()) {
-            log.error(" ",loginRspApiReturn);
+            log.error(" ", loginRspApiReturn);
             WebUtils.sendResponse(httpServletResponse, loginRspApiReturn);
             return Optional.empty();
         }
