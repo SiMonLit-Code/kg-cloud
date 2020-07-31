@@ -27,7 +27,7 @@ public class ApiAuditAspect {
     @Autowired
     private KafkaMessageProducer kafkaMessageProducer;
 
-    @Pointcut("execution(* com.plantdata.kgcloud..*Controller.*(..))")
+    @Pointcut("execution(* ai.plantdata.kgcloud..*Controller.*(..))")
     public void pointCut() {
     }
 

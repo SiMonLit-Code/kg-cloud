@@ -38,7 +38,7 @@ public class BasicInfoModifyReq {
     @Length(max = 100, message = "消歧项长度不能超过100")
     private String meaningTag;
 
-    @ApiModelProperty(value = "唯一标示")
+    @ApiModelProperty(value = "唯一标识")
     @KeyCheck
     @Length(max = 50, message = "长度不能超过50")
     private String key;
