@@ -31,7 +31,7 @@ public class RelationConverter extends BasicConverter {
         relationRsp.setAttrTimeTo(relationBean.getAttrTimeTo());
         relationRsp.setAttrValueConcept(relationBean.getAttrValueConcept());
         relationRsp.setAttrValueId(relationBean.getAttrValueId());
-        relationRsp.setAttrValueMeaningTag(relationBean.getEntityMeaningTag());
+        relationRsp.setAttrValueMeaningTag(relationBean.getAttrValueMeaningTag());
         relationRsp.setAttrValueName(relationBean.getAttrValueName());
         relationRsp.setEntityId(relationBean.getEntityId());
         relationRsp.setEntityName(relationBean.getEntityName());
