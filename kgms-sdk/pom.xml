@@ -5,7 +5,8 @@
     <parent>
         <groupId>ai.plantdata</groupId>
         <artifactId>kg-cloud-kgms</artifactId>
-        <version>3.4.5</version>
+        <version>${revision}${sha1}${changelist}</version>
+        <relativePath>../</relativePath>
     </parent>
     <artifactId>kgms-sdk</artifactId>
     <name>kgms-sdk</name>

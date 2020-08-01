@@ -6,12 +6,11 @@
         <artifactId>kg-cloud-parent</artifactId>
         <groupId>ai.plantdata</groupId>
         <version>3.4.5</version>
-        <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
     <groupId>ai.plantdata</groupId>
-    <version>3.4.5</version>
+    <version>${revision}${sha1}${changelist}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -24,9 +23,11 @@
     </modules>
 
     <properties>
-        <kg-cloud-kgms.version>3.4.5</kg-cloud-kgms.version>
-        <next-tag.version>3.4.5</next-tag.version>
-        <next-develop.version>3.4.5</next-develop.version>
+        <revision>3.4.6</revision>
+        <changelist/>
+        <sha1/>
+        <kg-cloud-kgms.version>${revision}${sha1}${changelist}</kg-cloud-kgms.version>
+
         <kg-cloud-public.version>3.4.4</kg-cloud-public.version>
         <kg-services-sdk.version>3.4.5</kg-services-sdk.version>
     </properties>
@@ -124,55 +125,12 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.11.2</version>
                 <configuration>
                     <connectionType>connection</connectionType>
                     <tagBase>http://192.168.4.1/kgcloud/kg-cloud-kgms/tags</tagBase>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
-                        </manifestEntries>
-                    </archive>
                 </configuration>
             </plugin>
         </plugins>
