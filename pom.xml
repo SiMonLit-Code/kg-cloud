@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>kg-cloud-kgms</artifactId>
     <groupId>ai.plantdata</groupId>
-    <version>3.4.4</version>
+    <version>3.4.5</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -25,8 +25,8 @@
 
     <properties>
         <kg-cloud-kgms.version>3.4.5</kg-cloud-kgms.version>
-        <next-tag.version>3.4.4</next-tag.version>
-        <next-develop.version>3.4.4</next-develop.version>
+        <next-tag.version>3.4.5</next-tag.version>
+        <next-develop.version>3.4.5</next-develop.version>
         <kg-cloud-public.version>3.4.4</kg-cloud-public.version>
         <kg-services-sdk.version>3.4.5</kg-services-sdk.version>
     </properties>
@@ -36,18 +36,20 @@
             <dependency>
                 <groupId>ai.plantdata</groupId>
                 <artifactId>kgms-sdk</artifactId>
-                <version>3.4.4</version>
+                <version>${kg-cloud-kgms.version}</version>
             </dependency>
             <dependency>
                 <groupId>ai.plantdata</groupId>
                 <artifactId>nlp-sdk</artifactId>
-                <version>3.4.4</version>
+                <version>${kg-cloud-kgms.version}</version>
             </dependency>
             <dependency>
                 <groupId>ai.plantdata</groupId>
                 <artifactId>kgrepo-sdk</artifactId>
-                <version>3.4.4</version>
+                <version>${kg-cloud-kgms.version}</version>
             </dependency>
+
+
             <dependency>
                 <groupId>com.plantdata.log</groupId>
                 <artifactId>graph-logging</artifactId>
@@ -179,6 +181,6 @@
         <url>http://192.168.4.1/kgcloud/kg-cloud-kgms</url>
         <connection>scm:git:ssh://git@192.168.4.1:4422/kgcloud/kg-cloud-kgms.git</connection>
         <developerConnection>scm:git:ssh://git@192.168.4.1:4422/kgcloud/kg-cloud-kgms.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.4.5</tag>
     </scm>
 </project>
