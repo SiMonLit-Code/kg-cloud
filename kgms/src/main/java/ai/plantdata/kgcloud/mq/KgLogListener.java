@@ -34,8 +34,6 @@ public class KgLogListener {
 
     @Autowired
     private MongoClient mongoClient;
-    @Autowired
-    private GraphRepository graphRepository;
 
     @KafkaListener(containerFactory = "kafkaListenerContainerFactory", topics = {"${topic.kg.log}"}, groupId = "graphLog")
     public void logListener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
@@ -54,7 +52,7 @@ public class KgLogListener {
                 graphLog.setMessage(tmpLog.getMessage());
 
                 if (StringUtils.isNotBlank(graphLog.getBatch()) && StringUtils.isNotBlank(graphLog.getMessage())) {
-                    log.info("opt log: {}", graphLog.getMessage());
+                    log.debug("opt log: {}", graphLog.getMessage());
                     List<Document> ls = dataMap.computeIfAbsent(kgDbName, v -> new ArrayList<>());
                     ls.add(Document.parse(JacksonUtils.writeValueAsString(graphLog)));
                 }

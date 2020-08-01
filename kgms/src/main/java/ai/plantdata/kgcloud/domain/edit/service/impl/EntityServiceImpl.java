@@ -406,8 +406,9 @@ public class EntityServiceImpl implements EntityService {
     public Long deleteByConceptId(String kgName, EntityDeleteReq entityDeleteReq) {
         logSender.setActionId();
         entityDeleteReq.setActionId(ThreadLocalUtils.getBatchNo());
+        final String dbName = KGUtil.dbName(kgName);
         TaskGraphStatusReq taskGraphStatusReq = TaskGraphStatusReq.builder()
-                .kgName(KGUtil.dbName(kgName))
+                .kgName(kgName)
                 .status(TaskStatus.PROCESSING.getStatus())
                 .type(TaskType.CLEAR_ENTITY.getType())
                 .params(JacksonUtils.readValue(JacksonUtils.writeValueAsString(entityDeleteReq),
@@ -416,7 +417,7 @@ public class EntityServiceImpl implements EntityService {
                 .build();
         TaskGraphStatus taskGraphStatus = taskGraphStatusService.create(taskGraphStatusReq);
         kafkaMessageProducer.sendMessage(topicKgTask, taskGraphStatus);
-        logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
+        logSender.sendLog(dbName, ServiceEnum.ENTITY_EDIT);
         logSender.remove();
         return taskGraphStatus.getId();
     }

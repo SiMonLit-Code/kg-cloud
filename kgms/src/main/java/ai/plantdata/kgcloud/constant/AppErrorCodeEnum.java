@@ -29,6 +29,8 @@ public enum AppErrorCodeEnum implements ErrorCode {
     GIS_TYPE_ERROR(120618, "gis筛选类型错误"),
     GIS_INFO_ERROR(120619, "gis筛选坐标格式错误"),
 
+
+
     NULL_RANGE_VALUE(120610, "值域不能为空"),
     NULL_GIS_RULE_ID(120610, "规则id不能为空"),
     NULL_GIS_ENTITY_ID(120611, "实体ids不能为空"),

@@ -183,14 +183,15 @@ public class InduceServiceImpl implements InduceService {
     @Override
     public void induceConcept(String kgName, InduceConceptReq induceConceptReq) {
         Long conceptId = induceConceptReq.getConceptId();
+        String dbName = KGUtil.dbName(kgName);
         if (Objects.isNull(conceptId)) {
-            conceptId = basicInfoService.createBasicInfo(KGUtil.dbName(kgName), BasicInfoReq.builder()
+            conceptId = basicInfoService.createBasicInfo(kgName, BasicInfoReq.builder()
                     .name(induceConceptReq.getConceptName()).conceptId(induceConceptReq.getParentId())
                     .type(BasicInfoType.CONCEPT.getType()).build());
         }
         ExecuteInduceConceptFrom executeInduceConceptFrom =
                 ConvertUtils.convert(ExecuteInduceConceptFrom.class).apply(induceConceptReq);
         executeInduceConceptFrom.setConceptId(conceptId);
-        RestRespConverter.convertVoid(induceApi.induceConcept(KGUtil.dbName(kgName), executeInduceConceptFrom));
+        RestRespConverter.convertVoid(induceApi.induceConcept(dbName, executeInduceConceptFrom));
     }
 }

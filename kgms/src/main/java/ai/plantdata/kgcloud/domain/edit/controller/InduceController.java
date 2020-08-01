@@ -1,7 +1,7 @@
 package ai.plantdata.kgcloud.domain.edit.controller;
 
 import ai.plantdata.cloud.bean.ApiReturn;
-import com.plantdata.graph.logging.core.ServiceEnum;
+import ai.plantdata.cloud.exception.BizException;
 import ai.plantdata.kgcloud.domain.edit.aop.EditLogOperation;
 import ai.plantdata.kgcloud.domain.edit.req.induce.AttrInduceReq;
 import ai.plantdata.kgcloud.domain.edit.req.induce.AttrSearchReq;
@@ -13,6 +13,7 @@ import ai.plantdata.kgcloud.domain.edit.rsp.AttrInduceFindRsp;
 import ai.plantdata.kgcloud.domain.edit.rsp.InduceConceptRsp;
 import ai.plantdata.kgcloud.domain.edit.service.InduceService;
 import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
+import com.plantdata.graph.logging.core.ServiceEnum;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
+
+import static ai.plantdata.kgcloud.constant.AppErrorCodeEnum.NULL_RANGE_VALUE;
 
 /**
  * @Author: LinHo
@@ -93,6 +97,17 @@ public class InduceController {
     @EditLogOperation(serviceEnum = ServiceEnum.CONCEPT_GUIYUE)
     public ApiReturn induceConcept(@PathVariable("kgName") String kgName,
                                    @Valid @RequestBody InduceConceptReq induceConceptReq) {
+        List<Map<Integer, List<String>>> attrData = induceConceptReq.getDataAttributeValues();
+        if (attrData != null && !attrData.isEmpty()) {
+            for (Map<Integer, List<String>> attrDatum : attrData) {
+                for (Map.Entry<Integer, List<String>> entry : attrDatum.entrySet()) {
+                    List<String> value = entry.getValue();
+                    if (value == null || value.isEmpty()) {
+                        throw BizException.of(NULL_RANGE_VALUE);
+                    }
+                }
+            }
+        }
         induceService.induceConcept(kgName, induceConceptReq);
         return ApiReturn.success();
     }
