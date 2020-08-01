@@ -110,9 +110,6 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         if (promptReq.getSort() == -1) {
             Collections.reverse(entityRspList);
         }
-        if (promptReq.getSort() == 1) {
-            entityRspList.sort(Comparator.comparing(PromptEntityRsp::getName));
-        }
         return entityRspList;
     }
 
@@ -136,7 +133,6 @@ public class GraphPromptServiceImpl implements GraphPromptService {
                 resultWithoutConcept.add(rsp);
             }
         }
-//        resultWithoutConcept.sort(Comparator.comparing(SeniorPromptRsp::getName));
         return resultWithoutConcept;
     }
 
