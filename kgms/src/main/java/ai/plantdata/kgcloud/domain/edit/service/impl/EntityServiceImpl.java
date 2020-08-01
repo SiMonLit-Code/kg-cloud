@@ -841,7 +841,7 @@ public class EntityServiceImpl implements EntityService {
     public OpenBatchResult<OpenBatchSaveEntityRsp> saveOrUpdate(String kgName, boolean add,
                                                                 List<OpenBatchSaveEntityRsp> batchEntity) {
         Function<List<Integer>, List<AttributeDefinition>> selectAttrDef =
-                a -> RestRespConverter.convert(attributeApi.listByIds(kgName, a))
+                a -> RestRespConverter.convert(attributeApi.listByIds(KGUtil.dbName(kgName), a))
                         .orElse(Collections.emptyList());
         new EntityChecker(batchEntity, selectAttrDef).check();
         List<BatchEntityVO> entityList = BasicConverter.listToRsp(batchEntity,
