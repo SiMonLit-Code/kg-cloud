@@ -277,7 +277,7 @@ public class AttributeController {
                                                                        @RequestBody @Valid ValidableList<BatchRelationRsp> relationList) {
 
         Function<List<Integer>, List<AttributeDefinition>> selectAttrDef =
-                a -> RestRespConverter.convert(attributeApi.listByIds(kgName, a))
+                a -> RestRespConverter.convert(attributeApi.listByIds(KGUtil.dbName(kgName), a))
                         .orElse(Collections.emptyList());
         new RelationChecker(relationList, selectAttrDef).check();
         List<BatchRelationVO> collect = BasicConverter.listConvert(relationList,
