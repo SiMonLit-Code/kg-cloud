@@ -68,7 +68,10 @@ public class EntityChecker extends BaseAttributeChecker {
             //metadata
             super.metaDataCheck(a.getMetaDataMap());
             //属性定义metaData
-            BasicConverter.listConsumerIfNoNull(a.getAttrValueMetaData().values(), super::metaDataCheck);
+            if(!CollectionUtils.isEmpty(a.getAttrValueMetaData())){
+                BasicConverter.listConsumerIfNoNull(a.getAttrValueMetaData().values(), super::metaDataCheck);
+            }
+
         });
 
     }
