@@ -52,9 +52,9 @@ import ai.plantdata.kgcloud.domain.edit.util.MapperUtils;
 import ai.plantdata.kgcloud.domain.edit.util.MetaDataUtils;
 import ai.plantdata.kgcloud.domain.edit.util.ParserBeanUtils;
 import ai.plantdata.kgcloud.domain.edit.util.ThreadLocalUtils;
-import ai.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
-import ai.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
-import ai.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
+import ai.plantdata.kgcloud.domain.edit.entity.TaskGraphStatus;
+import ai.plantdata.kgcloud.domain.edit.req.task.TaskGraphStatusReq;
+import ai.plantdata.kgcloud.domain.edit.service.TaskGraphStatusService;
 import ai.plantdata.kgcloud.sdk.req.app.BatchEntityAttrDeleteReq;
 import ai.plantdata.kgcloud.sdk.req.app.EntityQueryReq;
 import ai.plantdata.kgcloud.sdk.req.app.OpenEntityRsp;
@@ -408,7 +408,7 @@ public class EntityServiceImpl implements EntityService {
         entityDeleteReq.setActionId(ThreadLocalUtils.getBatchNo());
         final String dbName = KGUtil.dbName(kgName);
         TaskGraphStatusReq taskGraphStatusReq = TaskGraphStatusReq.builder()
-                .kgName(kgName)
+                .kgName(dbName)
                 .status(TaskStatus.PROCESSING.getStatus())
                 .type(TaskType.CLEAR_ENTITY.getType())
                 .params(JacksonUtils.readValue(JacksonUtils.writeValueAsString(entityDeleteReq),

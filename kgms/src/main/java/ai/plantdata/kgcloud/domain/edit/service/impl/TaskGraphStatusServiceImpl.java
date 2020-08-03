@@ -1,4 +1,4 @@
-package ai.plantdata.kgcloud.domain.task.service.impl;
+package ai.plantdata.kgcloud.domain.edit.service.impl;
 
 import ai.plantdata.cloud.exception.BizException;
 import ai.plantdata.cloud.redis.util.KgKeyGenerator;
@@ -6,12 +6,12 @@ import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import ai.plantdata.kgcloud.constant.TaskStatus;
 import ai.plantdata.kgcloud.domain.common.util.KGUtil;
-import ai.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
-import ai.plantdata.kgcloud.domain.task.repository.TaskGraphStatusRepository;
-import ai.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
-import ai.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusCheckRsp;
-import ai.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusRsp;
-import ai.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
+import ai.plantdata.kgcloud.domain.edit.entity.TaskGraphStatus;
+import ai.plantdata.kgcloud.domain.edit.repository.TaskGraphStatusRepository;
+import ai.plantdata.kgcloud.domain.edit.req.task.TaskGraphStatusReq;
+import ai.plantdata.kgcloud.domain.edit.rsp.TaskGraphStatusCheckRsp;
+import ai.plantdata.kgcloud.domain.edit.rsp.TaskGraphStatusRsp;
+import ai.plantdata.kgcloud.domain.edit.service.TaskGraphStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;

@@ -1,6 +1,6 @@
-package ai.plantdata.kgcloud.domain.task.repository;
+package ai.plantdata.kgcloud.domain.edit.repository;
 
-import ai.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
+import ai.plantdata.kgcloud.domain.edit.entity.TaskGraphStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

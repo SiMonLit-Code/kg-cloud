@@ -1,4 +1,4 @@
-package ai.plantdata.kgcloud.domain.task.rsp;
+package ai.plantdata.kgcloud.domain.edit.rsp;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
