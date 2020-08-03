@@ -6,12 +6,12 @@ import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import ai.plantdata.kgcloud.constant.TaskStatus;
 import ai.plantdata.kgcloud.domain.common.util.KGUtil;
-import ai.plantdata.kgcloud.domain.task.repository.TaskGraphStatusRepository;
-import ai.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
 import ai.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
+import ai.plantdata.kgcloud.domain.task.repository.TaskGraphStatusRepository;
 import ai.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
 import ai.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusCheckRsp;
 import ai.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusRsp;
+import ai.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
@@ -61,19 +61,19 @@ public class TaskGraphStatusServiceImpl implements TaskGraphStatusService {
 
     @Override
     public TaskGraphStatusCheckRsp checkTask(String kgName) {
+        final String dbName = KGUtil.dbName(kgName);
         TaskGraphStatus taskGraphStatus =
-                TaskGraphStatus.builder().kgName(kgName).status(TaskStatus.PROCESSING.getStatus()).build();
+                TaskGraphStatus.builder().kgName(dbName).status(TaskStatus.PROCESSING.getStatus()).build();
         List<TaskGraphStatus> taskGraphStatusList = taskGraphStatusRepository.findAll(Example.of(taskGraphStatus),
                 Sort.by(Sort.Direction.DESC, "createAt"));
         if (CollectionUtils.isEmpty(taskGraphStatusList)) {
             return new TaskGraphStatusCheckRsp(true);
-        }else if (taskGraphStatusList.size() == 1){
+        } else if (taskGraphStatusList.size() == 1) {
             TaskGraphStatusCheckRsp statusCheckRsp =
                     ConvertUtils.convert(TaskGraphStatusCheckRsp.class).apply(taskGraphStatusList.get(0));
             statusCheckRsp.setExecuted(false);
             return statusCheckRsp;
-        }
-        else {
+        } else {
             throw BizException.of(KgmsErrorCodeEnum.SYNC_TASK_ONLY_ONE);
         }
     }
