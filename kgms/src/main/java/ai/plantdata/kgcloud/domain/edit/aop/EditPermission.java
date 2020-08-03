@@ -27,12 +27,12 @@ public class EditPermission {
     private GraphService graphService;
 
 
-    @Pointcut("execution(* com.plantdata.kgcloud.domain.edit.controller.*.*(..)) && !@annotation" +
+    @Pointcut("execution(* ai.plantdata.kgcloud.domain.edit.controller.*.*(..)) && !@annotation" +
             "(ai.plantdata.kgcloud.domain.edit.aop.EditPermissionUnwanted)")
     public void pointCutPermission() {
     }
 
-    @Pointcut("execution(* com.plantdata.kgcloud.domain.graph.attr.controller.*.*(..)) && !@annotation" +
+    @Pointcut("execution(* ai.plantdata.kgcloud.domain.graph.attr.controller.*.*(..)) && !@annotation" +
             "(ai.plantdata.kgcloud.domain.edit.aop.EditPermissionUnwanted)")
     public void pointCutAttrGroup() {
 
