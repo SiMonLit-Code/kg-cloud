@@ -5,6 +5,7 @@ import ai.plantdata.cloud.redis.util.KgKeyGenerator;
 import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import ai.plantdata.kgcloud.constant.TaskStatus;
+import ai.plantdata.kgcloud.domain.common.util.KGUtil;
 import ai.plantdata.kgcloud.domain.task.repository.TaskGraphStatusRepository;
 import ai.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
 import ai.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
@@ -47,8 +48,9 @@ public class TaskGraphStatusServiceImpl implements TaskGraphStatusService {
 
     @Override
     public TaskGraphStatusRsp getDetailsByKgName(String kgName) {
+        final String dbName = KGUtil.dbName(kgName);
         TaskGraphStatus taskGraphStatus =
-                TaskGraphStatus.builder().kgName(kgName).build();
+                TaskGraphStatus.builder().kgName(dbName).build();
         List<TaskGraphStatus> taskGraphStatusList = taskGraphStatusRepository.findAll(Example.of(taskGraphStatus),
                 Sort.by(Sort.Direction.DESC, "createAt"));
         if (CollectionUtils.isEmpty(taskGraphStatusList)) {
