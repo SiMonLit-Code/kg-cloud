@@ -1,9 +1,9 @@
-package ai.plantdata.kgcloud.domain.task.service;
+package ai.plantdata.kgcloud.domain.edit.service;
 
-import ai.plantdata.kgcloud.domain.task.entity.TaskGraphStatus;
-import ai.plantdata.kgcloud.domain.task.req.TaskGraphStatusReq;
-import ai.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusCheckRsp;
-import ai.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusRsp;
+import ai.plantdata.kgcloud.domain.edit.entity.TaskGraphStatus;
+import ai.plantdata.kgcloud.domain.edit.req.task.TaskGraphStatusReq;
+import ai.plantdata.kgcloud.domain.edit.rsp.TaskGraphStatusCheckRsp;
+import ai.plantdata.kgcloud.domain.edit.rsp.TaskGraphStatusRsp;
 
 /**
  * @Author: LinHo

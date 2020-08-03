@@ -1,9 +1,9 @@
-package ai.plantdata.kgcloud.domain.task.controller;
+package ai.plantdata.kgcloud.domain.edit.controller;
 
 import ai.plantdata.cloud.bean.ApiReturn;
-import ai.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusCheckRsp;
-import ai.plantdata.kgcloud.domain.task.rsp.TaskGraphStatusRsp;
-import ai.plantdata.kgcloud.domain.task.service.TaskGraphStatusService;
+import ai.plantdata.kgcloud.domain.edit.rsp.TaskGraphStatusCheckRsp;
+import ai.plantdata.kgcloud.domain.edit.rsp.TaskGraphStatusRsp;
+import ai.plantdata.kgcloud.domain.edit.service.TaskGraphStatusService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

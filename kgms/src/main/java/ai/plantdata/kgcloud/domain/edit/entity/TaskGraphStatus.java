@@ -1,4 +1,4 @@
-package ai.plantdata.kgcloud.domain.task.entity;
+package ai.plantdata.kgcloud.domain.edit.entity;
 
 import ai.plantdata.kgcloud.domain.edit.converter.JpaMapConverter;
 import lombok.AllArgsConstructor;

@@ -1,23 +1,23 @@
-package ai.plantdata.kgcloud.domain.task.rsp;
+package ai.plantdata.kgcloud.domain.edit.req.task;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Map;
 
 /**
  * @Author: LinHo
- * @Date: 2019/12/16 19:27
+ * @Date: 2019/12/16 17:45
  * @Description:
  */
 @Getter
 @Setter
-@ApiModel("异步任务结果模型")
-public class TaskGraphStatusRsp {
-    @ApiModelProperty(value = "任务id")
-    private Long id;
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("异步任务创建模型")
+public class TaskGraphStatusReq {
 
     @ApiModelProperty(value = "kgName")
     private String kgName;
@@ -28,6 +28,6 @@ public class TaskGraphStatusRsp {
     @ApiModelProperty(value = "任务状态")
     private String status;
 
-    @ApiModelProperty(value = "任务参数")
-    private Map<String, Object> params;
+    @ApiModelProperty(value = "请求参数")
+    private Map<String,Object> params;
 }
