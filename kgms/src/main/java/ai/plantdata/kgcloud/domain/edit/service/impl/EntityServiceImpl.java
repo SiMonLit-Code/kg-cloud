@@ -417,7 +417,7 @@ public class EntityServiceImpl implements EntityService {
                 .build();
         TaskGraphStatus taskGraphStatus = taskGraphStatusService.create(taskGraphStatusReq);
         kafkaMessageProducer.sendMessage(topicKgTask, taskGraphStatus);
-        logSender.sendLog(dbName, ServiceEnum.ENTITY_EDIT);
+        logSender.sendLog(kgName, ServiceEnum.ENTITY_EDIT);
         logSender.remove();
         return taskGraphStatus.getId();
     }
