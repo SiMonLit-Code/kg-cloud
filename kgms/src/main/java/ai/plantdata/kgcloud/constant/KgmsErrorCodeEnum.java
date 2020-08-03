@@ -1,7 +1,10 @@
 package ai.plantdata.kgcloud.constant;
 
 import ai.plantdata.cloud.constant.ErrorCode;
+import ai.plantdata.cloud.exception.BizException;
 import lombok.Getter;
+
+import java.util.function.Supplier;
 
 /**
  * @description:
@@ -89,7 +92,7 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
 
     ENTITY_NAME_LENGTH_ERROR(120513, "实体名称长度不能超过50"),
 
-    MERGE_ENTITY_SIZE_ERROR(120514,"融合实体至少需要2个"),
+    MERGE_ENTITY_SIZE_ERROR(120514, "融合实体至少需要2个"),
 
     PERMISSION_NOT_MODEL_UPLOAD_ERROR(120601, "没有模式上传权限"),
 
@@ -144,6 +147,11 @@ public enum KgmsErrorCodeEnum implements ErrorCode {
     KgmsErrorCodeEnum(int errorCode, String message) {
         this.message = message;
         this.errorCode = errorCode;
+    }
+
+    public Supplier<BizException> error() {
+        ErrorCode code = this;
+        return () -> BizException.of(code);
     }
 
 }

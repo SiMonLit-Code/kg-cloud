@@ -276,22 +276,19 @@ public class AttributeController {
     public ApiReturn<OpenBatchResult<BatchRelationRsp>> importRelation(@PathVariable("kgName") String kgName,
                                                                        @RequestBody @Valid ValidableList<BatchRelationRsp> relationList) {
 
-        Function<List<Integer>, List<AttributeDefinition>> selectAttrDef =
-                a -> RestRespConverter.convert(attributeApi.listByIds(KGUtil.dbName(kgName), a))
-                        .orElse(Collections.emptyList());
+        final String dbName = KGUtil.dbName(kgName);
+        Function<List<Integer>, List<AttributeDefinition>> selectAttrDef = a -> RestRespConverter.convert(attributeApi.listByIds(dbName, a)).orElse(Collections.emptyList());
         new RelationChecker(relationList, selectAttrDef).check();
         List<BatchRelationVO> collect = BasicConverter.listConvert(relationList,
                 a -> ConvertUtils.convert(BatchRelationVO.class).apply(a));
 
         collect.forEach(re -> re.setMetaData(MetaDataUtils.getDefaultSourceMetaData(re.getMetaData(), SessionHolder.getUserId())));
 
-        Optional<BatchResult<BatchRelationVO>> resultRestResp =
-                RestRespConverter.convert(batchApi.addRelations(KGUtil.dbName(kgName), collect));
+        Optional<BatchResult<BatchRelationVO>> resultRestResp = RestRespConverter.convert(batchApi.addRelations(dbName, collect));
         if (!resultRestResp.isPresent()) {
             return ApiReturn.success(OpenBatchResult.empty());
         }
-        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyToBatchResult(resultRestResp.get(),
-                BatchRelationRsp.class);
+        OpenBatchResult<BatchRelationRsp> relationRsp = RestCopyConverter.copyToBatchResult(resultRestResp.get(), BatchRelationRsp.class);
         return ApiReturn.success(relationRsp);
     }
 
