@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -217,7 +218,10 @@ public class InfoBoxConverter extends BasicConverter {
                 break;
             default:
                 consumerIfNoNull(attributeValue.getDataValue(), a -> {
-                    String val = StringUtils.isNotEmpty(attributeValue.getDataUnit()) ? attributeValue.getDataValue() + attributeValue.getDataUnit() : attributeValue.getDataValue().toString();
+                    if(a instanceof BigDecimal){
+                        a=((BigDecimal) a).toPlainString();
+                    }
+                    String val = StringUtils.isNotEmpty(attributeValue.getDataUnit()) ?a+ attributeValue.getDataUnit() : a.toString();
                     extraRsp.setValue(val);
                 });
                 break;
