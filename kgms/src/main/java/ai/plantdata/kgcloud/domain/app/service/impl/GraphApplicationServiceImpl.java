@@ -26,6 +26,7 @@ import ai.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
 import ai.plantdata.kgcloud.domain.app.dto.CoordinatesDTO;
 import ai.plantdata.kgcloud.domain.app.service.GraphApplicationService;
 import ai.plantdata.kgcloud.domain.app.service.GraphHelperService;
+import ai.plantdata.kgcloud.domain.app.util.AsyncUtils;
 import ai.plantdata.kgcloud.domain.common.converter.ApiReturnConverter;
 import ai.plantdata.kgcloud.domain.common.util.KGUtil;
 import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
@@ -67,6 +68,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -136,7 +138,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         //replace attrKey
         graphHelperService.replaceByAttrKey(kgName, knowledgeRecommendReq);
         // 实体id为空时，将实体名称转成实体id
-        graphHelperService.replaceKwToId(kgName,knowledgeRecommendReq);
+        graphHelperService.replaceKwToId(kgName, knowledgeRecommendReq);
 
         Optional<Map<Integer, Set<Long>>> entityAttrOpt = RestRespConverter.convert(entityApi.entityAttributesObject(KGUtil.dbName(kgName), KnowledgeRecommendConverter.reqToFrom(knowledgeRecommendReq)));
         if (!entityAttrOpt.isPresent()) {
@@ -217,7 +219,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     }
 
     @Override
-    public InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq) throws IOException {
+    public InfoBoxRsp infoBox(String kgName, String userId, InfoBoxReq infoBoxReq) {
         BatchInfoBoxReqList batchInfoBoxReq = new BatchInfoBoxReqList();
         batchInfoBoxReq.setAllowAttrs(infoBoxReq.getAllowAttrs());
         batchInfoBoxReq.setAllowAttrsKey(infoBoxReq.getAllowAttrsKey());
@@ -244,17 +246,20 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         graphHelperService.replaceByAttrKey(kgName, req);
         List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();
         // 判断id是否为空，为空用实体名称查询
-        graphHelperService.replaceKwToId(kgName,req);
+        graphHelperService.replaceKwToId(kgName, req);
         //实体
         BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxReqToBasicDetailFilter(req);
-
         detailFilter.setEntity(true);
-        //概念
-        Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
-        detailFilter.setEntity(false);
-        Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> conceptListOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
+        BasicDetailFilter conceptFilter = new BasicDetailFilter();
+        BeanUtils.copyProperties(detailFilter, conceptFilter);
+        conceptFilter.setEntity(false);
 
-        entityListOpt.ifPresent(entityList ->
+        Function<BasicDetailFilter, Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>>> listByIds = a ->
+                RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), a));
+        long start0 = System.currentTimeMillis();
+        Supplier<Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>>> entitySu = AsyncUtils.async(listByIds, detailFilter);
+        Supplier<Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>>> conceptSu = AsyncUtils.async(listByIds, conceptFilter);
+        entitySu.get().ifPresent(entityList ->
         {
             List<Long> entityIds = entityList.stream().map(ai.plantdata.kg.api.edit.resp.EntityVO::getId).collect(Collectors.toList());
 
@@ -262,36 +267,52 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 BasicConverter.consumerIfNoNull(entity.getAttrValue(),
                         a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
-            Map<Long, List<MultiModalRsp>> map = basicInfoService.listMultiModels(kgName, entityIds);
-            Map<Long, List<KnowledgeIndexRsp>> indexMap = basicInfoService.listKnowledgeIndexs(kgName, entityIds);
-            //查询对象属性
-            Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
+            long start2 = System.currentTimeMillis();
+            Supplier<Map<Long, List<MultiModalRsp>>> mapSup = AsyncUtils.async(() -> basicInfoService.listMultiModels(kgName, entityIds));
+            Supplier<Map<Long, List<KnowledgeIndexRsp>>> indexMapSu = AsyncUtils.async(() -> basicInfoService.listKnowledgeIndexs(kgName, entityIds));
+            System.out.println("多模态" + (System.currentTimeMillis() - start2));
+            Map<Long, List<MultiModalRsp>> map = mapSup.get();
+            Map<Long, List<KnowledgeIndexRsp>> indexMap = indexMapSu.get();
             Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
             Map<Long, List<RelationVO>> reverseMap = Maps.newHashMap();
-
-            if(relationOpt.isPresent()){
-
-                BasicConverter.consumerIfNoNull(req.getAllowAttrs(), allowAttrIds -> BasicConverter.consumerIfNoNull(relationOpt.get(),
-                        a -> a.removeIf(b -> !allowAttrIds.contains(b.getAttrId()))));
-            }
-            if(req.getRelationAttrs()) {
-                relationOpt.ifPresent(relations -> relations.forEach(a -> {
-                    positiveMap.computeIfAbsent(a.getFrom().getId(), v -> Lists.newArrayList()).add(a);
-                }));
-            }
-            if(req.getReverseRelationAttrs()) {
-                relationOpt.ifPresent(relations -> relations.forEach(a -> {
-                    reverseMap.computeIfAbsent(a.getTo().getId(), v -> Lists.newArrayList()).add(a);
-                }));
-            }
+            fillRelation(kgName, positiveMap, reverseMap, req.getAllowAttrs(), entityIds, req.getRelationAttrs(), req.getReverseRelationAttrs());
+            //填充对象属性
             BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(entityList,
-                    a -> InfoBoxConverter.entityToInfoBoxRsp(a,map.get(a.getId()),indexMap.get(a.getId()),
+                    a -> InfoBoxConverter.entityToInfoBoxRsp(a, map.get(a.getId()), indexMap.get(a.getId()),
                             positiveMap.get(a.getId()), reverseMap.get(a.getId()))), infoBoxRspList::addAll);
 
         });
-        conceptListOpt.ifPresent(conceptList ->
+        conceptSu.get().ifPresent(conceptList ->
                 BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(conceptList, InfoBoxConverter::conceptToInfoBoxRsp), infoBoxRspList::addAll));
+        System.out.println("全部" + (System.currentTimeMillis() - start0));
         return infoBoxRspList;
+    }
+
+    public void fillRelation(String kgName, Map<Long, List<RelationVO>> positiveMap,
+                             Map<Long, List<RelationVO>> reverseMap,
+                             List<Integer> allowAttrs,
+                             List<Long> entityIds, boolean relationAttrs, boolean reverseRelationAttrs) {
+        if (!relationAttrs && !reverseRelationAttrs) {
+            return;
+        }
+        //查询对象属性
+        Optional<List<RelationVO>> relationOpt = RestRespConverter.convert(relationApi.listRelation(KGUtil.dbName(kgName), RelationConverter.buildEntityIdsQuery(entityIds)));
+        if (relationOpt.isPresent()) {
+
+            BasicConverter.consumerIfNoNull(allowAttrs, allowAttrIds -> BasicConverter.consumerIfNoNull(relationOpt.get(),
+                    a -> a.removeIf(b -> !allowAttrIds.contains(b.getAttrId()))));
+        }
+        if (relationAttrs) {
+
+            relationOpt.ifPresent(relations -> relations.forEach(a -> {
+                positiveMap.computeIfAbsent(a.getFrom().getId(), v -> Lists.newArrayList()).add(a);
+            }));
+        }
+        if (reverseRelationAttrs) {
+            relationOpt.ifPresent(relations -> relations.forEach(a -> {
+                reverseMap.computeIfAbsent(a.getTo().getId(), v -> Lists.newArrayList()).add(a);
+            }));
+        }
     }
 
 
@@ -335,7 +356,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
         List<InfoboxMultiModelRsp> infoboxMultiModelRspList = Lists.newArrayList();
         // 判断id是否为空，为空用实体名称查询
-        graphHelperService.replaceKwToId(kgName,req);
+        graphHelperService.replaceKwToId(kgName, req);
 
         //实体
         BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxMultiModalReqToBasicDetailFilter(req);
@@ -356,14 +377,14 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
     @Override
     public List<ObjectAttributeRsp> layerKnowledgeRecommend(String kgName, LayerKnowledgeRecommendReqList recommendParam) {
 
-        Map<Integer,KnowledgeRecommendCommonFilterReq> recommendCommonFilterReqMap = recommendParam.getLayerFilter();
-        if(recommendCommonFilterReqMap == null || recommendCommonFilterReqMap.size() != 2){
+        Map<Integer, KnowledgeRecommendCommonFilterReq> recommendCommonFilterReqMap = recommendParam.getLayerFilter();
+        if (recommendCommonFilterReqMap == null || recommendCommonFilterReqMap.size() != 2) {
             return null;
         }
 
 
         // 实体id为空时，将实体名称转成实体id
-        graphHelperService.replaceKwToId(kgName,recommendParam);
+        graphHelperService.replaceKwToId(kgName, recommendParam);
 
         if (recommendParam.getEntityId() == null && org.springframework.util.StringUtils.isEmpty(recommendParam.getKw())) {
             throw BizException.of(AppErrorCodeEnum.NULL_KW_AND_ID);
@@ -381,20 +402,20 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         graphFrom.setId(recommendParam.getEntityId());
         graphFrom.setName(recommendParam.getKw());
 
-        Map<Integer,CommonFilter> layerFilter = new HashMap<>();
+        Map<Integer, CommonFilter> layerFilter = new HashMap<>();
         //每层参数
-        for(Map.Entry<Integer,KnowledgeRecommendCommonFilterReq> entry : recommendCommonFilterReqMap.entrySet()){
+        for (Map.Entry<Integer, KnowledgeRecommendCommonFilterReq> entry : recommendCommonFilterReqMap.entrySet()) {
             KnowledgeRecommendCommonFilterReq filter = entry.getValue();
 
-            graphHelperService.keyToId(kgName,filter);
+            graphHelperService.keyToId(kgName, filter);
 
-            CommonFilter commonFilter = knowledgeRecommendCommonFilterReq2CommonFilter(filter,new CommonFilter());
+            CommonFilter commonFilter = knowledgeRecommendCommonFilterReq2CommonFilter(filter, new CommonFilter());
 
-            if(entry.getKey() == 2){
+            if (entry.getKey() == 2) {
                 commonFilter.setSkip((recommendParam.getPage().getOffset()));
                 commonFilter.setLimit(recommendParam.getPage().getSize());
             }
-            layerFilter.put(entry.getKey(),commonFilter);
+            layerFilter.put(entry.getKey(), commonFilter);
         }
 
         graphFrom.setLayerFilters(layerFilter);
@@ -402,12 +423,12 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         System.out.println(JacksonUtils.writeValueAsString(graphFrom));
 
         Optional<GraphVO> graphOpt = RestRespConverter.convert(pubGraphApi.graph(KGUtil.dbName(kgName), graphFrom));
-        return KnowledgeRecommendConverter.graphVOToRsp(graphOpt.get(),2);
+        return KnowledgeRecommendConverter.graphVOToRsp(graphOpt.get(), 2);
 
     }
 
-    private CommonFilter knowledgeRecommendCommonFilterReq2CommonFilter(KnowledgeRecommendCommonFilterReq filter,CommonFilter commonFilter) {
-        BeanUtils.copyProperties(filter,commonFilter);
+    private CommonFilter knowledgeRecommendCommonFilterReq2CommonFilter(KnowledgeRecommendCommonFilterReq filter, CommonFilter commonFilter) {
+        BeanUtils.copyProperties(filter, commonFilter);
         commonFilter.setQueryPrivate(false);
         return commonFilter;
 
