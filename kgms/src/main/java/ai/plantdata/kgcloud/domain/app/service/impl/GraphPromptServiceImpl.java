@@ -18,7 +18,6 @@ import ai.plantdata.kgcloud.constant.KgmsErrorCodeEnum;
 import ai.plantdata.kgcloud.constant.PromptQaTypeEnum;
 import ai.plantdata.kgcloud.domain.app.converter.BasicConverter;
 import ai.plantdata.kgcloud.domain.app.converter.ConditionConverter;
-import ai.plantdata.kgcloud.domain.app.converter.EntityConverter;
 import ai.plantdata.kgcloud.domain.app.converter.PromptConverter;
 import ai.plantdata.kgcloud.domain.app.converter.RelationConverter;
 import ai.plantdata.kgcloud.domain.app.service.GraphHelperService;
@@ -40,7 +39,6 @@ import ai.plantdata.kgcloud.sdk.rsp.app.main.SeniorPromptRsp;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +52,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -115,18 +112,8 @@ public class GraphPromptServiceImpl implements GraphPromptService {
 
     @Override
     public List<SeniorPromptRsp> seniorPrompt(String kgName, SeniorPromptReq seniorPromptReq) {
-      /*  if (seniorPromptReq.getOpenExportDate() && !StringUtils.isEmpty(seniorPromptReq.getKw())) {
-            List<PromptEntityRsp> entityRspList = queryFromEs(kgName, seniorPromptReq);
-            if (!CollectionUtils.isEmpty(entityRspList)) {
-                return BasicConverter.listConvert(entityRspList, PromptConverter::seniorPromptRspToPromptEntityRsp);
-            }
-        }*/
-        Set<Long> entityIds = queryEntityIdsByAttr(kgName, seniorPromptReq);
-        Optional<List<EntityVO>> entityOpt = RestRespConverter.convert(entityApi.serviceEntity(KGUtil.dbName(kgName), EntityConverter.buildIdsQuery(entityIds, true)));
-        if (!entityOpt.isPresent() || CollectionUtils.isEmpty(entityOpt.get())) {
-            return Collections.emptyList();
-        }
-        List<SeniorPromptRsp> result = BasicConverter.listConvert(entityOpt.get(), PromptConverter::entityVoToSeniorPromptRsp);
+        List<EntityVO> entityList = queryEntityIdsByAttr(kgName, seniorPromptReq);
+        List<SeniorPromptRsp> result = BasicConverter.listConvert(entityList, PromptConverter::entityVoToSeniorPromptRsp);
         List<SeniorPromptRsp> resultWithoutConcept = new ArrayList<>();
         for (SeniorPromptRsp rsp : result) {
             if (rsp.getConceptId() != null && rsp.getConceptId() != 0) {
@@ -238,21 +225,18 @@ public class GraphPromptServiceImpl implements GraphPromptService {
         return allSource.stream().anyMatch(target::contains);
     }
 
-    private Set<Long> queryEntityIdsByAttr(String kgName, SeniorPromptReq seniorPromptReq) {
+    private List<EntityVO> queryEntityIdsByAttr(String kgName, SeniorPromptReq seniorPromptReq) {
         List<Map<String, Object>> queryMapList = ConditionConverter.entityScreeningListToMap(seniorPromptReq.getQuery());
         SearchByAttributeFrom attributeFrom = PromptConverter.seniorPromptReqToSearchByAttributeFrom(seniorPromptReq, queryMapList);
         List<EntityVO> queryList;
         if (queryMapList.size() < AppConstants.NER_ENTITY_NUMBER) {
             attributeFrom.setSkip(seniorPromptReq.getOffset());
             attributeFrom.setLimit(seniorPromptReq.getLimit());
-            queryList = RestRespConverter.convert(entityApi.searchByAttribute(KGUtil.dbName(kgName), attributeFrom)).orElse(Collections.emptyList());
-        } else {
-            attributeFrom.setSkip(NumberUtils.INTEGER_ZERO);
-            attributeFrom.setLimit(Integer.MAX_VALUE);
-            queryList = queryMapList.stream().flatMap(s -> RestRespConverter.convert(entityApi.searchByAttribute(KGUtil.dbName(kgName), attributeFrom)).orElse(Collections.emptyList()).stream()).collect(Collectors.toList());
-            queryList = PageUtils.subList(seniorPromptReq.getPage(), seniorPromptReq.getSize(), queryList);
+            return RestRespConverter.convert(entityApi.searchByAttribute(KGUtil.dbName(kgName), attributeFrom)).orElse(Collections.emptyList());
         }
-
-        return Sets.newHashSet(BasicConverter.listToRsp(queryList, EntityVO::getId));
+        attributeFrom.setSkip(NumberUtils.INTEGER_ZERO);
+        attributeFrom.setLimit(Integer.MAX_VALUE);
+        queryList = queryMapList.stream().flatMap(s -> RestRespConverter.convert(entityApi.searchByAttribute(KGUtil.dbName(kgName), attributeFrom)).orElse(Collections.emptyList()).stream()).collect(Collectors.toList());
+        return PageUtils.subList(seniorPromptReq.getPage(), seniorPromptReq.getSize(), queryList);
     }
 }

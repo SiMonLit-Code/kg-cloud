@@ -107,7 +107,7 @@ public class GraphApplicationController implements GraphAppInterface {
     @ApiOperation("读取实体多模态文件")
     @PostMapping("infoBox/multi/modal/{kgName}")
     public ApiReturn<InfoboxMultiModelRsp> infoBoxMultiModal(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                             @RequestBody @Valid InfoboxMultiModalReq infoboxMultiModalReq) throws IOException {
+                                                             @RequestBody @Valid InfoboxMultiModalReq infoboxMultiModalReq) {
         return ApiReturn.success(graphApplicationService.infoBoxMultiModal(kgName, SessionHolder.getUserId(), infoboxMultiModalReq));
     }
 
