@@ -65,7 +65,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -250,16 +249,10 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         //实体
         BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxReqToBasicDetailFilter(req);
         detailFilter.setEntity(true);
-        BasicDetailFilter conceptFilter = new BasicDetailFilter();
-        BeanUtils.copyProperties(detailFilter, conceptFilter);
-        conceptFilter.setEntity(false);
-
-        Function<BasicDetailFilter, Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>>> listByIds = a ->
-                RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), a));
-        long start0 = System.currentTimeMillis();
-        Supplier<Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>>> entitySu = AsyncUtils.async(listByIds, detailFilter);
-        Supplier<Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>>> conceptSu = AsyncUtils.async(listByIds, conceptFilter);
-        entitySu.get().ifPresent(entityList ->
+        Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> entityOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
+        detailFilter.setEntity(false);
+        Optional<List<ai.plantdata.kg.api.edit.resp.EntityVO>> conceptOpt = RestRespConverter.convert(conceptEntityApi.listByIds(KGUtil.dbName(kgName), detailFilter));
+        entityOpt.ifPresent(entityList ->
         {
             List<Long> entityIds = entityList.stream().map(ai.plantdata.kg.api.edit.resp.EntityVO::getId).collect(Collectors.toList());
 
@@ -267,10 +260,10 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                 BasicConverter.consumerIfNoNull(entity.getAttrValue(),
                         a -> a.removeIf(b -> !allowAttrIds.contains(b.getId())));
             }));
-            long start2 = System.currentTimeMillis();
+
             Supplier<Map<Long, List<MultiModalRsp>>> mapSup = AsyncUtils.async(() -> basicInfoService.listMultiModels(kgName, entityIds));
             Supplier<Map<Long, List<KnowledgeIndexRsp>>> indexMapSu = AsyncUtils.async(() -> basicInfoService.listKnowledgeIndexs(kgName, entityIds));
-            System.out.println("多模态" + (System.currentTimeMillis() - start2));
+
             Map<Long, List<MultiModalRsp>> map = mapSup.get();
             Map<Long, List<KnowledgeIndexRsp>> indexMap = indexMapSu.get();
             Map<Long, List<RelationVO>> positiveMap = Maps.newHashMap();
@@ -282,9 +275,8 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
                             positiveMap.get(a.getId()), reverseMap.get(a.getId()))), infoBoxRspList::addAll);
 
         });
-        conceptSu.get().ifPresent(conceptList ->
+        conceptOpt.ifPresent(conceptList ->
                 BasicConverter.consumerIfNoNull(BasicConverter.listToRsp(conceptList, InfoBoxConverter::conceptToInfoBoxRsp), infoBoxRspList::addAll));
-        System.out.println("全部" + (System.currentTimeMillis() - start0));
         return infoBoxRspList;
     }
 

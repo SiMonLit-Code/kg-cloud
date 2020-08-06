@@ -46,10 +46,11 @@ public class GraphApplicationController implements GraphApplicationInterface {
                                                                   @RequestBody @Valid KnowledgeRecommendReqList recommendParam) {
         return appClient.knowledgeRecommend(kgName, recommendParam);
     }
+
     @ApiOperation(value = "多层知识推荐", notes = "知识推荐（两层）")
     @PostMapping("layer/knowledgeRecommend/{kgName}")
-    public  ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@PathVariable("kgName") String kgName,
-                                                                @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam){
+    public ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@PathVariable("kgName") String kgName,
+                                                                       @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam) {
         return appClient.layerKnowledgeRecommend(kgName, recommendParam);
     }
 
@@ -96,7 +97,7 @@ public class GraphApplicationController implements GraphApplicationInterface {
     @ApiOperation(value = "批量读取知识卡片多模态文件", notes = "批量获取实体知识卡片关联的多模态文件。")
     @PostMapping("infoBox/list/multi/modal/{kgName}")
     public ApiReturn<List<InfoboxMultiModelRsp>> listInfoBoxMultiModal(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                       @RequestBody @Valid BatchMultiModalReqList batchMultiModalReq)  {
+                                                                       @RequestBody @Valid BatchMultiModalReqList batchMultiModalReq) {
         return appClient.listInfoBoxMultiModal(kgName, batchMultiModalReq);
     }
 

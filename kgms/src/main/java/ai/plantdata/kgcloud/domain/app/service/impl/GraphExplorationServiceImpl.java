@@ -106,10 +106,10 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     }
 
     private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, GraphReqAfterInterface graphReqAfter) {
-        Supplier<Optional<GraphVO>> graphSup = AsyncUtils.async(() -> RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom)));
-        Supplier<Map<Long, BasicInfo>> conceptIdMapSub = AsyncUtils.async(() -> graphHelperService.getConceptIdMap(kgName));
-        return graphSup.get()
-                .map(graphVO -> GraphRspConverter.fillEntityAndEntity(conceptIdMapSub.get(), new GraphRspDTO(graphVO, graphReqAfter)))
+        Optional<GraphVO> optional = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
+        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
+        return optional
+                .map(graphVO -> GraphRspConverter.fillEntityAndEntity(conceptIdMap, new GraphRspDTO(graphVO, graphReqAfter)))
                 .orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
