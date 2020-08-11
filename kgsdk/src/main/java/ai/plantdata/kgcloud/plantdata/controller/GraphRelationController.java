@@ -1,12 +1,15 @@
 package ai.plantdata.kgcloud.plantdata.controller;
 
 import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.kgcloud.plantdata.converter.common.ApiReturnConverter;
 import ai.plantdata.kgcloud.plantdata.converter.graph.ExploreReqConverter;
 import ai.plantdata.kgcloud.plantdata.converter.graph.ExploreRspConverter;
 import ai.plantdata.kgcloud.plantdata.req.explore.common.GraphBean;
 import ai.plantdata.kgcloud.plantdata.req.explore.relation.RelationGraphParameter;
 import ai.plantdata.kgcloud.plantdata.req.explore.relation.RuleRelationGraphParameter;
 import ai.plantdata.kgcloud.plantdata.req.explore.relation.TimeRelationGraphParameter;
+import ai.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
+import ai.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import ai.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import ai.plantdata.kgcloud.plantdata.converter.common.ConverterTemplate;
@@ -64,11 +67,11 @@ public class GraphRelationController implements SdkOldApiInterface {
 
     })
     public RestResp<GraphBean> relation(@Valid @ApiIgnore RelationGraphParameter generalGraphParameter) {
-        GraphBean graphBean = ConverterTemplate.factory(
-                ExploreReqConverter::generalGraphParameterToRelationReqAnalysisReq,
-                a -> appClient.relationAnalysis(generalGraphParameter.getKgName(), a),
-                ExploreRspConverter::statisticRspToGraphBean)
-                .execute(generalGraphParameter);
+        Function<RelationReqAnalysisReqList, ApiReturn<RelationAnalysisRsp>> returnFunction = a -> appClient.relationAnalysis(generalGraphParameter.getKgName(), a);
+        GraphBean graphBean = returnFunction.compose(
+                ExploreReqConverter::generalGraphParameterToRelationReqAnalysisReq)
+                .andThen(a -> BasicConverter.convert(a, ExploreRspConverter::statisticRspToGraphBean))
+                .apply(generalGraphParameter);
         return new RestResp<>(graphBean);
     }
 
