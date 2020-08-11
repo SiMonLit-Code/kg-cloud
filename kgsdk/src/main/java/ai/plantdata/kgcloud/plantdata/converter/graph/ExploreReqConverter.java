@@ -117,9 +117,11 @@ public class ExploreReqConverter extends BasicConverter {
      * @return RelationReqAnalysisReq
      */
     public static RelationReqAnalysisReqList generalGraphParameterToRelationReqAnalysisReq(RelationGraphParameter param) {
+        long start=System.currentTimeMillis();
         RelationReqAnalysisReqList pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationReqAnalysisReqList());
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
         consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(toListNoNull(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
+        System.out.println("start"+(System.currentTimeMillis()-start));
         return pathAnalysisReq;
     }
 
@@ -144,13 +146,11 @@ public class ExploreReqConverter extends BasicConverter {
      * @return RelationReasoningAnalysisReq
      */
     public static RelationReasoningAnalysisReqList ruleRelationGraphParameterToRelationReasoningAnalysisReq(RuleRelationGraphParameter param) {
-        long start = System.currentTimeMillis();
         RelationReasoningAnalysisReqList pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationReasoningAnalysisReqList());
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
         consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(toListNoNull(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
         consumerIfNoNull(param.getReasoningRuleConfigs(), a -> pathAnalysisReq.setReasoningRuleConfigs(ExploreCommonConverter.buildReasonConfig(a)));
         consumerIfNoNull(param, a -> pathAnalysisReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(a)));
-        System.out.println("start"+(System.currentTimeMillis()-start));
         return pathAnalysisReq;
     }
 
