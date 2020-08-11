@@ -22,7 +22,7 @@ public class ExploreRspConverter extends BasicConverter {
         long rsp = System.currentTimeMillis();
         GraphBean graphBean = ExploreCommonConverter.basicGraphExploreRspToGraphBean(analysisRsp);
         ExploreCommonConverter.fillStatisticConfig(graphBean, analysisRsp.getStatisticResult());
-        System.out.println("rsp"+(System.currentTimeMillis()-rsp));
+        log.error("rsp"+(System.currentTimeMillis()-rsp));
         return graphBean;
     }
 }

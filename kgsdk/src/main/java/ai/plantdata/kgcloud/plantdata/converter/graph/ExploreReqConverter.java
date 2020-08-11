@@ -117,11 +117,11 @@ public class ExploreReqConverter extends BasicConverter {
      * @return RelationReqAnalysisReq
      */
     public static RelationReqAnalysisReqList generalGraphParameterToRelationReqAnalysisReq(RelationGraphParameter param) {
-        long start=System.currentTimeMillis();
+        long start = System.currentTimeMillis();
         RelationReqAnalysisReqList pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationReqAnalysisReqList());
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
         consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(toListNoNull(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
-        System.out.println("start"+(System.currentTimeMillis()-start));
+        log.error("start" + (System.currentTimeMillis() - start));
         return pathAnalysisReq;
     }
 
