@@ -2,6 +2,7 @@ package ai.plantdata.kgcloud.plantdata.req.app;
 
 import ai.plantdata.kgcloud.plantdata.req.common.PageModel;
 import ai.plantdata.kgcloud.plantdata.req.explore.common.EntityScreeningBean;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -24,5 +25,6 @@ public class SeniorPromptParameter extends PageModel {
     private Boolean openExportDate = true;
 
     private List<EntityScreeningBean> query;
-
+    @ApiModelProperty("消歧标识")
+    private String meaningTag;
 }

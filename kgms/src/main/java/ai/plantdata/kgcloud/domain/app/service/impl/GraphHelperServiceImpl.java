@@ -48,6 +48,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -83,10 +84,12 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     @Override
     public <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, T pathAnalysisRsp, GraphRspDTO graphAfter) {
         //统计
-        List<GraphStatisticRsp> statisticRspList = CollectionUtils.isEmpty(configList) ? Collections.emptyList() : GraphRspConverter.buildStatisticResult(graphAfter.getGraphVo(), configList);
+        Supplier<Map<Long, BasicInfo>> conceptIdMapSup = () -> graphHelperService.getConceptIdMap(kgName);
+        List<GraphStatisticRsp> statisticRspList = CollectionUtils.isEmpty(configList)
+                ? Collections.emptyList()
+                : GraphRspConverter.buildStatisticResult(graphAfter.getGraphVo(), configList);
         //组装结果
-        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
-        return GraphRspConverter.graphVoToStatisticRsp(statisticRspList, conceptIdMap, pathAnalysisRsp, graphAfter);
+        return GraphRspConverter.graphVoToStatisticRsp(statisticRspList, conceptIdMapSup.get(), pathAnalysisRsp, graphAfter);
     }
 
     @Override
@@ -118,7 +121,7 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     /**
      * 后置筛选
      *
-     * @return
+     * @return .
      */
     @Override
     public <T extends BasicGraphExploreRsp> Optional<T> graphSearchBefore(String kgName, SecondaryScreeningInterface req, T rsp) {

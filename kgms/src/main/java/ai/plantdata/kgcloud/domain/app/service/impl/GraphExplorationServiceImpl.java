@@ -1,6 +1,5 @@
 package ai.plantdata.kgcloud.domain.app.service.impl;
 
-import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.kg.api.pub.GisApi;
 import ai.plantdata.kg.api.pub.GraphApi;
 import ai.plantdata.kg.api.pub.req.GisLocusParam;
@@ -11,6 +10,7 @@ import ai.plantdata.kg.common.bean.BasicInfo;
 import ai.plantdata.kgcloud.domain.app.converter.GisConverter;
 import ai.plantdata.kgcloud.domain.app.converter.graph.GraphReqConverter;
 import ai.plantdata.kgcloud.domain.app.converter.graph.GraphRspConverter;
+import ai.plantdata.kgcloud.domain.app.util.AsyncUtils;
 import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
 import ai.plantdata.kgcloud.domain.app.dto.GraphReasoningDTO;
 import ai.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author cjw
@@ -63,7 +64,7 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
 
     @Override
     public GisGraphExploreRsp gisGraphExploration(String kgName, GisGraphExploreReq exploreParam) {
-        graphHelperService.replaceByConceptKey(kgName,exploreParam);
+        graphHelperService.replaceByConceptKey(kgName, exploreParam);
         Optional<List<BasicInfo>> basicInfoOpt = RestRespConverter.convert(gisApi.GisGeneralGraph(KGUtil.dbName(kgName), GisConverter.reqToGisFrom(exploreParam)));
         Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
         return basicInfoOpt.map(a -> GisConverter.voToGisAnalysisRsp(a, conceptIdMap)).orElseGet(GisGraphExploreRsp::new);
@@ -105,9 +106,11 @@ public class GraphExplorationServiceImpl implements GraphExplorationService {
     }
 
     private CommonBasicGraphExploreRsp queryAndRebuildRsp(String kgName, GraphFrom graphFrom, GraphReqAfterInterface graphReqAfter) {
-        System.out.println(JacksonUtils.writeValueAsString(graphFrom));
-        Optional<GraphVO> graphOpt = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
-        return graphOpt.map(graphVO -> this.buildExploreRspWithConcept(kgName, new GraphRspDTO(graphOpt.get(), graphReqAfter))).orElse(CommonBasicGraphExploreRsp.EMPTY);
+        Optional<GraphVO> optional = RestRespConverter.convert(graphApi.graph(KGUtil.dbName(kgName), graphFrom));
+        Map<Long, BasicInfo> conceptIdMap = graphHelperService.getConceptIdMap(kgName);
+        return optional
+                .map(graphVO -> GraphRspConverter.fillEntityAndEntity(conceptIdMap, new GraphRspDTO(graphVO, graphReqAfter)))
+                .orElse(CommonBasicGraphExploreRsp.EMPTY);
     }
 
     private CommonBasicGraphExploreRsp buildExploreRspWithConcept(String kgName, GraphRspDTO afterDTO) {

@@ -1,6 +1,5 @@
 package ai.plantdata.kgcloud.domain.edit.service.impl;
 
-import ai.plantdata.cloud.exception.BizException;
 import ai.plantdata.cloud.util.JacksonUtils;
 import ai.plantdata.cloud.web.util.ConvertUtils;
 import ai.plantdata.kg.api.edit.AttributeApi;
@@ -36,7 +35,14 @@ import ai.plantdata.kgcloud.domain.app.service.GraphHelperService;
 import ai.plantdata.kgcloud.domain.common.converter.RestCopyConverter;
 import ai.plantdata.kgcloud.domain.common.util.KGUtil;
 import ai.plantdata.kgcloud.domain.edit.converter.RestRespConverter;
-import ai.plantdata.kgcloud.domain.edit.req.attr.*;
+import ai.plantdata.kgcloud.domain.edit.req.attr.AttrConstraintsReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.AttrDefinitionAdditionalReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.AttrTemplateReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.EdgeAttrDefinitionReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.RelationAdditionalReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.RelationMetaReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.RelationSearchMetaReq;
+import ai.plantdata.kgcloud.domain.edit.req.attr.RelationSearchReq;
 import ai.plantdata.kgcloud.domain.edit.req.entity.TripleReq;
 import ai.plantdata.kgcloud.domain.edit.rsp.AttrConstraintsRsp;
 import ai.plantdata.kgcloud.domain.edit.rsp.RelationRsp;
@@ -51,7 +57,11 @@ import ai.plantdata.kgcloud.domain.edit.vo.IdNameVO;
 import ai.plantdata.kgcloud.sdk.UserClient;
 import ai.plantdata.kgcloud.sdk.req.AttrDefinitionSearchReq;
 import ai.plantdata.kgcloud.sdk.req.EdgeSearchReqList;
-import ai.plantdata.kgcloud.sdk.req.edit.*;
+import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionBatchRsp;
+import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionModifyReq;
+import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionReq;
+import ai.plantdata.kgcloud.sdk.req.edit.AttrDefinitionVO;
+import ai.plantdata.kgcloud.sdk.req.edit.BasicInfoReq;
 import ai.plantdata.kgcloud.sdk.rsp.OpenBatchResult;
 import ai.plantdata.kgcloud.sdk.rsp.UserDetailRsp;
 import ai.plantdata.kgcloud.sdk.rsp.edit.AttrDefinitionConceptsReq;
@@ -116,10 +126,11 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Override
     public AttrDefinitionVO getAttrDetails(String kgName, Integer id) {
-        Optional<AttributeDefinition> optional = RestRespConverter.convert(attributeApi.get(KGUtil.dbName(kgName), id));
+        String dbName = KGUtil.dbName(kgName);
+        RestResp<AttributeDefinition> restResp = attributeApi.get(dbName, id);
 
-        AttributeDefinition attributeDefinition =
-                optional.orElseThrow(() -> BizException.of(KgmsErrorCodeEnum.ATTRIBUTE_DEFINITION_NOT_EXISTS));
+        AttributeDefinition attributeDefinition = RestRespConverter.convert(restResp)
+                .orElseThrow(KgmsErrorCodeEnum.ATTRIBUTE_DEFINITION_NOT_EXISTS.error());
         return MapperUtils.map(attributeDefinition, AttrDefinitionVO.class);
     }
 
@@ -129,27 +140,32 @@ public class AttributeServiceImpl implements AttributeService {
         List<Long> ids = attrDefinitionSearchReq.getIds();
         Long conceptId = attrDefinitionSearchReq.getConceptId();
         String dbName = KGUtil.dbName(kgName);
-        if (0L == conceptId) {
-            Optional<List<AttrDefVO>> optional = RestRespConverter.convert(attributeApi.getAll(dbName));
-            return optional.orElse(new ArrayList<>()).stream()
+        if (conceptId == null || 0L == conceptId) {
+            RestResp<List<AttrDefVO>> restResp = attributeApi.getAll(dbName);
+            return RestRespConverter
+                    .convert(restResp)
+                    .orElse(new ArrayList<>()).stream()
                     .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                     .collect(Collectors.toList());
         }
         ids.add(conceptId);
         AttrQueryFrom attrQueryFrom = ConvertUtils.convert(AttrQueryFrom.class).apply(attrDefinitionSearchReq);
         attrQueryFrom.setIds(ids);
-        Optional<List<AttrDefVO>> optional = RestRespConverter
-                .convert(attributeApi.getByConceptIds(dbName, attrQueryFrom));
-        return optional.orElse(new ArrayList<>()).stream()
+        RestResp<List<AttrDefVO>> restResp = attributeApi.getByConceptIds(dbName, attrQueryFrom);
+        return RestRespConverter
+                .convert(restResp)
+                .orElse(new ArrayList<>()).stream()
                 .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<AttrDefinitionRsp> getAttrDefinitionByEntityId(String kgName, Long entityId) {
-        Optional<List<AttrDefVO>> optional =
-                RestRespConverter.convert(attributeApi.getByEntityId(KGUtil.dbName(kgName), entityId));
-        return optional.orElse(new ArrayList<>()).stream()
+        String dbName = KGUtil.dbName(kgName);
+        RestResp<List<AttrDefVO>> restResp = attributeApi.getByEntityId(dbName, entityId);
+        return RestRespConverter
+                .convert(restResp)
+                .orElse(new ArrayList<>()).stream()
                 .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
     }
@@ -158,10 +174,9 @@ public class AttributeServiceImpl implements AttributeService {
     public List<AttrDefinitionRsp> getAttrDefinitionByConceptIds(String kgName,
                                                                  AttrDefinitionConceptsReq attrDefinitionConceptsReq) {
         AttrQueryFrom attrQueryFrom = ConvertUtils.convert(AttrQueryFrom.class).apply(attrDefinitionConceptsReq);
-        Optional<List<AttrDefVO>> optional =
-                RestRespConverter.convert(attributeApi.getByConceptIds(KGUtil.dbName(kgName),
-                        attrQueryFrom));
-        return optional.orElse(new ArrayList<>()).stream()
+        String dbName = KGUtil.dbName(kgName);
+        RestResp<List<AttrDefVO>> restResp = attributeApi.getByConceptIds(dbName, attrQueryFrom);
+        return RestRespConverter.convert(restResp).orElse(new ArrayList<>()).stream()
                 .map(vo -> MapperUtils.map(vo, AttrDefinitionRsp.class))
                 .collect(Collectors.toList());
     }
@@ -171,42 +186,38 @@ public class AttributeServiceImpl implements AttributeService {
         AttributeDefinitionFrom attributeDefinitionFrom =
                 AttrConverterUtils.attrDefinitionReqConvert(attrDefinitionReq);
         attributeDefinitionFrom.setAdditionalInfo(JacksonUtils.writeValueAsString(attrDefinitionReq.getAdditionalInfo()));
-        Optional<Integer> optional = RestRespConverter.convert(attributeApi.add(KGUtil.dbName(kgName),
-                attributeDefinitionFrom));
-        return optional.get();
+        String dbName = KGUtil.dbName(kgName);
+        RestResp<Integer> restResp = attributeApi.add(dbName,
+                attributeDefinitionFrom);
+        return RestRespConverter.convert(restResp).orElse(null);
     }
 
     @Override
     public OpenBatchResult<AttrDefinitionBatchRsp> batchAddAttrDefinition(String kgName,
                                                                           List<AttrDefinitionReq> attrDefinitionReqs) {
-        List<AttributeDefinitionVO> voList =
-                attrDefinitionReqs.stream().map(
-                        AttrConverterUtils::attrDefinitionReqConvert
-                ).collect(Collectors.toList());
-        Optional<BatchResult<AttributeDefinitionVO>> optional =
-                RestRespConverter.convert(batchApi.addAttributes(KGUtil.dbName(kgName), voList));
-        if (optional.isPresent()) {
-            List<AttrDefinitionBatchRsp> success = MapperUtils.map(optional.get().getSuccess(),
-                    AttrDefinitionBatchRsp.class);
-            List<AttrDefinitionBatchRsp> error = MapperUtils.map(optional.get().getError(),
-                    AttrDefinitionBatchRsp.class);
-            return new OpenBatchResult<>(success, error);
-        } else {
-            return OpenBatchResult.empty();
-        }
+        List<AttributeDefinitionVO> voList = attrDefinitionReqs.stream()
+                .map(AttrConverterUtils::attrDefinitionReqConvert)
+                .collect(Collectors.toList());
+        String dbName = KGUtil.dbName(kgName);
+        RestResp<BatchResult<AttributeDefinitionVO>> restResp = batchApi.addAttributes(dbName, voList);
+        return RestRespConverter.convert(restResp)
+                .map((a) -> {
+                    List<AttrDefinitionBatchRsp> success = MapperUtils.map(a.getSuccess(), AttrDefinitionBatchRsp.class);
+                    List<AttrDefinitionBatchRsp> error = MapperUtils.map(a.getError(), AttrDefinitionBatchRsp.class);
+                    return new OpenBatchResult<>(success, error);
+                })
+                .orElse(OpenBatchResult.empty());
     }
 
     @Override
     public OpenBatchResult<AttrDefinitionBatchRsp> batchUpdate(String kgName,
                                                                List<AttrDefinitionModifyReq> attrDefinitionReqs) {
-        List<AttributeDefinitionVO> voList =
-                attrDefinitionReqs.stream().map(
-                        AttrConverterUtils::attrDefinitionReqConvert
-                ).collect(Collectors.toList());
-        Optional<BatchResult<AttributeDefinitionVO>> opt =
-                RestRespConverter.convert(batchApi.updateAttributes(KGUtil.dbName(kgName), voList));
-        return opt.map(attributeDefinitionVOBatchResult ->
-                RestCopyConverter.copyToBatchResult(attributeDefinitionVOBatchResult, AttrDefinitionBatchRsp.class))
+        List<AttributeDefinitionVO> voList = attrDefinitionReqs.stream()
+                .map(AttrConverterUtils::attrDefinitionReqConvert)
+                .collect(Collectors.toList());
+        RestResp<BatchResult<AttributeDefinitionVO>> restResp = batchApi.updateAttributes(KGUtil.dbName(kgName), voList);
+        return RestRespConverter.convert(restResp)
+                .map(result -> RestCopyConverter.copyToBatchResult(result, AttrDefinitionBatchRsp.class))
                 .orElseGet(OpenBatchResult::new);
     }
 
@@ -214,22 +225,24 @@ public class AttributeServiceImpl implements AttributeService {
     public void updateAttrDefinition(String kgName, AttrDefinitionModifyReq modifyReq) {
         AttributeDefinitionFrom attributeDefinitionFrom =
                 AttrConverterUtils.attrDefinitionReqConvert(modifyReq);
-
-
-        RestRespConverter.convertVoid(attributeApi.update(KGUtil.dbName(kgName), attributeDefinitionFrom));
+        String dbName = KGUtil.dbName(kgName);
+        RestResp restResp = attributeApi.update(dbName, attributeDefinitionFrom);
+        RestRespConverter.convertVoid(restResp);
     }
 
     @Override
     public void deleteAttrDefinition(String kgName, Integer id) {
-        RestRespConverter.convertVoid(attributeApi.delete(KGUtil.dbName(kgName), id));
+        String dbName = KGUtil.dbName(kgName);
+        RestResp restResp = attributeApi.delete(dbName, id);
+        RestRespConverter.convertVoid(restResp);
     }
 
     @Override
     public Integer addEdgeAttr(String kgName, Integer attrId, EdgeAttrDefinitionReq edgeAttrDefinitionReq) {
         EdgeFrom edgeFrom = ConvertUtils.convert(EdgeFrom.class).apply(edgeAttrDefinitionReq);
-        Optional<Integer> optional = RestRespConverter.convert(attributeApi.addEdgeAttr(KGUtil.dbName(kgName), attrId
-                , edgeFrom));
-        return optional.get();
+        String dbName = KGUtil.dbName(kgName);
+        RestResp<Integer> restResp = attributeApi.addEdgeAttr(dbName, attrId, edgeFrom);
+        return RestRespConverter.convert(restResp).orElse(null);
     }
 
     @Override
@@ -327,12 +340,12 @@ public class AttributeServiceImpl implements AttributeService {
             count += page;
         }
 
-        Map<String,String> usernameMap = new HashMap<>();
+        Map<String, String> usernameMap = new HashMap<>();
         relationRsps.forEach(relationRsp -> {
-            if(relationRsp.getSourceUser() != null && !relationRsp.getSourceUser().isEmpty()){
-                if(!usernameMap.containsKey(relationRsp.getSourceUser())){
+            if (relationRsp.getSourceUser() != null && !relationRsp.getSourceUser().isEmpty()) {
+                if (!usernameMap.containsKey(relationRsp.getSourceUser())) {
                     UserDetailRsp userDetailRsp = userClient.getCurrentUserIdDetail(relationRsp.getSourceUser()).getData();
-                    usernameMap.put(userDetailRsp.getId(),userDetailRsp.getRealname());
+                    usernameMap.put(userDetailRsp.getId(), userDetailRsp.getRealname());
                 }
                 relationRsp.setSourceUser(usernameMap.get(relationRsp.getSourceUser()));
             }

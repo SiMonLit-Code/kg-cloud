@@ -114,6 +114,7 @@ public class PromptConverter extends BasicConverter {
         promptReq.setFuzzy(param.getIsFuzzy() == null ? false : param.getIsFuzzy());
         consumerIfNoNull(param.getQuery(), a -> promptReq.setQuery(toListNoNull(a, MongoQueryConverter::entityScreeningBeanToEntityQueryFiltersReq)));
         promptReq.setSize(param.getPageSize());
+        promptReq.setMeaningTag(param.getMeaningTag());
         return promptReq;
     }
 

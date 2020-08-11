@@ -53,8 +53,7 @@ public class AttrConverterUtils {
     }
 
     public static AttributeDefinitionVO attrDefinitionReqConvert(AttrDefinitionModifyReq modifyReq) {
-        AttributeDefinitionVO vo =
-                ConvertUtils.convert(AttributeDefinitionVO.class).apply(modifyReq);
+        AttributeDefinitionVO vo = ConvertUtils.convert(AttributeDefinitionVO.class).apply(modifyReq);
         vo.setAdditionalInfo(JacksonUtils.writeValueAsString(modifyReq.getAdditionalInfo()));
         vo.setConstraints(JacksonUtils.writeValueAsString(modifyReq.getConstraints()));
         return vo;

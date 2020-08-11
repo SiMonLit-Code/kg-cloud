@@ -61,7 +61,7 @@ public class GraphApplicationController implements GraphAppInterface {
     @ApiOperation("多层知识推荐,暂支持两层")
     @PostMapping("layer/knowledgeRecommend/{kgName}")
     public ApiReturn<List<ObjectAttributeRsp>> layerKnowledgeRecommend(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                                  @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam) {
+                                                                       @RequestBody @Valid LayerKnowledgeRecommendReqList recommendParam) {
         return ApiReturn.success(graphApplicationService.layerKnowledgeRecommend(kgName, recommendParam));
     }
 
@@ -107,7 +107,7 @@ public class GraphApplicationController implements GraphAppInterface {
     @ApiOperation("读取实体多模态文件")
     @PostMapping("infoBox/multi/modal/{kgName}")
     public ApiReturn<InfoboxMultiModelRsp> infoBoxMultiModal(@ApiParam(value = "图谱名称", required = true) @PathVariable("kgName") String kgName,
-                                                             @RequestBody @Valid InfoboxMultiModalReq infoboxMultiModalReq) throws IOException {
+                                                             @RequestBody @Valid InfoboxMultiModalReq infoboxMultiModalReq) {
         return ApiReturn.success(graphApplicationService.infoBoxMultiModal(kgName, SessionHolder.getUserId(), infoboxMultiModalReq));
     }
 

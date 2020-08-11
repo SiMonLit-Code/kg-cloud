@@ -35,7 +35,8 @@ public class SeniorPromptReq extends BaseReq implements PromptSearchInterface {
      */
     @ApiModelProperty("？")
     private Boolean openExportDate = true;
-
+    @ApiModelProperty("消歧标识")
+    private String meaningTag;
     @ApiModelProperty(hidden = true)
     @Override
     public List<Long> getConceptIds() {

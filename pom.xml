@@ -23,13 +23,13 @@
     </modules>
 
     <properties>
-        <revision>3.4.6</revision>
+        <revision>3.4.8</revision>
         <changelist/>
         <sha1/>
         <kg-cloud-kgms.version>${revision}${sha1}${changelist}</kg-cloud-kgms.version>
 
         <kg-cloud-public.version>3.4.4</kg-cloud-public.version>
-        <kg-services-sdk.version>3.4.5</kg-services-sdk.version>
+        <kg-services-sdk.version>3.4.6</kg-services-sdk.version>
     </properties>
     <dependencyManagement>
         <dependencies>
