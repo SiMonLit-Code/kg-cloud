@@ -23,7 +23,7 @@
     </modules>
 
     <properties>
-        <revision>3.4.8</revision>
+        <revision>3.4.7</revision>
         <changelist/>
         <sha1/>
         <kg-cloud-kgms.version>${revision}${sha1}${changelist}</kg-cloud-kgms.version>
