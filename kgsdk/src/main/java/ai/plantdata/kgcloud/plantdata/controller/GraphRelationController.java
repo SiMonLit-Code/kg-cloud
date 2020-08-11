@@ -21,6 +21,7 @@ import ai.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +39,7 @@ import java.util.function.Function;
  */
 @RestController("graphRelationController-v2")
 @RequestMapping
+@Slf4j
 public class GraphRelationController implements SdkOldApiInterface {
 
     @Autowired
@@ -67,12 +69,17 @@ public class GraphRelationController implements SdkOldApiInterface {
 
     })
     public RestResp<GraphBean> relation(@Valid @ApiIgnore RelationGraphParameter generalGraphParameter) {
-        Function<RelationReqAnalysisReqList, ApiReturn<RelationAnalysisRsp>> returnFunction = a -> appClient.relationAnalysis(generalGraphParameter.getKgName(), a);
-        GraphBean graphBean = returnFunction.compose(
-                ExploreReqConverter::generalGraphParameterToRelationReqAnalysisReq)
-                .andThen(a -> BasicConverter.convert(a, ExploreRspConverter::statisticRspToGraphBean))
-                .apply(generalGraphParameter);
-        return new RestResp<>(graphBean);
+        long start = System.currentTimeMillis();
+        RelationReqAnalysisReqList req = ExploreReqConverter.generalGraphParameterToRelationReqAnalysisReq(generalGraphParameter);
+        log.error("generalGraphParameterToRelationReqAnalysisReq" + (System.currentTimeMillis() - start));
+        start = System.currentTimeMillis();
+        ApiReturn<RelationAnalysisRsp> rspApiReturn = appClient.relationAnalysis(generalGraphParameter.getKgName(), req);
+        log.error("relationAnalysis" + (System.currentTimeMillis() - start));
+        start = System.currentTimeMillis();
+        GraphBean convert = BasicConverter.convert(rspApiReturn, ExploreRspConverter::statisticRspToGraphBean);
+        log.error("statisticRspToGraphBean" + (System.currentTimeMillis() - start));
+        start = System.currentTimeMillis();
+        return new RestResp<>(convert);
     }
 
     @ApiOperation("时序关联分析")
