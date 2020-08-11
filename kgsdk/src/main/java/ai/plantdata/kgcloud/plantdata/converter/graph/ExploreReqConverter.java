@@ -144,11 +144,13 @@ public class ExploreReqConverter extends BasicConverter {
      * @return RelationReasoningAnalysisReq
      */
     public static RelationReasoningAnalysisReqList ruleRelationGraphParameterToRelationReasoningAnalysisReq(RuleRelationGraphParameter param) {
+        long start = System.currentTimeMillis();
         RelationReasoningAnalysisReqList pathAnalysisReq = ExploreCommonConverter.abstractGraphParameterToBasicGraphExploreReq(param, new RelationReasoningAnalysisReqList());
         pathAnalysisReq.setRelation(ExploreCommonConverter.buildRelationReq(param));
         consumerIfNoNull(param.getStatsConfig(), a -> pathAnalysisReq.setConfigList(toListNoNull(a, ExploreCommonConverter::graphStatBeanToBasicStatisticReq)));
         consumerIfNoNull(param.getReasoningRuleConfigs(), a -> pathAnalysisReq.setReasoningRuleConfigs(ExploreCommonConverter.buildReasonConfig(a)));
         consumerIfNoNull(param, a -> pathAnalysisReq.setTimeFilters(ExploreCommonConverter.buildTimeFilter(a)));
+        System.out.println("start"+(System.currentTimeMillis()-start));
         return pathAnalysisReq;
     }
 
@@ -216,10 +218,10 @@ public class ExploreReqConverter extends BasicConverter {
         link.setId(relationBean.getId());
         link.setFrom(relationBean.getFrom());
         link.setTo(relationBean.getTo());
-        consumerIfNoNull(relationBean.getAttId(),a->{
-            if(relationBean.getType()==1){
-              link.setReasonRuleId(a);
-            }else {
+        consumerIfNoNull(relationBean.getAttId(), a -> {
+            if (relationBean.getType() == 1) {
+                link.setReasonRuleId(a);
+            } else {
                 link.setAttId(a.intValue());
             }
         });

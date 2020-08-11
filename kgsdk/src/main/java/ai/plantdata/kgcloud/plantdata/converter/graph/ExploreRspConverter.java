@@ -19,8 +19,10 @@ public class ExploreRspConverter extends BasicConverter {
     }
 
     public static <T extends StatisticRsp> GraphBean statisticRspToGraphBean(T analysisRsp) {
+        long rsp = System.currentTimeMillis();
         GraphBean graphBean = ExploreCommonConverter.basicGraphExploreRspToGraphBean(analysisRsp);
         ExploreCommonConverter.fillStatisticConfig(graphBean, analysisRsp.getStatisticResult());
+        System.out.println("rsp"+(System.currentTimeMillis()-rsp));
         return graphBean;
     }
 }
