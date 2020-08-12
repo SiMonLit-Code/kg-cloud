@@ -60,7 +60,7 @@ public class GraphReqConverter extends BasicConverter {
         if (exploreReq instanceof GraphTimingReqInterface) {
             fillTimeFilters(((GraphTimingReqInterface) exploreReq).fetchTimeFilter(), graphFrom);
         }
-        log.info("graphFrom:{}", JsonUtils.objToJson(graphFrom));
+        log.debug("graphFrom:{}", JsonUtils.objToJson(graphFrom));
         return graphFrom;
     }
 

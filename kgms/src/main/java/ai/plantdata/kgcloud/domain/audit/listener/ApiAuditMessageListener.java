@@ -25,7 +25,7 @@ public class ApiAuditMessageListener {
     @KafkaListener(topics = "${topic.api.audit}")
     public void onKgLog(String message, Acknowledgment acknowledgment) {
         try {
-            log.info("[收到kafka<topic.api.audit>消息] - [{}]", message);
+            log.debug("[收到kafka<topic.api.audit>消息] - [{}]", message);
             apiAuditService.logApiAudit(JacksonUtils.readValue(message, ApiAuditMessage.class));
         } catch (Exception e) {
             log.error("消费kafka<topic.api.audit>消息失败", e);
