@@ -69,16 +69,9 @@ public class GraphRelationController implements SdkOldApiInterface {
 
     })
     public RestResp<GraphBean> relation(@Valid @ApiIgnore RelationGraphParameter generalGraphParameter) {
-        long start = System.currentTimeMillis();
         RelationReqAnalysisReqList req = ExploreReqConverter.generalGraphParameterToRelationReqAnalysisReq(generalGraphParameter);
-        log.error("generalGraphParameterToRelationReqAnalysisReq" + (System.currentTimeMillis() - start));
-        start = System.currentTimeMillis();
         ApiReturn<RelationAnalysisRsp> rspApiReturn = appClient.relationAnalysis(generalGraphParameter.getKgName(), req);
-        log.error("relationAnalysis" + (System.currentTimeMillis() - start));
-        start = System.currentTimeMillis();
         GraphBean convert = BasicConverter.convert(rspApiReturn, ExploreRspConverter::statisticRspToGraphBean);
-        log.error("statisticRspToGraphBean" + (System.currentTimeMillis() - start));
-        start = System.currentTimeMillis();
         return new RestResp<>(convert);
     }
 
