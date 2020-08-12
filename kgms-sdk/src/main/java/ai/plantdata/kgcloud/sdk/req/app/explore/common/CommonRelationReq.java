@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -22,4 +23,6 @@ public class CommonRelationReq {
     @NotNull
     @ListLengthCheck(min = 2)
     private List<Long> ids;
+    @Max(1000000)
+    private Integer degreeLimit;
 }

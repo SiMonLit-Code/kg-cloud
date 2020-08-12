@@ -32,5 +32,4 @@ public class PathGraphParameter extends AbstractGraphParameter implements StatsG
     private Boolean isShortest = false;
     private List<GraphStatBean> statsConfig;
 
-
 }

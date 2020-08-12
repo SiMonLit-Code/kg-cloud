@@ -106,6 +106,7 @@ public class GraphReqConverter extends BasicConverter {
 
     private static void fillRelation(@NonNull CommonRelationReq relation, RelationFrom graphFrom) {
         graphFrom.setIds(relation.getIds());
+        graphFrom.setDegreeLimit(relation.getDegreeLimit());
     }
 
     private static void fillCommon(@NonNull CommonFiltersReq common, PageReq page, GraphFrom graphFrom) {
@@ -145,6 +146,7 @@ public class GraphReqConverter extends BasicConverter {
         pathFrom.setStart(pathReq.getStart());
         pathFrom.setEnd(pathReq.getEnd());
         pathFrom.setShortest(pathReq.isShortest());
+        pathFrom.setDegreeLimit(pathReq.getDegreeLimit());
     }
 
     private static <T extends CommonFilter> void fillTimeFilters(TimeFilterExploreReq timeFilter, T commonFilter) {

@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -26,5 +25,8 @@ public class CommonPathReq {
     private Long end;
     @ApiModelProperty("是否是最短路径")
     private boolean shortest;
+    @ApiModelProperty("？")
+    @Max(100000)
+    private Integer degreeLimit;
 
 }
