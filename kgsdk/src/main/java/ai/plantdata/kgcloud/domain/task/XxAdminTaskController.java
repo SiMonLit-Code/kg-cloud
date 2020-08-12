@@ -2,6 +2,7 @@ package ai.plantdata.kgcloud.domain.task;
 
 import ai.plantdata.cloud.bean.ApiReturn;
 import ai.plantdata.cloud.bean.BasePage;
+import ai.plantdata.kgcloud.domain.common.module.TaskOptInterface;
 import ai.plantdata.kgcloud.sdk.XxlAdminClient;
 import ai.plantdata.kgcloud.sdk.bean.ExecBean;
 import ai.plantdata.kgcloud.sdk.bean.ExecListReq;
@@ -26,7 +27,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("v3/task/xxl")
-public class XxAdminTaskController {
+public class XxAdminTaskController implements TaskOptInterface {
 
     @Autowired
     private XxlAdminClient xxlAdminClient;
