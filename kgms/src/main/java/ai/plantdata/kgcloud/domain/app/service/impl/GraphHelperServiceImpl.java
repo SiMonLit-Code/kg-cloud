@@ -28,12 +28,8 @@ import ai.plantdata.kgcloud.domain.app.util.JsonUtils;
 import ai.plantdata.kgcloud.domain.common.util.KGUtil;
 import ai.plantdata.kgcloud.domain.graph.attr.entity.GraphAttrGroupDetails;
 import ai.plantdata.kgcloud.domain.graph.attr.repository.GraphAttrGroupDetailsRepository;
-import ai.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
-import ai.plantdata.kgcloud.sdk.req.app.LayerKnowledgeRecommendReqList;
 import ai.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import ai.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
-import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
-import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import ai.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.explore.CommonEntityRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.explore.GraphRelationRsp;
@@ -212,99 +208,45 @@ public class GraphHelperServiceImpl implements GraphHelperService {
     }
 
     @Override
-    public void replaceKwToId(String kgName, BatchInfoBoxReqList req) {
-        List<Long> entityIdList = Lists.newArrayList();
-        if (CollectionUtils.isEmpty(req.getIds()) || req.getIds().get(0) == null) {
-            List<String> kws = req.getKws();
-            if (CollectionUtils.isEmpty(kws)) {
-                return;
-            }
-            for (String kw : kws) {
-                MongoQueryFrom query = new MongoQueryFrom();
-                query.setKgName(KGUtil.dbName(kgName));
-                query.setCollection("basic_info");
-                List<Map<String, Object>> mathMapList = Lists.newArrayList();
-                mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", kw)));
-                query.setQuery(mathMapList);
-                RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
-                List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
-                entityIdList.addAll(ids);
-            }
-            if (CollectionUtils.isEmpty(entityIdList)) {
-                return;
-            }
-            req.setIds(entityIdList);
+    public void replaceEntityNameToId(String kgName, BatchEntityName2Id req) {
+        if (!CollectionUtils.isEmpty(req.getIds()) || CollectionUtils.isEmpty(req.getKws())) {
+            return;
+        }
+        List<Long> entityIds = searchIdsByEntityName(kgName, req.getKws());
+        if (!CollectionUtils.isEmpty(entityIds)) {
+            req.setIds(entityIds);
         }
     }
 
     @Override
-    public void replaceKwToId(String kgName, BatchMultiModalReqList req) {
-        List<Long> entityIdList = Lists.newArrayList();
-        if (CollectionUtils.isEmpty(req.getIds()) || req.getIds().get(0) == null) {
-            List<String> kws = req.getKws();
-            if (CollectionUtils.isEmpty(kws)) {
-                return;
-            }
-            for (String kw : kws) {
-                MongoQueryFrom query = new MongoQueryFrom();
-                query.setKgName(KGUtil.dbName(kgName));
-                query.setCollection("basic_info");
-                List<Map<String, Object>> mathMapList = Lists.newArrayList();
-                mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", kw)));
-                query.setQuery(mathMapList);
-                RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
-                List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
-                entityIdList.addAll(ids);
-            }
-            if (CollectionUtils.isEmpty(entityIdList)) {
-                return;
-            }
-            req.setIds(entityIdList);
-        }
-    }
-
-    @Override
-    public void replaceKwToId(String kgName, KnowledgeRecommendReqList req) {
+    public void replaceEntityNameToId(String kgName, EntityName2Id req) {
         if (req.getEntityId() == null) {
             String kw = req.getKw();
             if (StringUtils.isBlank(kw)) {
                 return;
             }
-            MongoQueryFrom query = new MongoQueryFrom();
-            query.setKgName(KGUtil.dbName(kgName));
-            query.setCollection("basic_info");
-            List<Map<String, Object>> mathMapList = Lists.newArrayList();
-            mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", kw)));
-            query.setQuery(mathMapList);
-            RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
-            List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(ids)) {
-                return;
-            }
-            req.setEntityId(ids.get(0));
+            List<Long> entityIds = searchIdsByEntityName(kgName, Lists.newArrayList(kw));
+            req.setEntityId(entityIds.get(0));
         }
     }
 
-    @Override
-    public void replaceKwToId(String kgName, LayerKnowledgeRecommendReqList req) {
-        if (req.getEntityId() == null) {
-            String kw = req.getKw();
-            if (StringUtils.isBlank(kw)) {
-                return;
-            }
-            MongoQueryFrom query = new MongoQueryFrom();
-            query.setKgName(KGUtil.dbName(kgName));
-            query.setCollection("basic_info");
-            List<Map<String, Object>> mathMapList = Lists.newArrayList();
-            mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", kw)));
-            query.setQuery(mathMapList);
-            RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
-            List<Long> ids = listRestResp.getData().stream().map(s -> Long.valueOf(s.get("id").toString())).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(ids)) {
-                return;
-            }
-            req.setEntityId(ids.get(0));
-        }
+    private List<Long> searchIdsByEntityName(String kgName, List<String> nameList) {
+        return nameList.stream()
+                .flatMap(name -> {
+                    MongoQueryFrom query = new MongoQueryFrom();
+                    query.setKgName(KGUtil.dbName(kgName));
+                    query.setCollection("basic_info");
+                    List<Map<String, Object>> mathMapList = Lists.newArrayList();
+                    mathMapList.add(DefaultUtils.oneElMap("$match", DefaultUtils.oneElMap("name", name)));
+                    query.setQuery(mathMapList);
+                    RestResp<List<Map<String, Object>>> listRestResp = mongoApi.postJson(query);
+                    Optional<List<Map<String, Object>>> opt = RestRespConverter.convert(listRestResp);
+
+                    return opt.map(a -> a.stream().map(s -> Long.valueOf(s.get("id").toString()))).orElse(null);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
+
 
 }

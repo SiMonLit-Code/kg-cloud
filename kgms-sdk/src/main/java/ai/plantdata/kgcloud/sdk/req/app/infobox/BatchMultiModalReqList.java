@@ -1,5 +1,6 @@
 package ai.plantdata.kgcloud.sdk.req.app.infobox;
 
+import ai.plantdata.kgcloud.sdk.req.app.function.BatchEntityName2Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.List;
 @ApiModel("知识卡片多模态文件-参数(批量)")
 @Getter
 @Setter
-public class BatchMultiModalReqList {
+public class BatchMultiModalReqList implements BatchEntityName2Id {
 
     @ApiModelProperty("实体id、概念id")
     private List<Long> ids;

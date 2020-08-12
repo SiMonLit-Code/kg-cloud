@@ -137,7 +137,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         //replace attrKey
         graphHelperService.replaceByAttrKey(kgName, knowledgeRecommendReq);
         // 实体id为空时，将实体名称转成实体id
-        graphHelperService.replaceKwToId(kgName, knowledgeRecommendReq);
+        graphHelperService.replaceEntityNameToId(kgName, knowledgeRecommendReq);
 
         Optional<Map<Integer, Set<Long>>> entityAttrOpt = RestRespConverter.convert(entityApi.entityAttributesObject(KGUtil.dbName(kgName), KnowledgeRecommendConverter.reqToFrom(knowledgeRecommendReq)));
         if (!entityAttrOpt.isPresent()) {
@@ -245,7 +245,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
         graphHelperService.replaceByAttrKey(kgName, req);
         List<InfoBoxRsp> infoBoxRspList = Lists.newArrayList();
         // 判断id是否为空，为空用实体名称查询
-        graphHelperService.replaceKwToId(kgName, req);
+        graphHelperService.replaceEntityNameToId(kgName, req);
         //实体
         BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxReqToBasicDetailFilter(req);
         detailFilter.setEntity(true);
@@ -348,7 +348,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
         List<InfoboxMultiModelRsp> infoboxMultiModelRspList = Lists.newArrayList();
         // 判断id是否为空，为空用实体名称查询
-        graphHelperService.replaceKwToId(kgName, req);
+        graphHelperService.replaceEntityNameToId(kgName, req);
 
         //实体
         BasicDetailFilter detailFilter = InfoBoxConverter.batchInfoBoxMultiModalReqToBasicDetailFilter(req);
@@ -376,7 +376,7 @@ public class GraphApplicationServiceImpl implements GraphApplicationService {
 
 
         // 实体id为空时，将实体名称转成实体id
-        graphHelperService.replaceKwToId(kgName, recommendParam);
+        graphHelperService.replaceEntityNameToId(kgName, recommendParam);
 
         if (recommendParam.getEntityId() == null && org.springframework.util.StringUtils.isEmpty(recommendParam.getKw())) {
             throw BizException.of(AppErrorCodeEnum.NULL_KW_AND_ID);

@@ -1,6 +1,7 @@
 package ai.plantdata.kgcloud.sdk.req.app.infobox;
 
 import ai.plantdata.kgcloud.sdk.req.app.function.AttrDefListKeyReqInterface;
+import ai.plantdata.kgcloud.sdk.req.app.function.BatchEntityName2Id;
 import ai.plantdata.kgcloud.sdk.validator.ChooseCheck;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +18,7 @@ import java.util.List;
 @ApiModel("知识卡片-参数(批量)")
 @Getter
 @Setter
-public class BatchInfoBoxReqList implements AttrDefListKeyReqInterface {
+public class BatchInfoBoxReqList implements AttrDefListKeyReqInterface, BatchEntityName2Id {
     @ApiModelProperty("实体id、概念id")
     private List<Long> ids;
     @ApiModelProperty("实体名称,当id为空时生效")
