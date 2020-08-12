@@ -29,6 +29,7 @@ public class PathGraphParameter extends AbstractGraphParameter implements StatsG
     @Max(value = 10, message = "步长不可超过10步")
     @Min(value = 1, message = "步长最小为1")
     private Integer distance = 1;
+    private Integer degreeLimit;
     private Boolean isShortest = false;
     private List<GraphStatBean> statsConfig;
 

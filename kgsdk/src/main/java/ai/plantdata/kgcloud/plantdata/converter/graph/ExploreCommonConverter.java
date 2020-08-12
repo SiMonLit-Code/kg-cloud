@@ -75,6 +75,7 @@ public class ExploreCommonConverter extends BasicConverter {
     static <T extends PathGraphParameter> CommonPathReq buildPathReq(T pathGraphParam) {
         CommonPathReq commonPathReq = new CommonPathReq();
         commonPathReq.setEnd(pathGraphParam.getEnd());
+        commonPathReq.setDegreeLimit(pathGraphParam.getDegreeLimit());
         commonPathReq.setStart(pathGraphParam.getStart());
         consumerIfNoNull(pathGraphParam.getIsShortest(), commonPathReq::setShortest);
         return commonPathReq;
@@ -83,6 +84,7 @@ public class ExploreCommonConverter extends BasicConverter {
     static <T extends RelationGraphParameter> CommonRelationReq buildRelationReq(T relationParam) {
         CommonRelationReq relationReq = new CommonRelationReq();
         relationReq.setIds(relationParam.getIds());
+        relationReq.setDegreeLimit(relationParam.getDegreeLimit());
         return relationReq;
     }
 

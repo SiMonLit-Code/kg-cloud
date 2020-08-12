@@ -31,6 +31,7 @@ public class RelationGraphParameter extends AbstractGraphParameter implements St
     @NotNull
     @ListLengthCheck(min = 2)
     private List<Long> ids;
+    private Integer degreeLimit;
     private List<GraphStatBean> statsConfig;
 
 
