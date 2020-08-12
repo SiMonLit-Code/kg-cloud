@@ -109,7 +109,6 @@ public class RelationConverter extends BasicConverter {
         beanScore.setAttrTimeFrom(rsp.getAttrTimeFrom());
         beanScore.setAttrTimeTo(rsp.getAttrTimeTo());
         consumerIfNoNull(rsp.getFromEntity(), a -> {
-            beanScore.setAttrTimeFrom(a.getId().toString());
             beanScore.setEntityConcept(a.getConceptId());
             beanScore.setEntityName(a.getName());
             beanScore.setEntityId(a.getId());
@@ -117,7 +116,6 @@ public class RelationConverter extends BasicConverter {
         });
         consumerIfNoNull(rsp.getToEntity(), a -> {
             beanScore.setAttrValueId(a.getId());
-            beanScore.setAttrTimeTo(a.getId().toString());
             beanScore.setAttrValueConcept(a.getConceptId());
             beanScore.setAttrValueName(a.getName());
             beanScore.setAttrValueMeaningTag(a.getMeaningTag());

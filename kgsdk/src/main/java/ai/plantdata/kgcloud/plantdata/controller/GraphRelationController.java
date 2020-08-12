@@ -1,12 +1,15 @@
 package ai.plantdata.kgcloud.plantdata.controller;
 
 import ai.plantdata.cloud.bean.ApiReturn;
+import ai.plantdata.kgcloud.plantdata.converter.common.ApiReturnConverter;
 import ai.plantdata.kgcloud.plantdata.converter.graph.ExploreReqConverter;
 import ai.plantdata.kgcloud.plantdata.converter.graph.ExploreRspConverter;
 import ai.plantdata.kgcloud.plantdata.req.explore.common.GraphBean;
 import ai.plantdata.kgcloud.plantdata.req.explore.relation.RelationGraphParameter;
 import ai.plantdata.kgcloud.plantdata.req.explore.relation.RuleRelationGraphParameter;
 import ai.plantdata.kgcloud.plantdata.req.explore.relation.TimeRelationGraphParameter;
+import ai.plantdata.kgcloud.sdk.req.app.explore.RelationReqAnalysisReqList;
+import ai.plantdata.kgcloud.sdk.rsp.app.analysis.RelationAnalysisRsp;
 import cn.hiboot.mcn.core.model.result.RestResp;
 import ai.plantdata.kgcloud.plantdata.converter.common.BasicConverter;
 import ai.plantdata.kgcloud.plantdata.converter.common.ConverterTemplate;
@@ -18,6 +21,7 @@ import ai.plantdata.kgcloud.sdk.rsp.app.analysis.RelationTimingAnalysisRsp;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +39,7 @@ import java.util.function.Function;
  */
 @RestController("graphRelationController-v2")
 @RequestMapping
+@Slf4j
 public class GraphRelationController implements SdkOldApiInterface {
 
     @Autowired
@@ -65,12 +70,10 @@ public class GraphRelationController implements SdkOldApiInterface {
     })
 
     public RestResp<GraphBean> relation(@Valid @ApiIgnore RelationGraphParameter generalGraphParameter) {
-        GraphBean graphBean = ConverterTemplate.factory(
-                ExploreReqConverter::generalGraphParameterToRelationReqAnalysisReq,
-                a -> appClient.relationAnalysis(generalGraphParameter.getKgName(), a),
-                ExploreRspConverter::statisticRspToGraphBean)
-                .execute(generalGraphParameter);
-        return new RestResp<>(graphBean);
+        RelationReqAnalysisReqList req = ExploreReqConverter.generalGraphParameterToRelationReqAnalysisReq(generalGraphParameter);
+        ApiReturn<RelationAnalysisRsp> rspApiReturn = appClient.relationAnalysis(generalGraphParameter.getKgName(), req);
+        GraphBean convert = BasicConverter.convert(rspApiReturn, ExploreRspConverter::statisticRspToGraphBean);
+        return new RestResp<>(convert);
     }
 
     @ApiOperation("时序关联分析")
