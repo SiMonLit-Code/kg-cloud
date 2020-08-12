@@ -61,8 +61,9 @@ public class GraphRelationController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "reservedAttFilters", dataType = "string", paramType = "form", value = "保留属性过滤条件，seqNo说明：3.权重，11.来源，12.置信度，13.批次号，15，自定义名称。格式 [{\"seqNo\":\"边数值属性id\",\"$eq\":\"字段全匹配\"},{\"seqNo\":\"边数值属性id\",\"$gt\":\"大于\",\"$lt\":\"小于\"}]"),
             @ApiImplicitParam(name = "isInherit", dataType = "boolean", paramType = "form", value = "allowTypes字段指定的概念是否继承"),
             @ApiImplicitParam(name = "statsConfig", dataType = "string", paramType = "form", value = "统计，统计节点的关系数量，默认为不进行图统计。"),
-
+            @ApiImplicitParam(name = "degreeLimit", dataType = "int(32)", paramType = "form", value = "边数量限制")
     })
+
     public RestResp<GraphBean> relation(@Valid @ApiIgnore RelationGraphParameter generalGraphParameter) {
         GraphBean graphBean = ConverterTemplate.factory(
                 ExploreReqConverter::generalGraphParameterToRelationReqAnalysisReq,
@@ -97,6 +98,7 @@ public class GraphRelationController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "toTime", dataType = "string", paramType = "form", value = "结束时间，格式yyyy-MM-dd，默认当前时间"),
             @ApiImplicitParam(name = "sort", dataType = "int", paramType = "form", value = "按时间排序:-1=desc 1=asc"),
             @ApiImplicitParam(name = "timeFilterType", dataType = "int", paramType = "form", value = "时间筛选类型，0 不按时间不筛选, 1以节点的时间筛选,  2 以关系的时间筛选, 3 以关系与节点的时间筛选"),
+            @ApiImplicitParam(name = "degreeLimit", dataType = "int(32)", paramType = "form", value = "边数量限制")
     })
     public RestResp<GraphBean> relationTiming(@Valid @ApiIgnore TimeRelationGraphParameter generalGraphParameter) {
         Function<RelationTimingAnalysisReqList, ApiReturn<RelationTimingAnalysisRsp>> returnFunction = a -> appClient.relationTimingAnalysis(generalGraphParameter.getKgName(), a);
@@ -133,6 +135,7 @@ public class GraphRelationController implements SdkOldApiInterface {
             @ApiImplicitParam(name = "toTime", dataType = "string", paramType = "form", value = "结束时间，格式yyyy-MM-dd，默认当前时间"),
             @ApiImplicitParam(name = "sort", dataType = "int", paramType = "form", value = "按时间排序:-1=desc 1=asc"),
             @ApiImplicitParam(name = "timeFilterType", dataType = "int", paramType = "form", value = "时间筛选类型，0 不按时间不筛选, 1以节点的时间筛选,  2 以关系的时间筛选, 3 以关系与节点的时间筛选"),
+            @ApiImplicitParam(name = "degreeLimit", dataType = "int(32)", paramType = "form", value = "边数量限制")
     })
     public RestResp<GraphBean> relationRule(@Valid @ApiIgnore RuleRelationGraphParameter parameter) {
         Function<RelationReasoningAnalysisReqList, ApiReturn<RelationReasoningAnalysisRsp>> returnFunction = a -> appClient.relationReasoningAnalysis(parameter.getKgName(), a);

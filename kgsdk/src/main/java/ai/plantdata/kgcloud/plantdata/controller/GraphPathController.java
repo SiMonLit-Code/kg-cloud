@@ -42,6 +42,7 @@ public class GraphPathController implements SdkOldApiInterface {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "start", required = true, dataType = "long", paramType = "form", value = "开始实体id"),
+            @ApiImplicitParam(name = "degreeLimit", dataType = "int(32)", paramType = "form", value = "边数量限制"),
             @ApiImplicitParam(name = "end", required = true, dataType = "long", paramType = "form", value = "结束实体id"),
             @ApiImplicitParam(name = "distance", dataType = "int", paramType = "form", value = "查询层数"),
             @ApiImplicitParam(name = "isShortest", dataType = "boolean", paramType = "form", value = "是否只查询最短路径"),
@@ -76,6 +77,7 @@ public class GraphPathController implements SdkOldApiInterface {
     @ApiOperation("时序路径发现")
     @PostMapping("path/timing")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "degreeLimit", dataType = "int(32)", paramType = "form", value = "边数量限制"),
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "start", required = true, dataType = "long", paramType = "form", value = "开始实体id"),
             @ApiImplicitParam(name = "end", required = true, dataType = "long", paramType = "form", value = "结束实体id"),
@@ -114,6 +116,7 @@ public class GraphPathController implements SdkOldApiInterface {
     @ApiOperation("最短路径发现")
     @PostMapping("path/shortest")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "degreeLimit", dataType = "int(32)", paramType = "form", value = "边数量限制"),
             @ApiImplicitParam(name = "kgName", required = true, dataType = "string", paramType = "query", value = "图谱名称"),
             @ApiImplicitParam(name = "start", required = true, dataType = "long", paramType = "form", value = "开始实体id"),
             @ApiImplicitParam(name = "end", required = true, dataType = "long", paramType = "form", value = "结束实体id"),
