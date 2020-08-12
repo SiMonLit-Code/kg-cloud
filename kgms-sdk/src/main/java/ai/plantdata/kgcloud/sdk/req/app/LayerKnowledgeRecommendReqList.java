@@ -1,5 +1,6 @@
 package ai.plantdata.kgcloud.sdk.req.app;
 
+import ai.plantdata.kgcloud.sdk.req.app.function.EntityName2Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.util.Map;
  */
 @ApiModel("多层知识推荐参数")
 @Data
-public class LayerKnowledgeRecommendReqList {
+public class LayerKnowledgeRecommendReqList implements EntityName2Id {
 
     @ApiModelProperty("实例id")
     private Long entityId;

@@ -2,13 +2,9 @@ package ai.plantdata.kgcloud.domain.app.service;
 
 import ai.plantdata.kg.common.bean.BasicInfo;
 import ai.plantdata.kgcloud.domain.app.dto.GraphRspDTO;
-import ai.plantdata.kgcloud.sdk.req.app.KnowledgeRecommendReqList;
-import ai.plantdata.kgcloud.sdk.req.app.LayerKnowledgeRecommendReqList;
 import ai.plantdata.kgcloud.sdk.req.app.explore.common.BasicGraphExploreReqList;
 import ai.plantdata.kgcloud.sdk.req.app.explore.common.BasicStatisticReq;
 import ai.plantdata.kgcloud.sdk.req.app.function.*;
-import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchInfoBoxReqList;
-import ai.plantdata.kgcloud.sdk.req.app.infobox.BatchMultiModalReqList;
 import ai.plantdata.kgcloud.sdk.rsp.app.explore.BasicGraphExploreRsp;
 import ai.plantdata.kgcloud.sdk.rsp.app.statistic.StatisticRsp;
 
@@ -58,33 +54,6 @@ public interface GraphHelperService {
 
     void replaceByAttrKey(String kgName, AttrDefKeyReqInterface attrDefKeyReq, boolean requireAny);
 
-    /**
-     * 替换知识卡片中实体名称 为 实体id
-     * @param kgName
-     * @param req
-     */
-    void replaceKwToId(String kgName, BatchInfoBoxReqList req);
-
-    /**
-     * 替换知识卡片多模态文化部中实体名称 为 实体id
-     * @param kgName
-     * @param req
-     */
-    void replaceKwToId(String kgName, BatchMultiModalReqList req);
-
-    /**
-     * 替换知识推荐片中实体名称 为 实体id
-     * @param kgName
-     * @param req
-     */
-    void replaceKwToId(String kgName, KnowledgeRecommendReqList req);
-
-    /**
-     * 替换知识推荐片中实体名称 为 实体id
-     * @param kgName
-     * @param req
-     */
-    void replaceKwToId(String kgName, LayerKnowledgeRecommendReqList req);
 
     Map<Long, BasicInfo> getConceptIdMap(String kgName);
 
@@ -114,7 +83,6 @@ public interface GraphHelperService {
      *
      * @param kgName
      * @param configList
-     * @param graphVO
      * @param pathAnalysisRsp
      * @param graphAfter
      * @param <T>
@@ -122,4 +90,19 @@ public interface GraphHelperService {
      */
     <T extends StatisticRsp> T buildExploreRspWithStatistic(String kgName, List<BasicStatisticReq> configList, T pathAnalysisRsp, GraphRspDTO graphAfter);
 
+    /**
+     * 实体关键字替换为id
+     *
+     * @param kgName
+     * @param req
+     */
+    void replaceEntityNameToId(String kgName, EntityName2Id req);
+
+    /**
+     * 替换知识卡片中实体名称 为 实体id 精确
+     *
+     * @param kgName
+     * @param req
+     */
+    void replaceEntityNameToId(String kgName, BatchEntityName2Id req);
 }
