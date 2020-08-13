@@ -1,8 +1,10 @@
 package ai.plantdata.kgcloud.domain.graph.config.converter;
 
 import ai.plantdata.cloud.util.JacksonUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.persistence.AttributeConverter;
+import java.util.Map;
 
 /**
  * @description:

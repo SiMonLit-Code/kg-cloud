@@ -2,6 +2,7 @@ package ai.plantdata.kgcloud.domain.graph.config.entity;
 
 import ai.plantdata.kgcloud.domain.common.converter.JsonNodeConverter;
 import ai.plantdata.kgcloud.domain.graph.config.converter.ObjectConverter;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -43,10 +44,15 @@ public class GraphConfSnapshot {
     @Column(name = "kg_name")
     private String kgName;
 
-    @Column(name = "spa")
-    private String spa;
+    @Column(name = "name")
+    private String name;
 
-    @Basic
+    @Column(name = "remark")
+    private String remark;
+
+    @Column(name = "spa_id")
+    private String spaId;
+
     @Column(name = "snapshot_config")
     @Convert(converter = ObjectConverter.class)
     private Object snapshotConfig;
