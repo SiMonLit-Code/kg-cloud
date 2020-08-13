@@ -20,6 +20,28 @@ import java.util.List;
 @Component
 public class KgmsClientEx implements KgmsClient {
     @Override
+    public ApiReturn<GraphConfSnapshotRsp> saveSnapShot(GraphConfSnapshotReq graphConfSnapshotReq) {
+         return ApiReturn.fail(500,"请求超时");
+    }
+
+    @Override
+    public ApiReturn deleteSnapShot(Long id) {
+        return ApiReturn.fail(500,"请求超时");
+    }
+
+    @Override
+    public ApiReturn<BasePage<GraphConfSnapshotRsp>> findAllSnapShot(String kgName, String spaId, Integer page, Integer size) {
+        return ApiReturn.fail(500,"请求超时");
+    }
+
+
+
+    @Override
+    public ApiReturn<GraphConfSnapshotRsp> findByIdSnapShot(Long id) {
+        return ApiReturn.fail(500,"请求超时");
+    }
+
+    @Override
     public ApiReturn<List<GraphRsp>> graphFindAll() {
         return ApiReturn.fail(500,"请求超时");
     }

@@ -16,6 +16,23 @@ import java.util.List;
 @FeignClient(value = "kgms", contextId = "kgms",fallback = KgmsClientEx.class)
 public interface KgmsClient {
 
+    @ApiOperation("保存快照")
+    @PostMapping("/config/snapshot")
+    ApiReturn<GraphConfSnapshotRsp> saveSnapShot(@RequestBody GraphConfSnapshotReq graphConfSnapshotReq);
+
+    @ApiOperation("删除快照")
+    @DeleteMapping("/config/snapshot/{id}")
+     ApiReturn deleteSnapShot(@PathVariable("id") Long id);
+
+    @ApiOperation("图谱配置-查询所有快照")
+    @GetMapping("/config/snapshot/{kgName}/{spaId}")
+    ApiReturn<BasePage<GraphConfSnapshotRsp>> findAllSnapShot(@PathVariable("kgName") String kgName, @PathVariable("spaId") String spaId, @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                                              @RequestParam(value = "size", required = false, defaultValue = "10") Integer size);
+
+    @ApiOperation("图谱配置-单个快照")
+    @GetMapping("/config/snapshot/{id}")
+    ApiReturn<GraphConfSnapshotRsp> findByIdSnapShot(@PathVariable("id") Long id);
+
     @ApiOperation("图谱查找所有")
     @GetMapping("/graph/all")
     ApiReturn<List<GraphRsp>> graphFindAll();
